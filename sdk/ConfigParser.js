@@ -14,7 +14,8 @@ class ConfigParser {
 
             let config = require(configPath);
             this._http = config.http;
-            this._xmpp = config.xmpp;    
+            this._xmpp = config.xmpp;  
+            this._credentials = config.credentials;  
 
         } catch(err) {
             console.log(util.format('Path not found or no access rights to path %s with mode %s. %s', pathToCheck, err));
@@ -27,6 +28,10 @@ class ConfigParser {
 
     get xmpp() {
         return this._xmpp;
+    }
+
+    get credentials() {
+        return this._credentials;
     }
 };
 

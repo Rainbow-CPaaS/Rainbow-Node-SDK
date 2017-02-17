@@ -4,13 +4,17 @@ var chalk = require("chalk");
 var path = require('path');
 
 var ConfigParser = require(path.join(__dirname, 'ConfigParser.js'));
+var Connection = require(path.join(__dirname, 'Connection.js'));
+var HTTPService = require(path.join(__dirname, 'httpService.js'));
 
-const LOG_ID = '[PORTAL]';
+const LOG_ID = '[SDK       ]';
 
 class Loader {
 
     constructor(configPath) {
-        var config = ConfigParser.loadConfig(configPath);
+        this.config = ConfigParser.loadConfig(configPath);
+        this.connection = Connection.create(this.config.credentials);
+        this.http = HTTPService.create(this.config.http);
     }
 
     start()
@@ -21,7 +25,10 @@ class Loader {
             console.log(LOG_ID, '--                 Rainbow SDK NODE.JS                --');
             console.log(LOG_ID, '--------------------------------------------------------');
 
-            this._manageEvent();
+            this.load().then(function() {
+                this._manageEvent();
+            });
+            
         }
         catch(err) {
             console.log("ERROR", err.message);
@@ -30,8 +37,28 @@ class Loader {
         }
     }
 
+    load() {
+        var that = this;
+        return new Promise(function(resolve, reject) {
+            console.log(LOG_ID, 'Start all modules');
+            Promise.all([
+                that.http.start(),
+                that.connection.start(that.http)
+            ]).then(function() {
+                that.connection.login().then(function() {
+                    console.log(LOG_ID, "Logged!!!");
+                });
+            }).catch(function() {
+
+            });
+        });
+    }
+
     stop() {
-        
+        return Promise.all([
+            that.connection.stop(),
+            that.http.stop()
+        ]);
     }
 
     exit() {
