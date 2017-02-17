@@ -1,0 +1,14 @@
+{
+    "camelcase": true,
+    "curly": true,
+    "eqeqeq": true,
+    "esnext": true,
+    "freeze": true,
+    "maxdepth": 3,
+    "maxstatements": 15,
+    "node" : true,
+    "strict": true,
+    "globals": {
+        "module": true
+    }
+}
