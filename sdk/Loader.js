@@ -1,57 +1,58 @@
 'use strict';
 
 var chalk = require("chalk");
+var winston = require("winston");
 var path = require('path');
 
 var ConfigParser = require(path.join(__dirname, 'ConfigParser.js'));
 var Connection = require(path.join(__dirname, 'Connection.js'));
 var HTTPService = require(path.join(__dirname, 'httpService.js'));
 
-const LOG_ID = '[SDK       ]';
+const LOG_ID = '[SDK] ';
 
 class Loader {
 
     constructor(configPath) {
+        winston.level = "debug";
+        if(process.env.LOG_LEVEL) {
+            winston.level = process.env.LOG_LEVEL;
+        }
+        winston.log("info", LOG_ID + "constructor - begin");
         this.config = ConfigParser.loadConfig(configPath);
         this.connection = Connection.create(this.config.credentials);
-        this.http = HTTPService.create(this.config.http);
+        this.http = HTTPService.create(this.config.http, this.config.credentials);
+        winston.log("info", LOG_ID + "constructor - end");
     }
 
     start()
     {
         try
         {
-            console.log(LOG_ID, '--------------------------------------------------------');
-            console.log(LOG_ID, '--                 Rainbow SDK NODE.JS                --');
-            console.log(LOG_ID, '--------------------------------------------------------');
+            var that = this;
 
-            this.load().then(function() {
-                this._manageEvent();
+            winston.log("info", LOG_ID +  "start - begin");
+
+            return new Promise(function(resolve, reject) {
+                winston.log("info", LOG_ID +  "start - start all modules");
+                Promise.all([
+                    that.http.start(),
+                    that.connection.start(that.http)
+                ]).then(function() {
+                    that._manageEvent();
+                    winston.log("info", LOG_ID +  "start - all modules started successfully");
+                    that.connection.login().then(function() {
+                        winston.log("info", LOG_ID +  "start - signed in successfully");
+                        winston.log("info", LOG_ID +  "start - end");
+                    });
+                }).catch(function(err) {
+                    winston.log("error", LOG_ID + "start", err);
+                });
             });
-            
         }
         catch(err) {
-            console.log("ERROR", err.message);
-            console.log('Initialization failed');
+            winston.log("error", LOG_ID + "start", err);
             process.exit(-1);
         }
-    }
-
-    load() {
-        var that = this;
-        return new Promise(function(resolve, reject) {
-            console.log(LOG_ID, 'Start all modules');
-            Promise.all([
-                that.http.start(),
-                that.connection.start(that.http)
-            ]).then(function() {
-                that.connection.login().then(function() {
-                    console.log(LOG_ID, "Logged!!!");
-                });
-            }).catch(function() {
-
-            });
-        });
     }
 
     stop() {
@@ -70,23 +71,22 @@ class Loader {
 
     _manageEvent() {
 
-        process.on('SIGINT', () => {
-            console.log('%s Cautch a SIGINT signal', LOG_ID);
+        process.on('SIGINT', (err) => {
+            winston.log("error", LOG_ID + "SIGING", err);
             this.exit();
         });
 
-        process.on('SIGTERM', () => {
-            console.log('%s Cautch a SIGTERM signal', LOG_ID);
+        process.on('SIGTERM', (err) => {
+            winston.log("error", LOG_ID + "SIGTERM", err);
             this.exit();
         });
 
         process.on('exit', () => {
-            console.log(LOG_ID, 'BYE BYE');
+            winston.log("warn", LOG_ID + "exit");
         });
 
         process.on('uncaughtException', (err) => {
-            console.log('%s Unexpected exception %s', LOG_ID, err.toString());
-            console.log(err.stack);
+            winston.log("error", LOG_ID + "uncaughtException", err);
         });
     }
 }

@@ -2,53 +2,37 @@
 
 var unirest = require('unirest');
 var btoa = require('btoa');
+var winston = require("winston");
 
-const LOG_ID = '[HTTPSrv   ]';
+
+const LOG_ID = '[HTTP] ';
 
 class HTTPService {
 
-    constructor(_http) {
-        this.http = _http;
-        this.serverURL = this.http.protocol + "://" + this.http.host + ":" + this.http.port;
-        this.auth = "";
-        this.token = "";
+    constructor(_http, _credentials) {
+        console.log("HTTP", _http, _credentials);
+        this.serverURL = _http.protocol + "://" + _http.host + ":" + _http.port;
+        this.auth = btoa(_credentials.login + ":" + _credentials.password);
+        this.login = _credentials.login;
     }
 
     start() {
         var that = this;
+        winston.log("info", LOG_ID + "start - begin");
 
         return new Promise(function(resolve, reject) {
-            console.log(LOG_ID, "Module started");
-            console.log(LOG_ID, "REST Server = " + that.serverURL);
+            winston.log("debug", LOG_ID + "start", {"serverURL": that.serverURL});
+            winston.log("debug", LOG_ID + "start", {"loginEmail": that.login});
+            winston.log("info", LOG_ID + "start - end");
             resolve();
         });
     }
-
-    login(url, login, password) {
-        var that = this;
-
-        console.log(LOG_ID, "Trying for " + login);
-
-        return new Promise(function(resolve, reject) {
-            that.auth = btoa(login + ":" + password);
-            that.get(url).then(function(body) {
-                console.log(LOG_ID, "Logged!");
-                that.token = body.token;
-                resolve();
-            }).catch(function(err) {
-                console.log(LOG_ID, err);
-                reject(err);
-            })
-        });
-    }
-
+            
     get(url) {
 
         var that = this;
 
         return new Promise(function (resolve, reject) {
-
-            console.log(LOG_ID, "AUTH = " +that.auth);
 
             unirest.get(that.serverURL + url)
             .headers({
@@ -57,7 +41,6 @@ class HTTPService {
                 'Authorization': 'Basic ' + that.auth
             })
             .end(function (response) {
-                console.log(response);
                 if(response.code === 200) {
                     resolve(response.body);
                 }
@@ -74,6 +57,6 @@ class HTTPService {
     }
 };
 
-module.exports.create = function(config) {
-    return new HTTPService(config);
+module.exports.create = function(config, credentials) {
+    return new HTTPService(config, credentials);
 }

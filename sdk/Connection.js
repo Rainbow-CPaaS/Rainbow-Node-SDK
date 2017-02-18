@@ -1,21 +1,25 @@
 "use strict";
 
-const LOG_ID = '[CONNECTION]';
+var winston = require("winston");
+var jwt = require("jwt-decode");
+
+const LOG_ID = '[CONNECTION] ';
 
 class Connection {
 
-    constructor(_credentials) {
-        this.credentials = _credentials;
+    constructor() {
         this.http = null;
+        this.account = null;
+        this.token = null;
     }
 
     start(http) {
         var that = this;
         this.http = http;
 
+        winston.log("info", LOG_ID + "start - begin");
         return new Promise(function(resolve, reject) {
-            console.log(LOG_ID, "Module started");
-            console.log(LOG_ID, "Email = ", that.credentials.login);
+            winston.log("info", LOG_ID + "start - end");
             resolve();
         });
     }
@@ -24,15 +28,21 @@ class Connection {
 
         var that = this;
 
-        console.log(LOG_ID, "Login...");
+        winston.log("info", LOG_ID + "login - begin");
 
         return new Promise(function(resolve, reject) {
-            that.http.login('/api/rainbow/authentication/v1.0/login', that.credentials.login, that.credentials.password).then(function() {
-                console.log(LOG_ID, "Login OK !!!");
+            that.http.get('/api/rainbow/authentication/v1.0/login').then(function(JSON) {
+                that.account = JSON.loggedInUser;
+                that.token = JSON.token
+                winston.log("debug", LOG_ID + "login - Welcome " + that.account.displayName + '!');
+                var decoded = jwt(that.token);
+                winston.log("debug", LOG_ID + "login", decoded);
+                winston.log("info", LOG_ID + "login - end");
                 resolve();
-            }).catch(function() {
-                console.log(LOG_ID, "Login OK !!!");
-                reject();
+            }).catch(function(err) {
+                winston.log("error", LOG_ID, err);
+                winston.log("info", LOG_ID + "login - end");
+                reject(err);
             });
         });
         
