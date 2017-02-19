@@ -8,19 +8,20 @@ var ConfigParser = require(path.join(__dirname, 'ConfigParser.js'));
 var Connection = require(path.join(__dirname, 'Connection.js'));
 var HTTPService = require(path.join(__dirname, 'httpService.js'));
 
-const LOG_ID = '[SDK] ';
+const LOG_ID = '[LOADER] ';
 
 class Loader {
 
-    constructor(configPath) {
+    constructor(configPath, _eventEmitter) {
         winston.level = "debug";
         if(process.env.LOG_LEVEL) {
             winston.level = process.env.LOG_LEVEL;
         }
         winston.log("info", LOG_ID + "constructor - begin");
+        this.eventEmitter = _eventEmitter;
         this.config = ConfigParser.loadConfig(configPath);
-        this.connection = Connection.create(this.config.credentials);
-        this.http = HTTPService.create(this.config.http, this.config.credentials);
+        this.connection = Connection.create(this.config.credentials, this.eventEmitter);
+        this.http = HTTPService.create(this.config.http);
         winston.log("info", LOG_ID + "constructor - end");
     }
 
@@ -40,20 +41,55 @@ class Loader {
                 ]).then(function() {
                     that._manageEvent();
                     winston.log("info", LOG_ID +  "start - all modules started successfully");
-                    that.connection.login().then(function() {
-                        winston.log("info", LOG_ID +  "start - signed in successfully");
-                        winston.log("info", LOG_ID +  "start - end");
-                    });
+                    resolve();
                 }).catch(function(err) {
                     winston.log("error", LOG_ID + "start", err);
+                    reject(err);
                 });
             });
         }
         catch(err) {
             winston.log("error", LOG_ID + "start", err);
-            process.exit(-1);
+            reject(err);
         }
     }
+
+    signin() {
+        var that = this;
+        winston.log("info", LOG_ID +  "signin - begin");
+        return new Promise(function(resolve, reject) {
+            that.connection.signin().then(function() {
+                winston.log("info", LOG_ID +  "signin - signed in successfully");
+                winston.log("info", LOG_ID +  "signin - end");
+                resolve();
+            }).catch(function(err) {
+                winston.log("info", LOG_ID +  "signin - can't signed-in", err);
+                winston.log("info", LOG_ID +  "signin - end");
+                reject(err);
+            });
+        })
+    }
+
+    tokenSurvey() {
+        var that = this;
+
+        var onTokenRenewed = function onTokenRenewed() {
+            winston.log("info", LOG_ID +  "tokenSurvey - token successfully renewed");
+            that.connection.startTokenSurvey();
+        };
+
+        var onTokenExpired = function onTokenExpired() {
+            winston.log("info", LOG_ID +  "tokenSurvey - token expired. Signin required");
+            that.eventEmitter.removeListener('rainbow_tokenrenewed', onTokenRenewed);
+            that.eventEmitter.removeListener('rainbow_tokenexpired', onTokenExpired);
+            that.eventEmitter.emit('rainbow_signinrequired');
+        };
+
+        this.eventEmitter.on('rainbow_tokenrenewed', onTokenRenewed);
+        this.eventEmitter.on('rainbow_tokenexpired', onTokenExpired);
+        this.connection.startTokenSurvey();
+    }
+
 
     stop() {
         return Promise.all([
@@ -62,23 +98,22 @@ class Loader {
         ]);
     }
 
-    exit() {
+    exit(code) {
         // Kill the process whatever happens when closing
-        const KILL = () => {
-            process.exit(0);
-        };
+        process.exit(code);
     }
 
     _manageEvent() {
+        var that = this;
 
         process.on('SIGINT', (err) => {
             winston.log("error", LOG_ID + "SIGING", err);
-            this.exit();
+            that.exit(-1);
         });
 
         process.on('SIGTERM', (err) => {
             winston.log("error", LOG_ID + "SIGTERM", err);
-            this.exit();
+            that.exit(-1);
         });
 
         process.on('exit', () => {
@@ -91,6 +126,6 @@ class Loader {
     }
 }
 
-module.exports.create = function(config) {
-    return new Loader(config);
+module.exports.create = function(config, eventEmitter) {
+    return new Loader(config, eventEmitter);
 }
