@@ -4,7 +4,6 @@ var path = require('path');
 const fs = require('file-system');
 const util = require('util');
 
-
 class ConfigParser {
     constructor(configPath) {
 

@@ -3,7 +3,6 @@
 var unirest = require('unirest');
 var winston = require("winston");
 
-
 const LOG_ID = '[HTTP] ';
 
 class HTTPService {

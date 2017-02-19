@@ -1,10 +1,6 @@
 'use strict';
-
-
-
 /**
     Started code : load the sdk module and start it
-
     @module nodeSDK
 */
 (function() {

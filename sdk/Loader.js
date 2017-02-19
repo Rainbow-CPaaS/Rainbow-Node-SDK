@@ -1,6 +1,5 @@
 'use strict';
 
-var chalk = require("chalk");
 var winston = require("winston");
 var path = require('path');
 
