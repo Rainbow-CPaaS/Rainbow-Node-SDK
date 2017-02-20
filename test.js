@@ -1,6 +1,6 @@
-'use strict';
+var NodeSDK = require('./index');
 
-module.exports = {
+var nodeSDK = new NodeSDK({
     http: {
         "host": "sandbox.openrainbow.com",
         "port": "443",
@@ -15,4 +15,6 @@ module.exports = {
         "port" : "443",
 		"protocol" : "wss"
     }
-}
+});
+
+nodeSDK.start();
