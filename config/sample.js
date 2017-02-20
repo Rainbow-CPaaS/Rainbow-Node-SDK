@@ -11,6 +11,8 @@ module.exports = {
         "password": "Password_123"
     },
     xmpp: {
-
+		"host" : "sandbox.openrainbow.com",
+        "port" : "443",
+		"protocol" : "wss"
     }
 }

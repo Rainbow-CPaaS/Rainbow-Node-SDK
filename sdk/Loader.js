@@ -6,6 +6,7 @@ var path = require('path');
 var ConfigParser = require(path.join(__dirname, 'ConfigParser.js'));
 var Connection = require(path.join(__dirname, 'Connection.js'));
 var HTTPService = require(path.join(__dirname, 'httpService.js'));
+var WSService = require(path.join(__dirname, 'WSService.js'));
 
 const LOG_ID = '[LOADER] ';
 
@@ -21,6 +22,7 @@ class Loader {
         this.config = ConfigParser.loadConfig(configPath);
         this.connection = Connection.create(this.config.credentials, this.eventEmitter);
         this.http = HTTPService.create(this.config.http);
+        this.ws = WSService.create(this.config.xmpp);
         winston.log("info", LOG_ID + "constructor - end");
     }
 
@@ -36,7 +38,8 @@ class Loader {
                 winston.log("info", LOG_ID +  "start - start all modules");
                 Promise.all([
                     that.http.start(),
-                    that.connection.start(that.http)
+                    that.connection.start(that.http),
+                    that.ws.start()
                 ]).then(function() {
                     that._manageEvent();
                     winston.log("info", LOG_ID +  "start - all modules started successfully");
@@ -58,6 +61,8 @@ class Loader {
         winston.log("info", LOG_ID +  "signin - begin");
         return new Promise(function(resolve, reject) {
             that.connection.signin().then(function() {
+                return that.ws.signin(that.connection.loggedInUser);
+            }).then(function() {
                 winston.log("info", LOG_ID +  "signin - signed in successfully");
                 winston.log("info", LOG_ID +  "signin - end");
                 resolve();
@@ -93,7 +98,8 @@ class Loader {
     stop() {
         return Promise.all([
             that.connection.stop(),
-            that.http.stop()
+            that.http.stop(),
+            that.ws.stop()
         ]);
     }
 

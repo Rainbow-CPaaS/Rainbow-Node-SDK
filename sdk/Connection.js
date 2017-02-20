@@ -47,6 +47,10 @@ class Connection {
         });
     }
 
+    get loggedInUser () {
+        return this.account;
+    }
+
     signin() {
 
         var that = this;
