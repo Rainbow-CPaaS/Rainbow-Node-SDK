@@ -16,9 +16,13 @@ class NodeSDK {
             signinAndRenewToken();
         });
 
+        this.eventEmitter.on('rainbow_xmppconnected', function() {
+            that.loader.sendInitialPresence();
+        });
+
         signinAndRenewToken = () => { 
             that.loader.signin().then(function() {
-                return that.loader.tokenSurvey();
+                that.loader.tokenSurvey();
             }).catch(function() {
                 process.exit(-1);
             });
