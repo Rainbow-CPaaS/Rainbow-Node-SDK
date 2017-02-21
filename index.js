@@ -8,21 +8,29 @@ var signinAndRenewToken;
 class NodeSDK {
 
     constructor(options) {
+        // private
         var that = this;
-        this.eventEmitter = new EventEmitter();
-        this.loader = new Loader(options, this.eventEmitter);
+        this._evEmitter = new EventEmitter();
+        this._loader = new Loader(options, this._evEmitter);
 
-        this.eventEmitter.on('rainbow_signinrequired', function() {
+        // public
+        this.events = new EventEmitter();
+
+        this._evEmitter.on('rainbow_signinrequired', function() {
             signinAndRenewToken();
         });
 
-        this.eventEmitter.on('rainbow_xmppconnected', function() {
-            that.loader.sendInitialPresence();
+        this._evEmitter.on('rainbow_xmppconnected', function() {
+            that._loader.sendInitialPresence();
+        });
+
+        this._evEmitter.on('rainbow_onmessagereceived', function(json) {
+            that.events.emit('rainbow_onmessagereceived', json);
         });
 
         signinAndRenewToken = () => { 
-            that.loader.signin().then(function() {
-                that.loader.tokenSurvey();
+            that._loader.signin().then(function() {
+                that._loader.tokenSurvey();
             }).catch(function() {
                 process.exit(-1);
             });
@@ -30,7 +38,7 @@ class NodeSDK {
     }
 
     start() {
-        this.loader.start().then(function() {
+        this._loader.start().then(function() {
             signinAndRenewToken();
         });
     }
@@ -38,6 +46,8 @@ class NodeSDK {
     stop() {
 
     }
+
+    
 
 }
 
