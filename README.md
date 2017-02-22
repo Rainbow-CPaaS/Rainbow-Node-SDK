@@ -32,7 +32,7 @@ If you encounter any bugs, lack of functionality or other problems regarding the
 
 ## Install
 
-```
+```bash
 $ npm install --save rainbow-node-sdk
 ```
 
@@ -58,33 +58,49 @@ The **options** parameter allows to enter your credentials and to target the Rai
 // Define your configuration
 var options = {
     rainbow: {
-        "host": "sandbox",  // can be "sandbox" (developer platform) or "official"
+        host: "sandbox",  // can be "sandbox" (developer platform) or "official"
     },
     credentials: {
-        "login": "<your_rainbow_login_email>",  // Your email account
-        "password": "<your_rainbow_password>"   // Your password
+        login: "<your_rainbow_login_email>",  // Your email account
+        password: "<your_rainbow_password>"   // Your password
     }
 };
 ```
 
 ## Instant Messaging
 
-### Listen to new IM messages
+### Listen to new IM messages and answer to them
 
 Listening to instant messages that come from other users is very easy. You just have to use the **'events'** public property and to subscribe to the **'rainbow_onmessagereceived'** event:
 
 ```js
 ...
 rainbowSDK.events.on('rainbow_onmessagereceived', function(json) {
-    // do something with the message received
+    // do something with the message received 
     ...
+    // send an answer
+    rainbowSDK.sendAMessage(json.from, 'This answer comes from the Node.js SDK for Rainbow');
 });
 
 ```
 
+## List of events
+
+Here is the complete list of the events that you can subscribe on:
+
+| Event | Description |
+|------|------------|
+| 'rainbow_onconnected' | Sent when the connection is successfull with Rainbow (signin complete) |
+| 'rainbow_onerror' | Sent when something goes wrong (ie: impossible to sign-in...) |
+| 'rainbow_onmessagereceived | Sent when a One-to-One message is received |
+
 ## Features provided
 
 Here is the list of the features provided by the Rainbow-Node-SDK
+
+### v0.4
+
+ - [Instant Message] Send a chat message to a Rainbow user (JID)
 
 ### v0.3.8
 
