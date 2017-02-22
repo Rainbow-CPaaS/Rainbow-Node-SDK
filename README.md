@@ -88,7 +88,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(json) {
 
 Here is the complete list of the events that you can subscribe on:
 
-| Event | Description |
+| Name | Description |
 |------|------------|
 | 'rainbow_onconnected' | Sent when the connection is successfull with Rainbow (signin complete) |
 | 'rainbow_onerror' | Sent when something goes wrong (ie: impossible to sign-in...) |
@@ -98,15 +98,11 @@ Here is the complete list of the events that you can subscribe on:
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
-### v0.4
+### v0.4.2
 
  - [Instant Message] Send a chat message to a Rainbow user (JID)
 
 ### v0.3.8
-
- - Fix version - simplify 'options'
-
-### v0.3
 
  - [Presence] Set the presence to 'online' once connected
 
