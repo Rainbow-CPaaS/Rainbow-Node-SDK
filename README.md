@@ -1,15 +1,15 @@
-Rainbow SDK for Node.js
-=======================
+ALE Rainbow SDK for Node.js
+===========================
 
-Welcome to the **Rainbow Software Development Kit for Node.js**!
+Welcome to the Alcatel-Lucent Enterprise **Rainbow Software Development Kit for Node.js**!
 
-The Node.js SDK for Rainbow is an npm package that allows you to integrate your Node.js application with Rainbow.
+The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an npm package that allows you to integrate your Node.js application with Rainbow.
 
 ## Preamble
 
-This SDK (Software Development Kit) for Node.js is a pure JavaScript library dedicated to the Node.js platform. 
+This SDK is a pure JavaScript library dedicated to the Node.js platform. 
 
-Its powerfull APIs enable you to create the best Node.js applications that connect to [Rainbow](https://www.openrainbow.com).
+Its powerfull APIs enable you to create the best Node.js applications that connect to Alcatel-Lucent Enterprise [Rainbow](https://www.openrainbow.com).
 
 Read this documentation in order to know how to install and use the Rainbow SDK for Node.js. 
 
@@ -69,19 +69,52 @@ var options = {
 
 ## Instant Messaging
 
-### Listen to new IM messages and answer to them
+### Listen to incoming messages and answer to them
 
 Listening to instant messages that come from other users is very easy. You just have to use the **'events'** public property and to subscribe to the **'rainbow_onmessagereceived'** event:
 
 ```js
 ...
-rainbowSDK.events.on('rainbow_onmessagereceived', function(json) {
+rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     // do something with the message received 
     ...
     // send an answer
-    rainbowSDK.sendAMessage(json.from, 'This answer comes from the Node.js SDK for Rainbow');
+    var msgSent = rainbowSDK.im.sendMessageToJid('This answer comes from the Node.js SDK for Rainbow', message.fromJid);
 });
+```
 
+### Listen to receipts
+
+Receipts allow to know if the message has been successfully delivered to your recipient. Use the ID of your originated message to be able to link with the receipt received.
+
+When the server receives the message you just sent, a receipt is sent to you:
+
+```js
+...
+rainbowSDK.events.on('rainbow_onmessageserverreceiptreceived', function(receipt) {
+    // do something when the message has been received by the Rainbow server
+    ...
+});
+```
+
+Then, when the recipient receives the message, the following receipt is sent to you:
+
+```js
+...
+rainbowSDK.events.on('rainbow_onmessagereceiptreceived', function(receipt) {
+    // do something when the message has been received by the recipient
+    ...
+});
+```
+
+Finally, when the recipient read the message, the following receipt is sent to you:
+
+```js
+...
+rainbowSDK.events.on('rainbow_onmessagereceiptreadreceived', function(receipt) {
+    // do something when the message has been read by the recipient
+    ...
+});
 ```
 
 ## List of events
@@ -90,17 +123,22 @@ Here is the complete list of the events that you can subscribe on:
 
 | Name | Description |
 |------|------------|
-| 'rainbow_onconnected' | Sent when the connection is successfull with Rainbow (signin complete) |
-| 'rainbow_onerror' | Sent when something goes wrong (ie: impossible to sign-in...) |
-| 'rainbow_onmessagereceived | Sent when a One-to-One message is received |
+| 'rainbow_onconnectionok' | Fired when the connection is successfull with Rainbow (signin complete) |
+| 'rainbow_onconnectionerror' | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
+| 'rainbow_onerror' | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
+| 'rainbow_onmessagereceived | Fired when a one-to-one message is received |
+| 'rainbow_onmessageserverreceiptreceived | Fired when the message has been received by the server |
+| 'rainbow_onmessagereceiptreceived | Fired when the message has been received by the recipient |
+| 'rainbow_onmessagereceiptreadreceived | Fired when the message has been read by the recipient |
 
 ## Features provided
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
-### v0.4.2
+### v0.4.8
 
  - [Instant Message] Send a chat message to a Rainbow user (JID)
+ - [Instant Message] Emit events when the Rainbow server and the recipient send a receipt
 
 ### v0.3.8
 

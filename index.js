@@ -1,6 +1,7 @@
 'use strict';
 
-var Loader = require('./lib/Loader');
+var Core = require('./lib/Core');
+
 const EventEmitter = require('events').EventEmitter;
 
 var signinAndRenewToken;
@@ -11,7 +12,7 @@ class NodeSDK {
         // private
         var that = this;
         this._evEmitter = new EventEmitter();
-        this._loader = new Loader(options, this._evEmitter);
+        this._core = new Core(options, this._evEmitter);
 
         /**
          * Public API
@@ -28,8 +29,8 @@ class NodeSDK {
         });
 
         this._evEmitter.on('rainbow_xmppconnected', function() {
-            that._loader.sendInitialPresence();
-            that.events.emit('rainbow_onconnected');
+            that._core.sendInitialPresence();
+            that.events.emit('rainbow_onconnectionok');
         });
 
         this._evEmitter.on('rainbow_onmessagereceived', function(json) {
@@ -40,11 +41,29 @@ class NodeSDK {
             that.events.emit('rainbow_onerror', err);
         });
 
+        this._evEmitter.on('rainbow_onnocredentials', function() {
+            that.events.emit('rainbow_onerror', null);
+        });
+
+        this._evEmitter.on('rainbow_onreceipt', function(receipt) {
+            if(receipt.entity === 'server') {
+                that.events.emit('rainbow_onmessageserverreceiptreceived', receipt);
+            }
+            else {
+                if(receipt.event === "received") {
+                    that.events.emit('rainbow_onmessagereceiptreceived', receipt);
+                }
+                else {
+                    that.events.emit('rainbow_onmessagereceiptreadreceived', receipt);
+                }
+            }
+        })
+
         signinAndRenewToken = () => { 
-            that._loader.signin().then(function() {
-                that._loader.tokenSurvey();
+            that._core.signin().then(function() {
+                that._core.tokenSurvey();
             }).catch(function(err) {
-                that.events.emit('rainbow_onerror', err);
+                that.events.emit('rainbow_onconnectionerror', err);
             });
         };
     }
@@ -56,7 +75,7 @@ class NodeSDK {
      *    Start the SDK
      */
     start() {
-        this._loader.start().then(function() {
+        this._core.start().then(function() {
             signinAndRenewToken();
         });
     }
@@ -73,12 +92,12 @@ class NodeSDK {
 
     /**
      * @public
-     * @method sendAMessage
+     * @property im
      * @description
-     *    Send a message to a Rainbow user
+     *    Get access to the IM service
      */
-    sendAMessage(jid, message) {
-        this._loader.xmpp.sendMessage(jid, message);
+    get im() {
+        return this._core.im;
     }
 }
 

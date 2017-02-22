@@ -1,7 +1,7 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "0.4.2",
-  "description": "Rainbow SDK for Node.js",
+  "version": "0.4.8",
+  "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec"
