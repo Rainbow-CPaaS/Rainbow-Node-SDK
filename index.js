@@ -29,8 +29,10 @@ class NodeSDK {
         });
 
         this._evEmitter.on('rainbow_xmppconnected', function() {
-            that._core.sendInitialPresence();
-            that.events.emit('rainbow_onconnectionok');
+            that._core.contacts.getRosters().then(function() {
+                that._core.presence.sendInitialPresence();
+                that.events.emit('rainbow_onconnectionok');
+            });
         });
 
         this._evEmitter.on('rainbow_onmessagereceived', function(json) {
@@ -57,7 +59,7 @@ class NodeSDK {
                     that.events.emit('rainbow_onmessagereceiptreadreceived', receipt);
                 }
             }
-        })
+        });
 
         signinAndRenewToken = () => { 
             that._core.signin().then(function() {
