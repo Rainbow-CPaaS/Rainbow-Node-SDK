@@ -117,32 +117,63 @@ rainbowSDK.events.on('rainbow_onmessagereceiptreadreceived', function(receipt) {
 });
 ```
 
+## Contacts
+
+### Retrieve the list of contacts
+
+Once connected, the Rainbow SDK will automatically retrieve the list of contacts from the server. You can access to them by using the following API:
+
+```js
+...
+rainbowSDK.events.on('rainbow_onconnectionok', function() {
+    // do something when the connection to Rainbow is up
+    var contacts = rainbowSDK.contacts.getAll();
+});
+```
+
+### Listen to contact presence change
+
+When the presence of a contact changes, the following event is fired:
+
+```js
+...
+rainbowSDK.events.on('rainbow_oncontactpresencechanged', function(contact) {
+    // do something with the contact
+    ...
+});
+```
+
 ## List of events
 
 Here is the complete list of the events that you can subscribe on:
 
 | Name | Description |
 |------|------------|
-| 'rainbow_onconnectionok' | Fired when the connection is successfull with Rainbow (signin complete) |
-| 'rainbow_onconnectionerror' | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
-| 'rainbow_onerror' | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
-| 'rainbow_onmessagereceived | Fired when a one-to-one message is received |
-| 'rainbow_onmessageserverreceiptreceived | Fired when the message has been received by the server |
-| 'rainbow_onmessagereceiptreceived | Fired when the message has been received by the recipient |
-| 'rainbow_onmessagereceiptreadreceived | Fired when the message has been read by the recipient |
+| **rainbow_onconnectionok** | Fired when the connection is successfull with Rainbow (signin complete) |
+| **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
+| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
+| **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
+| **rainbow_onmessagereceived** | Fired when a one-to-one message is received |
+| **rainbow_onmessageserverreceiptreceived** | Fired when the message has been received by the server |
+| **rainbow_onmessagereceiptreceived** | Fired when the message has been received by the recipient |
+| **rainbow_onmessagereceiptreadreceived** | Fired when the message has been read by the recipient |
+| **rainbow_oncontactpresencechanged** | Fired when the presence of a contact changes |
 
 ## Features provided
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
+### v0.5.2
+ - [Contacts] Retrieve the list of contacts
+ - [Presence] Emit an event when the presence of a contact changes
+
 ### v0.4.8
 
  - [Instant Message] Send a chat message to a Rainbow user (JID)
+
  - [Instant Message] Emit events when the Rainbow server and the recipient send a receipt
 
 ### v0.3.8
-
- - [Presence] Set the presence to 'online' once connected
 
  - [Instant Message] Emit an event when receiving a P2P chat messages from an other Rainbow user
  
@@ -150,6 +181,8 @@ Here is the list of the features provided by the Rainbow-Node-SDK
 
 ### v0.2
 
+ - [Presence] Set the presence to 'online' once connected
+ 
  - [Connection] Signin using the XMPP API and maintain the connection on (PING)
 
 ### v0.1

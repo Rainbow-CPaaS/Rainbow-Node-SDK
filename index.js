@@ -29,9 +29,12 @@ class NodeSDK {
         });
 
         this._evEmitter.on('rainbow_xmppconnected', function() {
-            that._core.contacts.getRosters().then(function() {
-                that._core.presence.sendInitialPresence();
-                that.events.emit('rainbow_onconnectionok');
+            that.events.emit('rainbow_onconnectionok');
+            return(that._core.contacts.getRosters())
+            .then(function() {
+                return that._core.presence.sendInitialPresence();    
+            }).then(function() {
+                that.events.emit('rainbow_onready');
             });
         });
 
@@ -45,6 +48,10 @@ class NodeSDK {
 
         this._evEmitter.on('rainbow_onnocredentials', function() {
             that.events.emit('rainbow_onerror', null);
+        });
+
+        this._evEmitter.on('rainbow.onrosterpresencechanged', function(contact) {
+            that.events.emit('rainbow_oncontactpresencechanged', contact);
         });
 
         this._evEmitter.on('rainbow_onreceipt', function(receipt) {
@@ -101,6 +108,18 @@ class NodeSDK {
     get im() {
         return this._core.im;
     }
+
+    /**
+     * @public
+     * @property contacts
+     * @description
+     *    Get access to the Contacts service
+     */
+    get contacts() {
+        return this._core.contacts;
+    }
+
+
 }
 
 module.exports = NodeSDK;
