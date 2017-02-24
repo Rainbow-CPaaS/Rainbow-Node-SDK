@@ -205,10 +205,23 @@ The presence and status can take several values as described in the following ta
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
 
+## Log file
+
+By default, the SDK logs information:
+
+ - In the console that start the node.js process
+
+ - In files: The SDK logs information into files located in your node.js application in the **log** directory. Each day, a new file is generated.
+
+Notice: In newer version of the SDK, you will be able to control the logging behavior
 
 ## Features provided
 
 Here is the list of the features provided by the Rainbow-Node-SDK
+
+### v0.6.0
+
+ - [Serviceability] Log debugging traces to files
 
 ### v0.5.6
  - [Contacts] Retrieve the list of contacts
