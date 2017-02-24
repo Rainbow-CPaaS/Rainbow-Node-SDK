@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "0.5.2",
+  "version": "0.5.5",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://oanguenot@github.com/oanguenot/nodeSDK.git"
+    "url": "git+https://oanguenot@github.com/oanguenot/rainbow-node-sdk.git"
   },
   "keywords": [
     "rainbow",
@@ -21,9 +21,9 @@
   "author": "Olivier Anguenot <olivier.anguenot@al-enterprise.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/oanguenot/nodeSDK/issues"
+    "url": "https://github.com/oanguenot/rainbow-node-sdk/issues"
   },
-  "homepage": "https://github.com/oanguenot/nodeSDK#readme",
+  "homepage": "https://github.com/oanguenot/rainbow-node-sdk#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
