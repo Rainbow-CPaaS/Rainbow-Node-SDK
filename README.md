@@ -12,7 +12,7 @@ This SDK is a pure JavaScript library dedicated to the Node.js platform.
 
 Its powerfull APIs enable you to create the best Node.js applications that connect to Alcatel-Lucent Enterprise [Rainbow](https://www.openrainbow.com).
 
-Read this documentation in order to know how to install and use the Rainbow SDK for Node.js. 
+This documentation will help you to use it.
 
 
 ## Rainbow developper account
