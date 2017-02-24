@@ -25,7 +25,7 @@ class NodeSDK {
         this.events = new EventEmitter();
 
         this._evEmitter.on('rainbow_signinrequired', function() {
-            signinAndRenewToken();
+            signinAndRenewToken(true);
         });
 
         this._evEmitter.on('rainbow_xmppconnected', function() {
@@ -68,8 +68,8 @@ class NodeSDK {
             }
         });
 
-        signinAndRenewToken = () => { 
-            that._core.signin().then(function() {
+        signinAndRenewToken = (forceStopXMPP) => { 
+            that._core.signin(forceStopXMPP).then(function() {
                 that._core.tokenSurvey();
             }).catch(function(err) {
                 that.events.emit('rainbow_onconnectionerror', err);
@@ -85,7 +85,7 @@ class NodeSDK {
      */
     start() {
         this._core.start().then(function() {
-            signinAndRenewToken();
+            signinAndRenewToken(false);
         });
     }
 

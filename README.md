@@ -210,7 +210,7 @@ Notice: With this SDK version, if the contact uses several devices at the same t
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
-### v0.5.5
+### v0.5.6
  - [Contacts] Retrieve the list of contacts
  - [Presence] Emit an event when the presence of a contact changes
 
