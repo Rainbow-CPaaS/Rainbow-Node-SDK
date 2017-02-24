@@ -5,6 +5,7 @@ Welcome to the Alcatel-Lucent Enterprise **Rainbow Software Development Kit for 
 
 The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an npm package that allows you to integrate your Node.js application with Rainbow.
 
+
 ## Preamble
 
 This SDK is a pure JavaScript library dedicated to the Node.js platform. 
@@ -13,6 +14,7 @@ Its powerfull APIs enable you to create the best Node.js applications that conne
 
 Read this documentation in order to know how to install and use the Rainbow SDK for Node.js. 
 
+
 ## Rainbow developper account
 
 Your need a Rainbow **developer** account in order to use the Rainbow SDK for Node.js.
@@ -20,6 +22,7 @@ Your need a Rainbow **developer** account in order to use the Rainbow SDK for No
 Please contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
 
 Notice: This is not a SDK for Bot as this SDK needs a Rainbow developer account. Nevertheless, once started, the connection to Rainbow is never broken so it can be seen as a **"always on"** user (a user that is always connected and 'online'). 
+
 
 ## Beta disclaimer
 
@@ -36,6 +39,7 @@ If you encounter any bugs, lack of functionality or other problems regarding the
 $ npm install --save rainbow-node-sdk
 ```
 
+
 ## Usage
 
 ```js
@@ -49,6 +53,7 @@ rainbowSDK.start();
 ```
 
 That's all! Your application should be connected to Rainbow, congratulation!
+
 
 ## Configuration
 
@@ -66,6 +71,7 @@ var options = {
     }
 };
 ```
+
 
 ## Events
 
@@ -103,6 +109,7 @@ Here is the complete list of the events that you can subscribe on:
 | **rainbow_onmessagereceiptreceived** | Fired when the message has been received by the recipient |
 | **rainbow_onmessagereceiptreadreceived** | Fired when the message has been read by the recipient |
 | **rainbow_oncontactpresencechanged** | Fired when the presence of a contact changes |
+
 
 ## Instant Messaging
 
@@ -154,6 +161,7 @@ rainbowSDK.events.on('rainbow_onmessagereceiptreadreceived', function(receipt) {
 });
 ```
 
+
 ## Contacts
 
 ### Retrieve the list of contacts
@@ -196,6 +204,7 @@ The presence and status can take several values as described in the following ta
 
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
+
 
 ## Features provided
 
