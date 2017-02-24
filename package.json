@@ -19,7 +19,7 @@
     "node": ">=4.2.4"
   },
   "author": "Olivier Anguenot <olivier.anguenot@al-enterprise.com>",
-  "license": "MIT",
+  "license": "Alcatel-Lucent Enterprise",
   "bugs": {
     "url": "https://github.com/oanguenot/rainbow-node-sdk/issues"
   },

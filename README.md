@@ -3,7 +3,7 @@ ALE Rainbow SDK for Node.js
 
 Welcome to the Alcatel-Lucent Enterprise **Rainbow Software Development Kit for Node.js**!
 
-The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an npm package that allows you to integrate your Node.js application with Rainbow.
+The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an npm package for connecting your Node.js application to Rainbow.
 
 
 ## Preamble
