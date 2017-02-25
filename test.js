@@ -7,6 +7,10 @@ var nodeSDK = new NodeSDK({
     credentials: {
         "login": "rford@westworld.com",
         "password": "Password_123"
+    },
+    logs: {
+        path: '/var/tmp/rainbowsdk/',
+        level: 'debug',
     }
 });
 

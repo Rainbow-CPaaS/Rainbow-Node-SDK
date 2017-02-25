@@ -77,7 +77,7 @@ var options = {
 
 ### Listen to events
 
-Once you have called the **start()** method, you will begin receiving events from the SDK. If you want to catch them, you have to simply add the following lines to your code:
+Once you have called the **start()** method, you will begin receiving events from the SDK. If you want to catch them, you have simply to add the following lines to your code:
 
 ```js
 ...
@@ -202,18 +202,23 @@ The presence and status can take several values as described in the following ta
 | **busy** | **presentation** | The contact is connected to Rainbow and currently engaged in a screen sharing presentation |
 | **offline** | | The contact is not connected to Rainbow |
 
-
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
 
 ## Log file
 
-By default, the SDK logs information:
+By default, the SDK logs information in the shell console that starts the Node.js process.
 
- - In the console that start the node.js process
+You can add a logger for saving the SDK logs into a file. Simply add the following lines to your **options** parameter:
 
- - In files: The SDK logs information into files located in your node.js application in the **log** directory. Each day, a new file is generated.
+```json
+...
+logs: {
+    path: '/var/tmp/rainbowsdk/',
+    level: 'debug',
+}
+```
 
-Notice: In newer version of the SDK, you will be able to control the logging behavior
+ You can define your own path and log level ('error', 'warn', 'info' or 'debug')
 
 ## Features provided
 
