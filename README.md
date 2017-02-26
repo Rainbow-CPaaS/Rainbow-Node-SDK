@@ -210,7 +210,7 @@ By default, the SDK logs information in the shell console that starts the Node.j
 
 You can add a logger for saving the SDK logs into a file. Simply add the following lines to your **options** parameter:
 
-```json
+```js
 ...
 logs: {
     path: '/var/tmp/rainbowsdk/',
@@ -224,7 +224,7 @@ logs: {
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
-### v0.6.0
+### v0.6.1
 
  - [Serviceability] Log debugging traces to files
 
