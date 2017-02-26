@@ -68,6 +68,11 @@ var options = {
     credentials: {
         login: "<your_rainbow_login_email>",  // Your Rainbow email account
         password: "<your_rainbow_password>"   // Your Rainbow password
+    },
+    // Add this part to store logs in a file
+    logs: {
+        path: '/var/tmp/rainbowsdk/',
+        level: 'debug',
     }
 };
 ```
@@ -208,7 +213,9 @@ Notice: With this SDK version, if the contact uses several devices at the same t
 
 By default, the SDK logs information in the shell console that starts the Node.js process.
 
-You can add a logger for saving the SDK logs into a file. Simply add the following lines to your **options** parameter:
+You can add a logger for saving the SDK logs into a file. Each day, a new file is created.
+
+Simply add the following lines to your **options** parameter:
 
 ```js
 ...
@@ -218,13 +225,13 @@ logs: {
 }
 ```
 
- You can define your own path and log level ('error', 'warn', 'info' or 'debug')
+You can define your own path and log level. Available log levels are: 'error', 'warn', 'info' and 'debug'
 
 ## Features provided
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
-### v0.6.1
+### v0.6.3
 
  - [Serviceability] Log debugging traces to files
 
