@@ -86,6 +86,8 @@ class NodeSDK {
     start() {
         this._core.start().then(function() {
             signinAndRenewToken(false);
+        }).catch(function(err) {
+             that.events.emit('rainbow_onstartconnectionerror', err);
         });
     }
 

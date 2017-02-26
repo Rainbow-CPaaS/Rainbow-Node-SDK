@@ -38,11 +38,11 @@ nodeSDK.events.on('rainbow_onerror', function(jsonMessage) {
 
 nodeSDK.events.on('rainbow_onconnectionok', function() {
     console.log("[Rainbow] >>> on connected");
-    console.log("[Rainbow] >>> contacts", nodeSDK.contacts.getAll().length);
 });
 
 nodeSDK.events.on('rainbow_onready', function() {
     console.log("[Rainbow] >>> on ready");
+    console.log("[Rainbow] >>> contacts", nodeSDK.contacts.getAll().length);
 });
 
 nodeSDK.events.on('rainbow_onconnectionerror', function(err) {
