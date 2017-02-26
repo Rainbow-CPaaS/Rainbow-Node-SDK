@@ -231,7 +231,7 @@ You can define your own path and log level. Available log levels are: 'error', '
 
 Here is the list of the features provided by the Rainbow-Node-SDK
 
-### v0.6.3
+### v0.6.4
 
  - [Serviceability] Log debugging traces to files
 
