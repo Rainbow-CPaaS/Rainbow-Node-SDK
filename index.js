@@ -32,7 +32,9 @@ class NodeSDK {
             that.events.emit('rainbow_onconnectionok');
             return(that._core.contacts.getRosters())
             .then(function() {
-                return that._core.presence.sendInitialPresence();    
+                return that._core.presence.sendInitialPresence();  
+            }).then(function() {
+                return that._core.im.enableCarbon();
             }).then(function() {
                 that.events.emit('rainbow_onready');
             });
