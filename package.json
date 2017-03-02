@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://oanguenot@github.com/oanguenot/rainbow-node-sdk.git"
+    "url": "https://git.openrainbow.org/cloud-services/Rainbow-Node-SDK.git"
   },
   "keywords": [
     "rainbow",
@@ -19,11 +19,8 @@
     "node": ">=4.2.4"
   },
   "author": "Olivier Anguenot <olivier.anguenot@al-enterprise.com>",
-  "license": "Alcatel-Lucent Enterprise",
-  "bugs": {
-    "url": "https://github.com/oanguenot/rainbow-node-sdk/issues"
-  },
-  "homepage": "https://github.com/oanguenot/rainbow-node-sdk#readme",
+  "license": "MIT",
+  "homepage": "https://git.openrainbow.org/cloud-services/Rainbow-Node-SDK",
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
