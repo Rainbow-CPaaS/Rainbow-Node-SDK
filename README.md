@@ -208,9 +208,10 @@ The presence and status can take several values as described in the following ta
 | **online** | **mobile** | The contact is connected to Rainbow through a mobile application and is available |
 | **away** | | The contact is connected to Rainbow but hasn't have any activity since several minutes |
 | **busy** | | The contact is connected to Rainbow and doesn't want to be disturbed at this time |
-| **busy** | **audio** | The contact is connected to Rainbow and currently engaged in an audio call |
-| **busy** | **video** | The contact is connected to Rainbow and currently engaged in a video call |
-| **busy** | **presentation** | The contact is connected to Rainbow and currently engaged in a screen sharing presentation |
+| **busy** | **phone** | The contact is connected to Rainbow and currently engaged in an audio call (PBX) |
+| **busy** | **audio** | The contact is connected to Rainbow and currently engaged in an audio call (WebRTC) |
+| **busy** | **video** | The contact is connected to Rainbow and currently engaged in a video call (WebRTC) |
+| **busy** | **presentation** | The contact is connected to Rainbow and currently engaged in a screen sharing presentation (WebRTC) |
 | **offline** | | The contact is not connected to Rainbow |
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
