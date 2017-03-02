@@ -276,38 +276,30 @@ You can define your own path and log level. Available log levels are: 'error', '
 
 ## Features provided
 
-Here is the list of the changes and features provided by the Rainbow-Node-SDK
+Here is the list of features supported by the Rainbow-Node-SDK
 
-### v0.7.2
+### Instant Messaging
 
- - [Serviceability] Connect through HTTP Proxy
+ - Send and Receive One-to-One messages
 
-### v0.6.7
+ - XEP-0184: Message Delivery Receipts (received and read)
 
- - [Serviceability] Log debugging traces to files
+ - XEP-0280: Message Carbon
 
-### v0.5.6
- - [Contacts] Retrieve the list of contacts
- - [Presence] Emit an event when the presence of a contact changes
+### Contacts
 
-### v0.4.8
+ - Get the list of contacts
 
- - [Instant Message] Send a chat message to a Rainbow user (JID)
+### Presence
 
- - [Instant Message] Emit events when the Rainbow server and the recipient send a receipt
+- Get the presence of contacts
 
-### v0.3.8
+### Serviciability
 
- - [Instant Message] Emit an event when receiving a P2P chat messages from an other Rainbow user
- 
- - [Instant Message] Send acknowledgments (Message received, Message read) when receiving a P2P message 
+ - Support of connection through an HTTP Proxy 
 
-### v0.2
+ - Logs into file & console
 
- - [Presence] Set the presence to 'online' once connected
- 
- - [Connection] Sign-in using the XMPP API and maintain the connection on (PING)
+ - XEP-0199: XMPP Ping
 
-### v0.1
-
- - [Connection] Sign-in using the REST API, refresh the token and reconnect when needed
+ - REST token automatic renewal and auto-relogin
