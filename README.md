@@ -73,6 +73,12 @@ var options = {
     logs: {
         path: '/var/tmp/rainbowsdk/',
         level: 'debug',
+    },
+    //Add this part to configure an HTTP proxy
+    proxy: {
+        host: '<proxy_host>',
+        port: <proxy_port>,
+        protocol: '<proxy_protocol>'
     }
 };
 ```
@@ -209,6 +215,47 @@ The presence and status can take several values as described in the following ta
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
 
+## Proxy management
+
+### Configuration
+
+If you need to access to Rainbow through an HTTP proxy, you have to add the following part to your 'options' parameter:
+
+```js
+...
+proxy: {
+    host: '192.168.0.254',
+    port: 8080              // Default to 80 if not provided
+    protocol: 'http',       // Default to 'http' if not provided
+}
+```
+
+### Hack
+
+At this time of writing, you need to do a very **ugly** hack in order to work:
+
+Edit the file **node_modules/ws/lib/WebSocket.js** and do the following changes:
+
+```js
+...
+HttpsProxyAgent = require('https-proxy-agent'); // Add this line
+
+var proxy = '<protocol>://<host>:<port>';       // Add this line and replace by your information
+var proxyAgent = new HttpsProxyAgent(proxy);    // Add this line
+...
+/**
+* Constants
+*/
+function initAsClient(address, protocols, options) {
+  options = new Options({
+    origin: null,
+    protocolVersion: protocolVersion,
+    host: null,
+    headers: null,
+    protocol: protocols.join(','),
+    agent: proxyAgent,              // Add this line
+```
+
 ## Log file
 
 By default, the SDK logs information in the shell console that starts the Node.js process.
@@ -229,9 +276,13 @@ You can define your own path and log level. Available log levels are: 'error', '
 
 ## Features provided
 
-Here is the list of the features provided by the Rainbow-Node-SDK
+Here is the list of the changes and features provided by the Rainbow-Node-SDK
 
-### v0.6.6
+### v0.7.2
+
+ - [Serviceability] Connect through HTTP Proxy
+
+### v0.6.7
 
  - [Serviceability] Log debugging traces to files
 
@@ -255,8 +306,8 @@ Here is the list of the features provided by the Rainbow-Node-SDK
 
  - [Presence] Set the presence to 'online' once connected
  
- - [Connection] Signin using the XMPP API and maintain the connection on (PING)
+ - [Connection] Sign-in using the XMPP API and maintain the connection on (PING)
 
 ### v0.1
 
- - [Connection] Signin using the REST API, refresh the token and reconnect when needed
+ - [Connection] Sign-in using the REST API, refresh the token and reconnect when needed
