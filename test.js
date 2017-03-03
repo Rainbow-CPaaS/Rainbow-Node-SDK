@@ -2,11 +2,11 @@ var NodeSDK = require('./index');
 
 var nodeSDK = new NodeSDK({
     rainbow: {
-        "host": "official",
+        "host": "sandbox",
     },
     credentials: {
-        "login": "olivier.anguenot@al-enterprise.com",
-        "password": "LeaMa079!"
+        "login": "rford@westworld.com",
+        "password": "Password_123"
     },
     logs: {
         path: '/var/tmp/rainbowsdk/',
