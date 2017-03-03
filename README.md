@@ -79,6 +79,10 @@ var options = {
         host: '<proxy_host>',
         port: <proxy_port>,
         protocol: '<proxy_protocol>'
+    },
+    //IM options
+    im: {
+        sendReadReceipt: true   // True to send the the 'read' receipt automatically
     }
 };
 ```
@@ -104,6 +108,7 @@ rainbowSDK.events.on('rainbow_onready', function() {
     ...
 });
 ```
+
 
 ### List of events
 
@@ -137,6 +142,24 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     var msgSent = rainbowSDK.im.sendMessageToJid('This answer comes from the Node.js SDK for Rainbow', message.fromJid);
 });
 ```
+
+
+### Manually send a 'read' receipt
+
+By default and if the **sendReadReceipt** property is not set, the 'read' receipt is sent automatically to the sender when the message is received.
+
+If you want to send it manually  when you want, you have to set this parameter to false and use the method **markMessageAsRead()** 
+
+```js
+...
+rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
+    // do something with the message received 
+    ...
+    // send manually a 'read' receipt to the sender
+    rainbowSDK.im.markMessageAsRead(message);
+});
+```
+
 
 ### Listen to receipts
 
@@ -187,6 +210,7 @@ rainbowSDK.events.on('rainbow_onconnectionok', function() {
 });
 ```
 
+
 ### Listen to contact presence change
 
 When the presence of a contact changes, the following event is fired:
@@ -218,6 +242,7 @@ The presence and status of a Rainbow user can take several values as described i
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
 
+
 ## Proxy management
 
 ### Configuration
@@ -233,31 +258,6 @@ proxy: {
 }
 ```
 
-### Hack
-
-At this time of writing, you need to do a very **ugly** hack in order to work:
-
-Edit the file **node_modules/ws/lib/WebSocket.js** and do the following changes:
-
-```js
-...
-HttpsProxyAgent = require('https-proxy-agent'); // Add this line
-
-var proxy = '<protocol>://<host>:<port>';       // Add this line and replace by your information
-var proxyAgent = new HttpsProxyAgent(proxy);    // Add this line
-...
-/**
-* Constants
-*/
-function initAsClient(address, protocols, options) {
-  options = new Options({
-    origin: null,
-    protocolVersion: protocolVersion,
-    host: null,
-    headers: null,
-    protocol: protocols.join(','),
-    agent: proxyAgent,              // Add this line
-```
 
 ## Log file
 
@@ -277,9 +277,11 @@ logs: {
 
 You can define your own path and log level. Available log levels are: 'error', 'warn', 'info' and 'debug'
 
+
 ## Features provided
 
 Here is the list of features supported by the Rainbow-Node-SDK
+
 
 ### Instant Messaging
 
@@ -289,13 +291,18 @@ Here is the list of features supported by the Rainbow-Node-SDK
 
  - XEP-0280: Message Carbon
 
+ - Send 'read' receipt manually
+
+
 ### Contacts
 
  - Get the list of contacts
 
+
 ### Presence
 
 - Get the presence of contacts
+
 
 ### Serviciability
 
