@@ -200,7 +200,7 @@ rainbowSDK.events.on('rainbow_oncontactpresencechanged', function(contact) {
 });
 ```
 
-The presence and status can take several values as described in the following table:
+The presence and status of a Rainbow user can take several values as described in the following table:
 
 | Presence | Status | Meaning |
 |----------------|--------------|---------|
@@ -208,11 +208,13 @@ The presence and status can take several values as described in the following ta
 | **online** | **mobile** | The contact is connected to Rainbow through a mobile application and is available |
 | **away** | | The contact is connected to Rainbow but hasn't have any activity since several minutes |
 | **busy** | | The contact is connected to Rainbow and doesn't want to be disturbed at this time |
+| **busy** | **presentation** | The contact is connected to Rainbow and uses an application in full screen (presentation mode) |
 | **busy** | **phone** | The contact is connected to Rainbow and currently engaged in an audio call (PBX) |
 | **busy** | **audio** | The contact is connected to Rainbow and currently engaged in an audio call (WebRTC) |
 | **busy** | **video** | The contact is connected to Rainbow and currently engaged in a video call (WebRTC) |
-| **busy** | **presentation** | The contact is connected to Rainbow and currently engaged in a screen sharing presentation (WebRTC) |
+| **busy** | **sharing** | The contact is connected to Rainbow and currently engaged in a screen sharing presentation (WebRTC) |
 | **offline** | | The contact is not connected to Rainbow |
+| **unknown** | | The presence of the Rainbow user is not known (not shared with the connected user) |
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
 
