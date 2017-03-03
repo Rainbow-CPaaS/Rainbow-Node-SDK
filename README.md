@@ -146,7 +146,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
 
 ### Manually send a 'read' receipt
 
-By default and if the **sendReadReceipt** property is not set, the 'read' receipt is sent automatically to the sender when the message is received.
+By default or if the **sendReadReceipt** property is not set, the 'read' receipt is sent automatically to the sender when the message is received so than the sender knows that the message as been read.
 
 If you want to send it manually  when you want, you have to set this parameter to false and use the method **markMessageAsRead()** 
 
