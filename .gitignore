@@ -4,3 +4,4 @@
 artifacts/
 node_modules/
 npm-debug.log
+bot.js
