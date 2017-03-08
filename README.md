@@ -230,7 +230,7 @@ The presence and status of a Rainbow user can take several values as described i
 |----------------|--------------|---------|
 | **online** | | The contact is connected to Rainbow through a desktop application and is available |
 | **online** | **mobile** | The contact is connected to Rainbow through a mobile application and is available |
-| **away** | | The contact is connected to Rainbow but hasn't have any activity since several minutes |
+| **away** | | The contact is connected to Rainbow but hasn't have any activity for several minutes |
 | **busy** | | The contact is connected to Rainbow and doesn't want to be disturbed at this time |
 | **busy** | **presentation** | The contact is connected to Rainbow and uses an application in full screen (presentation mode) |
 | **busy** | **phone** | The contact is connected to Rainbow and currently engaged in an audio call (PBX) |
@@ -241,6 +241,35 @@ The presence and status of a Rainbow user can take several values as described i
 | **unknown** | | The presence of the Rainbow user is not known (not shared with the connected user) |
 
 Notice: With this SDK version, if the contact uses several devices at the same time, only the latest presence information is taken into account.
+
+
+## Presence
+
+### Change presence manually
+
+The SDK for Node.js allows to change the presence of the connected user by calling the following api:
+
+```js
+...
+rainbowSDK.presence.setPresenceTo(rainbowSDK.presence.RAINBOW_PRESENCE_DONOTDISTURB).then(function() {
+    // do smething when the presence has been changed
+    ...
+}).catch(function(err) {
+    // do something if the presence has not been changed
+    ...
+});
+```
+
+The following values are accepted:
+
+| Presence constant | value | Meaning |
+|------------------ | ----- | ------- |
+| **RAINBOW_PRESENCE_ONLINE** | "online" | The connected user is **available** |
+| **RAINBOW_PRESENCE_DONOTDISTURB** | "dnd" | The connected user is **doesn't want to be disturbed** |
+| **RAINBOW_PRESENCE_AWAY** | "away" | The connected user **doesn't have activity for several minutes** |
+| **RAINBOW_PRESENCE_INVISIBLE** | "invisible" | The connected user is connected but **seen as offline** |
+
+Notice: Values other than the ones listed will not be taken into account.
 
 
 ## Proxy management
@@ -259,7 +288,9 @@ proxy: {
 ```
 
 
-## Log file
+## Serviceability
+
+### Log file
 
 By default, the SDK logs information in the shell console that starts the Node.js process.
 
@@ -276,6 +307,31 @@ logs: {
 ```
 
 You can define your own path and log level. Available log levels are: 'error', 'warn', 'info' and 'debug'
+
+### API Return codes
+
+Here is the table and description of the API return codes:
+
+| Return code | Label | Message | Meaning |
+|------------------ | ----- | ------ | ------ |
+| 1 | **"Request successful"** | "" | The request has been successfully executed |
+| -1 | **"General Error"** | "An error occured. See details for more information" | A error occurs. Check the details property for more information on this issue |
+| -2 | **"Security Error"** | "The email or the password is not correct" | Either the login or the password is not correct. Check your Rainbow account |
+| -4 | **"XMPP Error"** | "" | An error occurs regarding XMPP. Check the details property for more information on this issue |
+| -16 | **"Bad Request"** | "One or several parameters are not valid for that request." | You entered bad parameters for that request. Check this documentation for the list of correct values |
+
+When there is an issue calling an API, an error object is returned like in the following example:
+
+```js
+{
+    code: -1                // The error code
+    label: "General Error"  // The error label
+    msg: "..."              // The error message
+    details: ...            // The JS error
+}
+```
+
+In case of successfull request, the an object containing a code equals to 1 is returned only if there is no other information returned.
 
 
 ## Features provided
@@ -302,6 +358,8 @@ Here is the list of features supported by the Rainbow-Node-SDK
 ### Presence
 
 - Get the presence of contacts
+
+- Set the user connected presence
 
 
 ### Serviciability

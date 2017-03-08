@@ -1,6 +1,7 @@
 'use strict';
 
 var Core = require('./lib/Core');
+var Error = require('./lib/common/Error');
 
 const EventEmitter = require('events').EventEmitter;
 
@@ -45,10 +46,14 @@ class NodeSDK {
         });
 
         this._evEmitter.on('rainbow_onxmpperror', function(err) {
-            that.events.emit('rainbow_onerror', err);
+            var error = Error.XMPP;
+            error.details = err;
+            that.events.emit('rainbow_onerror', error);
         });
 
-        this._evEmitter.on('rainbow_onnocredentials', function() {
+        this._evEmitter.on('rainbow_onnocredentials', function(err) {
+            var error = Error.ERROR;
+            error.details = err;
             that.events.emit('rainbow_onerror', null);
         });
 
@@ -74,7 +79,9 @@ class NodeSDK {
             that._core.signin(forceStopXMPP).then(function() {
                 that._core.tokenSurvey();
             }).catch(function(err) {
-                that.events.emit('rainbow_onconnectionerror', err);
+                var error = Error.UNAUTHORIZED;
+                error.details = err;
+                that.events.emit('rainbow_onconnectionerror', error);
             });
         };
     }
@@ -123,6 +130,15 @@ class NodeSDK {
         return this._core.contacts;
     }
 
+    /**
+     * @public
+     * @property presence
+     * @description
+     *    Get access to the Presence service
+     */
+    get presence() {
+        return this._core.presence;
+    }
 
 }
 
