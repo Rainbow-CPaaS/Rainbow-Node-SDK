@@ -69,18 +69,22 @@ var options = {
         login: "<your_rainbow_login_email>",  // Your Rainbow email account
         password: "<your_rainbow_password>"   // Your Rainbow password
     },
-    // Add this part to store logs in a file
+    // Logs options
     logs: {
-        path: '/var/tmp/rainbowsdk/',
-        level: 'debug',
+        enableConsoleLogs: true,            // Default: true
+        enableFileLogs: false,              // Default: false
+        file: {
+            path: '/var/tmp/rainbowsdk/',   // Default path used
+            level: 'debug'                  // Default log level used
+        },
     },
-    //Add this part to configure an HTTP proxy
+    // Proxy configuration
     proxy: {
         host: '<proxy_host>',
         port: <proxy_port>,
         protocol: '<proxy_protocol>'
     },
-    //IM options
+    // IM options
     im: {
         sendReadReceipt: true   // True to send the the 'read' receipt automatically
     }
@@ -290,23 +294,50 @@ proxy: {
 
 ## Serviceability
 
-### Log file
+### Logging to the console
 
-By default, the SDK logs information in the shell console that starts the Node.js process.
+By default, the Rainbow SDK for Node.js logs to the shell console used (ie. that starts the Node.js process).
 
-You can add a logger for saving the SDK logs into a file. Each day, a new file is created.
-
-Simply add the following lines to your **options** parameter:
+You can disable it by setting the parameter **enableConsoleLogs** to false
 
 ```js
 ...
 logs: {
-    path: '/var/tmp/rainbowsdk/',
-    level: 'debug',
+    enableConsoleLogs: false
+    ...
 }
 ```
 
-You can define your own path and log level. Available log levels are: 'error', 'warn', 'info' and 'debug'
+### Logging to files
+
+By default, the SDK logs information in the shell console that starts the Node.js process.
+
+You can save these logs into a file by setting the parameter **enableFileLogs** to true. (False by default).
+
+```js
+...
+logs: {
+    enableFileLogs: true
+    ...
+}
+```
+
+You can modify the path where the logs are saved and the log level by modifying the paramter **file** like the following:
+
+```js
+...
+logs: {
+    file: {
+        path: '/var/tmp/mypath/',
+        level: 'error',
+    }
+}
+```
+
+The available log levels are: 'error', 'warn', 'info' and 'debug'
+
+Notice: Each day a new file is created.
+
 
 ### API Return codes
 

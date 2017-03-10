@@ -93,6 +93,7 @@ class NodeSDK {
      *    Start the SDK
      */
     start() {
+        var that = this;
         this._core.start().then(function() {
             signinAndRenewToken(false);
         }).catch(function(err) {
