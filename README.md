@@ -218,7 +218,7 @@ When the presence of a contact changes, the following event is fired:
 ```js
 ...
 rainbowSDK.events.on('rainbow_oncontactpresencechanged', function(contact) {
-    // do something when the connection to Rainbow is up
+    // do something when the presence of a contact changes
     var presence = contact.presence;    // Presence information
     var status = contact.status;        // Additionnal information if exists
 });
