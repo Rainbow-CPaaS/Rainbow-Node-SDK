@@ -13,8 +13,7 @@ class NodeSDK {
         // private
         var that = this;
         this._evEmitter = new EventEmitter();
-        this._core = new Core(options, this._evEmitter);
-
+        
         /**
          * Public API
          * @public
@@ -74,6 +73,8 @@ class NodeSDK {
                 }
             }
         });
+
+        this._core = new Core(options, this._evEmitter);
 
         signinAndRenewToken = (forceStopXMPP) => { 
             that._core.signin(forceStopXMPP).then(function() {
