@@ -50,12 +50,6 @@ class NodeSDK {
             that.events.emit('rainbow_onerror', error);
         });
 
-        this._evEmitter.on('rainbow_onnocredentials', function(err) {
-            var error = Error.ERROR;
-            error.details = err;
-            that.events.emit('rainbow_onerror', null);
-        });
-
         this._evEmitter.on('rainbow.onrosterpresencechanged', function(contact) {
             that.events.emit('rainbow_oncontactpresencechanged', contact);
         });
@@ -98,7 +92,9 @@ class NodeSDK {
         this._core.start().then(function() {
             signinAndRenewToken(false);
         }).catch(function(err) {
-             that.events.emit('rainbow_onstartconnectionerror', err);
+            var error = Error.UNAUTHORIZED;
+            error.details = err;
+            that.events.emit('rainbow_onconnectionerror', error);
         });
     }
 
