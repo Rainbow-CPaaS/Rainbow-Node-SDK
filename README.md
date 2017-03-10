@@ -317,7 +317,7 @@ Here is the table and description of the API return codes:
 | 1 | **"Request successful"** | "" | The request has been successfully executed |
 | -1 | **"General Error"** | "An error occured. See details for more information" | A error occurs. Check the details property for more information on this issue |
 | -2 | **"Security Error"** | "The email or the password is not correct" | Either the login or the password is not correct. Check your Rainbow account |
-| -4 | **"XMPP Error"** | "" | An error occurs regarding XMPP. Check the details property for more information on this issue |
+| -4 | **"XMPP Error"** | "An error occured. See details for more information" | An error occurs regarding XMPP. Check the details property for more information on this issue |
 | -16 | **"Bad Request"** | "One or several parameters are not valid for that request." | You entered bad parameters for that request. Check this documentation for the list of correct values |
 
 When there is an issue calling an API, an error object is returned like in the following example:
