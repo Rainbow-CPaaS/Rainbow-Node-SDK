@@ -76,7 +76,7 @@ var options = {
         file: {
             path: '/var/tmp/rainbowsdk/',   // Default path used
             level: 'debug'                  // Default log level used
-        },
+        }
     },
     // Proxy configuration
     proxy: {
@@ -329,7 +329,7 @@ You can modify the path where the logs are saved and the log level by modifying 
 logs: {
     file: {
         path: '/var/tmp/mypath/',
-        level: 'error',
+        level: 'error'
     }
 }
 ```
