@@ -264,9 +264,9 @@ The following values are accepted:
 
 | Presence constant | value | Meaning |
 |------------------ | ----- | ------- |
-| **RAINBOW_PRESENCE_ONLINE** | "online" | The connected user is **available** |
-| **RAINBOW_PRESENCE_DONOTDISTURB** | "dnd" | The connected user is **doesn't want to be disturbed** |
-| **RAINBOW_PRESENCE_AWAY** | "away" | The connected user **doesn't have activity for several minutes** |
+| **RAINBOW_PRESENCE_ONLINE** | "online" | The connected user is seen as **available** |
+| **RAINBOW_PRESENCE_DONOTDISTURB** | "dnd" | The connected user is seen as **do not disturb** |
+| **RAINBOW_PRESENCE_AWAY** | "away" | The connected user is seen as **away** |
 | **RAINBOW_PRESENCE_INVISIBLE** | "invisible" | The connected user is connected but **seen as offline** |
 
 Notice: Values other than the ones listed will not be taken into account.
@@ -331,7 +331,7 @@ When there is an issue calling an API, an error object is returned like in the f
 }
 ```
 
-In case of successfull request, the an object containing a code equals to 1 is returned only if there is no other information returned.
+Notice: In case of successfull request, this object is returned only when there is no other information returned.
 
 
 ## Features provided
