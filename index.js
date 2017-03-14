@@ -40,6 +40,11 @@ class NodeSDK {
             });
         });
 
+        this._evEmitter.on('rainbow_xmppfakeconnected', function() {
+            that.events.emit('rainbow_onconnectionok');
+            that.events.emit('rainbow_onready');
+        });
+
         this._evEmitter.on('rainbow_onmessagereceived', function(json) {
             that.events.emit('rainbow_onmessagereceived', json);
         });
