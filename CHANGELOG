@@ -2,7 +2,11 @@
 
 Here is the list of the changes and features provided by the Rainbow-Node-SDK
 
-### v0.8.11
+### v0.9.1
+
+- [CLI] Allow to use the SDK as a CLI tool
+
+### v0.8.12
 
  - [Serviceability] Allow to enable or disable console and file logging
 

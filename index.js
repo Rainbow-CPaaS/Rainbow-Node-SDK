@@ -52,8 +52,8 @@ class NodeSDK {
     signinCLI() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.signin(false).then(function(token) {
-                resolve(token);
+            that._core.signin(false).then(function(json) {
+                resolve(json);
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
@@ -105,6 +105,10 @@ class NodeSDK {
 
     get events() {
         return this._core.events;
+    }
+
+    get rest() {
+        return this._core.rest;
     }
 
 }
