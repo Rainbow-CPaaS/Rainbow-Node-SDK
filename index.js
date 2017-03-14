@@ -17,14 +17,49 @@ class NodeSDK {
      */
     start() {
         var that = this;
-        this._core.start().then(function() {
-            return that._core.signin(false);
-        }).then(function() {
+        return new Promise(function(resolve, reject) {
+            that._core.start().then(function() {
+                var success = Error.OK;
+                that.events.emit('rainbow_onstarted', success);
+                return that._core.signin(false);
+            }).then(function() {
+                resolve();
+            }).catch(function(err) {
+                var error = Error.UNAUTHORIZED;
+                error.details = err;
+                that.events.emit('rainbow_onconnectionerror', error);
+                reject();
+            });
+        });
+    }
 
-        }).catch(function(err) {
-            var error = Error.UNAUTHORIZED;
-            error.details = err;
-            that.events.emit('rainbow_onconnectionerror', error);
+    startCLI() {
+        var that = this;
+        return new Promise(function(resolve, reject) {
+            that._core.start().then(function() {
+                var success = Error.OK;
+                that.events.emit('rainbow_onstarted', success);
+                resolve();
+            }).catch(function(err) {
+                var error = Error.UNAUTHORIZED;
+                error.details = err;
+                that.events.emit('rainbow_onconnectionerror', error);
+                reject();
+            });
+        });
+    }
+
+    signinCLI() {
+        var that = this;
+        return new Promise(function(resolve, reject) {
+            that._core.signin(false).then(function(token) {
+                resolve(token);
+            }).catch(function(err) {
+                var error = Error.UNAUTHORIZED;
+                error.details = err;
+                that.events.emit('rainbow_onconnectionerror', error);
+                reject();
+            });
         });
     }
 
