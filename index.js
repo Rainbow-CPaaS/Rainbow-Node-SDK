@@ -103,6 +103,16 @@ class NodeSDK {
         return this._core.presence;
     }
 
+    /**
+     * @public
+     * @property bubbles
+     * @description
+     *    Get access to the Bubbles service
+     */
+    get bubbles() {
+        return this._core.bubbles;
+    }
+
     get events() {
         return this._core.events;
     }
