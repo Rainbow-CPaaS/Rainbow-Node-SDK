@@ -130,6 +130,7 @@ Here is the complete list of the events that you can subscribe on:
 | **rainbow_onmessagereceiptreceived** | Fired when the message has been received by the recipient |
 | **rainbow_onmessagereceiptreadreceived** | Fired when the message has been read by the recipient |
 | **rainbow_oncontactpresencechanged** | Fired when the presence of a contact changes |
+| **rainbow_onbubbleaffiliationchanged** | Fired when the presence of a contact changes |
 
 
 ## Instant Messaging
@@ -257,7 +258,7 @@ The SDK for Node.js allows to change the presence of the connected user by calli
 ```js
 ...
 rainbowSDK.presence.setPresenceTo(rainbowSDK.presence.RAINBOW_PRESENCE_DONOTDISTURB).then(function() {
-    // do smething when the presence has been changed
+    // do something when the presence has been changed
     ...
 }).catch(function(err) {
     // do something if the presence has not been changed
@@ -277,6 +278,67 @@ The following values are accepted:
 Notice: Values other than the ones listed will not be taken into account.
 
 
+## Bubbles
+
+### Create a new Bubble
+
+A new bubble can be created by calling the following API
+
+```js
+...
+rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bubble").then(function(bubble) {
+    // do something with the bubble created
+    ...
+}).catch(function(err) {
+    // do something if the creation of the bubble failed (eg. providing the same name as an existing bubble)
+    ...
+});
+```
+
+### Add a contact to a bubble
+
+Once you have created a bubble, you can invite a contact. Insert the following code
+
+```js
+...
+
+var invitedAsModerator = false;     // To set to true if you want to invite someone as a moderator
+var sendAnInvite = true;            // To set to false if you want to add someone to a bubble without having to invite him first
+var inviteReason = "bot-invite";    // Define a reason for the invite (part of the invite received by the recipient)
+
+rainbowSDK.bubbles.inviteContactToBubble(aContact, ABubble, invitedAsModerator, sendAnInvite, inviteReason).then(function(inviteSent) {
+    // do something with the invite sent
+    ...
+}).catch(function(err) {
+    // do something if the invitation failed (eg. bad reference to a buble)
+    ...
+});
+```
+
+### Be notified when a contact changes his affiliation with a bubble 
+
+When a recipient accepts or decline your invite or when he leaves the bubble, you can receive a notification of his affiliation change by listening to the following event:
+
+```js
+...
+rainbowSDK.events.on('rainbow_onbubbleaffiliationchanged', function(affiliation) {
+    // do something with the notification
+    ...
+});
+```
+
+This affiliation will contain 3 information:
+
+```js
+...
+affiliation: {
+    bubble: {...},          // The bulle where the action takes place
+    contact: {...},         // The contact that changes his affiliation
+    status: 'accepted',     // The status of the affiliation (ie: accepted, declined, unsubscribed)
+}
+```
+
+
 ## Proxy management
 
 ### Configuration
@@ -287,8 +349,8 @@ If you need to access to Rainbow through an HTTP proxy, you have to add the foll
 ...
 proxy: {
     host: '192.168.0.254',
-    port: 8080              // Default to 80 if not provided
-    protocol: 'http',       // Default to 'http' if not provided
+    port: 8080,             // Default to 80 if not provided
+    protocol: 'http'       // Default to 'http' if not provided
 }
 ```
 
