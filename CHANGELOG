@@ -2,7 +2,7 @@
 
 Here is the list of the changes and features provided by the Rainbow-Node-SDK
 
-### v0.10.2
+### v0.10.3
 
  - [Bubble] Allow to create a bubble
 
@@ -11,6 +11,8 @@ Here is the list of the changes and features provided by the Rainbow-Node-SDK
  - [Bubble] Send a event when the a contact changes his affiliation with a bubble
 
  - [Bubble] Allow to send a message to a bubble
+
+ - [Bubble] Allow to leave a bubble
 
 ### v0.9.7
 

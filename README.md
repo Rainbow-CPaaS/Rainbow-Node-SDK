@@ -171,6 +171,9 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
 });
 ```
 
+Notice: You not have to send receipt for message having the property **isEvent** equals to true. This is specific Bubble messages indicating that someone entered the bubble or juste leaved it.
+
+
 
 ### Listen to receipts
 
@@ -351,7 +354,7 @@ var invitedAsModerator = false;     // To set to true if you want to invite some
 var sendAnInvite = true;            // To set to false if you want to add someone to a bubble without having to invite him first
 var inviteReason = "bot-invite";    // Define a reason for the invite (part of the invite received by the recipient)
 
-rainbowSDK.bubbles.inviteContactToBubble(aContact, ABubble, invitedAsModerator, sendAnInvite, inviteReason).then(function(inviteSent) {
+rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, sendAnInvite, inviteReason).then(function(inviteSent) {
     // do something with the invite sent
     ...
 }).catch(function(err) {
@@ -382,6 +385,22 @@ affiliation: {
     contact: {...},         // The contact that changes his affiliation
     status: 'accepted',     // The status of the affiliation (ie: accepted, declined, unsubscribed)
 }
+```
+
+
+### Leave a bubble
+
+You can only leave a owned bubble if you have invited someone with a role of **moderator**. If it is the case, you can leave a owned bubble by calling the following API:
+
+```js
+...
+rainbowSDK.bubbles.leaveBubble(aBubble).then(function() {
+    // do something once leaved the bubble
+    ...
+}).catch(function(err) {
+    // do something if you can't leave the bubble
+    ...
+});
 ```
 
 
@@ -505,6 +524,8 @@ Here is the list of features supported by the Rainbow-Node-SDK
  - Get bubble individually
 
  - Invite contact to a bubble
+
+ - Leave a bubble
 
 
 ### Presence
