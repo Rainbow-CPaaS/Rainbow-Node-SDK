@@ -4,17 +4,17 @@ Here is the list of the changes and features provided by the Rainbow-Node-SDK
 
 ### v0.10.2
 
-- [BUBBLE] Allow to create a bubble
+ - [Bubble] Allow to create a bubble
 
-- [BUBBLE] Allow to add a contact to a bubble (with or without invite, as user or moderator, with a reason)
+ - [Bubble] Allow to add a contact to a bubble (with or without invite, as user or moderator, with a reason)
 
-- [BUBBLE] Send a event when the a contact changes his affiliation with a bubble
+ - [Bubble] Send a event when the a contact changes his affiliation with a bubble
 
-- [BUBBLE] Allow to send a message to a bubble
+ - [Bubble] Allow to send a message to a bubble
 
 ### v0.9.7
 
-- [CLI] Allow to use the SDK as a CLI tool
+ - [CLI] Allow to use the SDK as a CLI tool
 
 ### v0.8.12
 
@@ -35,7 +35,9 @@ Here is the list of the changes and features provided by the Rainbow-Node-SDK
  - [Serviceability] Log debugging traces to files
 
 ### v0.5.6
+
  - [Contacts] Retrieve the list of contacts
+
  - [Presence] Emit an event when the presence of a contact changes
 
 ### v0.4.8
