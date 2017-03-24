@@ -142,10 +142,15 @@ Listening to instant messages that come from other users is very easy. You just 
 ```js
 ...
 rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
-    // do something with the message received 
-    ...
-    // send an answer
-    var msgSent = rainbowSDK.im.sendMessageToJid('This answer comes from the Node.js SDK for Rainbow', message.fromJid);
+    // test if the message comes from a bubble of from a conversation with one participant
+    if(message.type == "groupchat") {
+        // Send the answer to the bubble
+        messageSent = nodeSDK.im.sendMessageToBubbleJid('The message answer', message.fromBubbleJid);
+    }
+    else {
+        // send the answer to the user directly otherwise
+        messageSent = nodeSDK.im.sendMessageToJid('The message answer', jsonMessage.fromJid);
+    }
 });
 ```
 
@@ -217,6 +222,18 @@ rainbowSDK.events.on('rainbow_onconnectionok', function() {
 ```
 
 
+### Retrieve a contact information
+
+Accessing individually an existing contact can be done using the API **getContactByJid()** or **getContactById()**
+
+```js
+    ...
+    // Retrieve the contact information when receiving a message from him
+    var contact = rainbowSDK.contacts.getContactByJid(message.fromJid);
+});
+```
+
+
 ### Listen to contact presence change
 
 When the presence of a contact changes, the following event is fired:
@@ -280,6 +297,33 @@ Notice: Values other than the ones listed will not be taken into account.
 
 ## Bubbles
 
+### Retrieve the list of existing bubbles
+
+Once connected, the Rainbow SDK will automatically retrieve the list of bubbles from the server. You can access to them by using the following API:
+
+```js
+...
+rainbowSDK.events.on('rainbow_onconnectionok', function() {
+    // do something when the connection to Rainbow is up
+    var bubbles = rainbowSDK.bubbles.getAll();
+});
+```
+
+Each new bubble created will then be added to that list automatically.
+
+
+### Retrieve a bubble information
+
+Accessing individually an existing bubble can be done using the API **getBubbleByJid()** or **getBubbleById()**
+
+```js
+    ...
+    // Retrieve the bubble information when receiving a message in that bubble
+    var bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
+});
+```
+
+
 ### Create a new Bubble
 
 A new bubble can be created by calling the following API
@@ -294,6 +338,7 @@ rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bub
     ...
 });
 ```
+
 
 ### Add a contact to a bubble
 
@@ -314,6 +359,7 @@ rainbowSDK.bubbles.inviteContactToBubble(aContact, ABubble, invitedAsModerator, 
     ...
 });
 ```
+
 
 ### Be notified when a contact changes his affiliation with a bubble 
 
@@ -370,6 +416,7 @@ logs: {
     ...
 }
 ```
+
 
 ### Logging to files
 
@@ -435,18 +482,29 @@ Here is the list of features supported by the Rainbow-Node-SDK
 
 ### Instant Messaging
 
- - Send and Receive One-to-One messages
+ - Send and receive One-to-One messages
+
+ - XEP-0045: Multi-user Chat: Send and receive messages in Bubbles
 
  - XEP-0184: Message Delivery Receipts (received and read)
 
  - XEP-0280: Message Carbon
 
- - Send 'read' receipt manually
-
 
 ### Contacts
 
  - Get the list of contacts
+
+ - Get contact individually
+
+
+### Bubbles
+
+ - Get the list of bubbles
+
+ - Get bubble individually
+
+ - Invite contact to a bubble
 
 
 ### Presence
