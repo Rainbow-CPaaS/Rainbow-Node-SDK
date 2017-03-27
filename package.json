@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.openrainbow.org/cloud-services/Rainbow-Node-SDK.git"
+    "url": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git"
   },
   "keywords": [
     "rainbow",
@@ -20,7 +20,7 @@
   },
   "author": "Olivier Anguenot <olivier.anguenot@al-enterprise.com>",
   "license": "MIT",
-  "homepage": "https://git.openrainbow.org/cloud-services/Rainbow-Node-SDK",
+  "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
