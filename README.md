@@ -63,7 +63,7 @@ The **options** parameter allows to enter your credentials and to target the Rai
 // Define your configuration
 var options = {
     rainbow: {
-        host: "sandbox",  // can be "sandbox" (developer platform) or "official"
+        host: "sandbox",  // can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
     },
     credentials: {
         login: "<your_rainbow_login_email>",  // Your Rainbow email account
