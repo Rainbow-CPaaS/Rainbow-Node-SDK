@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
@@ -28,11 +28,11 @@
   "dependencies": {
     "btoa": "^1.1.2",
     "https-proxy-agent": "1.0.0",
-    "jwt-decode": "2.1.0",
+    "jwt-decode": "2.2.0",
     "node-xmpp-client": "3.2.0",
     "unirest": "0.5.1",
     "uuid4": "1.0.0",
     "winston": "2.3.1",
-    "winston-daily-rotate-file": "1.4.5"
+    "winston-daily-rotate-file": "1.4.6"
   }
 }
