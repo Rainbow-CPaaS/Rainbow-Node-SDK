@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "devDependencies": {
     "chai": "^3.5.0",
+    "grunt-jsdoc-to-markdown": "^3.0.0",
     "mocha": "^3.2.0"
   },
   "dependencies": {
