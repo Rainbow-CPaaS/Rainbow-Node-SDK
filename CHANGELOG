@@ -2,7 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-### v0.10.6
+### v0.10.7
+
+ - [Bubble] Allow to delete a bubble 
 
  - [Bubble] Allow to create a bubble
 

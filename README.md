@@ -404,6 +404,22 @@ rainbowSDK.bubbles.leaveBubble(aBubble).then(function() {
 ```
 
 
+### Delete a bubble
+
+You can delete a owned bubble by calling the following API:
+
+```js
+...
+rainbowSDK.bubbles.deleteBubble(aBubble).then(function() {
+    // do something once the bubble has been deleted
+    ...
+}).catch(function(err) {
+    // do something if you can't delete the bubble
+    ...
+});
+```
+
+
 ## Proxy management
 
 ### Configuration
