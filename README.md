@@ -535,6 +535,8 @@ Here is the list of features supported by the Rainbow-Node-SDK
 
 ### Bubbles
 
+ - Create a new Bubble
+ 
  - Get the list of bubbles
 
  - Get bubble individually
@@ -542,6 +544,8 @@ Here is the list of features supported by the Rainbow-Node-SDK
  - Invite contact to a bubble
 
  - Leave a bubble
+
+ - Delete a bubble
 
 
 ### Presence
