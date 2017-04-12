@@ -227,7 +227,7 @@ rainbowSDK.events.on('rainbow_onconnectionok', function() {
 
 ### Retrieve a contact information
 
-Accessing individually an existing contact can be done using the API **getContactByJid()** or **getContactById()**
+Accessing individually an existing contact can be done using the API **getContactByJid()**, **getContactById()** or **getContactByLoginEmail()**
 
 ```js
     ...
@@ -359,6 +359,23 @@ rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, 
     ...
 }).catch(function(err) {
     // do something if the invitation failed (eg. bad reference to a buble)
+    ...
+});
+```
+
+
+### Remove a contact from a bubble
+
+A contact can be removed from a bubble even if he hasn't yet accepted the invitation. For removing him, add the following code
+
+```js
+...
+
+rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(theBubbleUpdated) {
+    // do something with once the contact has been removed
+    ...
+}).catch(function(err) {
+    // do something if there is a trouble when removing the conact
     ...
 });
 ```
@@ -542,6 +559,8 @@ Here is the list of features supported by the Rainbow-Node-SDK
  - Get bubble individually
 
  - Invite contact to a bubble
+
+ - Remove contact from a bubble
 
  - Leave a bubble
 
