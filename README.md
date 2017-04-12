@@ -354,7 +354,7 @@ var invitedAsModerator = false;     // To set to true if you want to invite some
 var sendAnInvite = true;            // To set to false if you want to add someone to a bubble without having to invite him first
 var inviteReason = "bot-invite";    // Define a reason for the invite (part of the invite received by the recipient)
 
-rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, sendAnInvite, inviteReason).then(function(updatedBubble) {
+rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, sendAnInvite, inviteReason).then(function(bubbleUpdated) {
     // do something with the invite sent
     ...
 }).catch(function(err) {
@@ -371,7 +371,7 @@ A contact can be removed from a bubble even if he hasn't yet accepted the invita
 ```js
 ...
 
-rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(theBubbleUpdated) {
+rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubbleUpdated) {
     // do something with once the contact has been removed
     ...
 }).catch(function(err) {
