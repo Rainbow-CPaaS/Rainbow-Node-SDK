@@ -2,11 +2,11 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-### v0.10.7
-
- - [Bubble] Allow to delete a bubble 
+### v0.10.8
 
  - [Bubble] Allow to create a bubble
+
+ - [Bubble] Allow to delete a bubble 
 
  - [Bubble] Allow to add a contact to a bubble (with or without invite, as user or moderator, with a reason)
 
@@ -15,6 +15,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
  - [Bubble] Allow to send a message to a bubble
 
  - [Bubble] Allow to leave a bubble
+
+ - [Bubble] Allow to remote a contact from a bubble
+
+ - [Contact] Retrieve a contact using his login (email)
 
 ### v0.9.7
 
