@@ -7,6 +7,18 @@ class NodeSDK {
 
     constructor(options) {
         this._core = new Core(options);
+
+        process.on("uncaughtException", (err) => {
+            console.log(">>> Uncaught exception", err);
+        });
+
+        process.on("warning", (err) => {
+            console.log(">>> Warning", err);
+        });
+
+        process.on("unhandledRejection", (err) => {
+            console.log(">>> Unhandled rejection", err);
+        });
     }
 
     /**
