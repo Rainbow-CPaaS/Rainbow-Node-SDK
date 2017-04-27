@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "0.10.11",
+  "version": "0.10.12",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-jsdoc-to-markdown": "^3.0.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.3.0"
   },
   "dependencies": {
     "btoa": "^1.1.2",
