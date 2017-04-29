@@ -407,7 +407,11 @@ affiliation: {
 
 ### Leave a bubble
 
-You can only leave a owned bubble if you have invited someone with a role of **moderator**. If it is the case, you can leave a owned bubble by calling the following API:
+Depending your role in the bubble, you can or not leave it:
+ - If you are a **moderator** or the **owner** of this bubble, you can leave it only if there is an other **active** moderator (that can be the owner or not).
+ - If you are a **participant**, you can leave it when you want.
+
+For both cases, you have to call the following API
 
 ```js
 ...
@@ -421,9 +425,29 @@ rainbowSDK.bubbles.leaveBubble(aBubble).then(function() {
 ```
 
 
+### Close a bubble
+
+If you are the **owner** of a bubble or a **moderator**, you can close it. When a bubble is closed, all participants (including owner and moderators) can only read the content of the bubble but can't put new message into it (they are no more part of the bubble).
+
+For closing a bubble, you have to call the following API
+
+```js
+...
+rainbowSDK.bubbles.closeBubble(aBubble).then(function() {
+    // do something once the bubble is closed
+    ...
+}).catch(function(err) {
+    // do something if you can't close the bubble
+    ...
+});
+```
+
+
 ### Delete a bubble
 
-You can delete a owned bubble by calling the following API:
+If you are the **owner** of a bubble or a **moderator**, you can delete it. When a bubble is deleted, the bubble is removed from the bubble list and can't be accessed by the participants (including owner and moderators). The content of the bubble is no more accessible.
+
+For deleting a bubble, you have to call following API:
 
 ```js
 ...

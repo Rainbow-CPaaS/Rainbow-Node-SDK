@@ -6,19 +6,19 @@ var Error = require('./lib/common/Error');
 class NodeSDK {
 
     constructor(options) {
-        this._core = new Core(options);
-
         process.on("uncaughtException", (err) => {
-            console.log(">>> Uncaught exception", err);
+            console.error(err);
         });
 
         process.on("warning", (err) => {
-            console.log(">>> Warning", err);
+            console.error(err);
         });
 
         process.on("unhandledRejection", (err) => {
-            console.log(">>> Unhandled rejection", err);
+            console.error(err);
         });
+
+        this._core = new Core(options);
     }
 
     /**
