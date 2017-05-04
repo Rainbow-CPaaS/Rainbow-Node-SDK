@@ -224,6 +224,8 @@ rainbowSDK.events.on('rainbow_onconnectionok', function() {
 });
 ```
 
+Note: This is the fixed list of contacts of the connected user.
+
 
 ### Retrieve a contact information
 
@@ -232,9 +234,15 @@ Accessing individually an existing contact can be done using the API **getContac
 ```js
     ...
     // Retrieve the contact information when receiving a message from him
-    var contact = rainbowSDK.contacts.getContactByJid(message.fromJid);
+    rainbowSDK.contacts.getContactByJid(message.fromJid).then(function(contact) {
+        // do something with the contact found
+    }).catch(function(err) {
+        // do something on error 
+    });
 });
 ```
+
+Regarding the method **getContactByJid()**, if the contact is not found in the list of contacts, a request is sent to the server to retrieve it (limited set of information depending privacy rules).
 
 
 ### Listen to contact presence change
@@ -433,7 +441,7 @@ For closing a bubble, you have to call the following API
 
 ```js
 ...
-rainbowSDK.bubbles.closeBubble(aBubble).then(function() {
+rainbowSDK.bubbles.closeBubble(aBubble).then(function(bubbleClosed) {
     // do something once the bubble is closed
     ...
 }).catch(function(err) {
