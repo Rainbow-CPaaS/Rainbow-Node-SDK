@@ -23,7 +23,11 @@
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "devDependencies": {
     "chai": "^3.5.0",
+    "eslint": "^3.19.0",
+    "eslint-plugin-node": "^4.2.2",
     "grunt": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-eslint": "^19.0.0",
     "grunt-jsdoc-to-markdown": "^3.0.0",
     "mocha": "^3.3.0"
   },

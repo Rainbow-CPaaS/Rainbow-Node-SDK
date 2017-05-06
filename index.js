@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-var Core = require('./lib/Core');
-var Error = require('./lib/common/Error');
+var Core = require("./lib/Core");
+var Error = require("./lib/common/Error");
 
 class NodeSDK {
 
@@ -32,14 +32,14 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             that._core.start().then(function() {
                 var success = Error.OK;
-                that.events.emit('rainbow_onstarted', success);
+                that.events.emit("rainbow_onstarted", success);
                 return that._core.signin(false);
             }).then(function() {
                 resolve();
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.emit('rainbow_onconnectionerror', error);
+                that.events.emit("rainbow_onconnectionerror", error);
                 reject();
             });
         });
@@ -50,12 +50,12 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             that._core.start().then(function() {
                 var success = Error.OK;
-                that.events.emit('rainbow_onstarted', success);
+                that.events.emit("rainbow_onstarted", success);
                 resolve();
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.emit('rainbow_onconnectionerror', error);
+                that.events.emit("rainbow_onconnectionerror", error);
                 reject();
             });
         });
@@ -69,7 +69,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.emit('rainbow_onconnectionerror', error);
+                that.events.emit("rainbow_onconnectionerror", error);
                 reject();
             });
         });

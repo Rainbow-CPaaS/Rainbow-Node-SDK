@@ -20,9 +20,36 @@ module.exports = function (grunt) {
             { src: "./lib/Proxy.js", dest: "build/proxy.md" }
         ]
       }
-    }
+    },
+    eslint: {
+            all: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+            watched: ["Gruntfile.js"],
+            options: {
+                configFile: ".eslintrc",
+                fix: true
+            },
+
+            checkstylereporter: {
+                src: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+                configFile: ".eslintrc",
+                options: {
+                    outputFile: "reportQUnit/eslint.xml",
+                    format: "checkstyle"
+                }
+            },
+        },
+
+        watch: {
+            lint: {
+                files: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+                tasks: ["eslint:all"]
+            }
+        },
   });
 
   grunt.loadNpmTasks("grunt-jsdoc-to-markdown");
+  grunt.loadNpmTasks("grunt-eslint");
+  grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.registerTask("default", "jsdoc2md");
+  grunt.registerTask("lint", ["eslint:all"]);
 };
