@@ -3,8 +3,10 @@
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
 ### v0.10.14
-
- - [Contact] switch to new get contacts API (Privacy concerns) - Internal changes
+ 
+ - [Quality] Add eslint and fix all issues - Internal change
+ 
+ - [Contact] Switch to new get contacts API (Privacy concerns) - Internal change
 
 ### v0.10.13
 
