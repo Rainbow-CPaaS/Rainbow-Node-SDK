@@ -57,7 +57,7 @@ That's all! Your application should be connected to Rainbow, congratulation!
 
 ## Configuration
 
-The **options** parameter allows to enter your credentials and to target the Rainbow Cloud Services server to use.
+The `options` parameter allows to enter your credentials and to target the Rainbow Cloud Services server to use.
 
 ```js
 // Define your configuration
@@ -96,7 +96,7 @@ var options = {
 
 ### Listen to events
 
-Once you have called the **start()** method, you will begin receiving events from the SDK. If you want to catch them, you have simply to add the following lines to your code:
+Once you have called the `start()` method, you will begin receiving events from the SDK. If you want to catch them, you have simply to add the following lines to your code:
 
 ```js
 ...
@@ -137,7 +137,7 @@ Here is the complete list of the events that you can subscribe on:
 
 ### Listen to incoming messages and answer to them
 
-Listening to instant messages that come from other users is very easy. You just have to use the **'events'** public property and to subscribe to the **'rainbow_onmessagereceived'** event:
+Listening to instant messages that come from other users is very easy. You just have to use the `events` public property and to subscribe to the `rainbow_onmessagereceived` event:
 
 ```js
 ...
@@ -145,11 +145,11 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     // test if the message comes from a bubble of from a conversation with one participant
     if(message.type == "groupchat") {
         // Send the answer to the bubble
-        messageSent = nodeSDK.im.sendMessageToBubbleJid('The message answer', message.fromBubbleJid);
+        messageSent = rainbowSDK.im.sendMessageToBubbleJid('The message answer', message.fromBubbleJid);
     }
     else {
         // send the answer to the user directly otherwise
-        messageSent = nodeSDK.im.sendMessageToJid('The message answer', jsonMessage.fromJid);
+        messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid);
     }
 });
 ```
@@ -157,9 +157,9 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
 
 ### Manually send a 'read' receipt
 
-By default or if the **sendReadReceipt** property is not set, the 'read' receipt is sent automatically to the sender when the message is received so than the sender knows that the message as been read.
+By default or if the `sendReadReceipt` property is not set, the 'read' receipt is sent automatically to the sender when the message is received so than the sender knows that the message as been read.
 
-If you want to send it manually  when you want, you have to set this parameter to false and use the method **markMessageAsRead()** 
+If you want to send it manually  when you want, you have to set this parameter to false and use the method `markMessageAsRead()`
 
 ```js
 ...
@@ -171,7 +171,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
 });
 ```
 
-Notice: You not have to send receipt for message having the property **isEvent** equals to true. This is specific Bubble messages indicating that someone entered the bubble or juste leaved it.
+Notice: You not have to send receipt for message having the property `isEvent` equals to true. This is specific Bubble messages indicating that someone entered the bubble or juste leaved it.
 
 
 
@@ -229,7 +229,7 @@ Note: This is the fixed list of contacts of the connected user.
 
 ### Retrieve a contact information
 
-Accessing individually an existing contact can be done using the API **getContactByJid()**, **getContactById()** or **getContactByLoginEmail()**
+Accessing individually an existing contact can be done using the API `getContactByJid()`, `getContactById()` or `getContactByLoginEmail()`
 
 ```js
     ...
@@ -242,7 +242,7 @@ Accessing individually an existing contact can be done using the API **getContac
 });
 ```
 
-Regarding the method **getContactByJid()**, if the contact is not found in the list of contacts, a request is sent to the server to retrieve it (limited set of information depending privacy rules).
+Regarding the method `getContactByJid()`, if the contact is not found in the list of contacts, a request is sent to the server to retrieve it (limited set of information depending privacy rules).
 
 
 ### Listen to contact presence change
@@ -325,7 +325,7 @@ Each new bubble created will then be added to that list automatically.
 
 ### Retrieve a bubble information
 
-Accessing individually an existing bubble can be done using the API **getBubbleByJid()** or **getBubbleById()**
+Accessing individually an existing bubble can be done using the API `getBubbleByJid()` or `getBubbleById()`
 
 ```js
     ...
@@ -473,7 +473,7 @@ rainbowSDK.bubbles.deleteBubble(aBubble).then(function() {
 
 ### Configuration
 
-If you need to access to Rainbow through an HTTP proxy, you have to add the following part to your 'options' parameter:
+If you need to access to Rainbow through an HTTP proxy, you have to add the following part to your `options` parameter:
 
 ```js
 ...
@@ -491,7 +491,7 @@ proxy: {
 
 By default, the Rainbow SDK for Node.js logs to the shell console used (ie. that starts the Node.js process).
 
-You can disable it by setting the parameter **enableConsoleLogs** to false
+You can disable it by setting the parameter `enableConsoleLogs` to false
 
 ```js
 ...
@@ -506,7 +506,7 @@ logs: {
 
 By default, the SDK logs information in the shell console that starts the Node.js process.
 
-You can save these logs into a file by setting the parameter **enableFileLogs** to true. (False by default).
+You can save these logs into a file by setting the parameter `enableFileLogs` to true. (False by default).
 
 ```js
 ...
@@ -516,7 +516,7 @@ logs: {
 }
 ```
 
-You can modify the path where the logs are saved and the log level by modifying the paramter **file** like the following:
+You can modify the path where the logs are saved and the log level by modifying the parameter `file` like the following:
 
 ```js
 ...
@@ -528,7 +528,7 @@ logs: {
 }
 ```
 
-The available log levels are: 'error', 'warn', 'info' and 'debug'
+The available log levels are: `error`, `warn`, `info` and `debug`
 
 Notice: Each day a new file is created.
 
