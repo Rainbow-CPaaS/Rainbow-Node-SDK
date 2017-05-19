@@ -29,7 +29,7 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-eslint": "^19.0.0",
     "grunt-jsdoc-to-markdown": "^3.0.0",
-    "mocha": "^3.3.0"
+    "mocha": "^3.4.1"
   },
   "dependencies": {
     "btoa": "^1.1.2",

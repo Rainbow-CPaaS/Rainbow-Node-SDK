@@ -43,10 +43,10 @@ $ npm install --save rainbow-node-sdk
 ## Usage
 
 ```js
-var RainbowSDK = require('rainbow-node-sdk');
+let RainbowSDK = require('rainbow-node-sdk');
 
 // instantiate the SDK
-var rainbowSDK = new RainbowSDK(options);
+let rainbowSDK = new RainbowSDK(options);
 
 // start the SDK
 rainbowSDK.start();
@@ -61,7 +61,7 @@ The `options` parameter allows to enter your credentials and to target the Rainb
 
 ```js
 // Define your configuration
-var options = {
+let options = {
     rainbow: {
         host: "sandbox",  // can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
     },
@@ -220,7 +220,7 @@ Once connected, the Rainbow SDK will automatically retrieve the list of contacts
 ...
 rainbowSDK.events.on('rainbow_onconnectionok', function() {
     // do something when the connection to Rainbow is up
-    var contacts = rainbowSDK.contacts.getAll();
+    let contacts = rainbowSDK.contacts.getAll();
 });
 ```
 
@@ -253,8 +253,8 @@ When the presence of a contact changes, the following event is fired:
 ...
 rainbowSDK.events.on('rainbow_oncontactpresencechanged', function(contact) {
     // do something when the presence of a contact changes
-    var presence = contact.presence;    // Presence information
-    var status = contact.status;        // Additionnal information if exists
+    let presence = contact.presence;    // Presence information
+    let status = contact.status;        // Additionnal information if exists
 });
 ```
 
@@ -316,7 +316,7 @@ Once connected, the Rainbow SDK will automatically retrieve the list of bubbles 
 ...
 rainbowSDK.events.on('rainbow_onconnectionok', function() {
     // do something when the connection to Rainbow is up
-    var bubbles = rainbowSDK.bubbles.getAll();
+    let bubbles = rainbowSDK.bubbles.getAll();
 });
 ```
 
@@ -330,7 +330,7 @@ Accessing individually an existing bubble can be done using the API `getBubbleBy
 ```js
     ...
     // Retrieve the bubble information when receiving a message in that bubble
-    var bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
+    let bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
 });
 ```
 
@@ -341,7 +341,8 @@ A new bubble can be created by calling the following API
 
 ```js
 ...
-rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bubble").then(function(bubble) {
+let withHistory = true // Allow newcomers to have access to the bubble messages since the creation of the bubble
+rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bubble", withHistory).then(function(bubble) {
     // do something with the bubble created
     ...
 }).catch(function(err) {
@@ -358,9 +359,9 @@ Once you have created a bubble, you can invite a contact. Insert the following c
 ```js
 ...
 
-var invitedAsModerator = false;     // To set to true if you want to invite someone as a moderator
-var sendAnInvite = true;            // To set to false if you want to add someone to a bubble without having to invite him first
-var inviteReason = "bot-invite";    // Define a reason for the invite (part of the invite received by the recipient)
+let invitedAsModerator = false;     // To set to true if you want to invite someone as a moderator
+let sendAnInvite = true;            // To set to false if you want to add someone to a bubble without having to invite him first
+let inviteReason = "bot-invite";    // Define a reason for the invite (part of the invite received by the recipient)
 
 rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, sendAnInvite, inviteReason).then(function(bubbleUpdated) {
     // do something with the invite sent

@@ -8,6 +8,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
  
  - [Contact] Switch to new get contacts API (Privacy concerns) - Internal change
 
+ - [Bubble] #27312 Add parameter boolWithHistory in API createBubble to offer or not full history for newcomers
+
 ### v0.10.13
 
  - [Contact] Methods **getContactByJid()**, **getContactById()** or **getContactByLoginEmail()** are now Promise based functions.
