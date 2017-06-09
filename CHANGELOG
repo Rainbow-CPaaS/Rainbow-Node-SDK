@@ -2,8 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-### v0.10.15
+### v0.10.18
+ - #27522 Bad fix (introduce lots of regressions when no resource)
 
+### v0.10.15
  - [Contact] #27522 SearchByJid API doesn't return result when JID contains the resource 
 
 ### v0.10.14
