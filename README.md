@@ -130,7 +130,9 @@ Here is the complete list of the events that you can subscribe on:
 | **rainbow_onmessagereceiptreceived** | Fired when the message has been received by the recipient |
 | **rainbow_onmessagereceiptreadreceived** | Fired when the message has been read by the recipient |
 | **rainbow_oncontactpresencechanged** | Fired when the presence of a contact changes |
-| **rainbow_onbubbleaffiliationchanged** | Fired when the presence of a contact changes |
+| **rainbow_onbubbleaffiliationchanged** | Fired when a user changes his affiliation with a bubble |
+| **rainbow_onbubbleownaffiliationchanged** | Fired when a user changes the user connected affiliation with a bubble |
+| **rainbow_onbubbleinvitationreceived** | Fired when an invitation to join a bubble is received |
 
 
 ## Instant Messaging
@@ -396,21 +398,24 @@ When a recipient accepts or decline your invite or when he leaves the bubble, yo
 
 ```js
 ...
-rainbowSDK.events.on('rainbow_onbubbleaffiliationchanged', function(affiliation) {
-    // do something with the notification
+rainbowSDK.events.on('rainbow_onbubbleaffiliationchanged', function(bubble) {
+    // do something the affiliation of a user in that bubble changes
     ...
 });
 ```
 
-This affiliation will contain 3 information:
 
-```js
+### Be notified when the affiliation of the connected user changes with a bubble
+
+When a moderator removes you from a bubble, you can receive a notification of your new affiliation with the bubble by listening the following event:
+
+
+ ```js
 ...
-affiliation: {
-    bubble: {...},          // The bulle where the action takes place
-    contact: {...},         // The contact that changes his affiliation
-    status: 'accepted',     // The status of the affiliation (ie: accepted, declined, unsubscribed)
-}
+rainbowSDK.events.on('rainbow_onbubbleownaffiliationchanged', function(bubble) {
+    // do something when your affiliation changes for that bubble
+    ...
+});
 ```
 
 
@@ -466,6 +471,75 @@ rainbowSDK.bubbles.deleteBubble(aBubble).then(function() {
 }).catch(function(err) {
     // do something if you can't delete the bubble
     ...
+});
+```
+
+
+### Be notified when a request to join a bubble is received 
+
+When someone wants to add the connected user to a bubble the event `rainbow_onbubbleinvitationreceived` is fired:
+
+
+```js
+...
+rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
+    // do something wih this bubble
+    ...
+});
+```
+
+
+### Accepting a request to join a bubble
+
+When a request to join a bubble is received from someone, you can accept it by calling the API `acceptInvitationToJoinBubble()` like in the following:
+
+
+```js
+...
+rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
+    // Accept this invitation
+    nodeSDK.bubbles.acceptInvitationToJoinBubble(jsonMessage).then(function(updatedBubble) => {
+        // Do something once the invitation has been accepted
+        ...
+    }).catch((err) => {
+        // Do something in case of error
+        ...
+    });
+});
+```
+
+
+### Declining a request to join a bubble
+
+You can decline a request to join a bubble by calling the API `declineInvitationToJoinBubble()` like in the following:
+
+
+```js
+...
+rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
+    // Accept this invitation
+    nodeSDK.bubbles.declineInvitationToJoinBubble(jsonMessage).then(function(updatedBubble) => {
+        // Do something once the invitation has been declined
+        ...
+    }).catch((err) => {
+        // Do something in case of error
+        ...
+    });
+});
+```
+
+
+### Get the list of pending invitation to join a bubble
+
+At anytime, you can get the list of pending invitation by calling the API `getAllPendingBubbles()`:
+
+
+```js
+...
+    let pendingInvitations = nodeSDK.bubbles.getAllPendingBubbles();
+    // Do something with this list
+    ...
+     
 });
 ```
 
@@ -598,6 +672,16 @@ Here is the list of features supported by the Rainbow-Node-SDK
  - Leave a bubble
 
  - Delete a bubble
+
+ - Be notified of an invitation to join a bubble
+
+ - Be notified when affiliation of users changes in a bubble
+
+ - Be notified when my affiliation changes in a bubble
+
+ - Accept to join a bubble
+
+ - Decline to join a bubble
 
 
 ### Presence

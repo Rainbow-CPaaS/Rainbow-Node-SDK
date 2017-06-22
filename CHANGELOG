@@ -2,6 +2,13 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+### v0.11.0
+ - #27892 Be notified of a bubble invitation and accept or decline this invitation
+ - #27903 Bubble not updated when affiliation changed
+ - [Bubble] New methods **acceptInvitationToJoinBubble()**, **declineInvitationToJoinBubble()** have been added to answer a request of joining a bubble
+ - [Bubble] New event **rainbow_onbubbleinvitationreceived** added for handling invitation to join a bubble
+ - [Bubble] New event **rainbow_onbubbleownaffiliationchanged** added for handling user connected affiliation changes in a bubble
+
 ### v0.10.18
  - #27522 Bad fix (introduce lots of regressions when no resource)
 
