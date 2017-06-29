@@ -149,6 +149,11 @@ let options = {
         "login": "<your_rainbow_login_email>",  // The Rainbow email account to use
         "password": "<your_rainbow_password>"   // The Rainbow associated password to use
     },
+    // Application identifier
+    "application": {
+        "id": "<your_rainbow_application_id>", // The Rainbow Application Identifier - application must have a 'deployed' state
+        "secret": "<your_rainbow_application_secret>", // The Rainbow Application Secret - retrieved from developer hub
+    },
     // Logs options
     "logs": {
         "enableConsoleLogs": true,              // Default: true
