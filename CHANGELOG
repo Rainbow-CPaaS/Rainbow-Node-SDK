@@ -4,6 +4,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 ### v0.xxxx
 - Add Application ID treatment
+- Add language information in incoming and ougoing messages
 
 ### v0.11.0
  - #27892 Be notified of a bubble invitation and accept or decline this invitation
