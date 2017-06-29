@@ -151,7 +151,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     }
     else {
         // send the answer to the user directly otherwise
-        messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid);
+        messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid, "en");
     }
 });
 ```
