@@ -1,16 +1,16 @@
-## Getting Started with the ALE Rainbow SDK for Node.JS
+## Getting Started
 ---
 
 ### Preamble
 ---
 
-Welcome to the Alcatel-Lucent Enterprise **Rainbow Software Development Kit for Node.js**!
+Welcome to the Alcatel-Lucent Enterprise **Rainbow Software Development Kit for Node.JS**!
 
 The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an **NPM** package based on JavaScript for connecting your Node.js application to Rainbow.
 
 Its powerfull APIs enable you to create the best Node.js applications that connect to Alcatel-Lucent Enterprise [Rainbow](https://www.openrainbow.com).
 
-This tutorial will help you starting with the ALE Rainbow SDK for Node.JS.
+This tutorial will help you starting with the ALE Rainbow SDK for Node.JS by building a basic application that connect to Rainbow.
 
 
 ### Prerequisites
@@ -60,21 +60,21 @@ Once your application is ready and you want to deploy it on the Rainbow Producti
 You can create a new one by connecting to [Rainbow](https://www.openrainbow.com).
 
 
-### Building the Rainbow SDK for Node.JS HelloWorld application   
+### Building a new Node.JS application   
 ---
 
 Here are the steps you have to do for creating your first application using the ALE Rainbow SDK for Node.JS that connects to Rainbow.
 
 
-#### Initializing your HelloWorld application
+#### Initializing your application
 ---
 
 To create your application, first, you need a fresh directory to put your source files. Open a shell and execute these commands to create the application's directory and initialize your application.
 
 ```bash
 
-$ mkdir "HelloWorld"
-$ cd Helloworld
+$ mkdir "my-nodeApp"
+$ cd my-NodeApp
 $ npm init
 
 ```
