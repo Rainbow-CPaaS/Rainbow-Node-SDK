@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+### v0.xxxx
+- Add Application ID treatment
+
 ### v0.11.0
  - #27892 Be notified of a bubble invitation and accept or decline this invitation
  - #27903 Bubble not updated when affiliation changed
