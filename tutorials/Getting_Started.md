@@ -41,13 +41,14 @@ The following OS are supported:
 | Linux | Compatible with Debian, Ubuntu |
 
 
-#### For developping using the Rainbow Developer Sandboxed Platform
+#### For developping using the Rainbow Developers Sandboxed Platform
 ---
 
-Your need a Rainbow **Developer** account in order to use the Rainbow SDK for Node.js.
+For developping on the Rainbow Developers Sandboxed Platform, your need a **Developer** account in order to use the Rainbow SDK for Node.js.
 
-Please 
-- Contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
+To obtain it, you can
+
+- Either contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
 
 - Or ask our bot **Emily** for an account. Just add the tags `#support #api` to your message sent to Emily.
 
