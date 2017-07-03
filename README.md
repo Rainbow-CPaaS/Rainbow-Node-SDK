@@ -72,7 +72,7 @@ let options = {
     application: {
         appID: "<your_application_ID>",         // Your application Identifier
         appSecret: "<your_application_secret>"  // Your application secret
-    }
+    },
     // Logs options
     logs: {
         enableConsoleLogs: true,            // Default: true
