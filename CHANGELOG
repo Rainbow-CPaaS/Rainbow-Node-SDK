@@ -5,10 +5,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 
 ### v1.27.0
- - Add Application ID treatment
+ - Add application ID treatment
  - Add language information in incoming and ougoing messages
  - #27892 Be notified of a bubble invitation and accept or decline this invitation
  - #27903 Bubble not updated when affiliation changed
+ - #28006 Rework API getContactByID() to get data from server too
  - [Bubble] New methods **acceptInvitationToJoinBubble()**, **declineInvitationToJoinBubble()** have been added to answer a request of joining a bubble
  - [Bubble] New event **rainbow_onbubbleinvitationreceived** added for handling invitation to join a bubble
  - [Bubble] New event **rainbow_onbubbleownaffiliationchanged** added for handling user connected affiliation changes in a bubble

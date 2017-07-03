@@ -69,6 +69,10 @@ let options = {
         login: "<your_rainbow_login_email>",  // Your Rainbow email account
         password: "<your_rainbow_password>"   // Your Rainbow password
     },
+    application: {
+        appID: "<your_application_ID>",         // Your application Identifier
+        appSecret: "<your_application_secret>"  // Your application secret
+    }
     // Logs options
     logs: {
         enableConsoleLogs: true,            // Default: true

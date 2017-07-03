@@ -23,6 +23,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
  - New event `rainbow_onbubbleownaffiliationchanged`has been added for handling user connected affiliation changes in a bubble
 
+ - [Compatibility Break] Methods `getContactById()` is now a Promise based function: If contact is not found locally (ie: user's network), a request is sent to the server to retrieve the contact. Depending on privacy, only partial information can be returned instead of full information.
+
 
 ### Previous versions
 
@@ -54,7 +56,7 @@ Here is the complete list of notable changes for the previous releases of the SD
 
 **API**
 
-- [COmpatibility Break] API `getContactByJid()` taken into account privacy concerns - Internal change
+- [Compatibility Break] API `getContactByJid()` taken into account privacy concerns - Internal change
 
 - Add parameter boolWithHistory in API `createBubble()` to offer or not full history for newcomers
 
@@ -67,7 +69,7 @@ Here is the complete list of notable changes for the previous releases of the SD
 
 **API**
 
- - [Compatibility Break] Methods `getContactByJid()`, `getContactById()` or `getContactByLoginEmail()` are now Promise based functions.
+ - [Compatibility Break] Methods `getContactByJid()` and `getContactByLoginEmail()` are now Promise based functions.
 
  
  
