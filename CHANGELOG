@@ -3,6 +3,8 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+### v1.27.1
+ - Fix regression in API getContactByJid() 
 
 ### v1.27.0
  - Add application ID treatment
