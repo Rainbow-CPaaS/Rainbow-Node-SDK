@@ -32,10 +32,13 @@
     "mocha": "^3.4.1"
   },
   "dependencies": {
+    "@xmpp/client": "^0.2.0",
+    "@xmpp/plugins": "^0.2.0",
+    "@xmpp/xml": "^0.2.0",
     "btoa": "^1.1.2",
     "https-proxy-agent": "1.0.0",
     "jwt-decode": "2.2.0",
-    "node-xmpp-client": "3.2.0",
+    "sasl-digest-md5": "^0.1.0",
     "unirest": "0.5.1",
     "uuid4": "1.0.0",
     "winston": "2.3.1",
