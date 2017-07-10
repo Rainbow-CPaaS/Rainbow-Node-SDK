@@ -17,13 +17,15 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API**
 
- - New methods `acceptInvitationToJoinBubble()`, `declineInvitationToJoinBubble()` have been added to answer a request of joining a bubble
+ - New methods `acceptInvitationToJoinBubble()`, `declineInvitationToJoinBubble()` have been added to answer a request to join a bubble
 
  - New event `rainbow_onbubbleinvitationreceived` has been added for handling invitation to join a bubble
 
  - New event `rainbow_onbubbleownaffiliationchanged`has been added for handling user connected affiliation changes in a bubble
 
  - [Compatibility Break] Methods `getContactById()` is now a Promise based function: If contact is not found locally (ie: user's network), a request is sent to the server to retrieve the contact. Depending on privacy, only partial information can be returned instead of full information.
+
+ - Bug fix: The SDK for Node.JS now reconnects automatically when Rainbow Cloud platform is updated (services are stopped and restarted)
 
 
 ### Previous versions
