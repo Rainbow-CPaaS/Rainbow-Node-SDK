@@ -3,6 +3,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+### v1.27.2
+- Avoid message reception from Rainbow Bots (i.e. Emily)
+
 ### v1.27.1
  - Fix regression in API getContactByJid() 
 
