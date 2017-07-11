@@ -82,7 +82,19 @@ class NodeSDK {
      *    Stop the SDK
      */
     stop() {
-
+        var that = this;
+        return new Promise(function(resolve, reject) {
+            that._core.stop().then(function() {
+                var success = Error.OK;
+                that.events.emit("rainbow_onstopped", success);
+                resolve();
+            }).catch(function(err) {
+                var error = Error.ERROR;
+                error.details = err;
+                that.events.emit("rainbow_onstopped", error);
+                reject();
+            });
+        });
     }
 
     /**

@@ -111,8 +111,18 @@ Here is an example for listening when the SDK is ready to be used (once the conn
 
 ```js
 ...
-rainbowSDK.events.on('rainbow_onready', function() {
-    // do something
+rainbowSDK.events.on('rainbow_onready', () => {
+    // do something when the SDK is ready to be used
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onstarted', () => {
+    // do something when the SDK has been started
+    ...
+});
+
+rainbowSDK.start().then(() => {
+    // Do something when the SDK is started
     ...
 });
 ```
@@ -125,6 +135,7 @@ Here is the complete list of the events that you can subscribe on:
 | Name | Description |
 |------|------------|
 | **rainbow_onstarted** | Fired when the SDK has successfully started (not yet signed in) |
+| **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
 | **rainbow_onconnectionok** | Fired when the connection is successfull with Rainbow (signin complete) |
 | **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
 | **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
@@ -636,6 +647,26 @@ When there is an issue calling an API, an error object is returned like in the f
 ```
 
 Notice: In case of successfull request, this object is returned only when there is no other information returned.
+
+
+### Stopping the SDK
+
+At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services. The only way to reconnect is to call the API `start()` again.
+
+```js
+...
+rainbowSDK.events.on('rainbow_onstarted', () => {
+    // do something when the SDK has been stoppedd
+    ...
+});
+
+
+rainbowSDK.stop().then((res) => {
+    // Do something when the SDK has been stopped
+    ...
+});
+
+```
 
 
 ## Features provided

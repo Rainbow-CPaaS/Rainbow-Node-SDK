@@ -227,6 +227,7 @@ Here is the list of events that can be subscribed by the application:
 | Name | Description |
 |:-----|:------------|
 | **rainbow_onstarted** | Fired when the SDK has successfully started (not yet signed in) |
+| **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
 | **rainbow_onconnectionok** | Fired when the connection is successfull with Rainbow (signin complete) |
 | **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
 | **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
