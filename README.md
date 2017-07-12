@@ -49,7 +49,9 @@ let RainbowSDK = require('rainbow-node-sdk');
 let rainbowSDK = new RainbowSDK(options);
 
 // start the SDK
-rainbowSDK.start();
+rainbowSDK.start().then( () => {
+    // SDK ready
+});
 ```
 
 That's all! Your application should be connected to Rainbow, congratulation!
