@@ -43,6 +43,7 @@ $ npm install --save rainbow-node-sdk
 ## Usage
 
 ```js
+
 let RainbowSDK = require('rainbow-node-sdk');
 
 // instantiate the SDK
@@ -50,6 +51,7 @@ let rainbowSDK = new RainbowSDK(options);
 
 // start the SDK
 rainbowSDK.start();
+
 ```
 
 That's all! Your application should be connected to Rainbow, congratulation!
@@ -60,6 +62,7 @@ That's all! Your application should be connected to Rainbow, congratulation!
 The `options` parameter allows to enter your credentials and to target the Rainbow Cloud Services server to use.
 
 ```js
+
 // Define your configuration
 let options = {
     rainbow: {
@@ -93,6 +96,7 @@ let options = {
         sendReadReceipt: true   // True to send the the 'read' receipt automatically
     }
 };
+
 ```
 
 
@@ -103,6 +107,7 @@ let options = {
 Once you have called the `start()` method, you will begin receiving events from the SDK. If you want to catch them, you have simply to add the following lines to your code:
 
 ```js
+
 ...
 rainbowSDK.events.on(<name_of_the_event_to_listen>, callback);
 ```
@@ -125,6 +130,7 @@ rainbowSDK.start().then(() => {
     // Do something when the SDK is started
     ...
 });
+
 ```
 
 
@@ -138,6 +144,9 @@ Here is the complete list of the events that you can subscribe on:
 | **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
 | **rainbow_onconnectionok** | Fired when the connection is successfull with Rainbow (signin complete) |
 | **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
+| **rainbow_ondisconnection** | Fired when the SDK lost the connection with Rainbow |
+| **rainbow_onreconnectionattempt** | Fired when the SDK tries to reconnect |
+| **rainbow_onreconnectionok** | Fired when the SDK is successfully reconnected with Rainbow |
 | **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
 | **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
 | **rainbow_onmessagereceived** | Fired when a one-to-one message is received |
@@ -157,6 +166,7 @@ Here is the complete list of the events that you can subscribe on:
 Listening to instant messages that come from other users is very easy. You just have to use the `events` public property and to subscribe to the `rainbow_onmessagereceived` event:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     // test if the message comes from a bubble of from a conversation with one participant
@@ -169,6 +179,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
         messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid, "en");
     }
 });
+
 ```
 
 
@@ -179,6 +190,7 @@ By default or if the `sendReadReceipt` property is not set, the 'read' receipt i
 If you want to send it manually  when you want, you have to set this parameter to false and use the method `markMessageAsRead()`
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     // do something with the message received 
@@ -186,6 +198,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     // send manually a 'read' receipt to the sender
     rainbowSDK.im.markMessageAsRead(message);
 });
+
 ```
 
 Notice: You not have to send receipt for message having the property `isEvent` equals to true. This is specific Bubble messages indicating that someone entered the bubble or juste leaved it.
@@ -199,31 +212,37 @@ Receipts allow to know if the message has been successfully delivered to your re
 When the server receives the message you just sent, a receipt is sent to you:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onmessageserverreceiptreceived', function(receipt) {
     // do something when the message has been received by the Rainbow server
     ...
 });
+
 ```
 
 Then, when the recipient receives the message, the following receipt is sent to you:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onmessagereceiptreceived', function(receipt) {
     // do something when the message has been received by the recipient
     ...
 });
+
 ```
 
 Finally, when the recipient read the message, the following receipt is sent to you:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onmessagereceiptreadreceived', function(receipt) {
     // do something when the message has been read by the recipient
     ...
 });
+
 ```
 
 
@@ -234,11 +253,13 @@ rainbowSDK.events.on('rainbow_onmessagereceiptreadreceived', function(receipt) {
 Once connected, the Rainbow SDK will automatically retrieve the list of contacts from the server. You can access to them by using the following API:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onconnectionok', function() {
     // do something when the connection to Rainbow is up
     let contacts = rainbowSDK.contacts.getAll();
 });
+
 ```
 
 Note: This is the fixed list of contacts of the connected user.
@@ -249,6 +270,7 @@ Note: This is the fixed list of contacts of the connected user.
 Accessing individually an existing contact can be done using the API `getContactByJid()`, `getContactById()` or `getContactByLoginEmail()`
 
 ```js
+
     ...
     // Retrieve the contact information when receiving a message from him
     rainbowSDK.contacts.getContactByJid(message.fromJid).then(function(contact) {
@@ -257,6 +279,7 @@ Accessing individually an existing contact can be done using the API `getContact
         // do something on error 
     });
 });
+
 ```
 
 Regarding the method `getContactByJid()`, if the contact is not found in the list of contacts, a request is sent to the server to retrieve it (limited set of information depending privacy rules).
@@ -267,12 +290,14 @@ Regarding the method `getContactByJid()`, if the contact is not found in the lis
 When the presence of a contact changes, the following event is fired:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_oncontactpresencechanged', function(contact) {
     // do something when the presence of a contact changes
     let presence = contact.presence;    // Presence information
     let status = contact.status;        // Additionnal information if exists
 });
+
 ```
 
 The presence and status of a Rainbow user can take several values as described in the following table:
@@ -301,6 +326,7 @@ Notice: With this SDK version, if the contact uses several devices at the same t
 The SDK for Node.js allows to change the presence of the connected user by calling the following api:
 
 ```js
+
 ...
 rainbowSDK.presence.setPresenceTo(rainbowSDK.presence.RAINBOW_PRESENCE_DONOTDISTURB).then(function() {
     // do something when the presence has been changed
@@ -309,6 +335,7 @@ rainbowSDK.presence.setPresenceTo(rainbowSDK.presence.RAINBOW_PRESENCE_DONOTDIST
     // do something if the presence has not been changed
     ...
 });
+
 ```
 
 The following values are accepted:
@@ -330,11 +357,13 @@ Notice: Values other than the ones listed will not be taken into account.
 Once connected, the Rainbow SDK will automatically retrieve the list of bubbles from the server. You can access to them by using the following API:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onconnectionok', function() {
     // do something when the connection to Rainbow is up
     let bubbles = rainbowSDK.bubbles.getAll();
 });
+
 ```
 
 Each new bubble created will then be added to that list automatically.
@@ -345,10 +374,12 @@ Each new bubble created will then be added to that list automatically.
 Accessing individually an existing bubble can be done using the API `getBubbleByJid()` or `getBubbleById()`
 
 ```js
+
     ...
     // Retrieve the bubble information when receiving a message in that bubble
     let bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
 });
+
 ```
 
 
@@ -357,6 +388,7 @@ Accessing individually an existing bubble can be done using the API `getBubbleBy
 A new bubble can be created by calling the following API
 
 ```js
+
 ...
 let withHistory = true // Allow newcomers to have access to the bubble messages since the creation of the bubble
 rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bubble", withHistory).then(function(bubble) {
@@ -366,6 +398,7 @@ rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bub
     // do something if the creation of the bubble failed (eg. providing the same name as an existing bubble)
     ...
 });
+
 ```
 
 
@@ -374,6 +407,7 @@ rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bub
 Once you have created a bubble, you can invite a contact. Insert the following code
 
 ```js
+
 ...
 
 let invitedAsModerator = false;     // To set to true if you want to invite someone as a moderator
@@ -387,6 +421,7 @@ rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, 
     // do something if the invitation failed (eg. bad reference to a buble)
     ...
 });
+
 ```
 
 
@@ -395,6 +430,7 @@ rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, 
 A contact can be removed from a bubble even if he hasn't yet accepted the invitation. For removing him, add the following code
 
 ```js
+
 ...
 
 rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubbleUpdated) {
@@ -404,6 +440,7 @@ rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubb
     // do something if there is a trouble when removing the conact
     ...
 });
+
 ```
 
 
@@ -412,11 +449,13 @@ rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubb
 When a recipient accepts or decline your invite or when he leaves the bubble, you can receive a notification of his affiliation change by listening to the following event:
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onbubbleaffiliationchanged', function(bubble) {
     // do something the affiliation of a user in that bubble changes
     ...
 });
+
 ```
 
 
@@ -425,12 +464,14 @@ rainbowSDK.events.on('rainbow_onbubbleaffiliationchanged', function(bubble) {
 When a moderator removes you from a bubble, you can receive a notification of your new affiliation with the bubble by listening the following event:
 
 
- ```js
+```js
+
 ...
 rainbowSDK.events.on('rainbow_onbubbleownaffiliationchanged', function(bubble) {
     // do something when your affiliation changes for that bubble
     ...
 });
+
 ```
 
 
@@ -443,6 +484,7 @@ Depending your role in the bubble, you can or not leave it:
 For both cases, you have to call the following API
 
 ```js
+
 ...
 rainbowSDK.bubbles.leaveBubble(aBubble).then(function() {
     // do something once leaved the bubble
@@ -451,6 +493,7 @@ rainbowSDK.bubbles.leaveBubble(aBubble).then(function() {
     // do something if you can't leave the bubble
     ...
 });
+
 ```
 
 
@@ -461,6 +504,7 @@ If you are the **owner** of a bubble or a **moderator**, you can close it. When 
 For closing a bubble, you have to call the following API
 
 ```js
+
 ...
 rainbowSDK.bubbles.closeBubble(aBubble).then(function(bubbleClosed) {
     // do something once the bubble is closed
@@ -469,6 +513,7 @@ rainbowSDK.bubbles.closeBubble(aBubble).then(function(bubbleClosed) {
     // do something if you can't close the bubble
     ...
 });
+
 ```
 
 
@@ -479,6 +524,7 @@ If you are the **owner** of a bubble or a **moderator**, you can delete it. When
 For deleting a bubble, you have to call following API:
 
 ```js
+
 ...
 rainbowSDK.bubbles.deleteBubble(aBubble).then(function() {
     // do something once the bubble has been deleted
@@ -487,6 +533,7 @@ rainbowSDK.bubbles.deleteBubble(aBubble).then(function() {
     // do something if you can't delete the bubble
     ...
 });
+
 ```
 
 
@@ -496,11 +543,13 @@ When someone wants to add the connected user to a bubble the event `rainbow_onbu
 
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
     // do something wih this bubble
     ...
 });
+
 ```
 
 
@@ -510,6 +559,7 @@ When a request to join a bubble is received from someone, you can accept it by c
 
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
     // Accept this invitation
@@ -521,6 +571,7 @@ rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
         ...
     });
 });
+
 ```
 
 
@@ -530,6 +581,7 @@ You can decline a request to join a bubble by calling the API `declineInvitation
 
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
     // Accept this invitation
@@ -541,6 +593,7 @@ rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
         ...
     });
 });
+
 ```
 
 
@@ -550,12 +603,13 @@ At anytime, you can get the list of pending invitation by calling the API `getAl
 
 
 ```js
+
 ...
     let pendingInvitations = nodeSDK.bubbles.getAllPendingBubbles();
     // Do something with this list
     ...
-     
 });
+
 ```
 
 
@@ -566,12 +620,14 @@ At anytime, you can get the list of pending invitation by calling the API `getAl
 If you need to access to Rainbow through an HTTP proxy, you have to add the following part to your `options` parameter:
 
 ```js
+
 ...
 proxy: {
     host: '192.168.0.254',
     port: 8080,             // Default to 80 if not provided
     protocol: 'http'       // Default to 'http' if not provided
 }
+
 ```
 
 
@@ -584,11 +640,13 @@ By default, the Rainbow SDK for Node.js logs to the shell console used (ie. that
 You can disable it by setting the parameter `enableConsoleLogs` to false
 
 ```js
+
 ...
 logs: {
     enableConsoleLogs: false
     ...
 }
+
 ```
 
 
@@ -599,6 +657,7 @@ By default, the SDK logs information in the shell console that starts the Node.j
 You can save these logs into a file by setting the parameter `enableFileLogs` to true. (False by default).
 
 ```js
+
 ...
 logs: {
     enableFileLogs: true
@@ -616,11 +675,61 @@ logs: {
         level: 'error'
     }
 }
+
 ```
 
 The available log levels are: `error`, `warn`, `info` and `debug`
 
 Notice: Each day a new file is created.
+
+
+### Stopping the SDK
+
+At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services. The only way to reconnect is to call the API `start()` again.
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onstarted', () => {
+    // do something when the SDK has been stopped
+    ...
+});
+
+
+rainbowSDK.stop().then((res) => {
+    // Do something when the SDK has been stopped
+    ...
+});
+
+```
+
+
+### Auto-reconnection
+
+When the SDK for Node.JS is disconnected from Rainbow, attempts are made to try to reconnect automatically.
+
+This reconnection step can be followed by listening to events `rainbow_ondisconnection`, `rainbow_onreconnectionattempt` and `rainbow_onreconnectionok`.
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_ondisconnection', () => {
+    // do something when the SDK has been disconnected
+    ...
+});
+
+
+rainbowSDK.events.on('rainbow_onreconnectionattempt', () => {
+    // do something when the SDK try to reconnect to Rainbow
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onreconnectionok', () => {
+    // do something when the SDK has been successfully reconnected
+    ...
+});
+
+```
 
 
 ### API Return codes
@@ -638,35 +747,17 @@ Here is the table and description of the API return codes:
 When there is an issue calling an API, an error object is returned like in the following example:
 
 ```js
+
 {
     code: -1                // The error code
     label: "INTERNALERROR"  // The error label
     msg: "..."              // The error message
     details: ...            // The JS error
 }
+
 ```
 
 Notice: In case of successfull request, this object is returned only when there is no other information returned.
-
-
-### Stopping the SDK
-
-At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services. The only way to reconnect is to call the API `start()` again.
-
-```js
-...
-rainbowSDK.events.on('rainbow_onstarted', () => {
-    // do something when the SDK has been stoppedd
-    ...
-});
-
-
-rainbowSDK.stop().then((res) => {
-    // Do something when the SDK has been stopped
-    ...
-});
-
-```
 
 
 ## Features provided
