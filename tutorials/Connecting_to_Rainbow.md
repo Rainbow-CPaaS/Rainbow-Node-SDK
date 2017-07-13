@@ -14,7 +14,7 @@ This tutorial will explain in details what you have to do and how it works.
 
 ---
 
-As explained in the guide [Getting Started](/#/documentation/doc/node/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
+As explained in the guide [Getting Started](/#/documentation/doc/node/tutorials/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
 
 Here is a complete sample for connecting to Rainbow:
 
@@ -84,55 +84,55 @@ Each time the state of the SDK for Node.JS changes, an event is fired
 <center>
 <br>
 <br>
-STATE<br>`stopped`<br>
+<small>STATE</small><br>`stopped`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onstarted**<br><small>EVENT</small><br>
 |<br>
 V<br>
-STATE<br>`started`<br>
+<small>STATE</small><br>`started`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onconnected**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`connected`<br>
+<small>STATE</small><br>`connected`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onready**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`ready`<br>
+<small>STATE</small><br>`ready`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_ondisconnected**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`disconnected`<br>
+<small>STATE</small><br>`disconnected`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onreconnecting**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`reconnecting`<br>
+<small>STATE</small><br>`reconnecting`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onconnected**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`connected`<br>
+<small>STATE</small><br>`connected`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onready**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`ready`<br>
+<small>STATE</small><br>`ready`<br>
 |<br>
-|<br>
+v<br>
 **rainbow_onstopped**<br><small>EVENT</small><br>
 |<br>
 v<br>
-STATE<br>`stopped`<br>
+<small>STATE</small><br>`stopped`<br>
 <br>
 
 </center>
