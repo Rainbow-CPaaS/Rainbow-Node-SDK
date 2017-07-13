@@ -143,7 +143,7 @@ v<br>
 Here is the list of state managed by the SDK for Node.JS:
 
 | Name | Description |
-|------|:------------|
+|:-----|:------------|
 | **stopped** | The SDK for Node.JS is stopped |
 | **started** | The SDK for Node.JS has been started successfully |
 | **connected** | The SDK for Node.JS is connected to Rainbow |
@@ -221,7 +221,7 @@ This will lead to a complete new lifecycle (and so reconnect attempt if needed).
 Here is the list of events that your application can handle:
 
 | Name | Description |
-|------|:------------|
+|:-----|:------------|
 | **rainbow_onstarted** | Fired when the SDK has successfully started (not yet signed in) |
 | **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
 | **rainbow_onconnected** | Fired when the connection is successfull with Rainbow (signin complete) |
@@ -318,3 +318,8 @@ rainbowSDK.stop().then((res) => {
 ```
 
 Once stopped, the only way to reconnect is to call the API `start()` again.
+
+
+---
+
+_Last updated July, 13th 2017_
