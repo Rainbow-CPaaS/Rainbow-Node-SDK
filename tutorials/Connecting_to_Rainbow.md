@@ -1,0 +1,320 @@
+## Connecting to Rainbow
+---
+
+
+### Preamble
+---
+
+The Node.JS SDK is a NPM (Node.JS) library that can be used to connect a server (eg: your server backend) to Rainbow.
+
+This tutorial will explain in details what you have to do and how it works.
+
+
+### Configuration
+
+---
+
+As explained in the guide [Getting Started](/#/documentation/doc/hub/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
+
+Here is a complete sample for connecting to Rainbow:
+
+
+```js
+
+// Load the SDK
+let RainbowSDK = require('rainbow-node-sdk');
+
+
+// Define your configuration
+let options = {
+    // Rainbow platform
+    "rainbow": {
+        "host": "sandbox"                       // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+    },
+    // Identity used
+    "credentials": {
+        "login": "<your_rainbow_login_email>",  // The Rainbow email account to use
+        "password": "<your_rainbow_password>"   // The Rainbow associated password to use
+    },
+    // Application identifier
+    "application": {
+        "id": "<your_rainbow_application_id>", // The Rainbow Application Identifier - application must have a 'deployed' state
+        "secret": "<your_rainbow_application_secret>", // The Rainbow Application Secret - retrieved from developer hub
+    },
+    // Logs options
+    "logs": {
+        "enableConsoleLogs": true,              // Default: true
+        "enableFileLogs": false,                // Default: false
+        "file": {
+            "path": '/var/tmp/rainbowsdk/',     // Default path used
+            "level": 'debug'                    // Default log level used
+        }
+    },
+    // Proxy configuration
+    "proxy": {
+        "host": "<proxy_host>",                 // eg: "172.25.50.190" (string expected)
+        "port": "<proxy_port>",                 // eg: 8080 (integer expected)
+        "protocol": "<proxy_protocol>"          // eg: "http" (string expected)
+    },
+    // IM options
+    "im": {
+        "sendReadReceipt": true   // True to send the 'read' receipt automatically
+    }
+};
+
+// Instantiate the SDK
+let rainbowSDK = new RainbowSDK(options);
+
+// Start the SDK
+rainbowSDK.start().then(() => {
+    // Do something when the SDK is connected to Rainbow
+    ...
+});;
+
+```
+
+### SDK Node.JS lifecycle
+
+---
+
+The SDK for Node.JS has a complete lifecycle that can be managed by the application that handles it.
+
+Each time the state of the SDK for Node.JS changes, an event is fired
+
+<center>
+
+state `stopped`
+|
+|
+**rainbow_onstarted**<br>Event
+|
+V
+state `started`
+|
+|
+**rainbow_onconnected**<br>Event
+|
+v
+state `connected`
+|
+|
+**rainbow_onready**<br>Event
+|
+v
+state `ready`
+|
+|
+**rainbow_ondisconnected**<br>Event
+|
+v
+`disconnected`
+|
+|
+**rainbow_onreconnecting**<br>Event
+|
+v
+`reconnecting`
+|
+|
+**rainbow_onconnected**<br>Event
+|
+v
+`connected`
+|
+|
+**rainbow_onready**<br>Event
+|
+v
+`ready`
+|
+|
+**rainbow_onstopped**<br>Event
+|
+v
+`stopped`
+
+</center>
+
+
+### States
+
+---
+
+Here is the list of state managed by the SDK for Node.JS:
+
+| Name | Description |
+|------|:------------|
+| **stopped** | The SDK for Node.JS is stopped |
+| **started** | The SDK for Node.JS has been started successfully |
+| **connected** | The SDK for Node.JS is connected to Rainbow |
+| **ready** | The SDK for Node.JS is ready to be used |
+| **disconnected** | The SDK for Node.JS is disconnected from Rainbow |
+| **reconnecting** | The SDK for Node.JS tries to reconnect to Rainbow |
+| **failed** | The SDK for Node.JS has failed to reconnect to Rainbow |
+
+
+#### State stopped
+---
+
+When instantiating the SDK for Node.JS, his state is `stopped`.
+
+To start using it, you need to call the API `start()`.
+
+
+#### State started
+---
+
+When the API `start()` has been called, the SDK for Node.JS launches all his internal services and if he succeeds, he tries to connect to Rainbow using the configuration provided.
+
+
+#### State connected
+---
+
+If the SDK for Node.JS succeeds connecting to Rainbow, his state moves to `connected`. At this time, the SDK for Node.JS is not yet fully usable because he needs to get information from Rainbow regarding contacts, bubbles...
+
+Having a SDK for Node.JS that reaches that state, means that the credentials you use are correct. 
+
+
+#### State ready
+---
+
+Once the SDK for Node.JS has finished retrieving all his needed information, the state moves to `ready`.
+
+In that state, you can use it (ie: call API).
+
+
+#### State disconnected
+---
+
+Sometimes, the connection to Rainbow can be lost (eg: network issue, Rainbow upgrade...).
+
+In that situation, the SDK for Node.JS detects this disconnection and moves the state to `disconnected`.
+
+
+#### State reconnecting
+---
+
+When a disconnection happens, the SDK for Node.JS tries to reconnect.
+
+He will made several attempts to reconnect using a Fibonacci strategy backoff to compute the delay between two attempts. 
+
+If the SDK for Node.JS succeeds to reconnect, the state will move to `connected` and then `ready`.
+
+
+#### State failed
+---
+
+Atfer 30 attempts to reconnect, the SDK for Node.JS stops trying...
+
+In that case, the state moves to `failed`.
+
+When the SDK for Node.JS is in that state, he will no more try to reconnect.
+
+A good practice is to handle the reconnection from your application by calling the API `stop()` and then the API `start()` to initiate a new restart from scratch.
+
+This will lead to a complete new lifecycle (and so reconnect attempt if needed).
+
+
+### Events
+---
+
+Here is the list of events that your application can handle:
+
+| Name | Description |
+|------|:------------|
+| **rainbow_onstarted** | Fired when the SDK has successfully started (not yet signed in) |
+| **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
+| **rainbow_onconnected** | Fired when the connection is successfull with Rainbow (signin complete) |
+| **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
+| **rainbow_ondisconnected** | Fired when the SDK lost the connection with Rainbow |
+| **rainbow_onreconnecting** | Fired when the SDK tries to reconnect |
+| **rainbow_onfailed** | Fired when the SDK didn't succeed to reconnect and stop trying |
+| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
+| **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
+
+
+#### Event rainbow_onstarted
+---
+
+This event is fired when the SDK for Node.JS has finished starting his internal modules and is ready to connect to Rainbow.
+
+This event is fired after calling the API `start()`.
+
+
+#### Event rainbow_onstopped
+---
+
+This event is fired when the SDK for Node.JS has finished stopping his internal modules and is deconnected from Rainbow.
+
+this event is fired after calling the API `stop()`.
+
+
+#### Event rainbow_onconnected
+---
+
+This event is fired when the SDK for Node.JS succeeds to connect to Rainbow with the credentials provided in the configuration parameters.
+
+This event is also fired in case of successfull reconnection.
+
+
+#### Event rainbow_onready
+---
+
+This event is fired when the SDK for Node.JS is ready to be use.
+
+Once you receive this event, you can start calling others API.
+
+This event is also fired in case of successfull reconnection.
+
+
+#### Event rainbow_onconnectionerror
+---
+
+This event is fired when the SDK for Node.JS fails to connect to Rainbow due to ba credentials or bad Rainbow host used.
+
+
+#### Event rainbow_ondisconnected
+---
+
+This event is fired when the SDK for Node.JS has been disconnected from Rainbow and before starting to reconnect.
+
+
+#### Event rainbow_onreconnecting
+---
+
+This event is fired each time an attempt to reconnect is made by the SDK for Node.JS.
+
+
+#### Event rainbow_onfailed
+---
+
+This event is fired when the maximal number of attempts to reconnect has been reached and the SDK for Node.Js can't still not connect to Rainbow. 
+
+
+#### Event rainbow_onerror
+---
+
+This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed).
+
+
+### Stopping the SDK for Node.JS
+
+At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services and disconnect from Rainbow.
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onstopped', () => {
+    // do something when the SDK has been stopped
+    ...
+});
+
+
+rainbowSDK.stop().then((res) => {
+    // Do something when the SDK has been stopped
+    ...
+});
+
+```
+
+Once stopped, the only way to reconnect is to call the API `start()` again.
