@@ -14,7 +14,7 @@ This tutorial will explain in details what you have to do and how it works.
 
 ---
 
-As explained in the guide [Getting Started](/#/documentation/doc/hub/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
+As explained in the guide [Getting Started](/#/documentation/doc/node/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
 
 Here is a complete sample for connecting to Rainbow:
 
@@ -82,56 +82,58 @@ The SDK for Node.JS has a complete lifecycle that can be managed by the applicat
 Each time the state of the SDK for Node.JS changes, an event is fired
 
 <center>
-
-state `stopped`<br>
+<br>
+<br>
+STATE<br>`stopped`<br>
 |<br>
 |<br>
-**rainbow_onstarted**<br>Event<br>
+**rainbow_onstarted**<br><small>EVENT</small><br>
 |<br>
 V<br>
-state `started`<br>
+STATE<br>`started`<br>
 |<br>
 |<br>
-**rainbow_onconnected**<br>Event<br>
-|<br>
-v<br>
-state `connected`<br>
-|<br>
-|<br>
-**rainbow_onready**<br>Event<br>
+**rainbow_onconnected**<br><small>EVENT</small><br>
 |<br>
 v<br>
-state `ready`<br>
+STATE<br>`connected`<br>
 |<br>
 |<br>
-**rainbow_ondisconnected**<br>Event<br>
-|<br>
-v<br>
-`disconnected`<br>
-|<br>
-|<br>
-**rainbow_onreconnecting**<br>Event<br>
+**rainbow_onready**<br><small>EVENT</small><br>
 |<br>
 v<br>
-`reconnecting`<br>
+STATE<br>`ready`<br>
 |<br>
 |<br>
-**rainbow_onconnected**<br>Event<br>
-|<br>
-v<br>
-`connected`<br>
-|<br>
-|<br>
-**rainbow_onready**<br>Event<br>
+**rainbow_ondisconnected**<br><small>EVENT</small><br>
 |<br>
 v<br>
-`ready`<br>
+STATE<br>`disconnected`<br>
 |<br>
 |<br>
-**rainbow_onstopped**<br>Event<br>
+**rainbow_onreconnecting**<br><small>EVENT</small><br>
 |<br>
 v<br>
-`stopped`<br>
+STATE<br>`reconnecting`<br>
+|<br>
+|<br>
+**rainbow_onconnected**<br><small>EVENT</small><br>
+|<br>
+v<br>
+STATE<br>`connected`<br>
+|<br>
+|<br>
+**rainbow_onready**<br><small>EVENT</small><br>
+|<br>
+v<br>
+STATE<br>`ready`<br>
+|<br>
+|<br>
+**rainbow_onstopped**<br><small>EVENT</small><br>
+|<br>
+v<br>
+STATE<br>`stopped`<br>
+<br>
 
 </center>
 
