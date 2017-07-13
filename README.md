@@ -148,7 +148,7 @@ Here is the complete list of the events that you can subscribe on:
 | **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
 | **rainbow_ondisconnected** | Fired when the SDK lost the connection with Rainbow |
 | **rainbow_onreconnecting** | Fired when the SDK tries to reconnect |
-| **rainbow_onreconnectionok** | Fired when the SDK is successfully reconnected with Rainbow |
+| **rainbow_onfailed** | Fired when the SDK didn't succeed to reconnect and stop trying |
 | **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
 | **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
 | **rainbow_onmessagereceived** | Fired when a one-to-one message is received |
