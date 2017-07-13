@@ -144,10 +144,10 @@ Here is the complete list of the events that you can subscribe on:
 |------|------------|
 | **rainbow_onstarted** | Fired when the SDK has successfully started (not yet signed in) |
 | **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
-| **rainbow_onconnectionok** | Fired when the connection is successfull with Rainbow (signin complete) |
+| **rainbow_onconnected** | Fired when the connection is successfull with Rainbow (signin complete) |
 | **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
-| **rainbow_ondisconnection** | Fired when the SDK lost the connection with Rainbow |
-| **rainbow_onreconnectionattempt** | Fired when the SDK tries to reconnect |
+| **rainbow_ondisconnected** | Fired when the SDK lost the connection with Rainbow |
+| **rainbow_onreconnecting** | Fired when the SDK tries to reconnect |
 | **rainbow_onreconnectionok** | Fired when the SDK is successfully reconnected with Rainbow |
 | **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
 | **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
@@ -257,7 +257,7 @@ Once connected, the Rainbow SDK will automatically retrieve the list of contacts
 ```js
 
 ...
-rainbowSDK.events.on('rainbow_onconnectionok', function() {
+rainbowSDK.events.on('rainbow_onready', function() {
     // do something when the connection to Rainbow is up
     let contacts = rainbowSDK.contacts.getAll();
 });
@@ -361,7 +361,7 @@ Once connected, the Rainbow SDK will automatically retrieve the list of bubbles 
 ```js
 
 ...
-rainbowSDK.events.on('rainbow_onconnectionok', function() {
+rainbowSDK.events.on('rainbow_onready', function() {
     // do something when the connection to Rainbow is up
     let bubbles = rainbowSDK.bubbles.getAll();
 });
@@ -692,7 +692,7 @@ At any time, you can stop the connection to Rainbow by calling the API `stop()`.
 ```js
 
 ...
-rainbowSDK.events.on('rainbow_onstarted', () => {
+rainbowSDK.events.on('rainbow_onstopped', () => {
     // do something when the SDK has been stopped
     ...
 });
@@ -710,24 +710,29 @@ rainbowSDK.stop().then((res) => {
 
 When the SDK for Node.JS is disconnected from Rainbow, attempts are made to try to reconnect automatically.
 
-This reconnection step can be followed by listening to events `rainbow_ondisconnection`, `rainbow_onreconnectionattempt` and `rainbow_onreconnectionok`.
+This reconnection step can be followed by listening to events `rainbow_ondisconnected`, `rainbow_onreconnecting`, `rainbow_onconnected` and `rainbow_onready`.
 
 ```js
 
 ...
-rainbowSDK.events.on('rainbow_ondisconnection', () => {
+rainbowSDK.events.on('rainbow_ondisconnected', () => {
     // do something when the SDK has been disconnected
     ...
 });
 
 
-rainbowSDK.events.on('rainbow_onreconnectionattempt', () => {
-    // do something when the SDK try to reconnect to Rainbow
+rainbowSDK.events.on('rainbow_onreconnecting', () => {
+    // do something when the SDK tries to reconnect to Rainbow
     ...
 });
 
-rainbowSDK.events.on('rainbow_onreconnectionok', () => {
-    // do something when the SDK has been successfully reconnected
+rainbowSDK.events.on('rainbow_onconnected', () => {
+    // do something when the SDK has connected to Rainbow
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onready', () => {
+    // do something when the SDK is ready to be used 
     ...
 });
 

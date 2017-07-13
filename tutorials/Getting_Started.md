@@ -213,33 +213,14 @@ For sure, it's not the right way to know if your application is successfully con
 #### Listening to SDK events
 ---
 
-In order to detect it the connection has been done successfully or not, you have to subscribe to several events. To do that, add the following lines to your code:
+In order to detect it the connection has been done successfully or not, you have to subscribe to several events. To do that, you have to handle them using the API `on`:
 
 ```js
 ...
 rainbowSDK.events.on(<name_of_the_event_to_listen>, callback);
 ```
 
-In our HelloWorld application we want to detect if the connection to Rainbow has been donne successfully or not and when the SDK has finished is 'starting phase' and can be used by the application. 
-
-Here is the list of events that can be subscribed by the application:
-
-| Name | Description |
-|:-----|:------------|
-| **rainbow_onstarted** | Fired when the SDK has successfully started (not yet signed in) |
-| **rainbow_onstopped** | Fired when the SDK has been successfully stopped (all services have been stopped) |
-| **rainbow_onconnectionok** | Fired when the connection is successfull with Rainbow (signin complete) |
-| **rainbow_onconnectionerror** | Fired when the connection can't be done with Rainbow (ie. issue on sign-in) |
-| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
-| **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
-| **rainbow_onmessagereceived** | Fired when a one-to-one message is received |
-| **rainbow_onmessageserverreceiptreceived** | Fired when the message has been received by the server |
-| **rainbow_onmessagereceiptreceived** | Fired when the message has been received by the recipient |
-| **rainbow_onmessagereceiptreadreceived** | Fired when the message has been read by the recipient |
-| **rainbow_oncontactpresencechanged** | Fired when the presence of a contact changes |
-| **rainbow_onbubbleaffiliationchanged** | Fired when the presence of a contact changes |
-
-So, in our application, we can subscribed to the `rainbow_onready` event to be sure that all is correct and to the `rainbow_onerror` to detect if something goes wrong. Don't hesitate to subscribe to others events if you want more information of what's happening. 
+So, in our HelloWorld application you can subscribe to the `rainbow_onready` event to be sure that all is correct and to the `rainbow_onerror` to detect if something goes wrong. Don't hesitate to subscribe to others events if you want more information of what's happening. Have a look on the guide [Connecting to Rainbow](/#/documentation/doc/hub/Connecting_to_Rainbow). 
 
 
 ```js

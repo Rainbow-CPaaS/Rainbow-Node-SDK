@@ -31,8 +31,6 @@ class NodeSDK {
         var that = this;
         return new Promise(function(resolve, reject) {
             that._core.start().then(function() {
-                var success = Error.OK;
-                that.events.emit("rainbow_onstarted", success);
                 return that._core.signin(false);
             }).then(function() {
                 resolve();
@@ -49,8 +47,6 @@ class NodeSDK {
         var that = this;
         return new Promise(function(resolve, reject) {
             that._core.start().then(function() {
-                var success = Error.OK;
-                that.events.emit("rainbow_onstarted", success);
                 resolve();
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
@@ -143,6 +139,16 @@ class NodeSDK {
 
     get rest() {
         return this._core.rest;
+    }
+
+    /**
+     * @public
+     * @property state
+     * @description
+     *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING)
+     */  
+    get state() {
+        return this._core.state;
     }
 
 }
