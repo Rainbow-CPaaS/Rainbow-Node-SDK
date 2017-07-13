@@ -83,55 +83,55 @@ Each time the state of the SDK for Node.JS changes, an event is fired
 
 <center>
 
-state `stopped`
-|
-|
-**rainbow_onstarted**<br>Event
-|
-V
-state `started`
-|
-|
-**rainbow_onconnected**<br>Event
-|
-v
-state `connected`
-|
-|
-**rainbow_onready**<br>Event
-|
-v
-state `ready`
-|
-|
-**rainbow_ondisconnected**<br>Event
-|
-v
-`disconnected`
-|
-|
-**rainbow_onreconnecting**<br>Event
-|
-v
-`reconnecting`
-|
-|
-**rainbow_onconnected**<br>Event
-|
-v
-`connected`
-|
-|
-**rainbow_onready**<br>Event
-|
-v
-`ready`
-|
-|
-**rainbow_onstopped**<br>Event
-|
-v
-`stopped`
+state `stopped`<br>
+|<br>
+|<br>
+**rainbow_onstarted**<br>Event<br>
+|<br>
+V<br>
+state `started`<br>
+|<br>
+|<br>
+**rainbow_onconnected**<br>Event<br>
+|<br>
+v<br>
+state `connected`<br>
+|<br>
+|<br>
+**rainbow_onready**<br>Event<br>
+|<br>
+v<br>
+state `ready`<br>
+|<br>
+|<br>
+**rainbow_ondisconnected**<br>Event<br>
+|<br>
+v<br>
+`disconnected`<br>
+|<br>
+|<br>
+**rainbow_onreconnecting**<br>Event<br>
+|<br>
+v<br>
+`reconnecting`<br>
+|<br>
+|<br>
+**rainbow_onconnected**<br>Event<br>
+|<br>
+v<br>
+`connected`<br>
+|<br>
+|<br>
+**rainbow_onready**<br>Event<br>
+|<br>
+v<br>
+`ready`<br>
+|<br>
+|<br>
+**rainbow_onstopped**<br>Event<br>
+|<br>
+v<br>
+`stopped`<br>
 
 </center>
 
