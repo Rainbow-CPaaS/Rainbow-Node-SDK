@@ -151,6 +151,16 @@ class NodeSDK {
         return this._core.state;
     }
 
+    /**
+     * @public
+     * @property version
+     * @description
+     *      Return the version of the SDK
+     */
+    get version() {
+        return this._core.version;
+    }
+
 }
 
 module.exports = NodeSDK;
