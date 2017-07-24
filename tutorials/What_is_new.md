@@ -7,28 +7,25 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+
 **SDK**
 
-- Starting version 1.28.0, the SDK for Node.JS is able to reconnect automatically after each Rainbow update. When the SDK for Node.JS is deconnected from Rainbow, it will try to reconnect several times and once succeeded will continue to work normally.
+- Starting version 1.28.0, the SDK for Node.JS is able to reconnect automatically after each Rainbow update. When the SDK for Node.JS is disconnected from Rainbow, it tries to reconnect several times and once succeeded continues to work as before.
 
-- The SDK for Node.Js now distinguishes Carbon Copy (cc) Message that has been sent by an other connected resource.
+- The SDK for Node.Js now distinguishes carbon-copy (cc) messages that have been sent by other connected resources.
 
-- SDK for Node.JS version, Node.JS version and some others Node.JS components version have been added to the log file to help debugging Node.JS application.
+- Version of the SDK for Node.JS, version of Node.JS and version from other Node.JS components have been added to the log file to help debugging Node.JS application.
 
-- New tutorial `Connecting to Rainbow` has been written to help understanding the SDK for Node.JS lifecycle.
+- New tutorial [`Connecting to Rainbow`](/#/documentation/doc/node/tutorials/Connecting_to_Rainbow) has been written to help understanding the SDK for Node.JS lifecycle.
 
 
 **API**
-
-- New method `stop()` has been added to be able to stop and deconnect the SDK from Rainbow.
 
 - New property `version` has been added to retrieve the SDK Node.JS version.
 
 - New property `state`has been added to retrieve the SDK Node.JS current state.
 
-- A fix has been added to be able to listen to messages received in bubble just after the bubble has been created.
-
-- A fix has been added to avoid crash when receiving unknown message (XMPP).
+- New method `stop()` has been added to be able to stop and deconnect the SDK from Rainbow.
 
 - New parameters `cc` and `cctype` have been added to event `rainbow_onmessagereceived` to distinguish carbon copy messages sent and received in one-to-one conversation.
 
@@ -37,6 +34,13 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - New parameter `content` has been added to API `sendMessageToJid()` and API `sendMessageToBubbleJid()` to send a content in an additional format (default is Markdown). This parameter is optional.
 
 - New parameter `subject` has been added to API `sendMessageToJid()` and API `sendMessageToBubbleJid()` in order to send a header associated to the message. For information, this subject is displayed by the Rainbow client in notifications.
+
+
+**BUGS**
+
+- A fix has been added to be able to listen to messages received in bubble just after the bubble has been created.
+
+- A fix has been added to avoid crash when receiving unknown message (XMPP).
 
 
 ### Previous versions
