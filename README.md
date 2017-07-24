@@ -178,9 +178,33 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     }
     else {
         // send the answer to the user directly otherwise
-        messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid, "en");
+        messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid);
     }
 });
+
+```
+
+### Managing additionnal content
+
+You can add extra content when sending a message to a user:
+
+- Define the language of the message
+
+- Define an additionnal text format
+
+- Define a subject
+
+Modify your code like in the following to add extra content:
+
+
+```js
+
+...
+// Send a message in French to a user with a markdown format and a subject
+messageSent = rainbowSDK.im.sendMessageToJid('A message', user.jid, "en", {"type": "text/markdown", "message": "**A message**"}, "My Title");
+
+// Send a message in French to a bubble with a markdown format and a subject
+messageSent = rainbowSDK.im.sendMessageToBubbleJid('A message for a bubble', bubble.jid, "en", {"type": "text/markdown", "message": "**A message** for a _bubble_"}, "My ‡Title");
 
 ```
 
@@ -634,6 +658,17 @@ proxy: {
 
 
 ## Serviceability
+
+### Retrieving SDK version
+
+You can retrieve the SDK Node.JS version by calling the API `version`
+
+```js
+
+let version = rainbowSDK.version;
+
+```
+
 
 ### Logging to the console
 
