@@ -31,16 +31,16 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New parameter 'lang' has been added to API `sendMessageToJid()` and to API `sendMessageToBubbleJid()` to specify the language used of the message. This parameter is optional and by default is `en`.
 
-- New parameter `content` has been added to API `sendMessageToJid()` and API `sendMessageToBubbleJid()` to send a content in an additional format (default is Markdown). This parameter is optional.
+- New parameter `content` has been added to API `sendMessageToJid()` and API `sendMessageToBubbleJid()` to send a message in an additional content type (default is Markdown). This parameter is optional.
 
-- New parameter `subject` has been added to API `sendMessageToJid()` and API `sendMessageToBubbleJid()` in order to send a header associated to the message. For information, this subject is displayed by the Rainbow client in notifications.
+- New parameter `subject` has been added to API `sendMessageToJid()` and API `sendMessageToBubbleJid()` in order to send a header associated to the message. For information, this subject is displayed by the Rainbow client in notifications. This parameter is optional.
 
 
 **BUGS**
 
 - A fix has been added to be able to listen to messages received in bubble just after the bubble has been created.
 
-- A fix has been added to avoid crash when receiving unknown message (XMPP).
+- A fix has been added to avoid crashing when receiving not managed XMPP messages.
 
 
 ### Previous versions

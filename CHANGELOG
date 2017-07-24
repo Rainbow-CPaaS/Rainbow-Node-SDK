@@ -3,6 +3,20 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+### v1.28.0
+- #28219: Reconnect
+- #28086: Switch to new get contacts network API
+- #28292: Avoid crashing on unknown XMPP messages
+- #28161: Manage messages received just after bubble creation
+- #28162: Differentiate Carbon copy message
+- #28182: Stop the SDK
+- #28307: Add property version
+- #28085: Display SDK version in log
+- #28231: Allow to send and receive additional content type like markdown
+- #28238: New tutorial "Connecting to Rainbow"
+- #28239: Add property state
+- #28299: Add subject in message 
+
 ### v1.27.2
 - Avoid message reception from Rainbow Bots (i.e. Emily)
 
