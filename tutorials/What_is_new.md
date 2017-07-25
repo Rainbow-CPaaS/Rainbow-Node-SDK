@@ -52,6 +52,8 @@ Here is the complete list of notable changes for the previous releases of the SD
 
 #### v1.27.0
 
+---
+
 
 **SDK**
 
