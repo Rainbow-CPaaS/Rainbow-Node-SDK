@@ -145,7 +145,7 @@ The log information can contain a serialized JSON object when needed.
 
 The SDK for Node.JS logs the SDK version and all Node.JS main component used.
 
-When contacting the support (#support #api) don't forget to add all these information. Copy/Pasting only the error seen is not suffisant. We need to know which version you are using.
+When contacting the support, don't forget to add all these information. Copy/Pasting only the error seen is not suffisant. We need to know which version you are using.
 
 
 ---
