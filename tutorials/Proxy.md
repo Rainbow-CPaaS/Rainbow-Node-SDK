@@ -1,4 +1,4 @@
-## Proxy
+## Using a Proxy
 ---
 
 ### Preamble
