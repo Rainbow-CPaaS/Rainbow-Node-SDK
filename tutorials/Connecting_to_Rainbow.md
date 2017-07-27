@@ -303,6 +303,7 @@ This event is fired each time an error occurs in the SDK for Node.JS (eg: reconn
 
 At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services and disconnect from Rainbow.
 
+
 ```js
 
 ...

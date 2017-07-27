@@ -14,7 +14,7 @@ class NodeSDK {
             console.error(err);
         });
 
-        process.on("unhandledRejection", (err) => {
+        process.on("unhandledRejection", (err, p) => {
             console.error(err);
         });
 
@@ -133,10 +133,31 @@ class NodeSDK {
         return this._core.bubbles;
     }
 
+    /**
+     * @public
+     * @property events
+     * @description
+     *    Get access to the Events service
+     */    
     get events() {
         return this._core.events;
     }
 
+    /**
+     * @admin
+     * @description
+     *    Get access to the Events service
+     */    
+    get admin() {
+        return this._core.admin;
+    }
+
+    /**
+     * @pprivate
+     * @property rest
+     * @description
+     *    Get access to the REST service
+     */
     get rest() {
         return this._core.rest;
     }
