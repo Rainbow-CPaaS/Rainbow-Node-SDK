@@ -43,6 +43,12 @@ class NodeSDK {
         });
     }
 
+    /**
+     * @public
+     * @method startCLI
+     * @description
+     *      Start the SDK with CLI
+     */
     startCLI() {
         var that = this;
         return new Promise(function(resolve, reject) {
@@ -57,6 +63,12 @@ class NodeSDK {
         });
     }
 
+    /**
+     * @public
+     * @method siginCLI
+     * @description
+     *      Sign in with CLI
+     */
     signinCLI() {
         var that = this;
         return new Promise(function(resolve, reject) {
@@ -144,16 +156,17 @@ class NodeSDK {
     }
 
     /**
+     * @public
      * @admin
      * @description
-     *    Get access to the Events service
+     *    Get access to the Admin service
      */    
     get admin() {
         return this._core.admin;
     }
 
     /**
-     * @pprivate
+     * @private
      * @property rest
      * @description
      *    Get access to the REST service
