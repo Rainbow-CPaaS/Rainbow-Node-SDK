@@ -12,7 +12,7 @@ module.exports = function (grunt) {
             { src: "./lib/connection/HttpService.js", dest: "build/connection/httpservice.md" },
             { src: "./lib/connection/RESTService.js", dest: "build/connection/restservice.md" },
             { src: "./lib/connection/XMPPService.js", dest: "build/connection/xmppservice.md" },
-            { src: "./lib/services/Bubbles.js", dest: "build/services/error.md" },
+            { src: "./lib/services/Bubbles.js", dest: "build/services/bubbles.md" },
             { src: "./lib/services/Contacts.js", dest: "build/services/contacts.md" },
             { src: "./lib/services/IM.js", dest: "build/services/im.md" },
             { src: "./lib/services/Presence.js", dest: "build/services/presence.md" },
