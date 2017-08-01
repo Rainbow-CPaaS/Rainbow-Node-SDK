@@ -157,6 +157,16 @@ class NodeSDK {
 
     /**
      * @public
+     * @property fileServer
+     * @description
+     *    Get access to the File Server service
+     */
+    get fileServer() {
+        return this._core.fileServer;
+    }
+
+    /**
+     * @public
      * @admin
      * @description
      *    Get access to the Admin service
