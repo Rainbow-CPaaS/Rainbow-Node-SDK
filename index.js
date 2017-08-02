@@ -38,7 +38,7 @@ class NodeSDK {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
                 that.events.emit("rainbow_onconnectionerror", error);
-                reject();
+                reject(error);
             });
         });
     }
@@ -58,7 +58,7 @@ class NodeSDK {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
                 that.events.emit("rainbow_onconnectionerror", error);
-                reject();
+                reject(error);
             });
         });
     }
@@ -78,7 +78,7 @@ class NodeSDK {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
                 that.events.emit("rainbow_onconnectionerror", error);
-                reject();
+                reject(error);
             });
         });
     }
@@ -100,7 +100,7 @@ class NodeSDK {
                 var error = Error.ERROR;
                 error.details = err;
                 that.events.emit("rainbow_onstopped", error);
-                reject();
+                reject(error);
             });
         });
     }
