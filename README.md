@@ -200,10 +200,10 @@ Modify your code like in the following to add extra content:
 ```js
 
 ...
-// Send a message in French to a user with a markdown format and a subject
+// Send a message in English to a user with a markdown format and a subject
 messageSent = rainbowSDK.im.sendMessageToJid('A message', user.jid, "en", {"type": "text/markdown", "message": "**A message**"}, "My Title");
 
-// Send a message in French to a bubble with a markdown format and a subject
+// Send a message in English to a bubble with a markdown format and a subject
 messageSent = rainbowSDK.im.sendMessageToBubbleJid('A message for a bubble', bubble.jid, "en", {"type": "text/markdown", "message": "**A message** for a _bubble_"}, "My ‡Title");
 
 ```
@@ -422,6 +422,27 @@ rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bub
     ...
 }).catch(function(err) {
     // do something if the creation of the bubble failed (eg. providing the same name as an existing bubble)
+    ...
+});
+
+```
+
+### Add customData to a Bubble
+
+May be added to an existing Bubble calling the following API
+Please consider asking your administrator specific limitations: number max of string key : string value, max string size for key and value
+
+```js
+
+...
+let customDatas = { "customData" :  {
+    "one": "The One", "another" : "No idea"
+}};
+rainbowSDK.bubbles.setBubbleCustomData(bubble, customDatas).then(function(bubble) {
+    // do something with the bubble
+    ...
+}).catch(function(err) {
+    // do something if something went wrong by addinf customData to the bubble (eg. too much customData, too long)
     ...
 });
 
