@@ -40,6 +40,7 @@ class NodeSDK {
      * @method start
      * @description
      *    Start the SDK
+     * @memberof NodeSDK
      */
     start() {
         var that = this;
@@ -58,10 +59,11 @@ class NodeSDK {
     }
 
     /**
-     * @public
+     * @private
      * @method startCLI
      * @description
      *      Start the SDK in CLI mode
+     * @memberof NodeSDK
      */
     startCLI() {
         var that = this;
@@ -78,10 +80,11 @@ class NodeSDK {
     }
 
     /**
-     * @public
+     * @private
      * @method siginCLI
      * @description
      *      Sign-in in CLI
+     * @memberof NodeSDK
      */
     signinCLI() {
         var that = this;
@@ -102,6 +105,7 @@ class NodeSDK {
      * @method stop
      * @description
      *    Stop the SDK
+     * @memberof NodeSDK
      */
     stop() {
         var that = this;
@@ -124,6 +128,7 @@ class NodeSDK {
      * @property im
      * @description
      *    Get access to the IM module
+     * @memberof NodeSDK
      */
     get im() {
         return this._core.im;
@@ -134,6 +139,7 @@ class NodeSDK {
      * @property contacts
      * @description
      *    Get access to the Contacts module
+     * @memberof NodeSDK
      */
     get contacts() {
         return this._core.contacts;
@@ -144,6 +150,7 @@ class NodeSDK {
      * @property presence
      * @description
      *    Get access to the Presence module
+     * @memberof NodeSDK
      */
     get presence() {
         return this._core.presence;
@@ -154,6 +161,7 @@ class NodeSDK {
      * @property bubbles
      * @description
      *    Get access to the Bubbles module
+     * @memberof NodeSDK
      */
     get bubbles() {
         return this._core.bubbles;
@@ -164,6 +172,7 @@ class NodeSDK {
      * @property events
      * @description
      *    Get access to the Events module
+     * @memberof NodeSDK
      */    
     get events() {
         return this._core.events;
@@ -174,6 +183,7 @@ class NodeSDK {
      * @property fileServer
      * @description
      *    Get access to the File Server module
+     * @memberof NodeSDK
      */
     get fileServer() {
         return this._core.fileServer;
@@ -184,6 +194,7 @@ class NodeSDK {
      * @admin
      * @description
      *    Get access to the Admin module
+     * @memberof NodeSDK
      */    
     get admin() {
         return this._core.admin;
@@ -194,6 +205,7 @@ class NodeSDK {
      * @property rest
      * @description
      *    Get access to the REST module
+     * @memberof NodeSDK
      */
     get rest() {
         return this._core.rest;
@@ -204,6 +216,7 @@ class NodeSDK {
      * @property state
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING)
+     * @memberof NodeSDK
      */  
     get state() {
         return this._core.state;
@@ -214,6 +227,7 @@ class NodeSDK {
      * @property version
      * @description
      *      Return the version of the SDK
+     * @memberof NodeSDK
      */
     get version() {
         return this._core.version;
