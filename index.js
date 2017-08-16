@@ -3,6 +3,20 @@
 var Core = require("./lib/Core");
 var Error = require("./lib/common/Error");
 
+/**
+ * @class
+ * @name NodeSDK
+ * @description
+ *      This module is the core module of the Rainbow SDK for Node.JS <br>.
+ *      It gives access to the other modules and allow to start/stop the SDK
+ *      <br><br>
+ *      The main methods proposed in that module allow to: <br>
+ *      - Access to each module like Bubbles, Contacts...<br>
+ *      - Access to Event module <br>
+ *      - Start and stop the SDK <br>
+ *      - Get the version number <br>
+ *      - Get the SDK internal state
+ */
 class NodeSDK {
 
     constructor(options) {
@@ -47,7 +61,7 @@ class NodeSDK {
      * @public
      * @method startCLI
      * @description
-     *      Start the SDK with CLI
+     *      Start the SDK in CLI mode
      */
     startCLI() {
         var that = this;
@@ -67,7 +81,7 @@ class NodeSDK {
      * @public
      * @method siginCLI
      * @description
-     *      Sign in with CLI
+     *      Sign-in in CLI
      */
     signinCLI() {
         var that = this;
@@ -109,7 +123,7 @@ class NodeSDK {
      * @public
      * @property im
      * @description
-     *    Get access to the IM service
+     *    Get access to the IM module
      */
     get im() {
         return this._core.im;
@@ -119,7 +133,7 @@ class NodeSDK {
      * @public
      * @property contacts
      * @description
-     *    Get access to the Contacts service
+     *    Get access to the Contacts module
      */
     get contacts() {
         return this._core.contacts;
@@ -129,7 +143,7 @@ class NodeSDK {
      * @public
      * @property presence
      * @description
-     *    Get access to the Presence service
+     *    Get access to the Presence module
      */
     get presence() {
         return this._core.presence;
@@ -139,7 +153,7 @@ class NodeSDK {
      * @public
      * @property bubbles
      * @description
-     *    Get access to the Bubbles service
+     *    Get access to the Bubbles module
      */
     get bubbles() {
         return this._core.bubbles;
@@ -149,17 +163,17 @@ class NodeSDK {
      * @public
      * @property events
      * @description
-     *    Get access to the Events service
+     *    Get access to the Events module
      */    
     get events() {
         return this._core.events;
     }
 
     /**
-     * @public
+     * @private
      * @property fileServer
      * @description
-     *    Get access to the File Server service
+     *    Get access to the File Server module
      */
     get fileServer() {
         return this._core.fileServer;
@@ -169,7 +183,7 @@ class NodeSDK {
      * @public
      * @admin
      * @description
-     *    Get access to the Admin service
+     *    Get access to the Admin module
      */    
     get admin() {
         return this._core.admin;
@@ -179,7 +193,7 @@ class NodeSDK {
      * @private
      * @property rest
      * @description
-     *    Get access to the REST service
+     *    Get access to the REST module
      */
     get rest() {
         return this._core.rest;
