@@ -1,9 +1,8 @@
-## CHANGELOG
-(internal use)
+# SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-### v1.29.0
+## [1.29.0] - 2017-08-16
 - #28439: New methods **createUserInCompany()**, **createGuestUser()**, **inviteUserInCompany()**, **changePasswordForUser()**, **updateInformationForUser()** and **deleteUser()** have been added for managing users.
 - #28456: [Changes] Methods **getContactByLoginEmail()** now search contacts on server side if not found locally.
 - #28503: Return error codes when using in CLI mode.
@@ -15,7 +14,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28397: Add new tutorial for configuring the Proxy
 - #28557: Unable to connect websocket behind a proxy
 
-### v1.28.0
+## [1.28.0] - 2017-07-22
 - #28219: Reconnect
 - #28086: Switch to new get contacts network API
 - #28292: Avoid crashing on unknown XMPP messages
@@ -29,13 +28,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28239: Add property state
 - #28299: Add subject in message 
 
-### v1.27.2
+## [1.27.2] - 2017-06-30
 - Avoid message reception from Rainbow Bots (i.e. Emily)
 
-### v1.27.1
+## [1.27.1] - 2017-06-28
  - Fix regression in API getContactByJid() 
 
-### v1.27.0
+## [1.27.0] - 2017-06-26
  - Add application ID treatment
  - Add language information in incoming and ougoing messages
  - #27892 Be notified of a bubble invitation and accept or decline this invitation
@@ -45,13 +44,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
  - [Bubble] New event **rainbow_onbubbleinvitationreceived** added for handling invitation to join a bubble
  - [Bubble] New event **rainbow_onbubbleownaffiliationchanged** added for handling user connected affiliation changes in a bubble
 
-### v0.10.18
+## [0.10.18] - 2017-06-09
  - #27522 Bad fix (introduce lots of regressions when no resource)
 
-### v0.10.15
+## [0.10.15] - 2017-05-23
  - [Contact] #27522 SearchByJid API doesn't return result when JID contains the resource 
 
-### v0.10.14
+## [0.10.14] - 2017-05-19
  
  - [Quality] Add eslint and fix all issues - Internal change
  
@@ -59,11 +58,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
  - [Bubble] #27312 Add parameter boolWithHistory in API createBubble to offer or not full history for newcomers
 
-### v0.10.13
+## [0.10.13] - 2017-05-04
 
  - [Contact] Methods **getContactByJid()**, **getContactById()** or **getContactByLoginEmail()** are now Promise based functions.
 
-### v0.10.12
+## [0.10.12] - 2017-04-30
 
  - [Bubble] Allow to create a bubble
  
@@ -83,11 +82,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
  - [Contact] Retrieve a contact using his login (email)
 
-### v0.9.7
+## [0.9.7] - 2017-03-21
 
  - [CLI] Allow to use the SDK as a CLI tool
 
-### v0.8.12
+## [0.8.12] - 2017-03-14
 
  - [Serviceability] Allow to enable or disable console and file logging
 
@@ -97,38 +96,38 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
  - [Presence] Change the user connected presence manually
 
-### v0.7.3
+## [0.7.3] - 2017-03-02
 
  - [Serviceability] Connect through HTTP Proxy
 
-### v0.6.7
+## [0.6.7] - 2017-03-01
 
  - [Serviceability] Log debugging traces to files
 
-### v0.5.6
+## [0.5.6] - 2017-02-24
 
  - [Contacts] Retrieve the list of contacts
 
  - [Presence] Emit an event when the presence of a contact changes
 
-### v0.4.8
+## [0.4.8] - 2017-02-22
 
  - [Instant Message] Send a chat message to a Rainbow user (JID)
 
  - [Instant Message] Emit events when the Rainbow server and the recipient send a receipt
 
-### v0.3.8
+## [0.3.8] - 2017-02-21
 
  - [Instant Message] Emit an event when receiving a P2P chat messages from an other Rainbow user
  
  - [Instant Message] Send acknowledgments (Message received, Message read) when receiving a P2P message 
 
-### v0.2
+## [0.0.2] - 2017-02-21
 
  - [Presence] Set the presence to 'online' once connected
  
  - [Connection] Sign-in using the XMPP API and maintain the connection on (PING)
 
-### v0.1
+## [0.0.1] - 2017-02-19
 
  - [Connection] Sign-in using the REST API, refresh the token and reconnect when needed
