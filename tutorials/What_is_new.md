@@ -1,12 +1,51 @@
 ## What's new
 ---
 
-### SDK for Node.JS 1.28 (July 2017)
+### SDK for Node.JS 1.29 (August 2017)
 
 ---
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+
+**SDK**
+
+- Provisionning and managing users can now be done using the SDK for Node.JS.
+
+- New tutorials have been added to explain some of key concepts: [`Answering chat messages`](/#/documentation/doc/node/tutorials/Answering_chat_message), [`Debugging`](/#/documentation/doc/node/tutorials/Debugging) and [`Managing Proxy`](/#/documentation/doc/node/tutorials/Proxy)
+
+- The number of log files is now limited to 10 files (one file per day) then the oldest one is overwritten.
+
+
+**API**
+
+- New methods `createUserInCompany()`, `createGuestUser()`,`inviteUserInCompany()`, `changePasswordForUser()`, `updateInformationForUser()` and `deleteUser()` have been added for managing users.
+
+- New methods `setBubbleCustomData()` has been added to Bubble service to add, modify and delete custom data to bubble.
+
+- [Changes] Methods `getContactByLoginEmail()` now search contacts on server side if not found locally
+
+
+
+**BUGS**
+
+- In CLI mode, all methods return an error code in case of issue.
+
+- Receipt no more sent on specific bubble messages (admin messages)
+
+- Unable to connect the Websocket behind a proxy
+
+
+### Previous versions
+
+---
+
+Here is the complete list of notable changes for the previous releases of the SDK for Node.JS
+
+
+#### v1.28.0 - July'17
+
+---
 
 **SDK**
 
@@ -43,14 +82,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - A fix has been added to avoid crashing when receiving not managed XMPP messages.
 
 
-### Previous versions
-
----
-
-Here is the complete list of notable changes for the previous releases of the SDK for Node.JS
-
-
-#### v1.27.0
+#### v1.27.0 - June'17
 
 ---
 

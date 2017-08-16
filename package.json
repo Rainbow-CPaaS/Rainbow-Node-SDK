@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "engines": {
     "node": ">=4.2.4"
   },
-  "author": "Olivier Anguenot <olivier.anguenot@al-enterprise.com>",
+  "author": "Alcatel-Lucent Enterprise",
   "license": "MIT",
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "devDependencies": {

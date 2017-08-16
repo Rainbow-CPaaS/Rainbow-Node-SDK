@@ -3,6 +3,18 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+### v1.29.0
+- #28439: New methods **createUserInCompany()**, **createGuestUser()**, **inviteUserInCompany()**, **changePasswordForUser()**, **updateInformationForUser()** and **deleteUser()** have been added for managing users.
+- #28456: [Changes] Methods **getContactByLoginEmail()** now search contacts on server side if not found locally.
+- #28503: Return error codes when using in CLI mode.
+- #28380: Add new tutorial for answering to chat messages.
+- #28391: Limit the number of log files generated to 10
+- #28375: Do not send receipt on specific bubble messages (admin message)
+- #28388: Allow to add custom data to bubble.
+- #28393: Add new tutorial for debugging.
+- #28397: Add new tutorial for configuring the Proxy
+- #28557: Unable to connect websocket behind a proxy
+
 ### v1.28.0
 - #28219: Reconnect
 - #28086: Switch to new get contacts network API
