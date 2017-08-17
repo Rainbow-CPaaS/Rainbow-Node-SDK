@@ -1,12 +1,11 @@
 ## What's new
 ---
 
-### SDK for Node.JS 1.29 (August 2017)
-
----
-
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+
+### SDK for Node.JS 1.29 - August 2017
+---
 
 **SDK**
 
@@ -26,7 +25,6 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - [Changes] Methods `getContactByLoginEmail()` now search contacts on server side if not found locally
 
 
-
 **BUGS**
 
 - In CLI mode, all methods return an error code in case of issue.
@@ -36,15 +34,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - Unable to connect the Websocket behind a proxy
 
 
-### Previous versions
-
----
-
-Here is the complete list of notable changes for the previous releases of the SDK for Node.JS
-
-
-#### v1.28.0 - July'17
-
+### SDK for Node.JS 1.28 - July 2017
 ---
 
 **SDK**
@@ -82,10 +72,8 @@ Here is the complete list of notable changes for the previous releases of the SD
 - A fix has been added to avoid crashing when receiving not managed XMPP messages.
 
 
-#### v1.27.0 - June'17
-
+### SDK for Node.JS 1.27.0 - June 2017
 ---
-
 
 **SDK**
 
@@ -106,8 +94,7 @@ Here is the complete list of notable changes for the previous releases of the SD
  - [Compatibility Break] Methods `getContactById()` is now a Promise based function: If contact is not found locally (ie: user's network), a request is sent to the server to retrieve the contact. Depending on privacy, only partial information can be returned instead of full information.
 
 
-#### v0.10.18
-
+### SDK for Node.JS 0.10.18
 ---
 
 **SDK**
@@ -119,8 +106,7 @@ Here is the complete list of notable changes for the previous releases of the SD
 - Only bug fixing
 
 
-#### v0.10.14
-
+### SDK for Node.JS 0.10.14
 ---
 
 **SDK**
@@ -134,8 +120,7 @@ Here is the complete list of notable changes for the previous releases of the SD
 - Add parameter boolWithHistory in API `createBubble()` to offer or not full history for newcomers
 
 
-#### v0.10.13
-
+### SDK for Node.JS 0.10.13
 ---
 
 **SDK**
@@ -144,5 +129,4 @@ Here is the complete list of notable changes for the previous releases of the SD
 
  - [Compatibility Break] Methods `getContactByJid()` and `getContactByLoginEmail()` are now Promise based functions.
 
- 
  

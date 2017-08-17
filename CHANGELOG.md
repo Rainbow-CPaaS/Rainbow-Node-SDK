@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.29.1] - 2017-08-17
+- #28388: Return the bubble with the custom data updated
+
 ## [1.29.0] - 2017-08-16
 - #28439: New methods **createUserInCompany()**, **createGuestUser()**, **inviteUserInCompany()**, **changePasswordForUser()**, **updateInformationForUser()** and **deleteUser()** have been added for managing users.
 - #28456: [Changes] Methods **getContactByLoginEmail()** now search contacts on server side if not found locally.
