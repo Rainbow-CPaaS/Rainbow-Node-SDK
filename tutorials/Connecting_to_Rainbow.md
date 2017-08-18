@@ -11,7 +11,6 @@ This tutorial will explain in details what you have to do and how it works.
 
 
 ### Configuration
-
 ---
 
 As explained in the guide [Getting Started](/#/documentation/doc/node/tutorials/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
@@ -69,12 +68,69 @@ let rainbowSDK = new RainbowSDK(options);
 rainbowSDK.start().then(() => {
     // Do something when the SDK is connected to Rainbow
     ...
-});;
+});
 
 ```
 
-### SDK Node.JS lifecycle
+### Starting the SDK for Node.JS
+---
 
+Starting the SDK for Node.JS can be done by calling the API `start()`. This will start all services and try to connect to Rainbow.
+
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onstarted', () => {
+    // Do something when the SDK has been started
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onconnected', () => {
+    // Do something when the SDK has successfully connected to Rainbow
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onready', () => {
+    // Do something when the SDK is ready to be used
+    ...
+});
+
+// Start the SDK
+rainbowSDK.start().then(() => {
+    // Do something when the SDK is connected to Rainbow
+    ...
+});
+
+```
+
+
+### Stopping the SDK for Node.JS
+---
+
+At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services and disconnect from Rainbow.
+
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onstopped', () => {
+    // do something when the SDK has been stopped
+    ...
+});
+
+
+rainbowSDK.stop().then((res) => {
+    // Do something when the SDK has been stopped
+    ...
+});
+
+```
+
+Once stopped, the only way to reconnect is to call the API `start()` again.
+
+
+### SDK Node.JS complete lifecycle
 ---
 
 The SDK for Node.JS has a complete lifecycle that can be managed by the application that handles it.
@@ -139,7 +195,6 @@ v<br>
 
 
 ### States
-
 ---
 
 Here is the list of state managed by the SDK for Node.JS:
@@ -297,30 +352,6 @@ This event is fired when the maximal number of attempts to reconnect has been re
 ---
 
 This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed).
-
-
-### Stopping the SDK for Node.JS
-
-At any time, you can stop the connection to Rainbow by calling the API `stop()`. This will stop all services and disconnect from Rainbow.
-
-
-```js
-
-...
-rainbowSDK.events.on('rainbow_onstopped', () => {
-    // do something when the SDK has been stopped
-    ...
-});
-
-
-rainbowSDK.stop().then((res) => {
-    // Do something when the SDK has been stopped
-    ...
-});
-
-```
-
-Once stopped, the only way to reconnect is to call the API `start()` again.
 
 
 ---
