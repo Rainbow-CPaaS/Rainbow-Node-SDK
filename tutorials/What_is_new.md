@@ -20,7 +20,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New methods `createUserInCompany()`, `createGuestUser()`,`inviteUserInCompany()`, `changePasswordForUser()`, `updateInformationForUser()` and `deleteUser()` have been added for managing users.
 
-- New methods `setBubbleCustomData()` has been added to Bubble service to add, modify and delete custom data to bubble.
+- New methods `setBubbleCustomData()` has been added to Bubble service to add, modify and delete custom data to bubble, `setBubbleTopic()` has been added to Bubble service to modify the Bubble's topic, `setBubbleName()` has been added to Bubble service to modify the Bubble's name.
 
 - [Changes] Methods `getContactByLoginEmail()` now search contacts on server side if not found locally
 

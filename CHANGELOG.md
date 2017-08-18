@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.29.2] - 2017-08-18
+- New methods **setBubbleTopic()**, **setBubbleName()**
+
 ## [1.29.1] - 2017-08-17
 - #28388: Return the bubble with the custom data updated
 
