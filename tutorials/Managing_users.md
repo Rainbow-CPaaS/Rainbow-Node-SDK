@@ -22,7 +22,7 @@ Depending the right of the connected user, you can't or not manage users:
 | `admin` | `organization_admin` | YES | with this right, the SDK can create or invite new users for all companies of the organization and update the users information |
 
 
-### Creating a new user account for Rainbow
+### Creating a new Rainbow user account
 ---
 
 A new Rainbow user account can be created in a company by calling the API `createUserInCompany()`.
@@ -89,6 +89,67 @@ nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname,
 Language code follows the format `ll-CC` where `ll` is the language and `CC`is the culture name (using uppercase letter). 
 
 Note: If the language used is managed by Rainbow clients, when connecting, the Rainbow graphical interface will be displayed in that language.
+
+
+### Creating a new Rainbow guest account
+---
+
+The SDK for Node.JS allows to create Rainbow **Guest** users.
+
+A Guest user is a Rainbow user 
+
+- With restricted rights: he can call only a limited subsets of API
+
+- With a limited time-to-live (TTL): After a pre-defined period, the Guest user account is no more accessible (can't access to Rainbow)
+
+- Without a real identity: Guest user have a fistname/lastname to be identified, but no real email and no other private data associated. So a Guest account can't be found using the search.
+
+
+#### Usage of Guest accounts
+---
+
+Guest accounts can be used when you need to interact temporarily with a end-user and you don't need that this user creates a real Rainbow user.
+
+An example could be when a end-user visits you web site and wants to discuss with someone (in chat, audio or video). In that case, you will not create a new Rainbow account because in one hand the user is not identified and in the other hand, once the conversation is finished, the user will quit the website and perhaps never comes again.
+
+
+#### Basic creation
+---
+
+For creating a new Guest user account, you need at least a `company_admin` right and to call the API `createGuestUser()` like in the following sample:
+
+
+```js
+
+let guestFirstname = "Jean";
+let guestLastname = "Dupont";
+let language = "en-US";
+
+nodeSDK.admin.createGuestUser(guestFirstname, guestLastname, language).then((guest) => {
+    // Do something when the guest has been created and added to that company
+    ...
+}).catch((err) => {
+    // Do something in case of error
+    ...
+});
+
+```
+
+Once the user has been created, the `guest`parameter received will contain the credentials needed to log-in the Guest account.
+
+At this time of writing, it's the responsability of your Node.JS application to transmit these information to the requesting app that needs it.
+
+Basically, the scenario is the following:
+
+- Your front-end application requests a Guest account to your Node.JS application
+
+- Your Node.JS application uses the SDK for creating a Guest user account
+
+- Your Node.JS transmit the credentials to the front-end application
+
+- The front-end application uses these credentials and connects to Rainbow
+
+Note: In order to securize more the Guest account, this scenario is subject to change in the future.
 
 
 ### Inviting a new user to Rainbow
@@ -282,7 +343,7 @@ nodeSDK.admin.updateInformationForUser(objData, userId).then((user) => {
 
 ```
 
-###Deleting users
+### Deleting users
 ---
 
 Users can be deleted by calling the API `deleteUser()` like in that code sample:
@@ -308,4 +369,4 @@ In fact, for legal reason, the user data is kept by Rainbow for several months b
 
 ---
 
-_Last updated July, 27th 2017_
+_Last updated August, 18th 2017_
