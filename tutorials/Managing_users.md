@@ -14,8 +14,8 @@ This guide describes how to configure the SDK for Node.JS for creating or inviti
 
 Depending the right of the connected user, you can't or not manage users:
 
-| Role | Right | Can create users | Details
-|------|-------|:-------|
+| Role | Right | Can create users | Details |
+|------|-------|-------|:-------|
 | `user`| | NO | Can't create or manage users | 
 | `admin` | `site_admin`| NO | Can't create or manage users |
 | `admin` | `company_admin`| YES | With this right, the SDK can create or invite new users in the company managed and update their information |
