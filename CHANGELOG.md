@@ -2,8 +2,12 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.29.3] - 2017-08-22
+- #28639: Fix Node.JS version 4.x compatibility
+- #28463: Add new tutorial for managing users
+
 ## [1.29.2] - 2017-08-18
-- New methods **setBubbleTopic()**, **setBubbleName()**
+- #28640: New methods **setBubbleTopic()**, **setBubbleName()**
 
 ## [1.29.1] - 2017-08-17
 - #28388: Return the bubble with the custom data updated
@@ -57,83 +61,55 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
  - [Contact] #27522 SearchByJid API doesn't return result when JID contains the resource 
 
 ## [0.10.14] - 2017-05-19
- 
  - [Quality] Add eslint and fix all issues - Internal change
- 
  - [Contact] Switch to new get contacts API (Privacy concerns) - Internal change
-
  - [Bubble] #27312 Add parameter boolWithHistory in API createBubble to offer or not full history for newcomers
 
 ## [0.10.13] - 2017-05-04
-
  - [Contact] Methods **getContactByJid()**, **getContactById()** or **getContactByLoginEmail()** are now Promise based functions.
 
 ## [0.10.12] - 2017-04-30
-
  - [Bubble] Allow to create a bubble
- 
  - [Bubble] Allow to close a bubble (Bubble is archived but existing messages can still be consulted including owners)
-
  - [Bubble] Allow to delete a bubble (Bubble no more appears in the bubble list for all participants including owners)
-
  - [Bubble] Allow to add a contact to a bubble (with or without invite, as user or moderator, with a reason)
-
  - [Bubble] Send a event when the a contact changes his affiliation with a bubble
-
  - [Bubble] Allow to send a message to a bubble
-
  - [Bubble] Allow to leave a bubble
-
  - [Bubble] Allow to remote a contact from a bubble
-
  - [Contact] Retrieve a contact using his login (email)
 
 ## [0.9.7] - 2017-03-21
-
  - [CLI] Allow to use the SDK as a CLI tool
 
 ## [0.8.12] - 2017-03-14
-
  - [Serviceability] Allow to enable or disable console and file logging
-
  - [Instant Message] Allow to send a 'read' receipt manually
-
  - [Presence] Compute the contact's presence by taken into account all resources including the phone one.
-
  - [Presence] Change the user connected presence manually
 
 ## [0.7.3] - 2017-03-02
-
  - [Serviceability] Connect through HTTP Proxy
 
 ## [0.6.7] - 2017-03-01
-
  - [Serviceability] Log debugging traces to files
 
 ## [0.5.6] - 2017-02-24
-
  - [Contacts] Retrieve the list of contacts
-
  - [Presence] Emit an event when the presence of a contact changes
 
 ## [0.4.8] - 2017-02-22
-
  - [Instant Message] Send a chat message to a Rainbow user (JID)
-
  - [Instant Message] Emit events when the Rainbow server and the recipient send a receipt
 
 ## [0.3.8] - 2017-02-21
-
  - [Instant Message] Emit an event when receiving a P2P chat messages from an other Rainbow user
- 
  - [Instant Message] Send acknowledgments (Message received, Message read) when receiving a P2P message 
 
 ## [0.0.2] - 2017-02-21
-
  - [Presence] Set the presence to 'online' once connected
- 
  - [Connection] Sign-in using the XMPP API and maintain the connection on (PING)
 
 ## [0.0.1] - 2017-02-19
-
  - [Connection] Sign-in using the REST API, refresh the token and reconnect when needed
+ 

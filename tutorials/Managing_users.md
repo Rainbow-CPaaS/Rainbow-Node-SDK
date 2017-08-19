@@ -1,4 +1,4 @@
-## Managing users
+## Managing Users and Guests
 ---
 
 ### Preamble

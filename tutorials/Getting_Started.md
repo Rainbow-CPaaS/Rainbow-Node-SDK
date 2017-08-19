@@ -25,8 +25,10 @@ The minimal versions supported are:
 
 | Pre-requisites | Version supported |
 | -------------- |:---------------- |
-| Node.JS | >= 6.0 (LTS version is recommanded) |
+| Node.JS | >= 6.x **LTS version is mandatory** |
 | NPM | >= 3.6 |
+
+Note: Node.JS version 4.x will is no more supported by the SDK for Node.JS in order to let use write it using the latest JavaScript and Node.JS evolutions in term of language, features and security. Please, if you are still using an older version of Node.JS, migrate to the LTS version.
 
 
 #### Platforms supported
