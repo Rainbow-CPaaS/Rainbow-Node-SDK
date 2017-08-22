@@ -141,13 +141,13 @@ At this time of writing, it's the responsability of your Node.JS application to 
 
 Basically, the scenario is the following:
 
-- Your front-end application requests a Guest account to your Node.JS application
+- Your front-end application requests a Guest account to your Node.JS application (outside of the SDK)
 
-- Your Node.JS application uses the SDK for creating a Guest user account
+- Your Node.JS application uses the SDK for Node.JS for creating a Guest user account
 
-- Your Node.JS transmit the credentials to the front-end application
+- Your Node.JS transmit the credentials to the front-end application (outside of the SDK)
 
-- The front-end application uses these credentials and connects to Rainbow
+- The front-end application uses the SDK for Android or SDk for Web with these credentials and connects to Rainbow
 
 Note: In order to securize more the Guest account, this scenario is subject to change in the future.
 
