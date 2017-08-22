@@ -5,6 +5,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 ## [1.29.3] - 2017-08-22
 - #28639: Fix Node.JS version 4.x compatibility
 - #28463: Add new tutorial for managing users
+- #28656: Document data models used and events parameters
 
 ## [1.29.2] - 2017-08-18
 - #28640: New methods **setBubbleTopic()**, **setBubbleName()**

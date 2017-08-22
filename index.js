@@ -38,6 +38,7 @@ class NodeSDK {
     /**
      * @public
      * @method start
+     * @instance
      * @description
      *    Start the SDK
      * @memberof NodeSDK
@@ -52,7 +53,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.emit("rainbow_onconnectionerror", error);
+                that.events.publish("rainbow_onconnectionerror", error);
                 reject(error);
             });
         });
@@ -61,6 +62,7 @@ class NodeSDK {
     /**
      * @private
      * @method startCLI
+     * @instance
      * @description
      *      Start the SDK in CLI mode
      * @memberof NodeSDK
@@ -73,7 +75,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.emit("rainbow_onconnectionerror", error);
+                that.events.publish("rainbow_onconnectionerror", error);
                 reject(error);
             });
         });
@@ -82,6 +84,7 @@ class NodeSDK {
     /**
      * @private
      * @method siginCLI
+     * @instance
      * @description
      *      Sign-in in CLI
      * @memberof NodeSDK
@@ -94,7 +97,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.emit("rainbow_onconnectionerror", error);
+                that.events.publish("rainbow_onconnectionerror", error);
                 reject(error);
             });
         });
@@ -103,6 +106,7 @@ class NodeSDK {
     /**
      * @public
      * @method stop
+     * @instance
      * @description
      *    Stop the SDK
      * @memberof NodeSDK
@@ -112,12 +116,12 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             that._core.stop().then(function() {
                 var success = Error.OK;
-                that.events.emit("rainbow_onstopped", success);
+                that.events.publish("rainbow_onstopped", success);
                 resolve();
             }).catch(function(err) {
                 var error = Error.ERROR;
                 error.details = err;
-                that.events.emit("rainbow_onstopped", error);
+                that.events.publish("rainbow_onstopped", error);
                 reject(error);
             });
         });
@@ -126,6 +130,7 @@ class NodeSDK {
     /**
      * @public
      * @property im
+     * @instance
      * @description
      *    Get access to the IM module
      * @memberof NodeSDK
@@ -137,6 +142,7 @@ class NodeSDK {
     /**
      * @public
      * @property contacts
+     * @instance
      * @description
      *    Get access to the Contacts module
      * @memberof NodeSDK
@@ -148,6 +154,7 @@ class NodeSDK {
     /**
      * @public
      * @property presence
+     * @instance
      * @description
      *    Get access to the Presence module
      * @memberof NodeSDK
@@ -159,6 +166,7 @@ class NodeSDK {
     /**
      * @public
      * @property bubbles
+     * @instance
      * @description
      *    Get access to the Bubbles module
      * @memberof NodeSDK
@@ -170,6 +178,7 @@ class NodeSDK {
     /**
      * @public
      * @property events
+     * @instance
      * @description
      *    Get access to the Events module
      * @memberof NodeSDK
@@ -181,6 +190,7 @@ class NodeSDK {
     /**
      * @private
      * @property fileServer
+     * @instance
      * @description
      *    Get access to the File Server module
      * @memberof NodeSDK
@@ -191,7 +201,8 @@ class NodeSDK {
 
     /**
      * @public
-     * @admin
+     * @property admin
+     * @instance
      * @description
      *    Get access to the Admin module
      * @memberof NodeSDK
@@ -203,6 +214,7 @@ class NodeSDK {
     /**
      * @private
      * @property rest
+     * @instance
      * @description
      *    Get access to the REST module
      * @memberof NodeSDK
@@ -214,6 +226,7 @@ class NodeSDK {
     /**
      * @public
      * @property state
+     * @instance
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING)
      * @memberof NodeSDK
@@ -225,6 +238,7 @@ class NodeSDK {
     /**
      * @public
      * @property version
+     * @instance
      * @description
      *      Return the version of the SDK
      * @memberof NodeSDK

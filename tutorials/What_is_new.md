@@ -11,6 +11,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Provisionning and managing users can now be done using the SDK for Node.JS.
 
+- Data models used by the SDK (Contact, Bubble and Message) as well as events parameters have been documented.
+
 - New tutorials have been added to explain some of key concepts: [Answering chat messages](/#/documentation/doc/node/tutorials/Answering_chat_message), [Debugging](/#/documentation/doc/node/tutorials/Debugging) and [Managing Proxy](/#/documentation/doc/node/tutorials/Proxy)
 
 - New tutorials has been added to explain how to manage and create users and guests: [Managing Users and Guests](/#/documentation/doc/node/tutorials/Managing_users)
