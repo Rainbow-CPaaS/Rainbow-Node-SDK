@@ -37,6 +37,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Unable to connect the Websocket behind a proxy
 
+- Fix crash when no application ID is provided
+
 
 ### SDK for Node.JS 1.28 - July 2017
 ---
