@@ -116,7 +116,7 @@ An example could be when a end-user visits you web site and wants to discuss wit
 #### Basic creation
 ---
 
-For creating a new Guest user account, you need at least a `company_admin` right and to call the API `createGuestUser()` like in the following sample:
+For creating a new Guest user account, you need to have `company_admin` right and to call the API `createGuestUser()` like in the following sample:
 
 
 ```js
@@ -135,7 +135,7 @@ nodeSDK.admin.createGuestUser(guestFirstname, guestLastname, language).then((gue
 
 ```
 
-Once the user has been created, the `guest`parameter received will contain the credentials needed to log-in the Guest account.
+Once the user has been created, the `guest` parameter received will contain the credentials needed to log-in the Guest account.
 
 At this time of writing, it's the responsability of your Node.JS application to transmit these information to the requesting app that needs it.
 
@@ -151,11 +151,28 @@ Basically, the scenario is the following:
 
 Note: In order to securize more the Guest account, this scenario is subject to change in the future.
 
+Here are some limitations for **Guest** accounts:
+
+
+| A Guest can | A Guest can't |
+|:------------|:--------------| 
+| Send chat message to a recipient | Be searched by others Rainbow users |
+| Receive chat message from a recipient | Be added to the Network of a Rainbow user |
+| Be invited to a Bubble conversation | Create a Bubble |
+| Send chat message to a Bubble | Have owner right in a Bubble |
+| Receive chat message from a Bubble | Leave a Bubble |
+| Call in audio and video call a recipient | Receive Email notification |
+| Receive audio and video call from a recipient | Add Rainbow user or others Guests in his network |
+| Receive a file shared by a recipient | Send a file to a recipient |
+| Receive a file shared in a Bubble | Send a file to a Bubble |
+| | Be associated to a PBX device and monitor it |
+
+
 
 ### Inviting a new user to Rainbow
 ---
 
-New users can be inviting to join Rainbow by sending them an email containing a link to connect to Rainbow and to join your company if you are `company_admin` or a company you manage if you are an `organization_admin`.
+New users (not Guest) can be inviting to join Rainbow by sending them an email containing a link to connect to Rainbow and to join your company if you are `company_admin` or a company you manage if you are an `organization_admin`.
 
 
 #### Basic invitation
@@ -232,13 +249,13 @@ nodeSDK.admin.inviteUserInCompany(userEmailAccount, companyId, language, customM
 ### Updating user information
 ---
 
-At any time, you can change information regarding the user created.
+At any time, you can change information regarding the user or Guest created.
 
 
 #### Changing the password
 ---
 
-The password of a user can be changed by calling the API `changePasswordForUser()` like in that sample:
+The password of a user or a Guest can be changed by calling the API `changePasswordForUser()` like in that sample:
 
 
 ```js
@@ -260,7 +277,7 @@ nodeSDK.admin.changePasswordForUser(userId, newPassword).then((user) => {
 #### Setting additional information
 ---
 
-Additional information can be set to user by calling the API `updateInformationForUser()` like in the following code samples:
+Additional information can be set to user or a Guest by calling the API `updateInformationForUser()` like in the following code samples:
 
 This first example set or update basic user information
 
@@ -346,7 +363,7 @@ nodeSDK.admin.updateInformationForUser(objData, userId).then((user) => {
 ### Deleting users
 ---
 
-Users can be deleted by calling the API `deleteUser()` like in that code sample:
+Users and Guests can be deleted by calling the API `deleteUser()` like in that code sample:
 
 
 ```js
