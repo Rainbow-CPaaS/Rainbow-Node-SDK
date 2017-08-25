@@ -162,11 +162,11 @@ Here are some limitations for **Guest** accounts:
 | Send chat message to a Bubble | Have owner right in a Bubble |
 | Receive chat message from a Bubble | Leave a Bubble |
 | Call in audio and video call a recipient | Receive Email notification |
-| Receive audio and video call from a recipient | Add Rainbow user or others Guests in his network |
+| Receive audio and video call from a recipient | Be associated to a PBX device and monitor it |
 | Receive a file shared by a recipient | Send a file to a recipient |
 | Receive a file shared in a Bubble | Send a file to a Bubble |
-| | Be associated to a PBX device and monitor it |
-
+| | Add a Rainbow user or others Guests in his network |
+| | Be added to the network of a Rainbow user |
 
 
 ### Inviting a new user to Rainbow
