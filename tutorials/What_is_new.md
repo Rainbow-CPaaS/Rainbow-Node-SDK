@@ -4,6 +4,24 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
+### SDK for Node.JS 1.30 - September 2017
+---
+
+**SDK**
+
+- New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/node/tutorials/Managing_bubble)
+
+
+**API**
+
+- No new API has been added to this release
+
+
+**BUGS**
+
+- No fix
+
+
 ### SDK for Node.JS 1.29 - August 2017
 ---
 

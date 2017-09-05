@@ -2,6 +2,12 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.30.0] - 2017-09-07
+- #28821: Add new tutorial for managing bubbles
+
+## [1.29.4] - 2017-08-23
+- #28706: Fix crash when no AppID is provisionned
+
 ## [1.29.4] - 2017-08-23
 - #28706: Fix crash when no AppID is provisionned
 
