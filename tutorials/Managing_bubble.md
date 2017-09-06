@@ -61,7 +61,7 @@ By setting this parameter to `false`, only new messages exchanged will be seen b
 ```js
 
 ...
-let withHistory = true // Allow newcomers to have access to the bubble messages since the creation of the bubble
+let withHistory = true; // Allow newcomers to have access to the bubble messages since the creation of the bubble
 rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bubble", withHistory).then(function(bubble) {
     // do something with the bubble created
     ...
