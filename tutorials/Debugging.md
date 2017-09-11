@@ -120,26 +120,26 @@ The log information can contain a serialized JSON object when needed.
 
  ```shell
 
-16:04:39 - info: LOGS - ------------------------------------------------
-16:04:39 - info: LOGS - Welcome to the ALE Rainbow SDK for Node.JS
-16:04:39 - info: LOGS - Where Everything connects
-16:04:39 - info: LOGS - Support: Send message to Emily using #support #api
-16:04:39 - info: LOGS - ------------------------------------------------
-16:04:39 - info: LOGS - (constructor) No file logs enabled
-16:04:39 - debug: CORE - (constructor) _entering_
-16:04:39 - debug: CORE - (constructor) ------- SDK INFORMATION -------
-16:04:39 - info: CORE -  (constructor) SDK version: 1.28.0
-16:04:39 - info: CORE -  (constructor) Node version: v6.10.2
-16:04:39 - info: CORE -  (constructor) http_parser version: 2.7.0
-16:04:39 - info: CORE -  (constructor) node version: 6.10.2
-16:04:39 - info: CORE -  (constructor) v8 version: 5.1.281.98
-16:04:39 - info: CORE -  (constructor) uv version: 1.9.1
-16:04:39 - info: CORE -  (constructor) zlib version: 1.2.11
-16:04:39 - info: CORE -  (constructor) ares version: 1.10.1-DEV
-16:04:39 - info: CORE -  (constructor) icu version: 58.2
-16:04:39 - info: CORE -  (constructor) modules version: 48
-16:04:39 - info: CORE -  (constructor) openssl version: 1.0.2k
-16:04:39 - debug: CORE - (constructor) ------- SDK INFORMATION -------
+2017-9-11 22:01:43 [1505160103942] - info: LOGS - ------------------------------------------------
+2017-9-11 22:01:43 [1505160103951] - info: LOGS - Welcome to the ALE Rainbow SDK for Node.JS
+2017-9-11 22:01:43 [1505160103952] - info: LOGS - Where Everything connects
+2017-9-11 22:01:43 [1505160103952] - info: LOGS - Support: Send message to Emily using #support #api
+2017-9-11 22:01:43 [1505160103952] - info: LOGS - ------------------------------------------------
+2017-9-11 22:01:43 [1505160103952] - info: LOGS - (constructor) No file logs enabled
+2017-9-11 22:01:43 [1505160103953] - debug: CORE - (constructor) _entering_
+2017-9-11 22:01:43 [1505160103953] - debug: CORE - (constructor) ------- SDK INFORMATION -------
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) SDK version: 1.30.0
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) Node version: v6.11.1
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) http_parser version: 2.7.0
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) node version: 6.11.1
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) v8 version: 5.1.281.103
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) uv version: 1.11.0
+2017-9-11 22:01:43 [1505160103953] - info: CORE -  (constructor) zlib version: 1.2.11
+2017-9-11 22:01:43 [1505160103954] - info: CORE -  (constructor) ares version: 1.10.1-DEV
+2017-9-11 22:01:43 [1505160103954] - info: CORE -  (constructor) icu version: 58.2
+2017-9-11 22:01:43 [1505160103954] - info: CORE -  (constructor) modules version: 48
+2017-9-11 22:01:43 [1505160103954] - info: CORE -  (constructor) openssl version: 1.0.2k
+2017-9-11 22:01:43 [1505160103954] - debug: CORE - (constructor) ------- SDK INFORMATION -------
 
 ```
 
@@ -150,4 +150,4 @@ When contacting the support, don't forget to add all these information. Copy/Pas
 
 ---
 
-_Last updated July, 25th 2017_
+_Last updated September, 11th 2017_
