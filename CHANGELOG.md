@@ -2,8 +2,15 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.31.0] - 2017-09-28
+- #28868: Fix documentation around event rainbow_onmessagereceived
+- #28880: Add date and timestamp to logger
+- #28863: Impossible to reconnect after token expiration
+- #28919: Fix signinCLI which was not promised
+
 ## [1.30.0] - 2017-09-07
 - #28821: Add new tutorial for managing bubbles
+- #28823: No bearer in user login request
 
 ## [1.29.4] - 2017-08-23
 - #28706: Fix crash when no AppID is provisionned
