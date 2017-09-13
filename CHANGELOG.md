@@ -7,6 +7,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28880: Add date and timestamp to logger
 - #28863: Impossible to reconnect after token expiration
 - #28919: Fix signinCLI which was not promised
+- #28930: Rework of custom data
 
 ## [1.30.0] - 2017-09-07
 - #28821: Add new tutorial for managing bubbles

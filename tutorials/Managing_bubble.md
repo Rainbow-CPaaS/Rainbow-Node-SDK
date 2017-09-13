@@ -161,6 +161,31 @@ rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, 
 The user will then be added directly to the Bubble and can directly participate.
 
 
+### Remove a contact from a bubble
+---
+
+A member can be removed from a bubble even the connected user is a moderator of the bubble. 
+
+For removing a member, you can call the API `removeContactFromBubble()` like in that sample:
+
+
+```js
+
+...
+
+rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubbleUpdated) {
+    // do something with once the contact has been removed
+    ...
+}).catch(function(err) {
+    // do something if there is a trouble when removing the conact
+    ...
+});
+
+```
+
+Once removed, the user will still be able to read the content of the bubble but can't see new messages added or post a new message. Others members are informed that this user has been removed.
+
+
 ### Setting custom data to a Bubble
 ---
 
@@ -201,30 +226,145 @@ Please note that there is some limitation regarding the custom data to avoid abu
 As you can see, custom data are used to store some additional information like a state, a localization..., but not for storing big data like a video or a song or something like that.
 
 
-### Remove a contact from a bubble
+### Modifying custom data of a Bubble
 ---
 
-A member can be removed from a bubble even the connected user is a moderator of the bubble. 
+Custom data can be updated or removed at any time by a moderator.
 
-For removing a member, you can call the API `removeContactFromBubble()` like in that sample:
+In fact, each time you call the API `setBubbleCustomData()`, the old keys are removed and replaced by the new keys set. Here is an example that explains how it works:
 
 
 ```js
 
-...
+// No initial custom data to my bubble. Add these values
+let customDatas = {
+    "key1": "value1", 
+    "key2": "value2", 
+    "key3": "value3"
+};
 
-rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubbleUpdated) {
-    // do something with once the contact has been removed
-    ...
+rainbowSDK.bubbles.setBubbleCustomData(bubble, customDatas).then(function(bubble) {
+    
+    // 3 keys have been added
+    // bubble.customData = {"key1": "value1", "key2": "value2", "key3": "value3"}
+
+    let newCustomDatas = {
+        "key2": "newValue2"
+    }
+
+    return rainbowSDK.bubbles.setBubbleCustomData(bubble, newCustomDatas);
+}).function(bubble) {
+
+    // 2 keys removed, 1 key updated
+    // bubble.customData = {key2: "newValue2"}
+
 }).catch(function(err) {
-    // do something if there is a trouble when removing the conact
+    // do something if there is an issue changing custom data (e.g. too much keys...)
     ...
 });
 
 ```
 
-Once removed, the user will still be able to read the content of the bubble but can't see new messages added or post a new message. Others members are informed that this user has been removed.
 
+### Modifying the name of the bubble
+---
+
+Name of the bubble can be updated at any time by a moderator by calling the API `setBubbleName()` like in the following code:
+
+
+```js
+
+};
+
+rainbowSDK.bubbles.setBubbleName(bubble, "my new name").then(function(bubble) {
+
+    // do something once the name of the bubble has been changed
+
+}).catch(function(err) {
+    // do something if there is an issue updating the name of the bubble
+    ...
+});
+
+```
+
+
+### Modifying the topic of the bubble
+---
+
+Topic of the bubble can be updated at any time by a moderator by calling the API `setBubbleTopic()` like in the following code:
+
+
+```js
+
+};
+
+rainbowSDK.bubbles.setBubbleTopic(bubble, "my new topic").then(function(bubble) {
+
+    // do something once the topic of the bubble has been changed
+
+}).catch(function(err) {
+    // do something if there is an issue updating the topic of the bubble
+    ...
+});
+
+```
+
+
+### Be notified when custom data have been modified
+---
+
+when a moderator changes the custom data of a bubble, the event `rainbow_onbubblecustomdatachanged` is fired to all the members of the bubble (including the one who did the change).
+
+You can listen to that event by adding the following code:
+
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onbubblecustomdatachanged', function(bubble) {
+    // do something when the custom data has been updated
+    ...
+});
+
+```
+
+
+### Be notified when the name of the bubble has been modified
+---
+
+when a moderator changes the name of a bubble, the event `rainbow_onbubblenamechanged` is fired to all the members of the bubble (including the one who did the change).
+
+You can listen to that event by adding the following code:
+
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onbubblenamechanged', function(bubble) {
+    // do something when the name has been updated
+    ...
+});
+
+```
+
+
+### Be notified when the topic of the bubble has been modified
+---
+
+when a moderator changes the topic of a bubble, the event `rainbow_onbubbletopicchanged` is fired to all the members of the bubble (including the one who did the change).
+
+You can listen to that event by adding the following code:
+
+
+```js
+
+...
+rainbowSDK.events.on('rainbow_onbubbletopicchanged', function(bubble) {
+    // do something when the topic has been updated
+    ...
+});
+
+```
 
 ### Be notified when a contact changes his affiliation with a bubble 
 ---

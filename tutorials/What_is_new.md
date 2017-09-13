@@ -4,6 +4,26 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
+### SDK for Node.JS 1.31 - October 2017
+---
+
+**SDK**
+
+- Date and timestamp have been added to console and file loggers.
+
+
+**API**
+
+- New events `rainbow_onbubblenamechange`, `rainbow_onbubbletopicchange` and `rainbow_onbubblecustomdatachange` have been added for listening when the name, the topic or the custom data of a bubble has changed.
+
+
+**BUGS**
+
+- Crash after token expiration has been fixed in order to be able to reconnect automatically
+
+- signinCLI method now waits for the internal promise to resolve
+
+
 ### SDK for Node.JS 1.30 - September 2017
 ---
 
