@@ -216,14 +216,15 @@ rainbowSDK.bubbles.setBubbleCustomData(bubble, customDatas).then(function(bubble
 ```
 
 
-Please note that there is some limitation regarding the custom data to avoid abuse. These limitations are described here:
+Please note that there is some limitations regarding the custom data to avoid abuse. These limitations are described here:
 
 |Limit | Value | Description |
+|------|-------|:------------|
 | Number of keys | 20 | The customData is an object with a maximum of 20 keys & values |
 | Key name length | 64 | Each key name can be a string with a maximum of 64 characters |
 | Max size | 4096 octets | The max size of the whole custom data of a bubble is 4096 octets |
 
-As you can see, custom data are used to store some additional information like a state, a localization..., but not for storing big data like a video or a song or something like that.
+As you can see, custom data are used to store some additional information like a state, a localization..., but not for storing big data like a video or a file or something like that.
 
 
 ### Modifying custom data of a Bubble
