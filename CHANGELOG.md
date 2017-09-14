@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.30.1] - 2017-09-17
+- #28960: Temporarily avoid sending application token
+
 ## [1.30.0] - 2017-09-07
 - #28821: Add new tutorial for managing bubbles
 
