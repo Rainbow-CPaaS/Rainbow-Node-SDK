@@ -112,6 +112,8 @@ Guest accounts can be used when you need to interact temporarily with a end-user
 
 An example could be when a end-user visits you web site and wants to discuss with someone (in chat, audio or video). In that case, you will not create a new Rainbow account because in one hand the user is not identified and in the other hand, once the conversation is finished, the user will quit the website and perhaps never comes again.
 
+Guest accounts have a TTL (time to live). Once expired, these accounts can connect to Rainbow anymore (requests of service will fail). 
+
 
 #### Basic creation
 ---
@@ -124,8 +126,9 @@ For creating a new Guest user account, you need to have `company_admin` right an
 let guestFirstname = "Jean";
 let guestLastname = "Dupont";
 let language = "en-US";
+let ttl = 86400 // active for a day
 
-nodeSDK.admin.createGuestUser(guestFirstname, guestLastname, language).then((guest) => {
+nodeSDK.admin.createGuestUser(guestFirstname, guestLastname, language, ttl).then((guest) => {
     // Do something when the guest has been created and added to that company
     ...
 }).catch((err) => {
@@ -135,19 +138,45 @@ nodeSDK.admin.createGuestUser(guestFirstname, guestLastname, language).then((gue
 
 ```
 
+
 Once the user has been created, the `guest` parameter received will contain the credentials needed to log-in the Guest account.
+
+
+#### Anonymous guest
+---
+
+Sometime, you don't need to specify a firstname, a name and a language. Guest without these informations are called anonymous guest. 
+
+You can create anonymous guest by calling the API `createAnonymousGuestUser()` like in the following:
+
+```js
+
+let ttl = 86400 // active for a day
+
+nodeSDK.admin.createAnonymousGuestUser(ttl).then((guest) => {
+    // Do something when the anonymous guest has been created and added to that company
+    ...
+}).catch((err) => {
+    // Do something in case of error
+    ...
+});
+
+```
+
+#### Additionnal information around Guest usage
+---
 
 At this time of writing, it's the responsability of your Node.JS application to transmit these information to the requesting app that needs it.
 
 Basically, the scenario is the following:
 
-- Your front-end application requests a Guest account to your Node.JS application (outside of the SDK)
+- Your front-end application requests a Guest account to your Node.JS application (This part is outside of the scope of Rainbow)
 
-- Your Node.JS application uses the SDK for Node.JS for creating a Guest user account
+- Your Node.JS application uses the SDK for Node.JS for creating a Guest user account (anonymous or not)
 
-- Your Node.JS transmit the credentials to the front-end application (outside of the SDK)
+- Your Node.JS transmit the credentials to the front-end application (This part is outside of the scope of Rainbow)
 
-- The front-end application uses the SDK for Android or SDk for Web with these credentials and connects to Rainbow
+- The front-end application uses the SDK for Android, IOS or SDK for Web with these credentials and connects to Rainbow
 
 Note: In order to securize more the Guest account, this scenario is subject to change in the future.
 
