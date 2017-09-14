@@ -14,14 +14,16 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API**
 
-- New events `rainbow_onbubblenamechange`, `rainbow_onbubbletopicchange` and `rainbow_onbubblecustomdatachange` have been added for listening when the name, the topic or the custom data of a bubble has changed.
+- New events `rainbow_onbubblenamechanged`, `rainbow_onbubbletopicchanged` and `rainbow_onbubblecustomdatachanged` have been added for listening when the name, the topic or the custom data of a bubble has changed.
+
+- New method `createAnonymousGuestUser()` has been added to create guest users without identification (no name, firstname and language to specify).
 
 
 **BUGS**
 
 - Crash after token expiration has been fixed in order to be able to reconnect automatically
 
-- signinCLI method now waits for the internal promise to resolve
+- `signinCLI()` method now waits for the internal Promise based function to resolve
 
 
 ### SDK for Node.JS 1.30 - September 2017
