@@ -17,9 +17,6 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 ## [1.29.4] - 2017-08-23
 - #28706: Fix crash when no AppID is provisionned
 
-## [1.29.4] - 2017-08-23
-- #28706: Fix crash when no AppID is provisionned
-
 ## [1.29.3] - 2017-08-22
 - #28639: Fix Node.JS version 4.x compatibility
 - #28463: Add new tutorial for managing users
