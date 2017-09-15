@@ -294,6 +294,16 @@ At this time of writting, Rainbow clients manage Message language and is able to
 Subject is used when displaying Rainbow notification messages.
 
 
+### Limitations
+---
+
+Here are the list of limitations regarding chat messages
+
+| Topic | Limit | Details |
+|-------|-------|:--------|
+| Message size | 1536 characters | You can't send chat message having more than 1536 characters. This limit takes into account any additionnal content message. |
+
+
 ---
 
 _Last updated July, 25th 2017_

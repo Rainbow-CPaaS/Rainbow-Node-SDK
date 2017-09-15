@@ -18,6 +18,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New method `createAnonymousGuestUser()` has been added to create guest users without identification (no name, firstname and language to specify).
 
+- Methods `sendMessageToJid()` and `sendMessageToBubbleJid()` now return an error if the number of characters of the message in greater than 1536.
+
 
 **BUGS**
 
