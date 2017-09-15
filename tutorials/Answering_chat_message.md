@@ -301,7 +301,7 @@ Here are the list of limitations regarding chat messages
 
 | Topic | Limit | Details |
 |-------|-------|:--------|
-| Message size | 1536 characters | You can't send chat message having more than 1536 characters. This limit takes into account any additionnal content message. |
+| Message size | 1024 characters | You can't send chat message having more than 1024 characters. This limit takes into account any additionnal content message. |
 
 
 ---
