@@ -294,6 +294,24 @@ At this time of writting, Rainbow clients manage Message language and is able to
 Subject is used when displaying Rainbow notification messages.
 
 
+### Specific Bubbles messages
+---
+
+When chatting in a bubble, you can receive specific messages that inform you about the affiliation's change of a member in that bubble. An exemple can be where a new user has accepted to join a bubble, you will be informed.
+
+In order to distinguish this kind of message that has not to be displayed "like that", you have to take into account the parameter `isEvent`. If the value is `true`, it means that the message is a specific message. You can then have a look to the parameter `event` that contains the name of that event.
+
+The `event` parameter can have the following values:
+
+| Value | Description |
+|:-----|:------------|
+| **leave** | A member left or has been removed from the bubble by a moderator |
+| **invitation** | A member has been invited to the bubble - received only by the **moderator**|
+| **join** | A new member has join the bubble |
+| **close** | The bubble has been closed |
+| **welcome** | You have been granted to the bubble - received only by the **user who enters the bubble** |
+
+
 ### Limitations
 ---
 
@@ -306,4 +324,4 @@ Here are the list of limitations regarding chat messages
 
 ---
 
-_Last updated July, 25th 2017_
+_Last updated Septembre, 15th 2017_

@@ -11,6 +11,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Date and timestamp have been added to console and file loggers.
 
+- Guide [Answering to Chat Messages](/#/documentation/doc/node/tutorials/Answering_chat_message) has been updated to explain the specific messages that can be received by members when the affiliation of a specific member changes.
+
 
 **API**
 

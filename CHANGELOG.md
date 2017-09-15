@@ -10,6 +10,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28930: Rework of custom data
 - #28865: Allow to create anonymous guest user
 - #28955: Limit message chat to 1024 characters
+- #28866: Add explanation on specific messages received in bubble
 
 ## [1.30.1] - 2017-09-17
 - #28960: Temporarily avoid sending application token
