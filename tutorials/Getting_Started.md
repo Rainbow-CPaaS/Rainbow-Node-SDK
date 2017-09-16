@@ -1,4 +1,4 @@
-## Getting Started
+## SDK for Node.JS: Getting Started
 ---
 
 ### Preamble
