@@ -435,7 +435,7 @@ Here is a list of limitations regarding Bubbles:
 | Limit | Value | Description |
 |:------|:------|:------------|
 | **Max number of members per Bubble** | 20 / 100 | A bubble contains a maximum of 20 members for bubble created by a user with Essential or Business profile or 100 members for bubble created by a user with Enterprise profile |
-| ** Max number of Bubble per user** | 300 | Any Rainbow user from any profile can have a maximum number of 300 Bubbles. Once reached, the user can create a new Bubble. | 
+| ** Max number of Bubble per user** | 300 | Any Rainbow user from any profile can have a maximum number of 300 Bubbles. Once reached, the user can't create a new Bubble anymore. | 
 
 
 ---
