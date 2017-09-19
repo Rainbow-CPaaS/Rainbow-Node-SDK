@@ -28,6 +28,8 @@ rainbowSDK.events.on('rainbow_onready', function() {
 
 Each new bubble created will then be added to that list automatically. Same when Bubbles have been removed or updated, this list is updated.
 
+Note: Others methods like `getAllPendingBubbles()`, `getAllActiveBubbles()` and `getAllClosedBubbles()` are available to get the list of bubbles where the connected user is invited, where the connected user is active and that are closed.
+
 
 ### Retrieve a bubble information
 ---
@@ -427,6 +429,49 @@ This list contains all the invitations the connected user received from moderato
 For each invitation, you can call the API `acceptInvitationToJoinBubble()` or `declineInvitationToJoinBubble()` to accept or not to join the bubble.
 
 
+### Understanding members status and privilege in a Bubble
+---
+
+When looking at the `bubble` JavaScript object, you can access to the list of members using the parameters `users`.
+
+For each member, you will have two importants information: the **status** and the **privilege**:
+
+- The status allows to know if the member has already joined the bubble or not, has left and so is able to receive or not the messages
+
+- The privilege allows to know if the member is a moderator or not.
+
+
+#### Status of a member
+---
+
+A member of a bubble can have one of the following status:
+
+| Status | Description |
+|:-------|:------------|
+| **invited** | The member has been invited to the bubble by a moderator but has still not accepted or declined the invitation yet |
+| **accepted** | The member is an active member in the bubble and so can send and receive messages |
+| **rejected** | The member has rejected the invitation |
+| **unsubscribed** | The member has left the bubble (by his own or by a moderator) |
+| **deleted** | The member has been removed from the bubble by a moderator without having accepted or declined the invitation received |
+
+Status can be retrieved using `bubble.users[<index>].status`.
+
+
+#### Privilege of a member
+---
+
+A member of a bubble can have one of the following privilege:
+
+| Privilege | Description |
+|:-----|:------------|
+| **Moderator** | A member who has been invited with a role of **moderator** can administrate the bubble (eg. Inviting others Rainbow users, renaming the bubble's name and description information, close and delete the bubble...) and collaborate with others members |
+| **Participant** | A member who has been invited with a role of **participant** can only collaborate with others members (eg. chatting, sharing files and so can't do administrative tasks in that Bubble |
+
+Note: The Rainbow user who creates the bubble is the owner. But once created, the owner becomes a member with **moderator** privilege in that bubble.
+
+Privilege can be retrieved using `bubble.users[<index>].privilege`.
+
+
 ### Limitations
 ---
 
@@ -440,4 +485,4 @@ Here is a list of limitations regarding Bubbles:
 
 ---
 
-_Last updated September, 18th 2017_
+_Last updated September, 19th 2017_
