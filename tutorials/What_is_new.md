@@ -40,7 +40,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API**
 
-- No new API has been added to this release
+- New methods `getAllActiveBubbles()` and `getAllClosedBubbles()` have been added to get the list of bubbles that are active and closed.
 
 - [Compatibility Break] Method `deleteBubble()` now returns the bubble deleted instead of the `Error.OK` Object.
 
