@@ -42,6 +42,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - No new API has been added to this release
 
+- [Compatibility Break] Method `deleteBubble()` now returns the bubble deleted instead of the `Error.OK` Object.
+
 
 **BUGS**
 
