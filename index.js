@@ -247,6 +247,18 @@ class NodeSDK {
         return this._core.version;
     }
 
+    /**
+     * @public
+     * @property version
+     * @instance
+     * @description
+     *      Return the version of the SDK
+     * @memberof NodeSDK
+     */
+    get connectedUser() {
+        return this._core.rest.account;
+    }
+
 }
 
 module.exports = NodeSDK;

@@ -11,6 +11,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Date and timestamp have been added to console and file loggers.
 
+- New tutorial [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts) has been added to explain how to have retrieve the user's network or find for Rainbow contacts.
+
 - Guide [Answering to Chat Messages](/#/documentation/doc/node/tutorials/Answering_chat_message) has been updated to explain the specific messages that can be received by members when the affiliation of a specific member changes.
 
 
@@ -19,6 +21,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - New events `rainbow_onbubblenamechanged`, `rainbow_onbubbletopicchanged` and `rainbow_onbubblecustomdatachanged` have been added for listening when the name, the topic or the custom data of a bubble has changed.
 
 - New method `createAnonymousGuestUser()` has been added to create guest users without identification (no name, firstname and language to specify).
+
+- New property `connectedUser` has been added to access to the user account information.
 
 - Methods `sendMessageToJid()` and `sendMessageToBubbleJid()` now return an error if the number of characters of the message in greater than 1024.
 
