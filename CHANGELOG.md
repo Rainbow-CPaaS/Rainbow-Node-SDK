@@ -13,6 +13,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28866: Add explanation on specific messages received in bubble
 - #29009: Add property connectedUser to retrieve the user account information
 - #29012: No initial presence information for roster's contacts when offline
+- #29017: Add new tutorial for managing contacts
 
 ## [1.30.1] - 2017-09-17
 - #28960: Temporarily avoid sending application token
