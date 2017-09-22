@@ -53,6 +53,10 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Remove limitation of the `getAll()` Bubbles that was fixed to 100. Now this API retrieves all bubbles of the connected user.
 
+- Avoid to send two times the initial presence when accepting an invitation to join the Bubble. 
+
+- Fix the resource used for the connected user.
+
 
 ### SDK for Node.JS 1.29 - August 2017
 ---
