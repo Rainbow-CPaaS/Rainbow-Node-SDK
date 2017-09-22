@@ -6,6 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28960: Temporarily avoid sending application token
 - #28989: Allow to get all bubbles from the server
 - #28994: Add API getAllActiveBubbles() and getAllClosedBubbles()
+- #29050: Fix bad fullJID identifier
 
 ## [1.30.0] - 2017-09-07
 - #28821: Add new tutorial for managing bubbles
