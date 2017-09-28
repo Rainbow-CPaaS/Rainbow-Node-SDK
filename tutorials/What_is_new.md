@@ -27,6 +27,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Fix the resource used for the connected user.
 
+- Fix issue when connecting in CLI mode.
+
 
 ### SDK for Node.JS 1.29 - August 2017
 ---

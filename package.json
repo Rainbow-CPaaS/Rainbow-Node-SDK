@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "1.30.1",
+  "version": "1.30.2",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
