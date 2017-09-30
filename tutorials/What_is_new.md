@@ -33,6 +33,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - `signinCLI()` method now waits for the internal Promise based function to resolve
 
+- Fix issue when re-inviting a user who has declined a bubble invitation 
+
 
 ### SDK for Node.JS 1.30 - September 2017
 ---
