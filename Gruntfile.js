@@ -22,16 +22,6 @@ module.exports = function (grunt) {
         dist: ["build"],
     },
 
-    "file-creator": {
-        "version": {
-            "build/version.js": function(fs, fd, done) {
-                var pkgJson = require('./package.json');
-                fs.writeSync(fd, "var nodesdkversion='" + pkgJson.version + "';");
-                done();
-            }
-        }
-    },
-
     eslint: {
         all: ["lib/**/*.js", "index.js", "tests/**/*.js"],
         watched: ["Gruntfile.js"],
@@ -62,7 +52,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-eslint");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.loadNpmTasks("grunt-file-creator");
   grunt.registerTask("default", ["clean:dist", "jsdoc2md", "file-creator"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
