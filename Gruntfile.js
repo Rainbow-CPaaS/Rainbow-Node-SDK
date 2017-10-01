@@ -1,5 +1,6 @@
 module.exports = function (grunt) {
   grunt.initConfig({
+
     jsdoc2md: {
       separateOutputFiles: {
         files: [
@@ -16,39 +17,52 @@ module.exports = function (grunt) {
         ]
       }
     },
+
     clean: {
         dist: ["build"],
     },
-    eslint: {
-            all: ["lib/**/*.js", "index.js", "tests/**/*.js"],
-            watched: ["Gruntfile.js"],
-            options: {
-                configFile: ".eslintrc",
-                fix: true
-            },
 
-            checkstylereporter: {
-                src: ["lib/**/*.js", "index.js", "tests/**/*.js"],
-                configFile: ".eslintrc",
-                options: {
-                    outputFile: "reportQUnit/eslint.xml",
-                    format: "checkstyle"
-                }
-            },
+    "file-creator": {
+        "version": {
+            "build/version.js": function(fs, fd, done) {
+                var pkgJson = require('./package.json');
+                fs.writeSync(fd, "var nodesdkversion='" + pkgJson.version + "';");
+                done();
+            }
+        }
+    },
+
+    eslint: {
+        all: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+        watched: ["Gruntfile.js"],
+        options: {
+            configFile: ".eslintrc",
+            fix: true
         },
 
-        watch: {
-            lint: {
-                files: ["lib/**/*.js", "index.js", "tests/**/*.js"],
-                tasks: ["eslint:all"]
+        checkstylereporter: {
+            src: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+            configFile: ".eslintrc",
+            options: {
+                outputFile: "reportQUnit/eslint.xml",
+                format: "checkstyle"
             }
         },
-  });
+    },
+
+    watch: {
+        lint: {
+            files: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+            tasks: ["eslint:all"]
+        }
+    }
+});
 
   grunt.loadNpmTasks("grunt-jsdoc-to-markdown");
   grunt.loadNpmTasks("grunt-eslint");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.registerTask("default", ["clean:dist", "jsdoc2md"]);
+  grunt.loadNpmTasks("grunt-file-creator");
+  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "file-creator"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };

@@ -24,7 +24,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New property `connectedUser` has been added to access to the user account information.
 
-- Methods `sendMessageToJid()` and `sendMessageToBubbleJid()` now return an error if the number of characters of the message in greater than 1024.
+- Methods `sendMessageToJid()` and `sendMessageToBubbleJid()` now return an error if the number of characters of the message is greater than 1024.
 
 
 **BUGS**
