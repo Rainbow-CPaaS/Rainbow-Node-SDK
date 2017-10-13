@@ -52,6 +52,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-eslint");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "file-creator"]);
+  grunt.registerTask("default", ["clean:dist", "jsdoc2md"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
