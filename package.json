@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "1.31.0",
+  "version": "1.31.1",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
@@ -34,9 +34,9 @@
     "mocha": "^3.4.1"
   },
   "dependencies": {
-    "@xmpp/client": "^0.2.0",
-    "@xmpp/plugins": "^0.2.0",
-    "@xmpp/xml": "^0.2.0",
+    "@xmpp/client": "^0.3.0",
+    "@xmpp/plugins": "^0.3.0",
+    "@xmpp/xml": "^0.3.0",
     "backoff": "^2.5.0",
     "btoa": "^1.1.2",
     "https-proxy-agent": "1.0.0",
