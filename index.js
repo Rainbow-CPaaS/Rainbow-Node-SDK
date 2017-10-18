@@ -225,6 +225,18 @@ class NodeSDK {
 
     /**
      * @public
+     * @property settings
+     * @instance
+     * @description
+     *    Get access to the Settings module
+     * @memberof NodeSDK
+     */
+    get settings() {
+        return this._core.settings;
+    }
+    
+    /**
+     * @public
      * @property state
      * @instance
      * @description
