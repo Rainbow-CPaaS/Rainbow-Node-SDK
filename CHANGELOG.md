@@ -2,6 +2,12 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.31.1] - 2017-10-17
+- Force XMPP PLAIN Sasl mechanism for authentication
+- Fix Gruntfile default rules
+- #29146: Fix global variable
+- Update XMPP.js to 0.3.0
+
 ## [1.31.0] - 2017-09-28
 - #28868: Fix documentation around event rainbow_onmessagereceived
 - #28880: Add date and timestamp to logger
