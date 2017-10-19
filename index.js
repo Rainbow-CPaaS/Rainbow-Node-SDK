@@ -177,6 +177,18 @@ class NodeSDK {
 
     /**
      * @public
+     * @property groups
+     * @instance
+     * @description
+     *    Get access to the Groups module
+     * @memberof NodeSDK
+     */
+    get groups() {
+        return this._core.groups;
+    }
+
+    /**
+     * @public
      * @property events
      * @instance
      * @description
