@@ -2,6 +2,11 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.31.2] - 2017-11-04
+- #29282: Add Groups API
+- #29492: Add tutorial on Groups
+- #29273: Save presence (settings) when updating the presence
+
 ## [1.31.1] - 2017-10-17
 - Force XMPP PLAIN Sasl mechanism for authentication
 - Fix Gruntfile default rules

@@ -4,6 +4,29 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
+### SDK for Node.JS 1.32 - November 2017
+---
+
+**SDK**
+
+- New service `Groups` to organize contacts has been added.
+
+- New tutorial [Managing Groups](/#/documentation/doc/node/tutorials/Managing_groups) has been added to explain how to have create groups and add users in.
+
+
+**API**
+
+- New methods `createGroup()`, `getAll()`, `getFavoriteGroups()`, `getGroupByName()`, `getGroupById()` and `deleteGroup()` have been added to manage groups.
+
+- New methods `addUserInGroup()` and `removeUserFromGroup()` have been added to manage a users in a group.
+
+- New events `rainbow_ongroupcreated`, `rainbow_ongroupdeleted`, `rainbow_ongroupupdated`, `rainbow_onuseraddedingroup` and `rainbow_onuserremovedfromgroup` have been added for listening to changes on groups.
+
+
+**BUGS**
+
+- Fix issue with manual presence not dispatched to other connected ressources
+
 ### SDK for Node.JS 1.31 - October 2017
 ---
 
