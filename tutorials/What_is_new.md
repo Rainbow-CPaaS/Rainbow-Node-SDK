@@ -11,7 +11,9 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New service `Groups` to organize contacts has been added.
 
-- New tutorial [Managing Groups](/#/documentation/doc/node/tutorials/Managing_groups) has been added to explain how to have create groups and add users in.
+- New guide [Managing Groups](/#/documentation/doc/node/tutorials/Managing_groups) has been added to explain how to have create groups and add users in.
+
+- Updating guide [Answering Chat Messages](/#/documentation/doc/node/tutorials/Answering_chat_message) to list the Markdown tags unofficially supported by the Rainbow Web client.
 
 
 **API**
@@ -26,6 +28,11 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 **BUGS**
 
 - Fix issue with manual presence not dispatched to other connected ressources
+
+- Fix issue with offline resources that are not removed (memory leak)
+
+- Fix documentation issues for models `Bubble`, `Contact`, `Message` and `Settings`.
+
 
 ### SDK for Node.JS 1.31 - October 2017
 ---
