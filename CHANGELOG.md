@@ -2,7 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.31.2] - 2017-11-04
+## [1.32.0] - 2017-11-04
+- #29647: Update documentation with markdown tags supported
+- #29640: Allow put request when using from CLI
+- #29275: Remove offline resource (avoir memory leak)
 - #29282: Add Groups API
 - #29492: Add tutorial on Groups
 - #29273: Save presence (settings) when updating the presence
