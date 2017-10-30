@@ -208,6 +208,8 @@ When sending a message to a recipient or to a bubble, the SDK for Node.JS is abl
 
 - Defining a subject
 
+Note: This possibility is to use when you are developing your own end-user application with your own support of Markdown.
+
 
 #### Message language
 ---
@@ -289,7 +291,25 @@ messageSent = rainbowSDK.im.sendMessageToBubbleJid('A message to a bubble', bubb
 #### Interaction with Rainbow clients
 ---
 
-At this time of writting, Rainbow clients manage Message language and is able to display message using a `Markdown` content type.
+At this time of writting, Rainbow clients manage Message language and are able to display messages using a `Markdown` content type. This feature is not officially supported but if your Node.JS application interacts with a Rainbow official client, this can help.
+
+Here is the list of Markdown tags supported by the Rainbow official Web application:
+
+- **Headers**: `#H1` to  `######H6`
+
+- **Emphasis**: `*italics*` and `**bold**`
+
+- **Lists**: `- `, `+ ` or `* ``
+
+- **Links**: `[a link](https://www.hub.openrainbow.com)`
+
+- **Images** `![alt text](https://hub.openrainbow.com/img/logohub.svg)`
+
+- **Code**: Inline `code` has `back-ticks around` it.
+
+- **Blockquotes**: `> a Blockquote`.
+
+Note: Other Markdown tags can be used specifically if you have provided your own end-user application but will not be rendered correcly in the Rainbow official clients.
 
 Subject is used when displaying Rainbow notification messages.
 
