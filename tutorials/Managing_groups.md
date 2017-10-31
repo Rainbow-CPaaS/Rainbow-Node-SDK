@@ -16,7 +16,7 @@ A new group can be created by calling the API `createGroup()`.
 
 To create a new group, you need to add a name, a description and to choose if the group is a favorite group of not.
 
-Note: Favorite groups are not different but can be filtered and retrieved separately using API `getFavoritedroups()`.
+Note: Favorite groups are not different but can be filtered and retrieved separately using API `getFavoriteGroups()`.
 
 
 ```js
