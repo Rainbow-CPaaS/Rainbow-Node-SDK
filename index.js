@@ -141,6 +141,18 @@ class NodeSDK {
 
     /**
      * @public
+     * @property channels
+     * @instance
+     * @description
+     *    Get access to the Channels module
+     * @memberof NodeSDK
+     */
+    get channels() {
+        return this._core.channels;
+    }
+
+    /**
+     * @public
      * @property contacts
      * @instance
      * @description
