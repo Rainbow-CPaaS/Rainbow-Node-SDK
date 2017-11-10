@@ -27,7 +27,7 @@ describe("Channel Service", () => {
     var alice = require(__dirname + "/../replies/alice_login_success.json");
 
     mockServer.on("message", message => {
-        if ( message.startsWith("<ope")) {
+        if ( message.startsWith("<open")) {
             mockServer.send("<open xmlns='urn:ietf:params:xml:ns:xmpp-framing' to='dummy-all-in-one-dev-1.opentouch.cloud' version='1.0'/>");
             if ( !isAuthenticated ) {
             mockServer.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><register xmlns='http://jabber.org/features/iq-register'/><mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><mechanism>PLAIN</mechanism><mechanism>DIGEST-MD5</mechanism><mechanism>SCRAM-SHA-1</mechanism></mechanisms></stream:features>");
@@ -74,7 +74,7 @@ describe("Channel Service", () => {
             .get("/api/rainbow/enduser/v1.0/users/58d2ae99076f165e59e84dfb/settings")
             .reply(200, require(__dirname + "/../replies/settings_presence_online.json"))
             .get("/api/rainbow/channels/v1.0/channels")
-            .reply(200, require(__dirname + "/../replies/empty_channel_list.json"))
+            .reply(200, require(__dirname + "/../replies/channels/empty_channel_list.json"))
             .get("/api/rainbow/enduser/v1.0/users/58d2ae99076f165e59e84dfb/groups?format=full&offset=0&limit=100")
             .reply(200, { data: [], total: 0 })
             .get("/api/rainbow/enduser/v1.0/bots")
@@ -198,23 +198,7 @@ describe("Channel Service", () => {
         });
 
         it("Update Channel", (done) => {
-            var updateChannel = {
-                "data": {
-                    "name": "ChannelToUpdate",
-                    "title": "Channel To Update",
-                    "companyId": "58d2ae7a16ab4821585311d1",
-                    "creator": "58d2ae99076f165e59e84dfb",
-                    "users": [
-                        {
-                            "userId": "58d2ae99076f165e59e84dfb",
-                            "additionDate": "2017-11-08T10:18:09.126Z",
-                            "type": "owner"
-                        }
-                    ],
-                    "creationDate": "2017-11-08T10:18:09.125Z",
-                    "id": "5a02d9e1eb329a4dea6045ac"
-                }
-            };
+            var updateChannel = require(__dirname + "/../replies/channels/update_channel.json");
 
             var scope = nock("https://" + options.rainbow.host)
             .post("/api/rainbow/channels/v1.0/channels", { "name": "ChannelToUpdate", "title": "Channel To Update" })
@@ -250,23 +234,7 @@ describe("Channel Service", () => {
         });
 
         it("Delete Channel", (done) => {
-            var secondChannel = {
-                "data": {
-                    "name": "Second Channel",
-                    "title": "Second Channel",
-                    "companyId": "58d2ae7a16ab4821585311d1",
-                    "creator": "58d2ae99076f165e59e84dfb",
-                    "users": [
-                        {
-                            "userId": "58d2ae99076f165e59e84dfb",
-                            "additionDate": "2017-11-08T10:18:09.126Z",
-                            "type": "owner"
-                        }
-                    ],
-                    "creationDate": "2017-11-08T10:18:09.125Z",
-                    "id": "5a02d9e1eb329a4dea6045ac"
-                }
-            };
+            var secondChannel = require(__dirname + "/../replies/channels/second_channel.json");
 
             var scope = nock("https://" + options.rainbow.host)
             .post("/api/rainbow/channels/v1.0/channels", { "name": "Second Channel", "title": "Second Channel" })
@@ -290,6 +258,34 @@ describe("Channel Service", () => {
                             done();
                         });
                 });
+        });
+
+        it("Find Channel", () => {
+
+        });
+
+        it("Publish Message", () => {
+
+        });
+
+        it("Subscribe To Channel", () => {
+
+        });
+
+        it("Unsubscribe To Channel", () => {
+
+        });
+
+        it("Get Channel Users", () => {
+            
+        });
+
+        it("Delete All Users From Channel", () => {
+            
+        });
+
+        it("Update Channel Users", () => {
+            
         });
     });
 });

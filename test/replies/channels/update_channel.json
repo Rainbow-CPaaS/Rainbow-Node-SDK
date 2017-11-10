@@ -1,0 +1,17 @@
+{
+    "data": {
+        "name": "ChannelToUpdate",
+        "title": "Channel To Update",
+        "companyId": "58d2ae7a16ab4821585311d1",
+        "creator": "58d2ae99076f165e59e84dfb",
+        "users": [
+            {
+                "userId": "58d2ae99076f165e59e84dfb",
+                "additionDate": "2017-11-08T10:18:09.126Z",
+                "type": "owner"
+            }
+        ],
+        "creationDate": "2017-11-08T10:18:09.125Z",
+        "id": "5a02d9e1eb329a4dea6045ac"
+    }
+}
