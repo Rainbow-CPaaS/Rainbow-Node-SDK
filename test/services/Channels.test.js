@@ -260,8 +260,21 @@ describe("Channel Service", () => {
                 });
         });
 
-        it("Find Channel", () => {
-
+        it("Find Channel", (done) => {
+            var findChannel = require(__dirname + "/../replies/channels/find_channel.json");
+            
+                        var scope = nock("https://" + options.rainbow.host)
+                        .get("/api/rainbow/channels/v1.0/channels/search")
+                        .query( { "title_substring": "great"} )
+                        .reply(200, findChannel );
+            
+                        rainbowSDK
+                            .channels
+                            .findChannels("great")
+                            .then((channels) => {
+                                expect(channels.data).to.have.lengthOf(2);
+                                done();
+                            });
         });
 
         it("Publish Message", () => {
