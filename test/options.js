@@ -1,10 +1,15 @@
 let options = {
     "rainbow": {
-      "host": "vincent.openrainbow.org", // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+      "host": "dummy.openrainbow.org", // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+    },
+    "xmpp": {
+      "protocol": "ws",
+      "host": "dummy.openrainbow.org",
+      "port": 80
     },
     "credentials": {
       "login": "alice@pgu.test.openrainbow.net", // The Rainbow email account to use
-      "password": "alice" // The Rainbow associated password to use
+      "password": "dummy" // The Rainbow associated password to use
     },
     // Application identifier
     "application": {
@@ -20,12 +25,6 @@ let options = {
         "level": "debug" // Default log level used
       }
     },
-      // Proxy configuration
-   /*   "proxy": {
-          "host": "192.168.254.49",
-          "port": 8080,
-          "http": "http"
-      },*/
     // IM options
     "im": {
       "sendReadReceipt": true // True to send the 'read' receipt automatically
