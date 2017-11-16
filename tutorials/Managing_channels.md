@@ -289,7 +289,7 @@ nodeSDK.channels.getUsersFromChannel(channel).then((listOfUsers) => {
 ### Sending messages to channel
 ---
 
-Message can be sent to a channel by using the API `sendMessageToChannel()`.
+Message can be sent to a channel by using the API `publishMessageToChannel()`.
 
 A message can contain the following fields:
 
