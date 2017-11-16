@@ -3,6 +3,29 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.33 - December 2017
+---
+
+**SDK**
+
+- New service `Channels` to send messages to a large number of users.
+
+- New guide [Managing Channels](/#/documentation/doc/node/tutorials/Managing_channels) has been added to explain how to create channels and publish messages.
+
+
+**API**
+
+- New method `createPrivateChannel()`, `addMembersToChannel()`, `addPublishersToChannel()`, `addOwnersToChannel()`, `removeUsersFromChannel()`, `removeAllUsersFromChannel()` and `getUsersFromChannel()` have been added to manage private channels.
+
+- New method `createChannel()`, `findChannel()`, `subscribeToChannel()` and `unsubscribeFromChannel()` have been added to manage public channels.
+
+- New method ``updateChannelDescription()`, `deleteChannel()` and `publishMessageToChannel()` have been added to manage both private and public channels.
+
+
+**BUGS**
+
+- Fix issue with password generation for guest account.
+
 
 ### SDK for Node.JS 1.32 - November 2017
 ---
