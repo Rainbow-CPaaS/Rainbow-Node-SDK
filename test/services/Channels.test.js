@@ -2,6 +2,7 @@ const RainbowSDK = require("../../index.js");
 const options = require("../options");
 const expect = require("chai").expect;
 const nock = require("nock");
+const jwt = require("jsonwebtoken");
 const MockServer = require("mock-socket").Server;
 
 
@@ -19,7 +20,7 @@ describe("Channel Service", () => {
     // XMPP WebSocket Server
     const mockServer = new MockServer("ws://" + options.xmpp.host + ":" + options.xmpp.port + "/websocket");
     mockServer.on("connection", server => {
-        
+
     });
 
     var isAuthenticated = false;
@@ -64,9 +65,26 @@ describe("Channel Service", () => {
 
     before(() => {
 
+        var loginResponse = require(__dirname + "/../replies/alice_login_success.json");
+        var currentDate = new Date();
+        var currentTimestamp = currentDate.valueOf();
+        var token = jwt.sign({
+            "countRenewed": 0,
+            "maxTokenRenew": 7,
+            "user": {
+              "id": loginResponse.loggedInUser.id,
+              "loginEmail": loginResponse.loggedInUser.loginEmail
+            },
+            "iat": currentTimestamp,
+            "exp": (currentTimestamp + 36000000) / 1000
+          }, "dummy");
+
+        console.log(token);
+        loginResponse.token = token;
+
         var scope = nock("https://" + options.rainbow.host)
             .get("/api/rainbow/authentication/v1.0/login")
-            .reply(200, require(__dirname + "/../replies/alice_login_success.json"))
+            .reply(200, loginResponse)
             .get("/api/rainbow/enduser/v1.0/users/networks?format=full")
             .reply(200, { data: [], total: 0 })
             .get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=0&limit=100&userId=58d2ae99076f165e59e84dfb")
