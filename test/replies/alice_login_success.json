@@ -1,0 +1,80 @@
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1OGQyYWU5OTA3NmYxNjVlNTllODRkZmIiLCJsb2dpbkVtYWlsIjoiYWxpY2VAcGd1LnRlc3Qub3BlbnJhaW5ib3cubmV0In0sImlhdCI6MTUxMDEzNTAxMywiZXhwIjoxNTEwMzk0MjEzfQ.dEIrrf2w7ayoQIk0mh14i0oLAhybHiu_7nleWeinT9CNMUFwlCJlBDNYZcG3-mdmGwqcJ164komyq4Uv6wNS3mg2CY2VDY8bhRLq5pGTw_lfi8hDVYpIoI88W9Y9ZSeBiHRxMU8CLEZNa7Bh8XR1DLrG0_e2UNKknCMDscVA8OjG-qPXVe_RR6h8XJt__si88MzyVHOY6M9yj95oa9mVyWag__9fIFoxTPLgjMc-uGmBpz5_3jXUvnvPCM4vGs_ox6VBuYaUIAdYBH44gBNppPOtB6G1hiAvCOZ3TzXqiGVNIHi8OiArTdsaj1VYa2cTNsWzuY4SGcaG60zyVSUMGA",
+    "loggedInUser": {
+        "displayName": "Alice DE NICE",
+        "companyName": "Default",
+        "loginEmail": "alice@pgu.test.openrainbow.net",
+        "companyId": "58d2ae7a16ab4821585311d1",
+        "jid_im": "c2e80b1c0e5c44dbaf9cfe6d1a88e204@dummy-all-in-one-dev-1.opentouch.cloud",
+        "jid_tel": "tel_c2e80b1c0e5c44dbaf9cfe6d1a88e204@dummy-all-in-one-dev-1.opentouch.cloud",
+        "jid_password": "c61243e5f76b4d77acc829de908e53cb",
+        "language": "fr",
+        "country": "FRA",
+        "jobTitle": "",
+        "nickName": "",
+        "timezone": "Europe/Paris",
+        "title": "",
+        "isTerminated": false,
+        "terminatedDate": null,
+        "timeToLiveDate": null,
+        "timeToLive": -1,
+        "lastExpiredTokenRenewedDate": "2017-11-07T09:33:37.164Z",
+        "lastLoginFailureDate": null,
+        "failedLoginAttempts": 0,
+        "loggedSince": "2017-11-08T09:56:53.325Z",
+        "lastLoginDate": "2017-11-08T09:56:53.325Z",
+        "firstLoginDate": "2017-04-05T11:17:34.711Z",
+        "createdByAppId": null,
+        "createdBySelfRegister": false,
+        "lastAvatarUpdateDate": "2017-03-22T17:04:25.487Z",
+        "lastUpdateDate": "2017-11-07T15:13:31.518Z",
+        "initializationDate": "2017-03-22T17:04:25.821Z",
+        "isInitialized": true,
+        "activationDate": "2017-03-22T17:04:25.816Z",
+        "creationDate": "2017-03-22T17:04:25.816Z",
+        "siteId": null,
+        "organisationId": null,
+        "visibleBy": [
+            "58d2ae9c3ba7817259a42c05",
+            "58d2ae82d2ecef8f58d9da13"
+        ],
+        "visibility": "public",
+        "profiles": [
+            {
+                "subscriptionId": "58d2ae7a16ab4821585311d2",
+                "offerId": "58d2ae6d9cbb2409f23fdfd9",
+                "offerName": "Essential",
+                "profileId": "58d2ae6d9cbb2409f23fdfd8",
+                "profileName": "Essential",
+                "offerReference": "RB-Essential",
+                "offerDescription": "Rainbow Essential offer",
+                "offerTechnicalDescription": "Essential",
+                "isPrepaid": false,
+                "isExclusive": false,
+                "canBeSold": false,
+                "provisioningNeeded": [],
+                "assignationDate": "2017-06-27T13:29:40.709Z",
+                "status": "active",
+                "isDefault": true
+            }
+        ],
+        "accountType": "free",
+        "adminType": "undefined",
+        "roles": [
+            "user"
+        ],
+        "isActive": true,
+        "phoneNumbers": [],
+        "emails": [
+            {
+                "email": "alice@pgu.test.openrainbow.net",
+                "type": "work"
+            }
+        ],
+        "lastName": "DE NICE",
+        "firstName": "Alice",
+        "id": "58d2ae99076f165e59e84dfb",
+        "isInDefaultCompany": true,
+        "isADSearchAvailable": false
+    }
+}

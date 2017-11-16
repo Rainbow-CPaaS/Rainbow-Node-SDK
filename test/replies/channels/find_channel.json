@@ -1,0 +1,19 @@
+{
+    "data": [
+        {
+            "name": "MyCompanyNode",
+            "title": "the great company channel",
+            "creator": "58526dd83f7ebeacc4ea070d",
+            "id": "59f72417438f486feb946773"
+        },
+        {
+            "name": "MyPublicNode",
+            "title": "the great public channel",
+            "creator": "58526dd83f7ebeacc4ea070d",
+            "id": "59f723e3438f486feb946772"
+        }
+    ],
+    "limit": 100,
+    "offset": 0,
+    "total": 2
+}

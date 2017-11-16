@@ -1,0 +1,10 @@
+{
+    "data": [{
+        "name": "Emily",
+        "jid": "emily.openrainbow.com",
+        "id": "57e9145c271842ca2e12c0c5"
+    }],
+    "limit": 100,
+    "offset": 0,
+    "total": 1
+}
