@@ -12,7 +12,7 @@ In Rainbow, two different kinds of channels exists : **private** or **public**
 | Channel type | Description |
 |:-------------|:------------|
 | **Private** | Only Owner can add or remove users in a private channels. Private channels can't be found when searching for channels. Consequently, users can't subscribe on their own to private channel. |
-| **Public** | Users are free to subscribe to a public channel. Public channels can be found when searching for channels. A public channel can be restricted to users of my company or can be accessible to any Rainbow user. |
+| **Public** | Users are free to subscribe to a public channel. Public channels can be found when searching for channels. The visibility of a channel is limited to my company. |
 
 In a channel, a user has a role that can be **owner**, **member**, **publisher** or **none**.
 
@@ -104,30 +104,12 @@ nodeSDK.channels.createPrivateChannel("a private channel", "The description of m
 
 You have to use the API `createChannel()` for creating a public channel as in the following:
 
-```js
-
-nodeSDK.channels.createChannel("a public channel", "The description of my public channel").then((channel) => {
-    // Do something with the channel created
-    ...
-}).catch(err) {
-    // Do something in case of error
-    ...
-});
-
-```
-
-When creating a public channel, every users from every companies can found this channel and subscribe to it.
-
-
-#### Creating a new public channel limited to my company
----
-
-You can limit the visibility of the channel to users of your company only. You can do it using the following code:
+When creating a public channel, only users from the same company can found this channel and subscribe to it.
 
 
 ```js
 
-nodeSDK.channels.createChannel("a company channel", "The description of my channel limited to my company", true).then((channel) => {
+nodeSDK.channels.createChannel("a company channel", "The description of my channel limited to my company").then((channel) => {
     // Do something with the channel created
     ...
 }).catch(err) {
@@ -371,7 +353,7 @@ nodeSDK.channels.findChannel(channelName).then((list) => {
 
 ```
 
-Note: Depending the visibility of the channel (public or limited to my company), users will be able to find or not this channel.
+Note: Only users from the same company as the owner can found this channel.
 
 
 ### Subscribing to a public channel
