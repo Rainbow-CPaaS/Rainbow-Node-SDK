@@ -5,7 +5,6 @@ const nock = require("nock");
 const jwt = require("jsonwebtoken");
 const MockServer = require("mock-socket").Server;
 
-
 describe("Channel Service", () => {
 
     // LOGGER
@@ -19,82 +18,122 @@ describe("Channel Service", () => {
 
     // XMPP WebSocket Server
     const mockServer = new MockServer("ws://" + options.xmpp.host + ":" + options.xmpp.port + "/websocket");
-    mockServer.on("connection", server => {
-
-    });
+    mockServer.on("connection", server => {});
 
     var isAuthenticated = false;
     var resource = "";
     var alice = require(__dirname + "/../replies/alice_login_success.json");
 
     mockServer.on("message", message => {
-        if ( message.startsWith("<open")) {
-            mockServer.send("<open xmlns='urn:ietf:params:xml:ns:xmpp-framing' to='dummy-all-in-one-dev-1.opentouch.cloud' version='1.0'/>");
-            if ( !isAuthenticated ) {
-            mockServer.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><register xmlns='http://jabber.org/features/iq-register'/><mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><mechanism>PLAIN</mechanism><mechanism>DIGEST-MD5</mechanism><mechanism>SCRAM-SHA-1</mechanism></mechanisms></stream:features>");
+        if (message.startsWith("<open")) {
+            mockServer.send("<open xmlns='urn:ietf:params:xml:ns:xmpp-framing' to='dummy-all-in-one-dev-1.ope" +
+                    "ntouch.cloud' version='1.0'/>");
+            if (!isAuthenticated) {
+                mockServer.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http:" +
+                        "//jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/eja" +
+                        "bberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><register xmlns='http://jabber.org/f" +
+                        "eatures/iq-register'/><mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><mech" +
+                        "anism>PLAIN</mechanism><mechanism>DIGEST-MD5</mechanism><mechanism>SCRAM-SHA-1</" +
+                        "mechanism></mechanisms></stream:features>");
             } else {
-            mockServer.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/><session xmlns='urn:ietf:params:xml:ns:xmpp-session'><optional/></session><ver xmlns='urn:xmpp:features:rosterver'/><sm xmlns='urn:xmpp:sm:2'/><sm xmlns='urn:xmpp:sm:3'/><csi xmlns='urn:xmpp:csi:0'/></stream:features>");
+                mockServer.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http:" +
+                        "//jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/eja" +
+                        "bberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><bind xmlns='urn:ietf:params:xml:ns:" +
+                        "xmpp-bind'/><session xmlns='urn:ietf:params:xml:ns:xmpp-session'><optional/></se" +
+                        "ssion><ver xmlns='urn:xmpp:features:rosterver'/><sm xmlns='urn:xmpp:sm:2'/><sm x" +
+                        "mlns='urn:xmpp:sm:3'/><csi xmlns='urn:xmpp:csi:0'/></stream:features>");
             }
         }
         if (message.startsWith("<auth")) {
-            mockServer.send("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>cj1kNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZS93UzdkNlNDYmsyUXRFM0VUd251V0E9PSxzPU52NERxZ1dmb09ESG5YUlJCeWpEREE9PSxpPTQwOTY=</challenge>");
+            mockServer.send("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>cj1kNDFkOGNkOThmMDBiMjA0ZTk4" +
+                    "MDA5OThlY2Y4NDI3ZS93UzdkNlNDYmsyUXRFM0VUd251V0E9PSxzPU52NERxZ1dmb09ESG5YUlJCeWpE" +
+                    "REE9PSxpPTQwOTY=</challenge>");
             mockServer.send("<open xmlns=\"urn:ietf:params:xml:ns:xmpp-framing\" version=\"1.0\" default:lang" +
                     "=\"en\" id=\"13260960624462208793\" from=\"dummy-all-in-one-dev-1.opentouch.clou" +
                     "d\"\/>");
         }
-        if ( message.startsWith("<response")) {
-            mockServer.send("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>dj1KM3d3dTc2WWU4THVEM1FOWVNWZjdTNUlHS3c9</success>");
+        if (message.startsWith("<response")) {
+            mockServer.send("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>dj1KM3d3dTc2WWU4THVEM1FOWVNWZj" +
+                    "dTNUlHS3c9</success>");
             isAuthenticated = true;
         }
-        if ( message.startsWith("<iq type=\"set\"")) {
+        if (message.startsWith("<iq type=\"set\"")) {
             var id = message.match(/id="(.*)" /);
-            if ( message.indexOf("bind") > -1 ) {
+            if (message.indexOf("bind") > -1) {
                 resource = message.match(/<resource>(.*)<\/resource>/);
                 mockServer.send("<iq xmlns='jabber:client' id='" + id[1] + "' type='result'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>" + alice.loggedInUser.jid_im + "/" + resource[1] + "</jid></bind></iq>");
-            } else if ( message.indexOf("session")  > -1 ) {
+            } else if (message.indexOf("session") > -1) {
                 mockServer.send("<iq xmlns='jabber:client' type='result' id='" + id[1] + "'/>");
-            } else if ( message.indexOf("carbon") > -1 ) {
+            } else if (message.indexOf("carbon") > -1) {
                 mockServer.send("<iq xmlns='jabber:client' from='" + alice.loggedInUser.jid_im + "' to='" + alice.loggedInUser.jid_im + "/" + resource[1] + "' id='" + id[1] + "' type='result'/>")
             }
         }
-        if ( message.startsWith("<presence") > -1 ) {
+        if (message.startsWith("<presence") > -1) {
             mockServer.send("<presence xmlns='jabber:client' from='" + alice.loggedInUser.jid_im + "/" + resource[1] + "' to='" + alice.loggedInUser.jid_im + "/" + resource[1] + "'><priority>5</priority></presence>");
         }
     });
 
-
     before(() => {
-
-        var loginResponse = require(__dirname + "/../replies/alice_login_success.json");
         var currentDate = new Date();
         var currentTimestamp = currentDate.valueOf();
+
+        var applicationResponse = require(__dirname + "/../replies/application_login_success.json");
+
+        var tokenApp = jwt.sign({
+            "countRenewed": 0,
+            "maxTokenRenew": 5,
+            "app": {
+                "id": applicationResponse.id,
+                "name": applicationResponse.loggedInApplication.name
+            },
+            "iat": currentTimestamp,
+            "exp": (currentTimestamp + 36000000) / 1000
+        }, "dummy");
+
+        applicationResponse.token = tokenApp;
+
+        var loginResponse = require(__dirname + "/../replies/alice_login_success.json");
+
         var token = jwt.sign({
             "countRenewed": 0,
             "maxTokenRenew": 7,
             "user": {
-              "id": loginResponse.loggedInUser.id,
-              "loginEmail": loginResponse.loggedInUser.loginEmail
+                "id": loginResponse.loggedInUser.id,
+                "loginEmail": loginResponse.loggedInUser.loginEmail
             },
             "iat": currentTimestamp,
             "exp": (currentTimestamp + 36000000) / 1000
-          }, "dummy");
+        }, "dummy");
 
         console.log(token);
         loginResponse.token = token;
 
         var scope = nock("https://" + options.rainbow.host)
+            .get("/api/rainbow/applications/v1.0/authentication/login")
+            .reply(200, applicationResponse)
             .get("/api/rainbow/authentication/v1.0/login")
             .reply(200, loginResponse)
             .get("/api/rainbow/enduser/v1.0/users/networks?format=full")
-            .reply(200, { data: [], total: 0 })
-            .get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=0&limit=100&userId=58d2ae99076f165e59e84dfb")
-            .reply(200, { data: [], total: 0 })
+            .reply(200, {
+                data: [],
+                total: 0
+            })
+            .get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=0&limit=100&userId=58d2ae9907" +
+                    "6f165e59e84dfb")
+            .reply(200, {
+                data: [],
+                total: 0
+            })
             .get("/api/rainbow/enduser/v1.0/users/58d2ae99076f165e59e84dfb/settings")
             .reply(200, require(__dirname + "/../replies/settings_presence_online.json"))
             .get("/api/rainbow/channels/v1.0/channels")
             .reply(200, require(__dirname + "/../replies/channels/empty_channel_list.json"))
-            .get("/api/rainbow/enduser/v1.0/users/58d2ae99076f165e59e84dfb/groups?format=full&offset=0&limit=100")
-            .reply(200, { data: [], total: 0 })
+            .get("/api/rainbow/enduser/v1.0/users/58d2ae99076f165e59e84dfb/groups?format=full&offs" +
+                    "et=0&limit=100")
+            .reply(200, {
+                data: [],
+                total: 0
+            })
             .get("/api/rainbow/enduser/v1.0/bots")
             .reply(200, require(__dirname + "/../replies/emily_bot.json"));
 
@@ -112,8 +151,8 @@ describe("Channel Service", () => {
     after(() => {
 
         var scope = nock("https://" + options.rainbow.host)
-        .get("/api/rainbow/authentication/v1.0/logout")
-        .reply(200, { });
+            .get("/api/rainbow/authentication/v1.0/logout")
+            .reply(200, {});
 
         return rainbowSDK
             .stop()
@@ -134,7 +173,13 @@ describe("Channel Service", () => {
         it("Create Channel", (done) => {
 
             var scope = nock("https://" + options.rainbow.host)
-                .post("/api/rainbow/channels/v1.0/channels", { "name": "FirstChannel", "title": "First Channel" })
+                .post("/api/rainbow/channels/v1.0/channels", {
+                "name": "FirstChannel",
+                "title": "First Channel",
+                "visibility": "company",
+                "max_items": 30,
+                "max_payload_size": 60000
+            })
                 .reply(200, {
                     "data": {
                         "name": "FirstChannel",
@@ -149,7 +194,7 @@ describe("Channel Service", () => {
                             }
                         ],
                         "creationDate": "2017-11-08T10:18:09.125Z",
-                        "id": "5a02d9e1eb329a4dea6045ac"
+                        "id": "5a02d9e1eb329a4dea6045a5"
                     }
                 });
 
@@ -182,16 +227,23 @@ describe("Channel Service", () => {
                         }
                     ],
                     "creationDate": "2017-11-08T10:18:09.125Z",
-                    "id": "5a02d9e1eb329a4dea6045ac"
+                    "id": "5a02d9e1eb329a4dea6045a6"
                 }
             };
 
             var scope = nock("https://" + options.rainbow.host)
-            .post("/api/rainbow/channels/v1.0/channels", { "name": "ReadChannel", "title": "Read Channel" })
-            .reply(200, readChannel )
-            .get("/api/rainbow/channels/v1.0/channels/" + readChannel.data.id)
-            .reply(200, readChannel );
-            
+                .post("/api/rainbow/channels/v1.0/channels", {
+                "name": "ReadChannel",
+                "title": "Read Channel",
+                "visibility": "company",
+                "max_items": 30,
+                "max_payload_size": 60000
+            })
+                .reply(200, readChannel)
+                .get("/api/rainbow/channels/v1.0/channels/" + readChannel.data.id)
+                .reply(200, readChannel)
+                .log(console.log);
+
             rainbowSDK
                 .channels
                 .createChannel("ReadChannel", "Read Channel")
@@ -203,7 +255,7 @@ describe("Channel Service", () => {
                         .equal("Read Channel");
                     return rainbowSDK
                         .channels
-                        .getChannel(channel.id);
+                        .getChannelById(channel.id);
                 })
                 .then((channel) => {
                     expect(channel.title)
@@ -219,14 +271,20 @@ describe("Channel Service", () => {
             var updateChannel = require(__dirname + "/../replies/channels/update_channel.json");
 
             var scope = nock("https://" + options.rainbow.host)
-            .post("/api/rainbow/channels/v1.0/channels", { "name": "ChannelToUpdate", "title": "Channel To Update" })
-            .reply(200, updateChannel )
-            .put("/api/rainbow/channels/v1.0/channels/" + updateChannel.data.id, { "title" : "Channel To Updated" })
-            .reply(200, function() {
-                var updatedChannel = Object.assign( {}, updateChannel);
-                updatedChannel.data.title = "Channel To Updated";
-                return updatedChannel;
-            } );
+                .post("/api/rainbow/channels/v1.0/channels", {
+                "name": "ChannelToUpdate",
+                "title": "Channel To Update",
+                "visibility": "company",
+                "max_items": 30,
+                "max_payload_size": 60000
+            })
+                .reply(200, updateChannel)
+                .put("/api/rainbow/channels/v1.0/channels/" + updateChannel.data.id, {"title": "Channel To Updated"})
+                .reply(200, function () {
+                    var updatedChannel = Object.assign({}, updateChannel);
+                    updatedChannel.data.title = "Channel To Updated";
+                    return updatedChannel;
+                });
 
             rainbowSDK
                 .channels
@@ -239,7 +297,7 @@ describe("Channel Service", () => {
                         .equal("Channel To Update");
                     return rainbowSDK
                         .channels
-                        .updateChannel(channel.id, "Channel To Updated");
+                        .updateChannelDescription(channel, "Channel To Updated");
                 })
                 .then((channel) => {
                     expect(channel.title)
@@ -255,21 +313,28 @@ describe("Channel Service", () => {
             var secondChannel = require(__dirname + "/../replies/channels/second_channel.json");
 
             var scope = nock("https://" + options.rainbow.host)
-            .post("/api/rainbow/channels/v1.0/channels", { "name": "Second Channel", "title": "Second Channel" })
-            .reply(200, secondChannel )
-            .delete("/api/rainbow/channels/v1.0/channels/" + secondChannel.data.id)
-            .reply(200, {
-                     "status": "Channel secondChannel.data.id successfully deleted",
-                     "data": []
-                 } );
+                .post("/api/rainbow/channels/v1.0/channels", {
+                "name": "Second Channel",
+                "title": "Second Channel",
+                "visibility": "company",
+                "max_items": 30,
+                "max_payload_size": 60000
+            })
+                .reply(200, secondChannel)
+                .delete("/api/rainbow/channels/v1.0/channels/" + secondChannel.data.id)
+                .reply(200, {
+                    "status": "Channel secondChannel.data.id successfully deleted",
+                    "data": []
+                });
 
             rainbowSDK
                 .channels
                 .createChannel("Second Channel", "Second Channel")
                 .then((channel) => {
+                    console.log(JSON.stringify(channel))
                     return rainbowSDK
                         .channels
-                        .deleteChannel(channel.id)
+                        .deleteChannel(channel)
                         .then((result) => {
                             logger.debug("Channel deleted");
                             scope.done();
@@ -280,43 +345,34 @@ describe("Channel Service", () => {
 
         it("Find Channel", (done) => {
             var findChannel = require(__dirname + "/../replies/channels/find_channel.json");
-            
-                        var scope = nock("https://" + options.rainbow.host)
-                        .get("/api/rainbow/channels/v1.0/channels/search")
-                        .query( { "title_substring": "great"} )
-                        .reply(200, findChannel );
-            
-                        rainbowSDK
-                            .channels
-                            .findChannels("great")
-                            .then((channels) => {
-                                expect(channels.data).to.have.lengthOf(2);
-                                done();
-                            });
+
+            var scope = nock("https://" + options.rainbow.host)
+                .get("/api/rainbow/channels/v1.0/channels/search")
+                .query({"title_substring": "great"})
+                .reply(200, findChannel);
+
+            rainbowSDK
+                .channels
+                .findChannel("great")
+                .then((channels) => {
+                    expect(channels)
+                        .to
+                        .have
+                        .lengthOf(2);
+                    done();
+                });
         });
 
-        it("Publish Message", () => {
+        it("Publish Message", () => {});
 
-        });
+        it("Subscribe To Channel", () => {});
 
-        it("Subscribe To Channel", () => {
+        it("Unsubscribe To Channel", () => {});
 
-        });
+        it("Get Channel Users", () => {});
 
-        it("Unsubscribe To Channel", () => {
+        it("Delete All Users From Channel", () => {});
 
-        });
-
-        it("Get Channel Users", () => {
-            
-        });
-
-        it("Delete All Users From Channel", () => {
-            
-        });
-
-        it("Update Channel Users", () => {
-            
-        });
+        it("Update Channel Users", () => {});
     });
 });

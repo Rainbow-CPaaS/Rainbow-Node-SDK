@@ -1,0 +1,17 @@
+{
+    "token": "<TO-GENERATE>",
+    "loggedInApplication": {
+    "id": "59887c019ebaa1703d03ffc6",
+    "appSecret": "a7ef1r9fg7te0ah24ee81ra3",
+    "origin": "....",
+    "name": "App_Rainbow_1",
+    "latin_name": "app_rainbow_1",
+    "ownerId": "573f189f774e0a428ee813a3",
+    "ownerEmail": "superadmin@openrainbow.org",
+    "dateOfCreation": ".....",
+    "state": "active",
+    "type": "web",
+    "activity": "F",
+    "env": "deployed"
+    }
+}
