@@ -5,6 +5,7 @@ const nock = require("nock");
 const jwt = require("jsonwebtoken");
 const MockServer = require("mock-socket").Server;
 
+
 describe("Channel Service", () => {
 
     // LOGGER
@@ -18,7 +19,9 @@ describe("Channel Service", () => {
 
     // XMPP WebSocket Server
     const mockServer = new MockServer("ws://" + options.xmpp.host + ":" + options.xmpp.port + "/websocket");
-    mockServer.on("connection", server => {});
+    mockServer.on("connection", server => {
+
+    });
 
     var isAuthenticated = false;
     var resource = "";
@@ -212,7 +215,7 @@ describe("Channel Service", () => {
                 });
         });
 
-        it("Read Channel", (done) => {
+        it("Read Channel first time", (done) => {
             var readChannel = {
                 "data": {
                     "name": "ReadChannel",
@@ -232,23 +235,14 @@ describe("Channel Service", () => {
             };
 
             var scope = nock("https://" + options.rainbow.host)
-                .post("/api/rainbow/channels/v1.0/channels", {
-                "name": "ReadChannel",
-                "title": "Read Channel",
-                "visibility": "company",
-                "max_items": 30,
-                "max_payload_size": 60000
-            })
-                .reply(200, readChannel)
                 .get("/api/rainbow/channels/v1.0/channels/" + readChannel.data.id)
                 .reply(200, readChannel)
                 .log(console.log);
 
             rainbowSDK
                 .channels
-                .createChannel("ReadChannel", "Read Channel")
+                .getChannelById(readChannel.data.id)
                 .then((channel) => {
-                    logger.debug("Channel created");
                     expect(channel.title)
                         .to
                         .be
@@ -256,6 +250,54 @@ describe("Channel Service", () => {
                     return rainbowSDK
                         .channels
                         .getChannelById(channel.id);
+                })
+                .then((channel) => {
+                    expect(channel.title)
+                        .to
+                        .be
+                        .equal("Read Channel");
+                    scope.done();
+                    done();
+                });
+        });
+
+        it("Read Channel forced", (done) => {
+            var readChannel = {
+                "data": {
+                    "name": "ReadChannel",
+                    "title": "Read Channel",
+                    "companyId": "58d2ae7a16ab4821585311d1",
+                    "creator": "58d2ae99076f165e59e84dfb",
+                    "users": [
+                        {
+                            "userId": "58d2ae99076f165e59e84dfb",
+                            "additionDate": "2017-11-08T10:18:09.126Z",
+                            "type": "owner"
+                        }
+                    ],
+                    "creationDate": "2017-11-08T10:18:09.125Z",
+                    "id": "5a02d9e1eb329a4dea6045b6"
+                }
+            };
+
+            var scope = nock("https://" + options.rainbow.host)
+                .get("/api/rainbow/channels/v1.0/channels/" + readChannel.data.id)
+                .reply(200, readChannel)
+                .get("/api/rainbow/channels/v1.0/channels/" + readChannel.data.id)
+                .reply(200, readChannel)
+                .log(console.log);
+
+            rainbowSDK
+                .channels
+                .getChannelById(readChannel.data.id, true)
+                .then((channel) => {
+                    expect(channel.title)
+                        .to
+                        .be
+                        .equal("Read Channel");
+                    return rainbowSDK
+                        .channels
+                        .getChannelById(channel.id, true);
                 })
                 .then((channel) => {
                     expect(channel.title)
