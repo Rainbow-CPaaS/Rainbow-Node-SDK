@@ -8,9 +8,9 @@ Welcome to the Alcatel-Lucent Enterprise **Rainbow Software Development Kit for 
 
 The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an **NPM** package based on JavaScript for connecting your Node.js application to Rainbow.
 
-Its powerfull APIs enable you to create the best Node.js applications that connect to Alcatel-Lucent Enterprise [Rainbow](https://www.openrainbow.com).
+This powerfull library enables you to create the best Node.js applications that connect to Alcatel-Lucent Enterprise [Rainbow](https://www.openrainbow.com).
 
-This tutorial will help you starting with the ALE Rainbow SDK for Node.JS by building a basic application that connect to Rainbow.
+This tutorial will help you starting with the ALE Rainbow SDK for Node.JS by building a basic application that connects to Rainbow.
 
 
 ### Prerequisites
@@ -23,12 +23,12 @@ You need to have Node.JS and NPM installed on your computer if you want to devel
 
 The minimal versions supported are:
 
-| Pre-requisites | Version supported |
-| -------------- |:---------------- |
-| Node.JS | >= 6.x **LTS version is mandatory** |
-| NPM | >= 3.6 |
+| Pre-requisites | Version supported | Minimal |
+| -------------- |:---------------- | :-------- |
+| Node.JS | **LTS version only is supported** | Starting 6.x (without support) |
+| NPM | **LTS version is supported** | Starting 3.6 (without support)  |
 
-Note: Node.JS version 4.x will is no more supported by the SDK for Node.JS in order to let use write it using the latest JavaScript and Node.JS evolutions in term of language, features and security. Please, if you are still using an older version of Node.JS, migrate to the LTS version.
+Note: We encourage you to migrate and to keep closer to the LTS version of Node.JS in order to let us write this SDK using the latest JavaScript and Node.JS evolutions in term of language, and to have the best of Node.JS in term of features and security. Current version of Node.JS (with latest features) can be used but without support too.  
 
 
 #### Platforms supported
@@ -48,9 +48,9 @@ The following OS are supported:
 
 For developping on the Rainbow Developers Sandboxed Platform, your need a **Developer** account in order to use the Rainbow SDK for Node.js.
 
-To obtain it, you can
+To obtain it, you have to connect to the [Rainbow API Hub](https://hub.openrainbow.com) and to follow the instructions.
 
-- Either contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
+- Or you can contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
 
 - Or ask our bot **Emily** for an account. Just add the tags `#support #api` to your message sent to Emily.
 
@@ -166,12 +166,6 @@ let options = {
             "level": 'debug'                    // Default log level used
         }
     },
-    // Proxy configuration
-    "proxy": {
-        "host": "<proxy_host>",                 // eg: "172.25.50.190" (string expected)
-        "port": "<proxy_port>",                 // eg: 8080 (integer expected)
-        "protocol": "<proxy_protocol>"          // eg: "http" (string expected)
-    },
     // IM options
     "im": {
         "sendReadReceipt": true   // True to send the 'read' receipt automatically
@@ -186,7 +180,7 @@ rainbowSDK.start();
 
 ```
 
-For our HelloWorld, you have just to put the credentials you want to use. Others parameters can stay unchanged.
+For our HelloWorld application, you have just to put the credentials you want to use. Others parameters can stay unchanged.
 
 
 #### Executing the application
@@ -244,6 +238,8 @@ For checking that everything works fine, you can add a log in your callbacks and
 
 You're now ready to do greater things with the ALE Rainbow SDK for Node.JS!!!
 
+Others available guides will help you understanding the tricky parts. Take time to read these manuals, they will perhaps save you a lot of time at the end :-).
+
 ---
 
-_Last updated June, 16th 2017_
+_Last updated November, 22th 2017_

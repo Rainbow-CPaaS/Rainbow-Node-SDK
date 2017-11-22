@@ -9,6 +9,14 @@ Often, your server can't access to the Internet directly and need to pass throug
 This guide will describe in details how to configure the SDK for Node.JS for using a Proxy.
 
 
+### Installation
+---
+
+When you are behind a proxy, you need to configure NPM in order to go throught this proxy.
+
+A lot of documentation exists on the web to explain how to do it. Here is a link: [Node.js and NPM behind a proxy](https://medium.com/@patdhlk/node-js-and-npm-behind-a-proxy-111708b82718)
+
+
 ### Configuration
 ---
 
@@ -16,7 +24,7 @@ This guide will describe in details how to configure the SDK for Node.JS for usi
 #### Connecting using a Proxy
 ---
 
-If you need to access to Rainbow through an HTTP Proxy, you have to add the following part to your `options` parameter:
+If you need to access to Rainbow through an HTTP Proxy, you have to add the following part to your `options` configuration parameter:
 
 ```js
 
@@ -86,4 +94,4 @@ If you don't want to use a Proxy, the recommandation is to remove the key `proxy
 
 ---
 
-_Last updated July, 26th 2017_
+_Last updated November, 21th 2017_
