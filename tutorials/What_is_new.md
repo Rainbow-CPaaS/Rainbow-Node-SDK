@@ -26,6 +26,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Fix issue with password generation for guest account.
 
+- Fis some issues in the documentation
+
 
 ### SDK for Node.JS 1.32 - November 2017
 ---
