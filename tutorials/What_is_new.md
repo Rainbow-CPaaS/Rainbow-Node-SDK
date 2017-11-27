@@ -28,6 +28,10 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Fis some issues in the documentation
 
+- Fix issue with application token renewal
+
+- Fix issue with connection issue with new Rainbow 1.33 version (token check issue)
+
 
 ### SDK for Node.JS 1.32 - November 2017
 ---
