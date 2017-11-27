@@ -267,6 +267,45 @@ nodeSDK.channels.getUsersFromChannel(channel).then((listOfUsers) => {
 
 ```
 
+By default, you will only receive the 100 first users in that channel. Due to the fact that a channel can contain several thousands of users, you could not retrieve it in one shot to avoid an heavy HTTP request. Instead, you can use an additionnal `options` parameter to paginate or add specific filters that will give you less results to display (and so a better UX).
+
+The `options` contains the following parameters:
+
+```json
+
+let options = {
+    "page": 0, // The index of the page of results to receive. By default the first (0)
+    "limit": 100, // The number of users per page of results. By default 100.
+    "onlyPublishers": false, // Filter to display only publishers and owners
+    "onlyOwners": false // Filter to display only owners.
+};
+
+```
+
+So for example, if there are 1000 users in a channel and you want to display a paginated table with the first 25 users, set the parameter `page` to `0` and the parameter `limit` to `25`. Then if the user wants to display the next page, simply change the parameter `page` to `1`.
+
+So finally, here is a more complex example where display a paginated list of members that are at least `publisher`.
+
+```js
+
+let options = {
+    "page": 2, 
+    "limit": 50, 
+    "onlyPublishers": true
+};
+
+let channel = <...> // A channel
+
+nodeSDK.channels.getUsersFromChannel(channel, options).then((listOfUsers) => {
+    // Do something with the list of users
+    ...
+}).catch((err) => {
+    // Do something in case of error
+    ...
+});
+
+```
+
 
 ### Sending messages to channel
 ---
