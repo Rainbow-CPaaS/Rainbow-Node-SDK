@@ -32,6 +32,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Fix issue with connection issue with new Rainbow 1.33 version (token check issue)
 
+- Fix issue when removing from a room
+
 
 ### SDK for Node.JS 1.32 - November 2017
 ---

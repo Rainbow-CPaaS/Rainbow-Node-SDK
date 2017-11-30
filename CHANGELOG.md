@@ -2,7 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.33.1] - 2017-11-30
+## [1.33.2] - 2017-11-30
+- #30070: Send uavailability when removing from a bubble
+
+## [1.33.1] - 2017-11-28
 - #30007: Rename API findChannels to findChannelsByName and add findChannelsByTopic
 - #30016: API getUsersFromChannel() is paginated
 - #30023: Fix connection login issue
