@@ -1,9 +1,11 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+## [1.33.3] - 2017-12-01
+- #30078: Add User Agent in request
 
 ## [1.33.2] - 2017-11-30
-- #30070: Send uavailability when removing from a bubble
+- #30070: Send unavailability when removing from a bubble
 
 ## [1.33.1] - 2017-11-28
 - #30007: Rename API findChannels to findChannelsByName and add findChannelsByTopic
