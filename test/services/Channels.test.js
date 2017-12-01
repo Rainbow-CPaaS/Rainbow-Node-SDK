@@ -390,12 +390,13 @@ describe("Channel Service", () => {
 
             var scope = nock("https://" + options.rainbow.host)
                 .get("/api/rainbow/channels/v1.0/channels/search")
-                .query({"title_substring": "great"})
+                .query({"limit": "100"})
+                .query({"topic": "great"})
                 .reply(200, findChannel);
 
             rainbowSDK
                 .channels
-                .findChannel("great")
+                .findChannelsByTopic("great")
                 .then((channels) => {
                     expect(channels)
                         .to
