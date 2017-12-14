@@ -269,7 +269,7 @@ Use the API `getContactById()` like in the following:
 
 ```js
 
-nodeSDK.contacts.getContactById("570e12832d768e9b52a8b7ea").then((user) => {
+nodeSDK.contacts.getContactById("570e12832d768e9b52a8b7ea").then((contact) => {
     if(contact) {
         // Do something with the contact found
         ...
@@ -298,7 +298,7 @@ Use the API `getContactByJid()` to find a user by his `jid`:
 
 ```js
 
-nodeSDK.contacts.getContactByJid("d29f69b505074c83a8aadc555f99a713@sandbox-all-in-one-prod-1.opentouch.cloud").then((user) => {
+nodeSDK.contacts.getContactByJid("d29f69b505074c83a8aadc555f99a713@sandbox-all-in-one-prod-1.opentouch.cloud").then((contact) => {
     if(contact) {
         // Do something with the contact found
         ...
@@ -329,7 +329,7 @@ Use the API `getContactByLoginEmail()` like in the following:
 
 ```js
 
-nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((user) => {
+nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
     if(contact) {
         // Do something with the contact found
         ...
