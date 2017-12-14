@@ -3,6 +3,22 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.34 - December 2017
+---
+
+**SDK**
+
+- An enhancement has been done to avoid `ghost` bot. The Node.JS SDK is automatically restarted if there is no message (stanza) received from the server during 70 secondes and after a ping request sent to rainbow that has not been answered within 5 secondes.
+
+- The Node.JS SDK now manages requests with a content-type equals to `text/csv` in order send and receive CSV content.
+
+**Bugs**
+
+- Some minor typos corrections have been done on the guide [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts).
+
+- A fix has been done on the token renewal mechanism to manage the new token duration and renew process.
+
+
 ### SDK for Node.JS 1.33 - December 2017
 ---
 
