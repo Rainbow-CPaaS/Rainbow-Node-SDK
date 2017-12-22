@@ -138,24 +138,58 @@ The SDK for Node.JS has a complete lifecycle that can be managed by the applicat
 Each time the state of the SDK for Node.JS changes, an event is fired
 
 <center>
-
-```mermaid
-graph TD
-A((stopped)) -- rainbow_onstarted --> B
-B((started)) -- rainbow_onconnected --> C
-C((connected)) --rainbow_onready --> D
-D((ready)) -- rainbow_ondisconnected --> E
-E((disconnected)) -- rainbow_onreconnecting --> F
-F((reconnecting)) -- rainbow_onconnected --> C
-D -- rainbow_onstopped --> A((stopped))
-
-style A fill:#108ee9,stroke:#333,stroke-width:4px
-style B fill:#108ee9,stroke:#333,stroke-width:2px
-style C fill:#108ee9,stroke:#333,stroke-width:2px
-style D fill:#108ee9,stroke:#333,stroke-width:2px
-style E fill:#108ee9,stroke:#333,stroke-width:2px
-style F fill:#108ee9,stroke:#333,stroke-width:2px
-```
+<br>
+<br>
+<small>STATE</small><br>`stopped`<br>
+|<br>
+v<br>
+**rainbow_onstarted**<br><small>EVENT</small><br>
+|<br>
+V<br>
+<small>STATE</small><br>`started`<br>
+|<br>
+v<br>
+**rainbow_onconnected**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`connected`<br>
+|<br>
+v<br>
+**rainbow_onready**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`ready`<br>
+|<br>
+v<br>
+**rainbow_ondisconnected**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`disconnected`<br>
+|<br>
+v<br>
+**rainbow_onreconnecting**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`reconnecting`<br>
+|<br>
+v<br>
+**rainbow_onconnected**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`connected`<br>
+|<br>
+v<br>
+**rainbow_onready**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`ready`<br>
+|<br>
+v<br>
+**rainbow_onstopped**<br><small>EVENT</small><br>
+|<br>
+v<br>
+<small>STATE</small><br>`stopped`<br>
+<br>
 
 </center>
 
