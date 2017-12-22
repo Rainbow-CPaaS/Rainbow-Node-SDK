@@ -138,7 +138,9 @@ The SDK for Node.JS has a complete lifecycle that can be managed by the applicat
 Each time the state of the SDK for Node.JS changes, an event is fired
 
 <center>
-```graph_TD
+
+```mermaid
+graph TD
 A((stopped)) -- rainbow_onstarted --> B
 B((started)) -- rainbow_onconnected --> C
 C((connected)) --rainbow_onready --> D
@@ -154,6 +156,7 @@ style D fill:#108ee9,stroke:#333,stroke-width:2px
 style E fill:#108ee9,stroke:#333,stroke-width:2px
 style F fill:#108ee9,stroke:#333,stroke-width:2px
 ```
+
 </center>
 
 
