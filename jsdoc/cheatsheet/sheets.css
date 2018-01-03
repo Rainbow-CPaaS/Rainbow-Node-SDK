@@ -1,0 +1,83 @@
+html {
+    background: url("assets/background.png") no-repeat center fixed;
+    background-position-y: 0;
+    background-size: 3400px;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: transparent !important;
+    display: flex;
+    flex-direction: column;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    height: 150px;
+    width: 100%;
+    margin: 0;
+    background-color: #333333;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Source Sans Pro', sans-serif;
+    color: white;
+}
+
+footer h3, footer h1 {
+    text-align: center;
+}
+
+footer div {
+    margin: 0 3%;
+}
+
+.mermaid {
+    width: 100%;
+}
+
+.mermaid g.classGroup text {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: bold;
+}
+
+#rainbow_logo {
+    height: 100px;
+    display: block;
+    margin: auto;
+}
+
+#alcatel_logo {
+    height: 90%;
+    margin: 0 3%;
+}
+
+.classTitle {
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+tspan.type {
+    fill: #B48D3D;
+}
+
+tspan.name {
+    fill: #45347C;
+}
+
+tspan.params {
+    fill: #256C6C;
+}
+
+.relation {
+    stroke: none !important;
+    marker-end: none;
+}
+
+.border {
+    stroke: white !important;
+}
