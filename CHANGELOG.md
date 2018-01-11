@@ -2,11 +2,16 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.35.0] - 2017-01-15
+- #CRRAINB-1450: Replace JID by fullJID when sending a P2P message to avoid crash
+- #CRRAINB-1451: Fix typo in guide `Managing contacts` with API getContactByLoginEmail that returns an array and not the contact directly
+- #CRRAINB-1452: Update FOSS WS (DOS fix) and request (latest version available)
+
 ## [1.34.0] - 2017-12-17
 - #RQRAINB-513: Allow to send a POST request with a specific content-type
 - #RQRAINB-515: Add a ping mechanism from client side to server side when no stanza received during 70s
 - #RQRAINB-478: Manage content-type text/csv in server response
-- #CRRAINB-1222: Fix typo in guide `Managing Contacts``
+- #CRRAINB-1222: Fix typo in guide `Managing Contacts`
 - #CRRAINB-1217: Token renew policy forbids users to connect - SDK
 
 ## [1.33.3] - 2017-12-01
