@@ -180,7 +180,47 @@ rainbowSDK.start();
 
 ```
 
-For our HelloWorld application, you have just to put the credentials you want to use. Others parameters can stay unchanged.
+If you don't have valids application `id` and `secret`, you can simply let this two properties blanks such as in the following
+
+
+```js
+
+// Load the SDK
+let RainbowSDK = require('rainbow-node-sdk');
+
+
+// Define your configuration
+let options = {
+    "rainbow": {
+        "host": "sandbox",                      
+    },
+    "credentials": {
+        "login": "bot@mycompany.com",  
+        "password": "thePassword!123"   
+    },
+    // Application identifier
+    "application": {
+        "id": "", 
+        "secret": "", 
+    },
+    // Logs options
+    "logs": {
+        "enableConsoleLogs": true,              
+        "enableFileLogs": false,                
+        "file": {
+            "path": '/var/tmp/rainbowsdk/',
+            "level": 'debug'                    
+        }
+    },
+    // IM options
+    "im": {
+        "sendReadReceipt": true   
+    }
+};
+
+```
+
+For our HelloWorld application, you have just to replace the credentials by your owns. Others parameters can stay unchanged.
 
 
 #### Executing the application
@@ -242,4 +282,4 @@ Others available guides will help you understanding the tricky parts. Take time 
 
 ---
 
-_Last updated November, 22th 2017_
+_Last updated January, 11th 2018_
