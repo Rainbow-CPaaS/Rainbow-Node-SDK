@@ -330,9 +330,14 @@ Use the API `getContactByLoginEmail()` like in the following:
 ```js
 
 nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
-    if(contact) {
-        // Do something with the contact found
-        ...
+    if(contacts.length > 0) {
+        // Do something with the contacts found
+
+        contacts.forEach( (contact) => {
+            // Do something for each contact found
+            ...
+        });
+
     }
     else {
         // Do something if the contact has not been found (do not exist or is private...)
