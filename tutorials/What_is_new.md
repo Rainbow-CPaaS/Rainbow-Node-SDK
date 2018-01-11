@@ -3,6 +3,26 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.35 - January 2018
+---
+
+**SDK**
+
+- This is a support release. Only fixes have been added to that release.
+
+**Bugs**
+
+- Replaced the `Jid` by the `Jid/resource` when sending a P2P message to avoid crash when connected twice with the same account.
+
+- Fix typo in guide [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts) with API `getContactByLoginEmail()` that returns an array and not the contact directly. API documentation has been updated too.
+
+- Update FOSS `ws` in order to avoid a DOS attack and FOSS `request` to be aligned with the latest available version.
+
+- Add better explanation in guides [Getting started](/#/documentation/doc/node/tutorials/Getting_Started) and [Connecting to Rainbow](/#/documentation/doc/node/tutorials/Connecting_to_Rainbow) on configuration parameters.
+
+- Describe APIs `sendMessageToJid()` and `sendMessageToBubbleJid()` on how to send messages in guide [Answering chat messages](/#/documentation/doc/node/tutorials/Answering_chat_message).
+
+
 ### SDK for Node.JS 1.34 - December 2017
 ---
 
