@@ -7,6 +7,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #CRRAINB-1451: Fix typo in guide `Managing contacts` with API getContactByLoginEmail that returns an array and not the contact directly
 - #CRRAINB-1452: Update FOSS WS (DOS fix) and request (latest version available)
 - #CRRAINB-1458: Add better explanation in guides `Getting started` and `Connecting to Rainbow` on configuration parameters.
+- #CRRAINB-1459: Describe missing API `sendMessageToJid()` and `sendMessageToBubbleJid()` to sending messages in guide `Answering chat messages`
 
 ## [1.34.0] - 2017-12-17
 - #RQRAINB-513: Allow to send a POST request with a specific content-type
