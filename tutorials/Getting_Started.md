@@ -146,62 +146,16 @@ let RainbowSDK = require('rainbow-node-sdk');
 // Define your configuration
 let options = {
     "rainbow": {
-        "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
-    },
-    "credentials": {
-        "login": "<your_rainbow_login_email>",  // The Rainbow email account to use
-        "password": "<your_rainbow_password>"   // The Rainbow associated password to use
-    },
-    // Application identifier
-    "application": {
-        "id": "<your_rainbow_application_id>", // The Rainbow Application Identifier - application must have a 'deployed' state
-        "secret": "<your_rainbow_application_secret>", // The Rainbow Application Secret - retrieved from developer hub
-    },
-    // Logs options
-    "logs": {
-        "enableConsoleLogs": true,              // Default: true
-        "enableFileLogs": false,                // Default: false
-        "file": {
-            "path": '/var/tmp/rainbowsdk/',     // Default path used
-            "level": 'debug'                    // Default log level used
-        }
-    },
-    // IM options
-    "im": {
-        "sendReadReceipt": true   // True to send the 'read' receipt automatically
-    }
-};
-
-// Instantiate the SDK
-let rainbowSDK = new RainbowSDK(options);
-
-// Start the SDK
-rainbowSDK.start();
-
-```
-
-If you don't have valids application `id` and `secret`, you can simply let this two properties blanks such as in the following
-
-
-```js
-
-// Load the SDK
-let RainbowSDK = require('rainbow-node-sdk');
-
-
-// Define your configuration
-let options = {
-    "rainbow": {
         "host": "sandbox",                      
     },
     "credentials": {
-        "login": "bot@mycompany.com",  
-        "password": "thePassword!123"   
+        "login": "bot@mycompany.com",  // To replace by your developer credendials
+        "password": "thePassword!123"  // To replace by your developer credentials
     },
     // Application identifier
     "application": {
-        "id": "", 
-        "secret": "", 
+        "appID": "", 
+        "appSecret": "", 
     },
     // Logs options
     "logs": {
@@ -218,7 +172,16 @@ let options = {
     }
 };
 
+// Instantiate the SDK
+let rainbowSDK = new RainbowSDK(options);
+
+// Start the SDK
+rainbowSDK.start();
+
 ```
+
+If you don't have valids application `id` and `secret`, you can simply let this two properties blanks such as in the following
+
 
 For our HelloWorld application, you have just to replace the credentials by your owns. Others parameters can stay unchanged.
 

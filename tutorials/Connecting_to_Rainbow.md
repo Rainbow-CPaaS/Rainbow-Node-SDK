@@ -35,8 +35,8 @@ let options = {
     },
     // Application identifier
     "application": {
-        "id": "", 
-        "secret": "", 
+        "appID": "", 
+        "appSecret": "", 
     },
     // Logs options
     "logs": {
