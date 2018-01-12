@@ -67,35 +67,30 @@ The `options` parameter allows to enter your credentials and to target the Rainb
 
 // Define your configuration
 let options = {
-    rainbow: {
-        host: "sandbox",  // can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+    "rainbow": {
+        "host": "sandbox",                      
     },
-    credentials: {
-        login: "<your_rainbow_login_email>",  // Your Rainbow email account
-        password: "<your_rainbow_password>"   // Your Rainbow password
+    "credentials": {
+        "login": "bot@mycompany.com",  // To replace by your developer credendials
+        "password": "thePassword!123"  // To replace by your developer credentials
     },
-    application: {
-        appID: "<your_application_ID>",         // Your application Identifier
-        appSecret: "<your_application_secret>"  // Your application secret
+    // Application identifier
+    "application": {
+        "appID": "", 
+        "appSecret": "", 
     },
     // Logs options
-    logs: {
-        enableConsoleLogs: true,            // Default: true
-        enableFileLogs: false,              // Default: false
-        file: {
-            path: '/var/tmp/rainbowsdk/',   // Default path used
-            level: 'debug'                  // Default log level used
+    "logs": {
+        "enableConsoleLogs": true,              
+        "enableFileLogs": false,                
+        "file": {
+            "path": '/var/tmp/rainbowsdk/',
+            "level": 'debug'                    
         }
     },
-    // Proxy configuration
-    proxy: {
-        host: '<proxy_host>',
-        port: <proxy_port>,
-        protocol: '<proxy_protocol>'
-    },
     // IM options
-    im: {
-        sendReadReceipt: true   // True to send the the 'read' receipt automatically
+    "im": {
+        "sendReadReceipt": true   
     }
 };
 
