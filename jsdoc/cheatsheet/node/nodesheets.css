@@ -1,0 +1,112 @@
+html {
+    background: url("../assets/background.png") no-repeat center center fixed;
+    /* background-position-y: 0; */
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    background-color: transparent !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+footer {
+    height: 150px;
+    width: 100%;
+    margin: 0;
+    background-color: #333333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Source Sans Pro', sans-serif;
+    color: white;
+    text-align: center;
+}
+
+#rainbow_logo {
+    height: 100px;
+    display: block;
+    margin: auto;
+}
+
+#alcatel_logo {
+    height: 50px;
+    margin: 0 3%;
+}
+
+footer div {
+    margin: 0 3%;
+}
+
+
+@media (min-width: 4000px) {
+    footer {
+        height: 300px;
+        font-size: 2.5em;
+    }
+
+    #rainbow_logo {
+        height: 200px;
+    }
+
+    #alcatel_logo {
+        height: 100px;
+    }
+}
+
+.mermaid {
+    width: 95%;
+    margin: 1%;
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.mermaid > svg {
+    padding: 1.5%;
+}
+
+.mermaid g.classGroup text {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: bold;
+}
+
+.classTitle {
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+tspan.type {
+    fill: #B48D3D;
+}
+
+tspan.name {
+    fill: #45347C;
+}
+
+tspan.params {
+    fill: #256C6C;
+}
+
+.relation {
+    stroke-width: 2px !important;
+    stroke: #a50000 !important;
+}
+
+.hideRelation {
+    stroke: none !important;
+    marker-end: none;
+}
+
+.labelCard {
+    font-size: 20px;
+}
+
+.border {
+    stroke: white !important;
+}

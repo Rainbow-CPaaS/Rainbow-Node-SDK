@@ -8,7 +8,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **SDK**
 
-- This is a support release. Only fixes have been added to that release.
+- The new method `updateGroupName(group, name)` has been added which allows to change the name of a group.
 
 **Bugs**
 

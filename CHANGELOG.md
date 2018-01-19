@@ -2,10 +2,13 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.35.1] - 2017-01-12
+## [1.35.2] - 2018-01-18
+- #CRRAINB-1519: Impossible to update group name
+
+## [1.35.1] - 2018-01-12
 - #CRRAINB-1463: Fix typo in guides `Getting_Started`, `Proxy`, `Readme` and `Connecting to Rainbow` that had bad application parameters name. 
 
-## [1.35.0] - 2017-01-11
+## [1.35.0] - 2018-01-11
 - #CRRAINB-1450: Replace JID by fullJID when sending a P2P message to avoid crash
 - #CRRAINB-1451: Fix typo in guide `Managing contacts` with API getContactByLoginEmail that returns an array and not the contact directly
 - #CRRAINB-1452: Update FOSS WS (DOS fix) and request (latest version available)

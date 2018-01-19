@@ -34,6 +34,24 @@ nodeSDK.groups.createGroup("aFavoriteGroup", "This is a favorite group", isFavor
 
 ```
 
+### Updating the name of a group
+---
+
+You can update the name of a group by calling the API `updateGroupName()`
+
+```
+
+	let aGroup = ...;
+	let aNewName = ...;
+	
+	nodeSDK.groups.updateGroupName(aGroup, aNewName).then(group => {
+		// Do something once the name of the group has been updated
+	}).catch(err => {
+		// Do something in case of issue
+	});
+
+```
+
 ### Adding a user to a group
 ---
 

@@ -3,7 +3,7 @@ module.exports = function (grunt) {
 
     /* ------------------------------ VARIABLES -------------------------------- */
     version: grunt.file.read("./config/version.js").split("\"")[1],
-    nodeSdkOrder: grunt.file.read("./jsdoc/cheatsheet/nodeSdkOrder") + "\n</div><!--MERMAID-->",
+    nodeSdkOrder: grunt.file.read("./jsdoc/cheatsheet/node/nodeSdkOrder") + "\n</div><!--MERMAID-->",
 
     jsdoc2md: {
       separateOutputFiles: {
@@ -56,7 +56,7 @@ module.exports = function (grunt) {
     },
 
     jsdoc: {
-        sheets: {
+        nodesheets: {
             src: ["lib/services/*.js"],
             dest: "bin/jsdoc",
             options: {
@@ -74,29 +74,31 @@ module.exports = function (grunt) {
                 destinationFileEndPattern: "@@</div><!--MERMAID-->"
             },
             files: {
-                "./jsdoc/cheatsheet/nodesheets.html": ["./bin/jsdoc/sheets/diagram"]
+                "./jsdoc/cheatsheet/node/nodesheets.html": ["./bin/jsdoc/sheets/diagram"]
             }
         }
     },
 
     copy: {
-        generatedcheatsheet: {
+        generatednodecheatsheet: {
             files: [
-                {expand: true, cwd: "./jsdoc", src: ["cheatsheet/**/*.html"], dest: "bin/jsdoc/sheets", filter: "isFile"},
+                {expand: true, cwd: "./jsdoc", src: ["cheatsheet/node/**/*.html"], dest: "bin/jsdoc/sheets", filter: "isFile"},
+                {expand: true, cwd: "./jsdoc", src: ["cheatsheet/node/**/*.css"], dest: "bin/jsdoc/sheets", filter: "isFile"},
                 {expand: true, cwd: "./jsdoc", src: ["cheatsheet/assets/**/*.*"], dest: "bin/jsdoc/sheets", filter: "isFile"},
-                {expand: true, cwd: "./jsdoc", src: ["cheatsheet/sheets.css"], dest: "bin/jsdoc/sheets", filter: "isFile"},
-                {expand: true, cwd: "./node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets", filter: "isFile"}               
+                {expand: true, cwd: "./node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"}               
             ]
         }
     },
 
     replace: {
-        sheetsVersion: {
+        nodesheets: {
             options: {
                 patterns: [
                     {
-                        match: "<!--VERSION HERE-->",
-                        replacement: "<h3>Cheat Sheet - NodeSdk - v<%= version %></h3>"
+                        json: {
+                            "<!--VERSION HERE-->": "<h3>Cheat Sheet Beta - NodeSdk - v<%= version %></h3>",
+                            "</div><!--MERMAID-->": "<%= nodeSdkOrder %>"
+                        }
                     }
                 ]
             },
@@ -105,35 +107,16 @@ module.exports = function (grunt) {
                     expand: true,
                     flatten: true,
                     src: [
-                        "jsdoc/cheatsheet/nodesheets.html",
+                        "jsdoc/cheatsheet/node/nodesheets.html",
                     ],
-                    dest: "bin/jsdoc/sheets/cheatsheet/"
+                    dest: "bin/jsdoc/sheets/cheatsheet/node/"
                 }]
-        },
-        nodeSdkOrder: {
-            options: {
-                patterns: [
-                    {
-                        match: "</div><!--MERMAID-->",
-                        replacement: "<%= nodeSdkOrder %>"
-                    }
-                ]
-            },
-            files: [
-                {
-                    expand: true,
-                    flatten: true,
-                    src: [
-                        "jsdoc/cheatsheet/nodesheets.html",
-                    ],
-                    dest: "bin/jsdoc/sheets/cheatsheet/"
-                }]
-        },
+        }
     },
 
     exec: {
-        renderSheetsPdf: {
-            cmd: "node puppeteer.js"
+        renderNodeSheets: {
+            cmd: "node puppeteer.js node"
         }
     }
 });
@@ -148,6 +131,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks("grunt-exec");
   grunt.registerTask("default", ["clean:dist", "jsdoc2md"]);
-  grunt.registerTask("sheets", ["jsdoc:sheets", "copy-part-of-file:nodesheets", "copy:generatedcheatsheet", "replace:sheetsVersion", "replace:nodeSdkOrder", "exec:renderSheetsPdf"]);
+  grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
