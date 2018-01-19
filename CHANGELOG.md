@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.36.0] - 2018-02-04
+- #CRRAINB-1530: Stop XMPP connection correctly on stop()
+
 ## [1.35.2] - 2018-01-18
 - #CRRAINB-1519: Impossible to update group name
 
