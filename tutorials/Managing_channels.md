@@ -4,9 +4,11 @@
 ### Preamble
 ---
 
-Using the Rainbow SDK for Node.JS, you can create and administrate channels which is the possibility to someone to share information to a large numbers of users by managing the recipients (called private channels) or by letting the users subscribing to the channel they want (called public channels) if they find an interest to receive these information.
+Using the Rainbow SDK for Node.JS, you can send notifications to a large numbers of users (e.i. several thousands of users) using a **channel**.
 
-In Rainbow, two different kinds of channels exists : **private** or **public**
+Channel can be used when you want to notify a large group of users without having to send a chat message individually to each.
+
+You can create and administrate 2 differents types of channels:  Either by managing the recipients (called **private** channels) or by letting the users subscribing to the channel they want (called **public** channels) if they find an interest to receive these information.
 
 
 | Channel type | Description |
@@ -14,7 +16,7 @@ In Rainbow, two different kinds of channels exists : **private** or **public**
 | **Private** | Only Owner can add or remove users in a private channels. Private channels can't be found when searching for channels. Consequently, users can't subscribe on their own to private channel. |
 | **Public** | Users are free to subscribe to a public channel. Public channels can be found when searching for channels. The visibility of a channel is limited to my company. |
 
-In a channel, a user has a role that can be **owner**, **member**, **publisher** or **none**.
+In a channel, the membership of a user (role) can be **owner**, **member**, **publisher** or **none**.
 
 | User role | Description |
 |:----------|:------------|
@@ -306,6 +308,8 @@ nodeSDK.channels.getUsersFromChannel(channel, options).then((listOfUsers) => {
 
 ```
 
+Note: You can know how many users are in a channel by using the property `users_count`. This will give you the total number of users in a channel included you.
+
 
 ### Sending messages to channel
 ---
@@ -472,7 +476,7 @@ Here is a list of limitations regarding Channels:
 
 | Limit | Value | Description |
 |:------|:------|:------------|
-| **Max items saved when offline** | 30 | If you were not connected during a long time, you will be able to get only the 3O latest messages from a channel. Older messages will never been received. |
+| **Max items saved when offline** | 100 | If you were not connected during a long time, you will be able to get only the 100 latest messages from a channel. Older messages will never been received. |
 
 
 ---
