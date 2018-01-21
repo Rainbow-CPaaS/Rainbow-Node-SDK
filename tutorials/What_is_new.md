@@ -10,9 +10,11 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - **[Breaking changes]** To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `getUsersFromChannel()` has to be used to retrieve the list of users in a channel. 
 
-- Add API `getMessagesFromChannel()` to retrieve all available messages from a channel.
+- New API `getMessagesFromChannel()` has been added to retrieve all available messages from a channel.
 
 - Number of messages stored for a channel on Rainbow server has changed from **30** to **100**.
+
+- New API `sendMessageToContact()` and `sendMessageToBubble()` have been added to send message by passing the `contact` object instance or the `bubble` object instance.
 
 **Bugs**
 
