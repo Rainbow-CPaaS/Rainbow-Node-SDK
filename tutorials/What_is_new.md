@@ -18,6 +18,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - A fix has been done to close correctly the XMPP connection when calling the method `stop()` from the SDK.
 
+- API documentation for `connectedUser` property has been fixed.
+
 
 ### SDK for Node.JS 1.35 - January 2018
 ---

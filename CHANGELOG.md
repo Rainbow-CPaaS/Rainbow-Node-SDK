@@ -6,6 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #CRRAINB-1530: Stop XMPP connection correctly on stop()
 - #CRRAINB-1534: Adapt channels API to changes from server
 - #CRRAINB-1540: Add API getMessagesFromChannel to retrieve messages from a channel
+- #CRRAINB-1541: Fix API documentation for connected user
 
 ## [1.35.2] - 2018-01-18
 - #CRRAINB-1519: Impossible to update group name
