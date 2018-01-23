@@ -8,6 +8,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **SDK**
 
+- **[Breaking changes]** Due to a change on server side regarding Channels services, the Rainbow SDK Node.JS 1.35 and prior will not be able to manage channels anymore starting Rainbow 1.36. You need to update to this version in order to continue to use this service.
+
 - **[Breaking changes]** To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `getUsersFromChannel()` has to be used to retrieve the list of users in a channel. 
 
 - New API `getMessagesFromChannel()` has been added to retrieve all available messages from a channel.
@@ -21,6 +23,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - A fix has been done to close correctly the XMPP connection when calling the method `stop()` from the SDK.
 
 - API documentation for `connectedUser` property has been fixed.
+
+- Avoid crash when calling API `signout()` when not logged-in.
 
 
 ### SDK for Node.JS 1.35 - January 2018
