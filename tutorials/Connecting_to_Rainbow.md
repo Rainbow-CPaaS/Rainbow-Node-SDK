@@ -278,7 +278,7 @@ Here is the list of events that your application can handle:
 | **rainbow_ondisconnected** | Fired when the SDK lost the connection with Rainbow |
 | **rainbow_onreconnecting** | Fired when the SDK tries to reconnect |
 | **rainbow_onfailed** | Fired when the SDK didn't succeed to reconnect and stop trying |
-| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
+| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter, impossible to connect or reconnect, etc...) |
 | **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
 
 
@@ -343,7 +343,7 @@ This event is fired when the maximal number of attempts to reconnect has been re
 #### Event rainbow_onerror
 ---
 
-This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed).
+This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed). When this event is fired, the application has to manually call the API `stop()` and `start()` in order to restart de SDK properly.
 
 
 ---
