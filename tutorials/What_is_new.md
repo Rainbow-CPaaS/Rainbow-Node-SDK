@@ -12,6 +12,11 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - Avoid crash when calling API `signout()` when not logged-in.
 - Avoid crash when evaluating XMPP connection error.
 
+- Avoid crash on network lost and try to reconnect. Application needs to listen the event `rainbow_onerror`. This event is triggered when the SDK fails to reconnect automatically. In that case, the application has to manually call the API `stop()` and `start()` to be able to try to reconnect to the SDK. 
+
+- When trying to reconnect the REST part, the SDK for Node.JS will now made up to **50** attempts instead of 30 and the max time between 2 attempts has been set to **60s** as for the XMPP part.
+
+
 ### SDK for Node.JS 1.35 - January 2018
 ---
 
