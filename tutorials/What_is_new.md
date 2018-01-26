@@ -26,6 +26,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Avoid crash when calling API `signout()` when not logged-in.
 
+- Avoid crash when evaluating XMPP connection error.
+
 
 ### SDK for Node.JS 1.35 - January 2018
 ---
