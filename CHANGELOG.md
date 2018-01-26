@@ -10,6 +10,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #CRRAINB-1542: Add API `sendMessageToContact()` `and sendMessageToBubble()`
 - #CRRAINB-1579: Avoid crash on multiple `signout()`
 - #CRRAINB-1628: Avoid crash when evaluating XMPP connection error
+- #CRRAINB-1631: Avoid crash when the network is lost and launch the reconnection procedure
+- #CRRAINB-1637: Increase attempt and MAX_DELAY when trying to reconnect the REST part
 
 ## [1.35.2] - 2018-01-18
 - #CRRAINB-1519: Impossible to update group name
