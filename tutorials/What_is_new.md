@@ -16,6 +16,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - When trying to reconnect the REST part, the SDK for Node.JS will now made up to **50** attempts instead of 30 and the max time between 2 attempts has been set to **60s** as for the XMPP part.
 
+- Fix a crash when retrieving the list of bubbles.
+
 
 ### SDK for Node.JS 1.35 - January 2018
 ---
