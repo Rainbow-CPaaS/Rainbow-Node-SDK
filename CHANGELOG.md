@@ -13,6 +13,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #CRRAINB-1631: Avoid crash when the network is lost and launch the reconnection procedure
 - #CRRAINB-1637: Increase attempt and MAX_DELAY when trying to reconnect the REST part
 - #CRRAINB-1639: API `getContactByLoginEmail()`, `getContactById()`, `getContactsByJid()` doesn't work as expected
+- #CRRAINB-1667: Fix crash when getting the bubbles list
 
 ## [1.35.2] - 2018-01-18
 - #CRRAINB-1519: Impossible to update group name
