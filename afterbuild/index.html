@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="shortcut icon" type="image/png" href="assets/appLogo.png"/>
+        <link rel="stylesheet prefetch" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="src/css/launcher.css">
+        <link rel="stylesheet" href="src/css/custom.css">
+        <link rel="stylesheet" href="src/css/font-awesome.min.css">
+		<title>Rainbow AfterBuild</title>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/es6-promise/4.0.5/es6-promise.min.js"></script>
+        <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="//cdn.jsdelivr.net/momentjs/2.15.1/moment-with-locales.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.7/angular.min.js"></script>
+        <script src="src/js/logger.js"></script>
+        <script src="src/js/framer.js"></script>
+        <script src="src/js/inspector.js"></script>
+        <script src="src/js/renderer.js"></script>
+        <script src="src/js/prerequisite.js"></script>
+        <script src="src/js/queue.js"></script>
+
+        <!-- Test SDK build dir
+        < script src="../bin/lib/vendors-sdk.min.js"></script>
+        < script src="../bin/lib/rainbow-sdk.min.js"></script>
+        -->
+
+	</head>
+
+    <body>
+        <nav class="navbar navbar-default app-navbar">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <img alt="Brand" src="assets/appLogo.png" class="app-logo" />
+                    </a>
+                    <p class="navbar-text"><label class="label label-brand">AfterBuild</label> for Rainbow HUB API</p>
+                    
+                </div>
+            </div>
+        </nav>
+
+        <div class="row app-border">
+
+            <!-- Main panel -->
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <div class="x_panel tile">
+                    <div class="x_title">
+                        <h4>TESTS&nbsp;<small>Select the tests to run</small></h4>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div id="epics_list"></div>
+                    </div>
+                </div>
+
+                <div class="x_panel tile min_height_480">
+                    <div class="x_title">
+                        <h4>RESULTS&nbsp;<small>Details of tests run</small></h4>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" id="empty-state">
+                            <i class="fa fa-cogs empty-icon"></i>
+	                        <h3 class="empty-title">No tests run yet</h3>
+	                        <p class="empty-paragraph">Choose the tests to run and click on the button 'Start' to see the results here...</p>
+                        </div>
+                        <div class="panel-group" id="api_testsPlan" role="tablist" aria-multiselectable="true">
+                        </div>
+                    </div>
+                    <div class="x_junit"><p>jUnit format</p>
+                        <textarea id="junit_textarea" style="width:100%"></textarea>
+                    </div>
+                </div>
+
+                <form class="testsPlan-start">
+                    <button type="button" class="btn btn-default" id="resetBtn" onclick="resetTest();">Reset</button>
+                    <button type="button" class="btn btn-danger" data-loading-text="Running..."  id="startBtn" onclick="startTest();">Start</button>
+                </form>
+            </div>
+
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+                <div class="x_panel tile">
+                    <div class="x_title">
+                        <h4>COVERAGE&nbsp;<small>Main statistics on API</small></h4>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <ul>
+                            <li class="list-group-item"> API FOUND<span class="badge" id="api_number">na</span></li> 
+                            <li class="list-group-item"> COVERAGE<span class="badge" id="api_coverage">na</span></li> 
+                            <li class="list-group-item"> API CALLED<span class="badge" id="api_details">na</span></li> 
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="x_panel tile">
+                    <div class="x_title">
+                        <h4>INSPECTOR&nbsp;<small>Count the number of time APIs are called</small></h4>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <ul id="api_list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="framer">
+        </div>
+
+        <div class="right-pane">
+            <ul class="right-pane-methods">
+            </ul>
+        </div>
+
+        <script>
+            
+            String.prototype.replaceAll = function(search, replacement) {
+                var target = this;
+                return target.split(search).join(replacement);
+            };
+            
+            var that = this;
+
+            var logger, inspector, queue, prerequisite;
+
+            window.sdkweb = {};
+
+            // Get the jUnit xml generated
+            var junit_textarea_read = function junit_textarea_read() {
+                return $("#junit_textarea").val();
+            };
+
+            var resetTest = function resetTest() {
+                // Reset results area
+                $("#api_testsPlan").empty();
+                $("#empty-state").show();
+
+                // Reset COVERAGE
+                $("#api_coverage").text("na");
+                $("#api_details").text("na");
+
+                // Reset api called
+                var nodes = $("#api_list .badge");
+                nodes.each(function(elt) {
+                    $(this).text("0");
+                    $(this).removeClass("api-called");
+                });
+
+                // Reset data
+                queue.reset();
+                inspector.reset();
+
+            };
+
+            var selectAll = function selectAll() {
+                $(".input-epic").prop('checked', false); // force test running state
+                $(".input-epic").click()
+            }
+
+            var selectTest = function selectTest(testList) {
+                return new Promise( function(resolve, reject) {
+
+                    $(".input-epic[checked]").click(); // force test running state
+
+                    if( typeof testList === 'array') {
+                        testList.forEach( function(name) {
+                            $(`#${name}.input-epic`).prop('checked', false);
+                            $(`#${name}.input-epic`).click();
+                            console.log(`Test ${name} selected`);
+                        })
+                    } else {
+                        $(`#${testList}.input-epic`).click();
+                        console.log(`Test ${testList} selected`);
+                    }
+                    resolve();
+                })
+            };
+
+            var startTest = function startTest() {
+                return new Promise( function(resolve, reject) {
+                    $("#empty-state").hide();
+                    var $btn = $("#startBtn").button('loading');
+                    $('#resetBtn').addClass('disabled');
+
+                    queue.runTestsplan().then(function() {
+                        queue.displayStats();
+                        console.log("[TST-MAIN ] :: Successfully finished !!!!");
+                        $btn.button('reset');
+                        $('#resetBtn').removeClass('disabled');
+                        resolve('success')
+                    }).catch(function() {
+                        queue.displayStats();
+                        console.log("[TST-MAIN ] :: You have work to do :-(");
+                        $btn.button('reset');
+                        $('#resetBtn').removeClass('disabled');
+                        reject('failure');
+                    });
+                });
+            };
+
+            $(function() {
+
+                angular.bootstrap(document, ["sdk"]).get("rainbowSDK");
+
+                logger = new Logger();
+                inspector = new Inspector(logger);
+                framer = new Framer(logger);
+                renderer = new Renderer(logger);
+                prerequisite = new Prerequisite(logger);
+                queue = new Queue(logger, inspector, framer, renderer, prerequisite);
+
+                queue.initialize().then(function() {
+                    console.log("[TST-MAIN ] :: Queue initialized successfully!");
+                    queue.load("tests/testsPlan.json").then(function() {
+                        console.log("[TST-MAIN ] :: Queue loaded successfully!");
+                        queue.renderEpicsList();
+                        $(".input-epic").click(function(e) {
+                            queue.selectEpic(e.currentTarget.id, e.currentTarget.checked);
+                        });
+                    }).catch(function() {
+                    
+                    });
+                });
+
+            });
+        </script>
+
+        
+
+    </body>
+
+</html>

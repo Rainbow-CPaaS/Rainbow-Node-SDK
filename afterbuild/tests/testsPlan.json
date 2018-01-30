@@ -1,0 +1,62 @@
+{
+    "describe": "Rainbow API testing plan",
+    "run": [
+        {
+            "file": "tests/admin-tests.json",
+            "name": "Admin"
+        },
+        {
+            "file": "tests/bubbles-tests.json",
+            "name": "Bubbles"
+        },
+        {
+            "file": "tests/caps-tests.json",
+            "name": "Capabilities"
+        },
+        {
+            "file": "tests/core-tests.json",
+            "name": "Core"
+        },
+        {
+            "file": "tests/connection-tests.json",
+            "name": "Connection"
+        },
+        {
+            "file": "tests/contacts-tests.json",
+            "name": "Contacts"
+        },
+        {
+            "file": "tests/conversations-tests.json",
+            "name": "Conversations"
+        },
+        {
+            "file": "tests/file-storage-tests.json",
+            "name": "File Storage"
+        },
+        {
+            "file": "tests/groups-tests.json",
+            "name": "Groups"
+        },
+        {
+            "file": "tests/userprofile-tests.json",
+            "name": "User Profile"
+        },
+        {
+            "file": "tests/im-tests.json",
+            "name": "IM"
+        },
+        {
+            "file": "tests/presence-tests.json",
+            "name": "Presence"
+        },
+        {
+            "file": "tests/webrtc-tests.json",
+            "name": "WebRTC"
+        }
+    ],
+    "with": {
+        "tempoBeforeAsserting": 250,
+        "tempoBeforeTest": 1000,
+        "timeout": 10000
+    }
+}

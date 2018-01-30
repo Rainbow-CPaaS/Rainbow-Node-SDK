@@ -1,0 +1,94 @@
+{
+    "describe": "ADMIN API", 
+    "starring": {
+        "admin": {
+            "robert": {
+                "email": "rford@westworld.com",
+                "password": "Password_123"
+            }
+        },
+        "actors": {
+            "robert": {
+                "email": "rford@westworld.com",
+                "password": "Password_123"
+            }
+        }
+    },
+     "runBeforeAll": {
+        "it": {
+            "should": "Log-in with Robert successfully",
+            "by": [
+                {
+                    "executing": "api:connection.signin", 
+                    "injecting": ["usr:robert.email", "usr:robert.password"], 
+                    "resulting": "account", 
+                    "expecting": [{"var:account": "$defined"}],
+                    "using": ["robert"]
+                }
+            ]
+        }
+    },   
+    "runAfterAll": {
+        "it": {
+            "should": "Log-out with Robert successfully",
+            "by": [
+                {
+                    "executing": "api:connection.signout", 
+                    "injecting": [], 
+                    "resulting": null, 
+                    "expecting": [],
+                    "using": ["robert"]
+                }
+            ]
+        }
+    },
+    "run": [
+        {
+            "it": {
+                "should": "Create a new company",
+                "by": [
+                    {
+                        "executing": "api:admin.createCompany", 
+                        "injecting": ["unq:Westworld Test SDK", "USA"], 
+                        "resulting": "companyCreated", 
+                        "expecting": [{"var:companyCreated": "$defined"}],
+                        "using": ["robert"]
+                    },
+                    {
+                        "executing": "exe:pause",
+                        "duration": 2000
+                    },
+                    {
+                        "executing": "api:admin.createUserForCompany", 
+                        "injecting": ["eml:macdo@westworld.com", "mac", "do", "Password_123", "var:companyCreated"], 
+                        "resulting": "userCreated", 
+                        "expecting": [{"var:userCreated": "$defined"}],
+                        "using": ["robert"]
+                    },
+                    {
+                        "executing": "exe:pause",
+                        "duration": 2000
+                    },
+                    {
+                        "executing": "api:admin.removeUserFromCompany", 
+                        "injecting": ["var:userCreated"], 
+                        "resulting": "userCreated", 
+                        "expecting": [{"var:userCreated": "$defined"}],
+                        "using": ["robert"]
+                    },
+                    {
+                        "executing": "exe:pause",
+                        "duration": 2000
+                    },
+                    {
+                        "executing": "api:admin.removeCompany", 
+                        "injecting": ["var:companyCreated"], 
+                        "resulting": "companyRemoved", 
+                        "expecting": [{"var:companyRemoved": "$defined"}],
+                        "using": ["robert"]
+                    }
+                ]
+            }
+        }
+    ]
+}

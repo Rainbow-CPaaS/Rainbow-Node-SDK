@@ -1,0 +1,934 @@
+{
+    "describe": "FILE STORAGE API", 
+    "starring": {
+        "admin": {
+            "robert": {
+                "email": "rford@westworld.com",
+                "password": "Password_123"
+            }
+        },
+        "actors": {
+            "alice": {
+                "email": "awonder@host-westworld.com",
+                "firstname": "Alice",
+                "lastname": "Wonder",
+                "company": "Westworld Host",
+                "password": "Password_123"
+            },
+            "brice": {
+                "email": "bdenice@host-westworld.com",
+                "firstname": "Brice",
+                "lastname": "De Nice",
+                "company": "Westworld Host",
+                "password": "Password_123"
+            }
+        }
+    },
+    "runBeforeAll": {
+        "it": {
+            "should": "Log-in with Alice and Brice successfully",
+            "by": [
+                {
+                    "executing": "api:connection.signin", 
+                    "injecting": ["usr:@.email", "usr:@.password"], 
+                    "resulting": "account", 
+                    "expecting": [{"var:account": "$defined"}],
+                    "using": ["alice", "brice"]
+                }
+            ]
+        }
+    },   
+    "runAfterAll": {
+        "it": {
+            "should": "Log-out with alice and brice successfully",
+            "by": [
+                {
+                    "executing": "api:connection.signout", 
+                    "injecting": [], 
+                    "resulting": null, 
+                    "expecting": [],
+                    "using": ["alice", "brice"]
+                }
+            ]
+        }
+    },
+    "run": [
+        {
+            "it": {
+                "should": "Return the quota and consuming of Alice and Brice",
+                "by": [
+                    {
+                        "executing": "api:fileStorage.getUserQuotaConsumption", 
+                        "injecting": [], 
+                        "resulting": "aliceFileStorageConsuming", 
+                        "expecting": [{"var:aliceFileStorageConsuming": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getUserQuotaConsumption", 
+                        "injecting": [], 
+                        "resulting": "briceFileStorageConsuming", 
+                        "expecting": [{"var:briceFileStorageConsuming": "$defined"}],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Return the files shared by Alice to Brice (none) and from Brice to Alice (none)",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesReceivedInConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "filesReceivedFromAlice", 
+                        "expecting": [{"var:filesReceivedFromAlice": "$anArray"}, {"var:filesReceivedFromAlice.length": 0}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesSentInConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "filesSentToAlice", 
+                        "expecting": [{"var:filesSentToAlice": "$anArray"}, {"var:filesSentToAlice.length": 0}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to share a file to Alice and check that an event is sent to Brice when the file is successfully uploaded",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:fileStorage.RAINBOW_ONFILEUPLOADED",
+                            "resulting": "message>type",
+                            "using": ["brice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesSentInConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "filesSentToAlice", 
+                        "expecting": [{"var:filesSentToAlice": "$anArray"}, {"var:filesSentToAlice.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to share a file to Alice and check that Brice is notified when the file is available in the conversation",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMRECEIPTRECEIVED",
+                            "resulting": "message>id",
+                            "using": ["brice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesSentInConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "filesSentToAlice", 
+                        "expecting": [{"var:filesSentToAlice": "$anArray"}, {"var:filesSentToAlice.length": 2}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        }, 
+        {
+            "it": {
+                "should": "Use Brice to share a file to Alice and check that Alice is notified when the file is available in the conversation",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMMESSAGERECEIVED",
+                            "resulting": "message>id",
+                            "using": ["alice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:brice.email"], 
+                        "resulting": "briceContact", 
+                        "expecting": [{"var:briceContact.loginEmail": "#bdenice@host-westworld.com"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:briceContact"], 
+                        "resulting": "conversationWithBrice", 
+                        "expecting": [{"var:conversationWithBrice": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:im.getMessageFromConversationById", 
+                        "injecting": ["var:conversationWithBrice", "var:message.id"],
+                        "resulting": "messageReceived", 
+                        "expecting": [{"var:messageReceived": "$anObject"}, {"var:messageReceived.data": "Here the file!"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesReceivedInConversation", 
+                        "injecting": ["var:conversationWithBrice"], 
+                        "resulting": "filesReceivedFromBrice", 
+                        "expecting": [{"var:filesReceivedFromBrice": "$anArray"}, {"var:filesReceivedFromBrice.length": 3}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to share a file to Alice in a conversation and download the file from Alice",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMMESSAGERECEIVED",
+                            "resulting": "message>id",
+                            "using": ["alice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:brice.email"], 
+                        "resulting": "briceContact", 
+                        "expecting": [{"var:briceContact.loginEmail": "#bdenice@host-westworld.com"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:briceContact"], 
+                        "resulting": "conversationWithBrice", 
+                        "expecting": [{"var:conversationWithBrice": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:im.getMessageFromConversationById", 
+                        "injecting": ["var:conversationWithBrice", "var:message.id"],
+                        "resulting": "messageReceived", 
+                        "expecting": [{"var:messageReceived": "$anObject"}, {"var:messageReceived.data": "Here the file!"},
+                        {"var:messageReceived.shortFileDescriptor": "$anObject"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.downloadFile", 
+                        "injecting": ["var:messageReceived.shortFileDescriptor"],
+                        "resulting": "fileReceived", 
+                        "expecting": [{"var:fileReceived": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to create a bubble, invite Alice, share a file to that bubble and check that a file is sent",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.createBubble", 
+                        "injecting": ["A bubble", "A description"], 
+                        "resulting": "bubble", 
+                        "expecting": [{"var:bubble": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.inviteContactToBubble", 
+                        "injecting": ["var:aliceContact", "var:bubble"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEINVITATIONTOJOINRECEIVED",
+                            "resulting": "invitation>dbId",
+                            "using": ["alice"]
+                        },
+                        "resulting": "bubbleWithAlice", 
+                        "expecting": [{"var:bubbleWithAlice": "$anObject"}, {"var:bubbleWithAlice.users": "$anArray"}, {"var:bubbleWithAlice.users[0].status": "invited"}, {"var:bubbleWithAlice.users[0].contact.loginEmail": "#awonder@host-westworld.com"}, {"var:bubbleWithAlice.users.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:invitation.dbId"], 
+                        "resulting": "bubbleWithBrice", 
+                        "expecting": [{"var:bubbleWithBrice": "$anObject"}, {"var:bubbleWithBrice": "$defined"}, {"var:bubbleWithBrice.status": "invited"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.acceptInvitationToJoinBubble", 
+                        "injecting": ["var:bubbleWithBrice"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleAccepted>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleWithBriceAccepted", 
+                        "expecting": [],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "exe:pause", 
+                        "duration": [3000]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToBubble", 
+                        "injecting": ["var:bubbleWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:fileStorage.RAINBOW_ONFILEUPLOADED",
+                            "resulting": "message>type",
+                            "using": ["brice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesSentInBubble", 
+                        "injecting": ["var:bubbleWithAlice"], 
+                        "resulting": "filesSentToBubble", 
+                        "expecting": [{"var:filesSentToBubble": "$anArray"}, {"var:filesSentToBubble.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.leaveBubble", 
+                        "injecting": ["var:bubbleWithBrice"],
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleLeavedRef>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved": "$anObject"}, {"var:bubbleLeaved.status": "unsubscribed"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:bubbleLeavedRef.dbId"], 
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved.users.length": 2}, {"var:bubbleLeaved.users[1].status": "unsubscribed"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.deleteBubble", 
+                        "injecting": ["var:bubbleLeaved"], 
+                        "resulting": null, 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to create a bubble, invite Alice, share a file to that bubble and check that the file is received in the bubble",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.createBubble", 
+                        "injecting": ["A bubble", "A description"], 
+                        "resulting": "bubble", 
+                        "expecting": [{"var:bubble": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.inviteContactToBubble", 
+                        "injecting": ["var:aliceContact", "var:bubble"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEINVITATIONTOJOINRECEIVED",
+                            "resulting": "invitation>dbId",
+                            "using": ["alice"]
+                        },
+                        "resulting": "bubbleWithAlice", 
+                        "expecting": [{"var:bubbleWithAlice": "$anObject"}, {"var:bubbleWithAlice.users": "$anArray"}, {"var:bubbleWithAlice.users[0].status": "invited"}, {"var:bubbleWithAlice.users[0].contact.loginEmail": "#awonder@host-westworld.com"}, {"var:bubbleWithAlice.users.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:invitation.dbId"], 
+                        "resulting": "bubbleWithBrice", 
+                        "expecting": [{"var:bubbleWithBrice": "$anObject"}, {"var:bubbleWithBrice": "$defined"}, {"var:bubbleWithBrice.status": "invited"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.acceptInvitationToJoinBubble", 
+                        "injecting": ["var:bubbleWithBrice"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleAccepted>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleWithBriceAccepted", 
+                        "expecting": [],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "exe:pause", 
+                        "duration": [3000]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToBubble", 
+                        "injecting": ["var:bubbleWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                       "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMMESSAGERECEIVED",
+                            "resulting": "message>id",
+                            "using": ["alice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFilesReceivedInBubble", 
+                        "injecting": ["var:bubbleWithBrice"], 
+                        "resulting": "filesReceivedInBubble", 
+                        "expecting": [{"var:filesReceivedInBubble": "$anArray"}, {"var:filesReceivedInBubble.length": 1}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.leaveBubble", 
+                        "injecting": ["var:bubbleWithBrice"],
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleLeavedRef>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved": "$anObject"}, {"var:bubbleLeaved.status": "unsubscribed"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:bubbleLeavedRef.dbId"], 
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved.users.length": 2}, {"var:bubbleLeaved.users[1].status": "unsubscribed"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.deleteBubble", 
+                        "injecting": ["var:bubbleLeaved"], 
+                        "resulting": null, 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to create a bubble, invite Alice, share a file to that bubble and let Alice download the file",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.createBubble", 
+                        "injecting": ["A bubble", "A description"], 
+                        "resulting": "bubble", 
+                        "expecting": [{"var:bubble": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.inviteContactToBubble", 
+                        "injecting": ["var:aliceContact", "var:bubble"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEINVITATIONTOJOINRECEIVED",
+                            "resulting": "invitation>dbId",
+                            "using": ["alice"]
+                        },
+                        "resulting": "bubbleWithAlice", 
+                        "expecting": [{"var:bubbleWithAlice": "$anObject"}, {"var:bubbleWithAlice.users": "$anArray"}, {"var:bubbleWithAlice.users[0].status": "invited"}, {"var:bubbleWithAlice.users[0].contact.loginEmail": "#awonder@host-westworld.com"}, {"var:bubbleWithAlice.users.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:invitation.dbId"], 
+                        "resulting": "bubbleWithBrice", 
+                        "expecting": [{"var:bubbleWithBrice": "$anObject"}, {"var:bubbleWithBrice": "$defined"}, {"var:bubbleWithBrice.status": "invited"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.acceptInvitationToJoinBubble", 
+                        "injecting": ["var:bubbleWithBrice"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleAccepted>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleWithBriceAccepted", 
+                        "expecting": [],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "exe:pause", 
+                        "duration": [3000]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToBubble", 
+                        "injecting": ["var:bubbleWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                       "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMMESSAGERECEIVED",
+                            "resulting": "message>id",
+                            "using": ["alice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:im.getMessageFromBubbleById", 
+                        "injecting": ["var:bubbleWithBrice", "var:message.id"],
+                        "resulting": "messageReceived", 
+                        "expecting": [{"var:messageReceived": "$anObject"}, {"var:messageReceived.data": "Here the file!"},
+                        {"var:messageReceived.shortFileDescriptor": "$anObject"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.downloadFile", 
+                        "injecting": ["var:messageReceived.shortFileDescriptor"],
+                        "resulting": "fileReceived", 
+                        "expecting": [{"var:fileReceived": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.leaveBubble", 
+                        "injecting": ["var:bubbleWithBrice"],
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleLeavedRef>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved": "$anObject"}, {"var:bubbleLeaved.status": "unsubscribed"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:bubbleLeavedRef.dbId"], 
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved.users.length": 2}, {"var:bubbleLeaved.users[1].status": "unsubscribed"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.deleteBubble", 
+                        "injecting": ["var:bubbleLeaved"], 
+                        "resulting": null, 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to share a file to Alice in a conversation and then remove the file",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:brice.email"], 
+                        "resulting": "briceContact", 
+                        "expecting": [{"var:briceContact.loginEmail": "#bdenice@host-westworld.com"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:briceContact"], 
+                        "resulting": "conversationWithBrice", 
+                        "expecting": [{"var:conversationWithBrice": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMRECEIPTRECEIVED",
+                            "resulting": "message>id",
+                            "using": ["brice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:im.getMessageFromConversationById", 
+                        "injecting": ["var:conversationWithAlice", "var:message.id"],
+                        "resulting": "messageReceived", 
+                        "expecting": [{"var:messageReceived": "$anObject"}, {"var:messageReceived.data": "Here the file!"},
+                        {"var:messageReceived.shortFileDescriptor": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.removeFile", 
+                        "injecting": ["var:messageReceived.shortFileDescriptor"],
+                        "resulting": "result", 
+                        "expecting": [{"var:result.code": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithBrice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["alice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to create a bubble, invite Alice, share a file to that bubble and delete the file",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.createBubble", 
+                        "injecting": ["A bubble", "A description"], 
+                        "resulting": "bubble", 
+                        "expecting": [{"var:bubble": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.inviteContactToBubble", 
+                        "injecting": ["var:aliceContact", "var:bubble"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEINVITATIONTOJOINRECEIVED",
+                            "resulting": "invitation>dbId",
+                            "using": ["alice"]
+                        },
+                        "resulting": "bubbleWithAlice", 
+                        "expecting": [{"var:bubbleWithAlice": "$anObject"}, {"var:bubbleWithAlice.users": "$anArray"}, {"var:bubbleWithAlice.users[0].status": "invited"}, {"var:bubbleWithAlice.users[0].contact.loginEmail": "#awonder@host-westworld.com"}, {"var:bubbleWithAlice.users.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:invitation.dbId"], 
+                        "resulting": "bubbleWithBrice", 
+                        "expecting": [{"var:bubbleWithBrice": "$anObject"}, {"var:bubbleWithBrice": "$defined"}, {"var:bubbleWithBrice.status": "invited"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.acceptInvitationToJoinBubble", 
+                        "injecting": ["var:bubbleWithBrice"], 
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleAccepted>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleWithBriceAccepted", 
+                        "expecting": [],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "exe:pause", 
+                        "duration": [3000]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToBubble", 
+                        "injecting": ["var:bubbleWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:im.RAINBOW_ONNEWIMMESSAGERECEIVED",
+                            "resulting": "message>fileId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getFileDescriptorFromId", 
+                        "injecting": ["var:message.fileId"],
+                        "resulting": "fileDesc", 
+                        "expecting": [{"var:fileDesc": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.removeFile", 
+                        "injecting": ["var:fileDesc"],
+                        "resulting": "result", 
+                        "expecting": [{"var:result.code": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.leaveBubble", 
+                        "injecting": ["var:bubbleWithBrice"],
+                        "waiting": {
+                            "forEvent": "api:bubbles.RAINBOW_ONBUBBLEUPDATED",
+                            "resulting": "bubbleLeavedRef>dbId",
+                            "using": ["brice"]
+                        },
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved": "$anObject"}, {"var:bubbleLeaved.status": "unsubscribed"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:bubbles.getBubbleById", 
+                        "injecting": ["var:bubbleLeavedRef.dbId"], 
+                        "resulting": "bubbleLeaved", 
+                        "expecting": [{"var:bubbleLeaved.users.length": 2}, {"var:bubbleLeaved.users[1].status": "unsubscribed"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:bubbles.deleteBubble", 
+                        "injecting": ["var:bubbleLeaved"], 
+                        "resulting": null, 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Use Brice to share a file to Alice, user Alice to share a file to Brice and get the list of descriptors from Brice and Alice",
+                "by": [
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:alice.email"], 
+                        "resulting": "aliceContact", 
+                        "expecting": [{"var:aliceContact.loginEmail": "#awonder@host-westworld.com"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:aliceContact"], 
+                        "resulting": "conversationWithAlice", 
+                        "expecting": [{"var:conversationWithAlice": "$defined"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithAlice", "str:tests/assets/westworld.jpg", "Here the file!"], 
+                        "waiting": {
+                            "forEvent": "api:fileStorage.RAINBOW_ONFILEUPLOADED",
+                            "resulting": "message>type",
+                            "using": ["brice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:contacts.searchByLogin", 
+                        "injecting": ["usr:brice.email"], 
+                        "resulting": "briceContact", 
+                        "expecting": [{"var:briceContact.loginEmail": "#bdenice@host-westworld.com"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:conversations.openConversationForContact", 
+                        "injecting": ["var:briceContact"], 
+                        "resulting": "conversationWithBrice", 
+                        "expecting": [{"var:conversationWithBrice": "$defined"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.uploadFileToConversation", 
+                        "injecting": ["var:conversationWithBrice", "str:tests/assets/westworld2.jpeg", "Here the file 2!"], 
+                        "waiting": {
+                            "forEvent": "api:fileStorage.RAINBOW_ONFILEUPLOADED",
+                            "resulting": "message>type",
+                            "using": ["alice"]
+                        },
+                        "resulting": "messageSent", 
+                        "expecting": [{"var:messageSent": "$anObject"}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getAllFilesSent", 
+                        "injecting": [], 
+                        "resulting": "allFilesSent", 
+                        "expecting": [{"var:allFilesSent": "$anArray"}, {"var:allFilesSent.length": 1}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getAllFilesSent", 
+                        "injecting": [], 
+                        "resulting": "allFilesSent", 
+                        "expecting": [{"var:allFilesSent": "$anArray"}, {"var:allFilesSent.length": 10}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getAllFilesReceived", 
+                        "injecting": [], 
+                        "resulting": "allFilesReceived", 
+                        "expecting": [{"var:allFilesReceived": "$anArray"}, {"var:allFilesReceived.length": 3}],
+                        "using": ["alice"]
+                    },
+                    {
+                        "executing": "api:fileStorage.getAllFilesReceived", 
+                        "injecting": [], 
+                        "resulting": "allFilesReceived", 
+                        "expecting": [{"var:allFilesReceived": "$anArray"}, {"var:allFilesReceived.length": 1}],
+                        "using": ["brice"]
+                    },
+                    {
+                        "executing": "api:conversations.closeConversation", 
+                        "injecting": ["var:conversationWithAlice"], 
+                        "resulting": "closedConversationWithAlice", 
+                        "expecting": [],
+                        "using": ["brice"]
+                    }
+                ]
+            }
+        }
+    ]
+}
