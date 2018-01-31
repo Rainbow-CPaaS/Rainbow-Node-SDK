@@ -9,6 +9,7 @@ var Framer = require(path.join(__dirname, "..", "..","src", "js", "framer.js"));
 var Renderer = require(path.join(__dirname, "..", "..","src", "js", "renderer.js"));
 var Prerequisite = require(path.join(__dirname, "..", "..","src", "js", "prerequisite.js"));
 var Queue = require(path.join(__dirname, "..", "..","src", "js", "queue.js"));
+var rainbowNodeSdk = require('../../rainbowNodeSdk');
 
 exports.list_all_tasks = function (req, res) {
     res.json({
@@ -18,6 +19,7 @@ exports.list_all_tasks = function (req, res) {
 
 function startTests()
 {
+    logger.debug("startTests");
     let inspector = new Inspector(logger);
     let framer = new Framer(logger);
     let renderer = new Renderer(logger);
@@ -44,7 +46,7 @@ function startTests()
 exports.startTests = function (req, res) {
     startTests();
     res.json({
-        'firsttask': 'start queue reading'
+        'startTests': 'start queue reading'
     });
 };
 

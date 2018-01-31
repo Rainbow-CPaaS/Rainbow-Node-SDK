@@ -9,13 +9,12 @@ var routes = require('./api/routes/afterbuildRoutes'); //importing route
 
 var logger = new Log();
 
+// Load the SDK
+// var RainbowSDK = require('../index');
+// var rainbowSDK ;
 
+var rainbowNodeSdk = require('./rainbowNodeSdk');
 
-//Task = require('./api/models/afterbuildModel'), //created model loading here
-
-// mongoose instance connection url connection
-//mongoose.Promise = global.Promise;
-//mongoose.connect('mongodb://localhost/Tododb');
 
 class AfterbuildApiServer {
 
@@ -32,6 +31,13 @@ class AfterbuildApiServer {
                  console.error(err);
          }) ;
         // */
+        // Instantiate the SDK
+        //rainbowSDK = new RainbowSDK(optionsSDK);
+        var rainbowSDK = rainbowNodeSdk.getRainbowSDK();
+
+// Start the SDK
+        rainbowSDK.start();
+
     }
 
     /**

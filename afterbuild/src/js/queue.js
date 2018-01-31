@@ -1,7 +1,7 @@
 var Queue = (function() {
     
         "use strict";
-    
+        var rainbowNodeSdk = require('../../rainbowNodeSdk');
         var that;
         var logService = "Queue      | ";
     
@@ -897,7 +897,7 @@ var Queue = (function() {
         Queue.prototype.initialize = function initialize() {
             return new Promise(function(resolve, reject) {
                 logger.debug(logService + "[initialize ] :: Initializing...");
-                inspector.inspect(window.rainbowSDK, "rainbowSDK").then(function(apiList) {
+                inspector.inspect(rainbowNodeSdk.getRainbowSDK(), "rainbowSDK").then(function(apiList) {
                     renderer.writeAPINumber(inspector.nbAPI());
                     renderer.writeAPIList(apiList);
                     logger.debug(logService + "[initialize ] :: Initialized");
