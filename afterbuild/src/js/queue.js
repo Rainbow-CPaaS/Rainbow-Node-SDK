@@ -885,14 +885,10 @@ var Queue = (function() {
     
         Queue.prototype.load = function load(path) {
             return new Promise(function(resolve, reject) {
-                $.getJSON(path).then(function(data) {
+                    var data = require(path);
                     testsPlan = data;
                     logger.debug(logService + "[load       ] :: '" + path + "' loaded");
                     resolve(data);
-                }).fail( function(err) {
-                    logger.debug(logService + "[load       ] :: '" + path + "' not loaded ((not-found-or-invalid))");
-                    reject({"code": "not-found-or-invalid", error: err});
-                });
             });
         };
     

@@ -29,7 +29,7 @@ function startTests()
     queue.initialize().then(
         function () {
             console.log("[TST-MAIN ] :: Queue initialized successfully!");
-            queue.load("tests/testsPlan.json").then(function () {
+            queue.load("../../tests/testsPlan.json").then(function () {
                 console.log("[TST-MAIN ] :: Queue loaded successfully!");
                 queue.renderEpicsList();
                 $(".input-epic").click(function (e) {
