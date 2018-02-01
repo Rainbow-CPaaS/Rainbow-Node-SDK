@@ -146,29 +146,29 @@ let RainbowSDK = require('rainbow-node-sdk');
 // Define your configuration
 let options = {
     "rainbow": {
-        "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+        "host": "sandbox",                      
     },
     "credentials": {
-        "login": "<your_rainbow_login_email>",  // The Rainbow email account to use
-        "password": "<your_rainbow_password>"   // The Rainbow associated password to use
+        "login": "bot@mycompany.com",  // To replace by your developer credendials
+        "password": "thePassword!123"  // To replace by your developer credentials
     },
     // Application identifier
     "application": {
-        "id": "<your_rainbow_application_id>", // The Rainbow Application Identifier - application must have a 'deployed' state
-        "secret": "<your_rainbow_application_secret>", // The Rainbow Application Secret - retrieved from developer hub
+        "appID": "", 
+        "appSecret": "", 
     },
     // Logs options
     "logs": {
-        "enableConsoleLogs": true,              // Default: true
-        "enableFileLogs": false,                // Default: false
+        "enableConsoleLogs": true,              
+        "enableFileLogs": false,                
         "file": {
-            "path": '/var/tmp/rainbowsdk/',     // Default path used
-            "level": 'debug'                    // Default log level used
+            "path": '/var/tmp/rainbowsdk/',
+            "level": 'debug'                    
         }
     },
     // IM options
     "im": {
-        "sendReadReceipt": true   // True to send the 'read' receipt automatically
+        "sendReadReceipt": true   
     }
 };
 
@@ -180,7 +180,10 @@ rainbowSDK.start();
 
 ```
 
-For our HelloWorld application, you have just to put the credentials you want to use. Others parameters can stay unchanged.
+If you don't have valids application `id` and `secret`, you can simply let this two properties blanks such as in the following
+
+
+For our HelloWorld application, you have just to replace the credentials by your owns. Others parameters can stay unchanged.
 
 
 #### Executing the application
@@ -242,4 +245,4 @@ Others available guides will help you understanding the tricky parts. Take time 
 
 ---
 
-_Last updated November, 22th 2017_
+_Last updated January, 11th 2018_

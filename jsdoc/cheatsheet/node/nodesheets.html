@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Cheat Sheet - Node - BETA</title>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
+  <link rel="stylesheet" type="text/css" href="nodesheets.css">
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet"></head>
+<body>
+  <div class="mermaid">
+classDiagram
+class Settings
+class Presence
+class IM
+class Groups
+class Contacts
+class Channels
+class Bubbles
+class Admin
+Admin : Contact : createUserInCompany(string, string, string, string, string, string, boolean)
+Admin : Object : createGuestUser(string, string, string, Number)
+Admin : Object : createAnonymousGuestUser(Number)
+Admin : void : inviteUserInCompany(string, string, string, string)
+Admin : Object : changePasswordForUser(string, string)
+Admin : Object : updateInformationForUser(Object, string)
+Admin : Object : deleteUser(string)
+Admin : Object : getAllCompanies(string)
+Bubbles : Bubble : createBubble(string, string, boolean)
+Bubbles : boolean : isBubbleClosed(Bubble)
+Bubbles : Bubble : deleteBubble(Bubble)
+Bubbles : Bubble : closeBubble(Bubble)
+Bubbles : Object : leaveBubble(Bubble)
+Bubbles : Bubble : inviteContactToBubble(Contact, Bubble, boolean, boolean, string)
+Bubbles : Object : removeContactFromBubble(Contact, Bubble)
+Bubbles : Bubble[] : getAll()
+Bubbles : Bubble : getBubbleById(string)
+Bubbles : Bubble : getBubbleByJid(string)
+Bubbles : Bubble[] : getAllPendingBubbles()
+Bubbles : Bubble[] : getAllActiveBubbles()
+Bubbles : Bubble[] : getAllClosedBubbles()
+Bubbles : Bubble : acceptInvitationToJoinBubble(Bubble)
+Bubbles : Bubble : declineInvitationToJoinBubble(Bubble)
+Bubbles : Bubble : setBubbleCustomData(Bubble, Object)
+Bubbles : Object : setBubbleTopic(Bubble, string)
+Bubbles : Object : setBubbleName(Bubble, string)
+Channels : Promise.CHannel : deleteChannel(Channel)
+Channels : Promise.Channel[] : findChannelsByName(String)
+Channels : Promise.Channel[] : findChannelsByTopic(String)
+Channels : Promise.Channel : getChannelById(String, boolean)
+Channels : Channel[] : getAllChannels()
+Channels : Channel[] : getAllOwnedChannel()
+Channels : Channel[] : getAllSubscribedChannel()
+Channels : Promise.ErrorCase.OK : publishMessage(String, String, String, String)
+Channels : Promise.Channel : subscribeToChannel(Channel)
+Channels : Promise.Channel : unsubscribeFromChannel(Channel)
+Channels : Promise.Channel : updateChannelDescription(Channel, string)
+Channels : Promise.Users[] : getUsersFromChannel(Channel, Object, Number, Number, Boolean, Boolean)
+Channels : Promise.Channel : removeAllUsersFromChannel(String)
+Channels : Promise.Channel : addOwnersToChannel(Channel, User[])
+Channels : Promise.Channel : addPublishersToChannel(Channel, User[])
+Channels : Promise.Channel : addMembersToChannel(Channel, User[])
+Channels : Promise.Channel : removeUsersFromChannel(Channel, User[])
+Contacts : String : getDisplayName(Contact)
+Contacts : Object[] : getAll()
+Contacts : Contact : getContactByJid(string)
+Contacts : Contact : getContactById(string)
+Contacts : Contact[] : getContactByLoginEmail(string)
+Groups : Group : deleteGroup(Group)
+Groups : Group : updateGroupName(Group, string)
+Groups : Group : addUserInGroup(Contact, Group)
+Groups : Group : removeUserFromGroup(Contact, Group)
+Groups : Array : getAll()
+Groups : Array : getFavoriteGroups()
+Groups : Group : getGroupById(String)
+Groups : Group : getGroupByName(String)
+IM : Object : sendMessageToJid(String, String, String, Object, String, String, String)
+IM : Object : sendMessageToBubbleJid(String, String, String, Object, String, String, String)
+IM : Object : markMessageAsRead(Message)
+Presence : number : setPresenceTo(String)
+@@</div><!--MERMAID-->
+
+<footer>
+  <div>
+    <img src="../assets/Rainbow_API_Hub.png" alt="Rainbow logo" id="rainbow_logo">
+  </div>
+  <div>
+    <h2>Rainbow SDK for NodeJs</h2>
+    @@<!--VERSION HERE-->
+  </div>
+  <div class="footer-column-logo">
+      <a href="https://www.al-enterprise.com" target="_blank">
+        <img src="../assets/Alcatel_White.png" id="alcatel_logo"></a>  
+  <p class="footer-copyright">© Copyright - 2017 | ALE International</p>
+  </div>
+</footer>
+
+  <script src="../mermaid.js"></script>
+  <script>
+    mermaid.initialize({startOnLoad: true, theme: 'rainbow'});
+  </script>
+</body>
+</html>

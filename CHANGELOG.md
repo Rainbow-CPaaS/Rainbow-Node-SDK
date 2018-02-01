@@ -2,11 +2,37 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.36.0] - 2018-02-04
+- #CRRAINB-1530: Stop XMPP connection correctly on `stop()`
+- #CRRAINB-1534: Adapt channels API to changes from server
+- #CRRAINB-1540: Add API `getMessagesFromChannel()` to retrieve messages from a channel
+- #CRRAINB-1541: Fix API documentation for property `connectedUser`
+- #CRRAINB-1542: Add API `sendMessageToContact()` `and sendMessageToBubble()`
+- #CRRAINB-1579: Avoid crash on multiple `signout()`
+- #CRRAINB-1628: Avoid crash when evaluating XMPP connection error
+- #CRRAINB-1631: Avoid crash when the network is lost and launch the reconnection procedure
+- #CRRAINB-1637: Increase attempt and MAX_DELAY when trying to reconnect the REST part
+- #CRRAINB-1639: API `getContactByLoginEmail()`, `getContactById()`, `getContactsByJid()` doesn't work as expected
+- #CRRAINB-1667: Fix crash when getting the bubbles list
+
+## [1.35.2] - 2018-01-18
+- #CRRAINB-1519: Impossible to update group name
+
+## [1.35.1] - 2018-01-12
+- #CRRAINB-1463: Fix typo in guides `Getting_Started`, `Proxy`, `Readme` and `Connecting to Rainbow` that had bad application parameters name. 
+
+## [1.35.0] - 2018-01-11
+- #CRRAINB-1450: Replace JID by fullJID when sending a P2P message to avoid crash
+- #CRRAINB-1451: Fix typo in guide `Managing contacts` with API getContactByLoginEmail that returns an array and not the contact directly
+- #CRRAINB-1452: Update FOSS WS (DOS fix) and request (latest version available)
+- #CRRAINB-1458: Add better explanation in guides `Getting started` and `Connecting to Rainbow` on configuration parameters.
+- #CRRAINB-1459: Describe missing API `sendMessageToJid()` and `sendMessageToBubbleJid()` to sending messages in guide `Answering chat messages`
+
 ## [1.34.0] - 2017-12-17
 - #RQRAINB-513: Allow to send a POST request with a specific content-type
 - #RQRAINB-515: Add a ping mechanism from client side to server side when no stanza received during 70s
 - #RQRAINB-478: Manage content-type text/csv in server response
-- #CRRAINB-1222: Fix typo in guide `Managing Contacts``
+- #CRRAINB-1222: Fix typo in guide `Managing Contacts`
 - #CRRAINB-1217: Token renew policy forbids users to connect - SDK
 
 ## [1.33.3] - 2017-12-01

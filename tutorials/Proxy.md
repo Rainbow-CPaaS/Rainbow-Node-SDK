@@ -52,35 +52,35 @@ Here is an example of a complete configuration that uses an HTTP Proxy.
 
 // Define your configuration
 let options = {
-    rainbow: {
-        host: "sandbox",    
+    "rainbow": {
+        "host": "sandbox",    
     },
-    credentials: {
-        login: "<your_rainbow_login_email>",  // Your Rainbow email account
-        password: "<your_rainbow_password>"   // Your Rainbow password
+    "credentials": {
+        "login": "bot@mycompany.com",  
+        "password": "thePassword!123"   
     },
-    application: {
-        appID: "<your_application_ID>",         // Your application Identifier
-        appSecret: "<your_application_secret>"  // Your application secret
+    "application": {
+        "appID": "", 
+        "appSecret": "", 
     },
     // Logs options
-    logs: {
-        enableConsoleLogs: true,            // Default: true
-        enableFileLogs: false,              // Default: false
-        file: {
-            path: '/var/tmp/rainbowsdk/',   // Default path used
-            level: 'debug'                  // Default log level used
+    "logs": {
+        "enableConsoleLogs": true,            // Default: true
+        "enableFileLogs": false,              // Default: false
+        "file": {
+            "path": '/var/tmp/rainbowsdk/',   // Default path used
+            "level": 'debug'                  // Default log level used
         }
     },
     // Proxy configuration
-    proxy: {
-        host: '192.168.0.254',
-        port: 8080,
-        protocol: 'http'
+    "proxy": {
+        "host": '192.168.0.254',
+        "port": 8080,
+        "protocol": 'http'
     },
     // IM options
-    im: {
-        sendReadReceipt: true   // True to send the the 'read' receipt automatically
+    "im": {
+        "sendReadReceipt": true   // True to send the the 'read' receipt automatically
     }
 };
 
@@ -94,4 +94,4 @@ If you don't want to use a Proxy, the recommandation is to remove the key `proxy
 
 ---
 
-_Last updated November, 21th 2017_
+_Last updated January, 12th 2018_

@@ -331,7 +331,7 @@ Use the API `getContactByLoginEmail()` like in the following:
 
 nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
     if(contact) {
-        // Do something with the contact found
+        // Do something with the contacts found
         ...
     }
     else {
@@ -348,4 +348,4 @@ nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
 
 ---
 
-_Last updated September, 20th 2017_
+_Last updated January, 26th 2018_

@@ -285,10 +285,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property version
+     * @property connectedUser
      * @instance
      * @description
-     *      Return the version of the SDK
+     *      Return the connected user information
      * @memberof NodeSDK
      */
     get connectedUser() {
