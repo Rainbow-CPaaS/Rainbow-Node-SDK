@@ -11,7 +11,7 @@ let optionsSDK = {
     },
     "credentials": {
         "login": "vincent00@vbe.test.openrainbow.net",  // The Rainbow email account to use
-        "password": "XXXXXX"   // The Rainbow associated password to use
+        "password": "Alcatel123!"   // The Rainbow associated password to use
 //        "login": "vincent.berder@al-enterprise.com",  // The Rainbow email account to use
 //        "password": ""   // The Rainbow associated password to use
     },
