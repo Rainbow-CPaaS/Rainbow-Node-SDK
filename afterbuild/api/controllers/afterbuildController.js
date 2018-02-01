@@ -2,7 +2,7 @@
 
 const path = require("path");
 var Log = require(path.join(__dirname, "..", "..", "src", "js", "logger.js"));
-var logger = new Log();
+var logger = Log();
 
 var Inspector = require(path.join(__dirname, "..", "..","src", "js", "inspector.js"));
 var Framer = require(path.join(__dirname, "..", "..","src", "js", "framer.js"));

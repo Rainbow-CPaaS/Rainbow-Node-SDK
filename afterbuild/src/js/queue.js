@@ -9,7 +9,9 @@ var Queue = (function() {
         var logger = null;
         var inspector = null;
         var framer = null;
-        var renderer = null;
+        //var renderer = null;
+        var datasApiMd = require('./datasApi');
+        var datasApi = datasApiMd.getdatasApi();
         var prerequisite = null;
     
         var actionsStats = {};
@@ -21,7 +23,7 @@ var Queue = (function() {
             logger = _logger;
             inspector = _inspector;
             framer = _framer;
-            renderer = _renderer;
+            //renderer = _renderer;
             prerequisite = _prerequisite;
             logger.debug(logService + "[constructor] :: Started!");
             that = this;
@@ -898,8 +900,10 @@ var Queue = (function() {
             return new Promise(function(resolve, reject) {
                 logger.debug(logService + "[initialize ] :: Initializing...");
                 inspector.inspect(rainbowNodeSdk.getRainbowSDK(), "rainbowSDK").then(function(apiList) {
-                    renderer.writeAPINumber(inspector.nbAPI());
-                    renderer.writeAPIList(apiList);
+                    datasApi.writeAPINumber(inspector.nbAPI());
+                    datasApi.writeAPIList(apiList);
+                    //renderer.writeAPINumber(inspector.nbAPI());
+                    //renderer.writeAPIList(apiList);
                     logger.debug(logService + "[initialize ] :: Initialized");
                     resolve();
                 }).catch(function() {

@@ -7,7 +7,8 @@ var express = require('express'),
 var bodyParser = require('body-parser');
 var routes = require('./api/routes/afterbuildRoutes'); //importing route
 
-var logger = new Log();
+var logger = Log();
+//var logger = new Log();
 
 // Load the SDK
 // var RainbowSDK = require('../index');
@@ -36,7 +37,7 @@ class AfterbuildApiServer {
         var rainbowSDK = rainbowNodeSdk.getRainbowSDK();
 
 // Start the SDK
-        rainbowSDK.start();
+       // rainbowSDK.start();
 
     }
 

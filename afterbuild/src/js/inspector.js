@@ -29,22 +29,32 @@ var Inspector = (function() {
     }
 
     var iterateAPI = function iterateAPI(obj, currentStack, list) {
+        var propertiestoIgnore = ["_idlePrev", "_idleNext", "_idleTimeout", "_called"]; // These properties need to be ignored because of node specifics methods
         for (var property in obj) {
-            if (obj.hasOwnProperty(property)) {
-                if (typeof obj[property] === "object") {
-                    iterateAPI(obj[property], currentStack + "." + property, list);
-                } else {
-                    if (typeof obj[property] === "function") {
-
-                        if(!(property in privateAPI)) {
-                            var item = {
-                                "methodName": currentStack + "." + property,
-                                "called": 0
-                            };
-                            list[item.methodName] = item;
+            try {
+                if (propertiestoIgnore.indexOf(property) == -1 ) {
+                    logger.debug(logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
+                    if (obj.hasOwnProperty(property)) {
+                        if (typeof obj[property] === "object") {
+                            logger.debug(logService + "[iterateAPI] found a child object : " + currentStack + "." + property);
+                            iterateAPI(obj[property], currentStack + "." + property, list);
+                        } else {
+                            if (typeof obj[property] === "function") {
+                                logger.debug(logService + "[iterateAPI] found a child function : " + property + "()");
+                                if (!(property in privateAPI)) {
+                                    logger.debug(logService + "[iterateAPI] found a public child API function : " + property + "()");
+                                    var item = {
+                                        "methodName": currentStack + "." + property,
+                                        "called": 0
+                                    };
+                                    list[item.methodName] = item;
+                                }
+                            }
                         }
                     }
                 }
+            } catch (err) {
+                logger.debug(logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
             }
         }
     };

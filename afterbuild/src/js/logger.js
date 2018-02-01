@@ -21,8 +21,19 @@ var Logger = (function() {
     return Logger;
 }());
 
+var logger = undefined;
+function getLogger() {
+    if (logger == undefined) {
+        // Instantiate the SDK
+        logger = new Logger();
+    } else {
+
+    }
+    return logger;
+}
+
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Logger;
+    module.exports = getLogger;
 }
 else {
     if (typeof define === 'function' && define.amd) {
