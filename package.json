@@ -53,6 +53,7 @@
     "btoa": "^1.1.2",
     "https-proxy-agent": "1.0.0",
     "jwt-decode": "2.2.0",
+    "pubsub-js": "^1.6.0",
     "request": "^2.83.0",
     "sasl-digest-md5": "^0.1.0",
     "unirest": "0.5.1",
