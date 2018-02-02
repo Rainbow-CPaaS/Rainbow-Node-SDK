@@ -2,7 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.36.0] - 2018-02-04
+## [1.36.1] - 2018-02-03
+- #CRRAINB-1729: Remove log to console in channels service
+
+## [1.36.0] - 2018-02-02
 - #CRRAINB-1530: Stop XMPP connection correctly on `stop()`
 - #CRRAINB-1534: Adapt channels API to changes from server
 - #CRRAINB-1540: Add API `getMessagesFromChannel()` to retrieve messages from a channel
