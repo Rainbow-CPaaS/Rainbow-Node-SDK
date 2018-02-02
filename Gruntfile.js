@@ -4,6 +4,7 @@ module.exports = function (grunt) {
     /* ------------------------------ VARIABLES -------------------------------- */
     version: grunt.file.read("./config/version.js").split("\"")[1],
     nodeSdkOrder: grunt.file.read("./jsdoc/cheatsheet/node/nodeSdkOrder") + "\n</div><!--MERMAID-->",
+    pkg: grunt.file.readJSON("package.json"),
 
     jsdoc2md: {
       separateOutputFiles: {
@@ -96,7 +97,7 @@ module.exports = function (grunt) {
                 patterns: [
                     {
                         json: {
-                            "<!--VERSION HERE-->": "<h3>Cheat Sheet Beta - NodeSdk - v<%= version %></h3>",
+                            "<!--VERSION HERE-->": "<h3>Cheat Sheet Beta - NodeSdk - v<%= pkg.version %></h3>",
                             "</div><!--MERMAID-->": "<%= nodeSdkOrder %>"
                         }
                     }
