@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.37.0] - 2018-02-25
+- #CRRAINB-1812: Create a user by default to the admin company
+
 ## [1.36.1] - 2018-02-03
 - #CRRAINB-1729: Remove log to console in channels service
 
