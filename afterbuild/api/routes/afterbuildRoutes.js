@@ -7,6 +7,9 @@ module.exports = function (app) {
         .get(afterbuildList.list_all_tasks);
         //.post(todoList.create_a_task);
 
+    app.route('/initQueue')
+        .get(afterbuildList.initQueue);
+
     app.route('/startTests')
         .get(afterbuildList.startTests);
 

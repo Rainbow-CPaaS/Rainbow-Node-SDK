@@ -36,8 +36,14 @@ class AfterbuildApiServer {
         //rainbowSDK = new RainbowSDK(optionsSDK);
         var rainbowSDK = rainbowNodeSdk.getRainbowSDK();
 
+        rainbowSDK.events.on('rainbow_onready', function () {
+            // do something when the connection to Rainbow is up
+            let contacts = rainbowSDK.contacts.getAll();
+            logger.debug("[AfterbuildApiServer   ] contacts : " + JSON.stringify(contacts));
+        });
+
 // Start the SDK
-       // rainbowSDK.start();
+        rainbowSDK.start();
 
     }
 

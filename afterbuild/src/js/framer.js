@@ -16,12 +16,14 @@ var Framer = (function() {
     Framer.prototype.createIFrame = function createIFrame(name) {
         logger.debug(logService + "[create frm ] :: Create a new IFrame for user " + name);
 
+        /*
         $("<iframe>", {
             src: "./frame.html",
             id:  name,      
             frameborder: 0,
             scrolling: "no"
         }).appendTo(".framer");
+        // */
 
         users.push(name);
     };
@@ -29,7 +31,7 @@ var Framer = (function() {
     Framer.prototype.removeAllIFrames = function removeAllIFrames() {
         logger.debug(logService + "[remove frm ] :: Remove all Iframes created (" + users.length + ")");
         users.forEach(function(user) {
-            $("#" + user).remove();
+            //$("#" + user).remove();
             logger.debug(logService + "[remove frm ] :: Remove IFrame for user " + user);
         });
         users = [];

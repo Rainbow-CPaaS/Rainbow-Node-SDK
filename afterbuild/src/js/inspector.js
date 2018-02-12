@@ -29,20 +29,31 @@ var Inspector = (function() {
     }
 
     var iterateAPI = function iterateAPI(obj, currentStack, list) {
-        var propertiestoIgnore = ["_idlePrev", "_idleNext", "_idleTimeout", "_called"]; // These properties need to be ignored because of node specifics methods
+        var propertiestoIgnore = ["_idlePrev", "_idleNext", "_idleTimeout", "_called", "_handle", "socket"]; // These properties need to be ignored because of node specifics methods
+       /* let props = {}
+        while (obj) {
+            Object.getOwnPropertyNames(obj).forEach(function (p) {
+                props[p] = true;
+            });
+            obj = Object.getPrototypeOf(obj);
+        } // */
         for (var property in obj) {
+            //Object.getOwnPropertyNames(obj).forEach(function (property) {
             try {
                 if (propertiestoIgnore.indexOf(property) == -1 ) {
-                    logger.debug(logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
+                    //logger.debug(logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
                     if (obj.hasOwnProperty(property)) {
                         if (typeof obj[property] === "object") {
                             logger.debug(logService + "[iterateAPI] found a child object : " + currentStack + "." + property);
+                            if (property == "_contacts") {
+                                logger.debug(logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property + " : " + JSON.stringify(obj[property]));
+                            }
                             iterateAPI(obj[property], currentStack + "." + property, list);
                         } else {
                             if (typeof obj[property] === "function") {
-                                logger.debug(logService + "[iterateAPI] found a child function : " + property + "()");
+                                //logger.debug(logService + "[iterateAPI] found a child function : " + property + "()");
                                 if (!(property in privateAPI)) {
-                                    logger.debug(logService + "[iterateAPI] found a public child API function : " + property + "()");
+                                  //  logger.debug(logService + "[iterateAPI] found a public child API function : " + property + "()");
                                     var item = {
                                         "methodName": currentStack + "." + property,
                                         "called": 0
@@ -54,9 +65,9 @@ var Inspector = (function() {
                     }
                 }
             } catch (err) {
-                logger.debug(logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
+               // logger.debug(logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
             }
-        }
+        }//);
     };
 
     Inspector.prototype.exists = function exists(apiName) {
@@ -122,9 +133,20 @@ var Inspector = (function() {
 
         stack = rootName;
 
+        let props = {}
+
+        while (obj) {
+            Object.getOwnPropertyNames(obj).forEach(function (p) {
+                props[p] = obj[p];
+            });
+            obj = Object.getPrototypeOf(obj);
+        }
+        // */
+
         return new Promise(function(resolve, reject) {
             try {
-                iterateAPI(obj, stack, that.apiList);
+                let nodeSDK = props; // Object.getPrototypeOf(obj);
+                iterateAPI(nodeSDK, stack, that.apiList);
                 logger.debug(logService + "[inspect    ] :: Found " + Object.keys(that.apiList).length + " api(s)");
                 resolve(that.apiList);
             }

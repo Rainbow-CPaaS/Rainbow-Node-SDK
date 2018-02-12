@@ -455,7 +455,7 @@ var Queue = (function() {
     
                     if (undefinedAPI) {
                         logger.debug(logService + "[test       ] ::    ABORTED (missing-api)");
-                        renderer.writeMissingAPI(test.id, undefinedAPI);
+                        datasApi.writeMissingAPI(test.id, undefinedAPI);
                         resolve();
                     }
                     else {
@@ -490,8 +490,8 @@ var Queue = (function() {
                         }
     
                         if (actionQueued) {
-    
-                            renderer.writeProgress(epicId, actionsStats[epicId]);
+
+                            datasApi.writeProgress(epicId, actionsStats[epicId]);
     
                             var user = actionQueued.using ? actionQueued.using[0] : "";
                             var action = actionQueued.executing.substring(0, 3);
@@ -614,10 +614,10 @@ var Queue = (function() {
                     logger.debug(logService + "[test       ] ::    it (" + it.id + ")");
                     logger.debug(logService + "[test       ] ::    should: '" + it.should + "'");
                     
-                    renderer.writeTest(epicId, it.should, it.id);
+                    datasApi.writeTest(epicId, it.should, it.id);
     
                     return that.runAllActionsOnTest(it, epicId).then( function() {
-                        renderer.writeTestEnd();
+                        datasApi.writeTestEnd();
                         return that.runAllTestsOnEpic(tests, epicId).then(function() {
                             resolve();
                         }).catch(function(err) {
@@ -643,7 +643,8 @@ var Queue = (function() {
             return new Promise(function(resolve, reject) {
     
                 logger.debug(logService + "[epic       ] :: Wait for all IFrames...");
-    
+                resolve();
+                /*
                 window.addEventListener("message", function(event) {
                     var json = event.data;
     
@@ -664,6 +665,7 @@ var Queue = (function() {
                     }
     
                 }, false);
+                 // */
     
             });
         }
@@ -695,10 +697,11 @@ var Queue = (function() {
                         tests.epicId = "_" + new Date().getTime();
                         tests.randomId = that.randomString(16, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
                         logger.debug(logService + "[epic       ] :: Epic " + tests.describe + " (" + tests.epicId + ")");
+
+                        rainbowNodeSdk.getRainbowSDK()[tests.epicId] = {};
+                        //window.sdkweb[tests.epicId] = {};
     
-                        window.sdkweb[tests.epicId] = {};
-    
-                        renderer.writeEpic(tests.describe, tests.epicId);
+                        datasApi.writeEpic(tests.describe, tests.epicId);
     
                         // Add tests that should run before
                         if (tests.runBeforeAll) {
@@ -742,7 +745,8 @@ var Queue = (function() {
                         // Prepare admin
                         for (var userName in admin) {
                             adminUser  = admin[userName];
-                            window.sdkweb[tests.epicId][userName] = {
+                            rainbowNodeSdk.getRainbowSDK()[tests.epicId] = {
+                            // window.sdkweb[tests.epicId][userName] = {
                                 "email": admin[userName].email,
                                 "password": admin[userName].password,
                                 "company": admin[userName].company,
@@ -753,7 +757,8 @@ var Queue = (function() {
                             };
     
                             framer.createIFrame(userName);
-                            window.sdkweb[tests.epicId][userName].win = document.getElementById(userName).contentWindow;
+                            //rainbowNodeSdk.getRainbowSDK()[tests.epicId].win = document.getElementById(userName).contentWindow;
+                            // window.sdkweb[tests.epicId][userName].win = document.getElementById(userName).contentWindow;
                             listOfWaiting[userName] = userName;
                         }
                         
@@ -761,7 +766,8 @@ var Queue = (function() {
                         for (var userName in actors) {
     
                             if (userName !== adminUser.firstname) {
-                                window.sdkweb[tests.epicId][userName] = {
+                                rainbowNodeSdk.getRainbowSDK()[tests.epicId][userName] = {
+                                // window.sdkweb[tests.epicId][userName] = {
                                     "email": actors[userName].email,
                                     "password": actors[userName].password,
                                     "company": actors[userName].company,
@@ -772,7 +778,8 @@ var Queue = (function() {
                                 };
     
                                 framer.createIFrame(userName);
-                                window.sdkweb[tests.epicId][userName].win = document.getElementById(userName).contentWindow;
+                                //rainbowNodeSdk.getRainbowSDK()[tests.epicId][userName].win = document.getElementById(userName).contentWindow;
+                                // window.sdkweb[tests.epicId][userName].win = document.getElementById(userName).contentWindow;
                                 listOfWaiting[userName] = userName;
                             }
                         }
@@ -792,29 +799,29 @@ var Queue = (function() {
                                     hasAnError: false
                                 };
                                     
-                                renderer.writeNbTestsForEpic(tests.epicId, results[0]);
-                                renderer.writeNbActionsForEpic(tests.epicId, results[1]);
-                                renderer.writeNbAssertsForEpic(tests.epicId, results[2]);
+                                datasApi.writeNbTestsForEpic(tests.epicId, results[0]);
+                                datasApi.writeNbActionsForEpic(tests.epicId, results[1]);
+                                datasApi.writeNbAssertsForEpic(tests.epicId, results[2]);
                                     
                                 return that.runAllTestsOnEpic(tests.run, tests.epicId).then( function() {
                                     logger.debug(logService + "[epic       ] :: Epic done");
-                                    renderer.writeProgressFinish(tests.epicId, actionsStats[tests.epicId].hasAnError);
+                                    datasApi.writeProgressFinish(tests.epicId, actionsStats[tests.epicId].hasAnError);
                                     framer.removeAllIFrames();
                                     that.displayStats();
                                     return that.runEpic(epics).then(function() {
                                         resolve();
                                     }).catch(function(err) {
                                         console.log("Error 1", err);
-                                        renderer.writeProgressFinishBad(tests.epicId);
+                                        datasApi.writeProgressFinishBad(tests.epicId);
                                         reject(err);
                                     });
                                 }).catch(function(err) {
-                                    renderer.writeProgressFinishBad(tests.epicId);
+                                    datasApi.writeProgressFinishBad(tests.epicId);
                                     console.log("Error 2", err);
                                     reject(err);
                                 });
                             }).catch(function(err) {
-                                renderer.writeProgressFinishBad(tests.epicId);
+                                datasApi.writeProgressFinishBad(tests.epicId);
                                 console.log("Err init", err);
                                 reject(err);
                             });
@@ -844,7 +851,7 @@ var Queue = (function() {
                 console.log(JSON.stringify(testsPlan.run));
     
                 // Store epicsList
-                localStorage.setItem("epicsList", JSON.stringify(epicsList)); 
+                //localStorage.setItem("epicsList", JSON.stringify(epicsList));
     
                 tempoBeforeAsserting = testsPlan.with.tempoBeforeAsserting;
                 tempoBeforeTest = testsPlan.with.tempoBeforeTest;
@@ -858,7 +865,7 @@ var Queue = (function() {
                 });
     
                 that.runEpic(epics).then(function() {
-                    renderer.writeEpicEnd();
+                    datasApi.writeEpicEnd();
                     logger.debug(logService + "[runTestspln] :: Finished!");
                     resolve();
                 }).catch(function(err) {
@@ -872,14 +879,11 @@ var Queue = (function() {
         Queue.prototype.loadEpic = function loadEpic(epicPath) {
     
             return new Promise(function(resolve, reject) {
-    
-                $.getJSON(epicPath).then(function(data) {
-                    logger.debug(logService + "[epic       ] :: Loaded '" + epicPath + "'");
-                    resolve(data);
-                }).fail( function(err) {
-                    logger.debug(logService + "[epic       ] :: '" + epicPath + "' not loaded (not-found-or-invalid)");
-                    reject({"code": "not-found-or-invalid", error: err});
-                });
+                //$.getJSON(epicPath).then(function (data) {
+
+                var epicData = require(epicPath);
+                logger.debug(logService + "[epic       ] :: Loaded '" + epicPath + "'");
+                resolve(epicData);
             });
         };
     
@@ -895,6 +899,8 @@ var Queue = (function() {
         Queue.prototype.initialize = function initialize() {
             return new Promise(function(resolve, reject) {
                 logger.debug(logService + "[initialize ] :: Initializing...");
+                //logger.debug(logService + "[initialize ] :: rainbowNodeSdk : " + JSON.stringify(rainbowNodeSdk.getRainbowSDK()._core));
+
                 inspector.inspect(rainbowNodeSdk.getRainbowSDK(), "rainbowSDK").then(function(apiList) {
                     datasApi.writeAPINumber(inspector.nbAPI());
                     datasApi.writeAPIList(apiList);
@@ -910,20 +916,24 @@ var Queue = (function() {
     
         Queue.prototype.displayStats = function displayStats() {
             var coverage = inspector.coverage();
-            renderer.writeAPICoverage(coverage + "%");
-            renderer.writeAPIDetails(inspector.nbUsedAPI() + "/" + inspector.nbAPI());    
+            datasApi.writeAPICoverage(coverage + "%");
+            datasApi.writeAPIDetails(inspector.nbUsedAPI() + "/" + inspector.nbAPI());
+//            renderer.writeAPICoverage(coverage + "%");
+  //          renderer.writeAPIDetails(inspector.nbUsedAPI() + "/" + inspector.nbAPI());
         };
     
         Queue.prototype.renderEpicsList = function renderEpicsList() {
             var epicsList = inspector.getEpicsList(testsPlan);
     
-            // Retrieve existing epicslist from localstorage
+            /* // Retrieve existing epicslist from localstorage
             var storageResult = localStorage.getItem("epicsList");
             var storedEpicsList = JSON.parse(storageResult);
             if ( !storedEpicsList ) {
                 storedEpicsList = [];
-            }
-    
+            } // */
+
+            var storedEpicsList = [];
+
             testsPlan.run.forEach(function(epic) {
     
                 var storedValue = storedEpicsList.find( function(val) {
@@ -935,7 +945,9 @@ var Queue = (function() {
                     epic.runnable = true;
                 }            
             });
-            renderer.writeEpicsList(epicsList);
+
+            datasApi.writeEpicsList(epicsList);
+            // renderer.writeEpicsList(epicsList);
         };
     
         Queue.prototype.selectEpic = function selectEpic(epicName, runnable) {

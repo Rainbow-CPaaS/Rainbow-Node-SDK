@@ -11,30 +11,32 @@ var Prerequisite = require(path.join(__dirname, "..", "..","src", "js", "prerequ
 var Queue = require(path.join(__dirname, "..", "..","src", "js", "queue.js"));
 var rainbowNodeSdk = require('../../rainbowNodeSdk');
 
+var inspector = new Inspector(logger);
+var framer = new Framer(logger);
+var renderer = new Renderer(logger);
+var prerequisite = new Prerequisite(logger);
+var queue = new Queue(logger, inspector, framer, renderer, prerequisite);
+
 exports.list_all_tasks = function (req, res) {
     res.json({
         'firsttask': 'start queue reading'
     });
 };
 
-function startTests()
+function initQueue()
 {
-    logger.debug("startTests");
-    let inspector = new Inspector(logger);
-    let framer = new Framer(logger);
-    let renderer = new Renderer(logger);
-    let prerequisite = new Prerequisite(logger);
-    let queue = new Queue(logger, inspector, framer, renderer, prerequisite);
+    logger.debug("[AFTERBUILDCONTROLER ] :: initQueue !");
 
     queue.initialize().then(
         function () {
-            console.log("[TST-MAIN ] :: Queue initialized successfully!");
+            logger.debug("[AFTERBUILDCONTROLER ] :: Queue initialized successfully!");
             queue.load("../../tests/testsPlan.json").then(function () {
-                console.log("[TST-MAIN ] :: Queue loaded successfully!");
+                logger.debug("[AFTERBUILDCONTROLER ] :: Queue loaded successfully!");
                 queue.renderEpicsList();
+                /*
                 $(".input-epic").click(function (e) {
                     queue.selectEpic(e.currentTarget.id, e.currentTarget.checked);
-                });
+                }); // */
             }).catch(function () {
 
             });
@@ -43,10 +45,40 @@ function startTests()
     ;
 }
 
+exports.initQueue = function (req, res) {
+    initQueue();
+    res.json({
+        'initQueue': 'start queue initialized'
+    });
+};
+
+function startTests() {
+    logger.debug("[AFTERBUILDCONTROLER ] :: startTests !");
+    return new Promise(function (resolve, reject) {
+        //$("#empty-state").hide();
+        //var $btn = $("#startBtn").button('loading');
+        //$('#resetBtn').addClass('disabled');
+
+        queue.runTestsplan().then(function () {
+            queue.displayStats();
+            console.log("[AFTERBUILDCONTROLER ] :: Successfully finished !!!!");
+            // $btn.button('reset');
+            // $('#resetBtn').removeClass('disabled');
+            resolve('success');
+        }).catch(function () {
+            queue.displayStats();
+            console.log("[AFTERBUILDCONTROLER ] :: You have work to do :-(");
+            // $btn.button('reset');
+            // $('#resetBtn').removeClass('disabled');
+            reject('failure');
+        });
+    });
+}
+
 exports.startTests = function (req, res) {
     startTests();
     res.json({
-        'startTests': 'start queue reading'
+        'startTests': 'start queue tests'
     });
 };
 
