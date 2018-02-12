@@ -165,6 +165,18 @@ class NodeSDK {
 
     /**
      * @public
+     * @property conversations
+     * @instance
+     * @description
+     *    Get access to the Conversations module
+     * @memberof NodeSDK
+     */
+    get conversations() {
+        return this._core.conversations;
+    }
+
+    /**
+     * @public
      * @property presence
      * @instance
      * @description
