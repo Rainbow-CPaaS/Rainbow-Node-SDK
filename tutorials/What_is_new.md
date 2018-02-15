@@ -20,7 +20,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **Others Changes**
 
-- None.
+- Fix issue when retrieving the list of channels.
 
 
 ### SDK for Node.JS 1.36 - February 2018
