@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.36.2] - 2018-02-15
+- #CRRAINB-1862: CPAAS / SDK NodeJS / Channels are not retrieved
+
 ## [1.36.1] - 2018-02-03
 - #CRRAINB-1729: Remove log to console in channels service
 
