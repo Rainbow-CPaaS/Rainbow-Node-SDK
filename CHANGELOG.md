@@ -1,6 +1,8 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+##
+Use the new authent login to server (the /api/rainbow/authentication/v1.0/login api login both user and application). Note: the old login process is stil used for compatibility.
 
 ## [1.34.0] - 2017-12-17
 - #RQRAINB-513: Allow to send a POST request with a specific content-type
