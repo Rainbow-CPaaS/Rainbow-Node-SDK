@@ -2,7 +2,15 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.36.0] - 2018-02-04
+## [1.37.0] - 2018-02-25
+- #CRRAINB-1812: Create a user by default to the admin company
+- #CRRAINB-1860: Fix issue when retrieving the list of channels
+- # Use the new authent login to server (the /api/rainbow/authentication/v1.0/login api login both user and application). Note: the old login process is stil used for compatibility.
+
+## [1.36.1] - 2018-02-03
+- #CRRAINB-1729: Remove log to console in channels service
+
+## [1.36.0] - 2018-02-02
 - #CRRAINB-1530: Stop XMPP connection correctly on `stop()`
 - #CRRAINB-1534: Adapt channels API to changes from server
 - #CRRAINB-1540: Add API `getMessagesFromChannel()` to retrieve messages from a channel

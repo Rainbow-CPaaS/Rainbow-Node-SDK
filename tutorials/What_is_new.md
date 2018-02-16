@@ -3,6 +3,26 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.37 - February 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- Parameter `companyId` from API `createUserInCompany()` is now optional. When not set, the user is created in the company the administrator belongs.
+
+**Others Changes**
+
+- Fix issue when retrieving the list of channels.
+
+
 ### SDK for Node.JS 1.36 - February 2018
 ---
 
