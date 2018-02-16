@@ -35,10 +35,13 @@ rainbowSDK.events.on('rainbow_onmessagereceived', (message) => {
 
 ```
 
+You can have more details about the `message` structure by looking to the [Message API documentation](/#/documentation/doc/node/api/message).
+
+
 #### Listening to incoming messages sending to a bubble
 ---
 
-Messages posted to a bubble can be listened in the same way as messages coming from users. Use the event `rainbow_onmessagereceived` to handle them as described:
+Messages posted to a bubble can be listened using the same way as messages coming from users. Use the event `rainbow_onmessagereceived` to handle them as described:
 
 
 ```js
@@ -55,18 +58,30 @@ rainbowSDK.events.on('rainbow_onmessagereceived', (message) => {
 
 ```
 
-### Sending message receipts
+For bubble messages, the `type` property has a value equals to `groupchat` whereas the value is `chat` for simple messages exchanged with a user.
+
+Be careful, when using the property `fromJid` of the message. When in a bubble, the `fromJid` property contains the identity of the user inside the bubble so follows the pattern `jid_room/jid_user`.
+
+
+### Answering to messages
+---
+
+Once you know how to detect and interpret incoming messages, the next steps are to send receipts and to answer to these messages.
+
+#### Managing received receipts
 ---
 
 When receiving an incoming message, the SDK for Node.JS automatically sends a receipt of type `received` to inform the user that the message has been well handled.
 
-The receipt of type `read` (that inform that the message has been read or interpreted) can be managed automatically or manually depending the configuration of the option `sendreadreceipt`.
+So, on your side, you have nothing to do. The user will be informed that your application has received the message.
 
 
-#### Send read receipt automatically
+#### Sending read receipts automatically
 ---
 
-If you want that a receipt of type `read` is sent automatically to the sender, you have to set the parameter `sendReadReceipt` of the configuration to true like in the following:
+The receipt of type `read` (that inform that the message has been read or interpreted) can be managed automatically or manually depending the configuration of the option `sendreadreceipt`.
+
+If you want that a receipt of type `read` is sent automatically to the sender, you have to set the parameter `sendReadReceipt` of the configuration to `true` like in the following:
 
 ```js
 
@@ -78,8 +93,8 @@ let options = {
     },
     // Identity used
     "credentials": {
-        "login": "<your_rainbow_login_email>", 
-        "password": "<your_rainbow_password>"  
+        "login": "bot@mycompany.com",  
+        "password": "thePassword!123"   
     },
     ...
 
@@ -91,13 +106,13 @@ let options = {
 
 ```
 
-This is the default option: Receipt of type `read` is sent automatically on each new message received.
+This is the default option: Receipt of type `read` is sent automatically on each new message received. If you want to manage it manually, set the value to `false`.
 
 
-#### Send read receipt manually
+#### Sending read receipt manually
 ---
 
-In some cases, you want to send the receipt of type `read` manually (eg: to acknowledge an alarm message only if other command has been done sucessfully), so you can set the parameter `sendReadReceipt` to false and use the API `markMessageAsRead()` to send it manually. Here is an example:
+In some cases, you want to send the receipt of type `read` manually (eg: to acknowledge an alarm message only if other command has been done sucessfully), so you can set the parameter `sendReadReceipt` to `false` and use the API `markMessageAsRead()` to send it manually. Here is an example:
 
 
 ```js
@@ -110,8 +125,8 @@ let options = {
     },
     // Identity used
     "credentials": {
-        "login": "<your_rainbow_login_email>",
-        "password": "<your_rainbow_password>" 
+        "login": "bot@mycompany.com",  
+        "password": "thePassword!123" 
     },
     ...
 
@@ -120,7 +135,6 @@ let options = {
         "sendReadReceipt": false   // Do not send a receipt of type read automatically
     }
 };
-
 
 // Later in the code
 rainbowSDK.events.on('rainbow_onmessagereceived', (message) => {
@@ -132,11 +146,63 @@ rainbowSDK.events.on('rainbow_onmessagereceived', (message) => {
 
 ```
 
-Notice: You don't have to send receipt for messages having the property `isEvent` equals to true. These messages are specific Bubble messages not sent by a user and indicating that someone entered the bubble or juste leaved it.
+Notice: You don't have to send receipt for messages having the property `isEvent` equals to true. These messages are specific Bubble messages not sent by a user and indicating that someone entered the bubble or just leaved it.
+
+
+#### Sending a message to a recipient
+---
+
+If you want to send a message to a recipient, once you have to do is to call the API `sendMessageToJid()`. For example, if you want to answer to an incoming message from a user, do the following
+
+```js
+
+nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+    // Check if the message is not from you
+    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+        // Check that the message is from a user and not a bot
+        if( message.type === "chat") {
+            // Answer to this user
+            nodeSDK.im.sendMessageToJid("hello! How may I help you?", message.fromJid);
+            // Do something with the message sent
+            ...
+        }
+    }
+});
+
+```
+
+In order to avoid loop, it's always a good practice to check if the sender is not you as you can be connected several times with several resources...
+
+It's a good practice to keep a reference to the message sent if you want to know which message has been received and read from users.
+
+
+#### Sending a message to a bubble
+---
+
+When a message is received in a bubble, you can do the same and respond to everyone by calling the API `sendMessageToBubbleJid()`. The following code will add a new message to a bubble each time an other participant has written one.
+
+```js
+
+nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+    // Check if the message is not from you
+    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+        // Check that the message is from a user and not a bot
+        if( message.type === "groupchat") {
+            // Answer to this user
+            let messageSent = nodeSDK.im.sendMessageToBubbleJid("I got it!", message.fromBubbleJid);
+            // Do something with the message sent
+            ...
+        }
+    }
+});
+
+```
 
 
 ### Listening to receipts
 ---
+
+When you send messages to a recipient, it's a good practice to listen for receipts from your recipients.  
 
 Receipts allow to know if the message has been successfully delivered to your recipient. You need to subscribe to the events `rainbow_onmessageserverreceiptreceived`, `rainbow_onmessagereceiptreceived` and `rainbow_onmessagereceiptreadreceived` to follow the different receipts received:
 
@@ -293,7 +359,7 @@ messageSent = rainbowSDK.im.sendMessageToBubbleJid('A message to a bubble', bubb
 
 At this time of writting, Rainbow clients manage Message language and are able to display messages using a `Markdown` content type. This feature is not officially supported but if your Node.JS application interacts with a Rainbow official client, this can help.
 
-Here is the list of Markdown tags supported by the Rainbow official Web application:
+Here is the list of Markdown tags supported by the Rainbow official Web application (Rainbow Web client and Rainbow Desktop client):
 
 - **Headers**: `#H1` to  `######H6`
 
@@ -312,6 +378,8 @@ Here is the list of Markdown tags supported by the Rainbow official Web applicat
 Note: Other Markdown tags can be used specifically if you have provided your own end-user application but will not be rendered correcly in the Rainbow official clients.
 
 Subject is used when displaying Rainbow notification messages.
+
+Note: At this time of writing, Markdown is not supported by the Rainbow mobile clients.
 
 
 ### Specific Bubbles messages
@@ -344,4 +412,4 @@ Here are the list of limitations regarding chat messages
 
 ---
 
-_Last updated Septembre, 15th 2017_
+_Last updated January, 11th 2018_

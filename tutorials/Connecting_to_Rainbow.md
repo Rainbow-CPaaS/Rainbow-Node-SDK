@@ -15,7 +15,7 @@ This tutorial will explain in details what you have to do and how it works.
 
 As explained in the guide [Getting Started](/#/documentation/doc/node/tutorials/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
 
-Here is a complete sample for connecting to Rainbow:
+Here is a complete sample for connecting to Rainbow. Adapt it with your credentials:
 
 
 ```js
@@ -26,38 +26,30 @@ let RainbowSDK = require('rainbow-node-sdk');
 
 // Define your configuration
 let options = {
-    // Rainbow platform
     "rainbow": {
-        "host": "sandbox"                       // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
+        "host": "sandbox",                      
     },
-    // Identity used
     "credentials": {
-        "login": "<your_rainbow_login_email>",  // The Rainbow email account to use
-        "password": "<your_rainbow_password>"   // The Rainbow associated password to use
+        "login": "bot@mycompany.com",  
+        "password": "thePassword!123"   
     },
     // Application identifier
     "application": {
-        "id": "<your_rainbow_application_id>", // The Rainbow Application Identifier - application must have a 'deployed' state
-        "secret": "<your_rainbow_application_secret>", // The Rainbow Application Secret - retrieved from developer hub
+        "appID": "", 
+        "appSecret": "", 
     },
     // Logs options
     "logs": {
-        "enableConsoleLogs": true,              // Default: true
-        "enableFileLogs": false,                // Default: false
+        "enableConsoleLogs": true,              
+        "enableFileLogs": false,                
         "file": {
-            "path": '/var/tmp/rainbowsdk/',     // Default path used
-            "level": 'debug'                    // Default log level used
+            "path": '/var/tmp/rainbowsdk/',
+            "level": 'debug'                    
         }
-    },
-    // Proxy configuration
-    "proxy": {
-        "host": "<proxy_host>",                 // eg: "172.25.50.190" (string expected)
-        "port": "<proxy_port>",                 // eg: 8080 (integer expected)
-        "protocol": "<proxy_protocol>"          // eg: "http" (string expected)
     },
     // IM options
     "im": {
-        "sendReadReceipt": true   // True to send the 'read' receipt automatically
+        "sendReadReceipt": true   
     }
 };
 
@@ -286,7 +278,7 @@ Here is the list of events that your application can handle:
 | **rainbow_ondisconnected** | Fired when the SDK lost the connection with Rainbow |
 | **rainbow_onreconnecting** | Fired when the SDK tries to reconnect |
 | **rainbow_onfailed** | Fired when the SDK didn't succeed to reconnect and stop trying |
-| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter...) |
+| **rainbow_onerror** | Fired when something goes wrong (ie: bad 'configurations' parameter, impossible to connect or reconnect, etc...) |
 | **rainbow_onready** | Fired when the SDK is connected to Rainbow and ready to be used |
 
 
@@ -351,9 +343,9 @@ This event is fired when the maximal number of attempts to reconnect has been re
 #### Event rainbow_onerror
 ---
 
-This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed).
+This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed). When this event is fired, the application has to manually call the API `stop()` and `start()` in order to restart de SDK properly.
 
 
 ---
 
-_Last updated July, 13th 2017_
+_Last updated January, 11th 2018_

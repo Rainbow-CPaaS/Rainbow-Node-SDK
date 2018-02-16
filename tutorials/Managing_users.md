@@ -40,7 +40,28 @@ let userEmailAccount = "john.doe@myCompany.com";
 let userPassword = "********";
 let userFirstname = "John";
 let userLastname = "Doe";
-let companyId = "5978e048f8abe8ad97357f06";
+
+nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname).then((user) => {
+    // Do something when the user has been created and added to that company
+    ...
+}).catch((err) => {
+    // Do something in case of error
+    ...
+});
+
+```
+
+Once succeeded, the user John Doe is a new Rainbow user in the same company as the connected user.
+
+If you have the `organization_admin` right which means that you manage an organization (i.e. several companies), you have the right to create a user in one of the companies you manage by using the parameter `companyId` such as in the following:
+
+```js
+
+let userEmailAccount = "john.doe@myCompany.com";
+let userPassword = "********";
+let userFirstname = "John";
+let userLastname = "Doe";
+let companyId = "5978e048f8abe8ad97357f06"; // The target company
 
 nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, companyId).then((user) => {
     // Do something when the user has been created and added to that company
@@ -52,10 +73,9 @@ nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname,
 
 ```
 
+Once succeeded, the user John Doe is associated to the company specified by the parameter `companyId`. 
 
-Once succeeded, a new user account is created on Rainbow in the company specified by the parameter `companyId`. 
-
-This user account will have a `user` right and his language will be set by default to `en-US`.
+In all cases, this user account will have a `user` right and his language will be set by default to `en-US`.
 
 The end-user is not notified about the creation of the account so you have to contact him manually.
 
@@ -72,10 +92,10 @@ let userEmailAccount = "jean.dupont@myCompany.com";
 let userPassword = "********";
 let userFirstname = "Jean";
 let userLastname = "Dupont";
-let companyId = "5978e048f8abe8ad97357f06";
+let companyId = null;
 let language = "fr-FR";
 
-nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, companyId, language).then((user) => {
+nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, null, language).then((user) => {
     // Do something when the user has been created and added to that company
     ...
 }).catch((err) => {

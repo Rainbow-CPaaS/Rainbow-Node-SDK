@@ -3,6 +3,86 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.37 - February 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- Parameter `companyId` from API `createUserInCompany()` is now optional. When not set, the user is created in the company the administrator belongs.
+
+**Others Changes**
+
+- Fix issue when retrieving the list of channels.
+
+
+### SDK for Node.JS 1.36 - February 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- Due to optimizations added on the service Channels, the **Rainbow SDK Node.JS 1.35 and prior will not be able to manage channels anymore starting Rainbow 1.36**. You need to update to this version to use this service. Note: Channels APIs are still in *beta*, the deprecation policy doesn't apply here.
+
+- To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `getUsersFromChannel()` has to be used to retrieve the list of users in a channel. 
+
+- In order to have an homogeneous way of working, the following API `getContactByLoginEmail()`, `getContactById()`, `getContactsByJid()` now return the contact found directly and `null` if not found. API `getContactByLoginEmail()` will no more return a JavaScript `Array` object when the contact was not found locally. API `getContactById()`, `getContactsByJid()` will no more return an error (catch) when the contact is not found.
+
+**API Changes**
+
+- New API `getMessagesFromChannel()` has been added to retrieve all available messages from a channel.
+
+- Number of messages archived for a channel has changed from **30** to **100**.
+
+- New API `sendMessageToContact()` and `sendMessageToBubble()` have been added to send message by passing the `contact` object instance or the `bubble` object instance.
+
+**Others Changes**
+
+- A fix has been done to close properly the XMPP connection when calling the method `stop()` from the SDK.
+
+- API documentation for `connectedUser` property has been fixed.
+
+- Avoid crash when calling API `signout()` when not logged-in.
+
+- Avoid crash when evaluating XMPP connection error.
+
+- Avoid crash on network lost and try to reconnect. Application needs to listen the event `rainbow_onerror`. This event is triggered when the SDK fails to reconnect automatically. In that case, the application has to manually call the API `stop()` and `start()` to be able to try to reconnect to the SDK. 
+
+- When trying to reconnect to Rainbow REST APIs, the SDK for Node.JS will now made up to **50** attempts instead of 30 and the max time between 2 attempts has been set to **60s** as for the XMPP part.
+
+- Fix a crash when retrieving the list of bubbles.
+
+
+### SDK for Node.JS 1.35 - January 2018
+---
+
+**SDK**
+
+- The new method `updateGroupName(group, name)` has been added which allows to change the name of a group.
+
+**Bugs**
+
+- Replaced the `Jid` by the `Jid/resource` when sending a P2P message to avoid crash when connected twice with the same account.
+
+- Fix typo in guide [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts) with API `getContactByLoginEmail()` that returns an array and not the contact directly. API documentation has been updated too.
+
+- Update FOSS `ws` in order to avoid a DOS attack and FOSS `request` to be aligned with the latest available version.
+
+- Add better explanation in guides [Getting started](/#/documentation/doc/node/tutorials/Getting_Started) and [Connecting to Rainbow](/#/documentation/doc/node/tutorials/Connecting_to_Rainbow) on configuration parameters.
+
+- Describe APIs `sendMessageToJid()` and `sendMessageToBubbleJid()` on how to send messages in guide [Answering chat messages](/#/documentation/doc/node/tutorials/Answering_chat_message).
+
+
 ### SDK for Node.JS 1.34 - December 2017
 ---
 

@@ -142,42 +142,42 @@ nodeSDK.events.on("rainbow_onready", () => {
 
 For each contact, the following information is available:
 
-```json
+```JSON
 
 { 
-    displayName: 'Robert Doe',
-    companyName: 'A company',
-    loginEmail: 'rdoe@acompany.com',
-    nickName: 'rdoe',
-    title: 'Dr',
-    jobTitle: 'CEO',
-    country: 'USA',
-    timezone: 'America/Los_Angeles',
-    companyId: '5805e150383b2852d37a9e64',
-    jid_im: '8e59c1b6661641968d59e901bf8bb1ea@sandbox-all-in-one-prod-1.opentouch.cloud',
-    jid_tel: 'tel_8e59c1b6661641968d59e901bf8bb1ea@sandbox-all-in-one-prod-1.opentouch.cloud',
-    lastAvatarUpdateDate: '2016-11-04T19:34:29.292Z',
-    lastUpdateDate: '2017-09-18T11:57:31.695Z',
-    adminType: 'undefined',
-    roles: [ 'user', 'admin' ],
-    phoneNumbers: [],
-    emails: [ { email: 'rdoe@acompany.com', type: 'work' } ],
-    lastName: 'Doe',
-    firstName: 'Robert',
-    isTerminated: false,
-    language: 'en',
-    id: '581b405d383b2852d37aa098',
-    resources: { 
+    "displayName": 'Robert Doe',
+    "companyName": 'A company',
+    "loginEmail": 'rdoe@acompany.com',
+    "nickName": 'rdoe',
+    "title": 'Dr',
+    "jobTitle": 'CEO',
+    "country": 'USA',
+    "timezone": 'America/Los_Angeles',
+    "companyId": '5805e150383b2852d37a9e64',
+    "jid_im": '8e59c1b6661641968d59e901bf8bb1ea@sandbox-all-in-one-prod-1.opentouch.cloud',
+    "jid_tel": 'tel_8e59c1b6661641968d59e901bf8bb1ea@sandbox-all-in-one-prod-1.opentouch.cloud',
+    "lastAvatarUpdateDate": '2016-11-04T19:34:29.292Z',
+    "lastUpdateDate": '2017-09-18T11:57:31.695Z',
+    "adminType": 'undefined',
+    "roles": [ 'user', 'admin' ],
+    "phoneNumbers": [],
+    "emails": [ { "email": 'rdoe@acompany.com', "type": 'work' } ],
+    "lastName": 'Doe',
+    "firstName": 'Robert',
+    "isTerminated": false,
+    "language": 'en',
+    "id": '581b405d383b2852d37aa098',
+    "resources": { 
         'web_win_1.29.3_NOOILjkW': { 
-            priority: '5',
-            show: 'away',
-            delay: '',
-            status: '',
-            type: 'desktopOrWeb' 
+            "priority": '5',
+            "show": 'away',
+            "delay": '',
+            "status": '',
+            "type": 'desktopOrWeb' 
         } 
     },
-    presence: 'online',
-    status: '' 
+    "presence": 'online',
+    "status": '' 
 }
 
 ```
@@ -331,7 +331,7 @@ Use the API `getContactByLoginEmail()` like in the following:
 
 nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
     if(contact) {
-        // Do something with the contact found
+        // Do something with the contacts found
         ...
     }
     else {
@@ -348,4 +348,4 @@ nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
 
 ---
 
-_Last updated September, 20th 2017_
+_Last updated January, 26th 2018_
