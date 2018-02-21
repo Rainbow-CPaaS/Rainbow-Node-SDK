@@ -145,7 +145,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-copy-part-of-file");
   grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks("grunt-exec");
-  grunt.registerTask("default", ["clean:dist", "jsdoc2md"]);
+  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "nodesheets"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
