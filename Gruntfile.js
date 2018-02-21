@@ -58,7 +58,21 @@ module.exports = function (grunt) {
 
     jsdoc: {
         nodesheets: {
-            src: ["lib/services/*.js"],
+            src: [
+                "lib/services/Admin.js",
+                "lib/services/Bubbles.js",
+                "lib/services/Channels.js",
+                "lib/services/Contacts.js",
+                "lib/services/Groups.js",
+                "lib/services/IM.js",
+                "lib/services/Presence.js",
+                "index.js", 
+                "lib/common/Events.js", 
+                "lib/common/models/Bubble.js",
+                "lib/common/models/Channel.js",
+                "lib/common/models/Contact.js",
+                "lib/common/models/Message.js"
+            ],
             dest: "bin/jsdoc",
             options: {
                 template: "node_modules/rainbow_hub_sheets_generation/mermaidtemplate"

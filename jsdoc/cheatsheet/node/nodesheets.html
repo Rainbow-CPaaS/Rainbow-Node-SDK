@@ -10,7 +10,12 @@
 <body>
   <div class="mermaid">
 classDiagram
-class Settings
+class Message
+class Contact
+class Channel
+class Bubble
+class Events
+class NodeSDK
 class Presence
 class IM
 class Groups
@@ -44,6 +49,8 @@ Bubbles : Bubble : declineInvitationToJoinBubble(Bubble)
 Bubbles : Bubble : setBubbleCustomData(Bubble, Object)
 Bubbles : Object : setBubbleTopic(Bubble, string)
 Bubbles : Object : setBubbleName(Bubble, string)
+Channels : Promise.Channel : createChannel(string, string)
+Channels : Promise.Channel : createPrivateChannel(string, string)
 Channels : Promise.CHannel : deleteChannel(Channel)
 Channels : Promise.Channel[] : findChannelsByName(String)
 Channels : Promise.Channel[] : findChannelsByTopic(String)
@@ -81,6 +88,93 @@ IM : Object : sendMessageToBubble(String, Bubble, String, Object, String, String
 IM : Object : sendMessageToBubbleJid(String, String, String, Object, String, String, String)
 IM : Object : markMessageAsRead(Message)
 Presence : number : setPresenceTo(String)
+NodeSDK : void : start()
+NodeSDK : void : stop()
+Events ::event : rainbow_onmessageserverreceiptreceived
+Events ::event : rainbow_onmessagereceiptreceived
+Events ::event : rainbow_onmessagereceiptreadreceived
+Events ::event : rainbow_onmessagereceived
+Events ::event : rainbow_oncontactpresencechanged
+Events ::event : rainbow_onbubbleaffiliationchanged
+Events ::event : rainbow_onbubbleinvitationreceived
+Events ::event : rainbow_onbubblecustomdatachanged
+Events ::event : rainbow_bubbletopicchanged
+Events ::event : rainbow_bubblenamechanged
+Events ::event : rainbow_ongroupcreated
+Events ::event : rainbow_ongroupdeleted
+Events ::event : rainbow_ongroupupdated
+Events ::event : rainbow_onuseraddedingroup
+Events ::event : rainbow_onuserremovedfromgroup
+Events ::event : rainbow_onchannelmessagereceived
+Events : Object : on(string, function)
+Events : Object : once(string, function)
+Events ::event : rainbow_onstarted
+Events ::event : rainbow_onstopped
+Events ::event : rainbow_onconnected
+Events ::event : rainbow_onconnectionerror
+Events ::event : rainbow_ondisconnected
+Events ::event : rainbow_onreconnecting
+Events ::event : rainbow_onfailed
+Events ::event : rainbow_onready
+Events ::event : rainbow_onerror
+Bubble : string : id
+Bubble : string : name
+Bubble : string : topic
+Bubble : string : jid
+Bubble : string : creator
+Bubble : string : history
+Bubble : Object[] : users
+Bubble : string : creationDate
+Bubble : string : visibility
+Bubble : Object : customData
+Channel : string : id
+Channel : string : name
+Channel : ChannelVisibility : visibility
+Channel : string : title
+Channel : string : creator
+Channel : string : creationDate
+Channel : number : users_count
+Contact : string : id
+Contact : string : displayName
+Contact : string : companyName
+Contact : string : loginEmail
+Contact : string : nickName
+Contact : string : title
+Contact : string : jobTitle
+Contact : string : country
+Contact : string : timezone
+Contact : string : companyId
+Contact : string : jid_im
+Contact : string : jid_tel
+Contact : string : lastAvatarUpdateDate
+Contact : string : lastUpdateDate
+Contact : string : adminType
+Contact : string : roles
+Contact : Object[] : phoneNumbers
+Contact : Object[] : emails
+Contact : string : lastName
+Contact : string : firstName
+Contact : Boolean : isTerminated
+Contact : string : language
+Contact : string : presence
+Contact : string : status
+Contact : Object[] : resources
+Message : string : id
+Message : string : fromJid
+Message : string : resource
+Message : string : toJid
+Message : string : type
+Message : string : content
+Message : string : lang
+Message : Boolean : cc
+Message : string : cctype
+Message : Boolean : isEvent
+Message : string : event
+Message : Object[] : alternativeContent
+Message : string : subject
+Message : Object : oob
+Message : string : fromBubbleJid
+Message : string : fromBubbleUserJid
 @@</div><!--MERMAID-->
 
 <footer>
