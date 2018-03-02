@@ -14,15 +14,14 @@ describe("Channel Service", () => {
         transports: [new(winston.transports.Console)()]
     });
 
-    // instantiate the SDK
-    let rainbowSDK = new RainbowSDK(options);
-
     // XMPP WebSocket Server
+    logger.debug("[TEST, Channels] going to MockServer : " + "ws://" + options.xmpp.host + ":" + options.xmpp.port + "/websocket");
     const mockServer = new MockServer("ws://" + options.xmpp.host + ":" + options.xmpp.port + "/websocket");
-    mockServer.on("connection", server => {
-
+    mockServer.on("connection", (server) => {
+        logger.debug("[TEST, Channels] MockServer.connection : " + "server : " + server);
     });
 
+    var __dirname = ".";
     var isAuthenticated = false;
     var resource = "";
     var alice = require(__dirname + "/../replies/alice_login_success.json");
@@ -76,9 +75,16 @@ describe("Channel Service", () => {
         }
     });
 
+    // instantiate the SDK
+    let rainbowSDK = new RainbowSDK(options);
+
     before(() => {
         var currentDate = new Date();
-        var currentTimestamp = currentDate.valueOf();
+        var currentTimestamp = currentDate.valueOf() / 1000;
+
+        let utc = new Date().toJSON().replace(/-/g, '/');
+
+        logger.debug("[TEST, Channels] before : " + utc);
 
         var applicationResponse = require(__dirname + "/../replies/application_login_success.json");
 
@@ -89,8 +95,8 @@ describe("Channel Service", () => {
                 "id": applicationResponse.id,
                 "name": applicationResponse.loggedInApplication.name
             },
-            "iat": currentTimestamp,
-            "exp": (currentTimestamp + 36000000) / 1000
+            "iat": currentTimestamp ,
+            "exp": Math.trunc((currentTimestamp + (3600 * 240) ))
         }, "dummy");
 
         applicationResponse.token = tokenApp;
@@ -105,13 +111,15 @@ describe("Channel Service", () => {
                 "loginEmail": loginResponse.loggedInUser.loginEmail
             },
             "iat": currentTimestamp,
-            "exp": (currentTimestamp + 36000000) / 1000
+            "exp": Math.trunc((currentTimestamp + (3600 * 240 )))
         }, "dummy");
 
-        console.log(token);
+        logger.debug(token);
         loginResponse.token = token;
 
-        var scope = nock("https://" + options.rainbow.host)
+         var scope = nock("https://" + options.rainbow.host )
+            .get("/api/rainbow/applications/v1.0/authentication/renew")
+            .reply(200, applicationResponse)
             .get("/api/rainbow/applications/v1.0/authentication/login")
             .reply(200, applicationResponse)
             .get("/api/rainbow/authentication/v1.0/login")
@@ -175,14 +183,15 @@ describe("Channel Service", () => {
     describe("Channel CRUD", () => {
         it("Create Channel", (done) => {
 
-            var scope = nock("https://" + options.rainbow.host)
+            logger.debug("prepare nock for post channels");
+            var scope = nock("https://" + options.rainbow.host )
                 .post("/api/rainbow/channels/v1.0/channels", {
-                "name": "FirstChannel",
-                "title": "First Channel",
-                "visibility": "company",
-                "max_items": 30,
-                "max_payload_size": 60000
-            })
+                    "name": "FirstChannel",
+                    "topic": "First Channel",
+                    "visibility": "company",
+                    "max_items": 100,
+                    "max_payload_size": 60000
+                })
                 .reply(200, {
                     "data": {
                         "name": "FirstChannel",
@@ -314,12 +323,12 @@ describe("Channel Service", () => {
 
             var scope = nock("https://" + options.rainbow.host)
                 .post("/api/rainbow/channels/v1.0/channels", {
-                "name": "ChannelToUpdate",
-                "title": "Channel To Update",
-                "visibility": "company",
-                "max_items": 30,
-                "max_payload_size": 60000
-            })
+                    "name": "ChannelToUpdate",
+                    "topic": "Channel To Update",
+                    "visibility": "company",
+                    "max_items": 100,
+                    "max_payload_size": 60000
+                } )
                 .reply(200, updateChannel)
                 .put("/api/rainbow/channels/v1.0/channels/" + updateChannel.data.id, {"title": "Channel To Updated"})
                 .reply(200, function () {
@@ -356,12 +365,12 @@ describe("Channel Service", () => {
 
             var scope = nock("https://" + options.rainbow.host)
                 .post("/api/rainbow/channels/v1.0/channels", {
-                "name": "Second Channel",
-                "title": "Second Channel",
-                "visibility": "company",
-                "max_items": 30,
-                "max_payload_size": 60000
-            })
+                    "name": "Second Channel",
+                    "topic": "Second Channel",
+                    "visibility": "company",
+                    "max_items": 100,
+                    "max_payload_size": 60000
+                })
                 .reply(200, secondChannel)
                 .delete("/api/rainbow/channels/v1.0/channels/" + secondChannel.data.id)
                 .reply(200, {
@@ -373,7 +382,7 @@ describe("Channel Service", () => {
                 .channels
                 .createChannel("Second Channel", "Second Channel")
                 .then((channel) => {
-                    console.log(JSON.stringify(channel))
+                    logger.debug(JSON.stringify(channel))
                     return rainbowSDK
                         .channels
                         .deleteChannel(channel)
