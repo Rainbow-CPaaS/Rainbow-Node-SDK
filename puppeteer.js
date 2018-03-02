@@ -21,7 +21,7 @@ const puppeteer = require('puppeteer');
 
         switch (process.argv[2]) {
             case "node":
-                await page.goto("file:///" + __dirname_ + "/bin/jsdoc/sheets/cheatsheet/node/nodesheets.html");
+                await page.goto("file:///" + __dirname + "/bin/jsdoc/sheets/cheatsheet/node/nodesheets.html");
                 path = "node";
                 break;
             default:
