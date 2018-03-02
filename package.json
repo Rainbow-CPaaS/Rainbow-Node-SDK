@@ -17,7 +17,7 @@
     "sdk"
   ],
   "engines": {
-    "node": ">=6.9.0"
+    "node": ">=8.4.0"
   },
   "author": "Alcatel-Lucent Enterprise",
   "license": "MIT",
