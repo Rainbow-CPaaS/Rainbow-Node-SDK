@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.38.0] - 2018-03-17
+- #CRRAINB-2101: Fix issue with token survey that blocks the process in CLI mode
+
 ## [1.37.0] - 2018-02-25
 - #CRRAINB-1812: Create a user by default to the admin company
 - #CRRAINB-1860: Fix issue when retrieving the list of channels

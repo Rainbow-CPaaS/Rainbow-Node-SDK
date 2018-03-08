@@ -3,6 +3,28 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.38 - March 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- Node.
+
+**Others Changes**
+
+- Fix issue with token survey that blocks the process in CLI mode.
+
+- Fix issue with text messages that were not sent in UTF-8. This allows now to send Emoji to users.
+
+
 ### SDK for Node.JS 1.37 - March 2018
 ---
 
