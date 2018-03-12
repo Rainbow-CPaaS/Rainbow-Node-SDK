@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.37.1] - 2018-03-13
+- #CRRAINB-2123: The 'lang' of an IM is sometimes undefined (ticket for 1.38 but need before)
+
 ## [1.37.0] - 2018-02-25
 - #CRRAINB-1812: Create a user by default to the admin company
 - #CRRAINB-1860: Fix issue when retrieving the list of channels
