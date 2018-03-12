@@ -3,6 +3,7 @@
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
 ## [1.38.0] - 2018-03-17
+- #CRRAINB-2123: The 'lang' of an IM is sometimes undefined
 - #CRRAINB-2101: Fix issue with token survey that blocks the process in CLI mode
 
 ## [1.37.0] - 2018-02-25

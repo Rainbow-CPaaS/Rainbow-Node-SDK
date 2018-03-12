@@ -24,6 +24,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Fix issue with text messages that were not sent in UTF-8. This allows now to send Emoji to users.
 
+- Fix issue with the 'lang' of an IM that were sometimes undefined.
+
 
 ### SDK for Node.JS 1.37 - March 2018
 ---
