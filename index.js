@@ -46,7 +46,7 @@ class NodeSDK {
     start() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.start().then(function() {
+            return that._core.start().then(function() {
                 return that._core.signin(false);
             }).then(function() {
                 resolve();
