@@ -1,0 +1,14 @@
+{
+    "describe": "Rainbow API testing plan",
+    "run": [
+        {
+            "file": "../../tests/contacts-tests.json",
+            "name": "Contacts"
+        }
+    ],
+    "with": {
+        "tempoBeforeAsserting": 250,
+        "tempoBeforeTest": 1000,
+        "timeout": 10000
+    }
+}

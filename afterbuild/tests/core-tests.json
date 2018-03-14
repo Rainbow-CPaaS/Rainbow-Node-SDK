@@ -1,0 +1,78 @@
+{
+    "describe": "CORE API",
+    "starring": {
+        "admin": {
+            "robert": {
+                "email": "rford@westworld.com",
+                "password": "Password_123"
+            }
+        },
+        "actors": {
+            "hector": {
+                "email": "hescaton@host-westworld.com",
+                "firstname": "Hector",
+                "lastname": "Escaton",
+                "company": "Westworld Guest",
+                "password": "Password_123"
+            }
+        }
+    }, 
+    "run": [
+        {
+            "it": {
+                "should": "Return the SDK version",
+                "by": [
+                    {
+                        "executing": "api:version", 
+                        "injecting": [], 
+                        "resulting": "version", 
+                        "expecting": [{"var:version": "$defined"}],
+                        "using": ["hector"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Return the SDK mode",
+                "by": [
+                    {
+                        "executing": "api:mode", 
+                        "injecting": [], 
+                        "resulting": "mode", 
+                        "expecting": [{"var:mode": "sdk"}],
+                        "using": ["hector"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Set the log level to verbose",
+                "by": [
+                    {
+                        "executing": "api:setVerboseLog", 
+                        "injecting": [true], 
+                        "resulting": "verbose", 
+                        "expecting": [{"var:verbose": true}],
+                        "using": ["hector"]
+                    }
+                ]
+            }
+        },
+        {
+            "it": {
+                "should": "Not use angular event",
+                "by": [
+                    {
+                        "executing": "api:useAngularEvents", 
+                        "injecting": [false], 
+                        "resulting": "angularEvent", 
+                        "expecting": [{"var:angularEvent": false}],
+                        "using": ["hector"]
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec",
-    "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha"
+    "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha",
+    "startafterbuildApiServer": "nodemon $NODE_DEBUG_OPTION  afterbuild/afterbuildApiServer.js"
   },
   "repository": {
     "type": "git",
@@ -38,9 +39,12 @@
     "grunt-jsdoc-to-markdown": "^4.0.0",
     "grunt-replace": "^1.0.1",
     "jsonwebtoken": "^8.1.1",
+    "http-server": "^0.10.0",
+    "jsonwebtoken": "^8.1.0",
     "mocha": "^3.5.3",
     "mock-socket": "^7.0.0",
     "nock": "^9.1.6",
+    "nodemon": "^1.14.11",
     "nyc": "^11.4.1",
     "puppeteer": "^0.13.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git"
@@ -50,8 +54,10 @@
     "@xmpp/plugins": "^0.3.0",
     "@xmpp/xml": "^0.3.0",
     "backoff": "^2.5.0",
+    "body-parser": "^1.18.2",
     "btoa": "^1.1.2",
     "crypto-js": "^3.1.9-1",
+    "express": "^4.16.2",
     "https-proxy-agent": "1.0.0",
     "jwt-decode": "2.2.0",
     "request": "^2.83.0",

@@ -37,6 +37,18 @@ $ grunt watch
 
 ```
 
+## AfterBuild tests
+
+To start the AfterBuild API Server you need previous do the install and then to run script
+
+```bash
+$ npm run startafterbuildApiServer
+```
+
+When it runs you need to call API with REST tool (postman...).
+First step to start the tests call
+
+`get http://127.0.0.1:3000/startTests`
 
 ## Production
 ---
@@ -86,7 +98,7 @@ There is no specific `grunt` task to launch to produce the SDK for NodeJS
 SDK is served as it. Note from me: We will need to package/optimize the build for the future...
 
 
-### NPM Publish 
+### NPM Publish
 ---
 
 To publish on **NPM** which is where the SDK can be downloaded, the following command has to be launched:
