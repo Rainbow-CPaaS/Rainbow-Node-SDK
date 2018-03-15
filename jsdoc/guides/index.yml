@@ -1,0 +1,12 @@
+---
+- Getting started: 'doc/node/tutorials/Getting_Started.md'
+- What's new ?: 'doc/node/tutorials/What_is_new.md'
+- Connecting to Rainbow: 'doc/node/tutorials/Connecting_to_Rainbow.md'
+- Answering to chat messages: 'doc/node/tutorials/Answering_chat_message.md'
+- Managing contacts: 'doc/node/tutorials/Managing_contacts.md'
+- Managing users and guests: 'doc/node/tutorials/Managing_users.md'
+- Managing bubbles: 'doc/node/tutorials/Managing_bubble.md'
+- Managing groups: 'doc/node/tutorials/Managing_groups.md'
+- Managing channels: 'doc/node/tutorials/Managing_channels.md'
+- Using a proxy: 'doc/node/tutorials/Proxy.md' 
+- Debugging: 'doc/node/tutorials/Debugging.md'
