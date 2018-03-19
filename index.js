@@ -70,7 +70,7 @@ class NodeSDK {
     startCLI() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.start().then(function() {
+            that._core.start(true).then(function() {
                 resolve();
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;

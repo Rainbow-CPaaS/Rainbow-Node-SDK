@@ -4,6 +4,7 @@ module.exports = function (grunt) {
     /* ------------------------------ VARIABLES -------------------------------- */
     version: grunt.file.read("./config/version.js").split("\"")[1],
     nodeSdkOrder: grunt.file.read("./jsdoc/cheatsheet/node/nodeSdkOrder") + "\n</div><!--MERMAID-->",
+    pkg: grunt.file.readJSON("package.json"),
 
     jsdoc2md: {
       separateOutputFiles: {
@@ -57,7 +58,21 @@ module.exports = function (grunt) {
 
     jsdoc: {
         nodesheets: {
-            src: ["lib/services/*.js"],
+            src: [
+                "lib/services/Admin.js",
+                "lib/services/Bubbles.js",
+                "lib/services/Channels.js",
+                "lib/services/Contacts.js",
+                "lib/services/Groups.js",
+                "lib/services/IM.js",
+                "lib/services/Presence.js",
+                "index.js", 
+                "lib/common/Events.js", 
+                "lib/common/models/Bubble.js",
+                "lib/common/models/Channel.js",
+                "lib/common/models/Contact.js",
+                "lib/common/models/Message.js"
+            ],
             dest: "bin/jsdoc",
             options: {
                 template: "node_modules/rainbow_hub_sheets_generation/mermaidtemplate"
@@ -96,7 +111,7 @@ module.exports = function (grunt) {
                 patterns: [
                     {
                         json: {
-                            "<!--VERSION HERE-->": "<h3>Cheat Sheet Beta - NodeSdk - v<%= version %></h3>",
+                            "<!--VERSION HERE-->": "<h3>Cheat Sheet Beta - NodeSdk - v<%= pkg.version %></h3>",
                             "</div><!--MERMAID-->": "<%= nodeSdkOrder %>"
                         }
                     }
@@ -130,7 +145,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-copy-part-of-file");
   grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks("grunt-exec");
-  grunt.registerTask("default", ["clean:dist", "jsdoc2md"]);
+  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "nodesheets"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };

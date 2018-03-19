@@ -3,6 +3,52 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.38 - March 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- Node.
+
+**Others Changes**
+
+- Fix issue with token survey that blocks the process in CLI mode.
+
+- Fix issue with text messages that were not sent in UTF-8. This allows now to send Emoji to users.
+
+- Fix issue with the 'lang' of an IM that were sometimes undefined.
+
+
+### SDK for Node.JS 1.37 - March 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- Parameter `companyId` from API `createUserInCompany()` is now optional. When not set, the user is created in the company the administrator belongs.
+
+**Others Changes**
+
+- Fix issue when retrieving the list of channels.
+
+- Implements the new application authentication method allowing applications to be identified.
+
+
 ### SDK for Node.JS 1.36 - February 2018
 ---
 
