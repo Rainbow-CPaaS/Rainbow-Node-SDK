@@ -16,7 +16,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Changes**
 
-- Node.
+- New API `createCompany()` has been added in Admin API to create a new company.
 
 **Others Changes**
 
