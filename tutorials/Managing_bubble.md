@@ -4,7 +4,7 @@
 ### Preamble
 ---
 
-Using the Rainbow SDK for Node.JS, you have the possibility to create and administrate Bubbles as well as to participate to the discussion. This guide is focussed on the management of the Bubbles. If you need to know how to send and receive messages in Bubbles, have a look to the guide [Answering to Chat Messages](/#/documentation/doc/node/tutorials/answering_chat_message).
+Using the Rainbow SDK for Node.JS, you have the possibility to create and administrate Bubbles as well as to participate to the discussion. This guide is focussed on the management of the Bubbles. If you need to know how to send and receive messages in Bubbles, have a look to the guide [Answering to Chat Messages](/#/documentation/doc/node/tutorials/Answering_chat_message).
 
 
 ### Retrieve the list of existing bubbles
