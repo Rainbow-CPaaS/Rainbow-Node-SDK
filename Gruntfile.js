@@ -65,6 +65,7 @@ module.exports = function (grunt) {
                 "lib/services/Bubbles.js",
                 "lib/services/Channels.js",
                 "lib/services/Contacts.js",
+                "lib/services/Conversations.js",
                 "lib/services/Groups.js",
                 "lib/services/IM.js",
                 "lib/services/Presence.js",
@@ -72,6 +73,7 @@ module.exports = function (grunt) {
                 "lib/common/Events.js", 
                 "lib/common/models/Bubble.js",
                 "lib/common/models/Channel.js",
+                "lib/services/Conversation.js",
                 "lib/common/models/Contact.js",
                 "lib/common/models/Message.js"
             ],
