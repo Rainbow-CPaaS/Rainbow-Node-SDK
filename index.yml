@@ -19,6 +19,7 @@
   - Channel: 'ref:doc/sdk/node/api/channel.md'
   - Channels: 'ref:doc/sdk/node/api/channels.md'
   - Contact: 'ref:doc/sdk/node/api/contact.md'
+  - Conversation: 'ref:doc/sdk/node/api/conversation.md'
   - Contacts: 'ref:doc/sdk/node/api/contacts.md'
   - Events: 'ref:doc/sdk/node/api/events.md'
   - Groups: 'ref:doc/sdk/node/api/groups.md'
