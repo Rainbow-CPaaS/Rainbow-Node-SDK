@@ -3,6 +3,28 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.39 - April 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- None.
+
+**Others Changes**
+
+- Fix issue in cheets documentation where public properties where missing from the NodeSDK class.
+
+- Default guest TTL (time to live) has been set to `172800s` (48 hours) if not provied when creating an account.
+
+
 ### SDK for Node.JS 1.38 - March 2018
 ---
 

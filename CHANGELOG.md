@@ -1,7 +1,9 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
-## [1.38.0] - 2018-04-09
+
+## [1.39.0] - 2018-04-09
+- #CRRAINB-2346: Add missing type in documentation for properties
 - #CRRAINB-: Add the "createCompany" method in Admin service to create a company
 
 ## [1.38.0] - 2018-03-17
