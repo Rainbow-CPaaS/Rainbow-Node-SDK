@@ -46,13 +46,14 @@ class NodeSDK {
     start() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.start().then(function() {
+            return that._core.start().then(function() {
                 return that._core.signin(false);
             }).then(function() {
                 resolve();
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
+                //console.log("[index ] : rainbow_onrainbow_onconnectionerror : " + JSON.stringify(error));
                 that.events.publish("rainbow_onconnectionerror", error);
                 reject(error);
             });
@@ -70,7 +71,7 @@ class NodeSDK {
     startCLI() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.start(true).then(function() {
+            return that._core.start(true).then(function() {
                 resolve();
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
@@ -92,7 +93,7 @@ class NodeSDK {
     signinCLI() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.signin(false).then(function(json) {
+            return that._core.signin(false).then(function(json) {
                 resolve(json);
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
@@ -114,7 +115,7 @@ class NodeSDK {
     stop() {
         var that = this;
         return new Promise(function(resolve, reject) {
-            that._core.stop().then(function() {
+            return that._core.stop().then(function() {
                 var success = Error.OK;
                 that.events.publish("rainbow_onstopped", success);
                 resolve();
