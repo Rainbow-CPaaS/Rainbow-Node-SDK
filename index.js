@@ -130,7 +130,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property im
+     * @property {Object} im
      * @instance
      * @description
      *    Get access to the IM module
@@ -142,7 +142,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property channels
+     * @property {Object} channels
      * @instance
      * @description
      *    Get access to the Channels module
@@ -154,7 +154,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property contacts
+     * @property {Object} contacts
      * @instance
      * @description
      *    Get access to the Contacts module
@@ -166,7 +166,19 @@ class NodeSDK {
 
     /**
      * @public
-     * @property presence
+     * @property {Object} conversations
+     * @instance
+     * @description
+     *    Get access to the Conversations module
+     * @memberof NodeSDK
+     */
+    get conversations() {
+        return this._core.conversations;
+    }
+
+    /**
+     * @public
+     * @property {Object} presence
      * @instance
      * @description
      *    Get access to the Presence module
@@ -178,7 +190,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property bubbles
+     * @property {Object} bubbles
      * @instance
      * @description
      *    Get access to the Bubbles module
@@ -190,7 +202,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property groups
+     * @property {Object} groups
      * @instance
      * @description
      *    Get access to the Groups module
@@ -202,7 +214,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property events
+     * @property {Object} events
      * @instance
      * @description
      *    Get access to the Events module
@@ -214,7 +226,7 @@ class NodeSDK {
 
     /**
      * @private
-     * @property fileServer
+     * @property {Object} fileServer
      * @instance
      * @description
      *    Get access to the File Server module
@@ -226,7 +238,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property admin
+     * @property {Object} admin
      * @instance
      * @description
      *    Get access to the Admin module
@@ -238,7 +250,7 @@ class NodeSDK {
 
     /**
      * @private
-     * @property rest
+     * @property {Object} rest
      * @instance
      * @description
      *    Get access to the REST module
@@ -250,7 +262,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property settings
+     * @property {Object} settings
      * @instance
      * @description
      *    Get access to the Settings module
@@ -262,7 +274,7 @@ class NodeSDK {
     
     /**
      * @public
-     * @property state
+     * @property {String} state
      * @instance
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING)
@@ -274,7 +286,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property version
+     * @property {String} version
      * @instance
      * @description
      *      Return the version of the SDK
@@ -286,7 +298,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property connectedUser
+     * @property {Object} connectedUser
      * @instance
      * @description
      *      Return the connected user information

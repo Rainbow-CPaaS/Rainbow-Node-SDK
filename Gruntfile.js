@@ -14,6 +14,7 @@ module.exports = function (grunt) {
             { src: "lib/services/Bubbles.js", dest: "build/bubbles.md" },
             { src: "lib/services/Channels.js", dest: "build/channels.md" },
             { src: "lib/services/Contacts.js", dest: "build/contacts.md" },
+            { src: "lib/services/Conversations.js", dest: "build/conversations.md" },
             { src: "lib/services/IM.js", dest: "build/im.md" },
             { src: "lib/services/Presence.js", dest: "build/presence.md" },
             { src: "lib/services/Groups.js", dest: "build/groups.md" },
@@ -21,6 +22,7 @@ module.exports = function (grunt) {
             { src: "lib/common/models/Bubble.js", dest: "build/bubble.md" },
             { src: "lib/common/models/Channel.js", dest: "build/channel.md" },
             { src: "lib/common/models/Contact.js", dest: "build/contact.md" },
+            { src: "lib/common/models/Conversation.js", dest: "build/conversation.md" },
             { src: "lib/common/models/Message.js", dest: "build/message.md" },
             { src: "lib/common/models/Settings.js", dest: "build/settings.md" },
         ]
@@ -63,6 +65,7 @@ module.exports = function (grunt) {
                 "lib/services/Bubbles.js",
                 "lib/services/Channels.js",
                 "lib/services/Contacts.js",
+                "lib/services/Conversations.js",
                 "lib/services/Groups.js",
                 "lib/services/IM.js",
                 "lib/services/Presence.js",
@@ -70,6 +73,7 @@ module.exports = function (grunt) {
                 "lib/common/Events.js", 
                 "lib/common/models/Bubble.js",
                 "lib/common/models/Channel.js",
+                "lib/services/Conversation.js",
                 "lib/common/models/Contact.js",
                 "lib/common/models/Message.js"
             ],

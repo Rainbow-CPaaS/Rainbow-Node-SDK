@@ -19,10 +19,12 @@ class NodeSDK
 class Presence
 class IM
 class Groups
+class Conversations
 class Contacts
 class Channels
 class Bubbles
 class Admin
+Admin : Object : createCompany(string)
 Admin : Contact : createUserInCompany(string, string, string, string, string, string, boolean)
 Admin : Object : createGuestUser(string, string, string, Number)
 Admin : Object : createAnonymousGuestUser(Number)
@@ -74,6 +76,14 @@ Contacts : Object[] : getAll()
 Contacts : Contact : getContactByJid(string)
 Contacts : Contact : getContactById(string)
 Contacts : Contact : getContactByLoginEmail(string)
+Conversations : Conversation[] : sendConversationByEmail(String)
+Conversations : Conversation[] : ackAllMessages(String)
+Conversations : Conversation[] : getHistoryPage(Conversation, number)
+Conversations : Conversation : getBubbleConversation(String)
+Conversations : void : closeConversation(Conversation)
+Conversations : void : removeAllMessages(Conversation)
+Conversations : void : removeMessagesFromConversation(Conversation)
+Conversations : Conversation : getConversationById(String)
 Groups : Group : deleteGroup(Group)
 Groups : Group : updateGroupName(Group, string)
 Groups : Group : addUserInGroup(Contact, Group)
@@ -82,6 +92,10 @@ Groups : Array : getAll()
 Groups : Array : getFavoriteGroups()
 Groups : Group : getGroupById(String)
 Groups : Group : getGroupByName(String)
+IM : Conversation : getMessagesFromConversation(Conversation, Number)
+IM : Message : getMessageFromConversationById(Conversation, String)
+IM : Message : getMessageFromBubbleById(Bubble, String)
+IM : Message : sendMessageToConversation(Conversation, String, String, Object, String, String, String)
 IM : Object : sendMessageToContact(String, Contact, String, Object, String, String, String)
 IM : Object : sendMessageToJid(String, String, String, Object, String, String, String)
 IM : Object : sendMessageToBubble(String, Bubble, String, Object, String, String, String)
@@ -90,6 +104,19 @@ IM : Object : markMessageAsRead(Message)
 Presence : number : setPresenceTo(String)
 NodeSDK : void : start()
 NodeSDK : void : stop()
+NodeSDK : Object : im
+NodeSDK : Object : channels
+NodeSDK : Object : contacts
+NodeSDK : Object : conversations
+NodeSDK : Object : presence
+NodeSDK : Object : bubbles
+NodeSDK : Object : groups
+NodeSDK : Object : events
+NodeSDK : Object : admin
+NodeSDK : Object : settings
+NodeSDK : String : state
+NodeSDK : String : version
+NodeSDK : Object : connectedUser
 Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
@@ -161,20 +188,28 @@ Contact : string : status
 Contact : Object[] : resources
 Message : string : id
 Message : string : fromJid
+Message : Side : side
 Message : string : resource
+Message : Date : date
 Message : string : toJid
 Message : string : type
 Message : string : content
+Message : ReceiptStatus : receiptStatus
 Message : string : lang
+Message : string : fileId
 Message : Boolean : cc
 Message : string : cctype
 Message : Boolean : isEvent
 Message : string : event
 Message : Object[] : alternativeContent
+Message : boolean : isMarkdown
 Message : string : subject
 Message : Object : oob
 Message : string : fromBubbleJid
 Message : string : fromBubbleUserJid
+Message : number : Type
+Message : number : ReceiptStatus
+Message : string : Side
 @@</div><!--MERMAID-->
 
 <footer>
