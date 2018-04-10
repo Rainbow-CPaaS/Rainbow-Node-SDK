@@ -16,7 +16,9 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Changes**
 
-- None.
+- New Conversations API (beta), allow to retrieve all conversations messages.
+- Promote to moderator or downgrade a user in bubbles
+- Allow to change change bubble owner
 
 **Others Changes**
 

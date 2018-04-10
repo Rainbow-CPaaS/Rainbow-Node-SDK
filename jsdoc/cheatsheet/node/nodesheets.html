@@ -12,6 +12,7 @@
 classDiagram
 class Message
 class Contact
+class Conversation
 class Channel
 class Bubble
 class Events
@@ -161,6 +162,31 @@ Channel : string : title
 Channel : string : creator
 Channel : string : creationDate
 Channel : number : users_count
+Conversation : string : id
+Conversation : string : dbId
+Conversation : ConversationType : type
+Conversation [1] --> [1] Contact
+Conversation : Contact : contact
+Conversation [1] --> [1] Bubble
+Conversation : Bubble : bubble
+Conversation : Object : capabilities
+Conversation : Object : avatar
+Conversation : string : filterName
+Conversation : number : missedCounter
+Conversation : number : missedCalls
+Conversation : Message[] : messages
+Conversation : ConversationStatus : status
+Conversation : Boolean : historyComplete
+Conversation : Date : lastModification
+Conversation : Date : creationDate
+Conversation : string : lastMessageText
+Conversation : string : lastMessageSender
+Conversation : Call : videoCall
+Conversation : Call : audioCall
+Conversation : ConferenceSession : pstnConferenceSession
+Conversation : ConferenceSession : webConferenceSession
+Conversation : number : Type
+Conversation : Object : Status
 Contact : string : id
 Contact : string : displayName
 Contact : string : companyName
