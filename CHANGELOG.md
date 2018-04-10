@@ -6,6 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #CRRAINB-2346: Add missing type in documentation for properties
 - #CRRAINB-: Add the "createCompany" method in Admin service to create a company
 - #RQRAINB-859: CPAAS / SDK NodeJS / Add API Conversation
+- #CRRAINB-2357: CPAAS / SDK Node / Promote to moderator in bubbles - Change owner
 
 ## [1.38.0] - 2018-03-17
 - #CRRAINB-2123: The 'lang' of an IM is sometimes undefined
