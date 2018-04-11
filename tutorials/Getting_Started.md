@@ -219,7 +219,7 @@ In order to detect it the connection has been done successfully or not, you have
 rainbowSDK.events.on(<name_of_the_event_to_listen>, callback);
 ```
 
-So, in our HelloWorld application you can subscribe to the `rainbow_onready` event to be sure that all is correct and to the `rainbow_onerror` to detect if something goes wrong. Don't hesitate to subscribe to others events if you want more information of what's happening. Have a look on the guide [Connecting to Rainbow](/#/documentation/doc/node/tutorials/Connecting_to_Rainbow). 
+So, in our HelloWorld application you can subscribe to the `rainbow_onready` event to be sure that all is correct and to the `rainbow_onerror` to detect if something goes wrong. Don't hesitate to subscribe to others events if you want more information of what's happening. Have a look on the guide [Connecting to Rainbow](/#/documentation/doc/sdk/node/guides/Connecting_to_Rainbow). 
 
 
 ```js

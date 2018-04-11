@@ -124,13 +124,13 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Replaced the `Jid` by the `Jid/resource` when sending a P2P message to avoid crash when connected twice with the same account.
 
-- Fix typo in guide [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts) with API `getContactByLoginEmail()` that returns an array and not the contact directly. API documentation has been updated too.
+- Fix typo in guide [Managing Contacts](/#/documentation/doc/sdk/node/guides/Managing_contacts) with API `getContactByLoginEmail()` that returns an array and not the contact directly. API documentation has been updated too.
 
 - Update FOSS `ws` in order to avoid a DOS attack and FOSS `request` to be aligned with the latest available version.
 
-- Add better explanation in guides [Getting started](/#/documentation/doc/node/tutorials/Getting_Started) and [Connecting to Rainbow](/#/documentation/doc/node/tutorials/Connecting_to_Rainbow) on configuration parameters.
+- Add better explanation in guides [Getting started](/#/documentation/doc/sdk/node/guides/Getting_Started) and [Connecting to Rainbow](/#/documentation/doc/sdk/node/guides/Connecting_to_Rainbow) on configuration parameters.
 
-- Describe APIs `sendMessageToJid()` and `sendMessageToBubbleJid()` on how to send messages in guide [Answering chat messages](/#/documentation/doc/node/tutorials/Answering_chat_message).
+- Describe APIs `sendMessageToJid()` and `sendMessageToBubbleJid()` on how to send messages in guide [Answering chat messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message).
 
 
 ### SDK for Node.JS 1.34 - December 2017
@@ -144,7 +144,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **Bugs**
 
-- Some minor typos corrections have been done on the guide [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts).
+- Some minor typos corrections have been done on the guide [Managing Contacts](/#/documentation/doc/sdk/node/guides/Managing_contacts).
 
 - A fix has been done on the token renewal mechanism to manage the new token duration and renew process.
 
@@ -156,7 +156,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New service `Channels` to send messages to a large number of users.
 
-- New guide [Managing Channels](/#/documentation/doc/node/tutorials/Managing_channels) has been added to explain how to create channels and publish messages.
+- New guide [Managing Channels](/#/documentation/doc/sdk/node/guides/Managing_channels) has been added to explain how to create channels and publish messages.
 
 
 **API**
@@ -188,9 +188,9 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - New service `Groups` to organize contacts has been added.
 
-- New guide [Managing Groups](/#/documentation/doc/node/tutorials/Managing_groups) has been added to explain how to have create groups and add users in.
+- New guide [Managing Groups](/#/documentation/doc/sdk/node/guides/Managing_groups) has been added to explain how to have create groups and add users in.
 
-- Updating guide [Answering Chat Messages](/#/documentation/doc/node/tutorials/Answering_chat_message) to list the Markdown tags unofficially supported by the Rainbow Web client.
+- Updating guide [Answering Chat Messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message) to list the Markdown tags unofficially supported by the Rainbow Web client.
 
 
 **API**
@@ -218,9 +218,9 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Date and timestamp have been added to console and file loggers.
 
-- New tutorial [Managing Contacts](/#/documentation/doc/node/tutorials/Managing_contacts) has been added to explain how to have retrieve the user's network or find for Rainbow contacts.
+- New tutorial [Managing Contacts](/#/documentation/doc/sdk/node/guides/Managing_contacts) has been added to explain how to have retrieve the user's network or find for Rainbow contacts.
 
-- Guide [Answering to Chat Messages](/#/documentation/doc/node/tutorials/Answering_chat_message) has been updated to explain the specific messages that can be received by members when the affiliation of a specific member changes.
+- Guide [Answering to Chat Messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message) has been updated to explain the specific messages that can be received by members when the affiliation of a specific member changes.
 
 
 **API**
@@ -248,7 +248,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **SDK**
 
-- New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/node/tutorials/Managing_bubble)
+- New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/sdk/node/guides/Managing_bubble)
 
 
 **API**
@@ -278,9 +278,9 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Data models used by the SDK (Contact, Bubble and Message) as well as events parameters have been documented.
 
-- New tutorials have been added to explain some of key concepts: [Answering chat messages](/#/documentation/doc/node/tutorials/Answering_chat_message), [Debugging](/#/documentation/doc/node/tutorials/Debugging) and [Managing Proxy](/#/documentation/doc/node/tutorials/Proxy)
+- New tutorials have been added to explain some of key concepts: [Answering chat messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message), [Debugging](/#/documentation/doc/sdk/node/guides/Debugging) and [Managing Proxy](/#/documentation/doc/sdk/node/guides/Proxy)
 
-- New tutorials has been added to explain how to manage and create users and guests: [Managing Users and Guests](/#/documentation/doc/node/tutorials/Managing_users)
+- New tutorials has been added to explain how to manage and create users and guests: [Managing Users and Guests](/#/documentation/doc/sdk/node/guides/Managing_users)
 
 - The number of log files is now limited to 10 files (one file per day) then the oldest one is overwritten.
 
@@ -316,7 +316,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - Version of the SDK for Node.JS, version of Node.JS and version from other Node.JS components have been added to the log file to help debugging Node.JS application.
 
-- New tutorial [`Connecting to Rainbow`](/#/documentation/doc/node/tutorials/Connecting_to_Rainbow) has been written to help understanding the SDK for Node.JS lifecycle.
+- New tutorial [`Connecting to Rainbow`](/#/documentation/doc/sdk/node/guides/Connecting_to_Rainbow) has been written to help understanding the SDK for Node.JS lifecycle.
 
 
 **API**
