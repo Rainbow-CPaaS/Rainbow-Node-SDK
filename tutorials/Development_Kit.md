@@ -1,29 +1,29 @@
 
 
-## Resources
+## Development Kit
 
 ---
 
 The Rainbow SDK for Node.JS contains:
 
-- A JavaScript node module: This module has to be included in your application.
+- A JavaScript node.js module: This module has to be included in your application.
 
 - Several starter kit applications to demonstrate how to use the SDK for Node library.
 
 - An API documentation that describes the available APIs (that you can call from your application) and that contains some tutorials explaining the fundamentals parts.
 
-### JavaScript SDK module
+### Node.JS SDK module
 
 ---
 
-The Node SDK is available either from [npm](https://www.npmjs.com/package/rainbow-node-sdk) or via [Github](https://github.com/Rainbow-CPaaS/StarterKit-SDKNodeJS). See the [Getting Started](/#/documentation/doc/sdk/node/guides/Getting_Started) guide to understand how to load it. 
+The Node.JS SDK is available either from [npm](https://www.npmjs.com/package/rainbow-node-sdk) or via [Github](https://github.com/Rainbow-CPaaS/StarterKit-SDKNodeJS). See the [Getting Started](/#/documentation/doc/sdk/node/guides/Getting_Started) guide to understand how to load it. 
 
 
 ### Starter kits
 
 ---
 
-In order to simplify the SDK for Node.JSAPI development, some project or starter kit are available on Github.
+In order to simplify the SDK for Node.JS API development, some project or starter kit are available on Github.
 
 | Content | Link to project | Description |
 :---------------- | :------------: | :--------:

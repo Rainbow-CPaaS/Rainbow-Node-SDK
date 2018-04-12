@@ -10,7 +10,7 @@
   - Managing groups: 'ref:doc/sdk/node/guides/Managing_groups.md'
   - Managing channels: 'ref:doc/sdk/node/guides/Managing_channels.md'
   - Using a proxy: 'ref:doc/sdk/node/guides/Proxy.md'
-  - Resources: 'ref:doc/sdk/node/guides/Resources.md' 
+  - Development Kit: 'ref:doc/sdk/node/guides/Development_Kit.md' 
   - Debugging: 'ref:doc/sdk/node/guides/Debugging.md'
 - SDK FOR NODEJS APIs:
   - SDK: 'ref:doc/sdk/node/api/sdk.md'
