@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.xx.x] - 2018-04-
+- #RQRAINB-910: CPAAS / SDK Node / refactor in IM service the APIs "sendMessageToConversation, sendMessageToContact, sendMessageToJid, sendMessageToBubble, sendMessageToBubbleJid" to return a Promise with the message sent, or null in case of error, as parameter of the resolve
+
 ## [1.39.1] - 2018-04-12
 - #CRRAINB-2373: Conversation creation too verbose
 
