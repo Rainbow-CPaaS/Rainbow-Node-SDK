@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.39.2] - 2018-04-18
+- #CRRAINB-2405: Roster subscription no more taken into account
+
 ## [1.39.1] - 2018-04-12
 - #CRRAINB-2373: Conversation creation too verbose
 
