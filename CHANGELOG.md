@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.39.4]
+- #CRRAINB-916: Add sitemap indexation
+
 ## [1.39.3] - 2018-04-18
 - #CRRAINB-2413: Roster removing no more taken into account
 
