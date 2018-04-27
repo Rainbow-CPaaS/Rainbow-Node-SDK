@@ -308,6 +308,19 @@ class NodeSDK {
         return this._core.rest.account;
     }
 
+    /**
+     * @public
+     * @property {Object} admin
+     * @instance
+     * @description
+     *    Get access to the Admin module
+     * @memberof NodeSDK
+     */
+    get telephony() {
+        return this._core.telephony;
+    }
+
+
 }
 
 module.exports = NodeSDK;
