@@ -3,6 +3,27 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.40 - May 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- APIs `sendMessageToConversation()`, `sendMessageToContact()`, `sendMessageToJid()`, `sendMessageToBubble()` and `sendMessageToBubbleJid()` have been changed to Promise based methods in order to give the hand to the application only once the action has really been done.
+- Improvement in Promise treatment and error handling - Explicit documentation on Promises
+
+**API Changes**
+
+- None.
+
+**Others Changes**
+
+- None.
+
+
 ### SDK for Node.JS 1.39 - April 2018
 ---
 

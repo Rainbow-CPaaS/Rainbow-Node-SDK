@@ -2,8 +2,14 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.xx.x] - 2018-04-
+## [1.40.1] - 2018-05-03
+- Add internal admin getCompanyById method
+
+## [1.40.0] - 2018-05-02
 - #RQRAINB-910: CPAAS / SDK Node / refactor in IM service the APIs "sendMessageToConversation, sendMessageToContact, sendMessageToJid, sendMessageToBubble, sendMessageToBubbleJid" to return a Promise with the message sent, or null in case of error, as parameter of the resolve
+- #CRRAINB-2413: Roster removing no more taken into account
+- #CRRAINB-2405: Roster subscription no more taken into account
+- Improvement in Promise treatment and error handling - Explicit documentation on Promises
 
 ## [1.39.1] - 2018-04-12
 - #CRRAINB-2373: Conversation creation too verbose
