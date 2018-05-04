@@ -12,4 +12,5 @@ doc:
 	cp build/*.md doc/sdk/node/api && \
 	mkdir -p doc/sdk/node/guides && \
 	cp tutorials/*.md doc/sdk/node/guides && \
-	cp index.yml doc/sdk/node
+	cp index.yml doc/sdk/node && \
+	cp sitemap.xml doc/sdk/node
