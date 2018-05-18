@@ -2,6 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.40.2] - 2018-05-18
+- Fix Object assign upper case
+- Add missing Date in live received message, and from in sent message
+
 ## [1.40.1] - 2018-05-03
 - Add internal admin getCompanyById method
 
