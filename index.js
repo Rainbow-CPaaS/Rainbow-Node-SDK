@@ -48,8 +48,8 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.start().then(function() {
                 return that._core.signin(false);
-            }).then(function() {
-                resolve();
+            }).then(function(result) {
+                resolve(result);
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
