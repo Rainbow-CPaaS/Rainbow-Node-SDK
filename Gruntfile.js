@@ -136,6 +136,9 @@ module.exports = function (grunt) {
     exec: {
         renderNodeSheets: {
             cmd: "node puppeteer.js node"
+        },
+        sitemapGeneration: {
+            cmd: "node sitemap_generation.js"
         }
     }
 });
@@ -149,7 +152,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-copy-part-of-file");
   grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks("grunt-exec");
-  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "nodesheets"]);
+  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
