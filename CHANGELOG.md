@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.41.1] - 2018-05-30
+- Fix multiple presence subscription
+
 ## [1.41.0] - 2018-05-28
 - #CRRAINB-2672: Update contacts information with getAll.
 - Add contact avatar property
