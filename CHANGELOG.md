@@ -4,6 +4,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 ## [1.41.0] - 2018-05-28
 - #CRRAINB-2672: Update contacts information with getAll.
+- Add contact avatar property
+- Add additional header for analytics
 
 ## [1.40.2] - 2018-05-18
 - Fix Object assign upper case
