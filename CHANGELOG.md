@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.41.2] - 2018-05-30
+- Remove default values under models objects
+
 ## [1.41.1] - 2018-05-30
 - Fix multiple presence subscription
 
