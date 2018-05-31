@@ -12,16 +12,17 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Breaking Changes**
 
-- None.
+- starting version 1.41, api `Contact.getAll()`  returns now all contacts who where in conversation since the SDK starts (cache),
+contacts may not up to date if not in user roster.
 
 **API Changes**
 
 - Add contact avatar property
+- Api `Contact.getRosters()` has been added to retrieve the fixed list contacts who are in the network of the connected user.
 
 **Others Changes**
 
 - Fix contacts refresh on contact profile update
-- Add additional header for analytics
 
 ### SDK for Node.JS 1.40 - May 2018
 ---
