@@ -19,6 +19,7 @@ contacts may not up to date if not in user roster.
 
 - Add contact avatar property
 - Api `Contact.getRosters()` has been added to retrieve the fixed list contacts who are in the network of the connected user.
+- Api `Contacts.joinContacts()` has been added to join together, by an admin, contacts from the same or several companies but manageable by the admin.
 
 **Others Changes**
 
