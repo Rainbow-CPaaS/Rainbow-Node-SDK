@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.41.4] - 2018-06-05
+- Fix #CRRAINB-2766: log files name is not correct
+
 ## [1.41.3] - 2018-05-30
 - Set getRosters() as public
 - Add Contacts.joinContacts admin API
