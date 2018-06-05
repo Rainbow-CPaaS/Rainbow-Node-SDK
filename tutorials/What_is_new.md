@@ -24,6 +24,7 @@ contacts may not up to date if not in user roster.
 **Others Changes**
 
 - Fix contacts refresh on contact profile update
+- Fix issue on Log files name
 
 ### SDK for Node.JS 1.40 - May 2018
 ---
