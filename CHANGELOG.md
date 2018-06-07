@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.41.6] - 2018-06-07
+- Fix documentation
+
 ## [1.41.5] - 2018-06-06
 - Fix race condition on bubble deletion
 
