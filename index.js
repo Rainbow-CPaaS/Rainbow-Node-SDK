@@ -237,6 +237,18 @@ class NodeSDK {
     }
 
     /**
+     * @private
+     * @property {Object} fileStorage
+     * @instance
+     * @description
+     *    Get access to the File Storage module
+     * @memberof NodeSDK
+     */
+    get fileStorage() {
+        return this._core.fileStorage;
+    }
+
+    /**
      * @public
      * @property {Object} admin
      * @instance
