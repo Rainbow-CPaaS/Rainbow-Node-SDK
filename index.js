@@ -53,7 +53,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                //console.log("[index ] : rainbow_onrainbow_onconnectionerror : " + JSON.stringify(error));
+                console.log("[index ] : rainbow_onrainbow_onconnectionerror : " , JSON.stringify(error));
                 that.events.publish("rainbow_onconnectionerror", error);
                 reject(error);
             });
