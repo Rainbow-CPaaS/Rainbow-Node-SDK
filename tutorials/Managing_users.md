@@ -132,7 +132,7 @@ Guest accounts can be used when you need to interact temporarily with a end-user
 
 An example could be when a end-user visits you web site and wants to discuss with someone (in chat, audio or video). In that case, you will not create a new Rainbow account because in one hand the user is not identified and in the other hand, once the conversation is finished, the user will quit the website and perhaps never comes again.
 
-Guest accounts have a TTL (time to live). Once expired, these accounts can connect to Rainbow anymore (requests of service will fail). 
+Guest accounts have a TTL (time to live). Once expired, these accounts cannot connect to Rainbow anymore (requests of service will fail). 
 
 
 #### Basic creation
