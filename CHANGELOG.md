@@ -2,8 +2,33 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.42.0] - 2018-06-xx
+- #CRRAINB-2838 - Event rainbow_onbubbleaffiliationchanged cand be fired
+- #CRRAINB-2840 Request created from: Random behaviour to join a second time a nodejs user.
+
+## [1.41.6] - 2018-06-07
+- Fix documentation
+
+## [1.41.5] - 2018-06-06
+- Fix race condition on bubble deletion
+
+## [1.41.4] - 2018-06-05
+- Fix #CRRAINB-2766: log files name is not correct
+
+## [1.41.3] - 2018-05-30
+- Set getRosters() as public
+- Add Contacts.joinContacts admin API
+
+## [1.41.2] - 2018-05-30
+- Remove default values under models objects
+
+## [1.41.1] - 2018-05-30
+- Fix multiple presence subscription
+
 ## [1.41.0] - 2018-05-28
 - #CRRAINB-2672: Update contacts information with getAll.
+- Add contact avatar property
+- Add additional header for analytics
 
 ## [1.40.2] - 2018-05-18
 - Fix Object assign upper case
