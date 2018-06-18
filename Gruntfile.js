@@ -104,7 +104,8 @@ module.exports = function (grunt) {
                 {expand: true, cwd: "./jsdoc", src: ["cheatsheet/node/**/*.html"], dest: "bin/jsdoc/sheets", filter: "isFile"},
                 {expand: true, cwd: "./jsdoc", src: ["cheatsheet/node/**/*.css"], dest: "bin/jsdoc/sheets", filter: "isFile"},
                 {expand: true, cwd: "./jsdoc", src: ["cheatsheet/assets/**/*.*"], dest: "bin/jsdoc/sheets", filter: "isFile"},
-                {expand: true, cwd: "./node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"}               
+                {expand: true, cwd: "./node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"},
+                {expand: true, cwd: "./node_modules/rainbow_hub_sheets_generation/node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"}               
             ]
         }
     },
