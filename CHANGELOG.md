@@ -2,10 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.42.0] - 2018-06-xx
+## [1.42.0] - 2018-06-20
 - #CRRAINB-2838 - Event rainbow_onbubbleaffiliationchanged cand be fired
 - #CRRAINB-2840 Request created from: Random behaviour to join a second time a nodejs user.
-- add telephony API for Alpha tests
+- add Telephony API for Alpha tests
 
 ## [1.41.6] - 2018-06-07
 - Fix documentation
