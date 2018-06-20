@@ -319,7 +319,7 @@ contacts may not up to date if not in user roster.
 
 **SDK**
 
-- Provisionning and managing users can now be done using the SDK for Node.JS.
+- Provisioning and managing users can now be done using the SDK for Node.JS.
 
 - Data models used by the SDK (Contact, Bubble and Message) as well as events parameters have been documented.
 
