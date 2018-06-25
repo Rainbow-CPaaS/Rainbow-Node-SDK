@@ -1,6 +1,9 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+## [1.42.3] - 2018-06-25
+- Add Chatstate events support (reception)
+
 ## [1.42.2] - 2018-06-21
 - Fix Winston logger dependency : revert to winston 2.4.2
 
