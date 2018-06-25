@@ -277,7 +277,7 @@ class NodeSDK {
      * @property {String} state
      * @instance
      * @description
-     *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING)
+     *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
      * @memberof NodeSDK
      */  
     get state() {
