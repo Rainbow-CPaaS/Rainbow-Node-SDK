@@ -74,6 +74,6 @@
     "uuid4": "1.0.0",
     "winston": "2.4.2",
     "winston-daily-rotate-file": "3.2.0",
-    "ws": "^5.2.0"
+    "ws": "^5.2.1"
   }
 }
