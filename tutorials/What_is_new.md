@@ -17,6 +17,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 **API Changes**
 
 - Add Telephony API (alpha)
+- Add Chatstate events support (reception)
 
 **Others Changes**
 
