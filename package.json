@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "1.42.2",
+  "version": "1.42.3",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "scripts": {
@@ -72,8 +72,8 @@
     "unirest": "0.5.1",
     "uuid": "^3.2.1",
     "uuid4": "1.0.0",
-    "winston": "3.0.0",
-    "winston-daily-rotate-file": "3.2.1",
-    "ws": "^5.2.0"
+    "winston": "^3.0.0",
+    "winston-daily-rotate-file": "^3.2.1",
+    "ws": "^5.2.1"
   }
 }
