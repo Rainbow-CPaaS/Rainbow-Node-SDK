@@ -70,7 +70,7 @@
     "request": "^2.87.0",
     "sasl-digest-md5": "^0.1.0",
     "unirest": "0.5.1",
-    "uuid": "^3.2.1",
+    "uuid": "^3.3.0",
     "uuid4": "1.0.0",
     "winston": "^3.0.0",
     "winston-daily-rotate-file": "^3.2.1",
