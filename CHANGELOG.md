@@ -1,6 +1,14 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+## [1.42.3] - 2018-07-12
+- Update to winston logger library with correction of issues
+- Improvement of the reconnection when the getRoster from serveur does not get an answer.
+- Remove old application authentication
+- Correction of Telephony (Still in Alpha)
+- Correction of typo 
+- When send a message (im.sendxxx) parse the jid if it is a fullJid to keep the needed part.
+
 ## [1.42.3] - 2018-06-25
 - Add Chatstate events support (reception)
 - RESTService.js : add checkEveryPortals called from (checkPortalHealth) to wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready.
