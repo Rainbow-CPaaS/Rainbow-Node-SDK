@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.43.1] - 2018-07-13
+- Fix old node 6.x support
+
 ## [1.43.1] - 2018-07-12
 - Update to winston logger library with correction of issues
 - Improvement of the reconnection when the getRoster from serveur does not get an answer.
