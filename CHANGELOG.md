@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.43.3] - 2018-07-19
+- Add Application and multidomain management
+
 ## [1.43.2] - 2018-07-13
 - Fix old node 6.x support
 
