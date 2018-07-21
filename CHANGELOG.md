@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.43.4] - 2018-07-21
+- Fix Rotary file logger
+
 ## [1.43.3] - 2018-07-19
 - Add Application and multidomain management
 
