@@ -3,6 +3,24 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.44 - August 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- Due to data privacy improvements and compliances, Rainbow platform will introduce breaking changes in the way data associated to users are located around the world in one hand and the way users connect to the platform in other hand. Consequently, any SDK for Node.JS prior to version 1.44 are entered deprecation period and will no more work once Rainbow platform 1.47 will be deployed on production (starting Sept, 30th)”. Before Sept’30, your application has to migrate to SDK for Node.JS version 1.44 at least in order for your application to continue to work after this date.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- None
+
+**Others Changes**
+
+
 ### SDK for Node.JS 1.43 - July 2018
 ---
 
