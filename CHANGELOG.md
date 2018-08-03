@@ -4,6 +4,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 ## [1.44.0] - 2018-XX-XX
 - Add 3-release SDK breaking changes notice.
+- #CRRAINB-3176:Request created from: NodeJS SDK documentation
 
 ## [1.43.4] - 2018-07-21
 - Fix Rotary file logger
