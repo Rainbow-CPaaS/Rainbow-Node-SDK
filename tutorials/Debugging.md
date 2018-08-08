@@ -29,12 +29,15 @@ Note: This information is displayed in logs.
 The SDK for Node.JS lets you configuring how you want to get the logs. You can define to have access to logs from the console, from a file or from both.
 
 
-#### Logging to the console
+#### Console logger
 ---
 
-By default, the Rainbow SDK for Node.js logs to the shell console used (ie. the sheel console that starts the Node.js process).
+##### Activate - deactivate logger
+---
 
-You can disable it by setting the parameter `enableConsoleLogs` to false.
+By default, the Rainbow SDK for Node.js logs to the shell console used (ie. the shell console that starts the Node.js process).
+
+You can disable it by setting the parameter `enableConsoleLogs` to `false`.
 
 
 ```js
@@ -47,15 +50,39 @@ logs: {
 
 ```
 
-Using the console logs, all logs are displayed. There is no filter.
+When using the console logger, all logs are displayed. There is no way to filter messages.
 
 
-#### Logging to files
+##### Colors
 ---
 
-By default, the Rainbow SDK for Node.JS don't log information to a file, only to the console.
+Starting the SDK for Node.JS 1.43, you can add the parameter `color` to your console `logs` section in order for the console logger to write messages using different colors.
 
-You can save these logs into a file by setting the parameter `enableFileLogs` to true. (False by default).
+```js
+
+...
+logs: {
+    "color": true,
+    "enableConsoleLogs": true,
+    ...
+}
+
+```
+
+By default, console logger is configured with `color:false`.
+
+
+#### Files logger
+---
+
+##### Activate - deactivate logger
+---
+
+By default, the Rainbow SDK for Node.JS don't log information to a file, only to the console logger.
+
+You can activate the file logger by setting the parameter `enableFileLogs` to `true`. (`false` by default).
+
+The file logger stores logs into separate files by using a rotating mechanism.
 
 
 ```js
@@ -67,6 +94,9 @@ logs: {
 }
 
 ```
+
+##### Path and level
+---
 
 You can modify the path where the logs are saved and the log level by modifying the parameter `file` like the following:
 
@@ -86,7 +116,17 @@ logs: {
 
 The available log levels are: `error`, `warn`, `info` and `debug`
 
-Each day a new file is created. A maximum of 10 files can be generated, then the oldest one is overwritten to add the new logs which means that the oldest logs (written 10 days ago) are lost. 
+
+#### Disk usage
+---
+
+Starting SDK Node.JS version 1.43, new options can be added to the file logger to minimize the size of files:
+
+- `zippedArchive`: Setting this parameter to `true` will zip the file once written on disk.
+
+- `maxSize`: Setting this parameter will rectrict the size of each log file. This is the maximum size of the file after which it will rotate. This can be a number of bytes, or units of kb, mb, and gb. If using the units, add 'k', 'm', or 'g' as the suffix. The units need to directly follow the number. When not set, this value is `'10m'` which means that the maximum size of the file is 10 MB.
+
+- `maxFiles`: Setting this parameter will restrict the number of files written on the disk. This is the maximum number of logs to keep. If not set, no logs will be removed. This can be a number of files or number of days. If using days, add 'd' as the suffix. When not set, this value is `10` which means that a maximum of 10 files are kept.
 
 
 ### Retrieving information in logs
@@ -150,4 +190,4 @@ When contacting the support, don't forget to add all these information. Copy/Pas
 
 ---
 
-_Last updated September, 11th 2017_
+_Last updated July, 12th 2018_

@@ -3,6 +3,26 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.44 - August 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- GPRD: Contacts fields loginEmail and roles have to be deprecated and removed from contact object. We are working with Legals and Architects, in order to offers the best appropriate alternative.
+
+- Due to data privacy improvements and compliances, Rainbow platform will introduce breaking changes in the way data associated to users are located around the world in one hand and the way users connect to the platform in other hand. Consequently, any SDK for Node.JS prior to version 1.44 are entered deprecation period and will no more work once Rainbow platform 1.47 will be deployed on production (starting Sept, 30th)”. Before Sept’30, your application has to migrate to SDK for Node.JS version 1.44 at least in order for your application to continue to work after this date.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- None
+
+**Others Changes**
+
+
 ### SDK for Node.JS 1.43 - July 2018
 ---
 
@@ -18,10 +38,13 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 - None
 
-
 **Others Changes**
 
-- See Fixes in changelog
+- Logs printed to the console are now displayed in white color only. To activate colors, you have to manually add the parameter `color: true` to the `logs` section of your configuration parameter.
+
+- In order to save free disk space, logs files can be archived by adding the parameter `zippedArchive: true` to the `file` section of your configuration parameter. Adding parameters `maxSize: '10m'` and `maxFiles: 10` allow to limit disk usage used. See guide [Debugging](/#/documentation/doc/sdk/node/guides/Debugging) to have more information on how to configure these parametes.
+
+- Enhance authentication and reconnection mechanisms to set the `connected` state only when Rainbow connection is fully established.
 
 
 ### SDK for Node.JS 1.42 - June 2018
@@ -45,6 +68,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 - Fix user joining twice
 - Fix Bubble change notification
 
+
 ### SDK for Node.JS 1.41 - June 2018
 ---
 
@@ -54,7 +78,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Breaking Changes**
 
-- starting version 1.41, api `Contact.getAll()`  returns now all contacts who where in conversation since the SDK starts (cache),
+- Starting version 1.41, api `Contact.getAll()`  returns now all contacts who where in conversation since the SDK starts (cache),
 contacts may not up to date if not in user roster.
 
 **API Changes**
@@ -171,7 +195,7 @@ contacts may not up to date if not in user roster.
 
 - Due to optimizations added on the service Channels, the **Rainbow SDK Node.JS 1.35 and prior will not be able to manage channels anymore starting Rainbow 1.36**. You need to update to this version to use this service. Note: Channels APIs are still in *beta*, the deprecation policy doesn't apply here.
 
-- To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `getUsersFromChannel()` has to be used to retrieve the list of users in a channel. 
+- To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `getUsersFromChannel()` has to be used to retrieve the list of users in a channel.
 
 - In order to have an homogeneous way of working, the following API `getContactByLoginEmail()`, `getContactById()`, `getContactsByJid()` now return the contact found directly and `null` if not found. API `getContactByLoginEmail()` will no more return a JavaScript `Array` object when the contact was not found locally. API `getContactById()`, `getContactsByJid()` will no more return an error (catch) when the contact is not found.
 
@@ -193,7 +217,7 @@ contacts may not up to date if not in user roster.
 
 - Avoid crash when evaluating XMPP connection error.
 
-- Avoid crash on network lost and try to reconnect. Application needs to listen the event `rainbow_onerror`. This event is triggered when the SDK fails to reconnect automatically. In that case, the application has to manually call the API `stop()` and `start()` to be able to try to reconnect to the SDK. 
+- Avoid crash on network lost and try to reconnect. Application needs to listen the event `rainbow_onerror`. This event is triggered when the SDK fails to reconnect automatically. In that case, the application has to manually call the API `stop()` and `start()` to be able to try to reconnect to the SDK.
 
 - When trying to reconnect to Rainbow REST APIs, the SDK for Node.JS will now made up to **50** attempts instead of 30 and the max time between 2 attempts has been set to **60s** as for the XMPP part.
 
@@ -327,7 +351,7 @@ contacts may not up to date if not in user roster.
 
 - `signinCLI()` method now waits for the internal Promise based function to resolve
 
-- Fix issue when re-inviting a user who has declined a bubble invitation 
+- Fix issue when re-inviting a user who has declined a bubble invitation
 
 
 ### SDK for Node.JS 1.30 - September 2017
@@ -349,7 +373,7 @@ contacts may not up to date if not in user roster.
 
 - Remove limitation of the `getAll()` Bubbles that was fixed to 100. Now this API retrieves all bubbles of the connected user.
 
-- Avoid to send two times the initial presence when accepting an invitation to join the Bubble. 
+- Avoid to send two times the initial presence when accepting an invitation to join the Bubble.
 
 - Fix the resource used for the connected user.
 
@@ -487,4 +511,4 @@ contacts may not up to date if not in user roster.
 
  - [Compatibility Break] Methods `getContactByJid()` and `getContactByLoginEmail()` are now Promise based functions.
 
- 
+

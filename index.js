@@ -3,6 +3,98 @@
 var Core = require("./lib/Core");
 var Error = require("./lib/common/Error");
 
+/** 
+ * @enum { String }
+ * 
+*/
+var Type = {
+    home: "home",
+    work: "work",
+    other: "other"
+};
+
+/** 
+ * @enum { String }
+ * 
+*/
+var DeviceType = {
+    landline: "landline",
+    mobile: "mobile",
+    fax: "fax",
+    other: "other"
+};
+
+/**
+ * @typedef {Object} Email
+ * @property {String} email User email address
+ * @property {Type} type Email type, one of home, work, other
+ *
+
+ /*
+ * Phone number objects can
+ * be created by user (information filled by user),
+ * come from association with a system (pbx) device (association is done by admin).
+ * @typedef {Object} PhoneNumber
+ * @property {String} phoneNumberId Phone number unique id in directory collection.
+ * @property {String} number User phone number (as entered by user)
+ * @property {String} numberE164 User E.164 phone number, computed by server from number and country fields
+ * @property {String} country Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field.
+ * @property {Boolean} isFromSystem Boolean indicating if phone is linked to a system (pbx).
+ * @property {String} shortNumber [Only for phone numbers linked to a system (pbx)]
+ * If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG).
+ * Only usable within the same PBX.
+ * Only PCG can set this field.
+ * @property {String} internalNumber [Only for phone numbers linked to a system (pbx)]
+ * If phone is linked to a system (pbx), internal phone number.
+ * Usable within a PBX group.
+ * Admins and users can modify this internalNumber field.
+ * @property {String} systemId [Only for phone numbers linked to a system (pbx)]
+ * If phone is linked to a system (pbx), unique identifier of that system in Rainbow database.
+ * pbxId String [Only for phone numbers linked to a system (pbx)]
+ * If phone is linked to a system (pbx), unique identifier of that pbx.
+ * @property {Type} type Phone number type, one of home, work, other.
+ * @property {DeviceType} deviceType Phone number device type, one of landline, mobile, fax, other.
+ *
+
+/*
+ * @typedef {Object} ConnectedUser User corresponding to the logged in user
+ * @property {String} id
+ * @property {String} id User unique identifier
+ * @property {String} loginEmail User email address (used for login)
+ * @property {String} firstName User first name
+ * @property {String} lastName User last name
+ * @property {String} displayName User display name (firstName + lastName concatenated on server side)
+ * @property {String} nickName User nickName
+ * @property {String} title User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
+ * @property {String} jobTitle User job title
+ * @property {Email[]} emails Array of user emails addresses objects
+ * @property {PhoneNumber[]} phoneNumbers Array of user phone numbers objects.
+ * Phone number objects can
+ * be created by user (information filled by user),
+ * come from association with a system (pbx) device (association is done by admin).
+ * @property {String} country User country (ISO 3166-1 alpha3 format)
+ * @property {String} language User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported)
+ * @property {String} timezone User timezone name
+ * @property {String} jid_im User Jabber IM identifier
+ * @property {String} jid_tel User Jabber TEL identifier
+ * @property {String} jid_password User Jabber TEL identifier
+ * @property {String[]} roles List of user roles (Array of String)
+ * @property {String} adminType In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined)
+ * @property {String} companyId User company unique identifier
+ * @property {String} organisationId In addition to User companyId, optional identifier to indicate the user belongs also to an organization
+ * @property {String} siteId In addition to User companyId, optional identifier to indicate the user belongs also to a site
+ * @property {String} companyName User company name
+ * @property {Boolean} isInDefaultCompany Is user in default company
+ * Only returned if retrieved user data corresponds to logged in user or if logged in user is admin of the retrieved user
+ * @property {Boolean} isActive Is user active
+ * @property {Boolean} isInitialized Is user initialized
+ * @property {DateTime} initializationDate User initialization date
+ * @property {DateTime} activationDate User activation date
+ * @property {DateTime} creationDate User creation date
+ * @property {DateTime} lastUpdateDate Date of last user update (whatever the field updated)
+ * @property {DateTime} lastAvatarUpdateDate Date of last user avatar create/update, null if no avatar
+ */
+
 /**
  * @class
  * @name NodeSDK
@@ -298,7 +390,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} connectedUser
+     * @property {ConnectedUser} connectedUser
      * @instance
      * @description
      *      Return the connected user information
