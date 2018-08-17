@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.45.0] - 2018-08-xx
+- Correction of the telephony state when transfertcall succeed to allow a new call.
+
 ## [1.44.0] - 2018-08-03
 - Add 3-release SDK breaking changes notice.
 - #CRRAINB-3176:Request created from: NodeJS SDK documentation
