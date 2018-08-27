@@ -3,6 +3,24 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.45 - August 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- Change `Bulles.getBubbleById()` API to Get a bubble by its ID in memory and if it is not found in server
+  and then return a promise with The bubble {Bubble} found or null.
+
+**API Changes**
+
+- Add `Bulles.getBubbleByJid()` API to Get a bubble by its JID in memory and if it is not found in server. It return a promise.
+
+**Others Changes**
+
 ### SDK for Node.JS 1.44 - August 2018
 ---
 
