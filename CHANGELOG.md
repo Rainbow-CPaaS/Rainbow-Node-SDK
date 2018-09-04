@@ -2,7 +2,14 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.45.0] - 2018-08-xx
+## [1.45.1] - 2018-09-xx
+- Add Bulles::getAllBulles method witch call the getAll
+- Add Bulles::deleteAllBubbles method to remove all methods own by user logged in.
+- Add Bulles:getAllOwnedBubbles method to Get the list of bubbles created by the user
+- Add "logs.customLabel" property in config file for customize the logs 
+- Add "logs.file.customFileName" property in config file for customize the log file name.  
+
+## [1.45.0] - 2018-08-28
 - Correction of the telephony state when transfertcall succeed to allow a new call.
 - Correction of conversations.getServerConversations() method which returned an empty result.
 - Remove the check of isAdmin when api is called. It is the server who will check it.
