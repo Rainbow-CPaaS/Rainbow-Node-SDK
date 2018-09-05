@@ -12,12 +12,13 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Breaking Changes**
 
-- Change `Bulles.getBubbleById()` API to Get a bubble by its ID in memory and if it is not found in server
-  and then return a promise with The bubble {Bubble} found or null.
+- None.
 
 **API Changes**
 
-- Add `Bulles.getBubbleByJid()` API to Get a bubble by its JID in memory and if it is not found in server. It return a promise.
+- Change `Bubbles.getBubbleById()` API to Get a bubble by its ID in memory and if it is not found in server
+  and then return a promise with The bubble {Bubble} found or null.
+- Change `Bubbles.getBubbleByJid()` API to Get a bubble by its JID in memory and if it is not found in server. It return a promise.
 
 **Others Changes**
 

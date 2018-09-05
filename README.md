@@ -397,9 +397,15 @@ Accessing individually an existing bubble can be done using the API `getBubbleBy
 ```js
 
     ...
-    // Retrieve the bubble information when receiving a message in that bubble
-    let bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
+// Retrieve the bubble information when receiving a message in that bubble
+rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid).then(function(bubble) {
+    // do something with the bubble
+    ...
+}).catch(function(err) {
+    // do something if something went wrong by getting the bubble
+    ...
 });
+
 
 ```
 
