@@ -10,8 +10,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - Add "logs.file.customFileName" property in config file for customize the log file name.
 - Correction of Conversation::getBubbleConversation() who use the updated Bubbles::getBubbleByJid method
 - Add parameters to Admin::createCompany : country, state 
-                                                 
-
+- Add methods to Switch the "is typing" state in a conversation : Conversations::sendIsTypingState, IM::sendIsTypingStateInBubble, IM::sendIsTypingStateInConversation
+ 
 ## [1.45.0] - 2018-08-28
 - Correction of the telephony state when transfertcall succeed to allow a new call.
 - Correction of conversations.getServerConversations() method which returned an empty result.
