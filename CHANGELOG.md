@@ -2,7 +2,7 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.45.1] - 2018-09-xx
+## [1.45.1] - 2018-09-07
 - Add Bulles::getAllBulles method witch call the getAll
 - Add Bulles::deleteAllBubbles method to remove all methods own by user logged in.
 - Add Bulles:getAllOwnedBubbles method to Get the list of bubbles created by the user
