@@ -397,9 +397,15 @@ Accessing individually an existing bubble can be done using the API `getBubbleBy
 ```js
 
     ...
-    // Retrieve the bubble information when receiving a message in that bubble
-    let bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
+// Retrieve the bubble information when receiving a message in that bubble
+rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid).then(function(bubble) {
+    // do something with the bubble
+    ...
+}).catch(function(err) {
+    // do something if something went wrong by getting the bubble
+    ...
 });
+
 
 ```
 
@@ -685,6 +691,19 @@ let version = rainbowSDK.version;
 
 ```
 
+### Logging
+you can enable/disable the colors in logs
+
+```js
+
+...
+logs: {
+    ...
+    color: true,
+    ...
+}
+
+```
 
 ### Logging to the console
 
@@ -718,14 +737,24 @@ logs: {
 }
 ```
 
-You can modify the path where the logs are saved and the log level by modifying the parameter `file` like the following:
+You can modify :
+* path: The path where the logs are saved 
+* level: The log level.
+* zippedArchive: if true then the logs file are zipped when archived,
+* maxSize: Maximum size of the file after which it will rotate. This can be a number of bytes, or units of kb, mb, and gb. If using the units, add 'k', 'm', or 'g' as the suffix. The units need to directly follow the number. (default: null)
+* maxFiles: Maximum number of logs to keep. If not set, no logs will be removed. This can be a number of files or number of days. If using days, add 'd' as the suffix. (default: null)
+
+these parameters are in the parameter `file` like the following:
 
 ```js
 ...
 logs: {
     file: {
         path: '/var/tmp/mypath/',
-        level: 'error'
+        level: 'error',
+        zippedArchive: true,
+        maxSize: '10m',
+        maxFiles: 10
     }
 }
 

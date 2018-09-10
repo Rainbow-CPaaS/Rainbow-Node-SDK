@@ -39,13 +39,16 @@ If you know the `id` or the `JID` of an existing bubble, you can access to the i
 
 ```js
 
+...
+// Retrieve the bubble information when receiving a message from a bubble
+rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid).then(function(bubble) {
+    // do something with the bubble
     ...
-    // Retrieve the bubble information when receiving a message from a bubble
-    let bubble = rainbowSDK.bubbles.getBubbleByJid(message.fromBubbleJid);
-
-    // Do something with that bubble
+}).catch(function(err) {
+    // do something if something went wrong by getting the bubble
     ...
 });
+
 
 ```
 

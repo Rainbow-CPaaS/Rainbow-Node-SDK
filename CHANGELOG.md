@@ -2,6 +2,61 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.45.1] - 2018-09-07
+- Add Bulles::getAllBulles method witch call the getAll
+- Add Bulles::deleteAllBubbles method to remove all methods own by user logged in.
+- Add Bulles:getAllOwnedBubbles method to Get the list of bubbles created by the user
+- Add "logs.customLabel" property in config file for customize the logs 
+- Add "logs.file.customFileName" property in config file for customize the log file name.
+- Correction of Conversation::getBubbleConversation() who use the updated Bubbles::getBubbleByJid method
+- Add parameters to Admin::createCompany : country, state 
+- Add methods to Switch the "is typing" state in a conversation : Conversations::sendIsTypingState, IM::sendIsTypingStateInBubble, IM::sendIsTypingStateInConversation
+ 
+## [1.45.0] - 2018-08-28
+- Correction of the telephony state when transfertcall succeed to allow a new call.
+- Correction of conversations.getServerConversations() method which returned an empty result.
+- Remove the check of isAdmin when api is called. It is the server who will check it.
+- Refactor Bubbles::getBubbleById to Get a bubble by its ID in memory and if it is not found in server. And it now return a promise.
+- Refactor Bubbles::getBubbleByJid to Get a bubble by its JID in memory and if it is not found in server. It return a promise.
+
+## [1.44.0] - 2018-08-03
+- Add 3-release SDK breaking changes notice.
+- #CRRAINB-3176:Request created from: NodeJS SDK documentation
+- Fix Regression on Contact id
+
+## [1.43.4] - 2018-07-21
+- Fix Rotary file logger
+
+## [1.43.3] - 2018-07-19
+- Add Application and multidomain management
+
+## [1.43.2] - 2018-07-13
+- Fix old node 6.x support
+
+## [1.43.1] - 2018-07-12
+- Update to winston logger library with correction of issues
+- Improvement of the reconnection when the getRoster from serveur does not get an answer.
+- Remove old application authentication
+- Correction of Telephony (Still in Alpha)
+- Correction of typo
+- When send a message (im.sendxxx) parse the jid if it is a fullJid to keep the needed part.
+
+## [1.42.3] - 2018-06-25
+- Add Chatstate events support (reception)
+- RESTService.js : add checkEveryPortals called from (checkPortalHealth) to wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready.
+- modify logs to enable/disable color and take winston parameter (zippedArchive, maxSize, maxFiles)
+
+## [1.42.2] - 2018-06-21
+- Fix Winston logger dependency : revert to winston 2.4.2
+
+## [1.42.1] - 2018-06-20
+- Fix Winston logger dependency
+
+## [1.42.0] - 2018-06-20
+- #CRRAINB-2838 - Event rainbow_onbubbleaffiliationchanged cand be fired
+- #CRRAINB-2840 Request created from: Random behaviour to join a second time a nodejs user.
+- add Telephony API for Alpha tests
+
 ## [1.41.6] - 2018-06-07
 - Fix documentation
 
@@ -78,7 +133,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #CRRAINB-1519: Impossible to update group name
 
 ## [1.35.1] - 2018-01-12
-- #CRRAINB-1463: Fix typo in guides `Getting_Started`, `Proxy`, `Readme` and `Connecting to Rainbow` that had bad application parameters name. 
+- #CRRAINB-1463: Fix typo in guides `Getting_Started`, `Proxy`, `Readme` and `Connecting to Rainbow` that had bad application parameters name.
 
 ## [1.35.0] - 2018-01-11
 - #CRRAINB-1450: Replace JID by fullJID when sending a P2P message to avoid crash
@@ -191,13 +246,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 - #28231: Allow to send and receive additional content type like markdown
 - #28238: New tutorial "Connecting to Rainbow"
 - #28239: Add property state
-- #28299: Add subject in message 
+- #28299: Add subject in message
 
 ## [1.27.2] - 2017-06-30
 - Avoid message reception from Rainbow Bots (i.e. Emily)
 
 ## [1.27.1] - 2017-06-28
- - Fix regression in API getContactByJid() 
+ - Fix regression in API getContactByJid()
 
 ## [1.27.0] - 2017-06-26
  - Add application ID treatment
@@ -213,7 +268,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
  - #27522 Bad fix (introduce lots of regressions when no resource)
 
 ## [0.10.15] - 2017-05-23
- - [Contact] #27522 SearchByJid API doesn't return result when JID contains the resource 
+ - [Contact] #27522 SearchByJid API doesn't return result when JID contains the resource
 
 ## [0.10.14] - 2017-05-19
  - [Quality] Add eslint and fix all issues - Internal change
@@ -259,7 +314,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 ## [0.3.8] - 2017-02-21
  - [Instant Message] Emit an event when receiving a P2P chat messages from an other Rainbow user
- - [Instant Message] Send acknowledgments (Message received, Message read) when receiving a P2P message 
+ - [Instant Message] Send acknowledgments (Message received, Message read) when receiving a P2P message
 
 ## [0.0.2] - 2017-02-21
  - [Presence] Set the presence to 'online' once connected
@@ -267,4 +322,3 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 ## [0.0.1] - 2017-02-19
  - [Connection] Sign-in using the REST API, refresh the token and reconnect when needed
- 
