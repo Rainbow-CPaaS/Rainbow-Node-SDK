@@ -1,5 +1,4 @@
 declare var config: any;
-declare var angular: ng.IAngularStatic;
 declare var MD5: any;
 
 class FileState {
@@ -32,7 +31,7 @@ class Thumbnail implements IThumbnail {
 
     /**
      * @this FileDescriptor
-	 */
+     */
     constructor(data: any) {
         if (data) {
             this.availableThumbnail = data.availableThumbnail;
@@ -75,6 +74,7 @@ interface IFileDescriptor {
     //EXIF data:
     orientation: number;
 
+    isThumbnailPossible(): boolean;
     isImage(): boolean;
     isUploaded(): boolean;
     isAlreadyFileViewer(viewerId: string): boolean;
@@ -84,7 +84,7 @@ interface IFileDescriptor {
 }
 
 /**
- * @public 
+ * @public
  * @class
  * @name FileDescriptor
  * @description
@@ -121,7 +121,7 @@ class FileDescriptor implements IFileDescriptor {
 
     /**
      * @this FileDescriptor
-	 */
+     */
     constructor(
         id: string = null,
         url: string = null,
@@ -139,87 +139,87 @@ class FileDescriptor implements IFileDescriptor {
         orientation: number) {
 
         /**
-	     * @public
+         * @public
          * @property {string} id The file descriptor ID (File Descriptor only)
-	     * @readonly
-	     */
+         * @readonly
+         */
         this.id = id;
 
         /**
-	     * @public
+         * @public
          * @property {string} url The file descriptor url (File Descriptor only)
-	     * @readonly
-	     */
+         * @readonly
+         */
         this.url = url;
 
         /**
-	     * @public
+         * @public
          * @property {string} ownerId The ID of the owner (File Descriptor only)
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.ownerId = ownerId;
 
         /**
-	     * @public
+         * @public
          * @property {string} fileName The name of the file
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.fileName = fileName;
 
         /**
-	     * @public
+         * @public
          * @property {string} extension The extension of the file
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.extension = extension;
 
         /**
-	     * @public
+         * @public
          * @property {string} typeMIME The mime type of the file ('mime' in Short File Descriptor)
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.typeMIME = typeMIME;
 
         /**
-        * @public
-        * @property {ThumbnailPlaceholder} thumbnailPlaceholder The thumbnail icon placeholder info
-        * @readonly
-        */
+         * @public
+         * @property {ThumbnailPlaceholder} thumbnailPlaceholder The thumbnail icon placeholder info
+         * @readonly
+         */
         this.thumbnailPlaceholder = this.getThumbnailPlaceholderFromMimetype(typeMIME);
 
         /**
          * @public
          * @property {string} size The size of the file (octets)
          * @readonly
-        */
+         */
         this.size = size;
 
         /**
-	     * @public
+         * @public
          * @property {Object} registrationDate The creation date (File Descriptor only)
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.registrationDate = registrationDate;
 
         /**
-	     * @public
+         * @public
          * @property {Object} uploadedDate The upload date (File Descriptor only)
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.uploadedDate = uploadedDate;
 
         /**
-	     * @private
+         * @private
          * @property {Object} dateToSort The date to sort (?)
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.dateToSort = dateToSort;
 
         /**
-	     * @public
+         * @public
          * @property {any[]} viewers The list of viewers (File Descriptor only)
-	     * @readonly
-	    */
+         * @readonly
+         */
         this.viewers = viewers;
 
         this.state = state;
@@ -231,20 +231,24 @@ class FileDescriptor implements IFileDescriptor {
 
         /**
          * @public
-         * @property {number} orientation 
+         * @property {number} orientation
          * @description
-	     *      There are four possible values for orientation and the image should be rotated acording to this value. 
+         *      There are four possible values for orientation and the image should be rotated acording to this value.
          *      1 -> rotate(0deg),
          *      3 -> rotate(180deg),
          *      6 -> rotate(90deg),
          *      8 -> rotate(270deg).
-	    */
+         */
         this.orientation = orientation ? orientation : undefined;
     };
 
     public isMicrosoftFile(): boolean {
         let mediaExtension: string[] = ["docx", "doc", "ppt", "pptx", "xls", "xlsx"];
         return (mediaExtension.some((ext) => ext === this.extension));
+    };
+
+    public isThumbnailPossible(): boolean {
+        return (this.isImage() || this.isPDF() );
     };
 
     public isPDF(): boolean {
@@ -335,11 +339,10 @@ class FileDescriptor implements IFileDescriptor {
 
 function FileDescriptorFactory() {
     return (id, url, ownerId, fileName, extension, typeMIME,
-        size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation): FileDescriptor => {
-        
-            return new FileDescriptor(id, url, ownerId, fileName, extension, typeMIME,
+            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation): FileDescriptor => {
+        return new FileDescriptor(id, url, ownerId, fileName, extension, typeMIME,
             size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation);
     };
 }
 
-angular.module("rainbow").factory("fileDescriptorFactory", [FileDescriptorFactory]);
+module.exports.fileDescriptorFactory = FileDescriptorFactory;

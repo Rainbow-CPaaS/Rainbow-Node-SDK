@@ -51,6 +51,7 @@
     "sitemap": "^1.13.0"
   },
   "dependencies": {
+    "@types/node": "^10.9.4",
     "@xmpp/client": "^0.3.0",
     "@xmpp/plugins": "^0.3.0",
     "@xmpp/xml": "^0.3.0",
