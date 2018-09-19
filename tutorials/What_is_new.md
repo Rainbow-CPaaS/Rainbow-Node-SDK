@@ -3,6 +3,27 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.46 - September 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- None
+
+**Others Changes**
+
+- Fix : Token expiration
+- Add Conversations::getConversationByBubbleJid method
+- Fix : Conversations::getBubbleConversation
+
 ### SDK for Node.JS 1.45 - August 2018
 ---
 
