@@ -16,13 +16,13 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Changes**
 
-- None
+- In service **Conversations**, new method `getConversationByBubbleJid()` has been added to retrieve a conversation associated to a bubble using the JID information.
 
 **Others Changes**
 
 - Fix : Token expiration
-- Add Conversations::getConversationByBubbleJid method
 - Fix : Conversations::getBubbleConversation
+
 
 ### SDK for Node.JS 1.45 - August 2018
 ---
