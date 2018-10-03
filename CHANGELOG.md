@@ -4,6 +4,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 ## [1.46.0] - 2018-09-07
 * Add support for typescript sources in folder ./src/. see README.md in src folder to compil it.
+* Add Conversations::getConversationByBubbleJid method
+* Correction of Conversations::getBubbleConversation
+* Restore token survey process.
 
 ## [1.45.1] - 2018-09-07
 - Add Bulles::getAllBulles method witch call the getAll
