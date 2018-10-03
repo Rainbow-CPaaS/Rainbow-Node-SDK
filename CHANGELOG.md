@@ -2,6 +2,10 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+* Add debug for http request.
+* Add uploadFileToConversation to upload a file and share it in a conversation
+* Add code for fileStorage::uploadFileToBubble to upload a file and share it in a bubble 
+
 ## [1.46.0] - 2018-09-07
 * Add support for typescript sources in folder ./src/. see README.md in src folder to compil it.
 * Add Conversations::getConversationByBubbleJid method
