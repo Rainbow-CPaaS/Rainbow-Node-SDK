@@ -3,6 +3,42 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.47 - October 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- In service **FileStorage**, new method `retrieveFileDescriptorsListPerOwner()` has been added to get the File descriptors owned by logged in user.
+- In service **FileStorage**, new method `downloadFile()` has been added to download a file from the server).
+- In service **FileStorage**, new method `getUserQuotaConsumption()` has been added to get the current file storage quota and consumption for the connected user.
+- In service **FileStorage**, new method `uploadFileToConversation()` has been added to upload a file and share it in a conversation.
+- In service **FileStorage**, new method `uploadFileToBubble()` has been added to upload a file and share it in a bubble.
+- In service **FileStorage**, new method `removeFile()` has been added to Remove an uploaded file.
+- In service **FileStorage**, new method `getFileDescriptorFromId()` has been added to get the file descriptor the user own by it's id.
+- In service **FileStorage**, new method `getFilesReceivedInConversation()` has been added to get the list of all files received in a conversation with a contact .
+- In service **FileStorage**, new method `getFilesReceivedInBubble()` has been added to get the list of all files received in a bubble.
+- In service **FileStorage**, new method `getFilesSentInConversation()` has been added to get the list of all files sent in a conversation with a contact.
+- In service **FileStorage**, new method `getFilesSentInBubble()` has been added to get the list of all files sent in a bubble.
+- In service **FileStorage**, new method `getAllFilesSent()` has been added to get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles.
+- In service **FileStorage**, new method `getAllFilesReceived()` has been added to get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles.
+- In service **Events** new files management event handler `rainbow_filecreated` from server when a file is uploaded 
+- In service **Events** new files management event handler `rainbow_fileupdated` from server when the description of the file is updated 
+- In service **Events** new files management event handler `rainbow_filedeleted` from server when the file is deleted
+- In service **Events** new files management event handler `rainbow_thumbnailcreated` from server when a thumbnail is created.
+  	
+**Others Changes**
+
+- Fix FileStorage::orderByFilter method. 
+
+
 ### SDK for Node.JS 1.46 - September 2018
 ---
 

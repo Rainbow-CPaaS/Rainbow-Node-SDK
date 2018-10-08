@@ -4,7 +4,25 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 * Add debug for http request.
 * Add uploadFileToConversation to upload a file and share it in a conversation
-* Add code for fileStorage::uploadFileToBubble to upload a file and share it in a bubble 
+* Add code for fileStorage::uploadFileToBubble to upload a file and share it in a bubble
+* Refactor contact model to have initialized field
+* Add file management event handler for Xmpp :
+  	rainbow_filecreated
+  	rainbow_fileupdated
+  	rainbow_filedeleted
+  	rainbow_thumbnailcreated
+* Refactor contacts to return the correct type "Contact" of data on few use cases in severals methods
+* Add methods in FileStorage : 
+  	removeFile();
+    getFileDescriptorFromId();
+    getFilesReceivedInConversation();
+    getFilesReceivedInBubble();
+  	getFilesSentInConversation();
+    getFilesSentInBubble();
+    getUserQuotaConsumption();
+    getAllFilesSent();
+    getAllFilesReceived()
+* Refactor the FileStorage::orderByFilter method to correct the behaviour. 
 
 ## [1.46.0] - 2018-09-07
 * Add support for typescript sources in folder ./src/. see README.md in src folder to compil it.
