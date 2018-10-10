@@ -37,7 +37,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 **Others Changes**
 
 - Fix FileStorage::orderByFilter method. 
-
+- Support for typescript is added in sources, in folder ./src/. see README.md file to compil it. (It is only needed is you use the sources, and not if you use the version from npm registry )
 
 ### SDK for Node.JS 1.46 - September 2018
 ---
