@@ -124,6 +124,7 @@ Sharing a file within a Bubble can be done as simply as with a contact by callin
     // Retrieve the bubble
     var bubble = rainbowSDK.bubbles.getBubbleById(bubbleId);
     
+    // Upload the file
     rainbowSDK.fileStorage.uploadFileToBubble(bubble, fileInfos, "My message ")
     .then(function(message) {
         // Do something once the file has been shared
@@ -184,9 +185,13 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
 ```javascript
 
     
+    // Retrieve a list of files own by the current logged in user
     rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceived) => {
+            // iter over the list of file
             for (let fileReceived of fileDescriptorsReceived) {
+                // Download the current file
                 rainbowSDK.fileStorage.downloadFile(fileReceived).then((file) => {
+                    // Write the downloaded file to OS filesystem
                     fs.writeFile("c:\\temp\\" + fileReceived.fileName, file.buffer, "binary", function (err) {
                     if (err) {
                         console.log(err);
