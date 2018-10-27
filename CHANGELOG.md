@@ -2,6 +2,9 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.47.5] - 2018-10-27
+* Fix bad cleanup around the Stop() method
+
 ## [1.47.0] - 2018-10-10
 * Add support for typescript sources in folder ./src/. see README.md in src folder to compil it.
 * Add debug for http request (in config file set `http` field value to `true` in `logs` section).
