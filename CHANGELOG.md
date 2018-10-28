@@ -2,6 +2,7 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.47.7] - 2018-10-28
 ## [1.47.6] - 2018-10-28
 * Add missing rules to compile typescript before publishing
 
