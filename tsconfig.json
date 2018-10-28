@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+      "noImplicitAny": false,
+      "module": "commonjs",
+      "target": "es6",
+      //"sourceMap": false,
+      "allowJs": false,
+      "allowUnusedLabels": true,
+      "charset": "utf-8",
+      "experimentalDecorators": false,
+      //"moduleResolution": "node",
+      //"noFallthroughCasesInSwitch": false,
+      //"noImplicitReturns": true,
+      "pretty": true,
+      //"removeComments": true,
+      "rootDir": "./src",
+      "project": "./src",
+      //"stripInternal": true,
+      "outDir": "./"
+    },
+    "exclude" : [
+        "./build",
+        "node_modules"
+    ]
+}
