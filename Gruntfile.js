@@ -143,7 +143,12 @@ module.exports = function (grunt) {
         sitemapGeneration: {
             cmd: "node sitemap_generation.js"
         }
-    }
+    },
+    ts: {
+        build: {
+            src: ["./src/**/*.ts"]
+        }
+      }
 });
 
   grunt.loadNpmTasks("grunt-jsdoc-to-markdown");
@@ -155,7 +160,8 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-copy-part-of-file");
   grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks("grunt-exec");
-  grunt.registerTask("default", ["clean:dist", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.loadNpmTasks("grunt-ts");
+  grunt.registerTask("default", ["clean:dist", "ts:build", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
