@@ -9,3 +9,6 @@ bot.js
 coverage/
 bin/
 /.project
+src/lib/common/models/fileDescriptor.js*
+sitemap.xml
+jsdoc/cheatsheet/node/nodesheets.nodesheets.html
