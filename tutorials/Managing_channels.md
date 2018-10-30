@@ -332,14 +332,20 @@ let channel = <...> // A channel
 let aMessage = "This message will be sent to all users of this channel";
 let aTitle = "This title is optional";
 let aURL = "https://host.adomain/alinktoagreatarticle/";
+let tabImages = null;
 
-nodeSDK.channels.publishMessageToChannel(channel, aMessage, aTitle, aURL).then((message) => {
-    // Do something once the message has been sent
-    ...
-}).catch((err) => {
-    // Do something in case of error
-    ...
-});
+nodeSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((myFileStored) => {
+     if (myFileStored) {
+         tabImages = [{'id' : myFileStored[0].id}]; // Get the first stored file.
+         nodeSDK.channels.publishMessageToChannel(channel, aMessage, aTitle, aURL, tabImages).then((message) => {
+            // Do something once the message has been sent
+            ...
+         }).catch((err) => {
+            // Do something in case of error
+            ...
+         });
+    }
+} ;
 
 ```
 
