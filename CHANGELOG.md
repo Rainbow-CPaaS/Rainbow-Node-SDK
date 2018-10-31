@@ -1,7 +1,7 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
-## [1.48.1] - 2018-10-31
+## [1.48.0] - 2018-10-31
 * Add ability to post files in channels.
 * Correction of stop and reconnection
 * Add log level at root level of logs in config : config.logs.level
