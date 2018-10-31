@@ -3,6 +3,27 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.48 - October 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- In config parameter a log level at root level of logs in config : config.logs.level has been added for set the level of logs. Note: The value in file section will erase it, if the file logging is enabled.
+  	
+**Others Changes**
+
+- In service **channels** the method `publishMessageToChannel` has been updated to allow post of files.
+- A correction of `stop` and `reconnection` processes has been done
+- Logs has been updated to follow the GPRD law and then hide private data.
+
 ### SDK for Node.JS 1.47 - October 2018
 ---
 

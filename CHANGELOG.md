@@ -1,9 +1,13 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
-## [1.4x.x] - 2018-10-31
+## [1.48.1] - 2018-10-31
 * Add ability to post files in channels.
 * Correction of stop and reconnection
+* Add log level at root level of logs in config : config.logs.level
+* Add "system-dev" section in logs for DEVELOPPEMENT ONLY, no production system should use it :  
+    "internals" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !  
+    "http" moved from logs sections, kept the same behaviour
 
 ## [1.47.7] - 2018-10-28
 ## [1.47.6] - 2018-10-28
