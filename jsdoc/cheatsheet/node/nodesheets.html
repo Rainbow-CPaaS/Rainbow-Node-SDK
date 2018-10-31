@@ -17,43 +17,47 @@ class Channel
 class Bubble
 class Events
 class NodeSDK
+class Telephony
 class Presence
 class IM
 class Groups
+class FileStorage
 class Conversations
 class Contacts
 class Channels
 class Bubbles
 class Admin
-Admin : Object : createCompany(string)
-Admin : Contact : createUserInCompany(string, string, string, string, string, string, boolean)
-Admin : Object : createGuestUser(string, string, string, Number)
-Admin : Object : createAnonymousGuestUser(Number)
-Admin : void : inviteUserInCompany(string, string, string, string)
-Admin : Object : changePasswordForUser(string, string)
-Admin : Object : updateInformationForUser(Object, string)
-Admin : Object : deleteUser(string)
-Admin : Object : getAllCompanies(string)
-Bubbles : Bubble : createBubble(string, string, boolean)
+Admin : Promise.Object, Error : createCompany(string, string, string)
+Admin : Promise.Contact, Error : createUserInCompany(string, string, string, string, string, string, boolean)
+Admin : Promise.Object, Error : createGuestUser(string, string, string, Number)
+Admin : Promise.Object, Error : createAnonymousGuestUser(Number)
+Admin : Promise.Object, Error : inviteUserInCompany(string, string, string, string)
+Admin : Promise.Object, Error : changePasswordForUser(string, string)
+Admin : Promise.Object, Error : updateInformationForUser(Object, string)
+Admin : Promise.Object, Error : deleteUser(string)
+Admin : Promise.Object, Error : getAllCompanies(string)
+Bubbles : Promise.Bubble, Error : createBubble(string, string, boolean)
 Bubbles : boolean : isBubbleClosed(Bubble)
-Bubbles : Bubble : deleteBubble(Bubble)
-Bubbles : Bubble : closeBubble(Bubble)
-Bubbles : Object : leaveBubble(Bubble)
-Bubbles : Bubble : inviteContactToBubble(Contact, Bubble, boolean, boolean, string)
-Bubbles : Bubble : promoteContactInBubble(Contact, Bubble, boolean)
-Bubbles : Bubble : changeBubbleOwner(Contact, Bubble)
-Bubbles : Object : removeContactFromBubble(Contact, Bubble)
+Bubbles : Object : deleteAllBubbles()
+Bubbles : Promise.Bubble, Error : deleteBubble(Bubble)
+Bubbles : Promise.Bubble, Error : closeBubble(Bubble)
+Bubbles : Promise.Bubble, Error : leaveBubble(Bubble)
+Bubbles : Promise.Bubble, Error : inviteContactToBubble(Contact, Bubble, boolean, boolean, string)
+Bubbles : Promise.Bubble, Error : promoteContactInBubble(Contact, Bubble, boolean)
+Bubbles : Promise.Bubble, Error : changeBubbleOwner(Contact, Bubble)
+Bubbles : Promise.Bubble, Error : removeContactFromBubble(Contact, Bubble)
 Bubbles : Bubble[] : getAll()
-Bubbles : Bubble : getBubbleById(string)
-Bubbles : Bubble : getBubbleByJid(string)
+Bubbles : Bubble[] : getAllBubbles()
+Bubbles : Promise.Bubble : getBubbleById(string)
+Bubbles : Promise.Bubble : getBubbleByJid(string)
 Bubbles : Bubble[] : getAllPendingBubbles()
 Bubbles : Bubble[] : getAllActiveBubbles()
 Bubbles : Bubble[] : getAllClosedBubbles()
-Bubbles : Bubble : acceptInvitationToJoinBubble(Bubble)
-Bubbles : Bubble : declineInvitationToJoinBubble(Bubble)
-Bubbles : Bubble : setBubbleCustomData(Bubble, Object)
-Bubbles : Object : setBubbleTopic(Bubble, string)
-Bubbles : Object : setBubbleName(Bubble, string)
+Bubbles : Promise.Bubble, Error : acceptInvitationToJoinBubble(Bubble)
+Bubbles : Promise.Bubble, Error : declineInvitationToJoinBubble(Bubble)
+Bubbles : Promise.Bubble, Error : setBubbleCustomData(Bubble, Object)
+Bubbles : Promise.Bubble, Error : setBubbleTopic(Bubble, string)
+Bubbles : Promise.Bubble, Error : setBubbleName(Bubble, string)
 Channels : Promise.Channel : createChannel(string, string)
 Channels : Promise.Channel : createPrivateChannel(string, string)
 Channels : Promise.CHannel : deleteChannel(Channel)
@@ -63,7 +67,7 @@ Channels : Promise.Channel : getChannelById(String, boolean)
 Channels : Channel[] : getAllChannels()
 Channels : Channel[] : getAllOwnedChannel()
 Channels : Channel[] : getAllSubscribedChannel()
-Channels : Promise.ErrorCase.OK : publishMessageToChannel(String, String, String, String)
+Channels : Promise.ErrorCase.OK : publishMessageToChannel(Channel, String, String, String, id[])
 Channels : Promise.Channel : subscribeToChannel(Channel)
 Channels : Promise.Channel : unsubscribeFromChannel(Channel)
 Channels : Promise.Channel : updateChannelDescription(Channel, string)
@@ -75,36 +79,63 @@ Channels : Promise.Channel : addMembersToChannel(Channel, User[])
 Channels : Promise.Channel : removeUsersFromChannel(Channel, User[])
 Channels : Promise.Object[] : getMessagesFromChannel(Channel)
 Contacts : String : getDisplayName(Contact)
-Contacts : Object[] : getAll()
-Contacts : Contact : getContactByJid(string)
-Contacts : Contact : getContactById(string)
-Contacts : Contact : getContactByLoginEmail(string)
-Conversations : Conversation[] : sendConversationByEmail(String)
-Conversations : Conversation[] : ackAllMessages(String)
-Conversations : Conversation[] : getHistoryPage(Conversation, number)
-Conversations : Conversation : getBubbleConversation(String)
-Conversations : void : closeConversation(Conversation)
-Conversations : void : removeAllMessages(Conversation)
-Conversations : void : removeMessagesFromConversation(Conversation)
+Contacts : Promise.Error : getRosters()
+Contacts : Contact[] : getAll()
+Contacts : Promise.Contact, Error : getContactByJid(string)
+Contacts : Promise.Contact, Error : getContactById(string)
+Contacts : Promise.Contact, Error : getContactByLoginEmail(string)
+Contacts : String : getAvatarByContactId(string, string)
+Contacts : Promise.Contact, Error : addToContactsList(Contact)
+Contacts : Promise.joinContactsResult, Error : joinContacts(Contact, String[])
+Conversations : Promise.Conversation[] : sendConversationByEmail(String)
+Conversations : Promise.Conversation[] : ackAllMessages(String)
+Conversations : Promise.Conversation[] : getHistoryPage(Conversation, number)
+Conversations : Promise.Conversation : getBubbleConversation(String)
+Conversations : void : sendIsTypingState(Conversation, boolean)
+Conversations : Promise : closeConversation(Conversation)
+Conversations : Message : sendExistingMessage(string)
+Conversations : Promise : removeAllMessages(Conversation)
+Conversations : Promise : removeMessagesFromConversation(Conversation)
 Conversations : Conversation : getConversationById(String)
-Groups : Group : deleteGroup(Group)
-Groups : Group : updateGroupName(Group, string)
-Groups : Group : addUserInGroup(Contact, Group)
-Groups : Group : removeUserFromGroup(Contact, Group)
+Conversations : Conversation : openConversationForContact(Contact)
+FileStorage : Message : uploadFileToConversation(Conversation, Object, String)
+FileStorage : Message : uploadFileToBubble(Bubble, File, String)
+FileStorage : void : downloadFile(FileDescriptor)
+FileStorage : Object : getUserQuotaConsumption()
+FileStorage : Object : removeFile(FileDescriptor)
+FileStorage : FileDescriptor[] : getFilesReceivedInConversation(Conversation)
+FileStorage : FileDescriptor[] : getFilesReceivedInBubble(Bubble)
+FileStorage : FileDescriptor[] : getReceivedFilesForRoom(string)
+FileStorage : Promise.FileDescriptor[] : retrieveFileDescriptorsListPerOwner()
+FileStorage : Promise.FileDescriptor[] : retrieveSentFiles(string)
+FileStorage : Promise.FileDescriptor[] : retrieveReceivedFilesForRoom(string)
+FileStorage : Promise.FileDescriptor[] : retrieveReceivedFiles(string)
+FileStorage : FileDescriptor[] : getFilesSentInConversation(Conversation)
+FileStorage : FileDescriptor[] : getFilesSentInBubble(Bubble)
+FileStorage : Object : getUserQuotaConsumption()
+FileStorage : FileDescriptor[] : getAllFilesSent()
+FileStorage : FileDescriptor[] : getAllFilesReceived()
+Groups : Promise.Group, Error : createGroup(string, string, boolean)
+Groups : Promise.Group, Error : deleteGroup(Group)
+Groups : Promise.Group, Error : updateGroupName(Group, string)
+Groups : Promise.Group, Error : addUserInGroup(Contact, Group)
+Groups : Promise.Group, Error : removeUserFromGroup(Contact, Group)
 Groups : Array : getAll()
 Groups : Array : getFavoriteGroups()
 Groups : Group : getGroupById(String)
 Groups : Group : getGroupByName(String)
-IM : Conversation : getMessagesFromConversation(Conversation, Number)
+IM : Promise.Conversation, Error : getMessagesFromConversation(Conversation, Number)
 IM : Message : getMessageFromConversationById(Conversation, String)
 IM : Message : getMessageFromBubbleById(Bubble, String)
-IM : Message : sendMessageToConversation(Conversation, String, String, Object, String, String, String)
-IM : Object : sendMessageToContact(String, Contact, String, Object, String, String, String)
-IM : Object : sendMessageToJid(String, String, String, Object, String, String, String)
-IM : Object : sendMessageToBubble(String, Bubble, String, Object, String, String, String)
-IM : Object : sendMessageToBubbleJid(String, String, String, Object, String, String, String)
-IM : Object : markMessageAsRead(Message)
-Presence : number : setPresenceTo(String)
+IM : Promise.Message, Error : sendMessageToConversation(Conversation, String, String, Object, String, String, String)
+IM : Promise.Message, Error : sendMessageToContact(String, Contact, String, Object, String, String, String)
+IM : Promise.Message, Error : sendMessageToJid(String, String, String, Object, String, String, String)
+IM : Promise.Message, Error : sendMessageToBubble(String, Bubble, String, Object, String, String, String)
+IM : Promise.Message, Error : sendMessageToBubbleJid(String, String, String, Object, String, String, String)
+IM : Object : sendIsTypingStateInBubble(Bubble, boolean)
+IM : void : sendIsTypingStateInConversation(Conversation, boolean)
+IM : Promise : markMessageAsRead(Message)
+Presence : Promise.Error : setPresenceTo(String)
 NodeSDK : void : start()
 NodeSDK : void : stop()
 NodeSDK : Object : im
@@ -119,7 +150,8 @@ NodeSDK : Object : admin
 NodeSDK : Object : settings
 NodeSDK : String : state
 NodeSDK : String : version
-NodeSDK : Object : connectedUser
+NodeSDK : ConnectedUser : connectedUser
+NodeSDK : Object : telephony
 Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
@@ -136,6 +168,14 @@ Events ::event : rainbow_ongroupupdated
 Events ::event : rainbow_onuseraddedingroup
 Events ::event : rainbow_onuserremovedfromgroup
 Events ::event : rainbow_onchannelmessagereceived
+Events ::event : rainbow_onprofilefeatureupdated
+Events ::event : rainbow_oncallupdated
+Events ::event : rainbow_onvoicemessageupdated
+Events ::event : rainbow_oncallforwarded
+Events ::event : rainbow_filecreated
+Events ::event : rainbow_fileupdated
+Events ::event : rainbow_filedeleted
+Events ::event : rainbow_thumbnailcreated
 Events : Object : on(string, function)
 Events : Object : once(string, function)
 Events ::event : rainbow_onstarted
@@ -190,7 +230,7 @@ Conversation : ConferenceSession : webConferenceSession
 Conversation : number : Type
 Conversation : Object : Status
 Contact : string : id
-Contact : string : displayName
+Contact : Object : name
 Contact : string : companyName
 Contact : string : loginEmail
 Contact : string : nickName
@@ -201,6 +241,7 @@ Contact : string : timezone
 Contact : string : companyId
 Contact : string : jid_im
 Contact : string : jid_tel
+Contact : string : avatar
 Contact : string : lastAvatarUpdateDate
 Contact : string : lastUpdateDate
 Contact : string : adminType
@@ -214,6 +255,10 @@ Contact : string : language
 Contact : string : presence
 Contact : string : status
 Contact : Object[] : resources
+Contact : number : nameUpdatePrio
+Contact : string : initials
+Contact : string : nickname
+Contact : string : displayName
 Message : string : id
 Message : string : fromJid
 Message : Side : side
