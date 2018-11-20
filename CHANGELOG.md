@@ -8,6 +8,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 * Add event fired when a message is delete in a channel : rainbow_onchannelmessagedeletedreceived
 * Add event fired when a channel is created : rainbow_onchannelcreated 
 * Add event fired when a channel is deleted : rainbow_channeldeleted
+* typo correction in Contacts firstName and lastName
  
 ## [1.48.0] - 2018-10-31
 * Add ability to post files in channels.
