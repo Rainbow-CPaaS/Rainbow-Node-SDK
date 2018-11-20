@@ -1,6 +1,14 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+## [1.49.0] - 2018-11-20
+* Add images property in message retrieved from channels with method channels::getMessagesFromChannel and also when event "rainbow_onchannelmessagereceived" is fired
+* Correction of parsing of the result data from server in method channels::getMessagesFromChannel
+* Add a method to delete message in a channel channels::deleteMessageFromChannel
+* Add event fired when a message is delete in a channel : rainbow_onchannelmessagedeletedreceived
+* Add event fired when a channel is created : rainbow_onchannelcreated 
+* Add event fired when a channel is deleted : rainbow_channeldeleted
+ 
 ## [1.48.0] - 2018-10-31
 * Add ability to post files in channels.
 * Correction of stop and reconnection
