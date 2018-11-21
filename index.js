@@ -145,8 +145,8 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                console.log("[index ] : rainbow_onrainbow_onconnectionerror : " , JSON.stringify(error));
-                that.events.publish("rainbow_onconnectionerror", error);
+                console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(error));
+                that.events.publish("connectionerror", error);
                 reject(error);
             });
         });
@@ -168,7 +168,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.publish("rainbow_onconnectionerror", error);
+                that.events.publish("connectionerror", error);
                 reject(error);
             });
         });
@@ -190,7 +190,7 @@ class NodeSDK {
             }).catch(function(err) {
                 var error = Error.UNAUTHORIZED;
                 error.details = err;
-                that.events.publish("rainbow_onconnectionerror", error);
+                that.events.publish("connectionerror", error);
                 reject(error);
             });
         });
@@ -209,12 +209,12 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function() {
                 var success = Error.OK;
-                that.events.publish("rainbow_onstopped", success);
+                that.events.publish("stopped", success);
                 resolve();
             }).catch(function(err) {
                 var error = Error.ERROR;
                 error.details = err;
-                that.events.publish("rainbow_onstopped", error);
+                that.events.publish("stopped", error);
                 reject(error);
             });
         });
