@@ -3,6 +3,33 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+### SDK for Node.JS 1.49 - November 2018
+---
+
+**3-Release SDK Breaking Changes**
+
+- None.
+
+**API Breaking Changes**
+
+- None.
+
+**API Changes**
+
+- None.
+  	
+**Others Changes**
+
+- Refactor Events emitter to produce better logs in dev mode.
+- Correction of contact's `phonenumbers` filling. Now Contact `phoneNumbers` should be synchronised with individual splitted phones numbers. 
+- Fix: Typo correction in Contacts `firstName` and `lastName` case
+- Fix: In service **channels**, correction of parsing of the result data from server in method `getMessagesFromChannel`
+- In service **channels**, add images property in messages retrieved from channels with method `getMessagesFromChannel` and also when event `rainbow_onchannelmessagereceived` is fired
+- In service **channels**, add a method to delete message in a channel `deleteMessageFromChannel`. 
+- Add event `rainbow_onchannelmessagedeletedreceived` fired when a message is delete in a channel.
+* Add event `rainbow_onchannelcreated` fired when a channel is created. 
+* Add event `rainbow_channeldeleted` fired when a channel is deleted.
+
 ### SDK for Node.JS 1.48 - October 2018
 ---
 
