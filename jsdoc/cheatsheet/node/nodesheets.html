@@ -78,6 +78,7 @@ Channels : Promise.Channel : addPublishersToChannel(Channel, User[])
 Channels : Promise.Channel : addMembersToChannel(Channel, User[])
 Channels : Promise.Channel : removeUsersFromChannel(Channel, User[])
 Channels : Promise.Object[] : getMessagesFromChannel(Channel)
+Channels : Promise.Channel : deleteMessageFromChannel(String, String)
 Contacts : String : getDisplayName(Contact)
 Contacts : Promise.Error : getRosters()
 Contacts : Contact[] : getAll()
@@ -168,14 +169,17 @@ Events ::event : rainbow_ongroupupdated
 Events ::event : rainbow_onuseraddedingroup
 Events ::event : rainbow_onuserremovedfromgroup
 Events ::event : rainbow_onchannelmessagereceived
+Events ::event : rainbow_onchannelmessagedeletedreceived
 Events ::event : rainbow_onprofilefeatureupdated
 Events ::event : rainbow_oncallupdated
 Events ::event : rainbow_onvoicemessageupdated
 Events ::event : rainbow_oncallforwarded
-Events ::event : rainbow_filecreated
-Events ::event : rainbow_fileupdated
-Events ::event : rainbow_filedeleted
-Events ::event : rainbow_thumbnailcreated
+Events ::event : rainbow_onfilecreated
+Events ::event : rainbow_onfileupdated
+Events ::event : rainbow_onfiledeleted
+Events ::event : rainbow_onthumbnailcreated
+Events ::event : rainbow_onchannelcreated
+Events ::event : rainbow_onchanneldeleted
 Events : Object : on(string, function)
 Events : Object : once(string, function)
 Events ::event : rainbow_onstarted
@@ -238,16 +242,34 @@ Contact : string : title
 Contact : string : jobTitle
 Contact : string : country
 Contact : string : timezone
+Contact : string : organisationId
+Contact : string : siteId
 Contact : string : companyId
 Contact : string : jid_im
+Contact : string : jid
 Contact : string : jid_tel
+Contact : string : jidtel
 Contact : string : avatar
 Contact : string : lastAvatarUpdateDate
 Contact : string : lastUpdateDate
 Contact : string : adminType
 Contact : string : roles
 Contact : Object[] : phoneNumbers
+Contact : string : phonePro
+Contact : string : phoneProCan
+Contact : string : phonePbx
+Contact : string : phoneInternalNumber
+Contact : string : pbxId
+Contact : string : mobilePro
+Contact : string : mobileProCan
+Contact : string : phonePerso
+Contact : string : phonePersoCan
+Contact : string : mobilePerso
+Contact : string : mobilePersoCan
+Contact : String : voicemailNumber
 Contact : Object[] : emails
+Contact : string : emailPro
+Contact : string : emailPerso
 Contact : string : lastName
 Contact : string : firstName
 Contact : Boolean : isTerminated
@@ -258,6 +280,7 @@ Contact : Object[] : resources
 Contact : number : nameUpdatePrio
 Contact : string : initials
 Contact : string : nickname
+Contact : boolean : roster
 Contact : string : displayName
 Message : string : id
 Message : string : fromJid
