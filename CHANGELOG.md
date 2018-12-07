@@ -1,6 +1,9 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+## [1.49.1] - 2018-12-07
+* Update docs 
+
 ## [1.49.0] - 2018-11-20
 * Refactor Events emitter to produce better logs in dev mode.
 * Correction of contact's phonenumbers filling. Now Contact.phoneNumbers should be synchronised with splitted datas. 
