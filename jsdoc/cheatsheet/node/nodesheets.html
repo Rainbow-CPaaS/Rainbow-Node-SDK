@@ -67,7 +67,7 @@ Channels : Promise.Channel : getChannelById(String, boolean)
 Channels : Channel[] : getAllChannels()
 Channels : Channel[] : getAllOwnedChannel()
 Channels : Channel[] : getAllSubscribedChannel()
-Channels : Promise.ErrorCase.OK : publishMessageToChannel(Channel, String, String, String, id[], String)
+Channels : Promise.ErrorCase.OK : publishMessageToChannel(Channel, String, String, String)
 Channels : Promise.Channel : subscribeToChannel(Channel)
 Channels : Promise.Channel : unsubscribeFromChannel(Channel)
 Channels : Promise.Channel : updateChannelDescription(Channel, string)
@@ -104,6 +104,7 @@ FileStorage : Message : uploadFileToBubble(Bubble, File, String)
 FileStorage : void : downloadFile(FileDescriptor)
 FileStorage : Object : getUserQuotaConsumption()
 FileStorage : Object : removeFile(FileDescriptor)
+FileStorage : FileDescriptor : getFileDescriptorFromId(String)
 FileStorage : FileDescriptor[] : getFilesReceivedInConversation(Conversation)
 FileStorage : FileDescriptor[] : getFilesReceivedInBubble(Bubble)
 FileStorage : FileDescriptor[] : getReceivedFilesForRoom(string)
@@ -172,14 +173,14 @@ Events ::event : rainbow_ongroupupdated
 Events ::event : rainbow_onuseraddedingroup
 Events ::event : rainbow_onuserremovedfromgroup
 Events ::event : rainbow_onchannelmessagereceived
-Events ::event : rainbow_onchannelmessagedeletedreceived
 Events ::event : rainbow_onprofilefeatureupdated
 Events ::event : rainbow_oncallupdated
 Events ::event : rainbow_onvoicemessageupdated
 Events ::event : rainbow_oncallforwarded
-Events ::event : rainbow_onfilecreated
-Events ::event : rainbow_onfileupdated
-Events ::event : rainbow_onfiledeleted
+Events ::event : rainbow_filecreated
+Events ::event : rainbow_fileupdated
+Events ::event : rainbow_filedeleted
+Events ::event : rainbow_thumbnailcreated
 Events ::event : rainbow_onthumbnailcreated
 Events ::event : rainbow_onchannelcreated
 Events ::event : rainbow_onchanneldeleted
@@ -251,7 +252,7 @@ Contact : string : companyId
 Contact : string : jid_im
 Contact : string : jid
 Contact : string : jid_tel
-Contact : string : jidtel
+Contact : string : avatar
 Contact : string : avatar
 Contact : string : lastAvatarUpdateDate
 Contact : string : lastUpdateDate
@@ -283,7 +284,7 @@ Contact : Object[] : resources
 Contact : number : nameUpdatePrio
 Contact : string : initials
 Contact : string : nickname
-Contact : boolean : roster
+Contact : string : displayName
 Contact : string : displayName
 Message : string : id
 Message : string : fromJid
