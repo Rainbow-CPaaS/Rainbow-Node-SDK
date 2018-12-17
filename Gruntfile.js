@@ -26,7 +26,7 @@ module.exports = function (grunt) {
             { src: "lib/common/models/Contact.js", dest: "build/contact.md" },
             { src: "lib/common/models/Conversation.js", dest: "build/conversation.md" },
             { src: "lib/common/models/Message.js", dest: "build/message.md" },
-            { src: "lib/common/models/Settings.js", dest: "build/settings.md" },
+            { src: "lib/common/models/Settings.js", dest: "build/settings.md" }
         ]
       }
     },
