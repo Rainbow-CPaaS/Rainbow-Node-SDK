@@ -23,6 +23,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 **Others Changes**
 
 -   NodeJS 8.x end of active LTS period has been announced to 2019-01-01. Starting January, 31th 2019, we will no more support development done with that version. We encourage you to migrate your development to the current active LTS version of NodeJS which is now the 10.x version.
+-   Fix parsing of stanza event `message is deleted in a channel` when the number of messages limit is reached and then raises the event `rainbow_onchannelmessagedeletedreceived`.
 
 ### SDK for Node.JS 1.49 - November 2018
 
