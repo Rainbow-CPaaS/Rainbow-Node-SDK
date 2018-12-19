@@ -18,7 +18,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **API Changes**
 
--   None.
+-   In service **channels** the method `publishToChannel` has been updated to follow the new channel api on server side. Now it is possible to define the `type` of data published in a channel (could be `basic`, `markdown`, `html` or `data`).
 
 **Others Changes**
 

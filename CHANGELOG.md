@@ -3,7 +3,8 @@
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 ## [1.49.1] - 2018-12-07
 * Update docs 
-*   Fix parsing of stanza event `message is deleted in a channel` when the number of messages limit is reached and then raises the event `rainbow_onchannelmessagedeletedreceived`.
+* Fix parsing of stanza event `message is deleted in a channel` when the number of messages limit is reached and then raises the event `rainbow_onchannelmessagedeletedreceived`.
+* Update call to publishToChannel channel new api
 
 ## [1.49.0] - 2018-11-20
 * Refactor Events emitter to produce better logs in dev mode.
