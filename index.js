@@ -143,11 +143,17 @@ class NodeSDK {
             }).then(function(result) {
                 resolve(result);
             }).catch(function(err) {
-                var error = Error.UNAUTHORIZED;
-                error.details = err;
-                console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(error));
-                that.events.publish("connectionerror", error);
-                reject(error);
+                if (err) {
+                    console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(err));
+                    that.events.publish("connectionerror", err);
+                    reject(err);
+                } else {
+                    let error = Error.UNAUTHORIZED;
+                    error.details = err;
+                    console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(error));
+                    that.events.publish("connectionerror", error);
+                    reject(error);
+                }
             });
         });
     }
@@ -208,9 +214,12 @@ class NodeSDK {
         var that = this;
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function() {
-                var success = Error.OK;
-                that.events.publish("stopped", success);
-                resolve();
+                //var success = Error.OK;
+                setTimeout(() => {
+                    that._core._stateManager.stop();
+                    //that.events.publish("stopped", success);
+                    resolve();
+                }, 1500); // */
             }).catch(function(err) {
                 var error = Error.ERROR;
                 error.details = err;
