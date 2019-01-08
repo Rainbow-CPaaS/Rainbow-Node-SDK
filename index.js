@@ -1,13 +1,15 @@
 "use strict";
 
-var Core = require("./lib/Core");
-var Error = require("./lib/common/Error");
+const Core = require("./lib/Core");
+const Error = require("./lib/common/Error");
+const utils = require( "./lib/common/Utils");
+
 
 /** 
  * @enum { String }
  * 
 */
-var Type = {
+let Type = {
     home: "home",
     work: "work",
     other: "other"
@@ -17,7 +19,7 @@ var Type = {
  * @enum { String }
  * 
 */
-var DeviceType = {
+let DeviceType = {
     landline: "landline",
     mobile: "mobile",
     fax: "fax",
@@ -136,7 +138,7 @@ class NodeSDK {
      * @memberof NodeSDK
      */
     start() {
-        var that = this;
+        let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.start().then(function() {
                 return that._core.signin(false);
@@ -167,7 +169,7 @@ class NodeSDK {
      * @memberof NodeSDK
      */
     startCLI() {
-        var that = this;
+        let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.start(true).then(function() {
                 resolve();
@@ -189,7 +191,7 @@ class NodeSDK {
      * @memberof NodeSDK
      */
     signinCLI() {
-        var that = this;
+        let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.signin(false).then(function(json) {
                 resolve(json);
@@ -211,17 +213,17 @@ class NodeSDK {
      * @memberof NodeSDK
      */
     stop() {
-        var that = this;
+        let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function() {
                 //var success = Error.OK;
-                setTimeout(() => {
-                    that._core._stateManager.stop();
+                utils.setTimeoutPromised(1500).then( () => {
+                    //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);
                     resolve();
-                }, 1500); // */
+                });
             }).catch(function(err) {
-                var error = Error.ERROR;
+                let error = Error.ERROR;
                 error.details = err;
                 that.events.publish("stopped", error);
                 reject(error);
