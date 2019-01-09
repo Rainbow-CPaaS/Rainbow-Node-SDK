@@ -135,6 +135,9 @@ Each time the state of the SDK for Node.JS changes, an event is fired
 <small>STATE</small><br>`stopped`<br>
 |<br>
 v<br>
+<small>STATE</small><br>`starting`<br>
+|<br>
+v<br>
 **rainbow_onstarted**<br><small>EVENT</small><br>
 |<br>
 V<br>
@@ -194,6 +197,7 @@ Here is the list of state managed by the SDK for Node.JS:
 | Name | Description |
 |:-----|:------------|
 | **stopped** | The SDK for Node.JS is stopped |
+| **starting** | The SDK for Node.JS is in init process |
 | **started** | The SDK for Node.JS has been started successfully |
 | **connected** | The SDK for Node.JS is connected to Rainbow |
 | **ready** | The SDK for Node.JS is ready to be used |
@@ -209,6 +213,12 @@ When instantiating the SDK for Node.JS, his state is `stopped`.
 
 To start using it, you need to call the API `start()`.
 
+#### State starting
+---
+
+When initialising the SDK for Node.JS, his state is `starting`.
+
+It forbids double calls of `start()` method
 
 #### State started
 ---
@@ -348,4 +358,4 @@ This event is fired each time an error occurs in the SDK for Node.JS (eg: reconn
 
 ---
 
-_Last updated January, 11th 2018_
+_Last updated January, 9th 2019_
