@@ -4,7 +4,27 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
-### SDK for Node.JS 1.50 - Decembre 2018
+### SDK for Node.JS 1.51 - January 2018
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   None.
+
+**API Breaking Changes**
+
+-   None.
+
+**API Changes**
+
+-   None.
+
+**Others Changes**
+
+-   Fix the start/stop of the SDK. These processes has been improved to avoid multiple `start()` at the same time, and also to have a better flow life.  
+
+### SDK for Node.JS 1.50 - December 2018
 
 ---
 
