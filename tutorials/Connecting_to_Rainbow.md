@@ -120,7 +120,9 @@ rainbowSDK.stop().then((res) => {
 ```
 
 Once stopped, the only way to reconnect is to call the API `start()` again.
-
+  
+**_Warning!_**: If you want to create an application instantiating a `Node Rainbow SDK` instance with a lifecycle of multiple `start()` and `stop()` you have to use the events `rainbow_onready` and `rainbow_onstopped` to manage your state machine.
+Please do not use a recursive method with deep `start().then(....stop().then(....start(...).then(...)))`, because a memory leak will occurred.
 
 ### SDK Node.JS complete lifecycle
 ---
