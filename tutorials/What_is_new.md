@@ -22,7 +22,10 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **Others Changes**
 
--   Fix the start/stop of the SDK. These processes has been improved to avoid multiple `start()` at the same time, and also to have a better flow life.  
+-   Fix the start/stop of the SDK. These processes has been improved to avoid multiple `start()` at the same time, and also to have a better flow life.
+-   Add event `rainbow_onpresencechanged` fired when the presence of the connected user changes.
+-   Fix decode of status in xmpp event when presence changed is received.
+  
 
 ### SDK for Node.JS 1.50 - December 2018
 
