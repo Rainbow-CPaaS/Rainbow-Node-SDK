@@ -2,6 +2,7 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 ## [1.51.0] - 2018-01-xx
+* Remove the unirest library (security issue)
 * Fix the start/stop of the SDK. These processes has been improved to avoid multiple `start()` at the same time, and also to have a better flow life.
 * Add event rainbow_onpresencechanged fired when the presence of the connected user changes.
 * Fix decode of status in xmpp event when presence changed is received..

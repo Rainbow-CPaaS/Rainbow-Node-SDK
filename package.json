@@ -78,7 +78,6 @@
     "sasl-digest-md5": "^0.1.0",
     "stream-buffers": "^3.0.2",
     "strip-ansi": "^4.0.0",
-    "unirest": "0.5.1",
     "uuid": "^3.3.0",
     "uuid4": "1.0.0",
     "winston": "^3.0.0",
