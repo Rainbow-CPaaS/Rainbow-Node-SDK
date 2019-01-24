@@ -1,6 +1,11 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+
+## [1.51.1] - 2018-01-24
+* Add event fired when a channel is updated : rainbow_channelupdated
+* Fix issue in HttpService when remote server is unavailable
+
 ## [1.51.0] - 2018-01-22
 * Fix property conversation.lastMessageText which was undefined
 * Remove the unirest library (security issue)
