@@ -1,9 +1,8 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
-## [1.52.0] - 2018-02-xx
 
-## [1.51.2] - 2018-01-29
+## [1.51.2] - 2018-01-30
 * Fix reconnection when network is lost or when the server reboot. 
 
 ## [1.51.1] - 2018-01-24
