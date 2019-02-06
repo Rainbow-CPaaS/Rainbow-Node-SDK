@@ -1,5 +1,5 @@
 {
-  "name": "@ale-rainbow/rainbow-node-sdk",
+  "name": "rainbow-node-sdk",
   "version": "1.51.5-0",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
