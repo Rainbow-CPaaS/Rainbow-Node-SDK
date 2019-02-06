@@ -13,5 +13,5 @@ sitemap.xml
 jsdoc/cheatsheet/node/nodesheets.nodesheets.html
 lib/common/models/fileDescriptor.js.map
 lib/common/models/fileDescriptor.js
-Samples/
 .idea/
+package-lock.json
