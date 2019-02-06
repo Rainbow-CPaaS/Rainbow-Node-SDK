@@ -2,6 +2,12 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.51.3] - 2018-02-06
+* Fix Messages list in conversation when SDK sent or received a message in it. Message is add to conversation when the server received it and send bacxk a Receipt.
+* Fix error return when an HttpService put or post failed
+* Fix event listener life to avoid memoryleak
+* Fix lastMessageText when retrieve history.
+
 ## [1.51.2] - 2018-01-30
 * Fix reconnection when network is lost or when the server reboot. 
 
