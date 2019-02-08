@@ -15,3 +15,4 @@ lib/common/models/fileDescriptor.js.map
 lib/common/models/fileDescriptor.js
 .idea/
 package-lock.json
+/Samples/index.js
