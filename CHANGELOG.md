@@ -2,6 +2,20 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.51.5] - 2018-02-08
+Improve the  XMPP reconnect process
+Fix error in HttpService get method
+
+## [1.51.4] - 2018-02-07
+* Fix Messages list in conversation when SDK sent or received a message in it. Message is add to conversation when the server received it and send back a Receipt.
+* Fix error return when an HttpService put or post failed
+* Fix event listener life to avoid memoryleak
+* Fix lastMessageText when retrieve history.
+
+## [1.51.3] - 2018-02-06
+* Fix remove from in markAsReadMessage
+* Fix logs
+
 ## [1.51.2] - 2018-01-30
 * Fix reconnection when network is lost or when the server reboot. 
 
