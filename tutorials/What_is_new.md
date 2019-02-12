@@ -4,6 +4,37 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+
+### SDK for Node.JS 1.52 - February 2018
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   None.
+
+**API Breaking Changes**
+
+-   None.
+
+**API Changes**
+
+-   Add event fired when a channel is updated : rainbow_channelupdated
+
+**Others Changes**
+
+-   Improve the  XMPP reconnect process
+-   Fix error in HttpService get method
+-   Fix Messages list in conversation when SDK sent or received a message in it. Message is add to conversation when the server received it and send back a Receipt.
+-   Fix error return when an HttpService put or post failed
+-   Fix event listener life to avoid memoryleak
+-   Fix lastMessageText when retrieve history.
+-   Fix remove from in markAsReadMessage
+-   Fix logs
+-   Fix reconnection when network is lost or when the server reboot. 
+-   Fix issue in HttpService when remote server is unavailable
+
+
 ### SDK for Node.JS 1.51 - January 2018
 
 ---

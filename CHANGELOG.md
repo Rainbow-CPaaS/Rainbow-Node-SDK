@@ -2,6 +2,8 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.52.0] - 2018-02-12
+
 ## [1.51.5] - 2018-02-08
 Improve the  XMPP reconnect process
 Fix error in HttpService get method
