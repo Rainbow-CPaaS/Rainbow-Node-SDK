@@ -2,13 +2,15 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.5x.x] - 2018-02-12
+## [1.53.0] - 2018-02-12
 * Add event `rainbow_onbubblepresencechanged` when a bubble presence change. It is also raised when a bubble change isActive from true to false (and reverse)
 * Add a method `until` in Utils to wait for a while to condition to be done.
 * Update errors return by HttpService, to have a json object.
 * Add the isActive propertie in `Bubble` object, and the method/events to update it. 
 * Improve the `bubble::createBubble` to wait for a while (5s) the success of creation on server side.
-* Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wkae it up, and wait for a while (5s) for the resumed event, before sending message in it. 
+* Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wkae it up, and wait for a while (5s) for the resumed event, before sending message in it.
+* Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.  
+ ! Note ! : only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.` 
 
 ## [1.52.0] - 2018-02-12
 
