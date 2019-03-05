@@ -54,9 +54,8 @@
   },
   "dependencies": {
     "@types/node": "^10.12.19",
-    "@xmpp/client": "",
-    "@xmpp/plugins": "",
-    "@xmpp/xml": "",
+    "@xmpp/client": "^0.7.0",
+    "@xmpp/xml": "^0.7.0",
     "backoff": "^2.5.0",
     "body-parser": "^1.18.3",
     "btoa": "^1.2.1",

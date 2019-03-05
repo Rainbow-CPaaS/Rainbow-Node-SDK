@@ -11,7 +11,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 * Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wkae it up, and wait for a while (5s) for the resumed event, before sending message in it.
 * Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.  
  ! Note ! : only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.`
-* Add treatment of the replace last message event. 
+* Add treatment of the replace last message event.
+* Add event `rainbow_onownbubbledeleted` when a bubble own bythe connected user is deleted. 
 
 ## [1.52.0] - 2018-02-12
 
