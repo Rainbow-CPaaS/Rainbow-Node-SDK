@@ -2,7 +2,7 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
-## [1.53.0] - 2018-0x-xx
+## [1.53.0] - 2018-03-11
 * Add event `rainbow_onbubblepresencechanged` when a bubble presence change. It is also raised when a bubble change isActive from true to false (and reverse)
 * Add a method `until` in Utils to wait for a while to condition to be done.
 * Update errors return by HttpService, to have a json object.
