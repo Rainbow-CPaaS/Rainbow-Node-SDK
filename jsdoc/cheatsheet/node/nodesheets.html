@@ -67,7 +67,7 @@ Channels : Promise.Channel : getChannelById(String, boolean)
 Channels : Channel[] : getAllChannels()
 Channels : Channel[] : getAllOwnedChannel()
 Channels : Channel[] : getAllSubscribedChannel()
-Channels : Promise.ErrorCase.OK : publishMessageToChannel(Channel, String, String, String)
+Channels : Promise.ErrorCase.OK : publishMessageToChannel(Channel, String, String, String, id[], String)
 Channels : Promise.Channel : subscribeToChannel(Channel)
 Channels : Promise.Channel : unsubscribeFromChannel(Channel)
 Channels : Promise.Channel : updateChannelDescription(Channel, string)
@@ -104,7 +104,6 @@ FileStorage : Message : uploadFileToBubble(Bubble, File, String)
 FileStorage : void : downloadFile(FileDescriptor)
 FileStorage : Object : getUserQuotaConsumption()
 FileStorage : Object : removeFile(FileDescriptor)
-FileStorage : FileDescriptor : getFileDescriptorFromId(String)
 FileStorage : FileDescriptor[] : getFilesReceivedInConversation(Conversation)
 FileStorage : FileDescriptor[] : getFilesReceivedInBubble(Bubble)
 FileStorage : FileDescriptor[] : getReceivedFilesForRoom(string)
@@ -121,6 +120,7 @@ Groups : Promise.Group, Error : createGroup(string, string, boolean)
 Groups : Promise.Group, Error : deleteGroup(Group)
 Groups : Promise.Group, Error : updateGroupName(Group, string)
 Groups : Promise.Group, Error : addUserInGroup(Contact, Group)
+Groups : Promise.Group, Error : removeUserFromGroup(Contact, Group)
 Groups : Promise.Group, Error : removeUserFromGroup(Contact, Group)
 Groups : Promise.Group, Error : removeUserFromGroup(Contact, Group)
 Groups : Array : getAll()
@@ -173,17 +173,18 @@ Events ::event : rainbow_ongroupupdated
 Events ::event : rainbow_onuseraddedingroup
 Events ::event : rainbow_onuserremovedfromgroup
 Events ::event : rainbow_onchannelmessagereceived
+Events ::event : rainbow_onchannelmessagedeletedreceived
 Events ::event : rainbow_onprofilefeatureupdated
 Events ::event : rainbow_oncallupdated
 Events ::event : rainbow_onvoicemessageupdated
 Events ::event : rainbow_oncallforwarded
-Events ::event : rainbow_filecreated
-Events ::event : rainbow_fileupdated
-Events ::event : rainbow_filedeleted
-Events ::event : rainbow_thumbnailcreated
+Events ::event : rainbow_onfilecreated
+Events ::event : rainbow_onfileupdated
+Events ::event : rainbow_onfiledeleted
 Events ::event : rainbow_onthumbnailcreated
 Events ::event : rainbow_onchannelcreated
 Events ::event : rainbow_onchanneldeleted
+Events ::event : rainbow_onchannelupdated
 Events : Object : on(string, function)
 Events : Object : once(string, function)
 Events ::event : rainbow_onstarted
@@ -212,6 +213,7 @@ Channel : string : title
 Channel : string : creator
 Channel : string : creationDate
 Channel : number : users_count
+Channel : string : type
 Conversation : string : id
 Conversation : string : dbId
 Conversation : ConversationType : type
@@ -252,7 +254,7 @@ Contact : string : companyId
 Contact : string : jid_im
 Contact : string : jid
 Contact : string : jid_tel
-Contact : string : avatar
+Contact : string : jidtel
 Contact : string : avatar
 Contact : string : lastAvatarUpdateDate
 Contact : string : lastUpdateDate
@@ -284,7 +286,7 @@ Contact : Object[] : resources
 Contact : number : nameUpdatePrio
 Contact : string : initials
 Contact : string : nickname
-Contact : string : displayName
+Contact : boolean : roster
 Contact : string : displayName
 Message : string : id
 Message : string : fromJid

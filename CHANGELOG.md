@@ -40,6 +40,81 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 ## [1.47.5] - 2018-10-27
 * Fix bad cleanup around the Stop() method
 
+## [1.53.0] - 2018-03-11
+* Add event `rainbow_onbubblepresencechanged` when a bubble presence change. It is also raised when a bubble change isActive from true to false (and reverse)
+* Add a method `until` in Utils to wait for a while to condition to be done.
+* Update errors return by HttpService, to have a json object.
+* Add the isActive propertie in `Bubble` object, and the method/events to update it. 
+* Improve the `bubble::createBubble` to wait for a while (5s) the success of creation on server side.
+* Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wkae it up, and wait for a while (5s) for the resumed event, before sending message in it.
+* Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.  
+ ! Note ! : only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.`
+* Add treatment of the replace last message event.
+* Add event `rainbow_onownbubbledeleted` when a bubble own bythe connected user is deleted.
+* Refactor improve of xmpp reconnection for the new xmpp lib 
+
+## [1.52.0] - 2018-02-12
+
+## [1.51.5] - 2018-02-08
+* Improve the  XMPP reconnect process
+* Fix error in HttpService get method
+
+## [1.51.4] - 2018-02-07
+* Fix Messages list in conversation when SDK sent or received a message in it. Message is add to conversation when the server received it and send back a Receipt.
+* Fix error return when an HttpService put or post failed
+* Fix event listener life to avoid memoryleak
+* Fix lastMessageText when retrieve history.
+
+## [1.51.3] - 2018-02-06
+* Fix remove from in markAsReadMessage
+* Fix logs
+
+## [1.51.2] - 2018-01-30
+* Fix reconnection when network is lost or when the server reboot. 
+
+## [1.51.1] - 2018-01-24
+* Add event fired when a channel is updated : rainbow_channelupdated
+* Fix issue in HttpService when remote server is unavailable
+
+## [1.51.0] - 2018-01-22
+* Fix property conversation.lastMessageText which was undefined
+* Remove the unirest library (security issue)
+* Fix updateChannel topic value
+* Fix the start/stop of the SDK. These processes has been improved to avoid multiple `start()` at the same time, and also to have a better flow life.
+* Add event rainbow_onpresencechanged fired when the presence of the connected user changes.
+* Fix decode of status in xmpp event when presence changed is received..
+
+## [1.49.1] - 2018-12-07
+* Update docs 
+* Fix parsing of stanza event `message is deleted in a channel` when the number of messages limit is reached and then raises the event `rainbow_onchannelmessagedeletedreceived`.
+* Update call to publishToChannel channel new api
+
+## [1.49.0] - 2018-11-20
+* Refactor Events emitter to produce better logs in dev mode.
+* Correction of contact's phonenumbers filling. Now Contact.phoneNumbers should be synchronised with splitted datas. 
+* Add images property in message retrieved from channels with method channels::getMessagesFromChannel and also when event "rainbow_onchannelmessagereceived" is fired
+* Correction of parsing of the result data from server in method channels::getMessagesFromChannel
+* Add a method to delete message in a channel channels::deleteMessageFromChannel. Note: there is probably an issue with the channelid of the message which is removed from event when a new message arrive in channel.
+* Add event fired when a message is delete in a channel : rainbow_onchannelmessagedeletedreceived
+* Add event fired when a channel is created : rainbow_onchannelcreated 
+* Add event fired when a channel is deleted : rainbow_channeldeleted
+* typo correction in Contacts firstName and lastName
+ 
+## [1.48.0] - 2018-10-31
+* Add ability to post files in channels.
+* Correction of stop and reconnection
+* Add log level at root level of logs in config : config.logs.level
+* Add "system-dev" section in logs for DEVELOPPEMENT ONLY, no production system should use it :  
+    "internals" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !  
+    "http" moved from logs sections, kept the same behaviour
+
+## [1.47.7] - 2018-10-28
+## [1.47.6] - 2018-10-28
+* Add missing rules to compile typescript before publishing
+
+## [1.47.5] - 2018-10-27
+* Fix bad cleanup around the Stop() method
+
 ## [1.47.0] - 2018-10-10
 * Add support for typescript sources in folder ./src/. see README.md in src folder to compil it.
 * Add debug for http request (in config file set `http` field value to `true` in `logs` section).

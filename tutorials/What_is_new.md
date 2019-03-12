@@ -4,6 +4,68 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+
+### SDK for Node.JS 1.53 - March 2018
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   None.
+
+**API Breaking Changes**
+
+-   None.
+
+**API Changes**
+
+-  
+
+**Others Changes**
+
+* Add event `rainbow_onbubblepresencechanged` when a bubble presence change. It is also raised when a bubble change isActive from true to false (and reverse)
+* Add a method `until` in Utils to wait for a while to condition to be done.
+* Update errors return by HttpService, to have a json object.
+* Add the isActive propertie in `Bubble` object, and the method/events to update it. 
+* Improve the `bubble::createBubble` to wait for a while (5s) the success of creation on server side.
+* Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wake it up, and wait for a while (5s) for the resumed event, before sending message in it.
+* Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.  
+ ! Note ! : only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.`
+* Add treatment of the replace last message event.
+* Add event `rainbow_onownbubbledeleted` when a bubble own bythe connected user is deleted.
+* Refactor improve of xmpp reconnection for the new xmpp lib 
+
+
+### SDK for Node.JS 1.52 - February 2018
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   None.
+
+**API Breaking Changes**
+
+-   None.
+
+**API Changes**
+
+-   Add event fired when a channel is updated : rainbow_channelupdated
+
+**Others Changes**
+
+-   Improve the  XMPP reconnect process
+-   Fix error in HttpService get method
+-   Fix Messages list in conversation when SDK sent or received a message in it. Message is add to conversation when the server received it and send back a Receipt.
+-   Fix error return when an HttpService put or post failed
+-   Fix event listener life to avoid memoryleak
+-   Fix lastMessageText when retrieve history.
+-   Fix remove from in markAsReadMessage
+-   Fix logs
+-   Fix reconnection when network is lost or when the server reboot. 
+-   Fix issue in HttpService when remote server is unavailable
+
+
 ### SDK for Node.JS 1.51 - January 2018
 
 ---
