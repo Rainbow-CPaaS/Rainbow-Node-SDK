@@ -1,6 +1,13 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
+## [1.54.0] - 2018-0x-xx
+* Add CallLog service (typeScript sources) to get/delete the calllog history.
+* Increase "Element" Behaviour for manipulate XML/XMPP objects in XmppClient 
+* Update XMPPService to factorise the NameSpaces
+* move orderByFilter from FileStorage to the common Utils module
+* Update doc about options provided at building the SDK object for the logs
+
 ## [1.51.0] - 2018-01-22
 * Fix property conversation.lastMessageText which was undefined
 * Remove the unirest library (security issue)

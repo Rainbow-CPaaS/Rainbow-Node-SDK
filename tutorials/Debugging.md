@@ -38,13 +38,14 @@ The SDK for Node.JS lets you configuring how you want to get the logs. You can d
 By default, the Rainbow SDK for Node.js logs to the shell console used (ie. the shell console that starts the Node.js process).
 
 You can disable it by setting the parameter `enableConsoleLogs` to `false`.
-
+You can add a custom label added in logs (helpful when multiple instances of sdk are running)
 
 ```js
 
 ...
 logs: {
-    enableConsoleLogs: false
+    enableConsoleLogs: false,
+    customLabel: 'Vincent02'            
     ...
 }
 
@@ -70,6 +71,26 @@ logs: {
 ```
 
 By default, console logger is configured with `color:false`.
+
+##### Activate - debug network
+---
+
+By default, the Rainbow SDK for Node.JS don't log informations about the network, and informations which does not complain the GPRD.
+
+```js
+
+You can activate the log of full logs by setting the parameter `internals` to `true`. (`false` by default).
+You can activate the log of http request by setting the parameter `http` to `true`. (`false` by default).
+
+...
+"logs": {
+        "system-dev": {
+            "internals": true,
+             "http": true
+        }, 
+},
+
+```
 
 
 #### Files logger
@@ -98,7 +119,7 @@ logs: {
 ##### Path and level
 ---
 
-You can modify the path where the logs are saved and the log level by modifying the parameter `file` like the following:
+You can modify the path where the logs are saved, add a label in the file name and the log level by modifying the parameter `file` like the following:
 
 
 ```js
@@ -108,6 +129,7 @@ logs: {
     enableFileLogs: true,
     file: {
         path: '/var/tmp/mypath/',
+        customFileName: 'vincent02',  
         level: 'error'
     }
 }
