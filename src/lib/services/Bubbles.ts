@@ -1,6 +1,4 @@
 "use strict";
-import {setFlagsFromString} from "v8";
-
 export {};
 
 

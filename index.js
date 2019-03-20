@@ -1,7 +1,7 @@
 "use strict";
 
 const Core = require("./lib/Core");
-const Error = require("./lib/common/Error");
+const ErrorManager = require("./lib/common/ErrorManager");
 const utils = require( "./lib/common/Utils");
 
 
@@ -150,7 +150,7 @@ class NodeSDK {
                     that.events.publish("connectionerror", err);
                     reject(err);
                 } else {
-                    let error = Error.UNAUTHORIZED;
+                    let error = ErrorManager.UNAUTHORIZED;
                     error.details = err;
                     console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(error));
                     that.events.publish("connectionerror", error);
@@ -174,7 +174,7 @@ class NodeSDK {
             return that._core.start(true).then(function() {
                 resolve();
             }).catch(function(err) {
-                var error = Error.UNAUTHORIZED;
+                var error = ErrorManager.UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
                 reject(error);
@@ -196,7 +196,7 @@ class NodeSDK {
             return that._core.signin(false).then(function(json) {
                 resolve(json);
             }).catch(function(err) {
-                var error = Error.UNAUTHORIZED;
+                var error = ErrorManager.UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
                 reject(error);
@@ -223,7 +223,7 @@ class NodeSDK {
                     resolve();
                 });
             }).catch(function(err) {
-                let error = Error.ERROR;
+                let error = ErrorManager.ERROR;
                 error.details = err;
                 that.events.publish("stopped", error);
                 reject(error);
