@@ -197,6 +197,32 @@ class RESTService {
         });
     }
 
+    askTokenOnBehalf(loginEmail, password) {
+        let that = this;
+
+        that.logger.log("debug", LOG_ID + "(askTokenOnBehalf) _entering_");
+
+        return new Promise(function(resolve, reject) {
+            let auth = btoa(loginEmail + ":" + password);
+
+            that.http
+                .get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(auth, password))
+                .then(function(JSON) {
+                    that.logger.log(
+                        "internal",
+                        LOG_ID + "(askTokenOnBehalf) successfully received token for " + JSON.loggedInUser.id + " !"
+                    );
+                    that.logger.log("debug", LOG_ID + "(askTokenOnBehalf) _exiting_");
+                    resolve(JSON);
+                })
+                .catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(askTokenOnBehalf) Error requesting a token", err);
+                    that.logger.log("debug", LOG_ID + "(askTokenOnBehalf) _exiting_");
+                    reject(err);
+                });
+        });
+    }
+
     signout() {
 
         let that = this;
@@ -1189,10 +1215,10 @@ class RESTService {
                 roles: ["guest"],
                 accountType: "free",
                 companyId: that.account.companyId, // Current requester company
-                firstName : "",
-                lastName : "",
-                language : "En",
-                timeToLive : 0,
+                firstName : undefined,
+                lastName : undefined,
+                language : undefined,
+                timeToLive : undefined
             };
 
             if (firstname) {
@@ -2691,4 +2717,5 @@ class RESTService {
     }
 }
 
+export {RESTService};
 module.exports = RESTService;

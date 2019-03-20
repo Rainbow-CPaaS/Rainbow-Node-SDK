@@ -1,7 +1,10 @@
 "use strict";
+
 export {};
 
 const ErrorManager = require("../common/ErrorManager");
+
+import  {RESTService} from "../connection/RESTService";
 
 const LOG_ID = "ADMIN - ";
 
@@ -22,7 +25,7 @@ const LOG_ID = "ADMIN - ";
  */
 class Admin {
     public _xmpp: any;
-    public _rest: any;
+    public _rest: RESTService;
     public _bubbles: any;
     public _eventEmitter: any;
     public _logger: any;
@@ -282,7 +285,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user) => {
+                that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user : any) => {
                     that._logger.log("debug", LOG_ID + "(createGuestUser) Successfully created guest user for account ", user.loginEmail);
                     resolve(user);
                 }).catch((err) => {
@@ -327,7 +330,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.createGuestUser(null, null, null, timeToLive).then((user) => {
+                that._rest.createGuestUser(null, null, null, timeToLive).then((user : any) => {
                     that._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) Successfully created guest user for account ", user.loginEmail);
                     resolve(user);
                 }).catch((err) => {
@@ -573,7 +576,7 @@ class Admin {
         return new Promise(function (resolve, reject) {
             try {
 
-                that._rest.getAllCompanies().then((companies) => {
+                that._rest.getAllCompanies().then((companies : any) => {
                     that._logger.log("debug", LOG_ID + "(getAllCompanies) Successfully get all companies");
                     that._logger.log("debug", LOG_ID + "(getAllCompanies) : companies values : ", companies.data);
                     resolve(companies);
@@ -603,7 +606,7 @@ class Admin {
         return new Promise((resolve, reject) => {
             try {
 
-                that._rest.getCompany(companyId).then((company) => {
+                that._rest.getCompany(companyId).then((company : any) => {
                     that._logger.log("debug", LOG_ID + "(getCompanyById) Successfully get a company");
                     that._logger.log("debug", LOG_ID + "(getCompanyById) : companies values : ", company.data);
                     resolve(company.data);
@@ -633,7 +636,7 @@ class Admin {
         return new Promise(function (resolve, reject) {
             try {
 
-                that._rest.deleteCompany(company.id).then((companies) => {
+                that._rest.deleteCompany(company.id).then((companies : any) => {
                     that._logger.log("debug", LOG_ID + "(deleteCompany) Successfully remove company");
                     that._logger.log("debug", LOG_ID + "(deleteCompany) : companies values : ", companies.data);
                     resolve(companies);
