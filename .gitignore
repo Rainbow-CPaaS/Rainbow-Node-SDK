@@ -16,3 +16,11 @@ lib/common/models/fileDescriptor.js
 .idea/
 package-lock.json
 /Samples/index.js
+lib/common
+lib/config
+lib/connection
+lib/Core.js
+lib/Core.js.map
+lib/ProxyImpl.js
+lib/ProxyImpl.js.map
+lib/services
