@@ -72,7 +72,7 @@ let options = {
             "level": 'debug'                  // Default log level used
         }
     },
-    // Proxy configuration
+    ProxyImpl
     "proxy": {
         "host": '192.168.0.254',
         "port": 8080,

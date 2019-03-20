@@ -1,6 +1,8 @@
 "use strict";
+export {};
 
-//const ErrorCase = require("../common/Error");
+
+//const ErrorCase = require("../common/ErrorManager");
 const utils = require("../common/Utils");
 const PubSub = require("pubsub-js");
 
@@ -19,8 +21,7 @@ const PubSub = require("pubsub-js");
     // */
 const LOG_ID = "CALLLOG - ";
 
-// @ts-ignore
-import  { CallLogEventHandler } from '../connection/XMPPServiceHandler/calllogEventHandler';
+import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
 
 //import XMPPService from "XMPPService";
 
@@ -75,8 +76,9 @@ function CallLogsBean() : ICallLogsBean {
     private _contacts: any;
     private _profiles: any;
     private _calllogEventHandler: CallLogEventHandler;
+        _telephony: any;
 
-    // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
+        // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
     constructor(_eventEmitter, logger) {
 
         /*********************************************************/
@@ -116,12 +118,13 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_xmpp , _rest, _contacts, _profiles, stats) {
+    async start(_xmpp , _rest, _contacts, _profiles, _telephony, stats) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;
         that._contacts = _contacts;
         that._profiles = _profiles;
+        that._telephony = _telephony;
 
         this.calllogHandlerToken = [];
 
@@ -205,7 +208,7 @@ function CallLogsBean() : ICallLogsBean {
 
         that.logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
 
-        that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles);
+        that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
             PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived ),

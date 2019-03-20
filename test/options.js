@@ -19,7 +19,7 @@ let options = {
         "appSecret": "XjJZLOvVCfvcpPTmt0UtIRUQddKfCGbDGBEfdB3qfXvZCKpgb9k0HaxzfQxI6UAa", // The Rainbow Application Secret - retrieved from developer hub
     },
 
-    // Proxy configuration
+    // ProxyImpl configuration
     proxy: {
         host: '192.168.254.49',
         port: 8080,

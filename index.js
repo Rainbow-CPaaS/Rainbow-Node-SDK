@@ -216,7 +216,7 @@ class NodeSDK {
         let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function() {
-                //var success = Error.OK;
+                //var success = ErrorManager.OK;
                 utils.setTimeoutPromised(1500).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);

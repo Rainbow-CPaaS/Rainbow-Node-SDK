@@ -1,3 +1,6 @@
+"use strict";
+export {};
+
 declare var config: any;
 declare var MD5: any;
 
@@ -60,7 +63,9 @@ interface IFileDescriptor {
     uploadedDate: Date;
     viewers: any[];
     state: FileState;
+    // @ts-ignore
     fileToSend: File;
+    // @ts-ignore
     previewBlob: Blob;
 
     // Download information Part :
@@ -105,7 +110,9 @@ class FileDescriptor implements IFileDescriptor {
     viewers: any[];
     dateToSort: Date;
     state: FileState;
+    // @ts-ignore
     fileToSend: File;
+    // @ts-ignore
     previewBlob: Blob;
 
     // Download information Part :

@@ -602,7 +602,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   New methods `getAllActiveBubbles()` and `getAllClosedBubbles()` have been added to get the list of bubbles that are active and closed.
 
--   [Compatibility Break] Method `deleteBubble()` now returns the bubble deleted instead of the `Error.OK` Object.
+-   [Compatibility Break] Method `deleteBubble()` now returns the bubble deleted instead of the `ErrorManager.OK` Object.
 
 **BUGS**
 
