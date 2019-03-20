@@ -4,6 +4,7 @@
       "module": "commonjs",
       "target": "es6",
       //"sourceMap": false,
+      //"declaration": true,
       "allowJs": true,
       "allowUnusedLabels": true,
       "charset": "utf-8",
