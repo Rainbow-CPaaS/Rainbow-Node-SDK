@@ -106,16 +106,16 @@ class RESTService {
 			return header;
         };
 
-        this.getLoginHeader = () => {
+        this.getLoginHeader = (auth, password) => {
             let headers = { 
                 "Accept": "application/json", 
                 "Content-Type": "application/json",
-                "Authorization": "Basic " + that.auth,
+                "Authorization": "Basic " + (auth || that.auth),
                 "x-rainbow-client": "sdk_node",
                 "x-rainbow-client-version": packageVersion.version
             };
 
-            let toEncrypt = that._application.appSecret + that._credentials.password;
+            let toEncrypt = that._application.appSecret + (password || that._credentials.password);
             //that.logger.log("debug", LOG_ID + "toEncrypt : " + toEncrypt);
             let encrypted = CryptoJS.SHA256(toEncrypt).toString();
             //that.logger.log("debug", LOG_ID + "encrypted : " + encrypted);

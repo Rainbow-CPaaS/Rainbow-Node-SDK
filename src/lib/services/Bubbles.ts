@@ -4,7 +4,7 @@ export {};
 
 const ErrorManager = require("../common/ErrorManager");
 //const Bubble = require("../common/models/Bubble");
-import Bubble from "../common/models/Bubble";
+import {Bubble} from "../common/models/Bubble";
 
 const PromiseQueue = require("../common/promiseQueue");
 const utils = require("../common/Utils");

@@ -10,7 +10,7 @@ export{};
  *		A bubble is an interaction between several participants based on IM media. A bubble is described by a name and a description.<br>
  *		Like for one-to-one conversation, A conversation within a bubble never ends and all interactions done can be retrieved. <br>
  */
-export default class Bubble {
+class Bubble {
 	public id: any;
 	public name: any;
 	public topic: any;
@@ -126,5 +126,5 @@ export default class Bubble {
 }
 
 
-
-module.exports = Bubble;
+export {Bubble};
+module.exports.Bubble = Bubble;

@@ -21,11 +21,11 @@ const LOG_ID = "ADMIN - ";
  *      - Create a guest user
  */
 class Admin {
-	public _xmpp: any;
-	public _rest: any;
-	public _bubbles: any;
-	public _eventEmitter: any;
-	public _logger: any;
+    public _xmpp: any;
+    public _rest: any;
+    public _bubbles: any;
+    public _eventEmitter: any;
+    public _logger: any;
 
     constructor(_eventEmitter, _logger) {
         this._xmpp = null;
@@ -40,14 +40,13 @@ class Admin {
 
         that._logger.log("debug", LOG_ID + "(start) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
-            }
-            catch (err) {
+            } catch (err) {
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject();
             }
@@ -59,7 +58,7 @@ class Admin {
 
         that._logger.log("debug", LOG_ID + "(stop) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
                 that._xmpp = null;
                 that._rest = null;
@@ -72,7 +71,7 @@ class Admin {
         });
     }
 
-     /**
+    /**
      * @public
      * @method createCompany
      * @instance
@@ -90,9 +89,9 @@ class Admin {
     createCompany(strName, country, state) {
         let that = this;
 
-         that._logger.log("debug", LOG_ID + "(createCompany) _entering_", strName, country);
+        that._logger.log("debug", LOG_ID + "(createCompany) _entering_", strName, country);
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
                 if (!strName) {
                     that._logger.log("error", LOG_ID + "(createCompany) bad or empty 'strName' parameter");
@@ -138,7 +137,7 @@ class Admin {
 
         that._logger.log("debug", LOG_ID + "(setVisibilityForCompany) _entering_", company);
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
                 if (!company) {
                     that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
@@ -178,9 +177,9 @@ class Admin {
      * @param {string} password The associated password
      * @param {string} firstname The user firstname
      * @param {string} lastname  The user lastname
-     * @param {string} [companyId="user company"] The Id of the company where to create the user or the connected user company if null 
-     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE... 
-     * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default. 
+     * @param {string} [companyId="user company"] The Id of the company where to create the user or the connected user company if null
+     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
+     * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
      * @memberof Admin
      * @async
      * @return {Promise<Contact, ErrorManager>}
@@ -192,7 +191,7 @@ class Admin {
 
         that._logger.log("debug", LOG_ID + "(createUserInCompany) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
                 language = language || "en-US";
@@ -223,7 +222,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin).then( (user) => {
+                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin).then((user) => {
                     that._logger.log("debug", LOG_ID + "(createUserInCompany) Successfully created user for account", email);
                     resolve(user);
                 }).catch((err) => {
@@ -247,7 +246,7 @@ class Admin {
      *      Create a new guest user in the same company as the requester admin
      * @param {string} firstname The user firstname
      * @param {string} lastname  The user lastname
-     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE... 
+     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @memberof Admin
      * @async
@@ -255,12 +254,12 @@ class Admin {
      * @fulfil {Object} - Created guest user in company or an error object depending on the result
      * @category async
      */
-    createGuestUser( firstname, lastname, language, timeToLive) {
+    createGuestUser(firstname, lastname, language, timeToLive) {
         let that = this;
 
         this._logger.log("debug", LOG_ID + "(createGuestUser) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
                 language = language || "en-US";
@@ -277,13 +276,13 @@ class Admin {
                     return;
                 }
 
-                if (timeToLive && isNaN(timeToLive) ) {
+                if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
                     reject(ErrorManager.BAD_REQUEST);
                     return;
                 }
 
-                that._rest.createGuestUser( firstname, lastname, language, timeToLive ).then( (user) => {
+                that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user) => {
                     that._logger.log("debug", LOG_ID + "(createGuestUser) Successfully created guest user for account ", user.loginEmail);
                     resolve(user);
                 }).catch((err) => {
@@ -319,16 +318,16 @@ class Admin {
 
         this._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
-                if (timeToLive && isNaN(timeToLive) ) {
+                if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
                     reject(ErrorManager.BAD_REQUEST);
                     return;
                 }
 
-                that._rest.createGuestUser( null, null, null, timeToLive ).then( (user) => {
+                that._rest.createGuestUser(null, null, null, timeToLive).then((user) => {
                     that._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) Successfully created guest user for account ", user.loginEmail);
                     resolve(user);
                 }).catch((err) => {
@@ -365,7 +364,7 @@ class Admin {
 
         this._logger.log("debug", LOG_ID + "(inviteUserInCompany) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
                 language = language || "en-US";
@@ -384,7 +383,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.inviteUser(email, companyId, language, message).then( (user) => {
+                that._rest.inviteUser(email, companyId, language, message).then((user) => {
                     that._logger.log("debug", LOG_ID + "(inviteUserInCompany) Successfully inviting user for account", email);
                     resolve(user);
                 }).catch((err) => {
@@ -405,7 +404,7 @@ class Admin {
      * @method changePasswordForUser
      * @instance
      * @description
-     *      Change a password for a user 
+     *      Change a password for a user
      * @param {string} password The new password
      * @param {string} userId The id of the user
      * @memberof Admin
@@ -420,7 +419,7 @@ class Admin {
 
         this._logger.log("debug", LOG_ID + "(changePasswordToUser) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
                 if (!password) {
@@ -435,7 +434,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.changePassword(password, userId).then( (user) => {
+                that._rest.changePassword(password, userId).then((user) => {
                     that._logger.log("debug", LOG_ID + "(changePasswordToUser) Successfully changing password for user account", userId);
                     resolve(user);
                 }).catch((err) => {
@@ -456,7 +455,7 @@ class Admin {
      * @method updateInformationForUser
      * @instance
      * @description
-     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails` 
+     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails`
      * @param {Object} objData An object (key: value) containing the data to change with their new value
      * @param {string} userId The id of the user
      * @memberof Admin
@@ -471,7 +470,7 @@ class Admin {
 
         this._logger.log("debug", LOG_ID + "(updateInformationForUser) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
                 if (!objData) {
@@ -492,7 +491,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.updateInformation(objData, userId).then( (user) => {
+                that._rest.updateInformation(objData, userId).then((user) => {
                     that._logger.log("debug", LOG_ID + "(updateInformationForUser) Successfully changing information for user account", userId);
                     resolve(user);
                 }).catch((err) => {
@@ -513,7 +512,7 @@ class Admin {
      * @method deleteUser
      * @instance
      * @description
-     *      Delete an existing user 
+     *      Delete an existing user
      * @param {string} userId The id of the user
      * @memberof Admin
      * @async
@@ -527,7 +526,7 @@ class Admin {
 
         this._logger.log("debug", LOG_ID + "(deleteUser) _entering_");
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
 
                 if (!userId) {
@@ -536,7 +535,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.deleteUser(userId).then( (user) => {
+                that._rest.deleteUser(userId).then((user) => {
                     that._logger.log("debug", LOG_ID + "(deleteUser) Successfully deleting user account", userId);
                     that._logger.log("internal", LOG_ID + "(deleteUser) Successfully deleting user ", user);
                     resolve(user);
@@ -558,7 +557,7 @@ class Admin {
      * @method getAllCompanies
      * @instance
      * @description
-     *      Get all companies for a given admin 
+     *      Get all companies for a given admin
      * @param {string} userId The id of the user
      * @memberof Admin
      * @async
@@ -571,14 +570,14 @@ class Admin {
 
         this._logger.log("debug", LOG_ID + "(getAllCompanies) _entering_");
 
-        return new Promise(function(resolve, reject) {
-            try  {
+        return new Promise(function (resolve, reject) {
+            try {
 
-                that._rest.getAllCompanies().then( (companies) => {
+                that._rest.getAllCompanies().then((companies) => {
                     that._logger.log("debug", LOG_ID + "(getAllCompanies) Successfully get all companies");
                     that._logger.log("debug", LOG_ID + "(getAllCompanies) : companies values : ", companies.data);
                     resolve(companies);
-                }).catch(function(err) {
+                }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getAllCompanies) ErrorManager when get All companies");
                     reject(err);
                 });
@@ -596,19 +595,19 @@ class Admin {
      * get a company
      * @private
      */
-    getCompanyById (companyId) {
+    getCompanyById(companyId) {
         let that = this;
 
         this._logger.log("debug", LOG_ID + "(getCompanyById) _entering_");
 
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             try {
 
                 that._rest.getCompany(companyId).then((company) => {
                     that._logger.log("debug", LOG_ID + "(getCompanyById) Successfully get a company");
                     that._logger.log("debug", LOG_ID + "(getCompanyById) : companies values : ", company.data);
                     resolve(company.data);
-                }).catch( (err) => {
+                }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(getCompanyById) ErrorManager when get a company");
                     reject(err);
                 });
@@ -626,7 +625,7 @@ class Admin {
      * Remove a company
      * @private
      */
-    removeCompany (company) {
+    removeCompany(company) {
         let that = this;
 
         this._logger.log("debug", LOG_ID + "(deleteCompany) _entering_");
@@ -647,6 +646,45 @@ class Admin {
 
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(deleteCompany) _exiting_");
+                reject(err);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method createTokenOnBehalf
+     * @instance
+     * @description
+     *      Ask Rainbow for a token on behalf a user
+     *      This allow to not use the secret key on client side
+     * @param {string} loginEmail The user login email
+     * @param {string} password The user password
+     * @memberof Admin
+     * @async
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the user data, application data and token
+     * @category async
+     */
+    askTokenOnBehalf(loginEmail, password) {
+        let that = this;
+
+        this._logger.log("debug", LOG_ID + "(getGuestOrUserToken) _entering_");
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
+                    that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) Successfully logged-in a user");
+                    that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) : user data : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getGuestOrUserToken) Error when getting a token");
+                    reject(err);
+                });
+
+                that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) _exiting_");
+            } catch (err) {
+                that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) _exiting_");
                 reject(err);
             }
         });
