@@ -632,6 +632,7 @@ class Admin {
         let that = this;
 
         this._logger.log("debug", LOG_ID + "(deleteCompany) _entering_");
+        this._logger.log("internal", LOG_ID + "(deleteCompany) _entering_ : company : ", company);
 
         return new Promise(function (resolve, reject) {
             try {
