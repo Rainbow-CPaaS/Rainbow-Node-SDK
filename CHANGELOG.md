@@ -2,11 +2,14 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 ## [1.54.0] - 2018-0x-xx
-* Add CallLog service (typeScript sources) to get/delete the calllog history.
+* Add CallLog service (typeScript sources) to `get/delete` the calllog history.
 * Increase "Element" Behaviour for manipulate XML/XMPP objects in XmppClient 
-* Update XMPPService to factorise the NameSpaces
-* move orderByFilter from FileStorage to the common Utils module
+* Update XMPPService to factorise the `NameSpaces`
+* move `orderByFilter` from FileStorage to the common Utils module
 * Update doc about options provided at building the SDK object for the logs
+* Remove the `data` property layer in result of `admin::createCompany` API method. Properties found before in data are a now in root object.
+* Fix `admin::removeUserFromCompany` ro return the deletion result.
+* Change the sources from javascript to typescript.
 
 ## [1.51.0] - 2018-01-22
 * Fix property conversation.lastMessageText which was undefined

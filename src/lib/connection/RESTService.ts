@@ -1799,7 +1799,11 @@ class RESTService {
                 that.logger.log("info", LOG_ID + "(createCompany) successfull");
                 that.logger.log("internal", LOG_ID + "(createCompany) REST creation company", json);
                 that.logger.log("debug", LOG_ID + "(createCompany) _exiting_");
-                resolve(json);
+                if (json && json.data) {
+                    resolve(json.data);
+                } else {
+                    resolve(json);
+                }
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createCompany) error", err);
                 that.logger.log("debug", LOG_ID + "(createCompany) _exiting_");
@@ -1830,6 +1834,7 @@ class RESTService {
         let that = this;
 
         return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(deleteCompany) companyId", companyId);
 
             that.http.delete('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader()).then(function (json) {
                 that.logger.log("info", LOG_ID + "(deleteCompany) successfull");

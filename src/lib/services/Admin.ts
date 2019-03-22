@@ -127,7 +127,7 @@ class Admin {
     removeUserFromCompany(user) {
         let that = this;
 
-        that.deleteUser(user.id);
+        return that.deleteUser(user.id);
     }
 
     /**
