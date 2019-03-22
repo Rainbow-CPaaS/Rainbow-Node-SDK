@@ -182,7 +182,7 @@ class XMPPService {
             this.xmppClient = new Client({
                 "service": this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
                 "domain": domain,
-                "resource": "nodesdk",
+             //   "resource": "nodesdk",
                 "username": this.fullJid,
                 "password": this.jid_password,
                 "options": options,

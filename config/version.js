@@ -1,1 +1,1 @@
-window.sdknodeversion = "1.44.0";
+window.sdknodeversion = "1.53.1";
