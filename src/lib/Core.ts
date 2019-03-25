@@ -347,11 +347,11 @@ class Core {
                     }).then(() => {
                         return that._admin.start(that._xmpp, that._rest);
                     }).then(() => {
-                        return that._fileServer.start(that._xmpp, that._rest, that.fileStorage);
+                        return that._fileServer.start(that._xmpp, that._rest, that._fileStorage);
                     }).then(() => {
-                        return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that.conversations);
+                        return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations);
                     }).then(() => {
-                        return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles);
+                        return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {

@@ -67,25 +67,28 @@ class IQEventHandler extends GenericHandler {
                             that._onIqGetQueryReceived(stanza, node);
                             break;
                         case "bind":
-                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) onIqResultReceived - 'stanza'", node.getName());
+                            that.logger.log("info", LOG_ID + "(onIqResultReceived)  - 'stanza'", node.getName());
                             break;
-                    case "pbxagentstatus":
-                        // The treatment is in telephonyEventHandler
-                        //that._onIqGetPbxAgentStatusReceived(stanza, node);
-                        break;
+                        case "pbxagentstatus":
+                            // The treatment is in telephonyEventHandler
+                            //that._onIqGetPbxAgentStatusReceived(stanza, node);
+                            break;
+                        case "deleted":
+                            // One treatment is in calllogEventHandler
+                            break;
                         case "default":
-                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqResultReceived - not managed - 'stanza'", node.getName());
+                            that.logger.log("warn", LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
                             break;
                         default:
-                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqResultReceived - child not managed for iq - 'stanza'", node.getName());
-                            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) onIqResultReceived - child not managed for iq - 'stanza'", node.getName(), "stanza : ", stanza, " node : ", node);
+                            that.logger.log("warn", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
+                            that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName(), "stanza : ", stanza, " node : ", node);
                     }
                 });
                 if (stanza.attrs.id === "enable_xmpp_carbon") {
                     that.eventEmitter.emit("rainbow_oncarbonactivated");
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
             }
         };
 

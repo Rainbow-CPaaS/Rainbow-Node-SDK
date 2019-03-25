@@ -1,4 +1,6 @@
 "use strict";
+import {accessSync} from "fs";
+
 export {};
 
 
@@ -29,6 +31,7 @@ interface ICallLogsBean {
     callLogs: Array<any>;
     orderByNameCallLogs: Array<any>;
     orderByDateCallLogs: Array<any>,
+    orderByNameCallLogsBruts: Array<any>,
     orderByDateCallLogsBruts: Array<any>,
     simplifiedCallLogs: Array<any>,
     numberMissedCalls: number,
@@ -40,10 +43,11 @@ function CallLogsBean() : ICallLogsBean {
         "callLogs": [],
         "orderByNameCallLogs": [],
         "orderByDateCallLogs": [],
+        "orderByNameCallLogsBruts": [],
         "orderByDateCallLogsBruts": [],
         "simplifiedCallLogs": [],
         "numberMissedCalls": 0,
-        "lastTimestamp": null
+        "lastTimestamp": 0
     };
 }
     class CallLogService {
@@ -131,22 +135,6 @@ function CallLogsBean() : ICallLogsBean {
         that.logger.log("info", LOG_ID + " ");
         that.logger.log("info", LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
-
-        utils.setTimeoutPromised(3000).then(() => {
-            let startDate = new Date();
-            that.getCallLogHistoryPage()
-                .then(() => {
-                    // @ts-ignore
-                    let duration = new Date() - startDate;
-                    let startDuration = Math.round(duration);
-                    that.logger.log("info", LOG_ID + " callLogService start duration : ",  startDuration);
-                    that.logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
-                    that.started = true;
-                })
-                .catch(() => {
-                    that.logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
-                });
-        });
     }
 
     async stop() {
@@ -162,17 +150,7 @@ function CallLogsBean() : ICallLogsBean {
 
         this.callLogHandlerRef = null;
         this.callLogMessageAckRef = null;
-        this.calllogs = {
-
-            "callLogs": [],
-            "orderByNameCallLogs": [],
-            "orderByDateCallLogs": [],
-            "orderByDateCallLogsBruts": [],
-            "simplifiedCallLogs": [],
-            "numberMissedCalls": 0,
-
-            "lastTimestamp": null
-        };
+        this.calllogs = CallLogsBean();
 
         this.telephonyCallLog = {};
         this.telephonyCallLogHistory = {};
@@ -198,9 +176,25 @@ function CallLogsBean() : ICallLogsBean {
     async init () {
         let that = this;
 
-        that._eventEmitter.on("rainbow_oncalllogupdated", that.onCallLogUpdated.bind(that));
-        that._eventEmitter.on("rainbow_oncalllogackupdated", that.onCallLogAckReceived.bind(that));
+        that._eventEmitter.on("rainbow_calllogupdated", that.onCallLogUpdated.bind(that));
+        that._eventEmitter.on("rainbow_calllogackupdated", that.onCallLogAckReceived.bind(that));
         //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
+        await utils.setTimeoutPromised(3000).then(() => {
+            let startDate = new Date();
+            that.getCallLogHistoryPage()
+                .then(() => {
+                    // @ts-ignore
+                    let duration = new Date() - startDate;
+                    let startDuration = Math.round(duration);
+                    that.logger.log("info", LOG_ID + " callLogService start duration : ",  startDuration);
+                    that.logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
+                    that.started = true;
+                })
+                .catch(() => {
+                    that.logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
+                });
+        });
+
     }
 
     attachHandlers() {
@@ -374,11 +368,11 @@ function CallLogsBean() : ICallLogsBean {
      *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished
      * @return Nothing
      */
-    markAllCallsLogsAsRead() {
+    async markAllCallsLogsAsRead() {
         let that = this;
 
         that.logger.log("info", LOG_ID + "[markAllCallsLogsAsRead] markAllCallsLogsAsRead ");
-        that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
+        await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
 
     /**
@@ -433,6 +427,12 @@ function CallLogsBean() : ICallLogsBean {
         return that.calllogs.orderByDateCallLogs;
     }
 
+
+    getOrderByNameCallLogsBruts() {
+        let that = this;
+        return that.calllogs.orderByNameCallLogsBruts;
+    }
+
     getOrderByDateCallLogsBruts() {
         let that = this;
         return that.calllogs.orderByDateCallLogsBruts;
@@ -452,17 +452,8 @@ function CallLogsBean() : ICallLogsBean {
     async resetCallLogs() {
         let that = this;
         that.logger.log("info", LOG_ID + "[resetCallLogs] resetCallLogs");
-        that.calllogs = {
-            "callLogs": [],
-            "orderByNameCallLogs": [],
-            "orderByDateCallLogs": [],
-            "orderByDateCallLogsBruts": [],
-            "simplifiedCallLogs": [],
-            "numberMissedCalls": 0,
-
-            "lastTimestamp": null
-        };
-        this._calllogEventHandler.resetCallLogs();
+        that.calllogs = CallLogsBean();
+        await this._calllogEventHandler.resetCallLogs();
 
         await that.getCallLogHistoryPage();
     }

@@ -327,6 +327,31 @@ class ConversationEventHandler extends GenericHandler {
                             }
                         }
                             break;
+                        case "mark_as_read":
+                        {
+                            let conversationId = node.find("mark_as_read").attr("with");
+                            let conversation = this.conversationService.getConversationById(conversationId);
+
+                            if (conversation) {
+                                let typeread = node.find("mark_as_read").attr("id");
+                                switch (typeread) {
+                                    case "all-received": // messages for this conversation have been acknowledged
+                                        conversation.missedCounter = 0;
+                                        break;
+                                    case "all-sent": // messages for this conversation have been read
+                                        // Not take into account : conversation.ackReadAllMessages();
+                                        break;
+                                    default:
+                                        that.logger.log("error", LOG_ID + "(onChatMessageReceived) error - unknown read type : ", );
+                                        break;
+                                }
+                            }
+                        }
+                            break;
+                        case "deleted_call_log":
+                            break;
+                        case "updated_call_log":
+                            break;
                         default:
                             that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node ", node.getName(), stanza);
                             break;

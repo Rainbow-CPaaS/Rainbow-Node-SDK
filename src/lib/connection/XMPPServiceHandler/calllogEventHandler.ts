@@ -1,4 +1,6 @@
 "use strict";
+import {accessSync} from "fs";
+
 export {};
 
 
@@ -68,6 +70,7 @@ class CallLogEventHandler extends GenericHandler {
             "callLogs": [],
             "orderByNameCallLogs": [],
             "orderByDateCallLogs": [],
+            "orderByNameCallLogsBruts": [],
             "orderByDateCallLogsBruts": [],
             "simplifiedCallLogs": [],
             "numberMissedCalls": 0,
@@ -92,22 +95,23 @@ class CallLogEventHandler extends GenericHandler {
                 else if (stanza.find("count").length > 0 && stanza.find("query").length > 0) {
                     //save last message timestamp
                     that.calllogs.lastTimestamp = stanza.find("last").text();
-                    that.logger.log("info", LOG_ID + "[onCallLogMessageReceived] onCallLogMessageReceived : all call logs received");
+                    that.logger.log("info", LOG_ID + "(onIqCallLogReceived) : all call logs received");
 
                     if (that.callLogsPromises.length > 0) {
                         Promise.all(that.callLogsPromises).then(() => {
-                            that.logger.log("info", LOG_ID + "[onCallLogMessageReceived] onCallLogMessageReceived : all call logs are ready");
+                            that.logger.log("info", LOG_ID + "(onIqCallLogReceived) : all call logs are ready");
 
                             that.callLogsPromises = [];
 
                             that.orderCallLogsFunction();
 
+                            let oldMissedCallLogCounter = that.calllogs.numberMissedCalls;
+                            let num = that.getMissedCallLogCounter();
+
                             // $rootScope.$broadcast("ON_CALL_LOG_UPDATED");
                             that.eventEmitter.emit("rainbow_calllogupdated", that.calllogs);
 
-                            let num = that.getMissedCallLogCounter();
-                            if (num !== that.numberMissedCalls) {
-                                that.calllogs.numberMissedCalls = num;
+                            if (num !== oldMissedCallLogCounter) {
                                 that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
                                 // $rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
                             }
@@ -116,10 +120,10 @@ class CallLogEventHandler extends GenericHandler {
                 }
                 //handle other messages
                 else {
-                    that.logger.log("info", LOG_ID + "[onCallLogMessageReceived] onCallLogMessageReceived : ignored !");
+                    that.logger.log("info", LOG_ID + "(onIqCallLogReceived) : ignored stanza for calllog !");
                 }
             } catch (error) {
-                that.logger.log("error", LOG_ID + "[onCallLogMessageReceived] onCallLogMessageReceived " + error);
+                that.logger.log("error", LOG_ID + "(onIqCallLogReceived) CATCH Error !!! ", error);
                 return true;
             }
 
@@ -130,74 +134,80 @@ class CallLogEventHandler extends GenericHandler {
             let that = this;
             that.logger.log("internal", LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, stanza);
             try {
-                that.logger.log("info", LOG_ID + "[onCallLogAckReceived] onCallLogAckReceived");
+                that.logger.log("info", LOG_ID + "(onCallLogAckReceived) received");
                 //console.log(stanza);
 
-                if (stanza.find("read").length > 0) {
+                let read = stanza.find("read");
+                if (read.length > 0) {
 
                     let msgId = stanza.find("read").attr("call_id");
                     that.callLogAckUpdate(msgId);
 
+                    let oldMissedCallLogCounter = that.calllogs.numberMissedCalls;
                     let num = that.getMissedCallLogCounter();
-                    if (num !== that.calllogs.numberMissedCalls) {
-                        that.calllogs.numberMissedCalls = num;
+                    if (num !== oldMissedCallLogCounter) {
                         that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
                         //$rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
                     }
                 }
 
             } catch (error) {
-                that.logger.log("error", LOG_ID + "[onCallLogAckReceived] onCallLogAckReceived " + error);
+                that.logger.log("error", LOG_ID + "(onCallLogAckReceived) " + error);
                 return true;
             }
 
             return true;
         };
 
-        this.onIqCallLogNotificationReceived = (msg, stanza) => {
+        this.onIqCallLogNotificationReceived = async(msg, stanza) => {
             let that = this;
 
-            that.logger.log("internal", LOG_ID + "(callLogNotificationReceived) received - 'stanza'", msg, stanza);
-            that.logger.log("info", LOG_ID + "[callLogNotificationReceived] callLogNotificationReceived");
+            that.logger.log("internal", LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, stanza);
+            that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) received");
             //console.log(stanza);
 
             try {
-                if (stanza.find("deleted_call_log").length > 0) {
-                    that.logger.log("info", LOG_ID + "[callLogNotificationReceived] callLogNotificationReceived : deleted IQ");
+                let deleted_call_log = stanza.find("deleted_call_log");
+                let updated_call_log = stanza.find("updated_call_log");
+                if (deleted_call_log.length > 0) {
+                    that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) deleted IQ");
                     let peer = stanza.find("deleted_call_log").attr("peer");
 
                     //no given user JID, reset all call-logs
                     if (!peer) {
-                        that.resetCallLogs();
+                        that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) no given user JID, reset all call-logs");
+                        await that.resetCallLogs();
+                        await that.calllogService.getCallLogHistoryPage();
                     } else {
                         that.removeCallLogsForUser(peer);
                     }
-                } else if (stanza.find("updated_call_log").length > 0) {
-                    that.logger.log("info", LOG_ID + "[callLogNotificationReceived] callLogNotificationReceived : Update call-logs");
+                } else if (updated_call_log.length > 0) {
+                    that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived)  : Update call-logs");
 
                     that.callLogsPromises.push(that.createCallLogFromMessage(stanza));
 
                     Promise.all(that.callLogsPromises)
                         .then(function () {
-                            that.logger.log("info", LOG_ID + "[callLogNotificationReceived] callLogNotificationReceived : update is done");
+                            that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) : update is done");
 
                             that.callLogsPromises = [];
 
                             that.orderCallLogsFunction();
 
+                            let oldMissedCallLogCounter = that.calllogs.numberMissedCalls;
+                            let num = that.getMissedCallLogCounter();
+
                             that.eventEmitter.emit("rainbow_calllogupdated", that.calllogs);
                             //$rootScope.$broadcast("ON_CALL_LOG_UPDATED");
 
-                            let num = that.getMissedCallLogCounter();
-                            if (num !== that.calllogs.numberMissedCalls) {
-                                that.calllogs.numberMissedCalls = num;
+                            if (num !== oldMissedCallLogCounter) {
                                 that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
                                 //$rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
                             }
                         });
                 }
             } catch (error) {
-                that.logger.log("error", LOG_ID + "[callLogService] callLogNotificationReceived ERROR " + error);
+                that.logger.log("error", LOG_ID + "(onIqCallLogNotificationReceived) CATCH Error !!! : ", error);
                 return true;
             }
         };
@@ -218,6 +228,37 @@ class CallLogEventHandler extends GenericHandler {
         return (indexMPinJid === 0);
     }
 
+    removeCallLogsForUser (jid) {
+         let that = this;
+
+        if ( jid.endsWith("@_") ) {
+            // Ticket 2629 : remove @_ from jid added by server for JIDisation...
+            jid = jid.substring(0, jid.length - 2);
+        }
+        that.logger.log("info", LOG_ID + "removeCallLogsForUser with jid: " + jid);
+
+        let newLogs = [];
+        for (let i = 0; i < that.calllogs.callLogs.length; i++) {
+            if (!that.calllogs.callLogs[i].contact || (that.calllogs.callLogs[i].contact.jid !== jid && that.calllogs.callLogs[i].contact.id !== jid)) {
+                newLogs.push(that.calllogs.callLogs[i]);
+            }
+        }
+
+        that.calllogs.callLogs = newLogs;
+
+        that.orderCallLogsFunction();
+
+        let oldMissedCallLogCounter = that.calllogs.numberMissedCalls;
+        let num = that.getMissedCallLogCounter();
+
+        //$rootScope.$broadcast("ON_CALL_LOG_UPDATED");
+        that.eventEmitter.emit("rainbow_calllogupdated", that.calllogs);
+
+        if (num !== oldMissedCallLogCounter) {
+            //$rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
+            that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
+        }
+    };
 
     async createCallLogFromMessage(message) {
         let that = this;
@@ -410,12 +451,12 @@ class CallLogEventHandler extends GenericHandler {
     orderCallLogsFunction() {
         let that = this;
         that.logger.log("info", LOG_ID + "[orderCallLogsFunction] orderByFunction");
-        that.calllogs.orderByNameCallLogs = orderByFilter(that.calllogs.callLogs, CallLog.getNames, false, CallLog.sortByContact);
+        that.calllogs.orderByNameCallLogsBruts = orderByFilter(that.calllogs.callLogs, CallLog.getNames, false, CallLog.sortByContact);
         that.calllogs.orderByDateCallLogsBruts = orderByFilter(that.calllogs.callLogs, CallLog.getDate, false, CallLog.sortByDate);
 
         that.calllogs.simplifiedCallLogs = that.simplifyCallLogs(that.calllogs.orderByDateCallLogsBruts);
 
-        that.calllogs.orderByNameCallLogs = that.fusionInformation(that.calllogs.orderByNameCallLogs);
+        that.calllogs.orderByNameCallLogs = that.fusionInformation(that.calllogs.orderByNameCallLogsBruts);
         that.calllogs.orderByDateCallLogs = that.fusionInformation(that.calllogs.orderByDateCallLogsBruts);
         return this.calllogs;
     }
@@ -431,18 +472,54 @@ class CallLogEventHandler extends GenericHandler {
             }
         });
 
+        that.calllogs.numberMissedCalls = num;
+
         return num;
     }
 
     //update ACK for call log with ID
     callLogAckUpdate(id) {
         let that = this;
-        that.callLogs.forEach(function (callLog) {
-            if (callLog.id === id) {
-                callLog.read = true;
-                return;
-            }
-        });
+        try {
+            that.calllogs.callLogs.forEach(function (callLog) {
+                if (callLog.id === id) {
+                    callLog.read = true;
+                    return;
+                }
+            });
+            that.calllogs.simplifiedCallLogs.forEach(function (callLog) {
+                if (callLog.id === id) {
+                    callLog.read = true;
+                    return;
+                }
+            });
+            that.calllogs.orderByDateCallLogs.forEach(function (callLog) {
+                if (callLog.id === id) {
+                    callLog.read = true;
+                    return;
+                }
+            });
+            that.calllogs.orderByNameCallLogsBruts.forEach(function (callLog) {
+                if (callLog.id === id) {
+                    callLog.read = true;
+                    return;
+                }
+            });
+            that.calllogs.orderByDateCallLogsBruts.forEach(function (callLog) {
+                if (callLog.id === id) {
+                    callLog.read = true;
+                    return;
+                }
+            });
+            that.calllogs.orderByNameCallLogs.forEach(function (callLog) {
+                if (callLog.id === id) {
+                    callLog.read = true;
+                    return;
+                }
+            });
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "[callLogAckUpdate] !!! CATCH Error : ", err);
+        }
     }
 
     simplifyCallLogs(callLogs) {
@@ -472,6 +549,7 @@ class CallLogEventHandler extends GenericHandler {
             "callLogs": [],
             "orderByNameCallLogs": [],
             "orderByDateCallLogs": [],
+            "orderByNameCallLogsBruts": [],
             "orderByDateCallLogsBruts": [],
             "simplifiedCallLogs": [],
             "numberMissedCalls": 0,

@@ -60,13 +60,17 @@ CallLog.getNames = function (callLog) {
         date:0
     };
 
-    if (callLog && callLog.contact) {
-        result.firstName = callLog.contact.firstName.toUpperCase();
-        result.lastName = callLog.contact.lastName.toUpperCase();
+    try {
+        if (callLog && callLog.contact) {
+            result.firstName = callLog.contact.firstName.toUpperCase();
+            result.lastName = callLog.contact.lastName.toUpperCase();
 
-        if (callLog && callLog.date) {
-            result.date = callLog.date.getTime();
+            if (callLog && callLog.date) {
+                result.date = callLog.date.getTime();
+            }
         }
+    } catch (err) {
+
     }
 
     return result;
@@ -83,21 +87,25 @@ CallLog.getDate = function (callLog) {
 CallLog.sortByContact = function (callLogA, callLogB) {
     let res = -1;
 
-    if (callLogA && callLogA.lastName && callLogB && callLogB.lastName) {
-        let str1 = callLogA.lastName;
-        let str2 = callLogB.lastName;
-        res = str1.localeCompare(str2);
-        if (res === 0) {
-            str1 = callLogA.firstName;
-            str2 = callLogB.firstName;
-
+    try {
+        if (callLogA && callLogA.lastName && callLogB && callLogB.lastName) {
+            let str1 = callLogA.lastName;
+            let str2 = callLogB.lastName;
             res = str1.localeCompare(str2);
+            if (res === 0) {
+                str1 = callLogA.firstName;
+                str2 = callLogB.firstName;
 
-            if (res === 0 && callLogB.date && callLogA.date) {
-                //order by date
-                res = callLogB.date - callLogA.date;
+                res = str1.localeCompare(str2);
+
+                if (res === 0 && callLogB.date && callLogA.date) {
+                    //order by date
+                    res = callLogB.date - callLogA.date;
+                }
             }
         }
+    } catch (err) {
+
     }
 
     return res;

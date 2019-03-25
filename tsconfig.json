@@ -3,7 +3,7 @@
     "noImplicitAny": false,
     "module": "commonjs",
     "target": "es6",
-    //"sourceMap": false,
+    "sourceMap": true,
     //"declaration": true,
     "allowJs": false,
     "allowUnusedLabels": true,

@@ -425,15 +425,28 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} admin
+     * @property {Object} telephony
      * @instance
      * @description
-     *    Get access to the Admin module
+     *    Get access to the telephony module
      * @memberof NodeSDK
      */
     get telephony() {
         return this._core.telephony;
     }
+
+    /**
+     * @public
+     * @property {Object} calllog
+     * @instance
+     * @description
+     *    Get access to the calllog module
+     * @memberof NodeSDK
+     */
+    get calllog() {
+        return this._core.calllog;
+    }
+
 
 
 }

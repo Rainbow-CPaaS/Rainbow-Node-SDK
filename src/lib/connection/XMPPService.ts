@@ -1877,7 +1877,7 @@ class XMPPService {
             "id": XMPPUtils.getUniqueMessageId()
         });
 
-        let msg = message.append("delete", {xmlns: NameSpacesLabels.CallLogNamespace, call_id: id});
+        let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace, call_id: id}));
 
         return await this.xmppClient.sendIq(msg);
     }
@@ -1890,12 +1890,13 @@ class XMPPService {
         //let userContact = contactService.userContact;
 
         let message = xml("iq", {
-            from: that.jid_im,
-            to: that.jid_im,
-            type: "set"
+            "from": that.jid_im,
+            "to": that.jid_im,
+            "type": "set",
+            "id": XMPPUtils.getUniqueMessageId()
         });
 
-        let msg = message.append("delete", {xmlns: NameSpacesLabels.CallLogNamespace, peer: jid});
+        let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace, peer: jid}));
         return await this.xmppClient.sendIq(msg);
         //xmppService.sendIQ(msg);
     }
@@ -1908,12 +1909,13 @@ class XMPPService {
         //let userContact = contactService.userContact;
 
         let message = xml("iq", {
-            from: that.jid_im,
-            to: that.jid_im,
-            type: "set"
+            "from": that.jid_im,
+            "to": that.jid_im,
+            "type": "set",
+            "id": XMPPUtils.getUniqueMessageId()
         });
 
-        let msg = message.append("delete", {xmlns: NameSpacesLabels.CallLogNamespace});
+        let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace}));
         return await this.xmppClient.sendIq(msg);
         //xmppService.sendIQ(msg);
     }
@@ -1926,11 +1928,12 @@ class XMPPService {
         //let userContact = contactService.userContact;
 
         let message = xml("message", {
-            from: that.jid_im,
-            to: that.jid_im
+            "from": that.jid_im,
+            "to": that.jid_im,
+            "id": XMPPUtils.getUniqueMessageId()
         });
 
-        let msg = message.append("read", {xmlns: NameSpacesLabels.CallLogAckNamespace, call_id: id});
+        let msg = message.append(xml("read", {xmlns: NameSpacesLabels.CallLogAckNamespace, call_id: id}));
 
         return await this.xmppClient.sendIq(msg);
         //xmppService.sendIQ(msg);
@@ -1942,24 +1945,27 @@ class XMPPService {
         that.logger.log("info", LOG_ID + "[markAllCallsLogsAsRead] markAllCallsLogsAsRead ");
 
         //let userContact = contactService.userContact;
+        let promSend = [];
 
         for (let i = 0; i < callLogs.length; i++) {
             if (!callLogs[i].read) {
 
                 let message = xml("message", {
-                    from: that.jid_im,
-                    to: that.jid_im
+                    "from": that.jid_im,
+                    "to": that.jid_im,
+                    "id": XMPPUtils.getUniqueMessageId()
                 });
 
-                let msg = message.append("read", {
-                    xmlns: NameSpacesLabels.CallLogAckNamespace,
-                    call_id: callLogs[i].id
-                });
+                let msg = message.append(xml("read", {
+                    "xmlns": NameSpacesLabels.CallLogAckNamespace,
+                    "call_id": callLogs[i].id
+                }));
 
-                return await this.xmppClient.sendIq(msg);
+                promSend.push(that.xmppClient.sendIq(msg));
                 //xmppService.sendIQ(msg);
             }
         }
+        return await Promise.all(promSend);
     }
 
     getErrorMessage (data, actionLabel) {
