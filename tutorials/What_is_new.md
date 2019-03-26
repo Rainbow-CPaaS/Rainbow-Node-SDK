@@ -28,7 +28,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Add CallLog service (typeScript sources) to get/delete the calllog history.
 -   Update doc about options provided at building the SDK object for the logs.
--   Change the sources from javascript to typescript.
+-   Change the sources from javascript to typescript. But the delivery is still js.
 
 ### SDK for Node.JS 1.53 - March 2018
 
