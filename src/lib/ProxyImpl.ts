@@ -11,6 +11,9 @@ class ProxyImpl {
 	public _port: any;
 	public _activated: any;
 	public _proxyURL: any;
+    private _user: string;
+    private _password: string;
+	
 
     constructor(config, _logger) {
 
@@ -19,10 +22,19 @@ class ProxyImpl {
         this._host = config.host;
         this._port = config.port;
         this._activated = this._host.length > 0;
-        this._proxyURL = this._protocol + "://" + this._host + ":" + this._port.toString() ;
 
+        this._user = config.user;
+        this._password = config.password;
+        if (this._user === "" || this._user ) {
+            this._proxyURL = this._protocol + "://" + this._user + ":" + this._password + "@" + this._host + ":" + this._port.toString();
+            this._logger.log("info", LOG_ID + "(constructor) proxy configured with authent");
+            this._logger.log("internal", LOG_ID + "(constructor) proxy configured with authent : ", this._proxyURL);
+        } else {
+
+            this._proxyURL = this._protocol + "://" + this._host + ":" + this._port.toString();
+        }
         if (this._activated) {
-            this._logger.log("info", LOG_ID + "(constructor) proxy configured", this._proxyURL);
+            this._logger.log("info", LOG_ID + "(constructor) proxy configured : ", this._proxyURL);
         }
     }
 

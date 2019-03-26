@@ -45,6 +45,11 @@ You need to specify the following parameters:
 
 - `protocol`: The protocol used (String), can be `http` or `https`.
 
+- `user`: The proxy user (String)
+
+- `password`: The proxy password (String)
+
+Note: if the user/password are not need by proxy you can remove it from options provided to Rainbow Node Sdk. You can also provide a "" value for user/password.
 
 Here is an example of a complete configuration that uses an HTTP Proxy.
 
@@ -76,7 +81,9 @@ let options = {
     "proxy": {
         "host": '192.168.0.254',
         "port": 8080,
-        "protocol": 'http'
+        "protocol": 'http',
+        "user": "",
+        "password": ""
     },
     // IM options
     "im": {

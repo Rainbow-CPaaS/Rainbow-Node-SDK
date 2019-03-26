@@ -182,10 +182,12 @@ class Options {
 
     _getProxyOptions() {
         
-        var proxyOptions = {
+        let proxyOptions = {
             protocol: "http",
             host: "",
-            port: 80
+            port: 80,
+            user: undefined,
+            password: undefined
         };
         
         if (!("host" in this._options.proxy)) {
@@ -205,6 +207,18 @@ class Options {
         }
         else {
             proxyOptions.protocol = this._options.proxy.protocol;
+        }
+        if (!("user" in this._options.proxy)) {
+            this._logger.log("info", LOG_ID + "(constructor) 'user' property not defined. No authentication. ");
+        }
+        else {
+            proxyOptions.user = this._options.proxy.user;
+        }
+        if (!("password" in this._options.proxy)) {
+            this._logger.log("info", LOG_ID + "(constructor) 'password' property not defined. No authentication.");
+        }
+        else {
+            proxyOptions.password = this._options.proxy.password;
         }
 
         return proxyOptions;

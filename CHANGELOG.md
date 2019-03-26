@@ -10,6 +10,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 * Remove the `data` property layer in result of `admin::createCompany` API method. Properties found before in data are a now in root object.
 * Fix `admin::removeUserFromCompany` ro return the deletion result.
 * Change the sources from javascript to typescript.
+* Fix the `conflict` error on xmpp socket when two rainbow node sdk login at the same time.
+* Add `admin::createTokenOnBehalf` method to ask Rainbow a token on behalf a user. You need this user password.
+* Add user/password in the Proxy settings.  
 
 ## [1.51.0] - 2018-01-22
 * Fix property conversation.lastMessageText which was undefined
