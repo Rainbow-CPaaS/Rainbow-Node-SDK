@@ -16,7 +16,6 @@ sitemap.xml
 jsdoc/
 Samples/
 .idea/
-tsconfig.json
 puppeteer.js
 sitemap_generation.js
 .tscache/
@@ -25,7 +24,6 @@ tutorials/
 index.yml
 Docs/
 package-lock.json
-src/
 lib/common/Emoji.js.map
 lib/common/ErrorManager.js.map
 lib/common/Events.js.map
