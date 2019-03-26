@@ -26,7 +26,6 @@
     "index.js",
     "package.json",
     "README.md",
-    "src",
     "CHANGELOG.md"
   ],
   "author": "Alcatel-Lucent Enterprise",
