@@ -20,6 +20,14 @@
   "engines": {
     "node": ">=10.0.0"
   },
+  "files": [
+    "/lib",
+    "config",
+    "index.js",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "author": "Alcatel-Lucent Enterprise",
   "license": "MIT",
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
