@@ -3,6 +3,28 @@ export {};
 
 
 class Call {
+    get cause() {
+        return this._cause;
+    }
+
+    set cause(value) {
+        this._cause = value;
+    }
+
+    get deviceState() {
+        return this._deviceState;
+    }
+
+    set deviceState(value) {
+        this._deviceState = value;
+    }
+    get deviceType(): any {
+        return this._deviceType;
+    }
+
+    set deviceType(value: any) {
+        this._deviceType = value;
+    }
 	public status: any;
 	public id: any;
 	public conversationId: any;
@@ -24,19 +46,22 @@ class Call {
     public Status: any;
     public Type: any;
     public Media: any;
+    private _deviceType: any;
+    private _cause ;
+    private _deviceState;
     static Status: { DIALING: { value: string; key: number }; QUEUED_OUTGOING: { value: string; key: number }; ACTIVE: { value: string; key: number }; RELEASING: { value: string; key: number }; ANSWERING: { value: string; key: number }; PUT_ON_HOLD: { value: string; key: number }; CONNECTING: { value: string; key: number }; RINGING_OUTGOING: { value: string; key: number }; QUEUED_INCOMMING: { value: string; key: number }; ERROR: { value: string; key: number }; UNKNOWN: { value: string; key: number }; HOLD: { value: string; key: number }; RINGING_INCOMMING: { value: string; key: number } };
     static Media: { SHARING: number; VIDEO: number; PHONE: number; AUDIO: number };
     static Type: { PHONE: { value: string; key: number }; WEBRTC: { value: string; key: number } };
 
     // Static factories
-    static create (status, id, type, contact) {
-        return new Call(status, id, type, contact);
+    static create (status, id, type, contact, deviceType) {
+        return new Call(status, id, type, contact, deviceType);
     }
 
     /**
      * @this Call
      */
-    constructor(status, id, type, contact) {
+    constructor(status, id, type, contact, deviceType) {
         /**
          * @public
          * @property {Object} status The status of the call (e.g. dialing, active, releasing...)
@@ -161,6 +186,8 @@ class Call {
             participantsPhoneNumbers: [],
             participants: [],
         };
+
+        this.deviceType = deviceType;
 
         this.Status = {};
         this.Type = {};

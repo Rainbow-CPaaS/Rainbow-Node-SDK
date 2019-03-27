@@ -428,6 +428,10 @@ class TelephonyEventHandler extends GenericHandler {
             return this.getCall(clearElem).then(function (call) {
                 if (call.status !== Call.Status.ERROR) {
                     call.setStatus(Call.Status.UNKNOWN);
+                    let cause = clearElem.attr("callId");
+                    let deviceState = clearElem.attr("callId");
+                    call.cause = cause;
+                    call.deviceState = deviceState;
                     that.telephonyService.clearCall(call);
                     that.logger.log("debug", LOG_ID + "(onClearCallEvent) send rainbow_oncallupdated ", call);
                     that.eventEmitter.emit("rainbow_oncallupdated", call);
@@ -582,7 +586,8 @@ class TelephonyEventHandler extends GenericHandler {
                 if (!jid && !phoneNumber) {//secret identity
                     phoneNumber = "****";
                 }
-                return this.getOrCreateCall(newConnectionId, jid, phoneNumber)
+                let deviceType = transferElem.find("deviceType");
+                return that.getOrCreateCall(newConnectionId, jid, deviceType, phoneNumber)
                     .then(function (newCall) {
                         if (deviceState && deviceState === "LCI_ALERTING") {
                             newCall.setStatus(Call.Status.RINGING_INCOMMING);
@@ -981,29 +986,29 @@ class TelephonyEventHandler extends GenericHandler {
             let jid = elem.attr("endpointIm");
             let phoneNumber = elem.attr("endpointTel");
             let connectionId = elem.attr("callId");
+            let deviceType = elem.attr("deviceType");
             if (!connectionId) {
                 connectionId = elem.attr("heldCallId");
             } // TODO: WHY and WHEN
             that.logger.log("debug", LOG_ID + "(getCall)  - " + jid + " - " + Utils.anonymizePhoneNumber(phoneNumber) + " - " + connectionId);
-            return this.getOrCreateCall(connectionId, jid, phoneNumber);
+            return that.getOrCreateCall(connectionId, jid,deviceType, phoneNumber );
         };
 
-        this.getOrCreateCall = function (connectionId, jid, phoneNumber) {
+        this.getOrCreateCall = function (connectionId, jid, deviceType, phoneNumber ) {
            // var that = this;
             let callId = Call.getIdFromConnectionId(connectionId);
-            let call = this.telephonyService.calls[callId];
+            let call = that.telephonyService.calls[callId];
             if (call) {
                 return Promise.resolve(call);
             }
             return new Promise(function (resolve) {
                 if (jid || phoneNumber) {
-                    that.contactService.getOrCreateContact(jid, phoneNumber)
-                        .then(function (contact) {
-                            resolve(that.telephonyService.getOrCreateCall(Call.Status.UNKNOWN, connectionId, contact));
+                    that.contactService.getOrCreateContact(jid, phoneNumber).then(function (contact) {
+                            resolve(that.telephonyService.getOrCreateCall(Call.Status.UNKNOWN, connectionId, deviceType, contact));
                         });
                 }
                 else {
-                    resolve(that.telephonyService.getOrCreateCall(Call.Status.UNKNOWN, connectionId));
+                    resolve(that.telephonyService.getOrCreateCall(Call.Status.UNKNOWN, connectionId, deviceType, null));
                 }
             });
             // */

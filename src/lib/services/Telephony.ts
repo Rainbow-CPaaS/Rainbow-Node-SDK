@@ -450,15 +450,16 @@ class Telephony {
 
                     // Create the call object
                     let call = null;
+                    let deviceType = connectionElem.find("deviceType");
                     if (participantsElem.children.length === 0) {
                         if (response && response.temp && lastName !== "") {
                             response.updateName(firstName, lastName);
                         }
-                        call = that.getOrCreateCall(callStatus, connectionId, response);
+                        call = that.getOrCreateCall(callStatus, connectionId,deviceType, response );
                         that.logger.log("debug", LOG_ID + " createCallFromConnectionElem - create call for user: " + response.id + " with callId: " + connectionId + " " + lci);
                     }
                     else {
-                        call = that.getOrCreateCall(callStatus, connectionId);
+                        call = that.getOrCreateCall(callStatus, connectionId, deviceType, null );
                         call.setParticipants(response);
                         call.isConference = true;
                         that.logger.log("debug", LOG_ID + " createCallFromConnectionElem - create conference call with callId: " + connectionId + " " + lci);
@@ -510,7 +511,7 @@ class Telephony {
     };
 
 
-    getOrCreateCall(status, connectionId, contact?) {
+    getOrCreateCall(status, connectionId, deviceType, contact?) {
         let that = this;
 
         // Extract callid from connectionid
@@ -523,7 +524,7 @@ class Telephony {
             call.startDate = new Date();
         }
         else {
-            call = Call.create(status, null, Call.Type.PHONE, contact);
+            call = Call.create(status, null, Call.Type.PHONE, contact, deviceType);
             call.setConnectionId(connectionId);
             that.calls[callId] = call;
         }

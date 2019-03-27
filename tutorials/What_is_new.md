@@ -32,6 +32,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix the `conflict` error on xmpp socket when two rainbow node sdk login at the same time.
 -   Add `admin::createTokenOnBehalf` method to ask Rainbow a token on behalf a user. You need this user password.
 -   Add `user/password` in the Proxy settings.
+-   Add In `Call` object the member `deviceType`. It can be MAIN for the main device, and SECONDARY for the remote extension linked to it. It can be used when the event `rainbow_oncallupdated` is raised to seperate events.
 
 ### SDK for Node.JS 1.53 - March 2018
 
