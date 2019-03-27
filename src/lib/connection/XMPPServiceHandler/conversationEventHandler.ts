@@ -454,7 +454,7 @@ class ConversationEventHandler extends GenericHandler {
                             data.conversation.messages.push(data);
                         } // */
                         this.eventEmitter.emit("rainbow_onmessagereceived", data);
-                        that.eventEmitter.emit("rainbow_onconversationupdated", {"conversationId": conversation.id});
+                        that.eventEmitter.emit("rainbow_onconversationupdated", {"conversationId": conv.id});
                     });
                 } else {
                     data.conversation = conversation;
