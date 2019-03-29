@@ -14,6 +14,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 * Add `admin::createTokenOnBehalf` method to ask Rainbow a token on behalf a user. You need this user password.
 * Add user/password in the Proxy settings.  
 * Add In `Call` object the member `deviceType`. It can be MAIN for the main device, and SECONDARY for the remote extension linked to it. It can be used when the event `rainbow_oncallupdated` is raised to seperate events.  
+* rename files service
+* update `setBubbleCustomData` to wait for the bubble to be updated by the event `rainbow_bubblecustomDatachanged`, and else get the informations about bubble from server
 
 ## [1.51.0] - 2018-01-22
 * Fix property conversation.lastMessageText which was undefined
