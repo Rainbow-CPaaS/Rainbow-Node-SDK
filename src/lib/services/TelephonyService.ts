@@ -538,7 +538,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.voiceMailFeatureEnabled) {
-                let profileError = new ErrorManager("getVoiceMessageCounter failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("getVoiceMessageCounter failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(getVoiceMessageCounter) " + profileError.message);
                 reject(profileError);
@@ -551,7 +551,7 @@ class Telephony {
                 .catch(function (error) {
                     let errorMessage = "getVoiceMessageCounter failure : " + error.message;
                     that.logger.log("error", LOG_ID + "(getVoiceMessageCounter) " + errorMessage);
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.OTHERERROR(errorMessage));
                 });
         });
     }
@@ -654,7 +654,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isBasicCallAllowed) {
-                let profileError = new ErrorManager("makeSimpleCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("makeSimpleCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "()[telephonyService] " + profileError.message);
 
@@ -712,7 +712,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isSecondCallAllowed) {
-                let profileError = new ErrorManager("makeConsultationCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("makeConsultationCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(makeConsultationCall) " + profileError.message);
 
@@ -778,7 +778,7 @@ class Telephony {
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "makeCallByPhoneNumber) failure: impossible to call its own phone number";
                 that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.OTHERERROR(errorMessage));
             }
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
@@ -817,7 +817,7 @@ class Telephony {
                 if (contactService.userContact.mobilePro === phoneNumber || contactService.userContact.mobilePerso === phoneNumber) {
                     var errorMessage = "makeCallWithMobile failure: impossible to call its own mobile phone number";
                     that.logger.log("error", LOG_ID + "()[telephonyService] " + errorMessage);
-                    defer.reject(new ErrorManager(errorMessage));
+                    defer.reject(ErrorManager.OTHERERROR(errorMessage));
                     return defer.promise;
                 }
 
@@ -832,7 +832,7 @@ class Telephony {
                     .catch(function(error) {
                         var errorMessageMobile = "makeCallWithMobile failure : " + error.message;
                         that.logger.log("error", LOG_ID + "()[telephonyService] - callService - " + errorMessageMobile);
-                        defer.reject(new ErrorManager(errorMessageMobile));
+                        defer.reject(ErrorManager.OTHERERROR(errorMessageMobile));
                     });
 
                 // Return the promise
@@ -917,7 +917,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isBasicCallAllowed) {
-                let profileError = new ErrorManager("releaseCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("releaseCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(releaseCall) " + profileError.message);
                 reject(profileError);
@@ -971,7 +971,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isBasicCallAllowed) {
-                let profileError = new ErrorManager("answerCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("answerCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "()[telephonyService] " + profileError.message);
                 reject(profileError);
@@ -988,7 +988,7 @@ class Telephony {
                     .catch(function (error) {
                         let errorMessage = "answerCall failure : " + error.message;
                         that.logger.log("error", LOG_ID + "() - callService -  " + errorMessage);
-                        reject(new ErrorManager(errorMessage));
+                        reject(ErrorManager.OTHERERROR(errorMessage));
                     });
             }
             else {
@@ -1037,7 +1037,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isSecondCallAllowed) {
-                let profileError = new ErrorManager("holdCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("holdCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(holdCall)[telephonyService] " + profileError.message);
                 reject(profileError);
@@ -1086,7 +1086,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isSecondCallAllowed) {
-                let profileError = new ErrorManager("retrieveCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("retrieveCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(retrieveCall) " + profileError.message);
                 reject(profileError);
@@ -1106,7 +1106,7 @@ class Telephony {
                     .catch(function (error) {
                         let errorMessage = "retrieveCall failure : " + error.message;
                         that.logger.log("error", LOG_ID + "(retrieveCall) - callService -  " + errorMessage);
-                        reject(new ErrorManager(errorMessage));
+                        reject(ErrorManager.OTHERERROR(errorMessage));
                     });
             }
             else {
@@ -1157,7 +1157,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isVMDeflectCallAllowed) {
-                let profileError = new ErrorManager("deflectCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("deflectCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "()[telephonyService] " + profileError.message);
                 reject(profileError);
@@ -1208,7 +1208,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isTransferAllowed) {
-                let profileError = new ErrorManager("transferCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("transferCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(transfertCall) " + profileError.message);
                 reject(profileError);
@@ -1254,7 +1254,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isConferenceAllowed) {
-                let profileError = new ErrorManager("conferenceCall failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("conferenceCall failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "(conferenceCall) " + profileError.message);
                 reject(profileError);
@@ -1293,7 +1293,7 @@ class Telephony {
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "forwardToDevice failure: impossible to forward its own phone number";
                 that.logger.log("error", LOG_ID + "(forwardToDevice) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.OTHERERROR(errorMessage));
             }
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function (contact) {
@@ -1329,7 +1329,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
 
             if (!that.voiceMailFeatureEnabled) {
-                let profileError = new ErrorManager("forwardToVoicemail failure - voicemail feature not enabled");
+                let profileError = ErrorManager.OTHERERROR("forwardToVoicemail failure - voicemail feature not enabled");
                 profileError.status = profileError.errorDetailsCode = "404";
                 that.logger.log("error", LOG_ID + "(forwardToVoicemail) " + profileError.message);
                 reject(profileError);
@@ -1436,7 +1436,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isNomadicEnabled || !that.nomadicObject.featureActivated) {
-                let profileError = new ErrorManager("nomadicLogin failure - Not Allowed");
+                let profileError = ErrorManager.OTHERERROR("nomadicLogin failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 that.logger.log("error", LOG_ID + "[telephonyService] " + profileError.message);
                 reject(profileError);
@@ -1445,7 +1445,7 @@ class Telephony {
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "nomadicLogin failure: impossible to use its own phone number like nomadic phone";
                 that.logger.log("error", LOG_ID + "[telephonyService] " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.OTHERERROR(errorMessage));
             }
 
             that.logger.log("info", LOG_ID + "[telephonyService] nomadicLogin : " + phoneNumber);
@@ -1487,7 +1487,7 @@ class Telephony {
                         function failure(response) {
                             let errorMessage = "nomadicLogin failure, nomadicDevice: " + response.message;
                             that.logger.log("error", LOG_ID + "[telephonyService] " + errorMessage);
-                            reject(new ErrorManager(errorMessage));
+                            reject(ErrorManager.OTHERERROR(errorMessage));
 
                         });
                 });
@@ -1499,7 +1499,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!service.isNomadicEnabled || !service.nomadicObject.featureActivated) {
-                var profileError = new ErrorManager("nomadicLoginOnOfficePhone failure - Not Allowed");
+                var profileError = ErrorManager.OTHERERROR("nomadicLoginOnOfficePhone failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 $log.error("[telephonyService] " + profileError.message);
                 reject(profileError);
@@ -1533,7 +1533,7 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isNomadicEnabled || !that.nomadicObject.featureActivated) {
-                var profileError = new ErrorManager("nomadicLogout failure - Not Allowed");
+                var profileError = ErrorManager.OTHERERROR("nomadicLogout failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
                 $log.error("[telephonyService] " + profileError.message);
                 reject(profileError);
@@ -1586,7 +1586,7 @@ class Telephony {
                     });
             } else {
                 //let error = ErrorManager.ERROR();// errorHelperService.handleError(response);
-                let error = new ErrorManager("(getNomadicStatus) user logged in pbx info not filled!");
+                let error = ErrorManager.OTHERERROR("(getNomadicStatus) user logged in pbx info not filled!");
                 //error.msg += "(getNomadicStatus) user logged in pbx info not filled!";
                 that.logger.log("error", LOG_ID + "(getNomadicStatus) user logged in pbx info not filled!", error);
                 reject(error);
