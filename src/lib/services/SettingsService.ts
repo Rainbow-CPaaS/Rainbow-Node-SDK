@@ -4,7 +4,7 @@ export {};
 
 const ErrorManager = require("../common/ErrorManager");
 const RainbowPresence = require("../common/models/Settings").RainbowPresence;
-const Presence = require("../services/Presence");
+const Presence = require("./PresenceService");
 
 const LOG_ID = "SETT - ";
 
