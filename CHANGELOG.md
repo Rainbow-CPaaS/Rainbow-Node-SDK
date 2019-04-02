@@ -1,7 +1,12 @@
 # SDK for Node.JS
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
-## [1.54.0] - 2018-0x-xx
+
+
+## [1.54.1] - 2018-04-02
+* add missing deep-egal lib.
+
+## [1.54.0] - 2018-04-02
 * Add CallLog service (typeScript sources) to `get/delete` the calllog history.
 * Increase "Element" Behaviour for manipulate XML/XMPP objects in XmppClient 
 * Update XMPPService to factorise the `NameSpaces`

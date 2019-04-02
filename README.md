@@ -82,11 +82,21 @@ let options = {
     // Logs options
     "logs": {
         "enableConsoleLogs": true,              
-        "enableFileLogs": false,                
+        "enableFileLogs": false,
+        "color": true,
+        "level": "debug",
+        "customLabel": "RainbowNodeSdk",
+        "system-dev": {
+            "internals": false,
+            "http": false,
+        }, // */
         "file": {
             "path": '/var/tmp/rainbowsdk/',
-            "level": 'debug'                    
-        }
+            "customFileName": "R-SDK-Node-",
+            "zippedArchive" : false/*,
+            "maxSize" : '10m',
+            "maxFiles" : 10 // */
+        }                
     },
     // IM options
     "im": {
