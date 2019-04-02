@@ -1,11 +1,12 @@
 "use strict";
+import {XMPPService} from "./connection/XMPPService";
+import {RESTService} from "./connection/RESTService";
+import {HTTPService} from "./connection/HttpService";
+
 export {};
 
 
 const Logger = require("./common/Logger");
-const RESTService = require("./connection/RESTService");
-const HTTPService = require("./connection/HttpService");
-const XMPPService = require("./connection/XMPPService");
 const IMService = require("./services/ImsService");
 const PresenceService = require("./services/PresenceService");
 const ChannelsService = require("./services/ChannelsService");
@@ -39,14 +40,14 @@ class Core {
 	public _retrieveInformation: any;
 	public onTokenRenewed: any;
 	public logger: any;
-	public _rest: any;
+	public _rest: RESTService;
 	public onTokenExpired: any;
 	public _eventEmitter: any;
 	public _tokenSurvey: any;
 	public options: any;
 	public _proxy: any;
 	public _http: any;
-	public _xmpp: any;
+	public _xmpp: XMPPService;
 	public _stateManager: any;
 	public _im: any;
 	public _presence: any;

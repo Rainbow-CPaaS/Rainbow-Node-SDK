@@ -1,9 +1,11 @@
 "use strict";
+import {XMPPService} from "../XMPPService";
+
 export {};
 
 
 class GenericHandler {
-	public xmppService: any;
+	public xmppService: XMPPService;
 
     constructor(xmppService) {
         this.xmppService = xmppService;

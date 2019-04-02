@@ -1,8 +1,11 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 
 const LOG_ID = "CHANNELS - ";
 
@@ -19,8 +22,8 @@ const LOG_ID = "CHANNELS - ";
  *  @todo Write the documentation.
  */
 class Channels {
-	public _xmpp: any;
-	public _rest: any;
+	public _xmpp: XMPPService;
+	public _rest: RESTService;
 	public _channels: any;
 	public _eventEmitter: any;
 	public _logger: any;
@@ -43,7 +46,7 @@ class Channels {
         this._eventEmitter.on("rainbow_onchannelmessagereceived", this._onChannelMessageReceived.bind(this));
     }
 
-    start(_xmpp, _rest) {
+    start(_xmpp : XMPPService, _rest : RESTService) {
         this._logger.log("debug", LOG_ID + "(start) _entering_");
 
         return new Promise((resolve, reject) => {
@@ -101,7 +104,7 @@ class Channels {
             if (!name) {
                 this._logger.log("warn", LOG_ID + "(createChannel) bad or empty 'name' parameter", name);
                 this._logger.log("debug", LOG_ID + "(createChannel) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
             this._rest.createChannel(name, description, this.PUBLIC_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
@@ -137,7 +140,7 @@ class Channels {
             if (!name) {
                 this._logger.log("warn", LOG_ID + "(createPrivateChannel) bad or empty 'name' parameter", name);
                 this._logger.log("debug", LOG_ID + "(createPrivateChannel) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
             this._rest.createChannel(name, description, this.PRIVATE_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
@@ -171,7 +174,7 @@ class Channels {
             if (!channel) {
                 this._logger.log("warn", LOG_ID + "(deleteChannel) bad or empty 'channel' parameter", channel);
                 this._logger.log("debug", LOG_ID + "(deleteChannel) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
             
@@ -204,7 +207,7 @@ class Channels {
 
         if (!name) {
             this._logger.log("error", LOG_ID + "(findChannelsByName) bad or empty 'name' parameter ", name);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return this._findChannels(name, null);
@@ -225,7 +228,7 @@ class Channels {
 
         if (!topic) {
             this._logger.log("error", LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter ", topic);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return this._findChannels(null, topic);
@@ -253,12 +256,12 @@ class Channels {
         
         return new Promise((resolve, reject) => {
 
-            this._rest.findChannels(name, topic).then((channels) => {
+            this._rest.findChannels(name, topic, null, null, null, null).then((channels : []) => {
                 this._logger.log("info", LOG_ID + "(findChannel) channels found", channels);
 
                 let promises = [];
 
-                channels.forEach((channel) => {
+                channels.forEach((channel : any) => {
                     promises.push(getChannel(channel.id));
                 });
 
@@ -292,7 +295,7 @@ class Channels {
         return new Promise((resolve, reject) => {
             if (!id) {
                 this._logger.log("warn", LOG_ID + "(getChannelById) bad or empty 'jid' parameter", id);
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                 let channelFound = null;
@@ -344,7 +347,7 @@ class Channels {
 
             this._logger.log("debug", LOG_ID + "(getChannels) _entering_");
 
-            this._rest.getChannels().then((listOfChannels) => {
+            this._rest.getChannels().then((listOfChannels : any) => {
 
                 // Hack waiting server change
                 let promises = [];
@@ -443,7 +446,7 @@ class Channels {
      * @param {String} [url = ""] An URL
      * @param {id[]} [imagesIds = null] An Array of ids of the files stored in Rainbow
      * @param {String} [type="basic"] An optional message content type (could be basic, markdown, html or data)
-     * @return {Promise<ErrorManager.OK>} OK if successfull
+     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  TODO
      * @memberof Channels
@@ -455,18 +458,18 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(publishMessageToChannel) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(publishMessageToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!message) {
             this._logger.log("debug", LOG_ID + "(publishMessageToChannel) bad or empty 'title' parameter ", title);
             this._logger.log("debug", LOG_ID + "(publishMessageToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (imagesIds && typeof imagesIds !== "object" && imagesIds.length < 1) {
             this._logger.log("debug", LOG_ID + "(publishMessageToChannel) bad or empty 'imagesIds' parameter ", imagesIds);
             this._logger.log("debug", LOG_ID + "(publishMessageToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (type && ["basic, markdown, html, data"].indexOf(type) === -1) {
@@ -483,7 +486,7 @@ class Channels {
                 this._logger.log("info", LOG_ID + "(publishMessageToChannel) message published");
                 this._logger.log("internal", LOG_ID + "(publishMessageToChannel) message published", status);
                 this._logger.log("debug", LOG_ID + "(publishMessageToChannel) _exiting_");
-                resolve(ErrorManager.OK);
+                resolve(ErrorManager.getErrorManager().OK);
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(publishMessageToChannel) error", err);
                 this._logger.log("debug", LOG_ID + "(publishMessageToChannel) _exiting_");
@@ -510,7 +513,7 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -548,7 +551,7 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -584,18 +587,18 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!description) {
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter ", description);
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
-            this._rest.updateChannel(channel.id, description).then((channelUpdated) => {
+            this._rest.updateChannel(channel.id, description, null,  null , null).then((channelUpdated : any) => {
                 this._logger.log("info", LOG_ID + "(updateChannelDescription) channel updated", channel);
 
                 var foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
@@ -634,7 +637,7 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(getChannelUsers) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(getChannelUsers) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let json = {
@@ -663,7 +666,7 @@ class Channels {
 
         return new Promise((resolve, reject) => {
 
-            this._rest.getChannelUsers(channel.id, json).then((users) => {
+            this._rest.getChannelUsers(channel.id, json).then((users : []) => {
                 this._logger.log("info", LOG_ID + "(getChannelUsers) channel has users ", users.length);
                 this._logger.log("debug", LOG_ID + "(getChannelUsers) _exiting_");
                 resolve(users);
@@ -693,7 +696,7 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -701,7 +704,7 @@ class Channels {
             this._rest.deleteAllUsersFromChannel(channel.id).then((result) => {
                 this._logger.log("info", LOG_ID + "(deleteAllUsersFromChannel) channel users deletion", result);
 
-                this._rest.getChannel(channel.id).then((updatedChannel) => {
+                this._rest.getChannel(channel.id).then((updatedChannel : any) => {
                     // Update local channel
                     var foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
                     this._channels[foundIndex] = updatedChannel;
@@ -769,13 +772,13 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!owners) {
             this._logger.log("debug", LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter", owners);
             this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let usersId = [];
@@ -807,13 +810,13 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!publishers) {
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter", publishers);
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let usersId = [];
@@ -844,13 +847,13 @@ class Channels {
         
         if (!channel) {
             this._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter", channel);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!members) {
             this._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter", members);
             this._logger.log("debug", LOG_ID + "(addMembersToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let usersId: Array<any> = [];
@@ -864,7 +867,7 @@ class Channels {
         if (!(usersId.length > 0)) {
             this._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter", members);
             this._logger.log("debug", LOG_ID + "(addMembersToChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let updated = this.updateChannelUsers(channel.id, usersId);
@@ -890,13 +893,13 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(removeUsersFromChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(removeUsersFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!users) {
             this._logger.log("debug", LOG_ID + "(removeUsersFromChannel) bad or empty 'publishers' parameter", users);
             this._logger.log("debug", LOG_ID + "(removeUsersFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let usersId = [];
@@ -928,12 +931,12 @@ class Channels {
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(getMessagesFromChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(getMessagesFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         
         return new Promise( (resolve, reject) => {
 
-            this._rest.getChannelMessages(channel.id).then((res) => {
+            this._rest.getChannelMessages(channel.id).then((res : any) => {
                 this._logger.log("info", LOG_ID + "(getMessagesFromChannel) messages retrieved", res);
 
                 let messages = res.items;
@@ -989,13 +992,13 @@ class Channels {
         if (!channelId) {
             this._logger.log("debug", LOG_ID + "(deleteMessageFromChannel) bad or empty 'channelId' parameter", channelId);
             this._logger.log("debug", LOG_ID + "(deleteMessageFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!messageId) {
             this._logger.log("debug", LOG_ID + "(deleteMessageFromChannel) bad or empty 'messageId' parameter", messageId);
             this._logger.log("debug", LOG_ID + "(deleteMessageFromChannel) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise( (resolve, reject) => {
@@ -1003,7 +1006,7 @@ class Channels {
             this._rest.deleteChannelMessage(channelId, messageId).then((result) => {
                 this._logger.log("info", LOG_ID + "(deleteMessageFromChannel) channel message deletion", result);
 
-                this._rest.getChannel(channelId).then((updatedChannel) => {
+                this._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
                     var foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
                     this._channels[foundIndex] = updatedChannel;

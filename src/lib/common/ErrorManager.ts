@@ -1,6 +1,4 @@
 "use strict";
-export {};
-
 
 /*
 * @typedef Err
@@ -32,10 +30,17 @@ const code = {
  * @name ErrorManager
  */
 class ErrorManager {
+    private static xmppUtils: ErrorManager;
 
     constructor() {
     }
     
+    static getErrorManager() {
+        ErrorManager.xmppUtils = ErrorManager.xmppUtils ? ErrorManager.xmppUtils : new ErrorManager();
+
+        return ErrorManager.xmppUtils;
+    }
+
     /**
      * @readonly
      * @memberof ErrorManager
@@ -132,4 +137,5 @@ class ErrorManager {
 
 }
 
-module.exports = new ErrorManager();
+export {ErrorManager, code};
+module.exports.ErrorManager = ErrorManager;

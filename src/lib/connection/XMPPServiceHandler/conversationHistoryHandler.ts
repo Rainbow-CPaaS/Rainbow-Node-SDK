@@ -1,4 +1,8 @@
 "use strict";
+
+import {XMPPService} from "../XMPPService";
+import {XMPPUTils} from "../../common/XMPPUtils";
+
 export {};
 
 
@@ -6,7 +10,6 @@ const moment = require("moment");
 const momentDurationFormatSetup = require("moment-duration-format");
 momentDurationFormatSetup(moment);
 
-const XMPPUtils = require("../../common/XMPPUtils");
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 const Message = require("../../common/models/Message");
@@ -21,7 +24,7 @@ class ConversationHistoryHandler  extends GenericHandler {
 	public onHistoryMessageReceived: any;
 	public onWebrtcHistoryMessageReceived: any;
 
-    constructor(xmppService, conversationService) {
+    constructor(xmppService : XMPPService, conversationService) {
         super( xmppService);
 
         this.MESSAGE_MAM = "urn:xmpp:mam:1.result";
@@ -82,7 +85,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let fromJid;
                         let roomEvent = null;
                         if (brutJid.indexOf("room_") === 0) { fromJid = brutJid.split("/")[1]; }
-                        else { fromJid = XMPPUtils.getBareJIDFromFullJID(brutJid); }
+                        else { fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(brutJid); }
 
                         if (!fromJid && stanzaMessage.getChild("event")) {
                             roomEvent = stanzaMessage.getChild("event").attr("name") + "";

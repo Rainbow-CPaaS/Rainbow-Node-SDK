@@ -1,9 +1,12 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 
 //var service = this;
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 
 const Offer = require('../common/models/Offer') ;
 
@@ -84,8 +87,8 @@ const FeaturesEnum = {
 };
 
 class ProfilesService {
-	public _xmpp: any;
-	public _rest: any;
+	public _xmpp: XMPPService;
+	public _rest: RESTService;
 	public _eventEmitter: any;
 	public _logger: any;
 	public logger: any;
@@ -137,7 +140,7 @@ class ProfilesService {
     /*********************************************************************/
     /** LIFECYCLE STUFF                                                 **/
     /*********************************************************************/
-    start (_xmpp, _rest, stats) {
+    start (_xmpp : XMPPService, _rest : RESTService, stats) {
         let that = this;
 
         //that.logger.log("debug", LOG_ID + "(start) ");
@@ -220,7 +223,7 @@ class ProfilesService {
                 url: config.restServerUrl + "/api/rainbow/enduser/v1.0/users/" + contactService.userContact.dbId + "/profiles",
                 headers: authService.getRequestHeader()
             }) // */ .then(
-                function success(response) {
+                function success(response : []) {
                     that.profiles = [];
                     that.mainOffers = [];
                     response.forEach(function (profileData) {
@@ -241,7 +244,7 @@ class ProfilesService {
                         errorMessage = "(getServerProfiles) failure: " + JSON.stringify(response);
                     }
                     that.logger.log("error", LOG_ID + "(getServerProfiles) : " + errorMessage);
-                    reject( ErrorManager.OTHERERROR("REQUESTERROR", errorMessage));
+                    reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
     }
@@ -255,9 +258,9 @@ class ProfilesService {
                 headers: authService.getRequestHeader()
             }) // */
             that._rest.getServerProfilesFeatures().then(
-                function success(response) {
+                function success(response : []) {
                     that.features = {};
-                    response.forEach(function (featureData) {
+                    response.forEach(function (featureData : any) {
                         that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) === response ===" , featureData);
                         //store feature data
                         if (featureData.hasOwnProperty("featureUniqueRef")) {
@@ -272,7 +275,7 @@ class ProfilesService {
                         errorMessage = "(getServerProfilesFeatures) failure : " + JSON.stringify(response);
                     }
                     that.logger.log("error", LOG_ID + "(getServerProfilesFeatures) " + errorMessage);
-                    reject(ErrorManager.OTHERERROR("REQUESTERROR", errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
     }
@@ -299,7 +302,7 @@ class ProfilesService {
                             errorMessage = "setUserData failure: " + JSON.stringify(response);
                         }
                         $log.error("[profileService] " + errorMessage);
-                    reject( ErrorManager.OTHERERROR("REQUESTERROR", errorMessage));
+                    reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                     });
         });
     }

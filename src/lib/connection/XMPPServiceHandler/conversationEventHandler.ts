@@ -2,7 +2,7 @@
 export {};
 
 
-const XMPPUtils = require("../../common/XMPPUtils");
+import {XMPPUTils} from "../../common/XMPPUtils";
 const GenericHandler = require("./genericHandler");
 const Conversation = require("../../common/models/Conversation");
 const util = require('util');
@@ -78,8 +78,8 @@ class ConversationEventHandler extends GenericHandler {
                 let timestamp = new Date();
                 let replaceMessageId = null;
 
-                let fromJid = XMPPUtils.getBareJIDFromFullJID(stanza.attrs.from);
-                let resource = XMPPUtils.getResourceFromFullJID(stanza.attrs.from);
+                let fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
+                let resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
                 let toJid = stanza.attrs.to;
                 let id = stanza.attrs.id;
                 let children = stanza.children;
@@ -92,8 +92,8 @@ class ConversationEventHandler extends GenericHandler {
                                 if (forwarded && forwarded.getName() === "forwarded") {
                                     let message = forwarded.children[0];
                                     if (message && message.getName() === "message") {
-                                        fromJid = XMPPUtils.getBareJIDFromFullJID(message.attrs.from);
-                                        resource = XMPPUtils.getResourceFromFullJID(message.attrs.from);
+                                        fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(message.attrs.from);
+                                        resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(message.attrs.from);
                                         toJid = message.attrs.to;
                                         id = message.attrs.id;
                                         let childs = message.children;
@@ -139,8 +139,8 @@ class ConversationEventHandler extends GenericHandler {
                                 if (forwarded && forwarded.getName() === "forwarded") {
                                     let message = forwarded.children[0];
                                     if (message && message.getName() === "message") {
-                                        fromJid = XMPPUtils.getBareJIDFromFullJID(message.attrs.from);
-                                        resource = XMPPUtils.getResourceFromFullJID(message.attrs.from);
+                                        fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(message.attrs.from);
+                                        resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(message.attrs.from);
                                         toJid = message.attrs.to;
                                         id = message.attrs.id;
                                         let childs = message.children;
@@ -251,7 +251,7 @@ class ConversationEventHandler extends GenericHandler {
                             that.xmppClient.send(stanzaReceived);
 
                             //Acknowledge 'read'
-                            if (that.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && XMPPUtils.getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
+                            if (that.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
 
                                 let stanzaRead = xml("message", {
                                         "to": fromJid,
@@ -361,9 +361,9 @@ class ConversationEventHandler extends GenericHandler {
                 let fromBubbleJid = "";
                 let fromBubbleUserJid = "";
                 if (stanza.attrs.type === TYPE_GROUPCHAT) {
-                    fromBubbleJid = XMPPUtils.getBareJIDFromFullJID(stanza.attrs.from);
-                    fromBubbleUserJid = XMPPUtils.getResourceFromFullJID(stanza.attrs.from);
-                    resource = XMPPUtils.getResourceFromFullJID(fromBubbleUserJid);
+                    fromBubbleJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
+                    fromBubbleUserJid = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
+                    resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(fromBubbleUserJid);
                 }
 
                 if (!hasATextMessage) {
@@ -404,7 +404,7 @@ class ConversationEventHandler extends GenericHandler {
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {
                         data.fromBubbleJid = fromBubbleJid;
                         data.fromBubbleUserJid = fromBubbleUserJid;
-                        data.fromJid = XMPPUtils.getRoomJIDFromFullJID(stanza.attrs.from);
+                        data.fromJid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(stanza.attrs.from);
 
                         if (event) {
                             data.event = event;
@@ -435,7 +435,7 @@ class ConversationEventHandler extends GenericHandler {
                     that.logger.log("debug", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it.");
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -466,7 +466,7 @@ class ConversationEventHandler extends GenericHandler {
                     that.eventEmitter.emit("rainbow_onconversationupdated", {"conversationId": conversation.id});
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -521,7 +521,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 });
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -533,7 +533,7 @@ class ConversationEventHandler extends GenericHandler {
 
                     // Affiliation changed (my own or for a member)
                     if (node.attrs.status) {
-                        if (node.attrs.userjid === XMPPUtils.getBareJIDFromFullJID(that.fullJid)) {
+                        if (node.attrs.userjid === XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(that.fullJid)) {
                             that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble management received for own.");
                             that.eventEmitter.emit("rainbow_ownaffiliationchanged", {
                                 "bubbleId": node.attrs.roomid,
@@ -580,7 +580,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onRoomManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onRoomManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -599,7 +599,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onUserSettingsManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onUserSettingsManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -641,7 +641,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -699,7 +699,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onGroupManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onGroupManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -721,7 +721,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -738,7 +738,7 @@ class ConversationEventHandler extends GenericHandler {
                         .emit("rainbow_conversationupdated", {"conversationId": node.attrs.conversation});
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -755,7 +755,7 @@ class ConversationEventHandler extends GenericHandler {
                         .emit("rainbow_conversationupdated", {"conversationId": node.attrs.conversation});
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -801,7 +801,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onFileManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -837,7 +837,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -863,7 +863,7 @@ class ConversationEventHandler extends GenericHandler {
                             that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel updated");
                             let channelid = node.attrs.channelid;
 
-                            //let json = XMPPUtils.getJson(node);
+                            //let json = XMPPUTils.getXMPPUtils().getJson(node);
                             //let json = {};
                             //json = that.findChildren(node);
 
@@ -879,7 +879,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -892,7 +892,7 @@ class ConversationEventHandler extends GenericHandler {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
                 that.eventEmitter.emit("rainbow_onerror", msg);
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -927,7 +927,7 @@ class ConversationEventHandler extends GenericHandler {
                 }
                 //return result;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(findChildren) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
             }
         };
 
@@ -1020,7 +1020,7 @@ class ConversationEventHandler extends GenericHandler {
 
                 } // */
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
             }
         };
 

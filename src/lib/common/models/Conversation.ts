@@ -1,5 +1,5 @@
 "use strict";
-export {};
+
 
 
 const Call = require("./Call");
@@ -53,10 +53,11 @@ class Conversation {
 	public randomBase: any;
 	public messageId: any;
 	public currentHistoryId: any;
-    static Status: any;
-    static Type: any;
+    public static Status: any;
+    public static Type: any;
     private static randomBase: string;
     private static messageId: string;
+    preload: boolean;
 
     constructor(conversationId) {
         /**
@@ -477,4 +478,5 @@ Conversation.Status = {
     }
 };
 
-module.exports = Conversation;
+module.exports.Conversation = Conversation;
+export {Conversation};

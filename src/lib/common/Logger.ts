@@ -171,7 +171,7 @@ class Logger {
                 }
                 catch (err) {
                     console.log("Can't create the directoy for logging... File logs will be disabled");
-                    console.log("ErrorManager", err);
+                    console.log("Error", err);
                     enableFileLog = false;
                 }
             }

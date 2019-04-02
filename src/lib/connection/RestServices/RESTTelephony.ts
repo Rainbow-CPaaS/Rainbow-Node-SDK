@@ -1,12 +1,12 @@
-'use strict'
-export {};
+'use strict';
+
 
 
 const ErrorCase = require('../../common/ErrorManager');
 const util = require('util');
 const LOG_ID = "REST/TEL - ";
 
-class RESTService {
+class RESTTelephony {
 	public http: any;
 	public logger: any;
 	public _logger: any;
@@ -361,10 +361,11 @@ class RESTService {
 
 let restService = null;
 
-function getRESTService(evtEmitter, logger) {
-    restService = restService ? restService : new RESTService(evtEmitter, logger);
+function getRESTTelephony(evtEmitter, logger) {
+    restService = restService ? restService : new RESTTelephony(evtEmitter, logger);
 
     return restService;
 }
 
-module.exports.RESTService = getRESTService;
+export {RESTTelephony};
+module.exports.RESTTelephony = getRESTTelephony;

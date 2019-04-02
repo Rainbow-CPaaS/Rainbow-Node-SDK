@@ -1,8 +1,10 @@
 "use strict";
 import {accessSync} from "fs";
 
-export {};
+/// <reference path="rainbow-sdk-node.d.ts"/>
 
+
+export {};
 
 //const ErrorCase = require("../common/ErrorManager");
 const utils = require("../common/Utils");
@@ -24,8 +26,9 @@ const PubSub = require("pubsub-js");
 const LOG_ID = "CALLLOG - ";
 
 import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
-
-//import XMPPService from "XMPPService";
+import {setFlagsFromString} from "v8";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
 
 interface ICallLogsBean {
     callLogs: Array<any>;
@@ -75,8 +78,8 @@ function CallLogsBean() : ICallLogsBean {
         private numberMissedCalls: any;
         private lastTimestamp: any;
         // */
-    private _xmpp: any;
-    private _rest: any;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
     private _contacts: any;
     private _profiles: any;
     private _calllogEventHandler: CallLogEventHandler;
@@ -122,7 +125,7 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_xmpp , _rest, _contacts, _profiles, _telephony, stats) {
+    async start(_xmpp : XMPPService, _rest : RESTService, _contacts , _profiles, _telephony, stats) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;

@@ -1,8 +1,10 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 
 const PubSub = require("pubsub-js");
@@ -21,7 +23,7 @@ const LOG_ID = "PRES - ";
  */
 class Presence {
 	public _logger: any;
-	public _xmpp: any;
+	public _xmpp: XMPPService;
 	public _settings: any;
 	public presenceEventHandler: any;
 	public presenceHandlerToken: any;
@@ -128,7 +130,7 @@ class Presence {
                 that._logger.log("info", LOG_ID + "(sendInitialPresence) received", presence);
                 that._logger.log("debug", LOG_ID + "(sendInitialPresence) - _exiting_");
                 that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
-                resolve(ErrorManager.OK);
+                resolve(ErrorManager.getErrorManager().OK);
             });
             that._xmpp.setPresence("online", "");
         });
@@ -145,7 +147,7 @@ class Presence {
      * @memberof Presence
      * @async
      * @return {Promise<ErrorManager>}
-     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.OK in case of success)
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      * @category async
      */
     setPresenceTo(presence) {
@@ -177,7 +179,7 @@ class Presence {
                     break;
                 default:
                     that._logger.log("warn", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter", presence);
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 break;
             }
 
@@ -185,7 +187,7 @@ class Presence {
                 that._logger.log("info", LOG_ID + "(setPresenceTo) received", _presence);
                 that._logger.log("debug", LOG_ID + "(setPresenceTo) - _exiting_");
                 that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
-                resolve(ErrorManager.OK);
+                resolve(ErrorManager.getErrorManager().OK);
             });
             that._xmpp.setPresence(show, status);
 
@@ -223,7 +225,7 @@ class Presence {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
-                         resolve(ErrorManager.OK);
+                         resolve(ErrorManager.getErrorManager().OK);
                      });
                      that._xmpp.setPresence("away", message);
                  } else if (status === "dnd") {
@@ -231,7 +233,7 @@ class Presence {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
-                         resolve(ErrorManager.OK);
+                         resolve(ErrorManager.getErrorManager().OK);
                      });
                      that._xmpp.setPresence("dnd", message);
                  } else if (status === "xa") {
@@ -239,11 +241,11 @@ class Presence {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
-                         resolve(ErrorManager.OK);
+                         resolve(ErrorManager.getErrorManager().OK);
                      });
                      that._xmpp.setPresence("xa", message);
                  } else {
-                     let error = ErrorManager.BAD_REQUEST();
+                     let error = ErrorManager.getErrorManager().BAD_REQUEST;
                      reject(error);
                  }
              }

@@ -9,6 +9,7 @@
     "allowUnusedLabels": true,
     "charset": "utf-8",
     "experimentalDecorators": false,
+    "allowSyntheticDefaultImports": true,
     //"moduleResolution": "node",
     //"noFallthroughCasesInSwitch": false,
     //"noImplicitReturns": true,
@@ -43,5 +44,9 @@
   "exclude": [
     "./build",
     "node_modules"
+  ],
+  "include": [
+    "src/**/*",
+    "typings/**/*"
   ]
 }

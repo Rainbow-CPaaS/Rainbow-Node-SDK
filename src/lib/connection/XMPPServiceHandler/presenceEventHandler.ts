@@ -1,8 +1,10 @@
 "use strict";
+import {XMPPService} from "../XMPPService";
+
 export {};
 
+import {XMPPUTils} from "../../common/XMPPUtils";
 
-const XMPPUtils = require("../../common/XMPPUtils");
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 
@@ -12,19 +14,20 @@ class PresenceEventHandler extends GenericHandler {
 	public PRESENCE: any;
 	public onPresenceReceived: any;
 
-    constructor(xmppService) {
+    constructor(xmppService : XMPPService) {
         super( xmppService);
 
         this.PRESENCE = "jabber:client.presence";
 
         let that = this;
+        let xmppUtils = XMPPUTils.getXMPPUtils();
 
         this.onPresenceReceived = (msg, stanza) => {
             try {
                 that.logger.log("debug", LOG_ID + "(onPresenceReceived) _entering_");
                 that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_", msg, stanza);
                 let from = stanza.attrs.from;
-                if (from === that.fullJid || XMPPUtils.getBareJIDFromFullJID(from) === XMPPUtils.getBareJIDFromFullJID(that.fullJid)) {
+                if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                     // My presence changes (coming from me or another resource)
                     let show = stanza.getChild("show") ? stanza.getChild("show").text() : "online";
                     let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
@@ -33,15 +36,15 @@ class PresenceEventHandler extends GenericHandler {
                         .eventEmitter
                         .emit("rainbow_onpresencechanged", {
                             "fulljid": from,
-                            "jid": XMPPUtils.getBareJIDFromFullJID(from),
-                            "resource": XMPPUtils.getResourceFromFullJID(from),
+                            "jid": xmppUtils.getBareJIDFromFullJID(from),
+                            "resource": xmppUtils.getResourceFromFullJID(from),
                             "status": show,
                             "message": status,
-                            "type": XMPPUtils.isFromTelJid(from) ?
+                            "type": xmppUtils.isFromTelJid(from) ?
                                 "phone" :
-                                XMPPUtils.isFromMobile(from) ?
+                                xmppUtils.isFromMobile(from) ?
                                     "mobile" :
-                                    XMPPUtils.isFromNode(from) ?
+                                    xmppUtils.isFromNode(from) ?
                                         "node" :
                                         "desktopOrWeb"
                         });
@@ -94,8 +97,8 @@ class PresenceEventHandler extends GenericHandler {
                         .eventEmitter
                         .emit("rainbow_private_onbubblepresencechanged", {
                             fulljid: from,
-                            jid: XMPPUtils.getBareJIDFromFullJID(from),
-                            resource: XMPPUtils.getResourceFromFullJID(from),
+                            jid: xmppUtils.getBareJIDFromFullJID(from),
+                            resource: xmppUtils.getResourceFromFullJID(from),
                             presence: presence,
                             statusCode: status,
                             description: description
@@ -103,8 +106,8 @@ class PresenceEventHandler extends GenericHandler {
 
                     /*
                     // A presence in a room changes
-                    let fullJid = XMPPUtils.getResourceFromFullJID(from);
-                    if (XMPPUtils.getBareJIDFromFullJID(fullJid) === XMPPUtils.getBareJIDFromFullJID(that.fullJid)) {
+                    let fullJid = xmppUtils.getResourceFromFullJID(from);
+                    if (xmppUtils.getBareJIDFromFullJID(fullJid) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
 
 
                         // My presence (node or other resources) in the room changes
@@ -112,8 +115,8 @@ class PresenceEventHandler extends GenericHandler {
                             .eventEmitter
                             .emit("rainbow_private_onbubblepresencechanged", {
                                 fulljid: from,
-                                jid: XMPPUtils.getBareJIDFromFullJID(from),
-                                resource: XMPPUtils.getResourceFromFullJID(from)
+                                jid: xmppUtils.getBareJIDFromFullJID(from),
+                                resource: xmppUtils.getResourceFromFullJID(from)
                             });
                     } else {
                         // Presence of a participants of the room changes
@@ -121,8 +124,8 @@ class PresenceEventHandler extends GenericHandler {
                             .eventEmitter
                             .emit("rainbow_onbubblerosterpresencechanged", {
                                 fulljid: from,
-                                jid: XMPPUtils.getBareJIDFromFullJID(from),
-                                resource: XMPPUtils.getResourceFromFullJID(from)
+                                jid: xmppUtils.getBareJIDFromFullJID(from),
+                                resource: xmppUtils.getResourceFromFullJID(from)
                             });
                     } // */
 
@@ -159,7 +162,7 @@ class PresenceEventHandler extends GenericHandler {
                                                 // Either avatar or user vcard changed
                                                 that
                                                     .eventEmitter
-                                                    .emit("rainbow_onrostercontactinformationchanged", XMPPUtils.getBareJIDFromFullJID(from));
+                                                    .emit("rainbow_onrostercontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                                             }
                                         }
                                         break;
@@ -174,18 +177,18 @@ class PresenceEventHandler extends GenericHandler {
                         .eventEmitter
                         .emit("rainbow_onrosterpresence", {
                             fulljid: from,
-                            jid: XMPPUtils.getBareJIDFromFullJID(from),
-                            resource: XMPPUtils.getResourceFromFullJID(from),
+                            jid: xmppUtils.getBareJIDFromFullJID(from),
+                            resource: xmppUtils.getResourceFromFullJID(from),
                             value: {
                                 priority: priority,
                                 show: show || "",
                                 delay: delay,
                                 status: status || "",
-                                type: XMPPUtils.isFromTelJid(from) ?
+                                type: xmppUtils.isFromTelJid(from) ?
                                     "phone" :
-                                    XMPPUtils.isFromMobile(from) ?
+                                    xmppUtils.isFromMobile(from) ?
                                         "mobile" :
-                                        XMPPUtils.isFromNode(from) ?
+                                        xmppUtils.isFromNode(from) ?
                                             "node" :
                                             "desktopOrWeb"
                             }

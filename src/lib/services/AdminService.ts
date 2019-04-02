@@ -1,8 +1,10 @@
 "use strict";
 
+import {XMPPService} from "../connection/XMPPService";
+
 export {};
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 
 import  {RESTService} from "../connection/RESTService";
 
@@ -24,7 +26,7 @@ const LOG_ID = "ADMIN - ";
  *      - Create a guest user
  */
 class Admin {
-    public _xmpp: any;
+    public _xmpp: XMPPService;
     public _rest: RESTService;
     public _bubbles: any;
     public _eventEmitter: any;
@@ -38,7 +40,7 @@ class Admin {
         this._logger = _logger;
     }
 
-    start(_xmpp, _rest) {
+    start(_xmpp : XMPPService, _rest : RESTService) {
         let that = this;
 
         that._logger.log("debug", LOG_ID + "(start) _entering_");
@@ -99,7 +101,7 @@ class Admin {
                 if (!strName) {
                     that._logger.log("error", LOG_ID + "(createCompany) bad or empty 'strName' parameter");
                     that._logger.log("debug", LOG_ID + "(createCompany) _exiting_");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -144,12 +146,12 @@ class Admin {
             try {
                 if (!company) {
                     that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!visibleByCompany) {
                     that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -203,25 +205,25 @@ class Admin {
 
                 if (!email) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'email' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!password) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'password' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!firstname) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'firstname' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!lastname) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'lastname' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -269,19 +271,19 @@ class Admin {
 
                 if (!firstname) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!lastname) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -326,7 +328,7 @@ class Admin {
 
                 if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -376,13 +378,13 @@ class Admin {
 
                 if (!email) {
                     that._logger.log("error", LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!companyId) {
                     that._logger.log("error", LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -427,13 +429,13 @@ class Admin {
 
                 if (!password) {
                     that._logger.log("error", LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!userId) {
                     that._logger.log("error", LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -478,19 +480,19 @@ class Admin {
 
                 if (!objData) {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if ("loginEmail" in objData) {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if ("password" in objData) {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) can't change the password with that API");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
@@ -534,7 +536,7 @@ class Admin {
 
                 if (!userId) {
                     that._logger.log("error", LOG_ID + "(deleteUser) bad or empty 'userId' parameter");
-                    reject(ErrorManager.BAD_REQUEST);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 

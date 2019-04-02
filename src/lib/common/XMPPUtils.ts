@@ -1,17 +1,26 @@
 "use strict";
-export {};
 
+import {runInNewContext} from "vm";
+import {RESTTelephony} from "../connection/RestServices/RESTTelephony";
 
 const uuid4 = require("uuid4");
 
-class XMPPUTils {
+export class XMPPUTils {
 	public messageId: any;
+	public static xmppUtils: XMPPUTils;
 
     constructor() {
         this.messageId = 0;
     }
 
-    generateRandomID() { 
+    static getXMPPUtils() {
+        XMPPUTils.xmppUtils = XMPPUTils.xmppUtils ? XMPPUTils.xmppUtils : new XMPPUTils();
+
+        return XMPPUTils.xmppUtils;
+    }
+
+
+    generateRandomID() {
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -118,4 +127,5 @@ class XMPPUTils {
 
 }
 
-module.exports = new XMPPUTils();
+export let xu = new XMPPUTils();
+module.exports.XMPPUTils = XMPPUTils;

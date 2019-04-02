@@ -2,7 +2,7 @@
 export {};
 
 
-const ErrorManager = require("./ErrorManager");
+import {ErrorManager} from "./ErrorManager";
 const utils= require("./Utils");
 
 const types = {
@@ -47,7 +47,7 @@ class StateManager {
                 } else {
                     that.logger.log("error", LOG_ID + "(start) The Rainbow Node Sdk can not start because state \"" + that.state + "\" is not \"" + types.STOPPED + "\"  state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                    let err = ErrorManager.CUSTOMERROR(-1, "The Rainbow Node Sdk can not start when it is not in an idle state.", "The Rainbow Node Sdk can not start. Current state \"" + that.state + "\" is not \"" + types.STOPPED + "\" state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
+                    let err = ErrorManager.getErrorManager().CUSTOMERROR(-1, "The Rainbow Node Sdk can not start when it is not in an idle state.", "The Rainbow Node Sdk can not start. Current state \"" + that.state + "\" is not \"" + types.STOPPED + "\" state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
                     reject(err);
                 }
             } catch (err) {

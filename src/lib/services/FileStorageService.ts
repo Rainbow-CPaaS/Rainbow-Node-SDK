@@ -1,10 +1,13 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 const fileViewerElementFactory = require("../common/models/FileViewer").FileViewerElementFactory;
 const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDescriptorFactory();
 const Conversation = require("../common/models/Conversation");
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 const url = require('url');
 const LOG_ID = "FileStorage - ";
 
@@ -65,7 +68,7 @@ class FileStorage {
         this.consumptionData = {};
     }
 
-    start(_xmpp, _rest, _fileServerService, _conversations) {
+    start(_xmpp : XMPPService, _rest : RESTService, _fileServerService, _conversations) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -160,7 +163,7 @@ class FileStorage {
                 if ( typeof (file) === "string") {
                     let errorMessage = "The file parameter must be an object which describe the file";
                     that.logger.log("error", LOG_ID + "(_addFileToConversation) " + errorMessage);
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     /*let xhr = new XMLHttpRequest();
                     xhr.open("GET", file, true);
                     xhr.onreadystatechange = function() {
@@ -184,7 +187,7 @@ class FileStorage {
                 if (_file.size > 100000000) {
                     let errorMessage = "The file is to large (limited to 100MB)";
                     that.logger.log("error", LOG_ID + "(_addFileToConversation) " + errorMessage);
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
 
                     /* reject({
                         code: SDK.ERRORBADREQUEST,
@@ -225,7 +228,7 @@ class FileStorage {
             if (!conversation) {
                 let errorMessage = "Parameter 'conversation' is missing or null";
                 that.logger.log("error", LOG_ID + "(uploadFileToConversation) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'conversation' is missing or null"
@@ -233,7 +236,7 @@ class FileStorage {
             } else if (!file) {
                 let errorMessage = "Parameter 'file' is missing or null";
                 that.logger.log("error", LOG_ID + "(uploadFileToConversation) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'file' is missing or null"
@@ -241,7 +244,7 @@ class FileStorage {
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
                 let errorMessage = "Parameter 'conversation' is not a one-to-one conversation";
                 that.logger.log("error", LOG_ID + "(uploadFileToConversation) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /* reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'conversation' is not a one-to-one conversation"
@@ -279,7 +282,7 @@ class FileStorage {
             if (!bubble) {
                 let errorMessage = "Parameter 'bubble' is missing or null";
                 that.logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /* reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'bubble' is missing or null"
@@ -287,7 +290,7 @@ class FileStorage {
             } else if (!file) {
                 let errorMessage = "Parameter 'file' is missing or null";
                 that.logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'file' is missing or null"
@@ -298,7 +301,7 @@ class FileStorage {
                 if (!conversation) {
                     let errorMessage = "Parameter 'bubble' don't have a conversation";
                     that.logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     /*reject({
                         code: SDK.ERRORBADREQUEST,
                         label: "Parameter 'bubble' don't have a conversation"
@@ -306,7 +309,7 @@ class FileStorage {
                 } else if (conversation.type !== Conversation.Type.ROOM) {
                     let errorMessage = "Parameter 'conversation' is not a bubble conversation";
                     that.logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     /* reject({
                         code: SDK.ERRORBADREQUEST,
                         label: "Parameter 'conversation' is not a bubble conversation"
@@ -343,7 +346,7 @@ class FileStorage {
             if (!fileDescriptor) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
                 that.logger.log("error", LOG_ID + "(downloadFile) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'fileDescriptor' is missing or null"
@@ -406,7 +409,7 @@ class FileStorage {
             if (!fileDescriptor) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
                 that._logger.log("error", LOG_ID + "(removeFile) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'fileDescriptor' is missing or null"
@@ -415,7 +418,7 @@ class FileStorage {
             if(!fileDescriptor.id && !fileDescriptor.url) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
                 that._logger.log("error", LOG_ID + "(removeFile) " + errorMessage);
-                reject(new ErrorManager(errorMessage));
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'fileDescriptor' don't contain information to remove the file"
@@ -434,7 +437,7 @@ class FileStorage {
 
                 that.deleteFileDescriptor(fileDescriptorId).then(function() {
                     that.logger.log("debug", LOG_ID + "[removeFile    ] ::  file removed");
-                    resolve(ErrorManager.OK);
+                    resolve(ErrorManager.getErrorManager().OK);
                 }).catch(function(err) {
                     reject(err);
                 });
@@ -491,7 +494,7 @@ class FileStorage {
 
         return new Promise(function(resolve, reject) {
             if (!conversation) {
-                let error = ErrorManager.BAD_REQUEST;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is missing or null";
                 reject(error);
                 /*reject({
@@ -499,7 +502,7 @@ class FileStorage {
                     label: "Parameter 'conversation' is missing or null"
                 }); // */
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
-                let error = ErrorManager.BAD_REQUEST;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is not a one-to-one conversation";
                 reject(error);
                 /*reject({
@@ -535,7 +538,7 @@ class FileStorage {
         return new Promise(function(resolve, reject) {
 
             if (!bubble) {
-                let error = ErrorManager.BAD_REQUEST;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'bubble' is missing or null";
                 reject(error);
                 /* reject({
@@ -1148,7 +1151,7 @@ class FileStorage {
         let that = this;
         return new Promise(function(resolve, reject) {
             if (!conversation) {
-                let error = ErrorManager.BAD_REQUEST;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is missing or null";
                 reject(error);
 
@@ -1157,7 +1160,7 @@ class FileStorage {
                     label: "Parameter 'conversation' is missing or null"
                 }); */
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
-                let error = ErrorManager.BAD_REQUEST;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is not a one-to-one conversation";
                 reject(error);
 
@@ -1194,7 +1197,7 @@ class FileStorage {
         return new Promise(function(resolve, reject) {
 
             if (!bubble) {
-                let error = ErrorManager.BAD_REQUEST;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'bubble' is missing or null";
                 reject(error);
                 /*reject({

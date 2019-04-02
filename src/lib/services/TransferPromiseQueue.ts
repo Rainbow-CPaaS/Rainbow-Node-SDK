@@ -2,7 +2,7 @@
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 
 const LOG_ID = "TRFPROMISEQUEUE - ";
 

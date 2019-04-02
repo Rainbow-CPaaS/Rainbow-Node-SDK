@@ -6,9 +6,10 @@ import * as deepEqual from "deep-equal";
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 //const Bubble = require("../common/models/Bubble");
 import {Bubble} from "../common/models/Bubble";
+import {XMPPService} from "../connection/XMPPService";
 
 const PromiseQueue = require("../common/promiseQueue");
 const utils = require("../common/Utils");
@@ -31,7 +32,7 @@ const LOG_ID = "BUBBLES - ";
  *      - Change the custom data attached to a bubble
  */
 class Bubbles {
-	public _xmpp: any;
+	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public _bubbles: any;
 	public _eventEmitter: any;
@@ -55,7 +56,7 @@ class Bubbles {
 
     }
 
-    start(_xmpp, _rest) {
+    start(_xmpp : XMPPService, _rest : RESTService) {
         var that = this;
 
         this._logger.log("debug", LOG_ID + "(start) _entering_");
@@ -139,12 +140,12 @@ class Bubbles {
             if (!name) {
                 that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'name' parameter", name);
                 that._logger.log("debug", LOG_ID + "(createBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!description) {
                 that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'description' parameter", description);
                 that._logger.log("debug", LOG_ID + "(createBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
             
@@ -199,7 +200,7 @@ class Bubbles {
         if (!bubble) {
             this._logger.log("warn", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter", bubble);
             this._logger.log("debug", LOG_ID + "(isBubbleClosed) _exiting_");
-            throw new ErrorManager(ErrorManager.BAD_REQUEST.msg);
+            throw (ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
             var activeUser = bubble.users.find((user) => {
                 return user.status === "invited" || user.status === "accepted";
@@ -259,7 +260,7 @@ class Bubbles {
             if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter", bubble);
                 that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
 
@@ -327,7 +328,7 @@ class Bubbles {
             if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter", bubble);
                 that._logger.log("debug", LOG_ID + "(closeBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (that.isBubbleClosed(bubble)) {
                 that._logger.log("info", LOG_ID + "(closeBubble) bubble is already closed", bubble);
@@ -398,12 +399,12 @@ class Bubbles {
             if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter", bubble);
                 that._logger.log("debug", LOG_ID + "(leaveBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!otherModerator) {
                 that._logger.log("warn", LOG_ID + "(leaveBubble) can't leave a bubble if no other active moderator");
                 that._logger.log("debug", LOG_ID + "(leaveBubble) _exiting_");
-                reject(ErrorManager.FORBIDDEN);
+                reject(ErrorManager.getErrorManager().FORBIDDEN);
                 return;
             } 
 
@@ -448,12 +449,12 @@ class Bubbles {
             if (!contact) {
                 that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter", contact);
                 that._logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter", bubble);
                 that._logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
@@ -476,7 +477,7 @@ class Bubbles {
 
             if (isActive || isInvited) {
                 that._logger.log("warn", LOG_ID + "(inviteContactToBubble) Contact has been already invited or is already a member of the bubble");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
 
@@ -532,12 +533,12 @@ class Bubbles {
             if (!contact) {
                 that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter", contact);
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter", bubble);
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
             let isActive = false;
@@ -559,7 +560,7 @@ class Bubbles {
 
             if (!isActive && !isInvited) {
                 that._logger.log("warn", LOG_ID + "(promoteContactInBubble) Contact is not invited or is not already a member of the bubble");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } 
 
@@ -612,10 +613,10 @@ class Bubbles {
         if (!contact) {
             that._logger.log("warn", LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter", contact);
             that._logger.log("debug", LOG_ID + "(changeBubbleOwner) _exiting_");
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else if (!bubble) {
             this._logger.log("debug", LOG_ID + "(changeBubbleOwner) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -655,12 +656,12 @@ class Bubbles {
             if (!contact) {
                 that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter", contact);
                 that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter", bubble);
                 that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             
@@ -844,7 +845,7 @@ class Bubbles {
 
             if (!id) {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'id' parameter", id);
-                reject(new ErrorManager(ErrorManager.BAD_REQUEST.msg));
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             let bubbleFound = that._bubbles.find((bubble) => {
@@ -900,7 +901,7 @@ class Bubbles {
 
             if (!jid) {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJid) bad or empty 'jid' parameter", jid);
-                reject(new ErrorManager(ErrorManager.BAD_REQUEST.msg));
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             let bubbleFound : any = that._bubbles.find((bubble) => {
@@ -1029,7 +1030,7 @@ class Bubbles {
         
         if (!bubble) {
             this._logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -1081,7 +1082,7 @@ class Bubbles {
         
         if (!bubble) {
             this._logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -1133,7 +1134,7 @@ class Bubbles {
         
         if (!bubble) {
             this._logger.log("debug", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let bubbleId = bubble.id;
@@ -1209,7 +1210,7 @@ class Bubbles {
         
         if (!bubble) {
             this._logger.log("debug", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -1247,7 +1248,7 @@ class Bubbles {
         
         if (!bubble) {
             this._logger.log("debug", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
@@ -1286,7 +1287,7 @@ class Bubbles {
         
         if (!bubble) {
             this._logger.log("debug", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {

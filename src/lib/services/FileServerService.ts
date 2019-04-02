@@ -1,4 +1,7 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 
@@ -10,7 +13,7 @@ const fs = require("fs");
 const PromiseQueue = require("../common/promiseQueue");
 
 const Deferred = require("../common/Utils").Deferred;
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
 
@@ -31,8 +34,8 @@ class FileServer {
 	public rest: any;
 	public ONE_KILOBYTE: any;
 	public xmpp: any;
-	public _xmpp: any;
-	public _rest: any;
+	public _xmpp: XMPPService;
+	public _rest: RESTService;
 	public ONE_MEGABYTE: any;
 
     constructor(_eventEmitter, _logger) {
@@ -65,7 +68,7 @@ class FileServer {
         });
     }
 
-    start(_xmpp, _rest, _fileStorageService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _fileStorageService) {
 
         var that = this;
 
@@ -576,7 +579,7 @@ class FileServer {
                         (errorResponse) => {
                             let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse.message;
                             that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + errorResponse);
-                            reject(new ErrorManager(errorMessage));
+                            reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
 
@@ -637,7 +640,7 @@ class FileServer {
                 (errorResponse) => {
                     let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse;
                     that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + errorResponse);
-                    let err = ErrorManager.ERROR;
+                    let err = ErrorManager.getErrorManager().ERROR;
                     err.msg = errorMessage;
                     reject(err);
                     /*

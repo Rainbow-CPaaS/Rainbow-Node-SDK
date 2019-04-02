@@ -2,10 +2,10 @@
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
-const Conversation = require("./../common/models/Conversation");
+const {ErrorManager} = require("../common/ErrorManager");
+import {Conversation} from "./../common/models/Conversation";
 const emoji = require("../common/Emoji");
-const xmpputils = require("../common/XMPPUtils");
+import {XMPPUTils} from "../common/XMPPUtils";
 const utils = require("../common/Utils");
 
 const LOG_ID = "IM - ";
@@ -99,7 +99,7 @@ class IM {
      */
     getMessagesFromConversation(conversation, intNbMessage) {
         if (!conversation) {
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         intNbMessage = intNbMessage
@@ -127,11 +127,11 @@ class IM {
     getMessageFromConversationById(conversation, strMessageId) {
 
         if (!conversation) {
-            return Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"});
+            return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"});
         }
 
         if (!strMessageId) {
-            return Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
+            return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
         return conversation.getMessageById(strMessageId);
@@ -154,11 +154,11 @@ class IM {
         let that = this;
 
         if (!bubble) {
-            return Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"});
+            return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"});
         }
 
         if (!strMessageId) {
-            return Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
+            return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
         var conversation = that
@@ -166,11 +166,11 @@ class IM {
             .getConversationByBubbleId(bubble.id);
 
         if (!conversation) {
-            return Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'bubble' don't have a conversation"});
+            return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' don't have a conversation"});
         }
 
         if (conversation.type !== Conversation.Type.BUBBLE) {
-            return Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'conversation' is not a bubble conversation"});
+            return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is not a bubble conversation"});
         }
 
         return conversation.getMessageById(strMessageId);
@@ -204,16 +204,16 @@ class IM {
 
         if (!conversation) {
             this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter", conversation);
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         if (!message) {
             this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter", message);
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
         if (message.length > 1024) {
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
         }
 
         let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this
@@ -252,7 +252,7 @@ class IM {
 
         if (!contact || !contact.jid_im) {
             this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter", contact);
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
         }
 
         return this.sendMessageToJid(message, contact.jid_im, lang, content, subject);
@@ -324,7 +324,7 @@ class IM {
 
         if (!message) {
             this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter", message);
-            return Promise.reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
         // Check size of the message
@@ -334,17 +334,17 @@ class IM {
         }
         if (messageSize > 1024) {
             this.logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
         }
 
         if (!jid) {
             this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
         let messageUnicode = emoji.shortnameToUnicode(message);
 
-        jid = xmpputils.getBareJIDFromFullJID(jid);
+        jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
         let messageSent = await this.xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject);
 
@@ -384,7 +384,7 @@ class IM {
 
         if (!bubble || !bubble.jid) {
             this.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter", bubble);
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
         return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject);
@@ -418,7 +418,7 @@ class IM {
 
         if (!message) {
             that.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter", message);
-            return Promise.reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
         // Check size of the message
@@ -428,17 +428,17 @@ class IM {
         }
         if (messageSize > 1024) {
             that.logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
         }
 
         if (!jid) {
             that.logger.log("debug", LOG_ID + "(sendMessageToBubble) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
         let messageUnicode = emoji.shortnameToUnicode(message);
 
-        jid = xmpputils.getRoomJIDFromFullJID(jid);
+        jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
         let bubble = await that.bulles.getBubbleByJid(jid);
         that.logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
@@ -480,20 +480,20 @@ class IM {
         let that = this;
         return new Promise((resolve,reject) => {
             if (!bubble) {
-                reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"}));
+                reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"}));
             }
             /* else if (!status) {
-                reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
+                reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
             } // */
             else {
                 if (!bubble.jid) {
-                    reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
+                    reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
                 } else {
                     that.logger.log("debug",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
 
                     that.conversations.getBubbleConversation(bubble.jid).then(function (conversation) {
                         if (!conversation) {
-                            reject(Object.assign( ErrorManager.OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
+                            reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
                         else {
                             that.xmpp.sendIsTypingState(conversation, status) ;
@@ -501,7 +501,7 @@ class IM {
                             resolve();
                         }
                     }).catch((err)=>{
-                        reject(Object.assign( ErrorManager.OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
+                        reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
                     });
                 }
             }
@@ -523,15 +523,15 @@ class IM {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!conversation) {
-                reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+                reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
             }
             /* else if (!status) {
-                reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
+                reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
             } // */
             else {
                 conversation = conversation.id ? that.conversations.getConversationById(conversation.id) : null;
                 if (!conversation) {
-                    reject(Object.assign( ErrorManager.OTHERERROR("ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
+                    reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     that.xmpp.sendIsTypingState(conversation, status);
                     resolve();
@@ -560,12 +560,12 @@ class IM {
         
         if (!messageReceived) {
             this.logger.log("warn", LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
-            return Promise.reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
         }
 
         if (messageReceived.isEvent) {
             this.logger.log("warn", LOG_ID + "(markMessageAsRead) No receipt for 'event' message");
-            return ErrorManager.OK;
+            return ErrorManager.getErrorManager().OK;
         }
 
         this.logger.log("debug", LOG_ID + "(markMessageAsRead) _exiting_");

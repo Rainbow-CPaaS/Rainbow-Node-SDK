@@ -1,10 +1,13 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+import {XMPPUTils} from "../common/XMPPUtils";
+
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 const Contact = require("../common/models/Contact");
-const XMPPUtils = require("../common/XMPPUtils");
 
 const util = require('util');
 const md5 = require('md5');
@@ -33,7 +36,7 @@ class Contacts {
 	public userContact: any;
 	public rest: any;
 	public _logger: any;
-	public _xmpp: any;
+	public _xmpp: XMPPService;
 
     constructor(_eventEmitter, _http, _logger) {
         this.avatarDomain = _http.host.split(".").length === 2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port : _http.protocol + "://" + _http.host + ":" + _http.port;
@@ -52,7 +55,7 @@ class Contacts {
         this.eventEmitter.on("rainbow_onrosters", this._onRostersUpdate.bind(this));
     }
 
-    start(_xmpp, _rest) {
+    start(_xmpp : XMPPService, _rest : RESTService) {
 
         var that = this;
 
@@ -167,7 +170,7 @@ class Contacts {
      *      Get the list of contacts that are in the user's network (aka rosters)
      * @async
      * @return {Promise<ErrorManager>}
-     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.OK in case of success)
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      * @category async
      */
     getRosters() {
@@ -249,7 +252,7 @@ class Contacts {
 
         // Reject stupid request
         if (!jid && !phoneNumber) {
-            let error = ErrorManager.BAD_REQUEST;
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += " No jid or no phoneNumber";
             return Promise.reject(error);
         }
@@ -363,7 +366,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
             if (!jid) {
                 that.logger.log("warn", LOG_ID + "(getContactByJid) bad or empty 'jid' parameter", jid);
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                 let contactFound = null;
@@ -430,7 +433,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
              if (!id) {
                 that.logger.log("warn", LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
 
                 let contactFound = null;
@@ -499,7 +502,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
                 this.logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter", loginEmail);
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
 
@@ -581,7 +584,7 @@ class Contacts {
 
     getImJid(jid) {
         let that = this;
-        let bareJid = XMPPUtils.getBareJIDFromFullJID(jid);
+        let bareJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
         return that.isTelJid(bareJid) ? bareJid.substring(4) : bareJid;
     }
 
@@ -629,7 +632,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
             if (!contact) {
                 this.logger.log("warn", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter", contact);
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
 
@@ -681,7 +684,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
             if (!contact) {
                 this.logger.log("warn", LOG_ID + "(joinContacts) bad or empty 'contact' parameter", contact);
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                     that.logger.log("debug", LOG_ID + "(joinContacts) contact join to server...");

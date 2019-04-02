@@ -1,6 +1,4 @@
 "use strict";
-export {};
-
 
 //let unirest = require("unirest");
 const Request = require("request");
@@ -659,4 +657,5 @@ class HTTPService {
     }
 }
 
-module.exports = HTTPService;
+export {HTTPService};
+module.exports.HTTPService = HTTPService;

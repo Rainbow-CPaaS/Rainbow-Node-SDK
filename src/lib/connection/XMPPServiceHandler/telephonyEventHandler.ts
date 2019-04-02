@@ -1,8 +1,10 @@
 "use strict";
+import {XMPPService} from "../XMPPService";
+import {XMPPUTils} from "../../common/XMPPUtils";
+
 export {};
 
 
-const XMPPUtils = require("../../common/XMPPUtils");
 const Utils = require("../../common/Utils");
 const GenericHandler = require("./genericHandler");
 //const Conversation = require("../../common/models/Conversation");
@@ -58,7 +60,7 @@ class TelephonyEventHandler extends GenericHandler {
 	public logger: any;
 	public eventEmitter: any;
 
-    constructor(xmppService, telephonyService, contactService, profileService) {
+    constructor(xmppService : XMPPService, telephonyService, contactService, profileService) {
         super(xmppService);
 
         let that = this;
@@ -743,7 +745,7 @@ class TelephonyEventHandler extends GenericHandler {
 
                         // No voiceMessageCounter child look for voiceMessageWaiting child
                         let voiceMessageWaitingValue = "";
-                        let voiceMessageWaiting = XMPPUtils.findChild( messagingElem, "voiceMessageWaiting");
+                        let voiceMessageWaiting = XMPPUTils.getXMPPUtils().findChild( messagingElem, "voiceMessageWaiting");
                         if (voiceMessageWaiting) {
                             voiceMessageWaitingValue = voiceMessageWaiting.text();
                             if (voiceMessageWaitingValue === "changed") {

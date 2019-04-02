@@ -1,19 +1,18 @@
 "use strict";
-export {};
 
-
-const util = require("util");
-const utils = require("../common/Utils");
-const PubSub = require("pubsub-js");
-const Conversation = require("../common/models/Conversation");
+import * as util from "util";
+import {makeId} from "../common/Utils";
+import {setTimeoutPromised} from "../common/Utils";
+import * as PubSub from "pubsub-js";
+import {Conversation} from "../common/models/Conversation";
 const packageVersion = require("../../package");
 
 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
 let ws_options = null;
 
 // @ts-ignore
-var isInTest = typeof global.it === "function";
-var WS;
+let isInTest = typeof global.it === "function";
+let WS;
 if ( isInTest ) {
     WS = require("mock-socket").WebSocket; 
 } else {
@@ -28,16 +27,16 @@ class XmppWebSocket extends WS {
 // @ts-ignore
 global.WebSocket = XmppWebSocket;
 
-var Client = require("../common/XmppQueue/XmppClient").XmppClient;
+const Client = require("../common/XmppQueue/XmppClient").XmppClient;
 const xml = require("@xmpp/xml");
 let backoff = require("backoff");
 //const setTimeout = require("timers").setTimeout;
 
-var HttpsProxyAgent = require("https-proxy-agent");
+const HttpsProxyAgent = require("https-proxy-agent");
 
-var XMPPUtils = require("../common/XMPPUtils");
+import {XMPPUTils} from "../common/XMPPUtils";
 
-const IQEventHandler = require("./XMPPServiceHandler/iqEventHandler");
+import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 
 const LOG_ID = "XMPP - ";
 
@@ -121,6 +120,7 @@ class XMPPService {
 	public serverUR: any;
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
+	private xmppUtils : XMPPUTils;
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -147,17 +147,20 @@ class XMPPService {
         this.forceClose = false;
         this.applicationId = _application.appID;
 
-        this.generatedRandomId = XMPPUtils.generateRandomID();
+        this.xmppUtils = XMPPUTils.getXMPPUtils();
 
-        this.hash = utils.makeId(8);
+        this.generatedRandomId = this.xmppUtils.generateRandomID();
+
+        this.hash = makeId(8);
+
 
         this.handleXMPPConnection = (headers) => {
 
-            var that = this;
+            let that = this;
 
-            let domain = XMPPUtils.getDomainFromFullJID(this.fullJid);
+            let domain = that.xmppUtils.getDomainFromFullJID(this.fullJid);
 
-            var options = {agent: null};
+            let options = {agent: null};
             Object.assign(options, headers);
             if (this.proxy.isProxyConfigured) {
                 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
@@ -219,7 +222,7 @@ class XMPPService {
             });
 
             this.xmppClient.handle(BIND_EVENT, (bind) => {
-                return bind(XMPPUtils.getResourceFromFullJID(this.fullJid));
+                return bind(that.xmppUtils.getResourceFromFullJID(this.fullJid));
             }); // */
 
             this.xmppClient.on("input", (packet) => {
@@ -271,7 +274,7 @@ class XMPPService {
 
                 switch (stanza.getName()) {
                     case "iq":
-                        // var children = stanza.children;
+                        // let children = stanza.children;
                         // children.forEach((node) => {
                         //     switch (node.getName()) {
                         //         case "ping":
@@ -287,8 +290,8 @@ class XMPPService {
                         //         case "query":
                         //             if (stanza.attrs.type === "result" || stanza.attrs.type === "set") {
                         //                 if (node.attrs.xmlns === NameSpacesLabels.RosterNameSpace) {
-                        //                     var contacts = [];
-                        //                     var subchildren = node.children;
+                        //                     let contacts = [];
+                        //                     let subchildren = node.children;
                         //                     subchildren.forEach(function(item) {
                         //                         if (item.attrs.jid.substr(0, 3) !== "tel") {
                         //                             contacts.push({
@@ -318,42 +321,42 @@ class XMPPService {
                         // }
                         break;
                     case "message":
-                        var content = "";
-                        var lang = "";
-                        var alternativeContent = [];
-                        var subject = "";
-                        var event = "";
-                        var eventJid = "";
-                        var hasATextMessage = false;
-                        var oob = null;
-                        var messageType = stanza.attrs.type;
+                        let content = "";
+                        let lang = "";
+                        let alternativeContent = [];
+                        let subject = "";
+                        let event = "";
+                        let eventJid = "";
+                        let hasATextMessage = false;
+                        let oob = null;
+                        let messageType = stanza.attrs.type;
                         if (messageType === TYPE_CHAT || messageType === TYPE_GROUPCHAT) {
 
-                            // var fromJid = XMPPUtils.getBareJIDFromFullJID(stanza.attrs.from);
-                            // var resource = XMPPUtils.getResourceFromFullJID(stanza.attrs.from);
-                            // var toJid = stanza.attrs.to;
-                            // var id = stanza.attrs.id;
-                            // var children = stanza.children;
+                            // let fromJid = that.xmppUtils.getBareJIDFromFullJID(stanza.attrs.from);
+                            // let resource = that.xmppUtils.getResourceFromFullJID(stanza.attrs.from);
+                            // let toJid = stanza.attrs.to;
+                            // let id = stanza.attrs.id;
+                            // let children = stanza.children;
                             // children.forEach((node) => {
                             //     switch (node.getName()) {
                             //         case "sent":
                             //             if (node.attrs.xmlns === NameSpacesLabels.Carbon2NameSpace) {
                             //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' received");
-                            //                 var forwarded = node.children[0];
+                            //                 let forwarded = node.children[0];
                             //                 if (forwarded && forwarded.getName() === "forwarded") {
-                            //                     var message = forwarded.children[0];
+                            //                     let message = forwarded.children[0];
                             //                     if (message && message.getName() === "message") {
-                            //                         fromJid = XMPPUtils.getBareJIDFromFullJID(message.attrs.from);
-                            //                         resource = XMPPUtils.getResourceFromFullJID(message.attrs.from);
+                            //                         fromJid = that.xmppUtils.getBareJIDFromFullJID(message.attrs.from);
+                            //                         resource = that.xmppUtils.getResourceFromFullJID(message.attrs.from);
                             //                         toJid = message.attrs.to;
                             //                         id = message.attrs.id;
-                            //                         var childs = message.children;
+                            //                         let childs = message.children;
                             //                         if (childs) {
                             //                             childs.forEach((nodeChild) => {
                             //                                 if (nodeChild.getName() === "body") {
                             //                                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' of type chat received ");
 
-                            //                                     var data = {
+                            //                                     let data = {
                             //                                         "fromJid": fromJid,
                             //                                         "resource": resource,
                             //                                         "toJid": toJid,
@@ -378,21 +381,21 @@ class XMPPService {
                             //         case "received":
                             //             if (node.attrs.xmlns === NameSpacesLabels.Carbon2NameSpace) {
                             //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' received");
-                            //                 var forwarded = node.children[0];
+                            //                 let forwarded = node.children[0];
                             //                 if (forwarded && forwarded.getName() === "forwarded") {
-                            //                     var message = forwarded.children[0];
+                            //                     let message = forwarded.children[0];
                             //                     if (message && message.getName() === "message") {
-                            //                         fromJid = XMPPUtils.getBareJIDFromFullJID(message.attrs.from);
-                            //                         resource = XMPPUtils.getResourceFromFullJID(message.attrs.from);
+                            //                         fromJid = that.xmppUtils.getBareJIDFromFullJID(message.attrs.from);
+                            //                         resource = that.xmppUtils.getResourceFromFullJID(message.attrs.from);
                             //                         toJid = message.attrs.to;
                             //                         id = message.attrs.id;
-                            //                         var childs = message.children;
+                            //                         let childs = message.children;
                             //                         if (childs) {
                             //                             childs.forEach(function (nodeChild) {
                             //                                 if (nodeChild.getName() === "body") {
                             //                                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' of type chat received ");
 
-                            //                                     var data = {
+                            //                                     let data = {
                             //                                         "fromJid": fromJid,
                             //                                         "resource": resource,
                             //                                         "toJid": toJid,
@@ -414,7 +417,7 @@ class XMPPService {
                             //                 }
                             //             }
                             //             else {
-                            //                 var receipt = {
+                            //                 let receipt = {
                             //                     event: node.attrs.event,
                             //                     entity: node.attrs.entity,
                             //                     type: messageType,
@@ -484,7 +487,7 @@ class XMPPService {
                             //             that.xmppClient.send(stanzaReceived);
 
                             //             //Acknowledge 'read'
-                            //             if (that.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && XMPPUtils.getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
+                            //             if (that.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && that.xmppUtils.getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
 
                             //                 let stanzaRead = xml("message", {
                             //                     "to": fromJid,
@@ -537,18 +540,18 @@ class XMPPService {
                             //     }
                             // });
 
-                            // var fromBubbleJid = "";
-                            // var fromBubbleUserJid = "";
+                            // let fromBubbleJid = "";
+                            // let fromBubbleUserJid = "";
                             // if (stanza.attrs.type === TYPE_GROUPCHAT) {
-                            //     fromBubbleJid = XMPPUtils.getBareJIDFromFullJID(stanza.attrs.from);
-                            //     fromBubbleUserJid = XMPPUtils.getResourceFromFullJID(stanza.attrs.from);
-                            //     resource = XMPPUtils.getResourceFromFullJID(fromBubbleUserJid);
+                            //     fromBubbleJid = that.xmppUtils.getBareJIDFromFullJID(stanza.attrs.from);
+                            //     fromBubbleUserJid = that.xmppUtils.getResourceFromFullJID(stanza.attrs.from);
+                            //     resource = that.xmppUtils.getResourceFromFullJID(fromBubbleUserJid);
                             // }
 
                             // if (hasATextMessage && ((messageType === TYPE_GROUPCHAT && fromBubbleUserJid !== that.fullJid) || (messageType === TYPE_CHAT && fromJid !== that.fullJid))) {
                             //     that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - chat message received");
 
-                            //     var data = {
+                            //     let data = {
                             //         "fromJid": fromJid,
                             //         "resource": resource,
                             //         "toJid": toJid,
@@ -566,7 +569,7 @@ class XMPPService {
                             //     if (stanza.attrs.type === TYPE_GROUPCHAT) {
                             //         data.fromBubbleJid = fromBubbleJid;
                             //         data.fromBubbleUserJid = fromBubbleUserJid;
-                            //         data.fromJid = XMPPUtils.getRoomJIDFromFullJID(stanza.attrs.from);
+                            //         data.fromJid = that.xmppUtils.getRoomJIDFromFullJID(stanza.attrs.from);
 
                             //         if(event) {
                             //             data.event = event;
@@ -578,7 +581,7 @@ class XMPPService {
                             //     that.eventEmitter.emit("rainbow_onmessagereceived", data);
                             // }
                         } else if (stanza.attrs.type === "management") {
-                            // var children = stanza.children;
+                            // let children = stanza.children;
                             // children.forEach(function (node) {
                             //     switch (node.getName()) {
                             //         case "room":
@@ -586,7 +589,7 @@ class XMPPService {
 
                             //                 // Affiliation changed (my own or for a member)
                             //                 if (node.attrs.status) {
-                            //                     if (node.attrs.userjid === XMPPUtils.getBareJIDFromFullJID(that.fullJid)) {
+                            //                     if (node.attrs.userjid === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                             //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble management received for own.");
                             //                         that.eventEmitter.emit("rainbow_ownaffiliationchanged", {
                             //                             "bubbleId": node.attrs.roomid,
@@ -674,8 +677,8 @@ class XMPPService {
                             //             }
                             //         case "group":
                             //             if (node.attrs.xmlns === "jabber:iq:configuration") {
-                            //                 var action = node.attrs.action;
-                            //                 var scope = node.attrs.scope;
+                            //                 let action = node.attrs.action;
+                            //                 let scope = node.attrs.scope;
 
                             //                 if (action === "create" && scope === "group") {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group created");
@@ -737,12 +740,12 @@ class XMPPService {
                             // that.eventEmitter.emit("rainbow_onchannelmessagereceived", message);
 
                         } else {
-                            var children = stanza.children;
+                            let children = stanza.children;
 
                             children.forEach(function (node) {
                                 switch (node.getName()) {
                                     case "received":
-                                        var receipt = {
+                                        let receipt = {
                                             event: node.attrs.event,
                                             entity: node.attrs.entity,
                                             type: null,
@@ -762,32 +765,32 @@ class XMPPService {
                         }
                         break;
                     case "presence":
-                        // var from = stanza.attrs.from;
-                        // if (from === that.fullJid || XMPPUtils.getBareJIDFromFullJID(from) === XMPPUtils.getBareJIDFromFullJID(that.fullJid)) {
+                        // let from = stanza.attrs.from;
+                        // if (from === that.fullJid || that.xmppUtils.getBareJIDFromFullJID(from) === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                         //     // My presence changes (coming from me or another resource)
                         //     that
                         //         .eventEmitter
                         //         .emit("rainbow_onpresencechanged", {
                         //             fulljid: from,
-                        //             jid: XMPPUtils.getBareJIDFromFullJID(from),
-                        //             resource: XMPPUtils.getResourceFromFullJID(from),
+                        //             jid: that.xmppUtils.getBareJIDFromFullJID(from),
+                        //             resource: that.xmppUtils.getResourceFromFullJID(from),
                         //             show: stanza.attrs.show || "online",
                         //             status: stanza.attrs.status || "",
-                        //             type: XMPPUtils.isFromTelJid(from)
+                        //             type: that.xmppUtils.isFromTelJid(from)
                         //                 ? "phone"
-                        //                 : XMPPUtils.isFromMobile(from)
+                        //                 : that.xmppUtils.isFromMobile(from)
                         //                     ? "mobile"
-                        //                     : XMPPUtils.isFromNode(from)
+                        //                     : that.xmppUtils.isFromNode(from)
                         //                         ? "node"
                         //                         : "desktopOrWeb"
                         //         });
                         // } else if (from.includes("room_")) {
 
-                        //     var children = stanza.children;
+                        //     let children = stanza.children;
                         //     children.forEach(function (node) {
                         //         switch (node.getName()) {
                         //             case "x":
-                        //                 var items = node.children;
+                        //                 let items = node.children;
                         //                 items.forEach(function (item) {
                         //                     switch (item.getName()) {
                         //                         case "item":
@@ -805,15 +808,15 @@ class XMPPService {
                         //     });
 
                         //     // A presence in a room changes
-                        //     var fullJid = XMPPUtils.getResourceFromFullJID(from);
-                        //     if (XMPPUtils.getBareJIDFromFullJID(fullJid) === XMPPUtils.getBareJIDFromFullJID(that.fullJid)) {
+                        //     let fullJid = that.xmppUtils.getResourceFromFullJID(from);
+                        //     if (that.xmppUtils.getBareJIDFromFullJID(fullJid) === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                         //         // My presence (node or other resources) in the room changes
                         //         that
                         //             .eventEmitter
                         //             .emit("rainbow_onbubblepresencechanged", {
                         //                 fulljid: from,
-                        //                 jid: XMPPUtils.getBareJIDFromFullJID(from),
-                        //                 resource: XMPPUtils.getResourceFromFullJID(from)
+                        //                 jid: that.xmppUtils.getBareJIDFromFullJID(from),
+                        //                 resource: that.xmppUtils.getResourceFromFullJID(from)
                         //             });
                         //     } else {
                         //         // Presence of a participants of the room changes
@@ -821,21 +824,21 @@ class XMPPService {
                         //             .eventEmitter
                         //             .emit("rainbow_onbubblerosterpresencechanged", {
                         //                 fulljid: from,
-                        //                 jid: XMPPUtils.getBareJIDFromFullJID(from),
-                        //                 resource: XMPPUtils.getResourceFromFullJID(from)
+                        //                 jid: that.xmppUtils.getBareJIDFromFullJID(from),
+                        //                 resource: that.xmppUtils.getResourceFromFullJID(from)
                         //             });
                         //     }
 
                         // } else {
                         //     // Presence of a contact changes
-                        //     var priority = 5;
-                        //     var show = "";
-                        //     var delay = "";
-                        //     var status = "";
+                        //     let priority = 5;
+                        //     let show = "";
+                        //     let delay = "";
+                        //     let status = "";
                         //     if (stanza.attrs.type === "unavailable") {
                         //         show = "unavailable";
                         //     } else {
-                        //         var children = stanza.children;
+                        //         let children = stanza.children;
                         //         children.forEach(function (node) {
                         //             if (node && typeof node !== "string") {
                         //                 switch (node.getName()) {
@@ -860,14 +863,14 @@ class XMPPService {
 
                         //     that.eventEmitter.emit("rainbow_onrosterpresence", {
                         //         fulljid: from,
-                        //         jid: XMPPUtils.getBareJIDFromFullJID(from),
-                        //         resource: XMPPUtils.getResourceFromFullJID(from),
+                        //         jid: that.xmppUtils.getBareJIDFromFullJID(from),
+                        //         resource: that.xmppUtils.getResourceFromFullJID(from),
                         //         value: {
                         //             priority: priority,
                         //             show: show || "",
                         //             delay: delay,
                         //             status: status || "",
-                        //             type: XMPPUtils.isFromTelJid(from) ? "phone" : XMPPUtils.isFromMobile(from) ? "mobile" : XMPPUtils.isFromNode(from) ? "node" : "desktopOrWeb"
+                        //             type: that.xmppUtils.isFromTelJid(from) ? "phone" : that.xmppUtils.isFromMobile(from) ? "mobile" : that.xmppUtils.isFromNode(from) ? "node" : "desktopOrWeb"
                         //         }
                         //     });
                         // }
@@ -889,7 +892,7 @@ class XMPPService {
                 if (that.reconnect) {
                     if (err.condition === "system-shutdown") { // && err.condition != "conflict"
                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait 10 seconds before try to reconnect");
-                        await utils.setTimeoutPromised(3000);
+                        await setTimeoutPromised(3000);
                         if (!that.isReconnecting) {
                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
                             that.reconnect.reconnect();
@@ -922,7 +925,7 @@ class XMPPService {
                 that.eventEmitter.emit("rainbow_xmppdisconnect");
                 if (that.reconnect) {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait 3 seconds before try to reconnect");
-                    await utils.setTimeoutPromised(3000);
+                    await setTimeoutPromised(3000);
                     if (!that.isReconnecting) {
                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : try to reconnect...");
                         that.reconnect.reconnect();
@@ -977,7 +980,7 @@ class XMPPService {
                     //to: that.jid_im + "/" + that.fullJid,
                     "type": "get",
                     "to": domain,
-                    "id": XMPPUtils.getUniqueMessageId()
+                    "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("query", {"xmlns": "http://jabber.org/protocol/disco#info"}));
 
                 that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ disco", stanza.root().toString());
@@ -1003,7 +1006,7 @@ class XMPPService {
     }
 
     start(withXMPP) {
-        var that = this;
+        let that = this;
         this.forceClose = false;
         this
             .logger
@@ -1029,7 +1032,7 @@ class XMPPService {
     }
 
     signin(account, headers) {
-        var that = this;
+        let that = this;
 
         return new Promise(function (resolve) {
             that.IQEventHandlerToken = [];
@@ -1045,7 +1048,7 @@ class XMPPService {
                 that.jid_tel = account.jid_tel;
                 that.jid_password = account.jid_password;
                 that.userId = account.id;
-                that.fullJid = XMPPUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
+                that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
                 that.jid = account.jid_im;
 
                 that.logger.log("internal", LOG_ID + "(signin) account used", that.jid_im);
@@ -1072,7 +1075,7 @@ class XMPPService {
     }
 
     stop(forceStop) {
-        var that = this;
+        let that = this;
         this.logger.log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise(function (resolve) {
@@ -1174,11 +1177,12 @@ class XMPPService {
     }
 
     setPresence(show, status) {
+        let that = this;
         this
             .logger
             .log("debug", LOG_ID + "(setPresence) _entering_");
         if (this.useXMPP) {
-            let stanza = xml("presence", {"id": XMPPUtils.getUniqueMessageId()});
+            let stanza = xml("presence", {"id": that.xmppUtils.getUniqueMessageId()});
 
             if (this.initialPresence) {
                 this.initialPresence = false;
@@ -1248,10 +1252,10 @@ class XMPPService {
         let that = this;
         that.logger.log("debug", LOG_ID + "(sendChatMessage) _entering_");
         if (that.useXMPP) {
-            var id = XMPPUtils.getUniqueMessageId();
+            let id = that.xmppUtils.getUniqueMessageId();
 
             // Remove resource if exists
-            jid = XMPPUtils.getBareJIDFromFullJID(jid);
+            jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
             let stanza = xml("message", {
                 // "from": this.fullJid,
@@ -1275,7 +1279,7 @@ class XMPPService {
             }
 
             if (content && content.message) {
-                var contentType = content.type || "text/markdown";
+                let contentType = content.type || "text/markdown";
                 stanza.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
@@ -1315,9 +1319,9 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendChatMessageToBubble) _entering_");
         if (that.useXMPP) {
-            var id = XMPPUtils.getUniqueMessageId();
+            let id = that.xmppUtils.getUniqueMessageId();
 
-            var stanza = xml("message", {
+            let stanza = xml("message", {
                 "to": jid,
                 "type": TYPE_GROUPCHAT,
                 "id": id
@@ -1337,7 +1341,7 @@ class XMPPService {
             }
 
             if (content && content.message) {
-                var contentType = content.type || "text/markdown";
+                let contentType = content.type || "text/markdown";
                 stanza.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
@@ -1400,7 +1404,7 @@ class XMPPService {
 
         let xmppMessage = null;
         // Build the message ID
-        var messageToSendID = XMPPUtils.getUniqueMessageId();
+        let messageToSendID = that.xmppUtils.getUniqueMessageId();
         that.logger.log("debug", LOG_ID + "(sendCorrectedChatMessage) : messageToSendID : " + messageToSendID);
 
         // Handle One to one conversation message
@@ -1496,10 +1500,10 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendChatExistingFSMessage) _entering_");
         if (that.useXMPP) {
-            var id = XMPPUtils.getUniqueMessageId();
+            let id = that.xmppUtils.getUniqueMessageId();
 
             // Remove resource if exists
-            jid = XMPPUtils.getBareJIDFromFullJID(jid);
+            jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
             let url = this.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
@@ -1561,10 +1565,10 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendChatExistingFSMessageToBubble) _entering_");
         if (that.useXMPP) {
-            var id = XMPPUtils.getUniqueMessageId();
+            let id = that.xmppUtils.getUniqueMessageId();
 
             // Remove resource if exists
-            jid = XMPPUtils.getBareJIDFromFullJID(jid);
+            jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
             let url = this.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
@@ -1626,7 +1630,7 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendIsTypingState) _entering_");
 
-        var state = (isTypingState) ? "composing" : "active";
+        let state = (isTypingState) ? "composing" : "active";
 
         if (this.useXMPP) {
 
@@ -1646,7 +1650,7 @@ class XMPPService {
             let stanzaRead = xml("message", {
                 "to": jid,
                 "type": type,
-                "id": XMPPUtils.getUniqueMessageId()
+                "id": that.xmppUtils.getUniqueMessageId()
             }, xml(state, {
                 "xmlns": NameSpacesLabels.ChatestatesNameSpace
             }));
@@ -1679,12 +1683,13 @@ class XMPPService {
     }
 
     getRosters() {
+        let that = this;
         this
             .logger
             .log("debug", LOG_ID + "(start) getRosters");
         if (this.useXMPP) {
             let stanza = xml("iq", {
-                "id": XMPPUtils.getUniqueMessageId(),
+                "id": that.xmppUtils.getUniqueMessageId(),
                 "type": "get"
             }, xml("query", {xmlns: NameSpacesLabels.RosterNameSpace}));
 
@@ -1705,10 +1710,11 @@ class XMPPService {
     }
 
     sendInitialBubblePresence(jid) {
+        let that = this;
         this
             .logger
             .log("debug", LOG_ID + "(sendInitialBubblePresence) _entering_");
-        var id = XMPPUtils.getUniqueMessageId();
+        let id = that.xmppUtils.getUniqueMessageId();
 
         if (this.useXMPP) {
             let stanza = xml("presence", {
@@ -1743,11 +1749,12 @@ class XMPPService {
     }
 
     sendUnavailableBubblePresence(jid) {
+        let that = this;
         this
             .logger
             .log("debug", LOG_ID + "(sendUnavailableBubblePresence) _entering_");
         if (this.useXMPP) {
-            var id = XMPPUtils.getUniqueMessageId();
+            let id = that.xmppUtils.getUniqueMessageId();
 
             let stanza = xml("presence", {
                 "id": id,
@@ -1780,7 +1787,7 @@ class XMPPService {
                 type: "get",
                 to: that.jid_tel + "/phone",
                 xmlns: NameSpacesLabels.ClientNameSpace,
-                "id": XMPPUtils.getUniqueMessageId()
+                "id": that.xmppUtils.getUniqueMessageId()
             }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
 
             this.logger.log("info", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
@@ -1792,7 +1799,7 @@ class XMPPService {
                 };
                 let agentStatus = {"phoneApi": "", "xmppAgent": "", "agentVersion": ""};
 
-                var subchildren = data.children[0].children;
+                let subchildren = data.children[0].children;
                 subchildren.forEach((item) => {
                     if (typeof item === "object") {
                         let itemName = item.getName();
@@ -1831,15 +1838,16 @@ class XMPPService {
             </query>
         </iq>
          */
+        let that = this;
         // Get the user contact
         let useMax = 75;
         let useBefore = ""; //add empty before in order to get the most recent messages
-        //var useAfter;
+        //let useAfter;
 
         let stanza =  xml("iq", {
             "from": this.jid_im,
             "type": "set",
-            "id": XMPPUtils.getUniqueMessageId()
+            "id": that.xmppUtils.getUniqueMessageId()
         });
         let queryEmt = xml("query", {
             xmlns: NameSpacesLabels.CallLogNamespace
@@ -1874,7 +1882,7 @@ class XMPPService {
             "from": this.jid_im,
             "to": this.jid_im,
             "type": "set",
-            "id": XMPPUtils.getUniqueMessageId()
+            "id": that.xmppUtils.getUniqueMessageId()
         });
 
         let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace, call_id: id}));
@@ -1893,7 +1901,7 @@ class XMPPService {
             "from": that.jid_im,
             "to": that.jid_im,
             "type": "set",
-            "id": XMPPUtils.getUniqueMessageId()
+            "id": that.xmppUtils.getUniqueMessageId()
         });
 
         let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace, peer: jid}));
@@ -1912,7 +1920,7 @@ class XMPPService {
             "from": that.jid_im,
             "to": that.jid_im,
             "type": "set",
-            "id": XMPPUtils.getUniqueMessageId()
+            "id": that.xmppUtils.getUniqueMessageId()
         });
 
         let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace}));
@@ -1930,7 +1938,7 @@ class XMPPService {
         let message = xml("message", {
             "from": that.jid_im,
             "to": that.jid_im,
-            "id": XMPPUtils.getUniqueMessageId()
+            "id": that.xmppUtils.getUniqueMessageId()
         });
 
         let msg = message.append(xml("read", {xmlns: NameSpacesLabels.CallLogAckNamespace, call_id: id}));
@@ -1953,7 +1961,7 @@ class XMPPService {
                 let message = xml("message", {
                     "from": that.jid_im,
                     "to": that.jid_im,
-                    "id": XMPPUtils.getUniqueMessageId()
+                    "id": that.xmppUtils.getUniqueMessageId()
                 });
 
                 let msg = message.append(xml("read", {
@@ -1969,15 +1977,15 @@ class XMPPService {
     }
 
     getErrorMessage (data, actionLabel) {
-        var errorMessage = actionLabel + " failure : ";
+        let errorMessage = actionLabel + " failure : ";
 
         if (data.attr("type") === "error") {
             //let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
 
-            var error = data.getChild("error");
+            let error = data.getChild("error");
             if (error) {
-                var errorType = error.attr("type");
-                var errorCode = error.attr("code");
+                let errorType = error.attr("type");
+                let errorCode = error.attr("code");
                 if (errorType) {
                     errorMessage += (errorType + " : ");
 
@@ -2023,7 +2031,7 @@ class XMPPService {
                     type: "get",
                     to: that.jid_tel + "/phone",
                     xmlns: NameSpacesLabels.ClientNameSpace,
-                    "id": XMPPUtils.getUniqueMessageId()
+                    "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("callservice", {"xmlns":  NameSpacesLabels.CallService1NameSpace}, xml("connections")));
 
             } else {
@@ -2031,7 +2039,7 @@ class XMPPService {
                     type: "get",
                     to: that.jid_tel + "/phone",
                     //xmlns: NameSpacesLabels.ClientNameSpace,
-                    "id": XMPPUtils.getUniqueMessageId()
+                    "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("callservice", {"xmlns":  NameSpacesLabels.CallService1NameSpace}, xml("connections", {deviceType: "SECONDARY"})));
             }
 
@@ -2049,7 +2057,7 @@ class XMPPService {
                 }
 
                 // Handle existing calls
-                let existingCalls = XMPPUtils.findChild(data, "connections");
+                let existingCalls = that.xmppUtils.findChild(data, "connections");
                 let children = {};
                 if (existingCalls.children.length === 0) {
                     this.logger.log("debug", LOG_ID + "getTelephonyState -- success -- no existing call");
@@ -2064,77 +2072,13 @@ class XMPPService {
         });
     }
 
-    /*
-    		service.getTelephonyState = function(secondary) {
-			var defered = $q.defer();
-			// Create the iq request
-			var iq;
-			if (!secondary) {
-				iq = $iq({ type: "get", to: service.userJidTel + "/phone" })
-					.c("callservice", { xmlns: CALLSERVICE_NS })
-					.c("connections");
-			}
-			else {
-				iq = $iq({ type: "get", to: service.userJidTel + "/phone" })
-				.c("callservice", { xmlns: CALLSERVICE_NS })
-				.c("connections", {deviceType: "SECONDARY"});
-			}
-
-			// Send "get connections" iq
-			xmppService.sendIQ(iq)
-				.then(function(data) {
-
-					// Handle eventual error message
-					var errorMessage = service.getErrorMessage(data, "getTelephonyState");
-					if (errorMessage) {
-						$log.info("[telephonyService] getTelephonyState -- failure -- " + errorMessage);
-						defered.reject(new ErrorManager(errorMessage));
-						return defered.promise;
-					}
-
-					// Handle existing calls
-					var existingCalls = angular.element(data).find("connection");
-					if (existingCalls.length === 0) {
-						$log.info("[telephonyService] getTelephonyState -- success -- no existing call");
-						defered.resolve();
-						return defered.promise;
-					}
-
-					// Traverse existing call
-					var getCallPromises = [];
-					existingCalls.each(function() {
-						getCallPromises.push(service.createCallFromConnectionElem(this));
-					});
-
-					// Send all getContactPromise
-					$q.all(getCallPromises)
-						.then(function() {
-							$log.info("[telephonyService] getTelephonyState -- success");
-							defered.resolve();
-						})
-						.catch(function(error) {
-							$log.error("[telephonyService] getTelephonyState -- failure -- " + error.message);
-							defered.reject(error);
-						});
-
-					return defered.promise;
-				})
-				.catch(function(error) {
-					$log.error("[telephonyService] getTelephonyState -- failure -- " + error.message);
-					defered.reject(error);
-				});
-
-			return defered.promise;
-		};
-
-     */
-
     sendPing() {
+        let that = this;
         this
         .logger
         .log("debug", LOG_ID + "(sendPing) _entering_");
         if (this.useXMPP) {
-            var id = XMPPUtils.getUniqueMessageId();
+            let id = that.xmppUtils.getUniqueMessageId();
             let stanza = xml("iq", {
                 "type": "get",
                 "id": id
@@ -2262,9 +2206,9 @@ class XMPPService {
         let onComplete = options.onComplete;
         delete options.onComplete;
 
-        options.queryid = XMPPUtils.getUniqueMessageId();
+        options.queryid = that.xmppUtils.getUniqueMessageId();
 
-        let id = XMPPUtils.getUniqueMessageId();
+        let id = that.xmppUtils.getUniqueMessageId();
 
         let stanza = xml("iq", {
             "type": "set",
@@ -2301,7 +2245,7 @@ class XMPPService {
 
         /*
                     // Create the iq request
-            var iq = $iq({type: "get", to: that.userJidTel + "/phone"})
+            let iq = $iq({type: "get", to: that.userJidTel + "/phone"})
                 .c("callservice", {xmlns: NameSpacesLabels.CallService1NameSpace})
                 .c("messaging");
          */
@@ -2329,4 +2273,6 @@ class XMPPService {
 
 }
 
-module.exports = XMPPService;
+export { XMPPService };
+module.exports.XMPPService = XMPPService;
+

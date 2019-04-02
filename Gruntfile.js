@@ -1,4 +1,4 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.initConfig({
 
     /* ------------------------------ VARIABLES -------------------------------- */
@@ -151,7 +151,17 @@ module.exports = function (grunt) {
             src: ["**/*.ts", "!node_modules/**"],
             tsconfig: true
         }
-      }
+      },
+    dtsGenerator: {
+        options: {
+            "project": "./",
+            "baseDir": "./",
+            "out": "typings/rainbow-sdk-node.d.ts"
+        },
+        "default": {
+            src: [ "**/*.ts" ]
+            }
+    }
 });
 
   grunt.loadNpmTasks("grunt-jsdoc-to-markdown");
@@ -164,7 +174,8 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-replace");
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
-  grunt.registerTask("default", ["clean:dist", "ts:build", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.loadNpmTasks("dts-generator");
+  grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };

@@ -1,10 +1,10 @@
 "use strict";
 import {accessSync} from "fs";
+import {XMPPService} from "../XMPPService";
 
 export {};
 
 
-const XMPPUtils = require("../../common/XMPPUtils");
 const Utils = require("../../common/Utils");
 const GenericHandler = require("./genericHandler");
 //const Conversation = require("../../common/models/Conversation");
@@ -45,7 +45,7 @@ class CallLogEventHandler extends GenericHandler {
 	public logger: any;
 	public callLogs: any;
 
-    constructor(xmppService, calllogService, contactService, profileService, telephonyService) {
+    constructor(xmppService : XMPPService, calllogService, contactService, profileService, telephonyService) {
         super(xmppService);
 
         //let self = this;

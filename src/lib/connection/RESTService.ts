@@ -1,19 +1,18 @@
 "use strict";
-export {};
 
+import * as jwt from "jwt-decode";
+import * as btoa from "btoa";
+import * as CryptoJS from "crypto-js";
 
-const jwt = require("jwt-decode");
-const btoa = require("btoa");
-const CryptoJS = require("crypto-js");
+import * as backoff from "backoff";
 
-const backoff = require("backoff");
+import {makeId} from "../common/Utils.js";
+import {createPassword} from "../common/Utils.js";
 
-const Utils = require("../common/Utils.js");
-let ErrorCase = require("../common/ErrorManager");
+import  {RESTTelephony} from "./RestServices/RESTTelephony";
+import {HTTPService} from "./HttpService";
 
-const RESTTelephony = require('./RestServices/RESTTelephony').RESTService;
-
-var packageVersion = require("../../package.json");
+let packageVersion = require("../../package.json");
 
 const RECONNECT_INITIAL_DELAY = 2000;
 const RECONNECT_MAX_DELAY = 60000;
@@ -28,7 +27,7 @@ var getDefaultHeader;
 const LOG_ID = "REST - ";
 
 class RESTService {
-	public http: any;
+	public http: HTTPService;
 	public account: any;
 	public app: any;
 	public token: any;
@@ -53,6 +52,7 @@ class RESTService {
 	public getPostHeaderWithRange: any;
 	public getLoginHeader: any;
 	public getDefaultHeader: any;
+	public applicationToken: string;
 
     constructor(_credentials, _application, _isOfficialRainbow, evtEmitter, _logger) {
         let that = this;
@@ -81,7 +81,7 @@ class RESTService {
         this.fibonacciStrategy = new backoff.FibonacciStrategy({randomisationFactor: 0.4, initialDelay: RECONNECT_INITIAL_DELAY, maxDelay: RECONNECT_MAX_DELAY});
         this.reconnectDelay = this.fibonacciStrategy.getInitialDelay();
 
-        this.restTelephony = RESTTelephony(evtEmitter, _logger);
+        this.restTelephony = new RESTTelephony(evtEmitter, _logger);
 
         this.getRequestHeader = (accept) => {
 
@@ -418,7 +418,7 @@ class RESTService {
             }
             else {
                 //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
-                that.http.post("/api/rainbow/enduser/v1.0/users/loginEmails", that.getRequestHeader(), { "loginEmail": email }).then(function(json) {
+                that.http.post("/api/rainbow/enduser/v1.0/users/loginEmails", that.getRequestHeader(), { "loginEmail": email }, undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) REST contact received ", json.data);
                     that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) _exiting_");
@@ -443,7 +443,7 @@ class RESTService {
         return new Promise(function (resolve, reject) {
             that.logger.info("[RESTService] joinContactInvitation", contact);
 
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), {"invitedUserId": contact.id} ).then(function (json) {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), {"invitedUserId": contact.id}, undefined ).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(joinContactInvitation) successfull");
                 that.logger.log("internal", LOG_ID + "(joinContactInvitation) REST invitation received ", json.data);
                 that.logger.log("debug", LOG_ID + "(joinContactInvitation) _exiting_");
@@ -467,7 +467,7 @@ class RESTService {
                     "users": contactIds,
                     "presence": Boolean(presence)
                 }
-            ).then(function (json) {
+                , undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(joinContacts) successfull");
                 that.logger.log("internal", LOG_ID + "(joinContacts) REST invitation received ", json.data);
                 that.logger.log("debug", LOG_ID + "(joinContacts) _exiting_");
@@ -594,7 +594,7 @@ class RESTService {
                 name: name, 
                 comment: comment,
                 isFavorite: isFavorite
-            }).then(function(json) {
+            }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(createGroup) successfull");
                  that.logger.log("internal", LOG_ID + "(createGroup) REST group created", json.data);
                  that.logger.log("debug", LOG_ID + "(createGroup) _exiting_");
@@ -634,7 +634,7 @@ class RESTService {
 
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
                 name: name
-            }).then(function(json) {
+            }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(updateGroupName) successfull");
                  that.logger.log("internal", LOG_ID + "(updateGroupName) REST delete group", json.data);
                  that.logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
@@ -653,7 +653,7 @@ class RESTService {
         return new Promise(function(resolve, reject) {
             that.logger.log("debug", LOG_ID + "(addUserInGroup) _entering_");
 
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader()).then(function(json) {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader(), undefined, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(addUserInGroup) successfull");
                  that.logger.log("internal", LOG_ID + "(addUserInGroup) REST add user in group", json.data);
                  that.logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
@@ -720,8 +720,8 @@ class RESTService {
             that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), {
                 name: name, 
                 topic: description,
-                history: history } 
-            ).then(function(json) {
+                history: history }
+                , undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(createBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(createBubble) REST bubble created", json.data);
                  that.logger.log("debug", LOG_ID + "(createBubble) _exiting_");
@@ -742,8 +742,8 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(setBubbleVisibility) _entering_");
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), {
-                visibility: visibility } 
-            ).then(function(json) {
+                visibility: visibility }
+                , undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(setBubbleVisibility) successfull");
                  that.logger.log("internal", LOG_ID + "(setBubbleVisibility) REST bubble set visibility", json.data);
                  that.logger.log("debug", LOG_ID + "(setBubbleVisibility) _exiting_");
@@ -764,8 +764,8 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(setBubbleTopic) _entering_");
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), {
-                topic: topic } 
-            ).then(function(json) {
+                topic: topic }
+                , undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(setBubbleTopic) successfull");
                  that.logger.log("internal", LOG_ID + "(setBubbleTopic) REST bubble updated topic", json.data);
                  that.logger.log("debug", LOG_ID + "(setBubbleTopic) _exiting_");
@@ -786,8 +786,8 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(setBubbleName) _entering_");
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), {
-                name: name } 
-            ).then(function(json) {
+                name: name }
+                , undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(setBubbleName) successfull");
                  that.logger.log("internal", LOG_ID + "(setBubbleName) REST bubble updated name", json.data);
                  that.logger.log("debug", LOG_ID + "(setBubbleName) _exiting_");
@@ -911,7 +911,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(setBubbleCustomData) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/custom-data", that.getRequestHeader(), customData).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/custom-data", that.getRequestHeader(), customData, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(setBubbleCustomData) successfull");
                  that.logger.log("internal", LOG_ID + "(setBubbleCustomData) REST PUT customData to bubble", json.data);
                  that.logger.log("debug", LOG_ID + "(setBubbleCustomData) _exiting_");
@@ -935,7 +935,7 @@ class RESTService {
             let status = withInvitation ? "invited" : "accepted";
             reason = reason || "from moderator";
 
-            that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users", that.getRequestHeader(), { userId: contactId, reason: reason, privilege: privilege, status: status } ).then(function(json) {
+            that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users", that.getRequestHeader(), { userId: contactId, reason: reason, privilege: privilege, status: status }, undefined ).then(function(json) {
                  that.logger.log("info", LOG_ID + "(inviteContactToBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST bubble invitation", json.data);
                  that.logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
@@ -957,7 +957,7 @@ class RESTService {
 
             let privilege = asModerator ? "moderator" : "user";
 
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader(), { privilege: privilege }).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader(), { privilege: privilege }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(promoteContactInBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(promoteContactInBubble) REST invitation accepted", json.data);
                  that.logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
@@ -977,7 +977,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(changeBubbleOwner) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), { "owner": contactId }).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), { "owner": contactId }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(changeBubbleOwner) successfull");
                  that.logger.log("internal", LOG_ID + "(changeBubbleOwner) REST invitation accepted", json.data);
                  that.logger.log("debug", LOG_ID + "(changeBubbleOwner) _exiting_");
@@ -1057,7 +1057,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(unsubscribeContactFromBubble) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader(), { status: "unsubscribed" }).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader(), { status: "unsubscribed" }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(unsubscribeContactFromBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(unsubscribeContactFromBubble) REST remove contact from bubble", json.data);
                  that.logger.log("debug", LOG_ID + "(unsubscribeContactFromBubble) _exiting_");
@@ -1077,7 +1077,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), { status: "accepted" }).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), { status: "accepted" }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(acceptInvitationToJoinBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(acceptInvitationToJoinBubble) REST invitation accepted", json.data);
                  that.logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) _exiting_");
@@ -1097,7 +1097,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), { status: "rejected" }).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), { status: "rejected" }, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(declineInvitationToJoinBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(declineInvitationToJoinBubble) REST invitation declined", json.data);
                  that.logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) _exiting_");
@@ -1128,7 +1128,7 @@ class RESTService {
                 user.customMessage = message;
             }
 
-            that.http.post("/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/invitations", that.getRequestHeader(), user).then(function(json) {
+            that.http.post("/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/invitations", that.getRequestHeader(), user, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(inviteUser) successfull");
                  that.logger.log("internal", LOG_ID + "(inviteUser) REST admin user invitation sent", json.data);
                  that.logger.log("debug", LOG_ID + "(inviteUser) _exiting_");
@@ -1176,7 +1176,7 @@ class RESTService {
                 user.adminType = "company_admin";
             }
 
-            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user).then(function(json) {
+            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(createUser) successfull");
                  that.logger.log("internal", LOG_ID + "(createUser) REST admin creation user", json.data);
                  that.logger.log("debug", LOG_ID + "(createUser) _exiting_");
@@ -1198,13 +1198,13 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(createGuestUser) _entering_");
 
             // Generate user Email based on appId
-            let uid = Utils.makeId(40);
+            let uid = makeId(40);
             let appId = that._application.appID;
             let domain = that.http.host;
             let email = `${uid}@${appId}.${domain}`;
 
             // Generate a rainbow compatible password
-            let password = Utils.createPassword(40);
+            let password = createPassword(40);
 
             let user = {
                 loginEmail: email,
@@ -1237,7 +1237,7 @@ class RESTService {
                 user.timeToLive = timeToLive;
             }
 
-            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user).then(function(json) {
+            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(createGuestUser) successfull");
                  // Add generated password into the answer
                  json.data.password = password;
@@ -1264,7 +1264,7 @@ class RESTService {
                 password: password
             };
 
-            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), data).then(function(json) {
+            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), data, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(changePassword) successfull");
                  that.logger.log("internal", LOG_ID + "(changePassword) REST admin change password", json.data);
                  that.logger.log("debug", LOG_ID + "(changePassword) _exiting_");
@@ -1284,7 +1284,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(updateInformation) _entering_");
 
-            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), objData).then(function(json) {
+            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), objData, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(updateInformation) successfull");
                  that.logger.log("internal", LOG_ID + "(updateInformation) REST admin change data", json.data);
                  that.logger.log("debug", LOG_ID + "(updateInformation) _exiting_");
@@ -1334,7 +1334,7 @@ class RESTService {
                 viewers: viewers
             };
 
-            that.http.post( "/api/rainbow/filestorage/v1.0/files", that.getRequestHeader(), data).then(function(json) {
+            that.http.post( "/api/rainbow/filestorage/v1.0/files", that.getRequestHeader(), data, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(createFileDescriptor) successfull");
                 that.logger.log("info", LOG_ID + "(createFileDescriptor) REST get Blob from Url");
                 that.logger.log("debug", LOG_ID + "(createFileDescriptor) _exiting_");
@@ -1515,7 +1515,7 @@ class RESTService {
             that.http.post("/api/rainbow/filestorage/v1.0/files/" + fileId + "/viewers", that.getRequestHeader(), {
                 viewerId: viewerId,
                 type: viewerType
-            }).then(function (json) {
+            }, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createCompany) successfull");
                 that.logger.log("internal", LOG_ID + "(createCompany) REST creation company", json);
                 that.logger.log("debug", LOG_ID + "(createCompany) _exiting_");
@@ -1606,7 +1606,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(uploadAFile) _entering_");
 
-            that.http.put( "/api/rainbow/fileserver/v1.0/files/" + fileId, that.getRequestHeader("Content-Type: 'application/octet-stream'"), buffer).then(function(response) {
+            that.http.put( "/api/rainbow/fileserver/v1.0/files/" + fileId, that.getRequestHeader("Content-Type: 'application/octet-stream'"), buffer, undefined).then(function(response) {
                 that.logger.log("info", LOG_ID + "(uploadAFile) successfull");
                 that.logger.log("info", LOG_ID + "(uploadAFile) REST file sent");
                 that.logger.log("debug", LOG_ID + "(uploadAFile) _exiting_");
@@ -1744,7 +1744,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(updateUserSettings) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), settings).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), settings, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(updateUserSettings) successfull");
                 that.logger.log("internal", LOG_ID + "(updateUserSettings) REST user change data", json.data);
                 that.logger.log("debug", LOG_ID + "(updateUserSettings) _exiting_");
@@ -1795,7 +1795,7 @@ class RESTService {
                 countryObj.state = state;
             }
 
-            that.http.post('/api/rainbow/admin/v1.0/companies', that.getRequestHeader(), countryObj).then(function (json) {
+            that.http.post('/api/rainbow/admin/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createCompany) successfull");
                 that.logger.log("internal", LOG_ID + "(createCompany) REST creation company", json);
                 that.logger.log("debug", LOG_ID + "(createCompany) _exiting_");
@@ -1854,7 +1854,7 @@ class RESTService {
         let that = this;
 
         return new Promise(function (resolve, reject) {
-            that.http.post('/api/rainbow/admin/v1.0/companies/' + companyId + "/visible-by/" + visibleByCompanyId, that.getRequestHeader()).then(function (json) {
+            that.http.post('/api/rainbow/admin/v1.0/companies/' + companyId + "/visible-by/" + visibleByCompanyId, that.getRequestHeader(), undefined, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(setVisibilityForCompany) successfull");
                 that.logger.log("internal", LOG_ID + "(setVisibilityForCompany) REST setVisibilityForCompany company", json);
                 that.logger.log("debug", LOG_ID + "(setVisibilityForCompany) _exiting_");
@@ -1898,7 +1898,7 @@ class RESTService {
                 channel.max_payload_size = max_payload_size;
             }
 
-            that.http.post("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), channel).then(function(json) {
+            that.http.post("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), channel, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(createChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(createChannel) REST creation channel", json.data);
                 that.logger.log("debug", LOG_ID + "(createChannel) _exiting_");
@@ -2062,7 +2062,7 @@ class RESTService {
                 payload.images = imagesIds || null;
             }
 
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/publish", that.getRequestHeader(), payload).then((json) => {
+            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/publish", that.getRequestHeader(), payload, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(publishMessage) successfull");
                 that.logger.log("internal", LOG_ID + "(publishMessage) REST message published", json.data);
                 that.logger.log("debug", LOG_ID + "(publishMessage) _exiting_");
@@ -2083,7 +2083,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(subscribeToChannel) _entering_");
 
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader()).then((json) => {
+            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(subscribeToChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(subscribeToChannel) REST channel subscribed", json.data);
                 that.logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
@@ -2104,7 +2104,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) _entering_");
 
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/unsubscribe", that.getRequestHeader(), null).then(function(json) {
+            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/unsubscribe", that.getRequestHeader()).then(function(json) {
                 that.logger.log("info", LOG_ID + "(unsubscribeToChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(unsubscribeToChannel) REST channel unsubscribed", json.data);
                 that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) _exiting_");
@@ -2136,7 +2136,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(setBubbleTopic) _entering_");
 
-            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel).then(function(json) {
+            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(setBubbleTopic) successfull");
                 that.logger.log("internal", LOG_ID + "(setBubbleTopic) REST channel updated", json.data);
                 that.logger.log("debug", LOG_ID + "(setBubbleTopic) _exiting_");
@@ -2222,7 +2222,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(updateChannelUsers) _entering_");
 
-            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId + "/users", that.getRequestHeader(), {"data": users}).then(function(json) {
+            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId + "/users", that.getRequestHeader(), {"data": users}, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(updateChannelUsers) successfull");
                 that.logger.log("internal", LOG_ID + "(updateChannelUsers) REST channels updated", json.data);
                 that.logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
@@ -2243,7 +2243,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getChannelMessages) _entering_");
 
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items", that.getRequestHeader(), { "max": "100"}).then(function(json) {
+            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items", that.getRequestHeader(), { "max": "100"}, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(getChannelMessages) successfull");
                 that.logger.log("internal", LOG_ID + "(getChannelMessages) REST channels messages received", json.data.items.length);
                 that.logger.log("debug", LOG_ID + "(getChannelMessages) _exiting_");
@@ -2415,7 +2415,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(createServerConversation) _entering_");
 
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations", that.getRequestHeader(), conversation).then((json) => {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations", that.getRequestHeader(), conversation, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(createServerConversation) successfull");
                 that.logger.log("info", LOG_ID + "(createServerConversation) REST conversation created", json.data);
                 that.logger.log("debug", LOG_ID + "(createServerConversation) _exiting_");
@@ -2456,7 +2456,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(updateServerConversation) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId, that.getRequestHeader(), {"mute": mute}).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId, that.getRequestHeader(), {"mute": mute}, undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(updateServerConversation) successfull");
                  that.logger.log("internal", LOG_ID + "(updateServerConversation) REST conversation updated", json.data);
                  that.logger.log("debug", LOG_ID + "(updateServerConversation) _exiting_");
@@ -2477,7 +2477,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(sendConversationByEmail) _entering_");
 
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader()).then((json) => {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
                 that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation created", json.data);
                 that.logger.log("debug", LOG_ID + "(sendConversationByEmail) _exiting_");
@@ -2497,7 +2497,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(ackAllMessages) _entering_");
 
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader()).then(function(json) {
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), undefined, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(ackAllMessages) successfull");
                 that.logger.log("internal", LOG_ID + "(ackAllMessages) REST conversation updated", json.data);
                 that.logger.log("debug", LOG_ID + "(ackAllMessages) _exiting_");
@@ -2555,7 +2555,7 @@ class RESTService {
 
         that.token = token;
         return new Promise(function(resolve, reject) {
-            that.http.put(url, that.getRequestHeader(), data).then(function(JSON) {
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function(JSON) {
                 that.logger.log("debug", LOG_ID + "(put) _exiting_");
                 resolve(JSON);
             }).catch(function(err) {
@@ -2723,4 +2723,4 @@ class RESTService {
 }
 
 export {RESTService};
-module.exports = RESTService;
+module.exports.RESTService = RESTService;

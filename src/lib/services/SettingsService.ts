@@ -1,8 +1,11 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 const Presence = require("./PresenceService");
 
@@ -20,8 +23,8 @@ const LOG_ID = "SETT - ";
  *      - Update user settings
  */
 class Settings {
-	public _xmpp: any;
-	public _rest: any;
+	public _xmpp: XMPPService;
+	public _rest: RESTService;
 	public _eventEmitter: any;
 	public _logger: any;
 
@@ -37,7 +40,7 @@ class Settings {
         // this.RAINBOW_PRESENCE_INVISIBLE = "invisible";
     }
 
-    start(_xmpp, _rest) {
+    start(_xmpp : XMPPService, _rest : RESTService) {
         var that = this;
 
         this._logger.log("debug", LOG_ID + "(start) _entering_");

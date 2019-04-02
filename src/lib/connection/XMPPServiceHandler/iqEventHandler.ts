@@ -1,8 +1,9 @@
 "use strict";
-export {};
+import {XMPPService} from "../XMPPService";
 
 
-const XMPPUtils = require("../../common/XMPPUtils");
+
+
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 const packageVersion = require("../../../package");
@@ -19,7 +20,7 @@ class IQEventHandler extends GenericHandler {
 	public _onIqGetPingReceived: any;
 	public _onIqGetQueryReceived: any;
 
-    constructor(xmppService) {
+    constructor(xmppService : XMPPService) {
         super( xmppService);
 
         this.IQ_GET = "jabber:client.iq.get";
@@ -166,4 +167,5 @@ class IQEventHandler extends GenericHandler {
     }
 }
 
-module.exports = IQEventHandler;
+module.exports.IQEventHandler = IQEventHandler;
+export {IQEventHandler};

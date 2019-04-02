@@ -1,7 +1,7 @@
 "use strict";
 export {};
 
-const  ErrorManager = require("./ErrorManager");
+import {ErrorManager} from "./ErrorManager";
 const EventEmitter = require("events");
 
 const LOG_ID = "EVENTS - ";
@@ -651,7 +651,7 @@ class Events {
 
     publish(event, data) {
 
-        let info = data || ErrorManager.OK;
+        let info = data || ErrorManager.getErrorManager().OK;
 
         /**
          * @event Events#rainbow_onstarted

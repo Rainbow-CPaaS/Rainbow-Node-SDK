@@ -1,5 +1,5 @@
 "use strict";
-export {};
+
 
 
 const config = require ("../config/config");
@@ -191,12 +191,14 @@ function orderByFilter(originalArray, filterFct, flag, sortFct) {
     }
 }
 
-module.exports.makeId = makeId;
-module.exports.createPassword = createPassword;
-module.exports.isAdmin = isAdmin;
-module.exports.anonymizePhoneNumber = anonymizePhoneNumber;
-module.exports.Deferred = Deferred;
-module.exports.isSuperAdmin = isSuperAdmin;
-module.exports.setTimeoutPromised = setTimeoutPromised;
-module.exports.until = until;
-module.exports.orderByFilter = orderByFilter;
+export {
+    makeId,
+    createPassword,
+    isAdmin,
+    anonymizePhoneNumber,
+    Deferred,
+    isSuperAdmin,
+    setTimeoutPromised,
+    until,
+    orderByFilter,
+    };

@@ -1,9 +1,12 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
-const Conversation = require("../common/models/Conversation");
+import {ErrorManager} from "../common/ErrorManager";
+import {Conversation} from "../common/models/Conversation";
 const Call = require("../common/models/Call");
 
 const moment = require("moment");
@@ -37,8 +40,8 @@ const LOG_ID = "CONVERSATIONS - ";
  *
  *   */
 class Conversations {
-	public _xmpp: any;
-	public _rest: any;
+	public _xmpp: XMPPService;
+	public _rest: RESTService;
 	public _contacts: any;
 	public _bubles: any;
 	public _fileStorageService: any;
@@ -80,7 +83,7 @@ class Conversations {
         this._eventEmitter.on("rainbow_onreceipt", this._onReceipt.bind(this));
     }
 
-    start(_xmpp, _rest, _contacts, _bubbles, _fileStorageService, _fileServerService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _fileStorageService, _fileServerService) {
         let that = this;
         this.conversationHandlerToken = [];
         this.conversationHistoryHandlerToken= [];
@@ -209,10 +212,10 @@ class Conversations {
             that
                 ._rest
                 .getServerConversations()
-                .then((conversations) => {
+                .then((conversations : []) => {
                     // Create conversation promises
                     var conversationPromises = [];
-                    conversations.forEach(function (conversationData) {
+                    conversations.forEach(function (conversationData : any) {
                             var missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
                             var conversationPromise = null;
                             var muted = (conversationData.mute === true);
@@ -238,7 +241,7 @@ class Conversations {
                         .catch((error) => {
                             var errorMessage = "getServerConversations failure: " + error.message;
                             that._logger.log("error", LOG_ID + "[conversationService] ", errorMessage);
-                            reject(new ErrorManager(errorMessage));
+                            reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                         });
                 })
                 .catch((err) => {
@@ -251,7 +254,7 @@ class Conversations {
                     that
                         ._logger
                         .log("error", LOG_ID + "[conversationService] " + errorMessage);
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });
     }
@@ -306,7 +309,7 @@ class Conversations {
         }
 
         return this._rest.createServerConversation( data )
-        .then((result)=> {
+        .then((result : any)=> {
             that
             ._logger
             .log("info", LOG_ID + "[conversationService] createServerConversation success: " + conversation.id);
@@ -324,7 +327,7 @@ class Conversations {
             that
             ._logger
             .log("error", LOG_ID + "[conversationService] " + errorMessage);
-                return Promise.reject(new ErrorManager(errorMessage));
+                return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
         });
     }
 
@@ -359,7 +362,7 @@ class Conversations {
             that
                 ._logger
                 .log("warn", LOG_ID + "[conversationService] " + errorMessage);
-            return Promise.reject(new ErrorManager(errorMessage));
+            return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
        
         });
     }
@@ -565,7 +568,7 @@ class Conversations {
                         ._logger
                         .log("error", LOG_ID + "[conversationService] " + errorMessage);
 
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });
     }
@@ -678,7 +681,7 @@ class Conversations {
                                 if (noError) {
                                     resolve();
                                 } else {
-                                    reject(new ErrorManager(errorMessage));
+                                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                                 }
                             });
                     }
@@ -692,7 +695,7 @@ class Conversations {
                 if (noError) {
                     resolve();
                 } else {
-                    reject(new ErrorManager(errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 }
             });
 
@@ -713,7 +716,7 @@ class Conversations {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!conversation) {
-                reject(Object.assign(ErrorManager.BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+                reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
             }
             /* else if (!status) {
                 reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
@@ -721,7 +724,7 @@ class Conversations {
             else {
                 conversation = conversation.id ? that.getConversationById(conversation.id) : null;
                 if (!conversation) {
-                    reject(Object.assign( ErrorManager.OTHERERROR("ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
+                    reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     that._xmpp.sendIsTypingState(conversation, status);
                     resolve();
@@ -1088,15 +1091,15 @@ class Conversations {
 
         if (!conversation) {
             this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter", conversation);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!data) {
             this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'data' parameter", data);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!origMsgId) {
             this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'origMsgId' parameter", origMsgId);
-            return Promise.reject(ErrorManager.BAD_REQUEST);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         that._logger.log("info", LOG_ID + "(sendCorrectedChatMessage) _entering_ ");
@@ -1106,20 +1109,20 @@ class Conversations {
         let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
         if (originalMessageFrom !== that._rest.loggedInUser.jid_im) {
             that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
-            throw new ErrorManager("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+            throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified","(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
         }
 
         let lastEditableMsg = conversation.getlastEditableMsg();
 
         if (lastEditableMsg.id !== originalMessage.id) {
             that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
-            throw new ErrorManager("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
+            throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified","(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
         }
 
         let messageUnicode = emoji.shortnameToUnicode(data);
 
         try {
-            let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId);
+            let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang );
             let newMsg = Object.assign({}, originalMessage);
             newMsg.id = sentMessageId;
             newMsg.content = messageUnicode;
@@ -1130,8 +1133,10 @@ class Conversations {
             return newMsg;
         } catch (err) {
             that._logger.log("error", LOG_ID + "createFileDescriptor error");
-            let error = new ErrorManager("(sendCorrectedChatMessage) error while sending corrected message : " + err );
+            let error = ErrorManager.getErrorManager().OTHERERROR(err.message,"(sendCorrectedChatMessage) error while sending corrected message : " + err );
+            // @ts-ignore
             error.newMessageText = data;
+            // @ts-ignore
             error.originaleMessageId = origMsgId;
             throw  error ;
         }
@@ -1183,7 +1188,7 @@ class Conversations {
         return new Promise((resolve) => {
             if (!conversation) {
                 this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter", conversation);
-                return Promise.reject(ErrorManager.BAD_REQUEST);
+                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             that._logger.log("info", LOG_ID + "(removeAllMessage) _entering_ " + conversation.id);
 
@@ -1261,7 +1266,8 @@ class Conversations {
             that.pendingMessages = that.pendingMessages.filter((messagePending) => { if (messagePending.date > date) { return false; } });
             
             // Request for history messages
-            that._xmpp.mamDelete(conversation.id, mamRequest);
+            that._xmpp.mamDelete(mamRequest);
+            //that._xmpp.mamDelete(conversation.id, mamRequest);
         });
     }
 
@@ -1364,7 +1370,7 @@ class Conversations {
 
             if (!contact) {
                 __reject({
-                    code: ErrorManager.BAD_REQUEST,
+                    code: ErrorManager.getErrorManager().BAD_REQUEST,
                     label: "Parameter 'contact' is missing or null"
                 });
             }

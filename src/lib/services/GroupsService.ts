@@ -1,8 +1,11 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 export {};
 
 
-const ErrorManager = require("../common/ErrorManager");
+import {ErrorManager} from "../common/ErrorManager";
 
 const LOG_ID = "GROUPS - ";
 
@@ -21,8 +24,8 @@ const LOG_ID = "GROUPS - ";
  */
 
  class Groups {
-	public _xmpp: any;
-	public _rest: any;
+	public _xmpp: XMPPService;
+	public _rest: RESTService;
 	public _groups: any;
 	public _eventEmitter: any;
 	public _logger: any;
@@ -41,7 +44,7 @@ const LOG_ID = "GROUPS - ";
         this._eventEmitter.on("rainbow_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
     }
 
-     start(_xmpp, _rest) {
+     start(_xmpp : XMPPService, _rest : RESTService) {
          let that = this;
 
          this._logger.log("debug", LOG_ID + "(start) _entering_");
@@ -127,7 +130,7 @@ const LOG_ID = "GROUPS - ";
              if (!name) {
                  that._logger.log("warn", LOG_ID + "(createGroup) bad or empty 'name' parameter", name);
                  that._logger.log("debug", LOG_ID + "(createGroup) _exiting_");
-                 reject(ErrorManager.BAD_REQUEST);
+                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
              } 
 
@@ -167,7 +170,7 @@ const LOG_ID = "GROUPS - ";
              if (!group) {
                  that._logger.log("warn", LOG_ID + "(deleteGroup) bad or empty 'group' parameter", group);
                  that._logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
-                 reject(ErrorManager.BAD_REQUEST);
+                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              } 
             that._rest.deleteGroup(group.id).then(function() {
@@ -219,13 +222,13 @@ const LOG_ID = "GROUPS - ";
                     that._logger.log("warn", LOG_ID + "(updateGroupName) bad or empty 'name' parameter", group);
                 }
                 that._logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (group.name === name) {
                 that._logger.log("info", LOG_ID + "(updateGroupName) name of group is already defined to " + name + ", nothing is done");
                 resolve(group);
             } else {
-                that._rest.updateGroupName(group.id, name).then(group => {
+                that._rest.updateGroupName(group.id, name).then((group : any) => {
                     var foundIndex = that._groups.findIndex(el => {
                         return el.id === group.id;
                     });
@@ -258,11 +261,11 @@ const LOG_ID = "GROUPS - ";
          return new Promise(function(resolve, reject) {
 
             that._logger.log("debug", LOG_ID + "(getGroups) _entering_");
-            that._rest.getGroups().then(listOfGroups => {
+            that._rest.getGroups().then((listOfGroups : []) => {
 
                 var promises = [];
                     
-                listOfGroups.forEach(group => {
+                listOfGroups.forEach((group : any) => {
                     promises.push(new Promise(function(res, rej) {
                         that._rest.getGroup(group.id).then(groupWithUsersInformation => {
                             res(groupWithUsersInformation);
@@ -312,19 +315,19 @@ const LOG_ID = "GROUPS - ";
              if (!contact) {
                  that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter", contact);
                  that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
-                 reject(ErrorManager.BAD_REQUEST);
+                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              } else if (!group) {
                  that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter", group);
                  that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
-                 reject(ErrorManager.BAD_REQUEST);
+                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              }
             var contactIndex = group.users.findIndex(user => user.id === contact.id);
             if (contactIndex === -1) {
-                that._rest.addUserInGroup(contact.id, group.id).then(groupUpdated => {
+                that._rest.addUserInGroup(contact.id, group.id).then((groupUpdated : any) => {
                 
-                that._rest.getGroup(groupUpdated.id).then(groupRetrieved => {
+                that._rest.getGroup(groupUpdated.id).then((groupRetrieved : any) => {
                         var foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupRetrieved.id);
                         that._groups[foundIndex] = groupRetrieved;
                         that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
@@ -339,7 +342,7 @@ const LOG_ID = "GROUPS - ";
                 });
             } else {
                 that._logger.log("warn", LOG_ID + "(addUserInGroup) User is already a member of the group");
-                reject(ErrorManager.BAD_REQUEST);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
          });
      }
@@ -367,19 +370,19 @@ const LOG_ID = "GROUPS - ";
              if (!contact) {
                  that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter", contact);
                  that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
-                 reject(ErrorManager.BAD_REQUEST);
+                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              } else if (!group) {
                  that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter", group);
                  that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
-                 reject(ErrorManager.BAD_REQUEST);
+                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              } 
              
             var contactIndex = group.users.findIndex(user => user.id == contact.id);
             if (contactIndex > -1) {
-                that._rest.removeUserFromGroup(contact.id, group.id).then(group => {
-                    that._rest.getGroup(group.id).then(group => {
+                that._rest.removeUserFromGroup(contact.id, group.id).then((group : any) => {
+                    that._rest.getGroup(group.id).then((group :any) => {
                         var foundIndex = that._groups.findIndex(groupItem => groupItem.id === group.id);
                         that._groups[foundIndex] = group;
                         that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
@@ -472,7 +475,7 @@ const LOG_ID = "GROUPS - ";
     _onGroupCreated(data) {
         let that = this;
 
-        this._rest.getGroup(data.groupId).then(groupCreated => {
+        this._rest.getGroup(data.groupId).then((groupCreated : any )=> {
             that._logger.log("debug", LOG_ID + "(_onGroupCreated) Group created", groupCreated.name);
 
             var foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupCreated.id);
@@ -523,7 +526,7 @@ const LOG_ID = "GROUPS - ";
     _onGroupUpdated(data) {
         let that = this;
 
-        this._rest.getGroup(data.groupId).then(groupUpdated => {
+        this._rest.getGroup(data.groupId).then((groupUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onGroupUpdated) Group updated", groupUpdated.name);
 
             var foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupUpdated.id);
@@ -549,7 +552,7 @@ const LOG_ID = "GROUPS - ";
     _onUserAddedInGroup(data) {
         let that = this;
 
-        this._rest.getGroup(data.groupId).then(groupUpdated => {
+        this._rest.getGroup(data.groupId).then((groupUpdated : any ) => {
             that._logger.log("debug", LOG_ID + "(_onUserAddedInGroup) User added in group", groupUpdated.name);
 
             var foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupUpdated.id);
@@ -578,7 +581,7 @@ const LOG_ID = "GROUPS - ";
     _onUserRemovedFromGroup(data) {
         let that = this;
 
-        this._rest.getGroup(data.groupId).then(groupUpdated => {
+        this._rest.getGroup(data.groupId).then((groupUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onUserRemovedFromGroup) User removed from group", groupUpdated.name);
 
             var foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupUpdated.id);
