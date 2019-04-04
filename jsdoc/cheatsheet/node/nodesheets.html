@@ -10,22 +10,13 @@
 <body>
   <div class="mermaid">
 classDiagram
+class Message
+class Contact
+class Conversation
+class Channel
+class Bubble
+class Events
 class NodeSDK
-class Telephony
-class Admin
-Admin : Promise.Object, ErrorManager : createCompany(string, string, string)
-Admin : Promise.Contact, ErrorManager : createUserInCompany(string, string, string, string, string, string, boolean)
-Admin : Promise.Object, ErrorManager : createGuestUser(string, string, string, Number)
-Admin : Promise.Object, ErrorManager : createAnonymousGuestUser(Number)
-Admin : Promise.Object, ErrorManager : inviteUserInCompany(string, string, string, string)
-Admin : Promise.Object, ErrorManager : changePasswordForUser(string, string)
-Admin : Promise.Object, ErrorManager : updateInformationForUser(Object, string)
-Admin : Promise.Object, ErrorManager : deleteUser(string)
-Admin : Promise.Object, ErrorManager : getAllCompanies(string)
-Telephony : boolean : isTelephonyAvailable()
-Telephony : string : getAgentVersion()
-Telephony : string : getXMPPAgentStatus()
-Telephony : string : getPhoneAPIStatus()
 NodeSDK : void : start()
 NodeSDK : void : stop()
 NodeSDK : Object : im
@@ -43,6 +34,166 @@ NodeSDK : String : version
 NodeSDK : ConnectedUser : connectedUser
 NodeSDK : Object : telephony
 NodeSDK : Object : calllog
+Events ::event : rainbow_onmessageserverreceiptreceived
+Events ::event : rainbow_onmessagereceiptreceived
+Events ::event : rainbow_onmessagereceiptreadreceived
+Events ::event : rainbow_onmessagereceived
+Events ::event : rainbow_oncontactpresencechanged
+Events ::event : rainbow_onpresencechanged
+Events ::event : rainbow_onbubbleaffiliationchanged
+Events ::event : rainbow_onbubbleinvitationreceived
+Events ::event : rainbow_onbubblecustomdatachanged
+Events ::event : rainbow_bubbletopicchanged
+Events ::event : rainbow_bubblenamechanged
+Events ::event : rainbow_ongroupcreated
+Events ::event : rainbow_ongroupdeleted
+Events ::event : rainbow_ongroupupdated
+Events ::event : rainbow_onuseraddedingroup
+Events ::event : rainbow_onuserremovedfromgroup
+Events ::event : rainbow_onchannelmessagereceived
+Events ::event : rainbow_onchannelmessagedeletedreceived
+Events ::event : rainbow_onprofilefeatureupdated
+Events ::event : rainbow_oncallupdated
+Events ::event : rainbow_ontelephonystatuschanged
+Events ::event : rainbow_onnomadicstatusevent
+Events ::event : rainbow_onvoicemessageupdated
+Events ::event : rainbow_oncallforwarded
+Events ::event : rainbow_onfilecreated
+Events ::event : rainbow_onfileupdated
+Events ::event : rainbow_onfiledeleted
+Events ::event : rainbow_onthumbnailcreated
+Events ::event : rainbow_onchannelcreated
+Events ::event : rainbow_onchanneldeleted
+Events ::event : rainbow_onchannelupdated
+Events ::event : rainbow_oncalllogupdated
+Events ::event : rainbow_oncalllogackupdated
+Events : Object : on(string, function)
+Events : Object : once(string, function)
+Events ::event : rainbow_onstarted
+Events ::event : rainbow_onstopped
+Events ::event : rainbow_onconnected
+Events ::event : rainbow_onconnectionerror
+Events ::event : rainbow_ondisconnected
+Events ::event : rainbow_onreconnecting
+Events ::event : rainbow_onfailed
+Events ::event : rainbow_onready
+Events ::event : rainbow_onerror
+Bubble : string : id
+Bubble : string : name
+Bubble : string : topic
+Bubble : string : jid
+Bubble : string : creator
+Bubble : string : history
+Bubble : Object[] : users
+Bubble : string : creationDate
+Bubble : string : visibility
+Bubble : Object : customData
+Channel : string : id
+Channel : string : name
+Channel : ChannelVisibility : visibility
+Channel : string : title
+Channel : string : creator
+Channel : string : creationDate
+Channel : number : users_count
+Channel : string : type
+Conversation : string : id
+Conversation : string : dbId
+Conversation : ConversationType : type
+Conversation [1] --> [1] Contact
+Conversation : Contact : contact
+Conversation [1] --> [1] Bubble
+Conversation : Bubble : bubble
+Conversation : Object : capabilities
+Conversation : Object : avatar
+Conversation : string : filterName
+Conversation : number : missedCounter
+Conversation : number : missedCalls
+Conversation : Message[] : messages
+Conversation : ConversationStatus : status
+Conversation : Boolean : historyComplete
+Conversation : Date : lastModification
+Conversation : Date : creationDate
+Conversation : string : lastMessageText
+Conversation : string : lastMessageSender
+Conversation : Call : videoCall
+Conversation : Call : audioCall
+Conversation : ConferenceSession : pstnConferenceSession
+Conversation : ConferenceSession : webConferenceSession
+Conversation : number : Type
+Conversation : Object : Status
+Contact : string : id
+Contact : Object : name
+Contact : string : companyName
+Contact : string : loginEmail
+Contact : string : nickName
+Contact : string : title
+Contact : string : jobTitle
+Contact : string : country
+Contact : string : timezone
+Contact : string : organisationId
+Contact : string : siteId
+Contact : string : companyId
+Contact : string : jid_im
+Contact : string : jid
+Contact : string : jid_tel
+Contact : string : jidtel
+Contact : string : avatar
+Contact : string : lastAvatarUpdateDate
+Contact : string : lastUpdateDate
+Contact : string : adminType
+Contact : string : roles
+Contact : Object[] : phoneNumbers
+Contact : string : phonePro
+Contact : string : phoneProCan
+Contact : string : phonePbx
+Contact : string : phoneInternalNumber
+Contact : string : pbxId
+Contact : string : mobilePro
+Contact : string : mobileProCan
+Contact : string : phonePerso
+Contact : string : phonePersoCan
+Contact : string : mobilePerso
+Contact : string : mobilePersoCan
+Contact : String : voicemailNumber
+Contact : Object[] : emails
+Contact : string : emailPro
+Contact : string : emailPerso
+Contact : string : lastName
+Contact : string : firstName
+Contact : Boolean : isTerminated
+Contact : string : language
+Contact : string : presence
+Contact : string : status
+Contact : Object[] : resources
+Contact : number : nameUpdatePrio
+Contact : string : initials
+Contact : string : nickname
+Contact : boolean : roster
+Contact : string : displayName
+Message : string : id
+Message : string : fromJid
+Message : Side : side
+Message : string : resource
+Message : Date : date
+Message : string : toJid
+Message : string : type
+Message : string : content
+Message : ReceiptStatus : receiptStatus
+Message : string : lang
+Message : string : fileId
+Message : Boolean : cc
+Message : string : cctype
+Message : Boolean : isEvent
+Message : string : event
+Message : Object[] : alternativeContent
+Message : boolean : isMarkdown
+Message : string : subject
+Message : Object : oob
+Message : string : fromBubbleJid
+Message : string : fromBubbleUserJid
+Message : number : Type
+Message : number : ReceiptStatus
+Message : string : Side
 @@</div><!--MERMAID-->
 
 <footer>

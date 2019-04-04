@@ -221,13 +221,7 @@ rainbowSDK.bubbles.setBubbleCustomData(bubble, customDatas).then(function(bubble
 ```
 
 
-Please note that there is some limitations regarding the custom data to avoid abuse. These limitations are described here:
-
-|Limit | Value | Description |
-|------|-------|:------------|
-| Number of keys | 20 | The customData is an object with a maximum of 20 keys & values |
-| Key name length | 64 | Each key name can be a string with a maximum of 64 characters |
-| Max size | 4096 octets | The max size of the whole custom data of a bubble is 4096 octets |
+Please note that there is some limitations regarding the custom data to avoid abuse. To consult the exact limitations concerning the Rainbow Bubbles, visit [this link]('/#/documentation/doc/hub/features-limits')
 
 As you can see, custom data are used to store some additional information like a state, a localization..., but not for storing big data like a video or a file or something like that.
 
@@ -619,14 +613,8 @@ Privilege can be retrieved using `bubble.users[<index>].privilege`.
 ### Limitations
 ---
 
-Here is a list of limitations regarding Bubbles:
-
-| Limit | Value | Description |
-|:------|:------|:------------|
-| **Max number of members per Bubble** | 20 / 100 | A bubble contains a maximum of 20 members for bubble created by a user with Essential or Business profile or 100 members for bubble created by a user with Enterprise profile |
-| **Max number of active Bubbles per user** | 300 | Any Rainbow user from any profile can join a maximum number of 300 Bubbles at a time. If the user has more than 300 Bubbles, the remaining Bubbles will be considered as inactive and so the user will not be notified from incoming messages received in these Bubbles. To limit the number of active Bubbles, they can be leaved or closed if no more used. | 
-
+To consult the exact limitations concerning the Rainbow Bubbles, visit [this link]('/#/documentation/doc/hub/features-limits')
 
 ---
 
-_Last updated September, 19th 2017_
+_Last updated April, 04th 2017_

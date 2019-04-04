@@ -12,6 +12,7 @@ module.exports = function(grunt) {
             { src: "lib/common/Events.js", dest: "build/events.md" },
             { src: "lib/services/AdminService.js", dest: "build/admin.md" },
             { src: "lib/services/BubblesService.js", dest: "build/bubbles.md" },
+            { src: "lib/services/CallLogService.js", dest: "build/calllog.md" },
             { src: "lib/services/ChannelsService.js", dest: "build/channels.md" },
             { src: "lib/services/ContactsService.js", dest: "build/contacts.md" },
             { src: "lib/services/ConversationsService.js", dest: "build/conversations.md" },

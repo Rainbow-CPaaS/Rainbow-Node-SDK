@@ -5,7 +5,7 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
-### SDK for Node.JS 1.54 - March 2018
+### SDK for Node.JS 1.54 - March 2019
 
 ---
 
@@ -35,7 +35,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add In `Call` object the member `deviceType`. It can be MAIN for the main device, and SECONDARY for the remote extension linked to it. It can be used when the event `rainbow_oncallupdated` is raised to seperate events.
 -   Update `setBubbleCustomData` to wait for the bubble to be updated by the event `rainbow_bubblecustomDatachanged`, and else get the informations about bubble from server
 
-### SDK for Node.JS 1.53 - March 2018
+### SDK for Node.JS 1.53 - March 2019
 
 ---
 
@@ -68,7 +68,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Refactor improve of xmpp reconnection for the new xmpp lib 
 
 
-### SDK for Node.JS 1.52 - February 2018
+### SDK for Node.JS 1.52 - February 2019
 
 ---
 
@@ -98,7 +98,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix issue in HttpService when remote server is unavailable
 
 
-### SDK for Node.JS 1.51 - January 2018
+### SDK for Node.JS 1.51 - January 2019
 
 ---
 

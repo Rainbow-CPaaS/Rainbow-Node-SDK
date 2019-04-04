@@ -658,8 +658,8 @@ class Admin {
     }
 
     /**
-     * @private
-     * @method createTokenOnBehalf
+     * @public
+     * @method askTokenOnBehalf
      * @instance
      * @description
      *      Ask Rainbow for a token on behalf a user
