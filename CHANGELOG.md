@@ -3,6 +3,9 @@
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
 
+## [1.54.2] - 2018-04-04
+* Fix issue in GruntFile about doc generation.
+
 ## [1.54.1] - 2018-04-02
 * add missing deep-egal lib.
 
