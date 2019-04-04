@@ -10,6 +10,7 @@
     "charset": "utf-8",
     "experimentalDecorators": false,
     "allowSyntheticDefaultImports": true,
+	"removeComments": false,
     //"moduleResolution": "node",
     //"noFallthroughCasesInSwitch": false,
     //"noImplicitReturns": true,
