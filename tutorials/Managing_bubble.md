@@ -221,7 +221,7 @@ rainbowSDK.bubbles.setBubbleCustomData(bubble, customDatas).then(function(bubble
 ```
 
 
-Please note that there is some limitations regarding the custom data to avoid abuse. To consult the exact limitations concerning the Rainbow Bubbles, visit [this link]('/#/documentation/doc/hub/features-limits')
+Please note that there is some limitations regarding the custom data to avoid abuse. To consult the exact limitations concerning the Rainbow Bubbles, visit [this link](/#/documentation/doc/hub/features-limits)
 
 As you can see, custom data are used to store some additional information like a state, a localization..., but not for storing big data like a video or a file or something like that.
 
@@ -613,7 +613,7 @@ Privilege can be retrieved using `bubble.users[<index>].privilege`.
 ### Limitations
 ---
 
-To consult the exact limitations concerning the Rainbow Bubbles, visit [this link]('/#/documentation/doc/hub/features-limits')
+To consult the exact limitations concerning the Rainbow Bubbles, visit [this link](/#/documentation/doc/hub/features-limits)
 
 ---
 
