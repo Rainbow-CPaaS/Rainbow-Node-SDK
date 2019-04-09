@@ -189,7 +189,8 @@ let rainbowSDK = new RainbowSDK(options);
 rainbowSDK.start();
 ```
 
-If you don't have valids application `id` and `secret`, you can simply let this two properties blanks such as in the following
+If you don't have valids application `id` and `secret`, you can create it with the rainbow-cli (github) tool.
+They are mandatory.
 
 For our HelloWorld application, you have just to replace the credentials by your owns. Others parameters can stay unchanged.
 

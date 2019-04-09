@@ -159,7 +159,7 @@ class XmppClient  {
         }).catch(async(err) => {
             that.logger.log("debug", LOG_ID + "(send) catch an error during sending! ", err);
 
-            /*
+
             that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
 
             await that.restartConnect().then((res) => {

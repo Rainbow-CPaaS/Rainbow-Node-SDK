@@ -14,8 +14,9 @@ const moment = require("moment");
 const Deferred = require("../common/Utils").Deferred;
 
 const PubSub = require("pubsub-js");
-const ConversationEventHandler = require("../connection/XMPPServiceHandler/conversationEventHandler");
-const ConversationHistoryHandler = require("../connection/XMPPServiceHandler/conversationHistoryHandler");
+import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
+
+import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
 
 const emoji = require("../common/Emoji");
 
@@ -49,7 +50,7 @@ class Conversations {
 	public _eventEmitter: any;
 	public _logger: any;
 	public pendingMessages: any;
-	public conversationEventHandler: any;
+	public conversationEventHandler: ConversationEventHandler;
 	public conversationHandlerToken: any;
 	public conversationHistoryHandlerToken: any;
 	public conversations: any;
@@ -62,7 +63,7 @@ class Conversations {
 	public involvedRoomIds: any;
 	public waitingBotConversations: any;
 	public botServiceReady: any;
-	public conversationHistoryHandler: any;
+	public conversationHistoryHandler: ConversationHistoryHandler;
 	public chatRenderer: any;
 
     constructor(_eventEmitter, _logger) {
@@ -162,7 +163,7 @@ class Conversations {
 
     _attachHandlers() {
         let that = this;
-        that.conversationEventHandler = new ConversationEventHandler(that._xmpp, that);
+        that.conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
         that.conversationHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
@@ -516,12 +517,12 @@ class Conversations {
      * @method
      * @instance
      */
-    getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) {
+    async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) {
         let that = this;
         return new Promise((resolve, reject) => {
             
             // Fetch the conversation
-            var conv = that.getConversationById(conversationId);
+            let conv = that.getConversationById(conversationId);
             if (conv) {
                 conv.preload = true;
                 return resolve(conv);
@@ -540,22 +541,17 @@ class Conversations {
                 .then( (contact) => {
                     that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation (" + contact.id + ")");
 
-                    var conversation = Conversation.createOneToOneConversation(contact);
-                    conversation.lastModification = lastModification ?
-                        new Date(lastModification) :
-                        undefined;
+                    let  conversation = Conversation.createOneToOneConversation(contact);
+                    conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                     conversation.lastMessageText = lastMessageText;
                     conversation.muted = muted;
-                    conversation.creationDate = creationDate ?
-                        new Date(creationDate) :
-                        new Date();
+                    conversation.creationDate = creationDate ? new Date(creationDate) : new Date();
                     conversation.preload = false;
                     // TODO ? that.computeCapabilitiesForContact(contact);
                     conversation.dbId = conversationDbId;
-                    if (missedIMCounter) {
-                        conversation.missedCounter = missedIMCounter;
-                    }
+                    conversation.missedCounter = missedIMCounter ? missedIMCounter : 0;
                     that.conversations[contact.jid_im] = conversation;
+                    //return Promise.resolve(conversation); VBR FOR NEW SERVER CONVERSATION BEHAVIOUR.
                     return that.createServerConversation(conversation);
                 })
                 .then( (conversation) => {

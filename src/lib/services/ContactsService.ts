@@ -34,7 +34,7 @@ class Contacts {
 	public logger: any;
 	public rosterPresenceQueue: any;
 	public userContact: any;
-	public rest: any;
+	public rest: RESTService;
 	public _logger: any;
 	public _xmpp: XMPPService;
 
@@ -179,9 +179,9 @@ class Contacts {
         this.logger.log("debug", LOG_ID + "(getRosters) _entering_");
 
         return new Promise((resolve, reject) => {
-            that.rest.getContacts().then((listOfContacts) => {
+            that.rest.getContacts().then((listOfContacts : any) => {
 
-                listOfContacts.forEach( (contactData) => {
+                listOfContacts.forEach( (contactData : any) => {
                     // Create the contact object
                     let contact = new Contact.Contact();
                     Object.assign(contact, contactData);
@@ -277,7 +277,7 @@ class Contacts {
         }
 
         // Fill contact with vCard informations
-        return that.rest.getContactInformationByJID(jid).then( (_contactFromServer) => {
+        return that.rest.getContactInformationByJID(jid).then( (_contactFromServer : any) => {
 
             let contactIndex = that.contacts.findIndex((value) => {
                 return value.jid_im === _contactFromServer.jid_im;
@@ -383,7 +383,7 @@ class Contacts {
                 }
                 else {
                     that.logger.log("debug", LOG_ID + "(getContactByJid) contact not found locally. Ask the server...");
-                    that.rest.getContactInformationByJID(jid).then((_contactFromServer) => {
+                    that.rest.getContactInformationByJID(jid).then((_contactFromServer : any) => {
                         let contact = null;
                         if( _contactFromServer ) {
                             that.logger.log("info", LOG_ID + "(getContactByJid) contact found on the server", _contactFromServer);
@@ -450,7 +450,7 @@ class Contacts {
                 }
                 else {
                     that.logger.log("debug", LOG_ID + "(getContactById) contact not found locally. Ask the server...");
-                    that.rest.getContactInformationByID(id).then((_contactFromServer) => {
+                    that.rest.getContactInformationByID(id).then((_contactFromServer : any) => {
                         let contact = null;
                         if (_contactFromServer) {
                             //that.logger.log("info", LOG_ID + "(getContactById) contact found on the server", _contactFromServer);
@@ -520,7 +520,7 @@ class Contacts {
                 }
                 else {
                     that.logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
-                    that.rest.getContactInformationByLoginEmail(loginEmail).then((contactsFromServeur) => {
+                    that.rest.getContactInformationByLoginEmail(loginEmail).then((contactsFromServeur : any) => {
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
                             let _contactFromServer = contactsFromServeur[0];
                             let contact = null;
@@ -637,7 +637,7 @@ class Contacts {
             else {
 
                     that.logger.log("debug", LOG_ID + "(addToContactsList) contact invitation to server...", contact);
-                    that.rest.joinContactInvitation(contact).then((_contact) => {
+                    that.rest.joinContactInvitation(contact).then((_contact : any) => {
                         if (_contact && _contact.status !== undefined) {
                             that.logger.log("info", LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
                             that.getContactById(_contact.invitedUserId).then((invitedUser) => {
@@ -655,6 +655,58 @@ class Contacts {
             }
         });
     }
+
+
+
+    /**
+     * @public
+     * @since 1.17
+     * @method
+     * @instance
+     * @description
+     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+     *    Once accepted, the user will be part of your network. <br>
+     *    Return a promise
+     * @param {Invitation} invitation The invitation to accept
+     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+     */
+    async acceptInvitation(invitation) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(acceptInvitation) ", invitation);
+        if (!invitation) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += ", invitation not defined, can not acceptInvitation";
+            throw error;
+        } else {
+            return that.rest.acceptInvitation(invitation);
+        }
+    };
+
+    /**
+     * @public
+     * @since 1.17
+     * @method
+     * @instance
+     * @description
+     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+     *    Once declined, the user will not be part of your network. <br>
+     *    Return a promise
+     * @param {Invitation} invitation The invitation to decline
+     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+     */
+    declineInvitation(invitation) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(declineInvitation) ", invitation);
+        if (!invitation) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += ", invitation not defined, can not declineInvitation";
+            throw error;
+        } else {
+            return that.rest.declineInvitation(invitation);
+        }
+
+    };
+
 
     /**
      * @typedef {Object} joinContactsResult
@@ -692,11 +744,11 @@ class Contacts {
                     contactIds.forEach( ( contactId) => {
                         promises.push(that.rest.joinContacts(contact, [contactId], false).then( (result) => {
                             return Promise.resolve( { "success" : [contactId]});
-                        }).catch( (err) => {
+                        }).catch( (err : any) => {
                             if ( err.code === 409 ) {
-                                return Promise.resolve( { "success" : [contactId]});
+                                resolve( { "success" : [contactId]});
                             }
-                            return Promise.resolve( { "failed" : [contactId]});
+                            resolve( { "failed" : [contactId]});
                         }));
                     });
 
@@ -867,12 +919,12 @@ class Contacts {
     _onContactInfoChanged(jid) {
         let that = this;
 
-        that.rest.getContactInformationByJID(jid).then((_contactFromServer) => {
+        that.rest.getContactInformationByJID(jid).then((_contactFromServer : any) => {
             that.logger.log("info", LOG_ID + "(getContactByJid) contact found on the server", util.inspect(_contactFromServer));
             let contactIndex = -1;
             // Update or Add contact
             if (that.contacts) {
-                contactIndex = that.contacts.findIndex((_contact) => {
+                contactIndex = that.contacts.findIndex((_contact : any) => {
                     return _contact.jid_im === _contactFromServer.jid_im;
                 });
 
@@ -913,7 +965,7 @@ class Contacts {
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) enter");
 
-        that.rest.getInvitationById(data.invitationId).then(invitation => {
+        that.rest.getInvitationById(data.invitationId).then( (invitation : any) => {
             that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) invitation received id", invitation.id);
 
             that.eventEmitter.emit("rainbow_onuserinvitereceived", invitation);
@@ -936,7 +988,7 @@ class Contacts {
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) enter");
 
-        that.rest.getInvitationById(data.invitationId).then(invitation => {
+        that.rest.getInvitationById(data.invitationId).then((invitation : any) => {
             that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) invitation accepted id", invitation.id);
 
             that.eventEmitter.emit("rainbow_onuserinviteaccepted", invitation);
@@ -964,7 +1016,7 @@ class Contacts {
         that
             .rest
             .getInvitationById(data.invitationId)
-            .then(invitation => {
+            .then((invitation : any) => {
                 that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
 
                 that.eventEmitter.emit("rainbow_onuserinvitecanceled", invitation);

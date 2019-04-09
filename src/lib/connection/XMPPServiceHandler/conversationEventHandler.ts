@@ -1,10 +1,12 @@
 "use strict";
+import {RESTService} from "../RESTService";
+
 export {};
 
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 const GenericHandler = require("./genericHandler");
-const Conversation = require("../../common/models/Conversation");
+import {Conversation} from "../../common/models/Conversation";
 const util = require('util');
 
 const xml = require("@xmpp/xml");
@@ -47,7 +49,7 @@ class ConversationEventHandler extends GenericHandler {
 	public onHeadlineMessageReceived: any;
 	public onCloseMessageReceived: any;
 
-    constructor(xmppService, conversationService) {
+    constructor(xmppService, conversationService, fileStorageService, fileServerService) {
         super( xmppService);
 
         this.MESSAGE_CHAT = "jabber:client.message.chat";
@@ -59,6 +61,8 @@ class ConversationEventHandler extends GenericHandler {
         this.MESSAGE_CLOSE = "jabber:client.message.headline";
         
         this.conversationService = conversationService;
+        this.fileStorageService = fileStorageService;
+        this.fileServerService = fileServerService;
 
         let that = this;
 
@@ -759,11 +763,12 @@ class ConversationEventHandler extends GenericHandler {
             }
         };
 
-        this.onFileManagementMessageReceived = (node) => {
+        this.onFileManagementMessageReceived = async (node) => {
             try {
                 that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) _entering_");
                 that.logger.log("internal", LOG_ID + "(onFileManagementMessageReceived) _entering_", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
+                    let updateConsumption :boolean = false;
                     switch (node.attrs.action) {
                         case "create": {
                             that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) file created");
@@ -781,7 +786,20 @@ class ConversationEventHandler extends GenericHandler {
                             let fileNode = node.children[0];
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
+                            let fileDescriptor = this.fileStorageService.getFileDescriptorById(fileid);
+                            if (!fileDescriptor) {
+                                updateConsumption = true;
+                            }
 
+                            await that.fileStorageService.retrieveAndStoreOneFileDescriptor(fileid, true).then( function(fileDesc) {
+                                that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) fileDescriptor retrieved");
+                                if ( !fileDesc.previewBlob ) {
+                                    that.fileServerService.getBlobThumbnailFromFileDescriptor(fileDesc)
+                                        .then( function(blob) {
+                                            fileDesc.previewBlob = blob;
+                                        });
+                                }
+                            });
                             that.eventEmitter.emit("rainbow_fileupdated", {'fileid': fileid});
                         }
                             break;
@@ -792,12 +810,24 @@ class ConversationEventHandler extends GenericHandler {
                             let fileNode = node.children[0];
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
+                            let fileDescriptor = this.fileStorageService.getFileDescriptorById(fileid);
+                            if (fileDescriptor) {
+                                //check if we've deleted one of our own files
+                                if (fileDescriptor.ownerId === that.userId && fileDescriptor.state !== "deleted") {
+                                    updateConsumption = true;
+                                }
+
+                                this.fileStorageService.deleteFileDescriptorFromCache(fileid, true);
+                            }
 
                             that.eventEmitter.emit("rainbow_filedeleted", {'fileid': fileid});
                         }
                             break;
                         default:
                             break;
+                    }
+                    if (updateConsumption) {
+                        this.fileStorageService.retrieveUserConsumption();
                     }
                 }
             } catch (err) {
@@ -1030,4 +1060,5 @@ class ConversationEventHandler extends GenericHandler {
     }
 }
 
-module.exports = ConversationEventHandler;
+export {ConversationEventHandler};
+module.exports.ConversationEventHandler = ConversationEventHandler;

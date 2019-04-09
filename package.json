@@ -61,7 +61,8 @@
     "puppeteer": "^1.11.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
     "sitemap": "^1.13.0",
-    "typescript": "^3.2.4"
+    "typescript": "^3.2.4",
+    "file-api": "^0.10.4"
   },
   "dependencies": {
     "@types/node": "^10.12.19",

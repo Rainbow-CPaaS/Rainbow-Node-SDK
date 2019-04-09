@@ -6,7 +6,7 @@ export {};
 
 const fileViewerElementFactory = require("../common/models/FileViewer").FileViewerElementFactory;
 const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDescriptorFactory();
-const Conversation = require("../common/models/Conversation");
+import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 const url = require('url');
 const LOG_ID = "FileStorage - ";
@@ -42,7 +42,7 @@ class FileStorage {
 	public receivedFileDescriptorsBySize: any;
 	public consumptionData: any;
 	public contactService: any;
-	public rest: any;
+	public rest: RESTService;
 	public xmpp: any;
 	public startDate: any;
 	public started: any;
@@ -906,8 +906,8 @@ class FileStorage {
         that.fileDescriptors = [];
         return new Promise((resolve, reject) => {
             //that.rest.receivedFileDescriptors("full", 1000)
-            that.rest.retrieveFileDescriptors("full", 1000)
-                .then((response) => {
+            that.rest.retrieveFileDescriptors("full", 1000, undefined, undefined)
+                .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
                         resolve();
@@ -972,7 +972,7 @@ class FileStorage {
      * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit) {
-        return this.rest.retrieveFileDescriptors("full", limit, offset);
+        return this.rest.retrieveFileDescriptors("full", limit, offset, undefined);
         //return this.rest.receivedFileDescriptors( "full", limit, offset);
     }
 
@@ -992,7 +992,7 @@ class FileStorage {
         let that = this;
         return new Promise((resolve, reject) => {
             that.rest.retrieveFilesReceivedFromPeer(userId, peerId)
-                .then((response) => {
+                .then((response : any) => {
                     let receivedFileDescriptors = [];
                     let fileDescriptorsData = response.data;
                     if (fileDescriptorsData) {
@@ -1027,7 +1027,7 @@ class FileStorage {
         let that = this;
         return new Promise((resolve, reject) => {
             that.rest.retrieveFileDescriptors("full", null, null, peerId)
-                .then((response) => {
+                .then((response : any) => {
                     let sentFilesDescriptors = [];
                     let fileDescriptorsData = response.data;
                     if (fileDescriptorsData) {
@@ -1062,7 +1062,7 @@ class FileStorage {
         let that = this;
         return new Promise((resolve, reject) => {
             that.rest.retrieveReceivedFilesForRoomOrViewer(bubbleId)
-                .then((response) => {
+                .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
                         resolve();
@@ -1104,7 +1104,7 @@ class FileStorage {
         let that = this;
         return new Promise((resolve, reject) => {
             that.rest.retrieveReceivedFilesForRoomOrViewer(viewerId)
-                .then((response) => {
+                .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
                         resolve();
@@ -1285,7 +1285,7 @@ class FileStorage {
         let that = this;
         return new Promise((resolve, reject) => {
             that.rest.retrieveUserConsumption()
-                .then((response) => {
+                .then((response : any) => {
                     that.consumptionData = response.data;
                     that.logger.log("info", LOG_ID + "(retrieveUserConsumption) success");
                     resolve(that.consumptionData);
@@ -1314,7 +1314,7 @@ class FileStorage {
         let that = this;
         return new Promise((resolve, reject) => {
             that.rest.deleteFileViewer(viewerId, fileId).then(
-                (response) => {
+                (response : any) => {
                     that.logger.log("info", LOG_ID + "(deleteFileViewer) " + response.statusText);
                     // delete viewer from viewer list
                     let fd = that.getFileDescriptorById(fileId);
@@ -1364,7 +1364,7 @@ class FileStorage {
 
         return new Promise((resolve, reject) => {
             that.rest.addFileViewer(fileId, viewerId, viewerType).then(
-                (response) => {
+                (response : any) => {
                     that.logger.log("info", LOG_ID + "(addFileViewer) success");
                     let fd = that.getFileDescriptorById(fileId);
                     if (fd) {
@@ -1414,7 +1414,7 @@ class FileStorage {
         return new Promise((resolve, reject) => {
             that.rest.retrieveOneFileDescriptor(fileId )
                 .then((response) => {
-                    let fileDescriptor = that.createFileDescriptorFromData(response.data.data);
+                    let fileDescriptor = that.createFileDescriptorFromData(response);
                     that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) " + fileId + " -- success");
                     resolve(fileDescriptor);
                 })
@@ -1452,21 +1452,25 @@ class FileStorage {
                     retrievedFileDescriptor.previewBlob = fileDescriptor.previewBlob;
                 }
 
+                function findIndex (array, predicate) {
+                    return array.findIndex(predicate);
+                };
+
                 // Remove old file descriptor with same id if there's one
-                let oldFileDescriptorIndex = that.helpersService.findIndex(that.fileDescriptors, (_fileDescriptor) => {
+                let oldFileDescriptorIndex = findIndex(that.fileDescriptors, (_fileDescriptor) => {
                     return _fileDescriptor.id === retrievedFileDescriptor.id;
                 });
                 if (oldFileDescriptorIndex > -1) {
                     that.fileDescriptors.splice(oldFileDescriptorIndex, 1);
                 }
-                let oldReceivedFileDescriptorIndex = that.helpersService.findIndex(that.receivedFileDescriptors, (_fileDescriptor) => {
+                let oldReceivedFileDescriptorIndex = findIndex(that.receivedFileDescriptors, (_fileDescriptor) => {
                     return _fileDescriptor.id === retrievedFileDescriptor.id;
                 });
                 if (oldReceivedFileDescriptorIndex > -1) {
                     that.receivedFileDescriptors.splice(oldReceivedFileDescriptorIndex, 1);
                 }
 
-                if (retrievedFileDescriptor.ownerId === that.contactService.userContact.dbId) { // The file is mine
+                if (retrievedFileDescriptor.ownerId === that.rest.account.id) { // The file is mine
                     that.fileDescriptors.push(retrievedFileDescriptor);
                     that.logger.log("info", LOG_ID + "(retrieveAndStoreOneFileDescriptor) -- fileDescriptor " + retrievedFileDescriptor.id + " -- now stored in my files");
                 } else { // The file is not mine
@@ -1478,11 +1482,10 @@ class FileStorage {
                 return Promise.resolve(retrievedFileDescriptor);
             })
             .catch((errorResponse) => {
-                that.logger.log("warn", LOG_ID + "(retrieveAndStoreOneFileDescriptor) ErrorManager on getting FileDescriptor: " + errorResponse.errorDetailsCode);
-                let error = that.errorHelperService.handleError(errorResponse, "retrieveAndStoreOneFileDescriptor");
-                if (error.status >= 400 && error.status < 500) {
+                that.logger.log("warn", LOG_ID + "(retrieveAndStoreOneFileDescriptor) ErrorManager on getting FileDescriptor: ", errorResponse);
+                if (errorResponse.status >= 400 && errorResponse.status < 500) {
                     if (fileDescriptor) {
-                        if (error.status === 404) {
+                        if (errorResponse.status === 404) {
                             that.deleteFileDescriptorFromCache(fileDescriptor.id, true);
                         }
                     }

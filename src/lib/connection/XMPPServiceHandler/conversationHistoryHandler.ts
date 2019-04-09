@@ -2,6 +2,7 @@
 
 import {XMPPService} from "../XMPPService";
 import {XMPPUTils} from "../../common/XMPPUtils";
+import {ConversationEventHandler} from "./conversationEventHandler";
 
 export {};
 
@@ -361,4 +362,5 @@ class ConversationHistoryHandler  extends GenericHandler {
     }
 }
 
-module.exports = ConversationHistoryHandler;
+export {ConversationHistoryHandler};
+module.exports.ConversationHistoryHandler = ConversationHistoryHandler;

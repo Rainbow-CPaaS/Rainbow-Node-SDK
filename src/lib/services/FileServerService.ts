@@ -277,6 +277,62 @@ class FileServer {
         });
     }
 
+    /***
+     * @private
+     * @param fileDescriptor
+     * @param large
+     */
+    public async getBlobThumbnailFromFileDescriptor(fileDescriptor: any, large: boolean = false) {
+/*
+        if (fileDescriptor.thumbnail.isThumbnailAvailable() ||
+            (fileDescriptor.isImage() && fileDescriptor.size < (20 * this.ONE_KILOBYTE)) ) {
+
+            // Check if a request for this thumbnail is already lauched
+            var existingPromise = this.thumbnailPromises[fileDescriptor.id];
+            if (existingPromise) {
+                this.$log.info("[FileServerService] getBlobThumbnailFromFileDescriptor " + fileDescriptor.id + " already lauched");
+                return existingPromise.promise;
+            }
+
+            // Create the defered object
+            var defered = this.$q.defer();
+            this.thumbnailPromises[fileDescriptor.id] = defered;
+
+            // Forge the thumbnail url
+            let url = fileDescriptor.url;
+            if (fileDescriptor.thumbnail.isThumbnailAvailable() && fileDescriptor.size >= (20 * this.ONE_KILOBYTE)) {
+                if (large) { url += "?thumbnail500=true"; }
+                else { url += "?thumbnail=true"; }
+            }
+            else if (fileDescriptor.uploadedDate) { url += "?update=" + MD5.hexdigest(fileDescriptor.uploadedDate); }
+
+            // Get the thumbnail blob
+            this.getBlobFromUrl(url, fileDescriptor.typeMIME, fileDescriptor.size, fileDescriptor.fileName)
+                .then((blob) => {
+                    fileDescriptor.previewBlob = blob;
+
+                    this.$rootScope.$broadcast("ON_FILE_TRANSFER_EVENT", {
+                        result: "success", type: "download",
+                        fileDesc: fileDescriptor});
+                    delete this.thumbnailPromises[fileDescriptor.id];
+                    defered.resolve(blob);
+                })
+                .catch((error) => {
+                    this.$rootScope.$broadcast("ON_FILE_TRANSFER_EVENT", {
+                        result: "failure", type: "download", message: error.message,
+                        fileDesc: fileDescriptor});
+                    delete this.thumbnailPromises[fileDescriptor.id];
+                    defered.reject(error);
+                });
+
+            return defered.promise;
+        }
+        else { return this.$q.reject(); }
+
+ */
+    };
+
+
     /**
      * Method sends data file to server
      * 

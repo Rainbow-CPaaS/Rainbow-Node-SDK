@@ -432,6 +432,58 @@ class RESTService {
         });
     }
 
+
+    /**
+     * ACCEPT INVITATION
+     * Used by SDK (public)
+     * Warning when modifying this method
+     */
+    acceptInvitation (invitation) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            that.logger.info("debug", LOG_ID + "(acceptInvitation) ");
+            that.logger.info("internal", LOG_ID + "(acceptInvitation) ", invitation);
+
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/accept", that.getRequestHeader(), {}, undefined ).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(acceptInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(acceptInvitation) REST invitation received ", json.data);
+                that.logger.log("debug", LOG_ID + "(acceptInvitation) _exiting_");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(acceptInvitation) error", err);
+                that.logger.log("debug", LOG_ID + "(acceptInvitation) _exiting_");
+                reject(err);
+            });
+        });
+    };
+
+    /**
+     * DECLINE INVITATION
+     * Used by SDK (public)
+     * Warning when modifying this method
+     */
+    declineInvitation (invitation) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            that.logger.info("debug", LOG_ID + "(declineInvitation) ");
+            that.logger.info("internal", LOG_ID + "(declineInvitation) ", invitation);
+
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined ).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(declineInvitation) successfull");
+                that.logger.log("debug", LOG_ID + "(declineInvitation) _exiting_");
+                resolve();
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(declineInvitation) error", err);
+                that.logger.log("debug", LOG_ID + "(declineInvitation) _exiting_");
+                reject(err);
+            });
+        });
+    };
+
+
+
     /**
      * SEND INVITATION
      * Used by SDK (public)
@@ -441,7 +493,8 @@ class RESTService {
         let that = this;
 
         return new Promise(function (resolve, reject) {
-            that.logger.info("[RESTService] joinContactInvitation", contact);
+            that.logger.info("debug", LOG_ID + "(joinContactInvitation) ");
+            that.logger.info("internal", LOG_ID + "(joinContactInvitation) ", contact);
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), {"invitedUserId": contact.id}, undefined ).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(joinContactInvitation) successfull");
@@ -1458,7 +1511,8 @@ class RESTService {
                 that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) REST get file descriptors");
                 that.logger.log("debug", LOG_ID + "(retrieveOneFileDescriptor) _exiting_");
-                resolve( json );
+                let res = json ? json.data : {};
+                resolve( res );
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(retrieveOneFileDescriptor) error", err);
                 that.logger.log("debug", LOG_ID + "(retrieveOneFileDescriptor) _exiting_");

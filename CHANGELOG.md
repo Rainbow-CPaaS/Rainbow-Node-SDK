@@ -2,6 +2,13 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+## [1.54.6] - 2018-04-09
+Update doc
+Fix of FileStorageService::retrieveAndStoreOneFileDescriptor
+Add method ContactService::acceptInvitation Accept a an invitation from an other Rainbow user to mutually join the network
+Add method ContactService::declineInvitation Decline an invitation from an other Rainbow user to mutually join the network
+Update onFileManagementMessageReceived event with the file descriptor data
+Fix some type issue find by typescript
 
 ## [1.54.2] - 2018-04-04
 * Fix issue in GruntFile about doc generation.
