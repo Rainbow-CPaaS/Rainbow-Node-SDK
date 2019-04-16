@@ -66,7 +66,7 @@ Be careful, when using the property `fromJid` of the message. When in a bubble, 
 ### Answering to messages
 ---
 
-Once you know how to detect and interpret incoming messages, the next steps are to send receipts and to answer to these messages.
+Once you know how to detect and interpret incoming messages, the next steps are to send receipts and to answer to these messages. 
 
 #### Managing received receipts
 ---
@@ -195,6 +195,107 @@ nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
         }
     }
 });
+
+```
+
+You can reply to specific message with the APIs
+
+#### Replying to specific message to a recipient
+---
+
+If you want to reply to a message to a recipient, once you have to do is to call the API `sendMessageToJidAnswer()` with the original message in the answeredMsd parameter. For example, if you want to answer to an incoming message from a user, do the following
+
+```js
+
+nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+    // Check if the message is not from you
+    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+        // Check that the message is from a user and not a bot
+        if( message.type === "chat") {
+            // Reply to this message
+            nodeSDK.im.sendMessageToJidAnswer("hello! How may I help you?", message.fromJid,'FR', null, 'subject', message);
+            // Do something with the message sent
+            ...
+        }
+    }
+});
+
+```
+
+#### Replying to a specific message to a bubble
+---
+
+When a message is received in a bubble, you can reply to it by calling the API `sendMessageToBubbleJidAnswer()`. The following code will reply to message to a bubble each time an other participant has written one.
+
+```js
+
+nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+    // Check if the message is not from you
+    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+        // Check that the message is from a user and not a bot
+        if( message.type === "groupchat") {
+            // Reply to the message
+            let messageSent = nodeSDK.im.sendMessageToBubbleJidAnswer("I got it!", message.fromBubbleJid, "FR", null, 'subject', message);
+            // Do something with the message sent
+            ...
+        }
+    }
+});
+
+```
+### Send a typing state to receipts
+---
+
+When a message is preparered to be sent to a receipt, you can tell it that the curent user is typing with the followind APIs.  
+The parameter `status` is The typing status. So, set it true for setting "is Typing", false to remove it.
+
+ Switch the "is typing" state in a conversation with `conversations::sendIsTypingState` or `im::sendIsTypingStateInConversation`
+```
+
+...
+// Get the conversations
+let result = nodeSDK.conversations.getConversations();
+// Select the first one 
+let conversation = result[0];
+// Check it is a one to one conversation. 
+if (conversation.type === Conversation.Type.ONE_TO_ONE) {
+    // Send the typing state to true 
+    nodeSDK.im.sendIsTypingStateInConversation(conversation, true);
+}
+...
+
+```
+or 
+```
+
+...
+// Get the conversations
+let result = that.rainbowSDK.conversations.getConversations();
+// Select the first one 
+let conversation = result[0];
+// Check it is a one to one conversation. 
+if (conversation.type === Conversation.Type.ONE_TO_ONE) {
+    // Send the typing state to true 
+    that.rainbowSDK.conversations.sendIsTypingState(conversation, true);
+}        
+...
+
+```
+   
+ Switch the "is typing" state in a bubble/room : `im::sendIsTypingStateInBubble`
+
+```
+
+...
+// Get all the active bubbles
+let result = that.rainbowSDK.bubbles.getAllActiveBubbles();
+if (result.length > 0 ) {
+   // Select the first one 
+    let bubble = result[0];
+    // Send the typing state to true 
+    that.rainbowSDK.im.sendIsTypingStateInBubble(bubble, true);
+}
+...
 
 ```
 
