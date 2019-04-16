@@ -169,13 +169,13 @@ class Contacts {
      * @description
      *      Get the list of contacts that are in the user's network (aka rosters)
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise<Array>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      * @category async
      */
     getRosters() {
 
-        var that = this;
+        let that = this;
         this.logger.log("debug", LOG_ID + "(getRosters) _entering_");
 
         return new Promise((resolve, reject) => {
@@ -196,7 +196,7 @@ class Contacts {
 
                 that.logger.log("info", LOG_ID + "(getRosters) get rosters successfully");
                 that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
-                resolve();
+                resolve(that.getAll());
             }).catch((err) => {
                 that.logger.log("error", LOG_ID + "(getRosters) error", err);
                 that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");

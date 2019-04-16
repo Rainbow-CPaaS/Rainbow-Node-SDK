@@ -15,6 +15,7 @@ const LOG_ID = "XMPP/HNDL - ";
 
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
+import {Element} from "ltx";
 
 class ConversationEventHandler extends GenericHandler {
 	public MESSAGE_CHAT: any;
@@ -458,7 +459,7 @@ class ConversationEventHandler extends GenericHandler {
                             data.conversation.messages.push(data);
                         } // */
                         this.eventEmitter.emit("rainbow_onmessagereceived", data);
-                        that.eventEmitter.emit("rainbow_onconversationupdated", {"conversationId": conv.id});
+                        that.eventEmitter.emit("rainbow_conversationupdated", {"conversationId": conv.id});
                     });
                 } else {
                     data.conversation = conversation;
@@ -467,7 +468,7 @@ class ConversationEventHandler extends GenericHandler {
                         data.conversation.messages.push(data);
                     } // */
                     this.eventEmitter.emit("rainbow_onmessagereceived", data);
-                    that.eventEmitter.emit("rainbow_onconversationupdated", {"conversationId": conversation.id});
+                    that.eventEmitter.emit("rainbow_conversationupdated", {"conversationId": conversation.id});
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! : ", err);
@@ -707,12 +708,98 @@ class ConversationEventHandler extends GenericHandler {
             }
         };
 
-        this.onConversationManagementMessageReceived = (node) => {
+        this.onConversationManagementMessageReceived = (node : Element) => {
             try {
                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) _entering_");
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
+                    let conversation = this.conversationService.getConversationById(node.attrs.id);
                     let action = node.attrs.action;
+                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) (" + action + " conversation)");
+
+                    if (conversation) {
+                        switch (action) {
+                            case "create":
+//                                conversation.dbId = node.getAttribute("id");
+                                conversation.dbId = node.attrs.id;
+                                conversation.lastModification = new Date(node.find("lastMessageDate").text());
+                                conversation.missedCounter = parseInt(node.find("unreadMessageNumber").text(), 10) || 0;
+                                conversation.isFavorite = (node.find("isFavorite").text() === "true");
+                                this.conversationService.orderConversations();
+                                //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
+                                // Send conversations update event
+                                that.eventEmitter.emit("rainbow_conversationupdated", conversation);
+                                break;
+                            case "delete":
+                                this.conversationService.removeConversation(conversation);
+                                break;
+                            case "update":
+                                conversation.isFavorite = (node.find("isFavorite").text() === "true");
+                                this.conversationService.orderConversations();
+                                // Send conversations update event
+                                that.eventEmitter.emit("rainbow_conversationupdated", conversation);
+                                //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
+                                break;
+                            default:
+                                break;
+                        }
+                    } else {
+                        if (action === "create") {
+                            let convId = node.find("peer").text();
+                            let convDbId = node.attrs.id;
+                            let lastModification = new Date(node.find("lastMessageDate").text());
+                            let lastMessageText = node.find("lastMessageText").text();
+                            let lastMessageSender = node.find("lastMessageSender").text();
+                            let missedIMCounter = parseInt(node.find("unreadMessageNumber").text(), 10) || 0;
+                            let muted = node.find("mute").text() === "true";
+                            let isFavorite = node.find("isFavorite").text() === "true";
+                            let type = node.find("type").text();
+
+                            let conversationGetter = null;
+                            if (type === "user") {
+                                conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
+                            } else {
+                                conversationGetter = this.conversationService.getConversationByBubbleId(convId);
+                            }
+
+                            conversationGetter
+                                .then(function (conv) {
+                                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
+                                    conv.dbId = convDbId;
+                                    conv.lastModification = lastModification ? new Date(lastModification) : undefined;
+                                    conv.lastMessageText = lastMessageText;
+                                    conv.lastMessageSender = lastMessageSender;
+                                    conv.muted = muted;
+                                    conv.isFavorite = isFavorite;
+                                    conv.preload = true;
+                                    conv.missedCounter = missedIMCounter;
+                                    // Send conversations update event
+                                    that.eventEmitter.emit("rainbow_conversationupdated", conv);
+                                    //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
+                                });
+                        }
+                    }
+
+                    // Handle mute/unmute room
+                    if (node.find("mute") || node.find("unmute")) {
+                        let muteElem = node.find("mute");
+                        let mute = false;
+                        if (muteElem.length) {
+                            if (muteElem.text().length) {
+                                mute = (muteElem.text() === "true");
+                            } else {
+                                mute = true;
+                            }
+                        }
+                        let conversationDbId = node.find("mute").attrs.conversation || node.find("unmute").attrs.conversation;
+                        let conversation = this.conversationService.getConversationByDbId(conversationDbId);
+                        if (conversation) {
+                            that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) : mute is changed to " + mute);
+                            conversation.muted = mute;
+                        }
+                    }
+
+                    /*let action = node.attrs.action;
 
                     if (action === "delete") {
                         that
@@ -722,7 +809,7 @@ class ConversationEventHandler extends GenericHandler {
                         if (conversation) {
                             that.conversationService.removeConversation(conversation);
                         }
-                    }
+                    } // */
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! : ", err);

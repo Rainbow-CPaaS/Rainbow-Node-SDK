@@ -362,6 +362,79 @@ class IM {
 
     /**
      * @public
+     * @method sendMessageToJidAnswer
+     * @instance
+     * @description
+     *  Send a reply to a one-2-one message to a contact identified by his Jid
+     * @param {String} message The message to send
+     * @param {String} jid The contact Jid
+     * @param {String} [lang=en] The content language used
+     * @param {Object} [content] Allow to send alternative text base content
+     * @param {String} [content.type=text/markdown] The content message type
+     * @param {String} [content.message] The content message body
+     * @param {String} [subject] The message subject
+     * @param {String} [answeredMsg] The message answered
+     * @memberof IM
+     * @async
+     * @return {Promise<Message, ErrorManager>}
+     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
+     * @category async
+     */
+    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg) {
+        let that = this;
+        if (!lang) {
+            lang = "en";
+        }
+
+        that.logger.log("debug", LOG_ID + "(sendMessageToJidAnswer) _entering_");
+
+        if (!message) {
+            this.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter", message);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+        }
+
+        let typofansweredMsg = answeredMsg instanceof Object ;
+        if (!typofansweredMsg && answeredMsg !== null ) {
+            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter", answeredMsg);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
+        }
+
+        // Check size of the message
+        let messageSize = message.length;
+        if (content && content.message && typeof content.message === "string") {
+            messageSize += content.message.length;
+        }
+        if (messageSize > 1024) {
+            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+        }
+
+        if (!jid) {
+            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'jid' parameter", jid);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+        }
+
+        let messageUnicode = emoji.shortnameToUnicode(message);
+
+        jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
+
+        let messageSent = await this.xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg);
+
+        /*
+        this.storePendingMessage(messageSent);
+        await utils.until(() => {
+               return this.pendingMessages[messageSent.id] === undefined;
+            }
+            , "Wait for the send chat message to be received by server", 30000);
+        this.removePendingMessage(messageSent);
+        this.logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
+        // */
+        return messageSent;
+    }
+
+
+    /**
+     * @public
      * @method sendMessageToBubble
      * @instance
      * @description
@@ -461,6 +534,87 @@ class IM {
                 return messageSent;
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _exiting_");
+                return Promise.reject({message: "The sending message process failed!", error: err});
+            }
+        }
+    }
+
+    /**
+     * @public
+     * @method sendMessageToBubbleJid
+     * @instance
+     * @description
+     *  Send a message to a bubble identified by its JID
+     * @param {String} message The message to send
+     * @param {String} jid The bubble JID
+     * @param {String} [lang=en] The content language used
+     * @param {Object} [content] Allow to send alternative text base content
+     * @param {String} [content.type=text/markdown] The content message type
+     * @param {String} [content.message] The content message body
+     * @param {String} [subject] The message subject
+     * @param {String} [answeredMsg] The message answered
+     * @memberof IM
+     * @async
+     * @return {Promise<Message, ErrorManager>}
+     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
+     * @category async
+     */
+    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg) {
+        let that = this;
+        if (!lang) {
+            lang = "en";
+        }
+        that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _entering_");
+        if (!message) {
+            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter", message);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+        }
+        let typofansweredMsg = answeredMsg instanceof Object ;
+        if (!typofansweredMsg && answeredMsg !== null ) {
+            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter", answeredMsg);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
+        }
+
+        // Check size of the message
+        let messageSize = message.length;
+        if (content && content.message && typeof content.message === "string") {
+            messageSize += content.message.length;
+        }
+        if (messageSize > 1024) {
+            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+        }
+
+        if (!jid) {
+            that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter", jid);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+        }
+
+        let messageUnicode = emoji.shortnameToUnicode(message);
+
+        jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
+
+        let bubble = await that.bulles.getBubbleByJid(jid);
+        that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
+        if (bubble.isActive) {
+            let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
+            that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _exiting_");
+            return messageSent;
+        } else {
+            try {
+                that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
+                that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                await that.xmpp.sendInitialBubblePresence(bubble.jid);
+                //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
+                await utils.until(() => {
+                    return bubble.isActive === true;
+                }, "Wait for the Bubble " + bubble.jid + " to be active");
+                //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
+                let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
+                that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _exiting_");
+                return messageSent;
+            } catch (err) {
+                that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _exiting_");
                 return Promise.reject({message: "The sending message process failed!", error: err});
             }
         }

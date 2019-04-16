@@ -636,7 +636,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **BUGS**
 
--   Remove limitation of the `getAll()` Bubbles that was fixed to 100. Now this API retrieves all bubbles of the connected user.
+-   Remove limit of the `getAll()` Bubbles that was fixed to 100. Now this API retrieves all bubbles of the connected user.
 
 -   Avoid to send two times the initial presence when accepting an invitation to join the Bubble.
 

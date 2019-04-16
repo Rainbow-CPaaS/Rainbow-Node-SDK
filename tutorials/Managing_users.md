@@ -200,7 +200,7 @@ Basically, the scenario is the following:
 
 Note: In order to securize more the Guest account, this scenario is subject to change in the future.
 
-Here are some limitations for **Guest** accounts:
+Here are some limits for **Guest** accounts:
 
 
 | A Guest can | A Guest can't |

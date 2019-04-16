@@ -475,10 +475,10 @@ nodeSDK.channels.deleteChannel(channel).then((message) => {
 Once deleted, nobody can't publish a message anymore.
 
 
-### Limitations
+### Limits
 ---
 
-Here is a list of limitations regarding Channels:
+Here is a list of limits regarding Channels:
 
 | Limit | Value | Description |
 |:------|:------|:------------|

@@ -2,6 +2,15 @@
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
+
+## [1.55.0] - 2018-04-xx
+Update comments limitations => limits
+Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message
+Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessageToBubble with a new parameter answeredMsg to allow to send a reply to a message
+Update conversationEventHandler to handle the conversation Events from server (create/update)
+fix ContactsService::getRosters to return the list of contacts
+Add ConversationsService::getConversationByDbId method to retrieve a conversation from the dbid identifier.
+
 ## [1.54.6] - 2018-04-09
 Update doc
 Fix of FileStorageService::retrieveAndStoreOneFileDescriptor

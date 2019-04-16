@@ -11,7 +11,7 @@ This tutorial will explain how to use the FileStorage service for sharing files 
 
 ---
 
-All files shared with others Rainbow users are stored on Rainbow until you decide to remove it. To avoid bad usage and depending your profile, you have some limitations.
+All files shared with others Rainbow users are stored on Rainbow until you decide to remove it. To avoid bad usage and depending your profile, you have some limits.
 
 The following table sums-up the size allowed depending on your profile:
 
@@ -24,7 +24,7 @@ The following table sums-up the size allowed depending on your profile:
 
 The following table shows the other specifications applied to any profile:
 
-| Limitation | Limit | Details |
+| Limit | Limit | Details |
 |---------|-------|:--------|
 | File Size | 100 MB | You can share files with size lower than 100 MB |
 | Files Number | No limit | You can share as many files as your want limited to your quota |

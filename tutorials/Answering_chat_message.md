@@ -400,10 +400,10 @@ The `event` parameter can have the following values:
 | **welcome** | You have been granted to the bubble - received only by the **user who enters the bubble** |
 
 
-### Limitations
+### Limits
 ---
 
-Here are the list of limitations regarding chat messages
+Here are the list of limits regarding chat messages
 
 | Topic | Limit | Details |
 |-------|-------|:--------|

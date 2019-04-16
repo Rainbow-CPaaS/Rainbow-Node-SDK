@@ -194,7 +194,7 @@ class Conversations {
             that.removePendingMessage(message);
             //delete this.pendingMessages[message.id];
             // Send event
-            that._eventEmitter.emit("rainbow_onconversationupdated", conversation);
+            that._eventEmitter.emit("rainbow_conversationupdated", conversation);
         }
     }
 
@@ -269,6 +269,7 @@ class Conversations {
      * @param {String} ID of the conversation (dbId field)
      * @return {Conversation} Created conversation object
      */
+    /*
     createServerConversation(conversation) {
         let that = this;
         // Ignore already stored existing conversation
@@ -330,7 +331,7 @@ class Conversations {
             .log("error", LOG_ID + "[conversationService] " + errorMessage);
                 return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
         });
-    }
+    } // */
 
     /**
      * @private
@@ -551,8 +552,8 @@ class Conversations {
                     conversation.dbId = conversationDbId;
                     conversation.missedCounter = missedIMCounter ? missedIMCounter : 0;
                     that.conversations[contact.jid_im] = conversation;
-                    //return Promise.resolve(conversation); VBR FOR NEW SERVER CONVERSATION BEHAVIOUR.
-                    return that.createServerConversation(conversation);
+                    return Promise.resolve(conversation);
+                    //return that.createServerConversation(conversation);
                 })
                 .then( (conversation) => {
                     // TODO ? $rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conversation);
@@ -653,19 +654,19 @@ class Conversations {
                         that
                             .getRoomConferences(conversation)
                             .then(function () {
-                                    that._eventEmitter.emit("rainbow_onconversationupdated", conversation);
+                                    that._eventEmitter.emit("rainbow_conversationupdated", conversation);
                                     resolve(conversation);
                                 } // Create server side if necessary
                             );
                     } else {
-                        that
-                            .createServerConversation(conversation)
+                            // that.createServerConversation(conversation)
+                            Promise.resolve(conversation)
                             .then(function (__conversation) {
                                 if (bubble) {
                                     that._bubbles._sendInitialBubblePresence(bubble);
                                 }
                                 // Send conversations update event
-                                that._eventEmitter.emit("rainbow_onconversationupdated", __conversation);
+                                that._eventEmitter.emit("rainbow_conversationupdated", __conversation);
                                 resolve(__conversation);
                             })
                             .catch(function (error) {
@@ -864,7 +865,7 @@ class Conversations {
             conversation.contact = null;
         }
 
-        that._eventEmitter.emit("rainbow_onconversationremoved", { "conversationId": conversation.id});
+        that._eventEmitter.emit("eventEmitter", { "conversationId": conversation.id});
 
         //conversation = null;
     }
@@ -1059,8 +1060,8 @@ class Conversations {
      * @param {Conversation} conversation The conversation to clean
      * @param {String} data Test message to send
      */
-    sendChatMessage(conversation, data) {
-        let message = conversation.sendChatMessage(data);
+    sendChatMessage(conversation, data, answeredMsg) {
+        let message = conversation.sendChatMessage(data, answeredMsg);
         this.storePendingMessage(conversation, message);
         return message;
     }
@@ -1286,6 +1287,28 @@ class Conversations {
         that._logger.log("internal", LOG_ID + " (getConversationById) conversation : ", this.conversations[conversationId]);
         return this.conversations[conversationId];
     }
+
+    /**
+     * @private
+     * @beta
+     * @method
+     * @instance
+     * @description
+     *      Get a conversation by db id
+     * @param {String} dbId db id of the conversation to retrieve
+     * @return {Conversation} The conversation to retrieve
+     */
+    getConversationByDbId(dbId) {
+        let that = this;
+        if (that.conversations) {
+            for (let key in that.conversations) {
+                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId) {
+                    return that.conversations[key];
+                }
+            }
+        }
+        return null;
+    };
 
     /**
      * @private

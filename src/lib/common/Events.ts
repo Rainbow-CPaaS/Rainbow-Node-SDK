@@ -181,7 +181,7 @@ class Events {
             that.publishEvent("presencechanged", presence);
         });
 
-        this._evReceiver.on("rainbow_onconversationremoved", function(conversation) {
+        this._evReceiver.on("eventEmitter", function(conversation) {
 
             /**
              * @event Events#rainbow_onconversationremoved
@@ -193,7 +193,7 @@ class Events {
             that.publishEvent("conversationremoved", conversation);
         });
 
-        this._evReceiver.on("rainbow_onconversationupdated", function(conversation) {
+        this._evReceiver.on("rainbow_conversationupdated", function(conversation) {
 
             /**
              * @event Events#rainbow_onconversationchanged

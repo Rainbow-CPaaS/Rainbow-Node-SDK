@@ -441,7 +441,7 @@ rainbowSDK.bubbles.createBubble("My new Bubble", "A little description of my bub
 ### Add customData to a Bubble
 
 May be added to an existing Bubble calling the following API
-Please consider asking your administrator specific limitations: number max of string key : string value, max string size for key and value
+Please consider asking your administrator specific limits: number max of string key : string value, max string size for key and value
 
 ```js
 

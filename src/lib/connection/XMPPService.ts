@@ -1248,7 +1248,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessage(message, jid, lang, content, subject) {
+    sendChatMessage(message, jid, lang, content, subject, answeredMsg) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(sendChatMessage) _entering_");
         if (that.useXMPP) {
@@ -1271,6 +1271,16 @@ class XMPPService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            let answeredMsgId = null;
+            let answeredMsgDate = null;
+            if ( answeredMsg ) {
+                stanza.append(xml("answeredMsg", { "stamp": answeredMsg.date.getTime() }, answeredMsg.id));
+                answeredMsgId = answeredMsg.id;
+                answeredMsgDate = answeredMsg.date;
+                that.logger.log("debug", LOG_ID + "(sendChatMessage) answeredMsg : ", stanza);
+            }
+
 
             if (subject) {
                 stanza.append(xml("subject", {
@@ -1313,7 +1323,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessageToBubble(message, jid, lang, content, subject) {
+    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg) {
         let that = this;
         that
             .logger
@@ -1338,6 +1348,15 @@ class XMPPService {
                 stanza.append(xml("subject", {
                     "xml:lang": lang
                 }, subject));
+            }
+
+            let answeredMsgId = null;
+            let answeredMsgDate = null;
+            if ( answeredMsg ) {
+                stanza.append(xml("answeredMsg", { "stamp": answeredMsg.date.getTime() }, answeredMsg.id));
+                answeredMsgId = answeredMsg.id;
+                answeredMsgDate = answeredMsg.date;
+                that.logger.log("debug", LOG_ID + "(sendChatMessageToBubble) answeredMsg : ", stanza);
             }
 
             if (content && content.message) {
@@ -1369,7 +1388,8 @@ class XMPPService {
                         message: message,
                         content: content,
                         subject: subject,
-                        lang: lang
+                        lang: lang,
+                        answeredMsg: answeredMsg
                     });
                 }).catch((err) => {
                     reject(err);

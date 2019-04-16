@@ -10,12 +10,12 @@ The SDK for Node.JS lets you retrieving your network's contacts as well as searc
 This guide helps you understanding the API to use for managing your contacts, searching for contacts and access to your account information.
 
 
-### Limitations
+### Limits
 ---
 
 The SDK for Node.JS has a "fixed" network which means that using this SDK, you can't neither add contact to your network nor accept invitation from others users.
 
-This limitation has been put in place to avoid misuage and abuse of the user's network. 
+This limit has been put in place to avoid misuage and abuse of the user's network. 
 
 So if you want to populate your Node.JS application, you have to use either a Rainbow client or you can do it using a customized web application based on the SDK for Web.
 
