@@ -10,6 +10,7 @@ Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessage
 Update conversationEventHandler to handle the conversation Events from server (create/update)
 fix ContactsService::getRosters to return the list of contacts
 Add ConversationsService::getConversationByDbId method to retrieve a conversation from the dbid identifier.
+Explain isTyping in the "Chatting with Rainbow users" guide
 
 ## [1.54.6] - 2018-04-09
 Update doc
