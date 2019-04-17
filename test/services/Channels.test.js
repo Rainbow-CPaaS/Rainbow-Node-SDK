@@ -212,7 +212,7 @@ describe("Channel Service", () => {
 
             rainbowSDK
                 .channels
-                .createChannel("FirstChannel", "First Channel")
+                .createPublicChannel("FirstChannel", "First Channel")
                 .then((channel) => {
                     expect(channel.title)
                         .to
@@ -250,7 +250,7 @@ describe("Channel Service", () => {
 
             rainbowSDK
                 .channels
-                .getChannelById(readChannel.data.id)
+                .fetchChannel(readChannel.data.id)
                 .then((channel) => {
                     expect(channel.title)
                         .to
@@ -258,7 +258,7 @@ describe("Channel Service", () => {
                         .equal("Read Channel");
                     return rainbowSDK
                         .channels
-                        .getChannelById(channel.id);
+                        .fetchChannel(channel.id);
                 })
                 .then((channel) => {
                     expect(channel.title)
@@ -298,7 +298,7 @@ describe("Channel Service", () => {
 
             rainbowSDK
                 .channels
-                .getChannelById(readChannel.data.id, true)
+                .fetchChannel(readChannel.data.id, true)
                 .then((channel) => {
                     expect(channel.title)
                         .to
@@ -306,7 +306,7 @@ describe("Channel Service", () => {
                         .equal("Read Channel");
                     return rainbowSDK
                         .channels
-                        .getChannelById(channel.id, true);
+                        .fetchChannel(channel.id, true);
                 })
                 .then((channel) => {
                     expect(channel.title)
@@ -339,7 +339,7 @@ describe("Channel Service", () => {
 
             rainbowSDK
                 .channels
-                .createChannel("ChannelToUpdate", "Channel To Update")
+                .createPublicChannel("ChannelToUpdate", "Channel To Update")
                 .then((channel) => {
                     logger.debug("Channel created");
                     expect(channel.title)
@@ -380,7 +380,7 @@ describe("Channel Service", () => {
 
             rainbowSDK
                 .channels
-                .createChannel("Second Channel", "Second Channel")
+                .createPublicChannel("Second Channel", "Second Channel")
                 .then((channel) => {
                     logger.debug(JSON.stringify(channel))
                     return rainbowSDK

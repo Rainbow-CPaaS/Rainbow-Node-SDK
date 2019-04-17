@@ -192,7 +192,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   In service **channels** the method `publishMessageToChannel` has been updated to allow post of files.
+-   In service **channels** the method `createItem` has been updated to allow post of files.
 -   A correction of `stop` and `reconnection` processes has been done
 -   Logs has been updated to follow the GPRD law and then hide private data.
 
@@ -468,7 +468,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Due to optimizations added on the service Channels, the **Rainbow SDK Node.JS 1.35 and prior will not be able to manage channels anymore starting Rainbow 1.36**. You need to update to this version to use this service. Note: Channels APIs are still in _beta_, the deprecation policy doesn't apply here.
 
--   To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `getUsersFromChannel()` has to be used to retrieve the list of users in a channel.
+-   To increase the scalability of the Channels API, the server will no more return the list of participants when retrieving information on a channel. Channel's property `users` has been replaced by `users_count` which contains the number of users of the channel. Existing API `fetchChannelUsers()` has to be used to retrieve the list of users in a channel.
 
 -   In order to have an homogeneous way of working, the following API `getContactByLoginEmail()`, `getContactById()`, `getContactsByJid()` now return the contact found directly and `null` if not found. API `getContactByLoginEmail()` will no more return a JavaScript `Array` object when the contact was not found locally. API `getContactById()`, `getContactsByJid()` will no more return an error (catch) when the contact is not found.
 
@@ -544,11 +544,11 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API**
 
--   New method `createPrivateChannel()`, `addMembersToChannel()`, `addPublishersToChannel()`, `addOwnersToChannel()`, `removeUsersFromChannel()`, `removeAllUsersFromChannel()` and `getUsersFromChannel()` have been added to manage private channels.
+-   New method `createPrivateChannel()`, `addMembersToChannel()`, `addPublishersToChannel()`, `addOwnersToChannel()`, `deleteUsersFromChannel()`, `deleteAllUsersFromChannel()` and `fetchChannelUsers()` have been added to manage private channels.
 
--   New method `createChannel()`, `findChannelsByName()`, `findChannelsByTopic()` `subscribeToChannel()` and `unsubscribeFromChannel()` have been added to manage public channels.
+-   New method `createPublicChannel()`, `findChannelsByName()`, `findChannelsByTopic()` `subscribeToChannel()` and `unsubscribeFromChannel()` have been added to manage public channels.
 
--   New method ``updateChannelDescription()`,`deleteChannel()`and`publishMessageToChannel()` have been added to manage both private and public channels.
+-   New method ``updateChannelDescription()`,`deleteChannel()`and`createItem()` have been added to manage both private and public channels.
 
 **BUGS**
 

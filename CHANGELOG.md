@@ -11,6 +11,17 @@ Update conversationEventHandler to handle the conversation Events from server (c
 fix ContactsService::getRosters to return the list of contacts
 Add ConversationsService::getConversationByDbId method to retrieve a conversation from the dbid identifier.
 Explain isTyping in the "Chatting with Rainbow users" guide
+Rename the method `ChannelsService::createPrivateChannel()` to `ChannelsService::CreateClosedChannel`
+Rename the method `ChannelsService::deleteMessageFromChannel()` to `ChannelsService::deleteItemFromChannel`
+Rename the method `ChannelsService::getMessagesFromChannel()` to `ChannelsService::fetchChannelItems`
+Rename the method `ChannelsService::removeUsersFromChannel1()` to `ChannelsService::deleteUsersFromChannel`
+Rename the method `ChannelsService::removeAllUsersFromChannel()` to `ChannelsService::deleteAllUsersFromChannel`
+Rename the method `ChannelsService::getUsersFromChannel()` to `ChannelsService::fetchChannelUsers`
+Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetchChannel`
+Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
+Add `ChannelsService::fetchChannelsByFilter` method retrieve a channel by filter
+Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
+
 
 ## [1.54.6] - 2018-04-09
 Update doc
@@ -340,7 +351,7 @@ Fix some type issue find by typescript
 
 ## [1.33.1] - 2017-11-28
 - #30007: Rename API findChannels to findChannelsByName and add findChannelsByTopic
-- #30016: API getUsersFromChannel() is paginated
+- #30016: API fetchChannelUsers() is paginated
 - #30023: Fix connection login issue
 - #29698: Application token renewal
 

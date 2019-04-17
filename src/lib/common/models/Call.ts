@@ -49,7 +49,7 @@ class Call {
     private _deviceType: any;
     private _cause ;
     private _deviceState;
-    static Status: { DIALING: { value: string; key: number }; QUEUED_OUTGOING: { value: string; key: number }; ACTIVE: { value: string; key: number }; RELEASING: { value: string; key: number }; ANSWERING: { value: string; key: number }; PUT_ON_HOLD: { value: string; key: number }; CONNECTING: { value: string; key: number }; RINGING_OUTGOING: { value: string; key: number }; QUEUED_INCOMMING: { value: string; key: number }; ERROR: { value: string; key: number }; UNKNOWN: { value: string; key: number }; HOLD: { value: string; key: number }; RINGING_INCOMMING: { value: string; key: number } };
+    static Status: { DIALING: { value: string; key: number }; QUEUED_OUTGOING: { value: string; key: number }; ACTIVE: { value: string; key: number }; RELEASING: { value: string; key: number }; ANSWERING: { value: string; key: number }; PUT_ON_HOLD: { value: string; key: number }; CONNECTING: { value: string; key: number }; RINGING_OUTGOING: { value: string; key: number }; QUEUED_INCOMING: { value: string; key: number }; ERROR: { value: string; key: number }; UNKNOWN: { value: string; key: number }; HOLD: { value: string; key: number }; RINGING_INCOMING: { value: string; key: number } };
     static Media: { SHARING: number; VIDEO: number; PHONE: number; AUDIO: number };
     static Type: { PHONE: { value: string; key: number }; WEBRTC: { value: string; key: number } };
 
@@ -316,9 +316,9 @@ Call.Status = {
         value: "dialing"
     },
     /** In queue (user side) */
-    QUEUED_INCOMMING: {
+    QUEUED_INCOMING: {
         key: 2,
-        value: "queuedIncomming"
+        value: "queuedIncoming"
     },
     /** In queue (recipient side) */
     QUEUED_OUTGOING: {
@@ -326,9 +326,9 @@ Call.Status = {
         value: "queuedOutGoing"
     },
     /** Call in ringing (user side) */
-    RINGING_INCOMMING: {
+    RINGING_INCOMING: {
         key: 3,
-        value: "incommingCall"
+        value: "incomingCall"
     },
     /** Call in ringing (recipient side */
     RINGING_OUTGOING: {

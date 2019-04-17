@@ -449,7 +449,7 @@ class Telephony {
                     if (lci === "LCI_HELD" && endpointLci === "LCI_CONNECTED") { callStatus = Call.Status.HOLD; }
                     if (lci === "LCI_CONNECTED" && endpointLci === "LCI_HELD") { callStatus = Call.Status.PUT_ON_HOLD; }
                     if (lci === "LCI_CONNECTED" && endpointLci === "LCI_QUEUED") { callStatus = Call.Status.QUEUED_OUTGOING; }
-                    if (lci === "LCI_QUEUED" && endpointLci === "LCI_CONNECTED") { callStatus = Call.Status.QUEUED_INCOMMING; }
+                    if (lci === "LCI_QUEUED" && endpointLci === "LCI_CONNECTED") { callStatus = Call.Status.QUEUED_INCOMING; }
 
                     // Create the call object
                     let call = null;
@@ -990,7 +990,7 @@ class Telephony {
                 reject(profileError);
             }
 
-            if (call.status === Call.Status.QUEUED_INCOMMING && activeCall) {
+            if (call.status === Call.Status.QUEUED_INCOMING && activeCall) {
                 that.holdCall(activeCall)
                     .then(function () {
                         return that.answerCall(call);

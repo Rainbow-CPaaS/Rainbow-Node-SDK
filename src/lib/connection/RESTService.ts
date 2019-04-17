@@ -1923,20 +1923,21 @@ class RESTService {
 
     // Channel
     // Create a channel
-    createChannel(name, topic, visibility, max_items, max_payload_size) {
+    createPublicChannel(name, topic, category: string = "globalnews", visibility, max_items, max_payload_size) {
         
         let that = this;
 
         return new Promise(function(resolve, reject) {
 
-            that.logger.log("debug", LOG_ID + "(createChannel) _entering_");
+            that.logger.log("debug", LOG_ID + "(createPublicChannel) _entering_");
 
             let channel = {
                 name: name,
                 topic: null,
                 visibility: null,
                 max_items: null,
-                max_payload_size: null
+                max_payload_size: null,
+                category: category
             };
 
             if (topic) {
@@ -1953,13 +1954,13 @@ class RESTService {
             }
 
             that.http.post("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), channel, undefined).then(function(json) {
-                that.logger.log("info", LOG_ID + "(createChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(createChannel) REST creation channel", json.data);
-                that.logger.log("debug", LOG_ID + "(createChannel) _exiting_");
+                that.logger.log("info", LOG_ID + "(createPublicChannel) successfull");
+                that.logger.log("internal", LOG_ID + "(createPublicChannel) REST creation channel", json.data);
+                that.logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
                 resolve(json.data);
             }).catch(function(err) {
-                that.logger.log("error", LOG_ID, "(createChannel) error", err);
-                that.logger.log("debug", LOG_ID + "(createChannel) _exiting_");
+                that.logger.log("error", LOG_ID, "(createPublicChannel) error", err);
+                that.logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
                 reject(err);
             });
         });
@@ -2008,7 +2009,7 @@ class RESTService {
     }
 
     // Find Channels
-    findChannels(name, topic, limit, offset, sortField, sortOrder) {
+    findChannels(name, topic, category, limit, offset, sortField, sortOrder) {
         let that = this;
 
         let query = "?limit=";
@@ -2018,15 +2019,15 @@ class RESTService {
         else {
             query += "100";
         }
-
         if (name) {
             query += "&name=" + name;
         }
-
         if (topic) {
             query += "&topic=" + topic;
         }
-        
+        if (category) {
+            query += "&category=" + category;
+        }
         if (offset) {
             query += "&offset=" + offset;
         }
@@ -2061,16 +2062,16 @@ class RESTService {
     
         return new Promise(function(resolve, reject) {
 
-            that.logger.log("debug", LOG_ID + "(getChannels) _entering_");
+            that.logger.log("debug", LOG_ID + "(fetchMyChannels) _entering_");
 
             that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader()).then(function(json) {
-                that.logger.log("debug", LOG_ID + "(getChannels) successfull");
-                that.logger.log("internal", LOG_ID + "(getChannels) received channels");
-                that.logger.log("debug", LOG_ID + "(getChannels) _exiting_");
+                that.logger.log("debug", LOG_ID + "(fetchMyChannels) successfull");
+                that.logger.log("internal", LOG_ID + "(fetchMyChannels) received channels");
+                that.logger.log("debug", LOG_ID + "(fetchMyChannels) _exiting_");
                 resolve(json.data);
             }).catch(function(err) {
-                that.logger.log("error", LOG_ID, "(getChannels) error", err);
-                that.logger.log("debug", LOG_ID + "(getChannels) _exiting_");
+                that.logger.log("error", LOG_ID, "(fetchMyChannels) error", err);
+                that.logger.log("debug", LOG_ID + "(fetchMyChannels) _exiting_");
                 reject(err);
             });
         });

@@ -308,7 +308,7 @@ class TelephonyEventHandler extends GenericHandler {
             //let that = this;
             return this.getCall(deliveredElem).then(function (call) {
                 try {
-                    if (call.status === Call.Status.QUEUED_INCOMMING) {
+                    if (call.status === Call.Status.QUEUED_INCOMING) {
                         return Promise.resolve();
                     }
 
@@ -317,7 +317,7 @@ class TelephonyEventHandler extends GenericHandler {
                     var phoneNumber = deliveredElem.attr("endpointTel");
 
                     // Update call info
-                    call.setStatus((type === "outgoing") ? Call.Status.RINGING_OUTGOING : Call.Status.RINGING_INCOMMING);
+                    call.setStatus((type === "outgoing") ? Call.Status.RINGING_OUTGOING : Call.Status.RINGING_INCOMING);
                     call.startDate = null;
                     call.vm = false;
 
@@ -501,7 +501,7 @@ class TelephonyEventHandler extends GenericHandler {
                     let jid = queuedElem.attr("endpointIm");
                     let phoneNumber = queuedElem.attr("endpointTel");
 
-                    let status = (type === "outgoing") ? Call.Status.QUEUED_OUTGOING : Call.Status.QUEUED_INCOMMING;
+                    let status = (type === "outgoing") ? Call.Status.QUEUED_OUTGOING : Call.Status.QUEUED_INCOMING;
                     call.setStatus(status);
                     call.startDate = null;
                     call.vm = false;
@@ -592,7 +592,7 @@ class TelephonyEventHandler extends GenericHandler {
                 return that.getOrCreateCall(newConnectionId, jid, deviceType, phoneNumber)
                     .then(function (newCall) {
                         if (deviceState && deviceState === "LCI_ALERTING") {
-                            newCall.setStatus(Call.Status.RINGING_INCOMMING);
+                            newCall.setStatus(Call.Status.RINGING_INCOMING);
                         }
                         else {
                             newCall.setStatus(Call.Status.ACTIVE);
@@ -1146,7 +1146,7 @@ class TelephonyEventHandler extends GenericHandler {
         that.eventEmitter.emit("rainbow_oncallupdated", call);
 
 
-       /* if (actionElemName === "delivered" && call.status === Call.Status.RINGING_INCOMMING) {
+       /* if (actionElemName === "delivered" && call.status === Call.Status.RINGING_INCOMING) {
             //CR #28178 : workaround : delay event to avoid notification RBNotification mess !!
             // with telescoping with incoming call popup
             $interval(function () {

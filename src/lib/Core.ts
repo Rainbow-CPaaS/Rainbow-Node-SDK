@@ -126,7 +126,7 @@ class Core {
                         }).then(() => {
                             return that._bubbles.getBubbles();
                         }).then(() => {
-                            return that._channels.getChannels();
+                            return that._channels.fetchMyChannels();
                         }).then(() => {
                             return that._groups.getGroups();
                         }).then(() => {

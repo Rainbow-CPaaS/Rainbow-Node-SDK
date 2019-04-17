@@ -54,7 +54,7 @@ Note: Others methods like `getAllOwnedChannels()` and `getAllSubscribedChannels(
 ### Retrieve a channel information by its id
 ---
 
-If you know the `id` of an existing channel, you can access to the information by calling the API `getChannelById()` as follows:
+If you know the `id` of an existing channel, you can access to the information by calling the API `fetchChannel()` as follows:
 
 
 ```js
@@ -63,7 +63,7 @@ If you know the `id` of an existing channel, you can access to the information b
     let channelId = "...";
 
     // Retrieve the bubble information when receiving a message from a bubble
-    rainbowSDK.channels.getChannelById(channelId).then((channel) => {
+    rainbowSDK.channels.fetchChannel(channelId).then((channel) => {
         // Do something with the channel
         ...
     }).catch((err) => {
@@ -81,7 +81,7 @@ Note: Using this API, if the channel is not found locally, a request is sent to 
 ### Creating channels
 ---
 
-Channels can be created by using the API `createChannel()` or `createPrivateChannel()`.
+Channels can be created by using the API `createPublicChannel()` or `createPrivateChannel()`.
 
 
 #### Creating a new private channel
@@ -104,14 +104,14 @@ nodeSDK.channels.createPrivateChannel("a private channel", "The description of m
 #### Creating a new public channel
 ---
 
-You have to use the API `createChannel()` for creating a public channel as in the following:
+You have to use the API `createPublicChannel()` for creating a public channel as in the following:
 
 When creating a public channel, only users from the same company can found this channel and subscribe to it.
 
 
 ```js
 
-nodeSDK.channels.createChannel("a company channel", "The description of my channel limited to my company").then((channel) => {
+nodeSDK.channels.createPublicChannel("a company channel", "The description of my channel limited to my company").then((channel) => {
     // Do something with the channel created
     ...
 }).catch(err) {
@@ -217,14 +217,14 @@ When calling the API `addMembersToChannel()`, `addPublishersToChannel()` and `ad
 #### Removing users from a private channel
 ---
 
-Users can be removed from a channel by calling the API `removeUsersFromChannel()` as in the following code
+Users can be removed from a channel by calling the API `deleteUsersFromChannel()` as in the following code
 
 ```js
 
 let channel = <...> // A channel
 let usersToRemove = [...]   // A list of users
 
-nodeSDK.channels.removeUsersFromChannel(channel, usersToRemove).then((channelUpdated) => {
+nodeSDK.channels.deleteUsersFromChannel(channel, usersToRemove).then((channelUpdated) => {
     // Do something once the users have been removed from the channel
     ...
 }).catch((err) => {
@@ -234,13 +234,13 @@ nodeSDK.channels.removeUsersFromChannel(channel, usersToRemove).then((channelUpd
 
 ```
 
-If you want to remove all users of a channel, you can use the API `removeAllUsersFromChannel()` instead as follow:
+If you want to remove all users of a channel, you can use the API `deleteAllUsersFromChannel()` instead as follow:
 
 ```js
 
 let channel = <...> // A channel
 
-nodeSDK.channels.removeAllUsersFromChannel(channel).then((channelUpdated) => {
+nodeSDK.channels.deleteAllUsersFromChannel(channel).then((channelUpdated) => {
     // Do something once the users have been removed from the channel
     ...
 }).catch((err) => {
@@ -253,13 +253,13 @@ nodeSDK.channels.removeAllUsersFromChannel(channel).then((channelUpdated) => {
 ### Getting all users from a channel
 ---
 
-You can have access to the list of users that have subscribed to a channel by using the API `getUsersFromChannel()` as in the following sample:
+You can have access to the list of users that have subscribed to a channel by using the API `fetchChannelUsers()` as in the following sample:
 
 ```js
 
 let channel = <...> // A channel
 
-nodeSDK.channels.getUsersFromChannel(channel).then((listOfUsers) => {
+nodeSDK.channels.fetchChannelUsers(channel).then((listOfUsers) => {
     // Do something with the list of users
     ...
 }).catch((err) => {
@@ -298,7 +298,7 @@ let options = {
 
 let channel = <...> // A channel
 
-nodeSDK.channels.getUsersFromChannel(channel, options).then((listOfUsers) => {
+nodeSDK.channels.fetchChannelUsers(channel, options).then((listOfUsers) => {
     // Do something with the list of users
     ...
 }).catch((err) => {
@@ -314,7 +314,7 @@ Note: You can know how many users are in a channel by using the property `users_
 ### Sending messages to channel
 ---
 
-Message can be sent to a channel by using the API `publishMessageToChannel()`.
+Message can be sent to a channel by using the API `createItem()`.
 
 A message can contain the following fields:
 
@@ -337,7 +337,7 @@ let tabImages = null;
 nodeSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((myFileStored) => {
      if (myFileStored) {
          tabImages = [{'id' : myFileStored[0].id}]; // Get the first stored file.
-         nodeSDK.channels.publishMessageToChannel(channel, aMessage, aTitle, aURL, tabImages).then((message) => {
+         nodeSDK.channels.createItem(channel, aMessage, aTitle, aURL, tabImages).then((message) => {
             // Do something once the message has been sent
             ...
          }).catch((err) => {
