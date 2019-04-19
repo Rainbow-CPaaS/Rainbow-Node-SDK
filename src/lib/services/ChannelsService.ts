@@ -6,6 +6,7 @@ export {};
 
 
 import {ErrorManager} from "../common/ErrorManager";
+import {Channel} from "../common/models/Channel";
 
 const LOG_ID = "CHANNELS - ";
 
@@ -112,7 +113,7 @@ class Channels {
      * @description
      *  Create a new public channel with a visibility limited to my company
      */
-    createPublicChannel(name, channelTopic, category) {
+    createPublicChannel(name, channelTopic, category) : Promise<Channel>{
         return new Promise((resolve, reject) => {
 
             this._logger.log("debug", LOG_ID + "(createPublicChannel) _entering_");
@@ -125,8 +126,9 @@ class Channels {
             } 
             this._rest.createPublicChannel(name, channelTopic, category, this.PUBLIC_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) creation successfull");
-                this._channels.push(channel);
-                resolve(channel);
+                let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+                this._channels.push(channelObj);
+                resolve(channelObj);
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(createPublicChannel) error");
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
@@ -167,7 +169,7 @@ class Channels {
      * @description
      *  Create a new private channel
      */
-    createClosedChannel(name, description, category) {
+    createClosedChannel(name, description, category) : Promise<Channel> {
         
         return new Promise((resolve, reject) => {
 
@@ -181,8 +183,9 @@ class Channels {
             } 
             this._rest.createPublicChannel(name, description, category, this.PRIVATE_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) creation successfull");
-                this._channels.push(channel);
-                resolve(channel);
+                let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+                this._channels.push(channelObj);
+                resolve(channelObj);
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(createClosedChannel) error");
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) _exiting_");
@@ -202,7 +205,7 @@ class Channels {
      * @description
      *  Delete a owned channel
      */
-    deleteChannel(channel) {
+    deleteChannel(channel) : Promise<Channel> {
 
         return new Promise((resolve, reject) => {
             this._logger.log("debug", LOG_ID + "(deleteChannel) _entering_");
@@ -239,7 +242,7 @@ class Channels {
      *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
      * @memberof Channels
      */
-    findChannelsByName(name) {
+    findChannelsByName(name : string) : Promise<[Channel]> {
 
         if (!name) {
             this._logger.log("error", LOG_ID + "(findChannelsByName) bad or empty 'name' parameter ", name);
@@ -260,7 +263,7 @@ class Channels {
      *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
      * @memberof Channels
      */
-    findChannelsByTopic(topic) {
+    findChannelsByTopic(topic : string) : Promise<[Channel]> {
 
         if (!topic) {
             this._logger.log("error", LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter ", topic);
@@ -275,12 +278,11 @@ class Channels {
      * @method findChannels
      * @memberof Channels
      */
-    private _findChannels(name, topic) {
+    private _findChannels(name : string, topic : string) : Promise<[Channel]> {
         //hack
-        let getChannel = (id) => {
-            
+        let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
-                this.fetchChannel(id).then((channel) => {
+                this.fetchChannel(id).then((channel : Channel) => {
                     resolve(channel);
                 }).catch(() => {
                     resolve(null);
@@ -288,12 +290,12 @@ class Channels {
             });
         };
         
-        this._logger.log("debug", LOG_ID + "(findChannel) _entering_");
+        this._logger.log("debug", LOG_ID + "(_findChannels) _entering_");
         
         return new Promise((resolve, reject) => {
 
             this._rest.findChannels(name, topic, null, null, null, null, null).then((channels : []) => {
-                this._logger.log("info", LOG_ID + "(findChannel) channels found", channels);
+                this._logger.log("info", LOG_ID + "(_findChannels) findChannels channels found", channels);
 
                 let promises = [];
 
@@ -301,18 +303,17 @@ class Channels {
                     promises.push(getChannel(channel.id));
                 });
 
-                Promise.all(promises).then((listOfChannels) => {
+                Promise.all(promises).then((listOfChannels : [Channel]) => {
                     resolve(listOfChannels);
                 });
 
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(findChannel) error", err);
-                this._logger.log("debug", LOG_ID + "(findChannel) _exiting_");
+                this._logger.log("error", LOG_ID + "(_findChannels) error", err);
+                this._logger.log("debug", LOG_ID + "(_findChannels) _exiting_");
                 reject(err);
             });
         });
     }
-
 
     /**
      * @public
@@ -329,7 +330,7 @@ class Channels {
      * Find a channel by its id (locally if exists or by sending a request to Rainbow)
      * @memberof Channels
      */
-    getChannelById(id, force?) {
+    getChannelById(id, force?) : Promise <Channel> {
         return this.fetchChannel(id,  force);
     }
 
@@ -345,7 +346,7 @@ class Channels {
      * Find a channel by its id (locally if exists or by sending a request to Rainbow)
      * @memberof Channels
      */
-    fetchChannel(id, force?) {
+    fetchChannel(id, force?) : Promise<Channel>{
         return new Promise((resolve, reject) => {
             if (!id) {
                 this._logger.log("warn", LOG_ID + "(fetchChannel) bad or empty 'jid' parameter", id);
@@ -369,8 +370,9 @@ class Channels {
                     this._rest.getChannel(id).then((channel) => {
                         this._logger.log("info", LOG_ID + "(fetchChannel) channel found on the server");
                         this._logger.log("internal", LOG_ID + "(fetchChannel) channel found on the server", channel);
-                        this._channels.push(channel);
-                        resolve(channel);
+                        let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+                        this._channels.push(channelObj);
+                        resolve(channelObj);
                     }).catch((err) => {
                         reject(err);
                     });
@@ -398,13 +400,12 @@ class Channels {
      * @return {Object} Result of the find with
      *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count }
      */
-    fetchChannelsByFilter (filter) {
+    fetchChannelsByFilter (filter) : Promise<[Channel]> {
         this._logger.log("debug", LOG_ID + "(fetchChannelsByFilter) _entering_");
 
-        let getChannel = (id) => {
-
+        let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
-                this.fetchChannel(id).then((channel) => {
+                this.fetchChannel(id).then((channel : Channel) => {
                     resolve(channel);
                 }).catch(() => {
                     resolve(null);
@@ -425,11 +426,11 @@ class Channels {
 
                 let promises = [];
 
-                channels.forEach((channel : any) => {
+                channels.forEach((channel : Channel) => {
                     promises.push(getChannel(channel.id));
                 });
 
-                Promise.all(promises).then((listOfChannels) => {
+                Promise.all(promises).then((listOfChannels : [Channel]) => {
                     resolve(listOfChannels);
                 });
 
@@ -468,9 +469,8 @@ class Channels {
      *    Return a promise.
      * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
      */
-    fetchMyChannels() {
-        let getChannel = (id) => {
-
+    fetchMyChannels() : Promise<[Channel]>{
+        let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
                 this.fetchChannel(id).then((channel) => {
                     resolve(channel);
@@ -512,7 +512,7 @@ class Channels {
                 }
 
                 this._logger.log("info", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
-                Promise.all(promises).then((channels) => {
+                Promise.all(promises).then((channels : [Channel]) => {
                     this._logger.log("internal", LOG_ID + "(fetchMyChannels) hack done", channels);
                     this._channels = channels;
                     this._logger.log("info", LOG_ID + "(fetchMyChannels) get successfully");
@@ -538,7 +538,7 @@ class Channels {
      * @description
      *  Return the list of channels (owned and subscribed)
      */
-    getAllChannels() {
+    getAllChannels() : [Channel] {
         return this._channels;
     }
 
@@ -546,12 +546,28 @@ class Channels {
      * @public
      * @method getAllOwnedChannel
      * @instance
+     * @deprecated [#1] since version 1.55 [#2].
+     * [#3] Will be deleted in future version
+     * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
      * @return {Channel[]} An array of channels (owned only)
      * @memberof Channels
      * @description
      *  Return the list of owned channels only
      */
-    getAllOwnedChannel() {
+    getAllOwnedChannel(){
+        return this.getAllOwnedChannels();
+    }
+
+    /**
+     * @public
+     * @method getAllOwnedChannels
+     * @instance
+     * @return {Channel[]} An array of channels (owned only)
+     * @memberof Channels
+     * @description
+     *  Return the list of owned channels only
+     */
+    getAllOwnedChannels() : [Channel] {
         return this._channels.filter((channel) => {
             return channel.creatorId === this._rest.userId;
         });
@@ -561,14 +577,46 @@ class Channels {
      * @public
      * @method getAllSubscribedChannel
      * @instance
+     * @deprecated [#1] since version 1.55 [#2].
+     * [#3] Will be deleted in future version
+     * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
      * @return {Channel[]} An array of channels (subscribed only)
      * @memberof Channels
      * @description
      *  Return the list of subscribed channels only
      */
     getAllSubscribedChannel() {
+        return this.getAllSubscribedChannels();
+    }
+
+    /**
+     * @public
+     * @method getAllSubscribedChannels
+     * @instance
+     * @return {Channel[]} An array of channels (subscribed only)
+     * @memberof Channels
+     * @description
+     *  Return the list of subscribed channels only
+     */
+    getAllSubscribedChannels() : [Channel] {
         return this._channels.filter((channel) => {
             return channel.creatorId !== this._rest.userId;
+        });
+    }
+
+
+    /**
+     * @public
+     * @method getAllPendingChannels
+     * @instance
+     * @return {Channel[]} An array of channels (invited only)
+     * @memberof Channels
+     * @description
+     *  Return the list of invited channels only
+     */
+    getAllPendingChannels() : [Channel] {
+        return this._channels.filter((channel) => {
+            return channel.invited;
         });
     }
 
@@ -588,7 +636,7 @@ class Channels {
      *  Publish to a channel
      * @memberof Channels
      */
-    publishMessageToChannel(channel, message, title, url, imagesIds, type) {
+    publishMessageToChannel(channel, message, title, url, imagesIds, type) : Promise<{}> {
         return this.createItem(channel, message, title, url, imagesIds, type);
     }
 
@@ -608,7 +656,7 @@ class Channels {
      *  Publish to a channel
      * @memberof Channels
      */
-    createItem(channel, message, title, url, imagesIds, type) {
+    createItem(channel, message, title, url, imagesIds, type) : Promise <{}> {
         this._logger.log("debug", LOG_ID + "(createItem) _entering_");
         
         if (!channel) {
@@ -662,7 +710,7 @@ class Channels {
      *  Subscribe to a public channel
      * @memberof Channels
      */
-    subscribeToChannel(channel) {
+    subscribeToChannel(channel : Channel) : Promise<Channel> {
         
         this._logger.log("debug", LOG_ID + "(subscribeToChannel) _entering_");
         
@@ -695,12 +743,12 @@ class Channels {
      * @instance
      * @async
      * @param {Channel} channel The channel to unsubscribe
-     * @return {Promise<Channel>} The channel updated
+     * @return {Promise<String>} The status of the unsubscribe.
      * @description
      *  Unsubscribe from a public channel
      * @memberof Channels
      */
-    unsubscribeFromChannel(channel) {
+    unsubscribeFromChannel(channel : Channel) : Promise<String> {
         
         this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _entering_");
         
@@ -712,7 +760,7 @@ class Channels {
 
         return new Promise((resolve, reject) => {
 
-            this._rest.unsubscribeToChannel(channel.id).then((status) => {
+            this._rest.unsubscribeToChannel(channel.id).then((status : String) => {
                 this._logger.log("info", LOG_ID + "(unsubscribeFromChannel) channel unsubscribed", status);
                 this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _exiting_");
                 resolve(status);
@@ -736,7 +784,7 @@ class Channels {
      *  TODO
      * @memberof Channels
      */
-    updateChannelDescription(channel, description) {
+    updateChannelDescription(channel, description) : Promise <Channel> {
         
         this._logger.log("debug", LOG_ID + "(updateChannelDescription) _entering_");
         
@@ -757,11 +805,12 @@ class Channels {
             this._rest.updateChannel(channel.id, description, null,  null , null).then((channelUpdated : any) => {
                 this._logger.log("info", LOG_ID + "(updateChannelDescription) channel updated", channel);
 
-                var foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
-                this._channels[foundIndex] = channelUpdated;
+                let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
+                let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, this._rest.http.serverURL);
+                this._channels[foundIndex] = channelObj;
 
                 this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
-                resolve(channelUpdated);
+                resolve(channelObj);
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(updateChannelDescription) error", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
@@ -809,7 +858,7 @@ class Channels {
      *  Get a pagined list of users who belongs to a channel
      * @memberof Channels
      */
-    fetchChannelUsers(channel, options) {
+    fetchChannelUsers(channel, options) : Promise<Array<{}>> {
         this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _entering_");
         
         if (!channel) {
@@ -884,7 +933,7 @@ class Channels {
      *  Remove all users from a channel
      * @memberof Channels
      */
-    deleteAllUsersFromChannel(channel) {
+    deleteAllUsersFromChannel(channel) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _entering_");
         
         if (!channel) {
@@ -900,11 +949,11 @@ class Channels {
 
                 this._rest.getChannel(channel.id).then((updatedChannel : any) => {
                     // Update local channel
-                    var foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
-                    this._channels[foundIndex] = updatedChannel;
-
+                    let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, this._rest.http.serverURL);
+                    this._channels[foundIndex] = channelObj;
                     this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
-                    resolve(updatedChannel);
+                    resolve(channelObj);
                 });
 
             }).catch((err) => {
@@ -922,22 +971,25 @@ class Channels {
      * @async
      * @param {String} channelId The Id of the channel
      * @param {ChannelUser[]} users The users of the channel
-     * @return {Promise<UpdateChannelUsersResult>} Update Channel Users status
+     * @return {Promise<Channel>} Update Channel Users status
      * @description
      *  TODO
      * @memberof Channels
      */
-    updateChannelUsers(channelId, users) {
+    updateChannelUsers(channelId, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(updateChannelUsers) _entering_");
 
         return new Promise((resolve, reject) => {
             this._rest.updateChannelUsers(channelId, users).then((res) => {
                 this._logger.log("info", LOG_ID + "(updateChannelUsers) channel users updated", res);
 
-                this._rest.getChannel(channelId).then((updatedChannel) => {
+                this._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
+                    let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, this._rest.http.serverURL);
+                    this._channels[foundIndex] = channelObj;
                     this._logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
-                    resolve(updatedChannel);
+                    resolve(channelObj);
                 });
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(updateChannelUsers) error", err);
@@ -954,13 +1006,13 @@ class Channels {
      * @instance
      * @async
      * @param {Channel} channel The channel
-     * @param {User[]} users An array of users to add
+     * @param owners
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Add a list of owners to the channel
      * @memberof Channels
      */
-    addOwnersToChannel(channel, owners) {
+    addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
         this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _entering_");
         
         if (!channel) {
@@ -998,7 +1050,7 @@ class Channels {
      *  Add a list of publishers to the channel
      * @memberof Channels
      */
-    addPublishersToChannel(channel, publishers) {
+    addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _entering_");
         
         if (!channel) {
@@ -1036,7 +1088,7 @@ class Channels {
      *  Add a list of members to the channel
      * @memberof Channels
      */
-    addMembersToChannel(channel, members) {
+    addMembersToChannel(channel, members) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addMembersToChannel) _entering_");
         
         if (!channel) {
@@ -1099,7 +1151,7 @@ class Channels {
      *  Remove a list of users from a channel
      * @memberof Channels
      */
-    deleteUsersFromChannel(channel, users) {
+    deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) _entering_");
         
         if (!channel) {
@@ -1154,7 +1206,7 @@ class Channels {
      *  Retrieve the last messages from a channel
      * @memberof Channels
      */
-    fetchChannelItems (channel) {
+    fetchChannelItems (channel : Channel) : Promise<Array<any>>{
 
         this._logger.log("debug", LOG_ID + "(fetchChannelItems) _entering_");
         
@@ -1234,7 +1286,7 @@ class Channels {
      *  Delete a message from a channel
      * @memberof Channels
      */
-    deleteItemFromChannel (channelId, itemId) {
+    deleteItemFromChannel (channelId, itemId) : Promise<Channel> {
 
         this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _entering_");
 
@@ -1257,11 +1309,11 @@ class Channels {
 
                 this._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
-                    var foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
-                    this._channels[foundIndex] = updatedChannel;
-
+                    let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, this._rest.http.serverURL);
+                    this._channels[foundIndex] = channelObj;
                     this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _exiting_");
-                    resolve(updatedChannel);
+                    resolve(channelObj);
                 }).catch((err) => {
                     reject(err);
                 });

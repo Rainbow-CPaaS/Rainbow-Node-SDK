@@ -21,7 +21,11 @@ Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetch
 Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
 Add `ChannelsService::fetchChannelsByFilter` method retrieve a channel by filter
 Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
-
+Rename the method `ChannelsService::getAllOwnedChannel()` to `ChannelsService::getAllOwnedChannels`
+Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsService::getAllSubscribedChannels`
+Refactor ChannelsService to return the real Channel type in API/Events
+Refactor ChannelsService to use the return types
+Add ContactsService::getConnectedUser method to get the connected user information
 
 ## [1.54.6] - 2018-04-09
 Update doc

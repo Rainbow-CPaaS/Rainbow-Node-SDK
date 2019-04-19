@@ -612,6 +612,30 @@ class Contacts {
         return (that.rest.account.jid === contact.jid);
     }
 
+
+    /**
+     * @public
+     * @method getConnectedUser
+     * @instance
+     * @description
+     *    Get the connected user information
+     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+     */
+    getConnectedUser() {
+        let that = this;
+        if (!that.rest.account) {
+            return ErrorManager.getErrorManager().ERROR;
+        }
+        // Create the contact object
+        let contact = new Contact.Contact();
+
+        //that.logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
+        contact.updateFromUserData(that.rest.account);
+        contact.avatar = that.getAvatarByContactId(that.rest.account.id, that.rest.account.lastAvatarUpdateDate);
+
+        return contact;
+    }
+
     /**
      * @public
      * @since 1.17

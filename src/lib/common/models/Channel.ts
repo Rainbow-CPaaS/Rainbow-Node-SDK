@@ -1,91 +1,210 @@
 "use strict";
-export {};
+import {Conversation} from "./Conversation";
 
+export {};
 
 /**
  * @class
+ * @public
  * @name Channel
  * @description
- *      This class represents a channel. <br>
- *		A Channel is communication medium for sending notifications to a large number of users.<br>
+ * This class is used to represent a channel
  */
 class Channel {
-	public id: any;
-	public name: any;
-	public visibility: any;
-	public title: any;
-	public creator: any;
-	public creationDate: any;
-	public users_count: any;
-	public type: any;
+    public name: string;
+    public id: string;
+    public visibility: string;
+    public topic: string;
+    public creatorId: string;
+    public companyId: string;
+    public creationDate: Date;
+    public users_count: number;
+    public avatar: string;
+    public lastAvatarUpdateDate: Date;
+    public userRole: string = 'none';
+    public messageRetrieved: boolean = false;
+    public messages: any[] = [];
+    public subscribed: boolean = false;
+    public deleted: boolean = false;
+    public invited: boolean = false;
+    public category: string;
+    public type: string = "SIMPLE";
+    public pageIndex: number = 0;
+    public isLoading: boolean = false;
+    public complete: boolean = false;
+    public users: any[] = [];
+    public publishersRetreived: boolean = false;
+    public mode: string;
+    public subscribers_count: number;
+    public loaded: boolean = false;
+    public serverURL: string = "";
 
-    constructor() {
-        
+    /**
+     * @this Channel
+     */
+    constructor(
+        name: string,
+        id: string,
+        visibility: string,
+        topic: string,
+        creatorId: string,
+        companyId: string,
+        creationDate: Date,
+        users_count: number,
+        lastAvatarUpdateDate: Date,
+        subscribed: boolean,
+        type: string,
+        invited: boolean,
+        category: string,
+        mode: string,
+        subscribers_count: number,
+        serverURL: string
+    ) {
         /**
          * @public
-         * @readonly
-         * @property {string} id The ID of the channel
-         * @instance
+         * @property {string} name channel name
+         *
          */
-        this.id = "";
-        
+        this.name = name;
         /**
          * @public
-         * @readonly
-         * @property {string} name The name of the channel
-         * @instance
+         * @property {string} id channel unique identifier
+         *
          */
-        this.name = "";
+        this.id = id;
+        /**
+         * @public
+         * @property {string} visibility channel type/visibility<br/>
+         * 		"private" : a « Pub » channel, only the owner may publish messages.<br/>
+         * 					Managed by owner, the only one who can add or remove users in a private channels.<br/>
+         * 					Can't be found by search.<br/>
+         * 		"company" : « PubSub » channel (company users may join/leave)
+         * 					May be found by search for users in the same company.<br/>
+         * 		"public"  : « PubSub » public channel.
+         * 					Only allowed users may create a "public" channel.
+         * 					May be found by search for all users.<br/>
+         *
+         */
+        this.visibility = visibility;
+        /**
+         * @public
+         * @property {string} topic channel topic
+         *
+         */
+        this.topic = topic;
+        /**
+         * @public
+         * @property {string} creatorId the creator rainbow user id
+         *
+         */
+        this.creatorId = creatorId;
+        /**
+         * @public
+         * @property {string} companyId the channel rainbow company id
+         *
+         */
+        this.companyId = companyId;
+        /**
+         * @public
+         * @property {Date} creationDate creation date of the channel (read only, set automatically during creation)
+         *
+         */
+        this.creationDate = creationDate;
 
         /**
          * @public
-         * @readonly
-         * @property {ChannelVisibility} visibility The visibility of the channel. Can be private (only visible for members), company or public
-         * @instance
+         * @property {string} type type of role of the user : owner / member / publisher
+         *
          */
-        this.visibility = "private";
+        this.type = type;
+        /**
+         * @public
+         * @property {number} users_count The number of users in the channel
+         *
+         */
+        this.users_count = users_count;
 
         /**
          * @public
-         * @readonly
-         * @property {string} title The title of the Channel
-         * @instance
+         * @property {number} subscribers_count The number of subscribers in the channel
+         *
          */
-        this.title = "";
+        this.subscribers_count = subscribers_count;
 
         /**
-         * @public
-         * @readonly
-         * @property {string} creator The ID of the creator of the channel
-         * @instance
+         @public
+         * @property {string} category the category channel
+         *
          */
-        this.creator = "";
+        this.category = category;
 
         /**
-         * @public
-         * @readonly
-         * @property {string} creationDate The creation date of the channel, (read only, set automatically during creation)
-         * @instance
+         @public
+         * @property {string} mode the category mode
+         *
          */
-        this.creationDate = "";
+        this.mode = mode;
 
-        /**
-         * @public
-         * @readonly
-         * @property {number} users_count The number of users of that channel (including the connected user)
-         * @instance
-         */
-        this.users_count = 0;
+        this.serverURL = serverURL;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} type The channel affiliation type (allowed values : owner, publisher, member)
-         * @type {string}
-         * @instance
-         */
-        this.type = "";
+        this.lastAvatarUpdateDate = lastAvatarUpdateDate;
+        let timestamp = this.lastAvatarUpdateDate ? "&ts=" + new Date(this.lastAvatarUpdateDate).getTime() : "";
+        this.avatar = this.serverURL + "/api/channel-avatar/" + id + "?size=256" + timestamp;
+
+        if (subscribed !== undefined) { this.subscribed = subscribed; }
+        if (type !== undefined) { this.userRole = type; }
+        if (invited !== undefined) { this.invited = invited; }
+
+        if (!this.mode) {
+            switch (this.visibility) {
+                case "company": this.mode = "company_public"; break;
+                case "public": this.mode = "all_public"; break;
+                case "private": this.mode = "company_private"; break;
+                default: break;
+            }
+        }
+
+    }
+
+    public isNotMember() { return (this.userRole = "none"); }
+    public isOwner() { return (this.userRole === "owner"); }
+    public isPublisher() { return (this.subscribed && (this.userRole === "owner" || this.userRole === "publisher")); }
+    public isMember() { return this.userRole === "member"; }
+    public getAvatarSrc() { return (this.lastAvatarUpdateDate) ? this.avatar : "/resources/skins/rainbow/images/channels/default_channel_avatar.png"; }
+
+
+
+    /**
+     * @function
+     * @public
+     * @name ChannelFactory
+     * @description
+     * This class is used to create a channel from data object
+     */
+    public static ChannelFactory() {
+        return (data: any, serverURL : string): Channel => {
+            return new Channel(
+                data.name,
+                data.id,
+                data.visibility,
+                data.topic,
+                data.creatorId,
+                data.companyId,
+                data.creationDate,
+                data.users_count,
+                data.lastAvatarUpdateDate,
+                data.subscribed,
+                data.type,
+                data.invited,
+                data.category,
+                data.mode,
+                data.subscribers_count,
+                serverURL
+            );
+        };
     }
 }
 
-module.exports = Channel;
+
+module.exports.Channel = Channel;
+export {Channel};
