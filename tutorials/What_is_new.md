@@ -5,7 +5,7 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
-### SDK for Node.JS 1.54 - March 2019
+### SDK for Node.JS 1.55 - April 2019
 
 ---
 
