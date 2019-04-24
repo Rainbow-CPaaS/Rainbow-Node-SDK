@@ -21,6 +21,49 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
+Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message
+Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessageToBubble with a new parameter answeredMsg to allow to send a reply to a message
+fix ContactsService::getRosters to return the list of contacts
+Rename the method `ChannelsService::createPrivateChannel()` to `ChannelsService::CreateClosedChannel`
+Rename the method `ChannelsService::deleteMessageFromChannel()` to `ChannelsService::deleteItemFromChannel`
+Rename the method `ChannelsService::getMessagesFromChannel()` to `ChannelsService::fetchChannelItems`
+Rename the method `ChannelsService::removeUsersFromChannel1()` to `ChannelsService::deleteUsersFromChannel`
+Rename the method `ChannelsService::removeAllUsersFromChannel()` to `ChannelsService::deleteAllUsersFromChannel`
+Rename the method `ChannelsService::getUsersFromChannel()` to `ChannelsService::fetchChannelUsers`
+Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetchChannel`
+Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
+Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
+Rename the method `ChannelsService::getAllOwnedChannel()` to `ChannelsService::getAllOwnedChannels`
+Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsService::getAllSubscribedChannels`
+Refactor ChannelsService to return the real Channel type in API/Events
+Refactor ChannelsService to use the return types
+
+**Others Changes**
+
+Update comments limitations => limits
+Update conversationEventHandler to handle the conversation Events from server (create/update)
+Add ConversationsService::getConversationByDbId method to retrieve a conversation from the dbid identifier.
+Explain isTyping in the "Chatting with Rainbow users" guide
+Add `ChannelsService::fetchChannelsByFilter` method retrieve a channel by filter
+Add ContactsService::getConnectedUser method to get the connected user information
+
+
+### SDK for Node.JS 1.54 - March 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None.
+
+**API Changes**
+
 -   Remove the `data` property layer in result of `admin::createCompany` API method. Properties found before in `data` are a now in root object.
 -   Fix `admin::removeUserFromCompany` ro return the deletion result.
 
