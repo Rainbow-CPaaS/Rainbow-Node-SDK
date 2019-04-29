@@ -1223,14 +1223,14 @@ class RESTService {
                 user.companyId = that.account.companyId
             }
 
+            if (roles != null) {
+                user.roles = roles;
+            }
+
             if (isAdmin) {
                 user.roles.push("admin");
                 //user.adminType = ["company_admin"];
                 user.adminType = "company_admin";
-            }
-
-            if (roles != null) {
-                user.roles = roles;
             }
 
             that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function(json) {

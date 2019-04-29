@@ -28,8 +28,8 @@ The minimal versions supported are:
 
 | Pre-requisites | Version supported                        | Minimal                        |
 | -------------- | :--------------------------------------- | :----------------------------- |
-| Node.JS        | **Active LTS version only is supported** | Starting 6.x (without support) |
-| NPM            | **Active LTS version is supported**      | Starting 3.6 (without support) |
+| Node.JS        | **Active LTS version only is supported** | Starting 10.x (without support) |
+| NPM            | **Active LTS version is supported**      | Starting 6.x (without support) |
 
 Note: We encourage you to migrate and to keep closer to the **active** LTS version of Node.JS in order to let us write this SDK using the latest JavaScript and Node.JS evolutions in term of language, and to have the best of Node.JS in term of features and security. **Current** version of Node.JS (with latest features) can be used but without support too.
 
