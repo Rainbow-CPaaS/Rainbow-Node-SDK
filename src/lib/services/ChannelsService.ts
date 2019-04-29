@@ -31,7 +31,8 @@ class Channels {
 	public MAX_ITEMS: any;
 	public MAX_PAYLOAD_SIZE: any;
 	public PUBLIC_VISIBILITY: any;
-	public PRIVATE_VISIBILITY: any;
+    public PRIVATE_VISIBILITY: any;
+    public CLOSED_VISIBILITY: any;
 
     constructor(_eventEmitter, _logger) {
         this._xmpp = null;
@@ -43,6 +44,7 @@ class Channels {
         this.MAX_PAYLOAD_SIZE = 60000;
         this.PUBLIC_VISIBILITY = "company";
         this.PRIVATE_VISIBILITY = "private";
+        this.CLOSED_VISIBILITY = "closed";
 
         this._eventEmitter.on("rainbow_onchannelmessagereceived", this._onChannelMessageReceived.bind(this));
     }
@@ -167,7 +169,7 @@ class Channels {
      * @return {Promise<Channel>} New Channel
      * @memberof Channels
      * @description
-     *  Create a new private channel
+     *  Create a new closed channel
      */
     createClosedChannel(name, description, category) : Promise<Channel> {
         
@@ -774,6 +776,22 @@ class Channels {
 
     /**
      * @public
+     * @method updateChannelTopic
+     * @instance
+     * @async
+     * @param {Channel} channel The channel to update
+     * @param {string} description  The description of the channel to update (max-length=255)
+     * @return {Promise<Channel>} Updated channel
+     * @description
+     *  TODO
+     * @memberof Channels
+     */
+    updateChannelTopic (channel, description) : Promise <Channel> {
+        return this.updateChannelDescription(channel, description);
+    }
+
+    /**
+     * @public
      * @method updateChannelDescription
      * @instance
      * @async
@@ -787,9 +805,15 @@ class Channels {
     updateChannelDescription(channel, description) : Promise <Channel> {
         
         this._logger.log("debug", LOG_ID + "(updateChannelDescription) _entering_");
-        
+
         if (!channel) {
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ", channel);
+            this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!channel.id) {
+            this._logger.log("debug", LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter ", channel.id);
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -802,7 +826,7 @@ class Channels {
 
         return new Promise((resolve, reject) => {
 
-            this._rest.updateChannel(channel.id, description, null,  null , null).then((channelUpdated : any) => {
+            this._rest.updateChannel(channel.id, description, null,  null , null, null, null).then((channelUpdated : any) => {
                 this._logger.log("info", LOG_ID + "(updateChannelDescription) channel updated", channel);
 
                 let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
@@ -818,7 +842,146 @@ class Channels {
             });
         });
     }
-    
+
+    /**
+     * @public
+     * @method
+     * @since 1.46
+     * @instance
+     * @description
+     *    Update a channel name<br/>
+     *    Return a promise.
+     * @param {Channel} channel The channel to update
+     * @param {String} channelName The name of the channel
+     * @return {Channel} Return the channel updated or an error
+     */
+    updateChannelName(channel, channelName) {
+        this._logger.log("debug", LOG_ID + "(updateChannelName) _entering_");
+
+        if (!channel) {
+            this._logger.log("debug", LOG_ID + "(updateChannelName) bad or empty 'channel' parameter ", channel);
+            this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!channel.id) {
+            this._logger.log("debug", LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter ", channel.id);
+            this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!channelName) {
+            this._logger.log("debug", LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter ", channelName);
+            this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise((resolve, reject) => {
+
+            this._rest.updateChannel(channel.id, null, null,  null , null, channelName, null).then((channelUpdated : any) => {
+                this._logger.log("info", LOG_ID + "(updateChannelName) channel updated", channel);
+
+                let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
+                let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, this._rest.http.serverURL);
+                this._channels[foundIndex] = channelObj;
+
+                this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
+                resolve(channelObj);
+            }).catch((err) => {
+                this._logger.log("error", LOG_ID + "(updateChannelName) error", err);
+                this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
+                reject(err);
+            });
+        });
+    };
+
+    /**
+     * @public
+     * @method updateChannelVisibility
+     * @since 1.55
+     * @instance
+     * @description
+     *    Update a channel visibility<br/>
+     *    Return a promise.
+     * @param {String} channel The channel to update
+     * @param {String} visibility  The new channel visibility (closed or company)
+     * @return {Channel} Return the channel updated or an error
+     */
+    updateChannelVisibility(channel, visibility) {
+        this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _entering_");
+
+        if (!channel) {
+            this._logger.log("debug", LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter ", channel);
+            this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!channel.id) {
+            this._logger.log("debug", LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter ", channel.id);
+            this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!visibility) {
+            this._logger.log("debug", LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter ", visibility);
+            this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        let mode = visibility === "company" ? "company_public" : "company_closed";
+        let name = channel.name;
+
+        return new Promise((resolve, reject) => {
+
+            this._rest.updateChannel(channel.id, null, null,  null , null, name, mode).then((channelUpdated : any) => {
+                this._logger.log("info", LOG_ID + "(updateChannelVisibility) channel updated");
+
+                let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
+                let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, this._rest.http.serverURL);
+                this._channels[foundIndex] = channelObj;
+                this._logger.log("internal", LOG_ID + "(updateChannelVisibility) channel updated", channelObj);
+
+                this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
+                resolve(channelObj);
+            }).catch((err) => {
+                this._logger.log("error", LOG_ID + "(updateChannelVisibility) error", err);
+                this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
+                reject(err);
+            });
+        });
+    };
+
+    /**
+     * @public
+     * @method updateChannelVisibilityToPublic
+     * @since 1.55
+     * @instance
+     * @description
+     *    Set the channel visibility to company (visible for users in that company)<br/>
+     *    Return a promise.
+     * @param {String} channel The channel to update
+     * @return {Channel} Return the channel updated or an error
+     */
+    public updateChannelVisibilityToPublic(channel) {
+        return this.updateChannelVisibility(channel, "company");
+    }
+
+    /**
+     * @public
+     * @method updateChannelVisibilityToClosed
+     * @since 1.55
+     * @instance
+     * @description
+     *    Set the channel visibility to closed (not visible by users)<br/>
+     *    Return a promise.
+     * @param {String} channel The channel to update
+     * @return {Channel} Return the channel updated or an error
+     */
+    public updateChannelVisibilityToClosed(channel) {
+        //channel.name = channel.name + "_updateToClosed";
+        return this.updateChannelVisibility(channel, "closed");
+    }
+
     /**
      * @public
      * @method fetchChannelUsers
@@ -858,7 +1021,7 @@ class Channels {
      *  Get a pagined list of users who belongs to a channel
      * @memberof Channels
      */
-    fetchChannelUsers(channel, options) : Promise<Array<{}>> {
+    public fetchChannelUsers(channel, options) : Promise<Array<{}>> {
         this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _entering_");
         
         if (!channel) {
@@ -933,7 +1096,7 @@ class Channels {
      *  Remove all users from a channel
      * @memberof Channels
      */
-    deleteAllUsersFromChannel(channel) : Promise<Channel> {
+    public deleteAllUsersFromChannel(channel) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _entering_");
         
         if (!channel) {
@@ -965,7 +1128,7 @@ class Channels {
     }    
 
     /**
-     * @private
+     * @public
      * @method updateChannelUsers
      * @instance
      * @async
@@ -976,7 +1139,7 @@ class Channels {
      *  TODO
      * @memberof Channels
      */
-    updateChannelUsers(channelId, users) : Promise<Channel> {
+    public updateChannelUsers(channelId, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(updateChannelUsers) _entering_");
 
         return new Promise((resolve, reject) => {
@@ -1012,7 +1175,7 @@ class Channels {
      *  Add a list of owners to the channel
      * @memberof Channels
      */
-    addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
+    public addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
         this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _entering_");
         
         if (!channel) {
@@ -1050,7 +1213,7 @@ class Channels {
      *  Add a list of publishers to the channel
      * @memberof Channels
      */
-    addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
+    public addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _entering_");
         
         if (!channel) {
@@ -1088,7 +1251,7 @@ class Channels {
      *  Add a list of members to the channel
      * @memberof Channels
      */
-    addMembersToChannel(channel, members) : Promise<Channel> {
+    public addMembersToChannel(channel, members) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addMembersToChannel) _entering_");
         
         if (!channel) {
@@ -1151,7 +1314,7 @@ class Channels {
      *  Remove a list of users from a channel
      * @memberof Channels
      */
-    deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
+    public deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) _entering_");
         
         if (!channel) {
@@ -1206,7 +1369,7 @@ class Channels {
      *  Retrieve the last messages from a channel
      * @memberof Channels
      */
-    fetchChannelItems (channel : Channel) : Promise<Array<any>>{
+    public fetchChannelItems (channel : Channel) : Promise<Array<any>>{
 
         this._logger.log("debug", LOG_ID + "(fetchChannelItems) _entering_");
         
@@ -1286,7 +1449,7 @@ class Channels {
      *  Delete a message from a channel
      * @memberof Channels
      */
-    deleteItemFromChannel (channelId, itemId) : Promise<Channel> {
+    public deleteItemFromChannel (channelId, itemId) : Promise<Channel> {
 
         this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _entering_");
 

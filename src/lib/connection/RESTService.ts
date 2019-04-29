@@ -1194,7 +1194,7 @@ class RESTService {
         });
     }
 
-    createUser(email, password, firstname, lastname, companyId, language, isAdmin) {
+    createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
 
         let that = this;
 
@@ -1227,6 +1227,10 @@ class RESTService {
                 user.roles.push("admin");
                 //user.adminType = ["company_admin"];
                 user.adminType = "company_admin";
+            }
+
+            if (roles != null) {
+                user.roles = roles;
             }
 
             that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function(json) {
@@ -2173,32 +2177,60 @@ class RESTService {
     }
 
     // Update channels
-    updateChannel(channelId, title, visibility, max_items, max_payload_size) {
+    updateChannel(channelId, title, visibility, max_items, max_payload_size, channelName, mode) {
         let that = this;
 
         let channel = {
+            name: null,
             topic: null,
             visibility: null,
             max_items: null,
-            max_payload_size: null
+            max_payload_size: null,
+            mode: null
         };
-        if ( title ) {channel.topic = title;}
-        if ( visibility ) {channel.visibility = visibility;}
-        if ( max_items ) {channel.max_items = max_items;}
-        if ( max_payload_size ) {channel.max_payload_size = max_payload_size;}
+        if ( title === null ) {
+            delete channel.topic;
+        } else {
+            channel.topic = title;
+        }
+        if ( visibility === null ) {
+            delete channel.visibility;
+        } else {
+            channel.visibility = visibility;
+        }
+        if ( mode === null ) {
+            delete channel.mode;
+        } else {
+            channel.mode = mode;
+        }
+        if ( max_items === null ) {
+            delete channel.max_items;
+        } else {
+            channel.max_items = max_items;
+        }
+        if ( max_payload_size === null ) {
+            delete channel.max_payload_size;
+        } else {
+            channel.max_payload_size = max_payload_size;
+        }
+        if (channelName === null) {
+            delete channel.name ;
+        } else {
+            channel.name = channelName;
+        }
 
         return new Promise(function(resolve, reject) {
 
-            that.logger.log("debug", LOG_ID + "(setBubbleTopic) _entering_");
+            that.logger.log("debug", LOG_ID + "(updateChannel) _entering_");
 
             that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel, undefined).then(function(json) {
-                that.logger.log("info", LOG_ID + "(setBubbleTopic) successfull");
-                that.logger.log("internal", LOG_ID + "(setBubbleTopic) REST channel updated", json.data);
-                that.logger.log("debug", LOG_ID + "(setBubbleTopic) _exiting_");
+                that.logger.log("info", LOG_ID + "(updateChannel) successfull");
+                that.logger.log("internal", LOG_ID + "(updateChannel) REST channel updated", json.data);
+                that.logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
                 resolve(json.data);
             }).catch(function(err) {
-                that.logger.log("error", LOG_ID, "(setBubbleTopic) error", err);
-                that.logger.log("debug", LOG_ID + "(setBubbleTopic) _exiting_");
+                that.logger.log("error", LOG_ID, "(updateChannel) error", err);
+                that.logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
                 reject(err);
             });
         });

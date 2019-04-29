@@ -185,13 +185,14 @@ class Admin {
      * @param {string} [companyId="user company"] The Id of the company where to create the user or the connected user company if null
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
+     * @param {[string]} roles The roles
      * @memberof Admin
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Created contact in company or an error object depending on the result
      * @category async
      */
-    createUserInCompany(email, password, firstname, lastname, companyId, language, isCompanyAdmin) {
+    createUserInCompany(email, password, firstname, lastname, companyId, language, isCompanyAdmin, roles) {
         let that = this;
 
         that._logger.log("debug", LOG_ID + "(createUserInCompany) _entering_");
@@ -227,7 +228,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin).then((user) => {
+                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user) => {
                     that._logger.log("debug", LOG_ID + "(createUserInCompany) Successfully created user for account", email);
                     resolve(user);
                 }).catch((err) => {

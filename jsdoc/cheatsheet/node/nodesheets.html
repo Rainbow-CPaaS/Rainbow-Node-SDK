@@ -14,6 +14,7 @@ class Message
 class Contact
 class Conversation
 class Channel
+class Channel
 class Bubble
 class Events
 class NodeSDK
@@ -88,14 +89,18 @@ Bubble : Object[] : users
 Bubble : string : creationDate
 Bubble : string : visibility
 Bubble : Object : customData
-Channel : string : id
 Channel : string : name
-Channel : ChannelVisibility : visibility
-Channel : string : title
-Channel : string : creator
-Channel : string : creationDate
-Channel : number : users_count
+Channel : string : id
+Channel : string : visibility
+Channel : string : topic
+Channel : string : creatorId
+Channel : string : companyId
+Channel : Date : creationDate
 Channel : string : type
+Channel : number : users_count
+Channel : number : subscribers_count
+Channel : string : category
+Channel : string : mode
 Conversation : string : id
 Conversation : string : dbId
 Conversation : ConversationType : type

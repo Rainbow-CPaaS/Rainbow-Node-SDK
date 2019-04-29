@@ -63,7 +63,7 @@ let userFirstname = "John";
 let userLastname = "Doe";
 let companyId = "5978e048f8abe8ad97357f06"; // The target company
 
-nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, companyId).then((user) => {
+nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, companyId,"FR", false, null).then((user) => {
     // Do something when the user has been created and added to that company
     ...
 }).catch((err) => {
@@ -95,7 +95,7 @@ let userLastname = "Dupont";
 let companyId = null;
 let language = "fr-FR";
 
-nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, null, language).then((user) => {
+nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, null, language, false, null).then((user) => {
     // Do something when the user has been created and added to that company
     ...
 }).catch((err) => {

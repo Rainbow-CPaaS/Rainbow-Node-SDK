@@ -26,6 +26,14 @@ Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsServi
 Refactor ChannelsService to return the real Channel type in API/Events
 Refactor ChannelsService to use the return types
 Add ContactsService::getConnectedUser method to get the connected user information
+Add ChannelsService::updateChannelVisibility method to update a channel visibility (closed or company)
+Add ChannelsService::updateChannelVisibilityToPublic method to update a channel visibility to company (visible for users in that company)
+Add ChannelsService::updateChannelVisibilityToClosed method to update a channel visibility to closed (not visible by users)
+Add ChannelsService::updateChannelTopic method to update the description of the channel to update (max-length=255)
+Add ChannelsService::updateChannelName method to update a channel name
+Update AdminService::createUserInCompany to add the roles parameter when creating a user.
+Reduce log for the XMPP ping.
+
 
 ## [1.54.6] - 2018-04-09
 Update doc

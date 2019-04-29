@@ -33,20 +33,22 @@ class IQEventHandler extends GenericHandler {
         this.onIqGetReceived = (msg, stanza) => {
             try {
                 that.logger.log("debug", LOG_ID + "(onIqGetReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
                 let children = stanza.children;
                 children.forEach((node) => {
                     switch (node.getName()) {
                         case "query":
+                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
                             that._onIqGetQueryReceived(stanza, node);
                             break;
                         case "ping":
                             that._onIqGetPingReceived(stanza, node);
                             break;
                         case "default":
+                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqGetReceived - not managed - 'stanza'", node.getName());
                             break;
                         default:
+                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqGetReceived - child not managed for iq - 'stanza'", node.getName());
                             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) onIqGetReceived - child not managed for iq - 'stanza'", node.getName(), "stanza : ", stanza, " node : ", node);
 
