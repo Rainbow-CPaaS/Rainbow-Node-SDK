@@ -185,7 +185,7 @@ class Admin {
      * @param {string} [companyId="user company"] The Id of the company where to create the user or the connected user company if null
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
-     * @param {[string]} roles The roles
+     * @param {Array<string>} [roles] The roles the created user.
      * @memberof Admin
      * @async
      * @return {Promise<Contact, ErrorManager>}
