@@ -17,35 +17,41 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Breaking Changes**
 
--   None.
+-   none
 
 **API Changes**
 
-Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message
-Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessageToBubble with a new parameter answeredMsg to allow to send a reply to a message
-fix ContactsService::getRosters to return the list of contacts
-Rename the method `ChannelsService::createPrivateChannel()` to `ChannelsService::CreateClosedChannel`
-Rename the method `ChannelsService::deleteMessageFromChannel()` to `ChannelsService::deleteItemFromChannel`
-Rename the method `ChannelsService::getMessagesFromChannel()` to `ChannelsService::fetchChannelItems`
-Rename the method `ChannelsService::removeUsersFromChannel1()` to `ChannelsService::deleteUsersFromChannel`
-Rename the method `ChannelsService::removeAllUsersFromChannel()` to `ChannelsService::deleteAllUsersFromChannel`
-Rename the method `ChannelsService::getUsersFromChannel()` to `ChannelsService::fetchChannelUsers`
-Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetchChannel`
-Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
-Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
-Rename the method `ChannelsService::getAllOwnedChannel()` to `ChannelsService::getAllOwnedChannels`
-Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsService::getAllSubscribedChannels`
-Refactor ChannelsService to return the real Channel type in API/Events
-Refactor ChannelsService to use the return types
+-   Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message
+-   Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessageToBubble with a new parameter answeredMsg to allow to send a reply to a message
+-   Update conversationEventHandler to handle the conversation Events from server (create/update)
+-   Add ConversationsService::getConversationByDbId method to retrieve a conversation from the dbid identifier.
+-   fix ContactsService::getRosters to return the list of contacts
+-   Refactor ChannelsService to return the real Channel type in API/Events
+-   Refactor ChannelsService to use the return types
+-   Add `ChannelsService::fetchChannelsByFilter` method retrieve a channel by filter
+-   Add ContactsService::getConnectedUser method to get the connected user information
+-   Add ChannelsService::updateChannelVisibility method to update a channel visibility (closed or company)
+-   Add ChannelsService::updateChannelVisibilityToPublic method to update a channel visibility to company (visible for users in that company)
+-   Add ChannelsService::updateChannelVisibilityToClosed method to update a channel visibility to closed (not visible by users)
+-   Add ChannelsService::updateChannelTopic method to update the description of the channel to update (max-length=255)
+-   Update AdminService::createUserInCompany to add the roles parameter when creating a user.
+-   Rename the method `ChannelsService::createPrivateChannel()` to `ChannelsService::CreateClosedChannel`
+-   Rename the method `ChannelsService::deleteMessageFromChannel()` to `ChannelsService::deleteItemFromChannel`
+-   Rename the method `ChannelsService::getMessagesFromChannel()` to `ChannelsService::fetchChannelItems`
+-   Rename the method `ChannelsService::removeUsersFromChannel1()` to `ChannelsService::deleteUsersFromChannel`
+-   Rename the method `ChannelsService::removeAllUsersFromChannel()` to `ChannelsService::deleteAllUsersFromChannel`
+-   Rename the method `ChannelsService::getUsersFromChannel()` to `ChannelsService::fetchChannelUsers`
+-   Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetchChannel`
+-   Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
+-   Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
+-   Rename the method `ChannelsService::getAllOwnedChannel()` to `ChannelsService::getAllOwnedChannels`
+-   Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsService::getAllSubscribedChannels`
 
 **Others Changes**
 
-Update comments limitations => limits
-Update conversationEventHandler to handle the conversation Events from server (create/update)
-Add ConversationsService::getConversationByDbId method to retrieve a conversation from the dbid identifier.
-Explain isTyping in the "Chatting with Rainbow users" guide
-Add `ChannelsService::fetchChannelsByFilter` method retrieve a channel by filter
-Add ContactsService::getConnectedUser method to get the connected user information
+-   Update comments limitations => limits
+-   Explain isTyping in the "Chatting with Rainbow users" guide
+-   Reduce log for the XMPP ping.
 
 
 ### SDK for Node.JS 1.54 - March 2019
