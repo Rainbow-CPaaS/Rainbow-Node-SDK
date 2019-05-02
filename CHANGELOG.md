@@ -3,6 +3,10 @@
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
 
 
+## [1.56.0] - 2018-05-XX
+Add TelephonyService::deflectCall method to deflect a call to an other telephone number
+Update TelephonyService doc.
+
 ## [1.55.0] - 2018-04-30
 Update comments limitations => limits
 Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message

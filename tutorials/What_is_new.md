@@ -21,6 +21,29 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
+-   none
+
+**Others Changes**
+
+-   Add TelephonyService::deflectCall method to deflect a call to an other telephone number
+-   Update TelephonyService doc.
+
+### SDK for Node.JS 1.55 - April 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
 -   Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message
 -   Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessageToBubble with a new parameter answeredMsg to allow to send a reply to a message
 -   Update conversationEventHandler to handle the conversation Events from server (create/update)

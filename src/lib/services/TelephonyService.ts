@@ -362,6 +362,11 @@ class Telephony {
         }); // */
     }
 
+    /**
+     * @private
+     * @method getTelephonyState
+     * @param second
+     */
     getTelephonyState(second) {
         let that = this;
 
@@ -393,7 +398,11 @@ class Telephony {
         });
     }
 
-    createCallFromConnectionElem (connectionElemObj) {
+    /**
+     * @private
+     * @param connectionElemObj
+     */
+    private createCallFromConnectionElem (connectionElemObj) {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -483,6 +492,11 @@ class Telephony {
         });
     };
 
+    /**
+     * @private
+     * @method getParticipantsFromParticipantsElem
+     * @param participants
+     */
     getParticipantsFromParticipantsElem (participants) {
         let that =this;
         return new Promise(function(resolve, reject) {
@@ -513,7 +527,14 @@ class Telephony {
         });
     };
 
-
+    /**
+     * @private
+     * @method getOrCreateCall
+     * @param status
+     * @param connectionId
+     * @param deviceType
+     * @param contact
+     */
     getOrCreateCall(status, connectionId, deviceType, contact?) {
         let that = this;
 
@@ -534,7 +555,13 @@ class Telephony {
         return call;
     }
 
-    /////////
+    /**
+     * @public
+     * @method getVoiceMessageCounter
+     * @description
+     *      Get the number of voice message
+     * @return {Promise<integer>} Return resolved promise if succeed with the number of messages, and a rejected else.
+     */
     getVoiceMessageCounter() {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -565,6 +592,13 @@ class Telephony {
     /**                   CALL HANDLERS                     **/
 
     /*********************************************************/
+    /**
+     * @public
+     * @method getCallToHangOut
+     * @description
+     *      Get the call which can be hang out
+     * @return {Call} The call with the ability to be hang out.
+     */
     getCallToHangOut() {
         let that = this;
         let calls = that.getCalls();
@@ -578,6 +612,13 @@ class Telephony {
         return calls[1];
     }
 
+    /**
+     * @public
+     * @method getActiveCall
+     * @description
+     *      get the active call
+     * @return {Call} The active call
+     */
     getActiveCall() {
         let that = this;
         let activeCall = null;
@@ -590,6 +631,13 @@ class Telephony {
         return activeCall;
     }
 
+    /**
+     * @public
+     * @method getCalls
+     * @description
+     *      get the calls
+     * @return {Call} The active call
+     */
     getCalls() {
         let that = this;
         let calls = [];
@@ -608,6 +656,14 @@ class Telephony {
         return calls;
     }
 
+    /**
+     * @public
+     * @method getActiveCall
+     * @param {Contact} contact The contact with an active call with us.
+     * @description
+     *      get the active call for a contact
+     * @return {Call} The active call
+     */
     getActiveCallsForContact(contact) {
         let that = this;
         let calls = [];
@@ -631,6 +687,18 @@ class Telephony {
     /*                    MAKE CALL STUFF                        */
 
     /*************************************************************/
+    /**
+     * @public
+     * @method makeCall
+     * @instance
+     * @description
+     *    Call a number <br/>
+     *    Contacts and numbers are allowed
+     *    Return a promise
+     * @param {Contact} contact - contact object that you want to call
+     * @param {String} phoneNumber The number to call
+     * @return {Promise<Call>} Return a promise with the call created
+     */
     makeCall(contact, phoneNumber) {
         let that = this;
         let activeCall = that.getActiveCall();
@@ -652,7 +720,13 @@ class Telephony {
         return that.makeConsultationCall(contact, phoneNumber, activeCall.connectionId);
     }
 
-    makeSimpleCall(contact, phoneNumber) {
+    /**
+     * @private
+     * @method makeSimpleCall
+     * @param contact
+     * @param phoneNumber
+     */
+    private makeSimpleCall(contact, phoneNumber) {
         let that = this;
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(makeSimpleCall) to " + (contact ? contact.displayName : phoneNumber));
@@ -713,7 +787,14 @@ class Telephony {
         });
     }
 
-    makeConsultationCall(contact, phoneNumber, callId) {
+    /**
+     * @private
+     * @method makeConsultationCall
+     * @param contact
+     * @param phoneNumber
+     * @param callId
+     */
+    private makeConsultationCall(contact, phoneNumber, callId) {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -774,9 +855,14 @@ class Telephony {
     }
 
     /**
-     * MAKE CALL BY PHONE NUMBER
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method makeCall
+     * @instance
+     * @description
+     *    Call a number <br/>
+     *    Return a promise
+     * @param {String} phoneNumber The number to call
+     * @return {Promise<Call>} Return a promise with the call created
      */
     makeCallByPhoneNumber(phoneNumber) {
         let that = this;
@@ -849,7 +935,13 @@ class Telephony {
             };
     */
 
-    getPhoneInfo(contact, phoneNumber) {
+    /**
+     * @private
+     * @method getPhoneInfo
+     * @param contact
+     * @param phoneNumber
+     */
+    private getPhoneInfo(contact, phoneNumber) {
         let that = this;
 
         let longNumber = phoneNumber;
@@ -915,9 +1007,14 @@ class Telephony {
     /*************************************************************/
 
     /**
-     * RELEASE CALL
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method releaseCall
+     * @instance
+     * @description
+     *    Release a call <br/>
+     *    Return a promise
+     * @param {Call} call The call to release
+     * @return {Promise<Call>} Return a promise with the call released
      */
     releaseCall(call) {
         let that = this;
@@ -968,11 +1065,16 @@ class Telephony {
     /*************************************************************/
 
     /**
-     * ANSWER CALL
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method answerCall
+     * @instance
+     * @description
+     *    Answer a call <br/>
+     *    Return a promise
+     * @param {Call} call The call to answer
+     * @return {Promise<Call>} Return a promise with the answered call.
      */
-    answerCall(call) {
+     answerCall(call) {
         let that = this;
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "()[telephonyService] answerCall : " + utils.anonymizePhoneNumber(call.contact.phone) + "(" + call.contact.displayNameForLog() + ")");
@@ -1036,9 +1138,14 @@ class Telephony {
     /*************************************************************/
 
     /**
-     * HOLD CALL
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method holdCall
+     * @instance
+     * @description
+     *    Hold a call <br/>
+     *    Return a promise
+     * @param {Call} call The call to hold
+     * @return {Call} Return a promise with the held call.
      */
     holdCall(call) {
         let that = this;
@@ -1090,9 +1197,14 @@ class Telephony {
     /*************************************************************/
 
     /**
-     * RETRIEVE
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method retrieveCall
+     * @instance
+     * @description
+     *    Retrieve a call <br/>
+     *    Return a promise
+     * @param {Call} call The call to retrieve
+     * @return {Promise<Call>} Return a promise with the call retrieved
      */
     retrieveCall(call) {
         let that = this;
@@ -1160,9 +1272,14 @@ class Telephony {
     /*************************************************************/
 
     /**
-     * DEFLECT TO VM
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method deflectCallToVM
+     * @instance
+     * @description
+     *    Deflect a call to the voice mail <br/>
+     *    Return a promise
+     * @param {Call} call The call to deflect
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
      */
     deflectCallToVM(call) {
         let that = this;
@@ -1214,9 +1331,74 @@ class Telephony {
     }
 
     /*************************************************************/
+    /*                     DEFLECT CALL STUFF                    */
+
+    /*************************************************************/
+
+    /**
+     * @public
+     * @method deflectCall
+     * @instance
+     * @description
+     *    Deflect a call to an other telephone number<br/>
+     *    Return a promise
+     * @param {Call} call The call to deflect
+     * @param {Object} callee The callee phone number informations where the call shopuld be deflecte'd.
+     * @param {string} callee.calleeExtNumber : The phone number where the call is deflected, the format could be anything the user can type, it will be transformed in E164 format.,
+     * @param {string} callee.calleeIntNumber : Internal number if available,
+     * @param {string} callee.calleePbxId : The pbx id if available,
+     * @param {string} [callee.calleeShortNumber] : Short number,
+     * @param {string} [callee.calleeDisplayName] : The displayed name,
+     * @param {string} [callee.calleeCountry] : The contry whe the call will be deflected.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    deflectCall(call, callee) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            // Ignore wrong request
+            if (!call || !callee) {
+                resolve();
+            }
+
+            that.logger.log("debug", LOG_ID + "(deflectCall) deflectCall " + call.contact.displayNameForLog());
+
+            let data = {
+                "calleeExtNumber": callee.calleeExtNumber,
+                "calleeIntNumber": callee.calleeIntNumber,
+                "calleePbxId": callee.calleePbxId,
+                "calleeShortNumber": callee.calleeShortNumber,
+                "calleeDisplayName": callee.calleeDisplayName,
+                "calleeCountry": callee.calleeCountry
+            };
+
+            that._rest.deflectCall(call, data) .then(
+                function success() {
+                    that.logger.log("debug", LOG_ID + "(deflectCall) deflectCall success");
+                    resolve();
+                },
+                function failure(response) {
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    reject(error);
+                    that.logger.log("error", LOG_ID + "(deflectCall) ", error);                });
+        });
+    }
+
+    /*************************************************************/
     /*                   TRANSFERT CALL STUFF                    */
 
     /*************************************************************/
+    /**
+     * @public
+     * @method transfertCall
+     * @instance
+     * @description
+     *    Transfer a held call to the active call <br/>
+     *    User should have transfer rights <br/>
+     *    Return a promise
+     * @param {Call} activeCall The active call
+     * @param {Call} heldCall The held call to transfer to the activeCall
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
     transfertCall(activeCall, heldCall) {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1264,6 +1446,18 @@ class Telephony {
     /* MAKE CONFERENCE CALL STUFF                                */
 
     /*************************************************************/
+    /**
+     * @public
+     * @method conferenceCall
+     * @instance
+     * @description
+     *    Create a conference with a held call and the active call <br/>
+     *    User should have conference rights <br/>
+     *    Return a promise
+     * @param {Call} activeCall The active call
+     * @param {Call} heldCall The held call to transfer to the activeCall
+     * @return {Promise} Return a resolved promise .
+     */
     conferenceCall(activeCall, heldCall) {
         let that = this;
 
@@ -1307,7 +1501,16 @@ class Telephony {
     /* FORWARD CALL STUFF               		                 */
 
     /*************************************************************/
-
+    /**
+     * @public
+     * @method forwardToDevice
+     * @instance
+     * @description
+     *    Activate the forward to a number <br/>
+     *    Return a promise
+     * @param {String} phoneNumber The number to call
+     * @return {Promise} Return a promise resolved.
+    */
     forwardToDevice(phoneNumber) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -1347,6 +1550,16 @@ class Telephony {
         });
     }
 
+    /**
+     * @public
+     * @method forwardToVoicemail
+     * @instance
+     * @description
+     *    Activate the forward to VM <br/>
+     *    Return a promise
+     * @return {Promise} Return a promise resolved.
+
+     */
     forwardToVoicemail() {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1389,6 +1602,15 @@ class Telephony {
         });
     }
 
+    /**
+     * @public
+     * @method cancelForward
+     * @instance
+     * @description
+     *    Cancel the forward <br/>
+     *    Return a promise
+     * @return {Promise<Call>} Return a promise with the canceled forward call.
+     */
     cancelForward() {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -1646,6 +1868,10 @@ class Telephony {
         });
     };
 */
+    /**
+     * @private
+      * @param response
+     */
    updateNomadicData (response) {
        let that = this;
        that.logger.log("info", LOG_ID + "[telephonyService] updateNomadicData destination:" + response.destination + " featureActivated:" + response.featureActivated + " makeCallInitiatorIsMain:" + response.makeCallInitiatorIsMain + " modeActivated:" + response.modeActivated);
@@ -1691,6 +1917,15 @@ class Telephony {
     /* DTMF             		                 				*/
 
     /*************************************************************/
+    /**
+     * @public
+     * @method sendDtmf
+     * @description
+     *      send dtmf to the remote party
+     * @param {string} connectionId
+     * @param {string} dtmf
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
     sendDtmf(connectionId, dtmf) {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1727,7 +1962,13 @@ class Telephony {
         });
     }
 
-    clearCall(call) {
+    /**
+     * @private
+     * @method clearCall
+     * @param Call call the call to reset.
+     * @return nothing.
+     */
+    private clearCall(call) {
         let that = this;
         call.setStatus(Call.Status.UNKNOWN);
         // $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
@@ -1742,7 +1983,7 @@ class Telephony {
         }
     }
 
-    startAsPhoneNumber(phoneNumber) {
+    private startAsPhoneNumber(phoneNumber) {
         let cleanPhoneNumber = phoneNumber.trim().split(".").join("");
         let pattern1 = /^(\+|\d|#|\*|\(|\)|\.|-|\s|\/)*$/;
         let match = cleanPhoneNumber.match(pattern1);

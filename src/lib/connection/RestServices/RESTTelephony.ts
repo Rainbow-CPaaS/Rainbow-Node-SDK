@@ -211,6 +211,30 @@ class RESTTelephony {
         });
     }
 
+    deflectCall(requestHeader, call, VMInfos) {
+        var that = this;
+        return new Promise((resolve, reject) => {
+
+            that.logger.log("debug", LOG_ID + "(deflectCall) _entering_");
+            if (call) {
+                that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(call.connectionId) + '/deflect', requestHeader, VMInfos).then((json) => {
+                    that.logger.log("info", LOG_ID + "(deflectCall) successfull");
+                    that.logger.log("info", LOG_ID + "(deflectCall) REST conversation consulted", json.data);
+                    that.logger.log("debug", LOG_ID + "(deflectCall) _exiting_");
+                    resolve(json.data);
+                }).catch((err) => {
+                    that.logger.log("error", LOG_ID, "(deflectCall) error", err);
+                    that.logger.log("debug", LOG_ID + "(deflectCall) _exiting_");
+                    reject(err);
+                });
+            } else {
+                var error = ErrorCase.OTHERERROR('can not deflectCall call', 'deflectCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
+                that._logger.log("error", LOG_ID + "(deflectCall) ", error);
+                reject(error);
+            }
+        });
+    }
+
     transfertCall(requestHeader, activeCall, heldCall) {
         var that = this;
         return new Promise((resolve, reject) => {
@@ -303,6 +327,16 @@ class RESTTelephony {
         });
     }
 
+    /**
+     * @public
+     * @method sendDtmf
+     * @description
+     *      send dtmf to the remote party
+     * @param requestHeader
+     * @param callId
+     * @param deviceId
+     * @param data
+     */
     sendDtmf(requestHeader, callId, deviceId, data) {
         var that = this;
         return new Promise((resolve, reject) => {

@@ -2441,6 +2441,11 @@ class RESTService {
         return that.restTelephony.deflectCallToVM(that.getRequestHeader(), call, VMInfos);
     }
 
+    deflectCall(call, calleeInfos){
+        let that = this;
+        return that.restTelephony.deflectCall(that.getRequestHeader(), call, calleeInfos);
+    }
+
     transfertCall(activeCall, heldCall){
         let that = this;
         return that.restTelephony.transfertCall(that.getRequestHeader(), activeCall, heldCall);
