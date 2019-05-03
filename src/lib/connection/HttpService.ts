@@ -109,7 +109,7 @@ class HTTPService {
         });
     }
 
-    get(url, headers): Promise<any> {
+    get(url, headers, params): Promise<any> {
 
         let that = this;
 
@@ -126,6 +126,7 @@ class HTTPService {
                         url: that.serverURL + url,
                         method: "GET",
                         headers: headers,
+                        params: params,
                         proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
                     }, (error, response, body) => {
                         that.logger.log("info", LOG_ID + "(get) successfull");
@@ -254,6 +255,7 @@ class HTTPService {
                     let req = Request.get({
                         url: that.serverURL + url,
                         headers: headers,
+                        params: params,
                         proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
                     }).on("response", function (response) {
                         that.logger.log("info", LOG_ID + "(get) status code:" + response.statusCode); // 200

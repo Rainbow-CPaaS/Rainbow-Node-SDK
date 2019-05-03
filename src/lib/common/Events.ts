@@ -563,6 +563,17 @@ class Events {
             that.publishEvent("channelcreated", data);
         });
 
+        this._evReceiver.on("rainbow_channelsubscribe", function (data) {
+            /**
+             * @event Events#rainbow_onchannelcreated
+             * @public
+             * @param { String } id The id of the channel
+             * @description
+             *      Fired when a channel subscribed event is received
+             */
+            that.publishEvent("channelsubscribe", data);
+        });
+
         this._evReceiver.on("rainbow_channeldeleted", function (data) {
             /**
              * @event Events#rainbow_onchanneldeleted

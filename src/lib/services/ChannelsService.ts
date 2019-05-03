@@ -29,6 +29,7 @@ class Channels {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public _channels: any;
+	public _channelsList: any;
 	public _eventEmitter: any;
 	public _logger: any;
 	public MAX_ITEMS: any;
@@ -38,11 +39,32 @@ class Channels {
     public CLOSED_VISIBILITY: any;
     public channelEventHandler: ChannelEventHandler;
     public channelHandlerToken: any;
+    public invitationCounter: number = 0;
+
+
+    public LIST_EVENT_TYPE = {
+        ADD: 0,
+        UPDATE: 1,
+        REMOVE: 2,
+        DELETE: 3,
+        SUBSCRIBE: 4,
+        UNSUBSCRIBE: 5,
+        CREATE: 6
+    };
+
+    public USER_ROLE = {
+        NONE: "none",
+        OWNER: "owner",
+        PUBLISHER: "publisher",
+        MEMBER: "member"
+    };
+
 
     constructor(_eventEmitter, _logger) {
         this._xmpp = null;
         this._rest = null;
         this._channels = null;
+        this._channelsList = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.MAX_ITEMS = 100;
@@ -52,6 +74,11 @@ class Channels {
         this.CLOSED_VISIBILITY = "closed";
 
         this._eventEmitter.on("rainbow_onchannelmessagereceived", this._onChannelMessageReceived.bind(this));
+
+        this._eventEmitter.on("rainbow_onaddtochannel", this.onAddToChannel.bind(this));
+        this._eventEmitter.on("rainbow_onupdatetochannel", this.onUpdateToChannel.bind(this));
+
+
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
@@ -63,6 +90,7 @@ class Channels {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
                 that._channels = [];
+                that._channelsList = [];
                 that._attachHandlers();
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
@@ -82,6 +110,7 @@ class Channels {
                 this._xmpp = null;
                 this._rest = null;
                 this._channels = null;
+                this._channelsList = null;
 //                this._eventEmitter.removeListener("rainbow_onchannelmessagereceived", this._onChannelMessageReceived);
                 this._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
@@ -149,8 +178,7 @@ class Channels {
             } 
             this._rest.createPublicChannel(name, channelTopic, category, this.PUBLIC_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) creation successfull");
-                let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
-                this._channels.push(channelObj);
+                let channelObj : Channel = this.addChannelToCache(channel);
                 resolve(channelObj);
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(createPublicChannel) error");
@@ -206,8 +234,7 @@ class Channels {
             } 
             this._rest.createPublicChannel(name, description, category, this.PRIVATE_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) creation successfull");
-                let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
-                this._channels.push(channelObj);
+                let channelObj : Channel = this.addChannelToCache(channel);
                 resolve(channelObj);
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(createClosedChannel) error");
@@ -369,8 +396,8 @@ class Channels {
      * Find a channel by its id (locally if exists or by sending a request to Rainbow)
      * @memberof Channels
      */
-    fetchChannel(id, force?) : Promise<Channel>{
-        return new Promise((resolve, reject) => {
+    async fetchChannel(id, force?) : Promise<Channel>{
+        return new Promise(async (resolve, reject) => {
             if (!id) {
                 this._logger.log("warn", LOG_ID + "(fetchChannel) bad or empty 'jid' parameter", id);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -390,15 +417,10 @@ class Channels {
                 }
                 else {
                     this._logger.log("debug", LOG_ID + "(fetchChannel) channel not found locally. Ask the server...");
-                    this._rest.getChannel(id).then((channel) => {
-                        this._logger.log("info", LOG_ID + "(fetchChannel) channel found on the server");
-                        this._logger.log("internal", LOG_ID + "(fetchChannel) channel found on the server", channel);
-                        let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
-                        this._channels.push(channelObj);
-                        resolve(channelObj);
-                    }).catch((err) => {
-                        reject(err);
-                    });
+                    let channel = await this.getChannel(id);
+                    let channelObj : Channel = this.addChannelToCache(channel);
+                    this.addChannelToCache(channelObj);
+                    resolve(channelObj);
                 }
             }
         });
@@ -1518,6 +1540,201 @@ class Channels {
             this._eventEmitter.emit("rainbow_channelmessagereceived", message);
         });
     }
+
+    /**
+     * @private
+     * @param channelId
+     * @description
+     *      GET A CHANNEL
+     */
+    public getChannel(channelId: string): Promise<Channel> {
+        return new Promise((resolve, reject) => {
+            this._rest.getChannel(channelId).then((channel) => {
+                this._logger.log("info", LOG_ID + "(getChannel) channel found on the server");
+                this._logger.log("internal", LOG_ID + "(getChannel) channel found on the server", channel);
+                let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+                resolve(channelObj);
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    };
+
+    /**
+     * @private
+     * @param channelId
+     * @description
+     *      GET A CHANNEL FROM CACHE
+     */
+    public getChannelFromCache(channelId: string): Channel {
+        let channel = this._channels[channelId];
+        return channel !== undefined ? channel : null;
+    }
+
+    private updateChannelsList(): void {
+        this._channelsList = Object.keys(this._channels).map((key) => { return this._channels[key]; });
+    }
+
+    public addChannelToCache(channel: any): Channel {
+        let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+        this._channels[channel.id] = channelObj;
+        this.updateChannelsList();
+        return channelObj;
+    }
+
+    public retrieveLatests(beforeDate: Date = null): Promise<any> {
+        return this._rest.getLatestMessages(10, beforeDate, null).then((messages: any) => {
+            // TODO : this.feedChannel.messages.push.apply(this.feedChannel.messages, messages);
+            return messages.length;
+        });
+    }
+
+    public incrementInvitationCounter() { this.invitationCounter += 1; }
+    public decrementInvitationCounter() { this.invitationCounter -= 1; }
+
+
+    /****************************************************************/
+    /*** MANAGEMENT EVENT HANDLER                                 ***/
+    /****************************************************************/
+    private onAvatarChange(channelId: string, avatar: any): void {
+        /*
+        let action = avatar.attr("action");
+        let updateDate: Date = avatar.attr("lastAvatarUpdateDate") ? new Date(avatar.attr("lastAvatarUpdateDate")) : null;
+        this.$log.info("[channelService] onChannelManagementReceived -- " + action + " avatar for " + channelId);
+        if (action === "delete" || action === "update") {
+            let channel: Channel = this.getChannelFromCache(channelId);
+            channel.lastAvatarUpdateDate = updateDate;
+            if (updateDate !== null) {
+                channel.avatar = config.restServerUrl + "/api/channel-avatar/" + channelId + "?size=256&ts=" + new Date(updateDate).getTime();
+            }
+        }
+
+         */
+    }
+
+    private onUpdateToChannel(channelId: string): void {
+        let that = this;
+        // Get channel from cache
+        let channel = this.getChannelFromCache(channelId);
+
+        // Get channel from server
+        this.getChannel(channelId)
+            .then((newChannel) => {
+                if (newChannel.invited) {
+                    let channelObj : Channel = this.addChannelToCache(newChannel);
+                    that._eventEmitter.emit("rainbow_channelcreated", {'id': newChannel.id});
+                    //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
+                }
+            });
+    }
+
+    private onAddToChannel(channelInfo: {id:string}): void {
+        let that = this;
+        let channelId = channelInfo.id;
+        // Get channel from cache
+        let channel = this.getChannelFromCache(channelId);
+
+        // Get channel from server
+        this.getChannel(channelId)
+            .then((newChannel) => {
+
+                // Handle channel creation
+                if (!channel && !newChannel.invited) {
+                    let channelObj : Channel = this.addChannelToCache(newChannel);
+                    //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
+                    that._eventEmitter.emit("rainbow_channelcreated", {'id': newChannel.id});
+                }
+
+                // Handle channel invitation
+                else if (!channel && newChannel.invited) {
+                    let channelObj : Channel = this.addChannelToCache(newChannel);
+                    this.incrementInvitationCounter();
+                    that._eventEmitter.emit("rainbow_channelsubscribe", {'id': newChannel.id});
+                    //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, newChannel.id);
+                }
+
+                // Handle change role
+                else if (channel && newChannel.userRole !== this.USER_ROLE.NONE) {
+                    channel.userRole = newChannel.userRole;
+                    // TODO : this.feedChannel.messages = [];
+                    this.retrieveLatests()
+                        .then(() => {
+                            that._eventEmitter.emit("rainbow_channelsubscribe", {'id': channelId});
+                            //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
+                        });
+                }
+
+            });
+    }
+
+    private onRemovedFromChannel(channelId: string): void {
+        /*
+        this.removeChannelFromCache(channelId)
+            .then((channelName) => {
+                this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
+            });
+
+         */
+    }
+
+    private onSubscribeToChannel(channelId: string, subscribersInfo: string): void {
+        /*
+        // Handle invitation case
+        let channel = this.getChannelFromCache(channelId);
+        let subscribers = Number.parseInt(subscribersInfo);
+        if (channel) {
+            channel.invited = false;
+            channel.subscribed = true;
+            channel.subscribers_count = subscribers;
+            this.feedChannel.messages = [];
+            this.retrieveLatests()
+                .then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId); });
+        }
+
+        // Handle self subscription case
+        else {
+            this.getChannel(channelId)
+                .then((newChannel) => {
+                let channelObj : Channel = this.addChannelToCache(newChannel);
+                    this.feedChannel.messages = [];
+                    return this.retrieveLatests();
+                })
+                .then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId); });
+        }
+
+         */
+    }
+
+    private onUnsubscribeToChannel(channelId: string, subscribersInfo: string): void {
+        /*
+        let subscribers = Number.parseInt(subscribersInfo);
+        let channel = this.getChannelFromCache(channelId);
+        channel.subscribers_count = subscribers;
+        channel.subscribed = false;
+
+        // Update messagesList
+        this.feedChannel.messages = [];
+        this.retrieveLatests().then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId); });
+
+         */
+    }
+
+    private onDeleteChannel(channelId: string): void {
+        //this.removeChannelFromCache(channelId).then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId); });
+    }
+
+    private onUserSubscribeEvent(channelId: string, userId: string) {
+        //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId, userId);
+    }
+
+    private onUserUnsubscribeEvent(channelId: string, userId: string) {
+        //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId, userId);
+    }
+
+    /****************************************************************/
+    /*** END MANAGEMENT EVENT HANDLER                             ***/
+    /****************************************************************/
+
 }
 
 module.exports = Channels;

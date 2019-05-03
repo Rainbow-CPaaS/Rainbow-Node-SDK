@@ -292,7 +292,19 @@ function getXmppClient(...args) {
 Element.prototype.find = function (name) { // Warning do not put an Array function because the "this" will be lost
     let result = new Element();
     result.length = 0;
-    let children = this.getChildrenByFilter((element) => { return element instanceof Element && name === element.getName(); }, true);
+
+    if ( this instanceof Element && (this.getName ? this.getName () : this.name) == name) {
+        result = this;
+        result.length = 1;
+        return result;
+    }
+
+    let children = this.getChildrenByFilter((element) => {
+        let isInstanceOfElement = element instanceof Element;
+        let elmtName = element.getName ? element.getName () : element.name;
+        let isTheNameSearched = name === elmtName;
+        return isInstanceOfElement && isTheNameSearched;
+        }, true);
     if (children.length === 1) {
         result = children[0];
         result.length = 1;

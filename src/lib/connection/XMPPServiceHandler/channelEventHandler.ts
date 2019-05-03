@@ -8,6 +8,7 @@ import {XMPPUTils} from "../../common/XMPPUtils";
 
 const GenericHandler = require("./genericHandler");
 import {Conversation} from "../../common/models/Conversation";
+import {Channel} from "lib/common/models/Channel";
 
 const util = require('util');
 
@@ -182,30 +183,124 @@ class ChannelEventHandler extends GenericHandler {
             }
         };
 
-        this.onChannelManagementMessageReceived = (node) => {
+        this.onChannelManagementMessageReceived = (stanza) => {
+            that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) _entering_");
+            that.logger.log("internal", LOG_ID + "(onChannelManagementMessageReceived) _entering_", stanza);
+
+            try {
+                if (stanza.attrs.xmlns === "jabber:iq:configuration") {
+                    let channelElem = stanza.find("channel");
+                    if (channelElem && channelElem.length > 0) {
+
+                        // Extract channel identifier
+                        let channelId = channelElem.attrs.channelid;
+
+                        // Handle cached channel info
+                        /*
+                        let channel: Channel = this.getChannelFromCache(channelId);
+                        if (channel) {
+                            let avatarElem = channelElem.find("avatar");
+                            let nameElem = channelElem.find("name");
+                            let topicElem = channelElem.find("topic");
+                            let categoryElem = channelElem.find("category");
+
+                            if (avatarElem && avatarElem.length > 0) {
+                                this.onAvatarChange(channelId, avatarElem);
+                            }
+                            if (nameElem && nameElem.length > 0) {
+                                channel.name = nameElem.text();
+                            }
+                            if (topicElem && topicElem.length > 0) {
+                                channel.topic = topicElem.text();
+                            }
+                            if (categoryElem && categoryElem.length > 0) {
+                                channel.category = categoryElem.text();
+                            }
+                        }
+                        // */
+
+                        // Handle channel action events
+                        let action = channelElem.attrs.action;
+                        that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - action : " + action + " event received on channel " + channelId);
+                        switch (action) {
+                            case 'add':
+                                that.eventEmitter.emit("rainbow_onaddtochannel", {'id': channelId});
+                                // this.onAddToChannel(channelId);
+                                break;
+                            case 'update':
+                                that.eventEmitter.emit("rainbow_onupdatetochannel", {'id': channelId});
+                                //this.onUpdateToChannel(channelId);
+                                break;
+                            case 'remove':
+                                this.onRemovedFromChannel(channelId);
+                                break;
+                            case 'subscribe':
+                                this.onSubscribeToChannel(channelId, channelElem.attrs.subscribers);
+                                break;
+                            case 'unsubscribe':
+                                this.onUnsubscribeToChannel(channelId, channelElem.attrs.subscribers);
+                                break;
+                            case 'delete':
+                                this.onDeleteChannel(channelId);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    let channelSubscriptionElem = stanza.find("channel-subscription");
+                    if (channelSubscriptionElem && channelSubscriptionElem.length > 0) {
+                        // Extract information
+                        let channelId = channelSubscriptionElem.attrs.channelid;
+                        let action = channelSubscriptionElem.attrs.action;
+                        let userId = channelSubscriptionElem.attrs.id;
+                        let subscribers = channelSubscriptionElem.attrs.subscribers;
+                        let channel: Channel = this.getChannelFromCache(channelId);
+                        channel.subscribers_count = Number.parseInt(subscribers);
+                        that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - subscription-" + action + " event received on channel " + channelId);
+                        switch (action) {
+                            case 'subscribe':
+                                this.onUserSubscribeEvent(channelId, userId);
+                                break;
+                            case 'unsubscribe':
+                                this.onUserUnsubscribeEvent(channelId, userId);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (err) {
+                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- " + err.message);
+                return true;
+            }
+
+            /*
             try {
                 that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onChannelManagementMessageReceived) _entering_", node);
-                if (node.attrs.xmlns === "jabber:iq:configuration") {
+                that.logger.log("internal", LOG_ID + "(onChannelManagementMessageReceived) _entering_", stanza);
+                if (stanza.attrs.xmlns === "jabber:iq:configuration") {
 
                     //that.eventEmitter.emit("rainbow_channelmanagementreceived", node);
 
-                    switch (node.attrs.action) {
+                    switch (stanza.attrs.action) {
                         case "add": {
                             that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel created");
-                            let channelid = node.attrs.channelid;
+                            let channelid = stanza.attrs.channelid;
                             that.eventEmitter.emit("rainbow_channelcreated", {'id': channelid});
                         }
                             break;
                         case "delete": {
                             that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel deleted");
-                            let channelid = node.attrs.channelid;
+                            let channelid = stanza.attrs.channelid;
                             that.eventEmitter.emit("rainbow_channeldeleted", {'id': channelid});
                         }
                             break;
                         case "update": {
                             that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel updated");
-                            let channelid = node.attrs.channelid;
+                            let channelid = stanza.attrs.channelid;
 
                             //let json = XMPPUTils.getXMPPUtils().getJson(node);
                             //let json = {};
@@ -216,15 +311,15 @@ class ChannelEventHandler extends GenericHandler {
                             break;
 
                         default: {
-                            let channelid = node.attrs.channelid;
-                            that.logger.log("info", LOG_ID + "(onChannelManagementMessageReceived) channel management event unknown : " + node.attrs.action + " for channel " + channelid);
+                            let channelid = stanza.attrs.channelid;
+                            that.logger.log("info", LOG_ID + "(onChannelManagementMessageReceived) channel management event unknown : " + stanza.attrs.action + " for channel " + channelid);
                         }
                             break;
                     }
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) CATCH Error !!! : ", err);
-            }
+            } // */
         };
 
 

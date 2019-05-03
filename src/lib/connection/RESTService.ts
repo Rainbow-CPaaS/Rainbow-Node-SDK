@@ -180,7 +180,7 @@ class RESTService {
         that.logger.log("debug", LOG_ID + "(signin) _entering_");
 
         return new Promise(function(resolve, reject) {
-            that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader()).then(function(JSON) {
+            that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(function(JSON) {
                 that.account = JSON.loggedInUser;
                 that.app = JSON.loggedInApplication;
                 that.token = JSON.token;
@@ -206,7 +206,7 @@ class RESTService {
             let auth = btoa(loginEmail + ":" + password);
 
             that.http
-                .get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(auth, password))
+                .get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(auth, password), undefined)
                 .then(function(JSON) {
                     that.logger.log(
                         "internal",
@@ -231,7 +231,7 @@ class RESTService {
 
         return new Promise(function(resolve, reject) {
             if (that.http) {
-                that.http.get("/api/rainbow/authentication/v1.0/logout", that.getRequestHeader()).then(function(JSON) {
+                that.http.get("/api/rainbow/authentication/v1.0/logout", that.getRequestHeader(), undefined).then(function(JSON) {
                     that.account = null;
                     that.token = null;
                     that.renewTokenInterval = null;
@@ -292,7 +292,7 @@ class RESTService {
 
         that.logger.log("debug", LOG_ID + "(_renewAuthToken) _entering_");
 
-        that.http.get("/api/rainbow/authentication/v1.0/renew", that.getRequestHeader()).then(function(JSON) {
+        that.http.get("/api/rainbow/authentication/v1.0/renew", that.getRequestHeader(), undefined).then(function(JSON) {
             that.logger.log("info", LOG_ID + "(_renewAuthToken) renew authentication token success");
             that.token = JSON.token;
             that.logger.log("internal", LOG_ID + "(_renewAuthToken) new token received", that.token);
@@ -317,7 +317,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getContacts) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getContacts) successfull");
                 that.logger.log("internal", LOG_ID + "(getContacts) received " + json.total + " contacts");
                 that.logger.log("debug", LOG_ID + "(getContacts) _exiting_");
@@ -351,7 +351,7 @@ class RESTService {
                     jidBare = jid.substr(0, jid.lastIndexOf("/"));
                 }
 
-                that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + encodeURIComponent(jidBare), that.getRequestHeader() ).then(function(json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + encodeURIComponent(jidBare), that.getRequestHeader() , undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByJID) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByJID) REST contact received ", json.data);
                     that.logger.log("debug", LOG_ID + "(getContactInformationByJID) _exiting_");
@@ -384,7 +384,7 @@ class RESTService {
                 resolve(null);
             }
             else {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id), that.getRequestHeader() ).then(function(json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id), that.getRequestHeader() , undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByID) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByID) REST contact received ", json.data);
                     that.logger.log("debug", LOG_ID + "(getContactInformationByID) _exiting_");
@@ -546,7 +546,7 @@ class RESTService {
                 that.logger.log("debug", LOG_ID + "(getInvitationById) _exiting_");
                 resolve(null);
             } else {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader() ).then(function(json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined ).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(getInvitationById) successfull");
                     that.logger.log("internal", LOG_ID + "(getInvitationById) REST invitation received ", json.data);
                     that.logger.log("debug", LOG_ID + "(getInvitationById) _exiting_");
@@ -565,7 +565,7 @@ class RESTService {
 
         let getSetOfGroups = function(page, max, groups) {
             return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups?format=full&offset=" + page  + "&limit=" + max, that.getRequestHeader()).then(function(json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups?format=full&offset=" + page  + "&limit=" + max, that.getRequestHeader(), undefined).then(function(json) {
                     groups = groups.concat(json.data);
                     that.logger.log("internal", LOG_ID + "(getGroups) retrieved " + json.data.length + " groups, total " + groups.length + ", existing " + json.total);
                     resolve({groups: groups, finished: groups.length === json.total});
@@ -624,7 +624,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getGroup) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(getGroup) successfull");
                  that.logger.log("internal", LOG_ID + "(getGroup) REST get group information", json.data);
                  that.logger.log("debug", LOG_ID + "(getGroup) _exiting_");
@@ -743,7 +743,7 @@ class RESTService {
         return new Promise( (resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(getBots) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/bots", that.getRequestHeader()).then( (json) => {
+            that.http.get("/api/rainbow/enduser/v1.0/bots", that.getRequestHeader(), undefined).then( (json) => {
                  that.logger.log("info", LOG_ID + "(getBots) successfull");
                  that.logger.log("internal", LOG_ID + "(getBots) received " + json.total + " bots");
                  that.logger.log("debug", LOG_ID + "(getBots) _exiting_");
@@ -859,7 +859,7 @@ class RESTService {
         let getSetOfBubbles = (page, max, bubbles) => {
 
             return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader()).then(function(json) {
+                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function(json) {
                     bubbles = bubbles.concat(json.data);
                     that.logger.log("info", LOG_ID + "(getBubbles) successfull");
                     that.logger.log("internal", LOG_ID + "(getBubbles) retrieved " + json.data.length + " bubbles, total " + bubbles.length + ", existing " + json.total);
@@ -922,7 +922,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getBubble) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full", that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full", that.getRequestHeader(), undefined).then(function(json) {
                  that.logger.log("info", LOG_ID + "(getBubble) successfull");
                  that.logger.log("internal", LOG_ID + "(getBubble) REST get bubble information", json.data);
                  that.logger.log("debug", LOG_ID + "(getBubble) _exiting_");
@@ -943,7 +943,7 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(getBubbleByJid) _entering_");
 
             //http://vberder.openrainbow.org/api/rainbow/enduser/v1.0/rooms/jids/{jid}
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full", that.getRequestHeader()).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubbleByJid) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubbleByJid) REST get bubble information", json.data);
                 that.logger.log("debug", LOG_ID + "(getBubbleByJid) _exiting_");
@@ -1445,7 +1445,7 @@ class RESTService {
                 queries.push( "viewerId=" + viewerId);
             }
 
-            that.http.get( "/api/rainbow/filestorage/v1.0/files" + (queries.length ? "?" + queries.join("&") : ""), that.getRequestHeader()).then(function(json) {
+            that.http.get( "/api/rainbow/filestorage/v1.0/files" + (queries.length ? "?" + queries.join("&") : ""), that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(retrieveFileDescriptors) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveFileDescriptors) REST get file descriptors");
                 that.logger.log("debug", LOG_ID + "(retrieveFileDescriptors) _exiting_");
@@ -1467,7 +1467,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) _entering_");
 
-            that.http.get( "/api/rainbow/filestorage/v1.0/files/viewers/" + userId + "?ownerId=" + peerId + "&format=full", that.getRequestHeader()).then(function(json) {
+            that.http.get( "/api/rainbow/filestorage/v1.0/files/viewers/" + userId + "?ownerId=" + peerId + "&format=full", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) REST get file descriptors");
                 that.logger.log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) _exiting_");
@@ -1489,7 +1489,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) _entering_");
 
-            that.http.get( "/api/rainbow/filestorage/v1.0/files/viewers/" + roomId + "?format=full", that.getRequestHeader()).then(function(json) {
+            that.http.get( "/api/rainbow/filestorage/v1.0/files/viewers/" + roomId + "?format=full", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) REST get file descriptors");
                 that.logger.log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) _exiting_");
@@ -1511,7 +1511,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(retrieveOneFileDescriptor) _entering_");
 
-            that.http.get( "/api/rainbow/filestorage/v1.0/files/" + fileId + "?format=full", that.getRequestHeader()).then(function(json) {
+            that.http.get( "/api/rainbow/filestorage/v1.0/files/" + fileId + "?format=full", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) REST get file descriptors");
                 that.logger.log("debug", LOG_ID + "(retrieveOneFileDescriptor) _exiting_");
@@ -1534,7 +1534,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(retrieveUserConsumption) _entering_");
 
-            that.http.get( "/api/rainbow/filestorage/v1.0/users/consumption", that.getRequestHeader()).then(function(json) {
+            that.http.get( "/api/rainbow/filestorage/v1.0/users/consumption", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(retrieveUserConsumption) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveUserConsumption) REST get file descriptors");
                 that.logger.log("debug", LOG_ID + "(retrieveUserConsumption) _exiting_");
@@ -1596,7 +1596,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(getPartialDataFromServer) _entering_");
 
-            that.http.get( url, that.getRequestHeaderWithRange("application/octet-stream", "bytes=" + minRange + "-" + maxRange)).then(function(data) {
+            that.http.get( url, that.getRequestHeaderWithRange("application/octet-stream", "bytes=" + minRange + "-" + maxRange), undefined).then(function(data) {
                 that.logger.log("info", LOG_ID + "(getPartialDataFromServer) successfull");
                 that.logger.log("info", LOG_ID + "(getPartialDataFromServer) REST get Blob from Url");
                 that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) _exiting_");
@@ -1618,7 +1618,7 @@ class RESTService {
                 .logger
                 .log("debug", LOG_ID + "(getFileFromUrl) _entering_");
 
-            that.http.get( url, that.getRequestHeader("application/octet-stream")).then(function(response) {
+            that.http.get( url, that.getRequestHeader("application/octet-stream"), undefined).then(function(response) {
                 that.logger.log("info", LOG_ID + "(getFileFromUrl) successfull");
                 that.logger.log("info", LOG_ID + "(getFileFromUrl) REST get Blob from Url");
                 that.logger.log("debug", LOG_ID + "(getFileFromUrl) _exiting_");
@@ -1642,7 +1642,7 @@ class RESTService {
 
             /* responseType: 'arraybuffer'// */
 
-            that.http.get( url, that.getRequestHeader("responseType: 'arraybuffer'")).then(function(response) {
+            that.http.get( url, that.getRequestHeader("responseType: 'arraybuffer'"), undefined).then(function(response) {
                 that.logger.log("info", LOG_ID + "(getBlobFromUrl) successfull");
                 that.logger.log("info", LOG_ID + "(getBlobFromUrl) REST get Blob from Url");
                 that.logger.log("debug", LOG_ID + "(getBlobFromUrl) _exiting_");
@@ -1761,7 +1761,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getServerCapabilities) _entering_");
 
-            that.http.get("/api/rainbow/fileserver/v1.0/capabilities", that.getRequestHeader()).then( (json) => {
+            that.http.get("/api/rainbow/fileserver/v1.0/capabilities", that.getRequestHeader(), undefined).then( (json) => {
                 that.logger.log("info", LOG_ID + "(getServerCapabilities) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerCapabilities) REST get Server capabilities", json.data);
                 that.logger.log("debug", LOG_ID + "(getServerCapabilities) _exiting_");
@@ -1782,7 +1782,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getUserSettings) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader()).then( (json) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), undefined).then( (json) => {
                 that.logger.log("info", LOG_ID + "(getUserSettings) successfull");
                 that.logger.log("internal", LOG_ID + "(getUserSettings) REST get User Settings", json.data);
                 that.logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
@@ -1822,7 +1822,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getAllCompanies) _entering_", that.account.roles);
 
-            that.http.get("/api/rainbow/admin/v1.0/companies", that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/admin/v1.0/companies", that.getRequestHeader(), undefined).then(function(json) {
                     that.logger.log("info", LOG_ID + "(getAllCompanies) successfull");
                     that.logger.log("internal", LOG_ID + "(getAllCompanies) REST get all companies :", json.data);
                     that.logger.log("debug", LOG_ID + "(getAllCompanies) _exiting_");
@@ -1875,7 +1875,7 @@ class RESTService {
 
         return new Promise(function (resolve, reject) {
 
-            that.http.get('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader()).then(function (json) {
+            that.http.get('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getCompany) successfull");
                 that.logger.log("internal", LOG_ID + "(getCompany) REST get company", json);
                 that.logger.log("debug", LOG_ID + "(getCompany) _exiting_");
@@ -2046,7 +2046,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(findChannels) _entering_");
 
-            that.http.get("/api/rainbow/channels/v1.0/channels/search" + query, that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/channels/v1.0/channels/search" + query, that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(findChannels) successfull");
                 that.logger.log("internal", LOG_ID + "(findChannels) REST found channels", json.total);
                 that.logger.log("debug", LOG_ID + "(findChannels) _exiting_");
@@ -2068,7 +2068,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(fetchMyChannels) _entering_");
 
-            that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(fetchMyChannels) successfull");
                 that.logger.log("internal", LOG_ID + "(fetchMyChannels) received channels");
                 that.logger.log("debug", LOG_ID + "(fetchMyChannels) _exiting_");
@@ -2089,7 +2089,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getChannel) _entering_");
 
-            that.http.get("/api/rainbow/channels/v1.0/channels/" + id, that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/channels/v1.0/channels/" + id, that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(getChannel) received " + JSON.stringify(json) + " channels");
                 that.logger.log("debug", LOG_ID + "(getChannel) _exiting_");
@@ -2133,6 +2133,38 @@ class RESTService {
             });
         });
     }
+
+    private chewReceivedItems(items: any[]): void {
+        items.forEach((item) => {
+            if (item.type === "urn:xmpp:channels:simple") { item["entry"] = { message: item.message }; delete item.message; }
+            item.displayId = item.id + "-" + item.timestamp;
+            item.modified = item.creation !== undefined;
+        });
+    }
+
+    /**
+     * Get latests message from channel
+     */
+    public getLatestMessages(maxMessages: number, beforeDate: Date = null, afterDate: Date = null) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+            that.logger.log("debug", LOG_ID + "(getLatestMessages) _entering_");
+
+            that.http.get("/api/rainbow/channels/v1.0/channels/latest-items", that.getRequestHeader(),  { max: maxMessages, before: beforeDate, after: afterDate }).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getLatestMessages) successfull");
+                that.logger.log("internal", LOG_ID + "(getLatestMessages) received " + JSON.stringify(json) + " latestMessages");
+                that.logger.log("debug", LOG_ID + "(getLatestMessages) _exiting_");
+                that.chewReceivedItems(json.data.items);
+                resolve(json.data.items);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getLatestMessages) error", err);
+                that.logger.log("debug", LOG_ID + "(getLatestMessages) _exiting_");
+                reject(err);
+            });
+        });
+    };
 
     // Subscribe to a channel
     subscribeToChannel( channelId) {
@@ -2267,7 +2299,7 @@ class RESTService {
                 filterToApply += "&types=" + options.type;
             }
 
-            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/users?" + filterToApply, that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/users?" + filterToApply, that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getUsersChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(getUsersChannel) received " + json.total + " users in channel");
                 that.logger.log("debug", LOG_ID + "(getUsersChannel) _exiting_");
@@ -2371,7 +2403,7 @@ class RESTService {
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(getServerProfiles) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getServerProfiles) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerProfiles) received " , json, " profiles");
                 that.logger.log("debug", LOG_ID + "(getServerProfiles) _exiting_");
@@ -2391,7 +2423,7 @@ class RESTService {
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(getServerProfilesFeatures) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles/features", that.getRequestHeader()).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles/features", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerProfilesFeatures) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) received " + JSON.stringify(json) + " profiles features");
                 that.logger.log("debug", LOG_ID + "(getServerProfilesFeatures) _exiting_");
@@ -2488,7 +2520,7 @@ class RESTService {
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(getServerConversations) _entering_");
 
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations", that.getRequestHeader()).then(function(json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getServerConversations) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerConversations) received " + JSON.stringify(json) + " conversations");
                 that.logger.log("debug", LOG_ID + "(getServerConversations) _exiting_");
@@ -2611,7 +2643,7 @@ class RESTService {
 
         that.token = token;
         return new Promise(function(resolve, reject) {
-            that.http.get(url, that.getRequestHeader()).then(function(JSON) {
+            that.http.get(url, that.getRequestHeader(), undefined).then(function(JSON) {
                 that.logger.log("debug", LOG_ID + "(get) _exiting_");
                 resolve(JSON);
             }).catch(function(err) {
@@ -2681,22 +2713,22 @@ class RESTService {
         that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
 
         if (this._isOfficialRainbow) {
-            let authenticationAbout = that.http.get("/api/rainbow/authentication/v1.0/about", that.getDefaultHeader()).then((portalAbout) => {
+            let authenticationAbout = that.http.get("/api/rainbow/authentication/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) authentication about : ", portalAbout);
             });
-            let enduserAbout = that.http.get("/api/rainbow/enduser/v1.0/about", that.getDefaultHeader()).then((portalAbout) => {
+            let enduserAbout = that.http.get("/api/rainbow/enduser/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) enduser about : ", portalAbout);
             });
-            let telephonyAbout = that.http.get("/api/rainbow/telephony/v1.0/about", that.getDefaultHeader()).then((portalAbout) => {
+            let telephonyAbout = that.http.get("/api/rainbow/telephony/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) telephony about : ", portalAbout);
             });
-            let adminAbout = that.http.get("/api/rainbow/admin/v1.0/about", that.getDefaultHeader()).then((portalAbout) => {
+            let adminAbout = that.http.get("/api/rainbow/admin/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) admin about : ", portalAbout);
             });
-            let channelsAbout = that.http.get("/api/rainbow/channels/v1.0/about", that.getDefaultHeader()).then((portalAbout) => {
+            let channelsAbout = that.http.get("/api/rainbow/channels/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) channels about : ", portalAbout);
             });
-            let applicationsAbout = that.http.get("/api/rainbow/applications/v1.0/about", that.getDefaultHeader()).then((portalAbout) => {
+            let applicationsAbout = that.http.get("/api/rainbow/applications/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) applications about : ", portalAbout);
             });
             return Promise.all([authenticationAbout, enduserAbout, telephonyAbout, adminAbout, channelsAbout, applicationsAbout]);
@@ -2714,7 +2746,7 @@ class RESTService {
         that.logger.log("debug", LOG_ID + "(checkPortalHealth) _entering_");
 
         return new Promise(function(resolve, reject) {
-            that.http.get("/api/rainbow/ping", that.getDefaultHeader()).then(function(JSON) {
+            that.http.get("/api/rainbow/ping", that.getDefaultHeader(), undefined).then(function(JSON) {
                 that.logger.log("debug", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready.");
                 setTimeout(()=> {
                     that.checkEveryPortals().then(() => {
