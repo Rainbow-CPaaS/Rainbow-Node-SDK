@@ -7,6 +7,9 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import {Channel} from "../common/models/Channel";
+import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
+
+const PubSub = require("pubsub-js");
 
 const LOG_ID = "CHANNELS - ";
 
@@ -33,6 +36,8 @@ class Channels {
 	public PUBLIC_VISIBILITY: any;
     public PRIVATE_VISIBILITY: any;
     public CLOSED_VISIBILITY: any;
+    public channelEventHandler: ChannelEventHandler;
+    public channelHandlerToken: any;
 
     constructor(_eventEmitter, _logger) {
         this._xmpp = null;
@@ -50,19 +55,20 @@ class Channels {
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
-        this._logger.log("debug", LOG_ID + "(start) _entering_");
+        let that = this;
+        that._logger.log("debug", LOG_ID + "(start) _entering_");
 
         return new Promise((resolve, reject) => {
             try {
-                this._xmpp = _xmpp;
-                this._rest = _rest;
-                this._channels = [];
-//                this._eventEmitter.on("rainbow_onchannelmessagereceived", this._onChannelMessageReceived.bind(this));
-                this._logger.log("debug", LOG_ID + "(start) _exiting_");
+                that._xmpp = _xmpp;
+                that._rest = _rest;
+                that._channels = [];
+                that._attachHandlers();
+                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
             }
             catch (err) {
-                this._logger.log("debug", LOG_ID + "(start) _exiting_");
+                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject();
             }
         });
@@ -84,6 +90,21 @@ class Channels {
                 reject(err);
             }
         });
+    }
+
+    _attachHandlers() {
+        let that = this;
+        that.channelEventHandler = new ChannelEventHandler(that._xmpp, that);
+        that.channelHandlerToken = [
+//            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
+//            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
+//            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_MANAGEMENT, that.channelEventHandler.onManagementMessageReceived),
+//            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_ERROR, that.conversationEventHandler.onErrorMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_HEADLINE, that.channelEventHandler.onHeadlineMessageReceived),
+//            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
+        ];
+
     }
 
     /**

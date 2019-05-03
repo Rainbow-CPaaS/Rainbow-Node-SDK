@@ -86,9 +86,9 @@ class Conversations {
 
     start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _fileStorageService, _fileServerService) {
         let that = this;
-        this.conversationHandlerToken = [];
-        this.conversationHistoryHandlerToken= [];
-        this
+        that.conversationHandlerToken = [];
+        that.conversationHistoryHandlerToken= [];
+        that
             ._logger
             .log("debug", LOG_ID + "(start) _entering_");
 
@@ -116,7 +116,7 @@ class Conversations {
 
                 that._attachHandlers();
 
-                this
+                that
                     ._logger
                     .log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
@@ -170,7 +170,6 @@ class Conversations {
             PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_MANAGEMENT, that.conversationEventHandler.onManagementMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_ERROR, that.conversationEventHandler.onErrorMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_HEADLINE, that.conversationEventHandler.onHeadlineMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
         ];
 
