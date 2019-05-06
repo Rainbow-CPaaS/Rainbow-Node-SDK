@@ -166,7 +166,7 @@ class ChannelEventHandler extends GenericHandler {
                                 });
                             }
 
-                            that.eventEmitter.emit("rainbow_onchannelmessagereceived", message);
+                            that.eventEmitter.emit("rainbow_channelitemreceived", message);
                         } else {
                             that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.", stanza);
                         }
@@ -224,24 +224,28 @@ class ChannelEventHandler extends GenericHandler {
                         that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - action : " + action + " event received on channel " + channelId);
                         switch (action) {
                             case 'add':
-                                that.eventEmitter.emit("rainbow_onaddtochannel", {'id': channelId});
+                                that.eventEmitter.emit("rainbow_addtochannel", {'id': channelId});
                                 // this.onAddToChannel(channelId);
                                 break;
                             case 'update':
-                                that.eventEmitter.emit("rainbow_onupdatetochannel", {'id': channelId});
+                                that.eventEmitter.emit("rainbow_updatetochannel", {'id': channelId});
                                 //this.onUpdateToChannel(channelId);
                                 break;
                             case 'remove':
-                                this.onRemovedFromChannel(channelId);
+                                that.eventEmitter.emit("rainbow_removefromchannel", {'id': channelId});
+                                //this.onRemovedFromChannel(channelId);
                                 break;
                             case 'subscribe':
-                                this.onSubscribeToChannel(channelId, channelElem.attrs.subscribers);
+                                that.eventEmitter.emit("rainbow_subscribetochannel", {'id': channelId});
+                                //this.onSubscribeToChannel(channelId, channelElem.attrs.subscribers);
                                 break;
                             case 'unsubscribe':
-                                this.onUnsubscribeToChannel(channelId, channelElem.attrs.subscribers);
+                                that.eventEmitter.emit("rainbow_unsubscribetochannel", {'id': channelId});
+                                //this.onUnsubscribeToChannel(channelId, channelElem.attrs.subscribers);
                                 break;
                             case 'delete':
-                                this.onDeleteChannel(channelId);
+                                //this.onDeleteChannel(channelId);
+                                that.eventEmitter.emit("rainbow_deletechannel", {'id': channelId});
                                 break;
                             default:
                                 break;
@@ -255,15 +259,15 @@ class ChannelEventHandler extends GenericHandler {
                         let action = channelSubscriptionElem.attrs.action;
                         let userId = channelSubscriptionElem.attrs.id;
                         let subscribers = channelSubscriptionElem.attrs.subscribers;
-                        let channel: Channel = this.getChannelFromCache(channelId);
-                        channel.subscribers_count = Number.parseInt(subscribers);
                         that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - subscription-" + action + " event received on channel " + channelId);
                         switch (action) {
                             case 'subscribe':
-                                this.onUserSubscribeEvent(channelId, userId);
+                                that.eventEmitter.emit("rainbow_usersubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt(subscribers)});
+                                //this.onUserSubscribeEvent(channelId, userId);
                                 break;
                             case 'unsubscribe':
-                                this.onUserUnsubscribeEvent(channelId, userId);
+                                that.eventEmitter.emit("rainbow_userunsubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt(subscribers)});
+                                //this.onUserUnsubscribeEvent(channelId, userId);
                                 break;
                             default:
                                 break;

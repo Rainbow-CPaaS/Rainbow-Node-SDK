@@ -574,6 +574,28 @@ class Events {
             that.publishEvent("channelsubscribe", data);
         });
 
+        this._evReceiver.on("rainbow_channelunsubscribe", function (data) {
+            /**
+             * @event Events#rainbow_onchannelunsubscribe
+             * @public
+             * @param { String } id The id of the channel
+             * @description
+             *      Fired when a channel unsubscribed event is received
+             */
+            that.publishEvent("channelunsubscribe", data);
+        });
+
+        this._evReceiver.on("rainbow_channelremovedfrom", function (data) {
+            /**
+             * @event Events#rainbow_onchannelremovedfrom
+             * @public
+             * @param { String } id The id of the channel
+             * @description
+             *      Fired when removed from a channel event is received
+             */
+            that.publishEvent("channelremovedfrom", data);
+        });
+
         this._evReceiver.on("rainbow_channeldeleted", function (data) {
             /**
              * @event Events#rainbow_onchanneldeleted
@@ -594,6 +616,30 @@ class Events {
              *      Fired when a channel update event is received
              */
             that.publishEvent("channelupdated", data);
+        });
+
+        this._evReceiver.on("rainbow_channelusersubscription", function (data) {
+            /**
+             * @event Events#rainbow_channelusersubscription
+             * @public
+             * @param { String } id The id of the channel
+             * @param { String } userId The id of the user
+             * @description
+             *      Fired when a user channel subscription event is received
+             */
+            that.publishEvent("channelusersubscription", data);
+        });
+
+        this._evReceiver.on("rainbow_channeluserunsubscription", function (data) {
+            /**
+             * @event Events#rainbow_channeluserunsubscription
+             * @public
+             * @param { String } id The id of the channel
+             * @param { String } userId The id of the user
+             * @description
+             *      Fired when a user channel unsubscription event is received
+             */
+            that.publishEvent("channeluserunsubscription", data);
         });
 
         // ****************** CALLLOGS *********************

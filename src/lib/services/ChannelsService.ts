@@ -73,10 +73,17 @@ class Channels {
         this.PRIVATE_VISIBILITY = "private";
         this.CLOSED_VISIBILITY = "closed";
 
-        this._eventEmitter.on("rainbow_onchannelmessagereceived", this._onChannelMessageReceived.bind(this));
+        this._eventEmitter.on("rainbow_channelitemreceived", this._onChannelMessageReceived.bind(this));
 
-        this._eventEmitter.on("rainbow_onaddtochannel", this.onAddToChannel.bind(this));
-        this._eventEmitter.on("rainbow_onupdatetochannel", this.onUpdateToChannel.bind(this));
+        this._eventEmitter.on("rainbow_addtochannel", this.onAddToChannel.bind(this));
+        this._eventEmitter.on("rainbow_updatetochannel", this.onUpdateToChannel.bind(this));
+        this._eventEmitter.on("rainbow_removefromchannel", this.onRemovedFromChannel.bind(this));
+        this._eventEmitter.on("rainbow_subscribetochannel", this.onSubscribeToChannel.bind(this));
+        this._eventEmitter.on("rainbow_unsubscribetochannel", this.onUnsubscribeToChannel.bind(this));
+        this._eventEmitter.on("rainbow_deletechannel", this.onDeleteChannel.bind(this));
+
+        this._eventEmitter.on("rainbow_usersubscribechannel", this.onUserSubscribeEvent.bind(this));
+        this._eventEmitter.on("rainbow_userunsubscribechannel", this.onUserUnsubscribeEvent.bind(this));
 
 
     }
@@ -1566,7 +1573,7 @@ class Channels {
      * @description
      *      GET A CHANNEL FROM CACHE
      */
-    public getChannelFromCache(channelId: string): Channel {
+    private getChannelFromCache(channelId: string): Channel {
         let channel = this._channels[channelId];
         return channel !== undefined ? channel : null;
     }
@@ -1575,11 +1582,36 @@ class Channels {
         this._channelsList = Object.keys(this._channels).map((key) => { return this._channels[key]; });
     }
 
-    public addChannelToCache(channel: any): Channel {
+    private addChannelToCache(channel: any): Channel {
         let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
         this._channels[channel.id] = channelObj;
         this.updateChannelsList();
         return channelObj;
+    }
+
+    private removeChannelFromCache(channelId: string): Promise<string> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            // Get the channel to remove
+            let channelToRemove = this.getChannelFromCache(channelId);
+            if (channelToRemove) {
+                // Store channel name
+                //let channelName = channelToRemove.name;
+
+                // Handle invitation channel
+                if (channelToRemove.invited) { this.decrementInvitationCounter(); }
+
+                // Remove from channels
+                delete this._channels[channelId];
+                this.updateChannelsList();
+
+                // Update messagesList
+                //this.feedChannel.messages = [];
+                this.retrieveLatests()
+                    .then(() => { resolve(channelId); })
+                    .catch((err) => { reject(err); });
+            }
+        });
     }
 
     public retrieveLatests(beforeDate: Date = null): Promise<any> {
@@ -1667,18 +1699,15 @@ class Channels {
             });
     }
 
-    private onRemovedFromChannel(channelId: string): void {
-        /*
-        this.removeChannelFromCache(channelId)
-            .then((channelName) => {
-                this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
-            });
-
-         */
+    private async onRemovedFromChannel(channelId: string): Promise<any> {
+        let that = this;
+        let channelIdDeleted = await that.removeChannelFromCache(channelId);
+        that._eventEmitter.emit("rainbow_channelremovedfrom", {'id': channelIdDeleted});
+        //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
     private onSubscribeToChannel(channelId: string, subscribersInfo: string): void {
-        /*
+        let that = this;
         // Handle invitation case
         let channel = this.getChannelFromCache(channelId);
         let subscribers = Number.parseInt(subscribersInfo);
@@ -1686,9 +1715,12 @@ class Channels {
             channel.invited = false;
             channel.subscribed = true;
             channel.subscribers_count = subscribers;
-            this.feedChannel.messages = [];
+            //this.feedChannel.messages = [];
             this.retrieveLatests()
-                .then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId); });
+                .then(() => {
+                    that._eventEmitter.emit("rainbow_channelsubscribe", {'id': channelId});
+                    //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
+                });
         }
 
         // Handle self subscription case
@@ -1696,38 +1728,53 @@ class Channels {
             this.getChannel(channelId)
                 .then((newChannel) => {
                 let channelObj : Channel = this.addChannelToCache(newChannel);
-                    this.feedChannel.messages = [];
+                    //this.feedChannel.messages = [];
                     return this.retrieveLatests();
                 })
-                .then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId); });
+                .then(() => {
+                    that._eventEmitter.emit("rainbow_channelsubscribe", {'id': channelId});
+                    //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
+                });
         }
-
-         */
     }
 
     private onUnsubscribeToChannel(channelId: string, subscribersInfo: string): void {
-        /*
+        let that = this;
         let subscribers = Number.parseInt(subscribersInfo);
         let channel = this.getChannelFromCache(channelId);
         channel.subscribers_count = subscribers;
         channel.subscribed = false;
 
         // Update messagesList
-        this.feedChannel.messages = [];
-        this.retrieveLatests().then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId); });
-
-         */
+        //this.feedChannel.messages = [];
+        this.retrieveLatests().then(() => {
+            that._eventEmitter.emit("rainbow_channelunsubscribe", {'id': channelId});
+            //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
+        });
     }
 
-    private onDeleteChannel(channelId: string): void {
-        //this.removeChannelFromCache(channelId).then(() => { this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId); });
+    private async onDeleteChannel(channelId: string): Promise<any> {
+        let that = this;
+        let channelIdDeleted = await this.removeChannelFromCache(channelId) ;
+        that._eventEmitter.emit("rainbow_channeldeleted", {'id': channelIdDeleted});
+                //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
-    private onUserSubscribeEvent(channelId: string, userId: string) {
+    private onUserSubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
+        let that = this;
+        let channel: Channel = this.getChannelFromCache(info.id);
+        channel.subscribers_count = info.subscribers;
+
+        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId, userId);
     }
 
-    private onUserUnsubscribeEvent(channelId: string, userId: string) {
+    private onUserUnsubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
+        let that = this;
+        let channel: Channel = this.getChannelFromCache(info.id);
+        channel.subscribers_count = info.subscribers;
+
+        that._eventEmitter.emit("rainbow_channeluserunsubscription", {'id': info.id, 'userId': info.userId});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId, userId);
     }
 
