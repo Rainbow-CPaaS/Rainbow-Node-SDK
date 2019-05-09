@@ -8,7 +8,7 @@ import {XMPPUTils} from "../../common/XMPPUtils";
 
 const GenericHandler = require("./genericHandler");
 import {Conversation} from "../../common/models/Conversation";
-import {Channel} from "lib/common/models/Channel";
+import {Channel} from "../../common/models/Channel";
 
 const util = require('util');
 
