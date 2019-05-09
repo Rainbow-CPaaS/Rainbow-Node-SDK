@@ -10,7 +10,7 @@ import {ErrorManager} from "../common/ErrorManager";
 
 const Offer = require('../common/models/Offer') ;
 
-const LOG_ID = "PROFILES - ";
+const LOG_ID = "PROFILES/SVCE - ";
 
 
 const FeaturesEnum = {

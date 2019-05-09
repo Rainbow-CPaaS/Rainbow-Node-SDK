@@ -236,11 +236,11 @@ class ChannelEventHandler extends GenericHandler {
                                 //this.onRemovedFromChannel(channelId);
                                 break;
                             case 'subscribe':
-                                that.eventEmitter.emit("rainbow_subscribetochannel", {'id': channelId});
+                                that.eventEmitter.emit("rainbow_subscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
                                 //this.onSubscribeToChannel(channelId, channelElem.attrs.subscribers);
                                 break;
                             case 'unsubscribe':
-                                that.eventEmitter.emit("rainbow_unsubscribetochannel", {'id': channelId});
+                                that.eventEmitter.emit("rainbow_unsubscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
                                 //this.onUnsubscribeToChannel(channelId, channelElem.attrs.subscribers);
                                 break;
                             case 'delete':

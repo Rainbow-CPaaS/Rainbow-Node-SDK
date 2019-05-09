@@ -24,7 +24,7 @@ const fileViewerElementFactory = require("../common/models/FileViewer").FileView
 //const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDescriptorFactory();
 
 
-const LOG_ID = "CONVERSATIONS - ";
+const LOG_ID = "CONVERSATIONS/SVCE - ";
 
 /**
  * @class

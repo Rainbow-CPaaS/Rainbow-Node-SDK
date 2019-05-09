@@ -9,7 +9,7 @@ import {ErrorManager} from "../common/ErrorManager";
 const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 const Presence = require("./PresenceService");
 
-const LOG_ID = "SETT - ";
+const LOG_ID = "SETT/SVCE - ";
 
 /**
  * @class

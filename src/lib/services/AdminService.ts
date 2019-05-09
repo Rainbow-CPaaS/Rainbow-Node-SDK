@@ -8,7 +8,7 @@ import {ErrorManager} from "../common/ErrorManager";
 
 import  {RESTService} from "../connection/RESTService";
 
-const LOG_ID = "ADMIN - ";
+const LOG_ID = "ADMIN/SVCE - ";
 
 /**
  * @class

@@ -23,7 +23,7 @@ const PubSub = require("pubsub-js");
     "telephonyService",
     "webrtcGatewayService",
     // */
-const LOG_ID = "CALLLOG - ";
+const LOG_ID = "CALLLOG/SVCE - ";
 
 import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
 import {setFlagsFromString} from "v8";

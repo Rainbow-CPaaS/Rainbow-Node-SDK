@@ -9,7 +9,7 @@ const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDes
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 const url = require('url');
-const LOG_ID = "FileStorage - ";
+const LOG_ID = "FileStorage/SVCE - ";
 
 const orderByFilter = require("../common/Utils").orderByFilter;
 

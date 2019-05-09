@@ -14,7 +14,7 @@ import {XMPPService} from "../connection/XMPPService";
 const PromiseQueue = require("../common/promiseQueue");
 const utils = require("../common/Utils");
 
-const LOG_ID = "BUBBLES - ";
+const LOG_ID = "BUBBLES/SVCE - ";
 
 /**
  * @class

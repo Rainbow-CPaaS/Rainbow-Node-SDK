@@ -13,7 +13,7 @@ const util = require('util');
 const md5 = require('md5');
 const path = require('path');
 
-const LOG_ID = "CONTACTS - ";
+const LOG_ID = "CONTACTS/SVCE - ";
 
 /**
  * @class

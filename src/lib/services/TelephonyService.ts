@@ -22,7 +22,7 @@ const TelephonyEventHandler = require("../connection/XMPPServiceHandler/telephon
 
 import { XMPPUTils } from "../common/XMPPUtils";
 
-const LOG_ID = "TELEPHONY - ";
+const LOG_ID = "TELEPHONY/SVCE - ";
 
 /**
  * @module

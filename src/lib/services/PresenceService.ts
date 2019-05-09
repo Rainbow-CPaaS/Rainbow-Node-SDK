@@ -10,7 +10,7 @@ const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 const PubSub = require("pubsub-js");
 const PresenceEventHandler = require("../connection/XMPPServiceHandler/presenceEventHandler");
 
-const LOG_ID = "PRES - ";
+const LOG_ID = "PRES/SVCE - ";
 
 /**
  * @class

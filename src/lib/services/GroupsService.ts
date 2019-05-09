@@ -7,7 +7,7 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 
-const LOG_ID = "GROUPS - ";
+const LOG_ID = "GROUPS/SVCE - ";
 
 /**
  * @class

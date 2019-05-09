@@ -8,7 +8,7 @@ const emoji = require("../common/Emoji");
 import {XMPPUTils} from "../common/XMPPUtils";
 const utils = require("../common/Utils");
 
-const LOG_ID = "IM - ";
+const LOG_ID = "IM/SVCE - ";
 
 /**
  * @class

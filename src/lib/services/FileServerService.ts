@@ -19,7 +19,7 @@ import {ErrorManager} from "../common/ErrorManager";
 
 const streamBuffers = require('stream-buffers');
 
-const LOG_ID = "FileServer - ";
+const LOG_ID = "FileServer/SVCE - ";
 
 const ONE_KILOBYTE = 1024;
 const ONE_MEGABYTE = 1024 * 1024;
