@@ -188,7 +188,7 @@ class Channels {
             } 
             this._rest.createPublicChannel(name, channelTopic, category, this.PUBLIC_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) creation successfull");
-                //let channelObj : Channel = this.addChannelToCache(channel);
+                //let channelObj : Channel = this.addOrUpdateChannelToCache(channel);
                 let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
@@ -245,7 +245,7 @@ class Channels {
             } 
             this._rest.createPublicChannel(name, description, category, this.PRIVATE_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) creation successfull");
-                //let channelObj : Channel = this.addChannelToCache(channel);
+                //let channelObj : Channel = this.addOrUpdateChannelToCache(channel);
                 let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
@@ -279,14 +279,16 @@ class Channels {
                 return;
             } 
             
-            this._rest.deleteChannel(channel.id).then((status) => {
+            this._rest.deleteChannel(channel.id).then(async (status) => {
                 this._logger.log("debug", LOG_ID + "(deleteChannel) channel deleted status : ", status);
-                let channelRemoved = this._channels.splice(this._channels.findIndex((el) => {
+                /*let channelRemoved = this._channels.splice(this._channels.findIndex((el) => {
                     return el.id === channel.id;
-                }), 1);
+                }), 1); // */
+
+                let channelRemoved = await this.removeChannelFromCache(channel.id);
                 this._logger.log("debug", LOG_ID + "(deleteChannel) channel deleted : ", channelRemoved);
-                if (channelRemoved.length >= 1) {
-                    resolve(channelRemoved[0]);
+                if (channelRemoved) {
+                    resolve(channelRemoved);
                 } else {
                     this._logger.log("warn", LOG_ID + "(deleteChannel) the channel deleted was unknown from SDK cache : ", channel);
                     resolve(channel);
@@ -421,13 +423,7 @@ class Channels {
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
-                let channelFound = null;
-
-                if (this._channels) {
-                    channelFound = this._channels.find((channel) => {
-                        return channel.id === id;
-                    });
-                }
+                let channelFound = this.getChannelFromCache(id);
 
                 if (channelFound && !force) {
                     this._logger.log("info", LOG_ID + "(fetchChannel) channel found locally", channelFound);
@@ -436,7 +432,7 @@ class Channels {
                 else {
                     this._logger.log("debug", LOG_ID + "(fetchChannel) channel not found locally. Ask the server...");
                     let channel = await this.getChannel(id);
-                    let channelObj : Channel = this.addChannelToCache(channel);
+                    let channelObj : Channel = this.addOrUpdateChannelToCache(channel);
                     resolve(channelObj);
                 }
             }
@@ -576,8 +572,13 @@ class Channels {
                 this._logger.log("info", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
                 Promise.all(promises).then((channels : [Channel]) => {
                     this._logger.log("internal", LOG_ID + "(fetchMyChannels) hack done", channels);
-                    this._channels = channels;
-                    this._logger.log("info", LOG_ID + "(fetchMyChannels) get successfully");
+                    this._channels = [];
+                    if (channels) {
+                        channels.forEach((channel) => {
+                            this.addOrUpdateChannelToCache(channel);
+                        })
+                    }
+                    //this._logger.log("internal", LOG_ID + "(fetchMyChannels) get successfully and updated the channels cache : ", this._channels);
                     this._logger.log("debug", LOG_ID + "(fetchMyChannels) _exiting_");
                     resolve(this._channels);
                 });
@@ -887,11 +888,12 @@ class Channels {
         return new Promise((resolve, reject) => {
 
             this._rest.updateChannel(channel.id, description, null,  null , null, null, null).then((channelUpdated : any) => {
-                this._logger.log("info", LOG_ID + "(updateChannelDescription) channel updated", channel);
+                this._logger.log("info", LOG_ID + "(updateChannelDescription) channel updated", channelUpdated);
 
-                let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
+                let channelObj = this.addOrUpdateChannelToCache(channelUpdated);
+                /*let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
                 let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, this._rest.http.serverURL);
-                this._channels[foundIndex] = channelObj;
+                this._channels[foundIndex] = channelObj; // */
 
                 this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
                 resolve(channelObj);
@@ -939,11 +941,13 @@ class Channels {
         return new Promise((resolve, reject) => {
 
             this._rest.updateChannel(channel.id, null, null,  null , null, channelName, null).then((channelUpdated : any) => {
-                this._logger.log("info", LOG_ID + "(updateChannelName) channel updated", channel);
+                this._logger.log("info", LOG_ID + "(updateChannelName) channel updated", channelUpdated);
 
-                let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
+                let channelObj = this.addOrUpdateChannelToCache(channelUpdated);
+
+                /*let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
                 let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, this._rest.http.serverURL);
-                this._channels[foundIndex] = channelObj;
+                this._channels[foundIndex] = channelObj; */
 
                 this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
                 resolve(channelObj);
@@ -994,11 +998,14 @@ class Channels {
         return new Promise((resolve, reject) => {
 
             this._rest.updateChannel(channel.id, null, null,  null , null, name, mode).then((channelUpdated : any) => {
-                this._logger.log("info", LOG_ID + "(updateChannelVisibility) channel updated");
+                this._logger.log("info", LOG_ID + "(updateChannelVisibility) channel updated", channelUpdated);
 
-                let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
+                let channelObj = this.addOrUpdateChannelToCache(channelUpdated);
+
+                /*let foundIndex = this._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
                 let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, this._rest.http.serverURL);
                 this._channels[foundIndex] = channelObj;
+                */
                 this._logger.log("internal", LOG_ID + "(updateChannelVisibility) channel updated", channelObj);
 
                 this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
@@ -1172,9 +1179,11 @@ class Channels {
 
                 this._rest.getChannel(channel.id).then((updatedChannel : any) => {
                     // Update local channel
-                    let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj = this.addOrUpdateChannelToCache(updatedChannel);
+                    /*let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
                     let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, this._rest.http.serverURL);
                     this._channels[foundIndex] = channelObj;
+                     */
                     this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
                     resolve(channelObj);
                 });
@@ -1203,14 +1212,19 @@ class Channels {
         this._logger.log("debug", LOG_ID + "(updateChannelUsers) _entering_");
 
         return new Promise((resolve, reject) => {
+            //this._logger.log("internal", LOG_ID + "(updateChannelUsers) this._channels : ", this._channels);
             this._rest.updateChannelUsers(channelId, users).then((res) => {
                 this._logger.log("info", LOG_ID + "(updateChannelUsers) channel users updated", res);
 
                 this._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
-                    let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj = this.addOrUpdateChannelToCache(updatedChannel);
+
+                    /*let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
                     let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, this._rest.http.serverURL);
                     this._channels[foundIndex] = channelObj;
+                     */
+                    this._logger.log("internal", LOG_ID + "(updateChannelUsers) channel updated : ", channelObj);
                     this._logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
                     resolve(channelObj);
                 });
@@ -1313,7 +1327,9 @@ class Channels {
      */
     public addMembersToChannel(channel, members) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addMembersToChannel) _entering_");
-        
+
+        //this._logger.log("internal", LOG_ID + "(addMembersToChannel) this._channels : ", this._channels);
+
         if (!channel) {
             this._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1532,9 +1548,11 @@ class Channels {
 
                 this._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
-                    let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj = this.addOrUpdateChannelToCache(updatedChannel);
+                    /*let foundIndex = this._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
                     let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, this._rest.http.serverURL);
                     this._channels[foundIndex] = channelObj;
+                     */
                     this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _exiting_");
                     resolve(channelObj);
                 }).catch((err) => {
@@ -1584,22 +1602,48 @@ class Channels {
      *      GET A CHANNEL FROM CACHE
      */
     private getChannelFromCache(channelId: string): Channel {
-        let channel = this._channels[channelId];
-        return channel !== undefined ? channel : null;
+        let channelFound = null;
+        this._logger.log("internal", LOG_ID + "(getChannelFromCache) search id : ", channelId);
+
+        if (this._channels) {
+            let channelFoundindex = this._channels.findIndex((channel) => {
+                return channel.id === channelId;
+            });
+            if (channelFoundindex != -1) {
+                this._logger.log("internal", LOG_ID + "(getChannelFromCache) channel found : ", this._channels[channelFoundindex], " with id : ", channelId);
+                return this._channels[channelFoundindex];
+            }
+        }
+        this._logger.log("internal", LOG_ID + "(getChannelFromCache) channel found : ", channelFound, " with id : ", channelId);
+        return channelFound ;
     }
 
     private updateChannelsList(): void {
-        this._channelsList = Object.keys(this._channels).map((key) => { return this._channels[key]; });
+        //this._logger.log("debug", LOG_ID + "(updateChannelsList) keys : ", Object.keys(this._channels));
+        this._channelsList = this._channels.map((chnl) => { return chnl.id; });
+        this._logger.log("debug", LOG_ID + "(updateChannelsList) this._channelsList : ", this._channelsList);
     }
 
-    private addChannelToCache(channel: any): Channel {
+    private addOrUpdateChannelToCache(channel: any): Channel {
         let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
-        this._channels[channel.id] = channelObj;
+        let channelFoundindex = this._channels.findIndex((channelIter) => {
+            return channelIter.id === channel.id;
+        });
+        if (channelFoundindex != -1) {
+            this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) update in cache with channelObj : ", channelObj, ", at channelFoundindex : ", channelFoundindex);
+            this._channels.splice(channelFoundindex,1,channelObj);
+            //channelCached = channelObj;
+            this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) in update this._channels : ", this._channels);
+
+        } else {
+            this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) add in cache channelObj : ", channelObj);
+            this._channels.push(channelObj);
+        }
         this.updateChannelsList();
         return channelObj;
     }
 
-    private removeChannelFromCache(channelId: string): Promise<string> {
+    private removeChannelFromCache(channelId: string): Promise<Channel> {
         let that = this;
         return new Promise((resolve, reject) => {
             // Get the channel to remove
@@ -1612,16 +1656,22 @@ class Channels {
                 if (channelToRemove.invited) { this.decrementInvitationCounter(); }
 
                 // Remove from channels
-                delete this._channels[channelId];
+                let channelId = channelToRemove.id;
+
+                this._logger.log("internal", LOG_ID + "(removeChannelFromCache) remove from cache channelId : ", channelId);
+                this._channels = this._channels.filter( function(chnl) {
+                    return !(chnl.id === channelId);
+                });
+
                 this.updateChannelsList();
 
                 // Update messagesList
                 //this.feedChannel.messages = [];
                 this.retrieveLatests()
-                    .then(() => { resolve(channelId); })
+                    .then(() => { resolve(channelToRemove); })
                     .catch((err) => { reject(err); });
             } else {
-                resolve();
+                resolve(null);
             }
         });
     }
@@ -1667,20 +1717,23 @@ class Channels {
         // Get channel from server
         this.getChannel(channelId)
             .then((newChannel) => {
+                    let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                 /*if (newChannel.invited) {
-                    let channelObj : Channel = this.addChannelToCache(newChannel);
+                    let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     that._eventEmitter.emit("rainbow_channelcreated", {'id': newChannel.id});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
                 } else { // */
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': newChannel.id});
+                    that._eventEmitter.emit("rainbow_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD});
                 //}
             });
     }
 
-    private onAddToChannel(channelInfo: {id:string}): void {
+    public  onAddToChannel(channelInfo: {id:string}): void {
         let that = this;
         let channelId = channelInfo.id;
-        this._logger.log("debug", LOG_ID + "(onAddToChannel) channelId DDD : ", channelId);
+        this._logger.log("debug", LOG_ID + "(onAddToChannel) channelId : ", channelId);
+        //this._logger.log("internal", LOG_ID + "(onAddToChannel) this._channels : ", this._channels);
+
         // Get channel from cache
         let channel = this.getChannelFromCache(channelId);
 
@@ -1690,16 +1743,18 @@ class Channels {
 
                 // Handle channel creation
                 if (!channel && !newChannel.invited) {
-                    let channelObj : Channel = this.addChannelToCache(newChannel);
+                    let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
-                    that._eventEmitter.emit("rainbow_channelcreated", {'id': newChannel.id});
+                    //this._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelcreated : ", channelObj.id);
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD});
                 }
 
                 // Handle channel invitation
                 else if (!channel && newChannel.invited) {
-                    let channelObj : Channel = this.addChannelToCache(newChannel);
+                    let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     this.incrementInvitationCounter();
-                    that._eventEmitter.emit("rainbow_channelsubscribe", {'id': newChannel.id});
+                    //this._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelupdated : ", channelObj.id, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, newChannel.id);
                 }
 
@@ -1709,7 +1764,8 @@ class Channels {
                     // TODO : this.feedChannel.messages = [];
                     this.retrieveLatests()
                         .then(() => {
-                            that._eventEmitter.emit("rainbow_channelsubscribe", {'id': channelId});
+                            //this._logger.log("debug", LOG_ID + "(onAddToChannel) retrieveLatests rainbow_channelupdated : ", channelId, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
+                            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
                             //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                         });
                 }
@@ -1721,8 +1777,9 @@ class Channels {
         let that = this;
         let channelId = channelInfo.id;
         this._logger.log("debug", LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
-        let channelIdDeleted = await that.removeChannelFromCache(channelId);
-        that._eventEmitter.emit("rainbow_channelremovedfrom", {'id': channelIdDeleted});
+        let channelDeleted = await that.removeChannelFromCache(channelId);
+        let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
+        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE});
         //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
@@ -1741,7 +1798,7 @@ class Channels {
             //this.feedChannel.messages = [];
             this.retrieveLatests()
                 .then(() => {
-                    that._eventEmitter.emit("rainbow_channelsubscribe", {'id': channelId});
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                 });
         }
@@ -1750,12 +1807,12 @@ class Channels {
         else {
             this.getChannel(channelId)
                 .then((newChannel) => {
-                let channelObj : Channel = this.addChannelToCache(newChannel);
+                let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     //this.feedChannel.messages = [];
                     return this.retrieveLatests();
                 })
                 .then(() => {
-                    that._eventEmitter.emit("rainbow_channelsubscribe", {'id': channelId});
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                 });
         }
@@ -1774,7 +1831,7 @@ class Channels {
         // Update messagesList
         //this.feedChannel.messages = [];
         this.retrieveLatests().then(() => {
-            that._eventEmitter.emit("rainbow_channelunsubscribe", {'id': channelId});
+            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE});
             //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
         });
     }
@@ -1783,8 +1840,10 @@ class Channels {
         let that = this;
         let channelId: string = channelInfo.id;
         this._logger.log("debug", LOG_ID + "(onDeleteChannel) channelId : ", channelId);
-        let channelIdDeleted = await this.removeChannelFromCache(channelId) ;
-        that._eventEmitter.emit("rainbow_channeldeleted", {'id': channelId});
+        let channelDeleted = await that.removeChannelFromCache(channelId);
+        let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
+
+        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE});
                 //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
@@ -1794,7 +1853,7 @@ class Channels {
         let channel: Channel = this.getChannelFromCache(info.id);
         channel.subscribers_count = info.subscribers;
 
-        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId});
+        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId, userId);
     }
 
@@ -1804,7 +1863,7 @@ class Channels {
         let channel: Channel = this.getChannelFromCache(info.id);
         channel.subscribers_count = info.subscribers;
 
-        that._eventEmitter.emit("rainbow_channeluserunsubscription", {'id': info.id, 'userId': info.userId});
+        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId, userId);
     }
 

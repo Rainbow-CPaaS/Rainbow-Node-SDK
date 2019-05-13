@@ -6,7 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 ## [1.56.0] - 2018-05-XX
 Add TelephonyService::deflectCall method to deflect a call to an other telephone number
 Update TelephonyService doc.
-Move channel events from conversationEventHandler to channelEventHandler. Can start to refactor the channel's events.
+Move channel events from conversationEventHandler to channelEventHandler. 
+Refactor the channel's events to follow the event received from server : 
+ - replace event `rainbow_channelcreated` by `rainbow_channelupdated` with a `kind` parameter (add value)
+ -   
+
 
 ## [1.55.0] - 2018-04-30
 Update comments limitations => limits

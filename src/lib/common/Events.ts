@@ -55,9 +55,8 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onfileupdated
  * @fires Events#rainbow_onfiledeleted
  * @fires Events#rainbow_onthumbnailcreated
- * @fires Events#rainbow_onchannelcreated
- * @fires Events#rainbow_onchanneldeleted
  * @fires Events#rainbow_onchannelupdated
+ * @fires Events#rainbow_channelusersubscription
  * @fires Events#rainbow_oncalllogupdated
  * @fires Events#rainbow_oncalllogackupdated
 */
@@ -552,66 +551,14 @@ class Events {
             that.publishEvent("thumbnailcreated", data);
         });
 
-        this._evReceiver.on("rainbow_channelcreated", function (data) {
-            /**
-             * @event Events#rainbow_onchannelcreated
-             * @public
-             * @param { String } id The id of the channel
-             * @description
-             *      Fired when a channel created event is received
-             */
-            that.publishEvent("channelcreated", data);
-        });
-
-        this._evReceiver.on("rainbow_channelsubscribe", function (data) {
-            /**
-             * @event Events#rainbow_onchannelcreated
-             * @public
-             * @param { String } id The id of the channel
-             * @description
-             *      Fired when a channel subscribed event is received
-             */
-            that.publishEvent("channelsubscribe", data);
-        });
-
-        this._evReceiver.on("rainbow_channelunsubscribe", function (data) {
-            /**
-             * @event Events#rainbow_onchannelunsubscribe
-             * @public
-             * @param { String } id The id of the channel
-             * @description
-             *      Fired when a channel unsubscribed event is received
-             */
-            that.publishEvent("channelunsubscribe", data);
-        });
-
-        this._evReceiver.on("rainbow_channelremovedfrom", function (data) {
-            /**
-             * @event Events#rainbow_onchannelremovedfrom
-             * @public
-             * @param { String } id The id of the channel
-             * @description
-             *      Fired when removed from a channel event is received
-             */
-            that.publishEvent("channelremovedfrom", data);
-        });
-
-        this._evReceiver.on("rainbow_channeldeleted", function (data) {
-            /**
-             * @event Events#rainbow_onchanneldeleted
-             * @public
-             * @param { String } id The id of the channel
-             * @description
-             *      Fired when a channel deleted event is received
-             */
-            that.publishEvent("channeldeleted", data);
-        });
+        /************************* Channels **********************/
 
         this._evReceiver.on("rainbow_channelupdated", function (data) {
             /**
              * @event Events#rainbow_onchannelupdated
              * @public
              * @param { String } id The id of the channel
+             * @param { Number } kind The kind of change (ADD: 0, UPDATE: 1, REMOVE: 2, SUBSCRIBE: 4, UNSUBSCRIBE: 5)
              * @description
              *      Fired when a channel update event is received
              */
@@ -624,22 +571,11 @@ class Events {
              * @public
              * @param { String } id The id of the channel
              * @param { String } userId The id of the user
+             * @param { Number } kind The kind of change (SUBSCRIBE: 4, UNSUBSCRIBE: 5)
              * @description
              *      Fired when a user channel subscription event is received
              */
             that.publishEvent("channelusersubscription", data);
-        });
-
-        this._evReceiver.on("rainbow_channeluserunsubscription", function (data) {
-            /**
-             * @event Events#rainbow_channeluserunsubscription
-             * @public
-             * @param { String } id The id of the channel
-             * @param { String } userId The id of the user
-             * @description
-             *      Fired when a user channel unsubscription event is received
-             */
-            that.publishEvent("channeluserunsubscription", data);
         });
 
         // ****************** CALLLOGS *********************
