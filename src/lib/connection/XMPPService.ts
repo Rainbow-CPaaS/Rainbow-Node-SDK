@@ -1593,7 +1593,7 @@ class XMPPService {
             let url = this.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
             let stanza = xml("message", {
-                    "from": this.fullJid,
+                    //"from": this.fullJid,
                     "to": jid,
                     "xmlns": NameSpacesLabels.ClientNameSpace,
                     "type": TYPE_GROUPCHAT,

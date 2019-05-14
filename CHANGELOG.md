@@ -7,6 +7,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Add TelephonyService::deflectCall method to deflect a call to an other telephone number
 Update TelephonyService doc.
 Move channel events from conversationEventHandler to channelEventHandler. 
+Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value. 
 Refactor the channel's events to follow the event received from server : 
  - replace event `rainbow_channelcreated` by `rainbow_channelupdated` with a `kind` parameter (add value)
  -   
