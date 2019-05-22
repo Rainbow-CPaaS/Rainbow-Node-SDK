@@ -190,6 +190,25 @@ class Channel {
     public isMember() { return this.userRole === "member"; }
     public getAvatarSrc() { return (this.lastAvatarUpdateDate) ? this.avatar : "/resources/skins/rainbow/images/channels/default_channel_avatar.png"; }
 
+    updateChannel (data) {
+        let that = this;
+        if (data) {
+
+            let channelproperties = Object.getOwnPropertyNames(that);
+            Object.getOwnPropertyNames(data).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    if (channelproperties.find((el) => { return val == el ;})) {
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        that[val] = data[val];
+                    } else {
+                        console.log("WARNING : One property of the parameter of updateChannel method is not present in the Channel class can not update Channel with : ", val, " -> ", data[val]);
+                    }
+                });
+        }
+
+        return this;
+    }
 
 
     /**
@@ -234,11 +253,11 @@ class Channel {
         );
 
             if (data) {
-                let bubbleproperties = Object.getOwnPropertyNames(channel);
+                let channelproperties = Object.getOwnPropertyNames(channel);
                 Object.getOwnPropertyNames(data).forEach(
                     (val, idx, array) => {
                         //console.log(val + " -> " + data[val]);
-                        if (!bubbleproperties.find((el) => { return val == el ;})) {
+                        if (!channelproperties.find((el) => { return val == el ;})) {
                             console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val, " -> ", data[val]);
                         }
                     });

@@ -1861,11 +1861,12 @@ class Channels {
             return channelIter.id === channel.id;
         });
         if (channelFoundindex != -1) {
-            this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) update in cache with channelObj : ", channelObj, ", at channelFoundindex : ", channelFoundindex);
-            this._channels.splice(channelFoundindex,1,channelObj);
+            this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) update in cache with channel : ", channel, ", at channelFoundindex : ", channelFoundindex);
+            //this._channels.splice(channelFoundindex,1,channelObj);
             //channelCached = channelObj;
             this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) in update this._channels : ", this._channels);
-
+            this._channels[channelFoundindex].updateBubble(channel);
+            channelObj = this._channels[channelFoundindex];
         } else {
             this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) add in cache channelObj : ", channelObj);
             this._channels.push(channelObj);

@@ -868,15 +868,16 @@ class Bubbles {
     private addOrUpdateBubbleToCache(bubble : any): Bubble {
         let bubbleObj : Bubble = Bubble.BubbleFactory()(bubble);
         let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
-            return channelIter.id === bubble .id;
+            return channelIter.id === bubble.id;
         });
         if (bubbleFoundindex != -1) {
-            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with channelObj : ", bubbleObj, ", at bubbleFoundindex : ", bubbleFoundindex);
-            this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
-            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._channels : ", this._bubbles);
-
+            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
+            this._bubbles[bubbleFoundindex].updateBubble(bubble);
+            //this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
+            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
+            bubbleObj = this._bubbles[bubbleFoundindex];
         } else {
-            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) add in cache channelObj : ", bubbleObj);
+            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) add in cache bubbleObj : ", bubbleObj);
             this._bubbles.push(bubbleObj);
         }
         //this.updateChannelsList();

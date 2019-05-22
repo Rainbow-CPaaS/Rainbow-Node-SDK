@@ -138,6 +138,26 @@ class Bubble {
         return false;
     }
 
+    updateBubble (data) {
+        let that = this;
+        if (data) {
+
+            let bubbleproperties = Object.getOwnPropertyNames(that);
+            Object.getOwnPropertyNames(data).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    if (bubbleproperties.find((el) => { return val == el ;})) {
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        that[val] = data[val];
+                    } else {
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
+                    }
+                });
+        }
+
+        return this;
+    }
+
         /**
          * @function
          * @public
