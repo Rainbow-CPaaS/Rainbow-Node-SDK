@@ -193,6 +193,7 @@ class Contacts {
                     // that.contacts[contact.id] = contact;
                     that.contacts.push(contact);
                 });
+                that.logger.log("internal", LOG_ID + "(getRosters) get rosters successfully : ", that.contacts);
 
                 that.logger.log("info", LOG_ID + "(getRosters) get rosters successfully");
                 that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
@@ -639,15 +640,33 @@ class Contacts {
     /**
      * @public
      * @since 1.17
+     * @method
+     * @instance
+     * @description
+     *    Send an invitation to a Rainbow user for joining his network. <br>
+     *    The user will receive an invitation that can be accepted or declined <br>
+     *    In return, when accepted, he will be part of your network <br>
+     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+     * @param {Contact} contact The contact object to subscribe
+     * @return {Object} A promise that contains the contact added or an object describing an error
+     */
+    addToNetwork(contact) {
+        return this.addToContactsList(contact);
+    }
+    /**
+     * @public
+     * @since 1.17
      * @method addToContactsList
      * @instance
      * @memberof Contacts
      * @description
-     *    Add a contact to the list of contacts and send a subscription for listening the presence of this contact
+     * @description
+     *    Send an invitation to a Rainbow user for joining his network. <br>
+     *    The user will receive an invitation that can be accepted or declined <br>
+     *    In return, when accepted, he will be part of your network <br>
+     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
      * @param {Contact} contact The contact object to subscribe
-     * @async
-     * @return {Promise<Contact, ErrorManager>}
-     * @fulfil {Contact} - Added contact or an error object depending on the result
+     * @return {Object} A promise that contains the contact added or an object describing an error
      * @category async
      */
     addToContactsList(contact) {
@@ -781,7 +800,7 @@ class Contacts {
                             return Object.assign( prev, current);
                         }, { "success": [], "failed": []});
 
-                        that.logger.log("info", LOG_ID + "(joinContacts) " + mergeResult.success.length + "contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
+                        that.logger.log("info", LOG_ID + "(joinContacts) " + mergeResult.success.length + " contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
                         resolve(mergeResult);
                     }).catch((err) => {
                         reject(err);

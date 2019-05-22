@@ -9,8 +9,19 @@ Update TelephonyService doc.
 Move channel events from conversationEventHandler to channelEventHandler. 
 Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value. 
 Refactor the channel's events to follow the event received from server : 
- - replace event `rainbow_channelcreated` by `rainbow_channelupdated` with a `kind` parameter (add value)
- -   
+ - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)    
+ - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)
+Add event emitter in HttpService to raise event when token fail
+Fix json parse in HttpService, and treat token expiration
+Add mime-types lib to find file type.
+Update Bubble Class to have a factory
+Update Channel Class to have a factory
+Fix issue RESTService::unsubscribeToChannel method
+Add uploadChannelAvatar  deleteChannelAvatar methods to manbage the avatar of a channel.
+Add treatment of "channel-subscription" event
+Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubble in cache.
+Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
+Add method ChannelsService::updateChannel to Update a channel
 
 
 ## [1.55.0] - 2018-04-30

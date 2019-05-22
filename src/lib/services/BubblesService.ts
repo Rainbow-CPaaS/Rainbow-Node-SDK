@@ -10,6 +10,7 @@ import {ErrorManager} from "../common/ErrorManager";
 //const Bubble = require("../common/models/Bubble");
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
+import {Channel} from "../common/models/Channel";
 
 const PromiseQueue = require("../common/promiseQueue");
 const utils = require("../common/Utils");
@@ -34,7 +35,7 @@ const LOG_ID = "BUBBLES/SVCE - ";
 class Bubbles {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
-	public _bubbles: any;
+	public _bubbles: Bubble[];
 	public _eventEmitter: any;
 	public _logger: any;
 
@@ -252,7 +253,7 @@ class Bubbles {
      * @category async
      */
     deleteBubble(bubble) {
-        var that = this;
+        let that = this;
 
         return new Promise(function(resolve, reject) {
             that._logger.log("debug", LOG_ID + "(deleteBubble) _entering_");
@@ -266,13 +267,15 @@ class Bubbles {
 
             that.closeBubble(bubble).then((updatedBubble: any) => {
                 that._rest.deleteBubble(updatedBubble.id).then(function() {
-                    let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
+                    //let bubbleRemoved = that.removeBubbleFromCache(updatedBubble.id);
+                    /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                         return el.id === updatedBubble.id;
-                    }), 1);
-                    that._logger.log("info", LOG_ID + "(deleteBubble) delete "  + bubbleRemovedList.length + " bubble successfull");
+                    }), 1); // */
+                    that._logger.log("info", LOG_ID + "(deleteBubble) delete ", updatedBubble, " bubble successfull");
                     that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
-                    let bubbleRemoved = bubbleRemovedList.length > 0 ? bubbleRemovedList[0] : null;
-                    resolve( Object.assign(bubble, bubbleRemoved));
+                    //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
+                    //resolve( Object.assign(bubble, bubbleRemoved));
+                    resolve( updatedBubble);
                 }).catch(function(err) {
                     that._logger.log("error", LOG_ID + "(deleteBubble) error");
                     that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
@@ -350,16 +353,19 @@ class Bubbles {
 
                     that._rest.getBubble(bubble.id).then(function(bubbleUpdated : any) {
                         // Update the existing local bubble stored
-                        var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                        let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                        /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                         if ( foundIndex > -1) {
                             bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
                             that._bubbles[foundIndex] = bubbleUpdated;
                         } else {
                             that._logger.log("warn", LOG_ID + "(closeBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
                         }
+                        // */
 
                         that._logger.log("debug", LOG_ID + "(closeBubble) _exiting_");
-                        resolve(bubbleUpdated);
+                        resolve(bubble);
                     });
                 }).catch( (err) => {
                     reject(err);
@@ -489,6 +495,9 @@ class Bubbles {
                 return that._rest.getBubble(bubble.id);
             }).then(function(bubbleReUpdated : any) {
 
+                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+
+                /*
                 // Update the existing local bubble stored
                 var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
                 if ( foundIndex > -1) {
@@ -497,9 +506,10 @@ class Bubbles {
                 } else {
                     that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bubble with id:" + bubbleReUpdated.id + " is no more available");
                 }
+                 */
 
                 that._logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
-                resolve(bubbleReUpdated);
+                resolve(bubble);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(inviteContactToBubble) error");
                 that._logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
@@ -572,16 +582,18 @@ class Bubbles {
             }).then(function(bubbleReUpdated : any) {
 
                 // Update the existing local bubble stored
-                var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
+                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+                /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
                 if ( foundIndex > -1) {
                     bubbleReUpdated = Object.assign(that._bubbles[foundIndex], bubbleReUpdated);
                     that._bubbles[foundIndex] = bubbleReUpdated;
                 } else {
                     that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bubble with id:" + bubbleReUpdated.id + " is no more available");
                 }
+                 */
 
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
-                resolve(bubbleReUpdated);
+                resolve(bubble);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(promoteContactInBubble) error");
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
@@ -684,16 +696,18 @@ class Bubbles {
                         
                         that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
                             // Update the existing local bubble stored
-                            let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
                                 that._bubbles[foundIndex] = bubbleUpdated;
                             } else {
                                 that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
                             }
+                             */
 
                             that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
-                            resolve(bubbleUpdated);
+                            resolve(bubble);
                         });
                     }).catch(function(err) {
                         that._logger.log("error", LOG_ID + "(removeContactFromBubble) error", err);
@@ -708,16 +722,18 @@ class Bubbles {
                         that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
 
                             // Update the existing local bubble stored
-                            var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
                                 that._bubbles[foundIndex] = bubbleUpdated;
                             } else {
                                 that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
                             }
+                             */
                             
                             that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
-                            resolve(bubbleUpdated);
+                            resolve(bubble);
                         });
                     }).catch(function(err) {
                         that._logger.log("error", LOG_ID + "(removeContactFromBubble) error", err);
@@ -747,7 +763,12 @@ class Bubbles {
             that._logger.log("debug", LOG_ID + "(getBubbles) _entering_");
 
             that._rest.getBubbles().then(function(listOfBubbles : any) {
-                that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
+
+                //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
+                that._bubbles = [];
+                listOfBubbles.map( (bubble) => {
+                    that.addOrUpdateBubbleToCache(bubble);
+                });
                 that._logger.log("info", LOG_ID + "(getBubbles) get successfully");
                 let prom = [];
                 listOfBubbles.forEach(function(bubble : any) {
@@ -827,6 +848,61 @@ class Bubbles {
   //      });
     }
 
+    private getBubbleFromCache(bubbleId: string): Bubble {
+        let bubbleFound = null;
+        this._logger.log("internal", LOG_ID + "(getBubbleFromCache) search id : ", bubbleId);
+
+        if (this._bubbles) {
+            let channelFoundindex = this._bubbles.findIndex((channel) => {
+                return channel.id === bubbleId;
+            });
+            if (channelFoundindex != -1) {
+                this._logger.log("internal", LOG_ID + "(getBubbleFromCache) bubble found : ", this._bubbles[channelFoundindex], " with id : ", bubbleId);
+                return this._bubbles[channelFoundindex];
+            }
+        }
+        this._logger.log("internal", LOG_ID + "(getBubbleFromCache) channel found : ", bubbleFound, " with id : ", bubbleId);
+        return bubbleFound ;
+    }
+
+    private addOrUpdateBubbleToCache(bubble : any): Bubble {
+        let bubbleObj : Bubble = Bubble.BubbleFactory()(bubble);
+        let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
+            return channelIter.id === bubble .id;
+        });
+        if (bubbleFoundindex != -1) {
+            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with channelObj : ", bubbleObj, ", at bubbleFoundindex : ", bubbleFoundindex);
+            this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
+            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._channels : ", this._bubbles);
+
+        } else {
+            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) add in cache channelObj : ", bubbleObj);
+            this._bubbles.push(bubbleObj);
+        }
+        //this.updateChannelsList();
+        return bubbleObj;
+    }
+
+    private removeBubbleFromCache(bubbleId: string): Promise<Bubble> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            // Get the channel to remove
+            let bubbleToRemove = this.getBubbleFromCache(bubbleId);
+            if (bubbleToRemove) {
+                // Remove from channels
+                let bubbleIdToRemove = bubbleToRemove.id;
+
+                that._logger.log("internal", LOG_ID + "(removeBubbleFromCache) remove from cache bubbleId : ", bubbleIdToRemove);
+                that._bubbles = this._bubbles.filter( function(chnl: any) {
+                    return !(chnl.id === bubbleIdToRemove);
+                });
+                resolve(bubbleToRemove);
+            } else {
+                resolve(null);
+            }
+        });
+    }
+
     /**
      * @public
      * @method getBubbleById
@@ -860,8 +936,9 @@ class Bubbles {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
-                        let bubble = Object.assign(new Bubble(), bubbleFromServer);
-                        that._bubbles.push(bubble);
+                        let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        //let bubble = Object.assign(new Bubble(), bubbleFromServer);
+                        //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
                             that._xmpp.sendInitialBubblePresence(bubble.jid);
@@ -917,8 +994,9 @@ class Bubbles {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
-                        let bubble = Object.assign(new Bubble(), bubbleFromServer);
-                        that._bubbles.push(bubble);
+                        let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        //let bubble = Object.assign(new Bubble(), bubbleFromServer);
+                        //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) send initial presence to room : ", bubble.jid);
                             that._xmpp.sendInitialBubblePresence(bubble.jid);
@@ -1040,15 +1118,17 @@ class Bubbles {
 
                 that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
                     // Update the existing local bubble stored
-                    let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                     if ( foundIndex > -1) {
                         bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
                         that._bubbles[foundIndex] = bubbleUpdated;
                     } else {
                         that._logger.log("warn", LOG_ID + "(acceptInvitationToJoinBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
                     }
+                     */
                     
-                    resolve(bubbleUpdated);
+                    resolve(bubble);
 
                     that._logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) _exiting_");
                 });
@@ -1092,15 +1172,17 @@ class Bubbles {
 
                 that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
                     // Update the existing local bubble stored
-                    let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                     if ( foundIndex > -1) {
                         bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
                         that._bubbles[foundIndex] = bubbleUpdated;
                     } else {
                         that._logger.log("warn", LOG_ID + "(declineInvitationToJoinBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
                     }
+                     */
 
-                    resolve(bubbleUpdated);
+                    resolve(bubble);
                 });
                 
             }).catch((err) => {
@@ -1166,7 +1248,9 @@ class Bubbles {
 
                         that._logger.log("debug", LOG_ID + "(setBubbleCustomData) Custom data in bubble retrieved from server : ", bubbleUpdated.name + " | " + bubbleUpdated.customData);
 
-                        // Update the existing local bubble stored
+                        let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                        /*// Update the existing local bubble stored
                         let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                         if (foundIndex > -1) {
                             bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
@@ -1174,9 +1258,9 @@ class Bubbles {
                         } else {
                             bubbleUpdated = Object.assign(new Bubble(), bubbleUpdated);
                             that._bubbles.push(bubbleUpdated);
-                        }
+                        } // */
 
-                        that._eventEmitter.emit("rainbow_bubblecustomDatachanged", bubbleUpdated);
+                        that._eventEmitter.emit("rainbow_bubblecustomDatachanged", bubble);
                     });
                 }
                 resolve(bubble);
@@ -1336,7 +1420,9 @@ class Bubbles {
         this._rest.getBubble(invitation.bubbleId).then( (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble", bubbleUpdated.name);
 
-            // Store the new bubble
+            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            /*// Store the new bubble
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
                 bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1345,9 +1431,9 @@ class Bubbles {
             else {
                 bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
                 that._bubbles.push(bubbleUpdated);
-            }
+            } // */
 
-            that._eventEmitter.emit("rainbow_invitationdetailsreceived", bubbleUpdated);
+            that._eventEmitter.emit("rainbow_invitationdetailsreceived", bubble);
         });
     }
 
@@ -1368,7 +1454,9 @@ class Bubbles {
         this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble", bubbleUpdated.name + " | " + affiliation.status);
 
-            // Update the existing local bubble stored
+            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
                 bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1377,9 +1465,9 @@ class Bubbles {
             else {
                 bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
                 that._bubbles.push(bubbleUpdated);
-            }
+            } // */
 
-            that._eventEmitter.emit("rainbow_affiliationdetailschanged", bubbleUpdated);
+            that._eventEmitter.emit("rainbow_affiliationdetailschanged", bubble);
         });
     }
 
@@ -1404,29 +1492,32 @@ class Bubbles {
                 // Update the existing local bubble stored
                 let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                 if (foundIndex > -1) {
-                    bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
-                    that._bubbles[foundIndex] = bubbleUpdated;
+                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    //bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
+                    //that._bubbles[foundIndex] = bubbleUpdated;
                     if (affiliation.status === "accepted") {
-                        if (bubbleUpdated.isActive) {
-                            that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubbleUpdated.jid);
-                            that._xmpp.sendInitialBubblePresence(bubbleUpdated.jid);
+                        if (bubble.isActive) {
+                            that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
+                            that._xmpp.sendInitialBubblePresence(bubble.jid);
                         } else {
-                            that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubbleUpdated.jid);
+                            that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
                     }
                     else if (affiliation.status === "unsubscribed") {
-                        that._xmpp.sendUnavailableBubblePresence(bubbleUpdated.jid);
+                        that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                     }
                 }
                 else {
-                    bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
-                    that._bubbles.push(bubbleUpdated);
+                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                    /*bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
+                    that._bubbles.push(bubbleUpdated); // */
                     // New bubble, send initial presence
-                    if (bubbleUpdated.isActive) {
-                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubbleUpdated.jid);
-                        that._xmpp.sendInitialBubblePresence(bubbleUpdated.jid);
+                    if (bubble.isActive) {
+                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
+                        that._xmpp.sendInitialBubblePresence(bubble.jid);
                     } else {
-                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubbleUpdated.jid);
+                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                     }
 
                 }
@@ -1434,21 +1525,24 @@ class Bubbles {
                 that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubbleUpdated);
             });
         } else {
-            // remove it
-            let bubbleRemoved = that._bubbles.splice(that._bubbles.findIndex(function(el) {
-                return el.id === affiliation.bubbleId;
-            }), 1);
 
-            if (bubbleRemoved.length > 0) {
-                that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubbleRemoved[0]);
-                that._eventEmitter.emit("rainbow_ownbubbledeleted", bubbleRemoved[0]);
+            // remove it
+            let bubbleToRemoved = that._bubbles.findIndex(function(el) {
+                return el.id === affiliation.bubbleId;
+            });
+             //*/
+
+            if (bubbleToRemoved != -1 ) {
+                let bubbleRemoved = that.removeBubbleFromCache(affiliation.bubbleId);
+                that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubbleRemoved);
+                that._eventEmitter.emit("rainbow_ownbubbledeleted", bubbleRemoved);
             } else {
-                that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) deleted bubble not found, so raised the deleted event with only the id of this bubble : ", affiliation.bubbleId);
+                that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) deleted bubble not found in cache, so raised the deleted event with only the id of this bubble : ", affiliation.bubbleId);
                 let bubble = {id:null };
                 bubble.id = affiliation.bubbleId;
                 that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubble);
                 that._eventEmitter.emit("rainbow_ownbubbledeleted", bubble);
-            }
+            } // */
         }
     }
 
@@ -1468,7 +1562,9 @@ class Bubbles {
 
             that._logger.log("debug", LOG_ID + "(_onCustomDataChanged) Custom data changed for bubble", bubbleUpdated.name + " | " + data.customData);
 
-            // Update the existing local bubble stored
+            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
                 bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1477,9 +1573,9 @@ class Bubbles {
             else {
                 bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
                 that._bubbles.push(bubbleUpdated);
-            }
+            } // */
 
-            that._eventEmitter.emit("rainbow_bubblecustomDatachanged", bubbleUpdated);
+            that._eventEmitter.emit("rainbow_bubblecustomDatachanged", bubble);
         });
     }
 
@@ -1498,7 +1594,8 @@ class Bubbles {
         this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onTopicChanged) Topic changed for bubble", bubbleUpdated.name + " | " + data.topic);
 
-            // Update the existing local bubble stored
+            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
                 bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1507,9 +1604,9 @@ class Bubbles {
             else {
                 bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
                 that._bubbles.push(bubbleUpdated);
-            }
+            } // */
 
-            that._eventEmitter.emit("rainbow_bubbletopicchanged", bubbleUpdated);
+            that._eventEmitter.emit("rainbow_bubbletopicchanged", bubble);
         });
     }
 
@@ -1528,7 +1625,9 @@ class Bubbles {
         this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onNameChanged) Name changed for bubble", bubbleUpdated.name + " | " + data.name);
 
-            // Update the existing local bubble stored
+            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
                 bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1537,9 +1636,9 @@ class Bubbles {
             else {
                 bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
                 that._bubbles.push(bubbleUpdated);
-            }
+            } // */
 
-            that._eventEmitter.emit("rainbow_bubblenamechanged", bubbleUpdated);
+            that._eventEmitter.emit("rainbow_bubblenamechanged", bubble);
         });
     }
 

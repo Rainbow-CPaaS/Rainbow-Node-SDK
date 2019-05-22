@@ -11,7 +11,8 @@ import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEvent
 import {localeData} from "moment";
 import {types} from "util";
 
-
+const fs = require("fs");
+const mimetypes = require("mime-types");
 const PubSub = require("pubsub-js");
 
 const LOG_ID = "CHANNELS/SVCE - ";
@@ -46,13 +47,13 @@ class Channels {
 
 
     public LIST_EVENT_TYPE = {
-        ADD: 0,
-        UPDATE: 1,
-        REMOVE: 2,
-        DELETE: 3,
-        SUBSCRIBE: 4,
-        UNSUBSCRIBE: 5,
-        CREATE: 6
+        ADD: {code : 0, label : "ADD"},
+        UPDATE: {code : 1, label : "UPDATE"},
+        REMOVE: {code : 2, label : "REMOVE"},
+        DELETE: {code : 3, label : "DELETE"},
+        SUBSCRIBE: {code : 4, label : "SUBSCRIBE"},
+        UNSUBSCRIBE: {code : 5, label : "UNSUBSCRIBE"},
+        CREATE: {code : 6, label : "CREATE"}
     };
 
     public USER_ROLE = {
@@ -106,6 +107,7 @@ class Channels {
                 resolve();
             }
             catch (err) {
+                this._logger.log("error", LOG_ID + "(start) error : ", err);
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject();
             }
@@ -125,6 +127,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
             } catch (err) {
+                this._logger.log("error", LOG_ID + "(stop) error : ", err);
                 this._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
             }
@@ -192,7 +195,7 @@ class Channels {
                 let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(createPublicChannel) error");
+                this._logger.log("error", LOG_ID + "(createPublicChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
                 reject(err);
             }); 
@@ -249,7 +252,7 @@ class Channels {
                 let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(createClosedChannel) error");
+                this._logger.log("error", LOG_ID + "(createClosedChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) _exiting_");
                 reject(err);
             }); 
@@ -272,7 +275,7 @@ class Channels {
         return new Promise((resolve, reject) => {
             this._logger.log("debug", LOG_ID + "(deleteChannel) _entering_");
 
-            if (!channel) {
+            if (!channel || !channel.id) {
                 this._logger.log("warn", LOG_ID + "(deleteChannel) bad or empty 'channel' parameter", channel);
                 this._logger.log("debug", LOG_ID + "(deleteChannel) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -294,7 +297,7 @@ class Channels {
                     resolve(channel);
                 }
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(deleteChannel) error");
+                this._logger.log("error", LOG_ID + "(deleteChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(deleteChannel) _exiting_");
                 reject(err);
             });
@@ -354,7 +357,8 @@ class Channels {
             return new Promise((resolve) => {
                 this.fetchChannel(id).then((channel : Channel) => {
                     resolve(channel);
-                }).catch(() => {
+                }).catch((err) => {
+                    this._logger.log("error", LOG_ID + "(_findChannels) error getChannel : ", err);
                     resolve(null);
                 });
             });
@@ -378,7 +382,7 @@ class Channels {
                 });
 
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(_findChannels) error", err);
+                this._logger.log("error", LOG_ID + "(_findChannels) error : ", err);
                 this._logger.log("debug", LOG_ID + "(_findChannels) _exiting_");
                 reject(err);
             });
@@ -455,7 +459,7 @@ class Channels {
      *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned.
      *      {String} [filter.sortField="name"] sort channel list based on the given field.
      *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending.
-     * @return {Object} Result of the find with
+     * @return {Promise<Channel[]>} Result of the find with
      *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count }
      */
     fetchChannelsByFilter (filter) : Promise<[Channel]> {
@@ -465,7 +469,8 @@ class Channels {
             return new Promise((resolve) => {
                 this.fetchChannel(id).then((channel : Channel) => {
                     resolve(channel);
-                }).catch(() => {
+                }).catch((err) => {
+                    this._logger.log("error", LOG_ID + "(fetchChannelsByFilter) error getChannel : ", err);
                     resolve(null);
                 });
             });
@@ -493,7 +498,7 @@ class Channels {
                 });
 
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(fetchChannelsByFilter) error", err);
+                this._logger.log("error", LOG_ID + "(fetchChannelsByFilter) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchChannelsByFilter) _exiting_");
                 reject(err);
             });
@@ -525,14 +530,15 @@ class Channels {
      * @description
      *    Get the channels you own, are subscribed to, are publisher<br/>
      *    Return a promise.
-     * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
+     * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
      */
     fetchMyChannels() : Promise<[Channel]>{
         let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
                 this.fetchChannel(id).then((channel) => {
                     resolve(channel);
-                }).catch(() => {
+                }).catch((err) => {
+                    this._logger.log("error", LOG_ID + "(fetchMyChannels) error fetchChannel : ", err);
                     resolve(null);
                 });
             });
@@ -583,7 +589,7 @@ class Channels {
                     resolve(this._channels);
                 });
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(fetchMyChannels) error", err);
+                this._logger.log("error", LOG_ID + "(fetchMyChannels) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchMyChannels) _exiting_");
                 // Do not block the startup on VM without channels API
                 this._channels = [];
@@ -722,7 +728,7 @@ class Channels {
     createItem(channel, message, title, url, imagesIds, type) : Promise <{}> {
         this._logger.log("debug", LOG_ID + "(createItem) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(createItem) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(createItem) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -755,7 +761,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(createItem) _exiting_");
                 resolve(ErrorManager.getErrorManager().OK);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(createItem) error", err);
+                this._logger.log("error", LOG_ID + "(createItem) error : ", err);
                 this._logger.log("debug", LOG_ID + "(createItem) _exiting_");
                 reject(err);
             });
@@ -777,7 +783,7 @@ class Channels {
         
         this._logger.log("debug", LOG_ID + "(subscribeToChannel) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -793,12 +799,72 @@ class Channels {
                     resolve(channelUpdated);
                 });
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(subscribeToChannel) error", err);
+                this._logger.log("error", LOG_ID + "(subscribeToChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
                 reject(err);
             });
         });
     }
+
+    /**
+     * @public
+     * @method
+     * @since 1.47
+     * @instance
+     * @description
+     *    Subscribe to a channel using its id<br/>
+     *    Return a promise.
+     * @param {String} id The id of the channel
+     * @return {Object} Nothing or an error object depending on the result
+     */
+    subscribeToChannelById (id) {
+        let that = this;
+        this._logger.log("debug", LOG_ID + "(subscribeToChannelById) _entering_");
+        if (!id) {
+            this._logger.log("debug", LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter ", id);
+            this._logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise( (resolve, reject) => {
+            let channel = that.getChannelFromCache(id);
+            if (!channel) {
+                that.getChannel(id).then(function (channelFound) {
+                    if (channelFound) {
+                        that.subscribeToChannel(channelFound)
+                            .then(function () {
+                                that._logger.log("debug", LOG_ID + "(subscribeToChannel) subscribed: " + id);
+                                resolve({
+                                    code: "OK",
+                                    label: "OK"
+                                });
+                            })
+                            .catch(function (err) {
+                                reject(err);
+                            });
+                    } else {
+                        return reject({
+                            code: "ERRORBADREQUEST",
+                            label: "No channel found with id " + id
+                        });
+                    }
+                });
+            } else {
+                that.subscribeToChannel(channel)
+                    .then(function () {
+                        that._logger.log("debug", LOG_ID + "(subscribeToChannel) subscribed: " + id);
+                        resolve({
+                            code: "OK",
+                            label: "OK"
+                        });
+                    })
+                    .catch(function (err) {
+                        reject(err);
+                    });
+            }
+        });
+
+    };
 
     /**
      * @public
@@ -815,7 +881,7 @@ class Channels {
         
         this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -828,7 +894,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _exiting_");
                 resolve(status);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(unsubscribeFromChannel) error", err);
+                this._logger.log("error", LOG_ID + "(unsubscribeFromChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _exiting_");
                 reject(err);
             });
@@ -867,7 +933,7 @@ class Channels {
         
         this._logger.log("debug", LOG_ID + "(updateChannelDescription) _entering_");
 
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -898,7 +964,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
                 resolve(channelObj);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(updateChannelDescription) error", err);
+                this._logger.log("error", LOG_ID + "(updateChannelDescription) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
                 reject(err);
             });
@@ -920,7 +986,7 @@ class Channels {
     updateChannelName(channel, channelName) {
         this._logger.log("debug", LOG_ID + "(updateChannelName) _entering_");
 
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(updateChannelName) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -952,11 +1018,77 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
                 resolve(channelObj);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(updateChannelName) error", err);
+                this._logger.log("error", LOG_ID + "(updateChannelName) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
                 reject(err);
             });
         });
+    };
+
+    /**
+     * @public
+     * @method
+     * @since 1.38
+     * @instance
+     * @description
+     *    Update a channel<br/>
+     *      May be updated: name, topic, visibility, max_items and max_payload<br/>
+     *      Please put null to not update a property.<br/>
+     *    Return a promise.
+     * @param {String} id The id of the channel
+     * @param {String} [channelTopic=""] The topic of the channel
+     * @param {String} [visibility=public] public/company/closed group visibility for search
+     * @param {Number} [max_items=30] max # of items to persist in the channel
+     * @param {Number} [max_payload_size=60000] max # of items to persist in the channel
+     * @param {String} [channelName=""] The name of the channel
+     * @param {String} [category=""] The category of the channel
+     * @return {Promise<Channel>} Return the channel created or an error
+     */
+    updateChannel( id, channelTopic, visibility, max_items, max_payload_size, channelName, category) {
+        this._logger.log("debug", LOG_ID + "(updateChannel) _entering_");
+        let that = this;
+
+        if (!id) {
+            this._logger.log("debug", LOG_ID + "(updateChannel) bad or empty 'id' parameter ", id);
+            this._logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else {
+            var options : any = {};
+            if (channelTopic != null) {
+                options.topic = channelTopic;
+            }
+            if (visibility != null) {
+                options.mode = visibility === "company" ? "company_public" : "company_closed";
+            }
+            if (max_items != null) {
+                options.max_items = max_items;
+            }
+            if (max_payload_size != null) {
+                options.max_payload_size = max_payload_size;
+            }
+            if (channelName != null) {
+                options.name = channelName;
+            }
+            if (category != null) {
+                options.cateogry = category;
+            }
+
+            return  new Promise((resolve, reject) =>
+            {
+                that._rest.updateChannel(id, options.topic, null, options.max_items, options.max_payload_size, options.name, options.mode)
+                    .then((channelUpdated) => {
+                        this._logger.log("internal", LOG_ID + "(updateChannel) channel channelUpdated : ", channelUpdated);
+                        let channelObj = this.addOrUpdateChannelToCache(channelUpdated);
+
+                        this._logger.log("internal", LOG_ID + "(updateChannel) channel updated, channelObj : ", channelObj);
+                        resolve(channelObj);
+                    })
+                    .catch(function (err) {
+                        reject(err);
+                    });
+            });
+        }
+
     };
 
     /**
@@ -969,12 +1101,12 @@ class Channels {
      *    Return a promise.
      * @param {String} channel The channel to update
      * @param {String} visibility  The new channel visibility (closed or company)
-     * @return {Channel} Return the channel updated or an error
+     * @return {Promise<Channel>} Return the channel updated or an error
      */
     updateChannelVisibility(channel, visibility) {
         this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _entering_");
 
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter ", channel);
             this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1011,7 +1143,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
                 resolve(channelObj);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(updateChannelVisibility) error", err);
+                this._logger.log("error", LOG_ID + "(updateChannelVisibility) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
                 reject(err);
             });
@@ -1048,6 +1180,97 @@ class Channels {
         //channel.name = channel.name + "_updateToClosed";
         return this.updateChannelVisibility(channel, "closed");
     }
+
+    /**
+     * @public
+     * @method
+     * @since 1.43
+     * @instance
+     * @description
+     *    Update a channel avatar<br/>
+     *    Return a promise.
+     * @param {Channel} channel The Channel to update
+     * @param {string} urlAvatar  The avatar Url.  It must be resized to 512 pixels before calling this API.
+     * @return {Channel} Return the channel updated or an error
+     */
+    updateChannelAvatar (channel, urlAvatar) {
+        let that = this;
+        that._logger.log("debug", LOG_ID + "(updateChannelAvatar) _entering_");
+
+
+        if (!channel || !channel.id) {
+            that._logger.log("debug", LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ", channel);
+            that._logger.log("debug", LOG_ID + "(updateChannelAvatar) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!urlAvatar) {
+            that._logger.log("debug", LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter ", urlAvatar);
+            that._logger.log("debug", LOG_ID + "(updateChannelAvatar) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else {
+            return new Promise((resolve, reject) => {
+                try {
+                    that._logger.log("debug", LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                    let id = channel.id;
+                    let fileStats = fs.statSync(urlAvatar);
+                    let fd = fs.openSync(urlAvatar, "r+");
+                    let buf = new Buffer(fileStats.size);
+                    fs.readSync(fd, buf, 0, fileStats.size, null);
+                    let fileType = mimetypes.lookup(urlAvatar);
+
+                    that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
+                        that._logger.log("debug", LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                        resolve({
+                            code: "OK",
+                            label: "OK"
+                        });
+                    }).catch(function (err) {
+                        that._logger.log("error", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err,  ", for channel : ", channel);
+                            reject(err);
+                    });
+                } catch (err2) {
+                    that._logger.log("error", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err2,  ", for channel : ", channel);
+                    reject(err2);
+                }
+            });
+        }
+    };
+
+    /**
+     * @public
+     * @method
+     * @since 1.43
+     * @instance
+     * @description
+     *    Delete a channel avatar<br/>
+     *    Return a promise.
+     * @param {Channel} channel The channel to update
+     * @return {Channel} Return the channel updated or an error
+     */
+    deleteChannelAvatar(channel) {
+        let that = this;
+        that._logger.log("debug", LOG_ID + "(deleteChannelAvatar) _entering_");
+
+        if (!channel || !channel.id) {
+            that._logger.log("debug", LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ", channel);
+            that._logger.log("debug", LOG_ID + "(updateChannelAvatar) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else {
+            return new Promise((resolve, reject) => {
+                let id = channel.id;
+                that._rest.deleteChannelAvatar(id)
+                    .then(function () {
+                        that._logger.log("debug", LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                        resolve({
+                            code: "OK",
+                            label: "OK"
+                        });
+                    })
+                    .catch(function (err) {
+                        reject(err);
+                    });
+            });
+        }
+    };
 
     /**
      * @public
@@ -1091,7 +1314,7 @@ class Channels {
     public fetchChannelUsers(channel, options) : Promise<Array<{}>> {
         this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1128,7 +1351,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _exiting_");
                 resolve(users);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(fetchChannelUsers) error", err);
+                this._logger.log("error", LOG_ID + "(fetchChannelUsers) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _exiting_");
                 reject(err);
             });
@@ -1166,7 +1389,7 @@ class Channels {
     public deleteAllUsersFromChannel(channel) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1189,7 +1412,7 @@ class Channels {
                 });
 
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(deleteAllUsersFromChannel) error", err);
+                this._logger.log("error", LOG_ID + "(deleteAllUsersFromChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
                 reject(err);
             });
@@ -1208,9 +1431,15 @@ class Channels {
      *  TODO
      * @memberof Channels
      */
-    public updateChannelUsers(channelId, users) : Promise<Channel> {
+    public updateChannelUsers(channel, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(updateChannelUsers) _entering_");
+        if (!channel || !channel.id) {
+            this._logger.log("debug", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter", channel);
+            this._logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
 
+        let channelId = channel.id;
         return new Promise((resolve, reject) => {
             //this._logger.log("internal", LOG_ID + "(updateChannelUsers) this._channels : ", this._channels);
             this._rest.updateChannelUsers(channelId, users).then((res) => {
@@ -1229,7 +1458,7 @@ class Channels {
                     resolve(channelObj);
                 });
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(updateChannelUsers) error", err);
+                this._logger.log("error", LOG_ID + "(updateChannelUsers) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
                 reject(err);
             });
@@ -1252,7 +1481,7 @@ class Channels {
     public addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
         this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1270,7 +1499,7 @@ class Channels {
             usersId.push({"id": user.id, "type": "owner"});
         });
 
-        let updated = this.updateChannelUsers(channel.id, usersId);
+        let updated = this.updateChannelUsers(channel, usersId);
         this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _exiting_");
         return updated;
     }
@@ -1290,13 +1519,13 @@ class Channels {
     public addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id ) {
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        if (!publishers) {
+        if (!publishers || !(publishers.length > 0)) {
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter", publishers);
             this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1308,7 +1537,7 @@ class Channels {
             usersId.push({"id": user.id, "type": "publisher"});
         });
 
-        let updated = this.updateChannelUsers(channel.id, usersId);
+        let updated = this.updateChannelUsers(channel, usersId);
         this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _exiting_");
         return updated;
     }
@@ -1325,12 +1554,12 @@ class Channels {
      *  Add a list of members to the channel
      * @memberof Channels
      */
-    public addMembersToChannel(channel, members) : Promise<Channel> {
+    public async addMembersToChannel(channel, members) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addMembersToChannel) _entering_");
 
         //this._logger.log("internal", LOG_ID + "(addMembersToChannel) this._channels : ", this._channels);
 
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1355,7 +1584,7 @@ class Channels {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        let updated = this.updateChannelUsers(channel.id, usersId);
+        let updated = this.updateChannelUsers(channel, usersId);
         this._logger.log("debug", LOG_ID + "(addMembersToChannel) _exiting_");
         return updated;
     }
@@ -1393,7 +1622,7 @@ class Channels {
     public deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1411,7 +1640,7 @@ class Channels {
             usersId.push({"id": user.id, "type": "none"});
         });
 
-        let updated = this.updateChannelUsers(channel.id, usersId);
+        let updated = this.updateChannelUsers(channel, usersId);
         this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) _exiting_");
         return updated;
     }
@@ -1449,7 +1678,7 @@ class Channels {
 
         this._logger.log("debug", LOG_ID + "(fetchChannelItems) _entering_");
         
-        if (!channel) {
+        if (!channel || !channel.id) {
             this._logger.log("debug", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter", channel);
             this._logger.log("debug", LOG_ID + "(fetchChannelItems) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1487,7 +1716,7 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(fetchChannelItems) _exiting_");
                 resolve(listOfMessages);
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(fetchChannelItems) error", err);
+                this._logger.log("error", LOG_ID + "(fetchChannelItems) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchChannelItems) _exiting_");
                 reject(err);
             });
@@ -1529,7 +1758,7 @@ class Channels {
 
         this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _entering_");
 
-        if (!channelId) {
+        if (!channelId ) {
             this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter", channelId);
             this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -1556,10 +1785,11 @@ class Channels {
                     this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _exiting_");
                     resolve(channelObj);
                 }).catch((err) => {
+                    this._logger.log("error", LOG_ID + "(deleteItemFromChannel) error getChannel : ", err);
                     reject(err);
                 });
             }).catch((err) => {
-                this._logger.log("error", LOG_ID + "(deleteItemFromChannel) error", err);
+                this._logger.log("error", LOG_ID + "(deleteItemFromChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _exiting_");
                 reject(err);
             });
@@ -1590,6 +1820,7 @@ class Channels {
                 let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
+                this._logger.log("error", LOG_ID + "(getChannel) error : ", err);
                 reject(err);
             });
         });
@@ -1669,7 +1900,10 @@ class Channels {
                 //this.feedChannel.messages = [];
                 this.retrieveLatests()
                     .then(() => { resolve(channelToRemove); })
-                    .catch((err) => { reject(err); });
+                    .catch((err) => {
+                        this._logger.log("error", LOG_ID + "(removeChannelFromCache) error retrieveLatests : ", err);
+                        reject(err);
+                    });
             } else {
                 resolve(null);
             }
@@ -1723,7 +1957,7 @@ class Channels {
                     that._eventEmitter.emit("rainbow_channelcreated", {'id': newChannel.id});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
                 } else { // */
-                    that._eventEmitter.emit("rainbow_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD});
+                    that._eventEmitter.emit("rainbow_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                 //}
             });
     }
@@ -1746,7 +1980,7 @@ class Channels {
                     let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
                     //this._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelcreated : ", channelObj.id);
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD});
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                 }
 
                 // Handle channel invitation
@@ -1754,7 +1988,7 @@ class Channels {
                     let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     this.incrementInvitationCounter();
                     //this._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelupdated : ", channelObj.id, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, newChannel.id);
                 }
 
@@ -1765,7 +1999,7 @@ class Channels {
                     this.retrieveLatests()
                         .then(() => {
                             //this._logger.log("debug", LOG_ID + "(onAddToChannel) retrieveLatests rainbow_channelupdated : ", channelId, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
-                            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
+                            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                             //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                         });
                 }
@@ -1779,7 +2013,7 @@ class Channels {
         this._logger.log("debug", LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
         let channelDeleted = await that.removeChannelFromCache(channelId);
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
-        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE});
+        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
@@ -1798,7 +2032,7 @@ class Channels {
             //this.feedChannel.messages = [];
             this.retrieveLatests()
                 .then(() => {
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                 });
         }
@@ -1812,7 +2046,7 @@ class Channels {
                     return this.retrieveLatests();
                 })
                 .then(() => {
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
+                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                 });
         }
@@ -1831,7 +2065,7 @@ class Channels {
         // Update messagesList
         //this.feedChannel.messages = [];
         this.retrieveLatests().then(() => {
-            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE});
+            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
             //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
         });
     }
@@ -1843,7 +2077,7 @@ class Channels {
         let channelDeleted = await that.removeChannelFromCache(channelId);
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
 
-        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE});
+        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
                 //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
@@ -1853,7 +2087,7 @@ class Channels {
         let channel: Channel = this.getChannelFromCache(info.id);
         channel.subscribers_count = info.subscribers;
 
-        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
+        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId, userId);
     }
 
@@ -1863,7 +2097,7 @@ class Channels {
         let channel: Channel = this.getChannelFromCache(info.id);
         channel.subscribers_count = info.subscribers;
 
-        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE});
+        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId, userId);
     }
 

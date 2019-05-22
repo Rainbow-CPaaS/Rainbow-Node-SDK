@@ -19,59 +19,74 @@ class Channel {
     public companyId: string;
     public creationDate: Date;
     public users_count: number;
-    public avatar: string;
     public lastAvatarUpdateDate: Date;
-    public userRole: string = 'none';
-    public messageRetrieved: boolean = false;
-    public messages: any[] = [];
     public subscribed: boolean = false;
-    public deleted: boolean = false;
+    public type: string = "SIMPLE";
     public invited: boolean = false;
     public category: string;
-    public type: string = "SIMPLE";
+    public mode: string;
+    public subscribers_count: number;
+    public serverURL: string = "";
+    public max_items: number;
+    public max_payload_size: number;
     public pageIndex: number = 0;
     public isLoading: boolean = false;
     public complete: boolean = false;
     public users: any[] = [];
     public publishersRetreived: boolean = false;
-    public mode: string;
-    public subscribers_count: number;
     public loaded: boolean = false;
-    public serverURL: string = "";
+    public avatar: string;
+    public userRole: string = 'none';
+    public messageRetrieved: boolean = false;
+    public messages: any[] = [];
+    public deleted: boolean = false;
 
     /**
      * @this Channel
      */
     constructor(
-        name: string,
-        id: string,
-        visibility: string,
-        topic: string,
-        creatorId: string,
-        companyId: string,
-        creationDate: Date,
-        users_count: number,
-        lastAvatarUpdateDate: Date,
-        subscribed: boolean,
-        type: string,
-        invited: boolean,
-        category: string,
-        mode: string,
-        subscribers_count: number,
-        serverURL: string
+        _name: string,
+        _id: string,
+        _visibility: string,
+        _topic: string,
+        _creatorId: string,
+        _companyId: string,
+        _creationDate: Date,
+        _users_count: number,
+        _lastAvatarUpdateDate: Date,
+        _subscribed: boolean,
+        _type: string,
+        _invited: boolean,
+        _category: string,
+        _mode: string,
+        _subscribers_count: number,
+        _serverURL: string,
+        _max_items: number = 0,
+        _max_payload_size: number = 0,
+        _pageIndex: number = 0,
+        _isLoading: boolean = false,
+        _complete: boolean = false,
+        _users: any[] = [],
+        _publishersRetreived: boolean = false,
+        _loaded: boolean = false,
+        _avatar: string,
+        _userRole: string = 'none',
+        _messageRetrieved: boolean = false,
+        _messages: any[] = [],
+        _deleted: boolean = false
     ) {
         /**
          * @public
          * @property {string} name channel name
          *
          */
-        this.name = name;
+        this.name = _name;
         /**
          * @public
          * @property {string} id channel unique identifier
          *
          */
-        this.id = id;
+        this.id = _id;
         /**
          * @public
          * @property {string} visibility channel type/visibility<br/>
@@ -85,75 +100,78 @@ class Channel {
          * 					May be found by search for all users.<br/>
          *
          */
-        this.visibility = visibility;
+        this.visibility = _visibility;
         /**
          * @public
          * @property {string} topic channel topic
          *
          */
-        this.topic = topic;
+        this.topic = _topic;
         /**
          * @public
          * @property {string} creatorId the creator rainbow user id
          *
          */
-        this.creatorId = creatorId;
+        this.creatorId = _creatorId;
         /**
          * @public
          * @property {string} companyId the channel rainbow company id
          *
          */
-        this.companyId = companyId;
+        this.companyId = _companyId;
         /**
          * @public
          * @property {Date} creationDate creation date of the channel (read only, set automatically during creation)
          *
          */
-        this.creationDate = creationDate;
+        this.creationDate = _creationDate;
 
         /**
          * @public
          * @property {string} type type of role of the user : owner / member / publisher
          *
          */
-        this.type = type;
+        this.type = _type;
         /**
          * @public
          * @property {number} users_count The number of users in the channel
          *
          */
-        this.users_count = users_count;
+        this.users_count = _users_count;
 
         /**
          * @public
          * @property {number} subscribers_count The number of subscribers in the channel
          *
          */
-        this.subscribers_count = subscribers_count;
+        this.subscribers_count = _subscribers_count;
 
         /**
          @public
          * @property {string} category the category channel
          *
          */
-        this.category = category;
+        this.category = _category;
 
         /**
          @public
          * @property {string} mode the category mode
          *
          */
-        this.mode = mode;
+        this.mode = _mode;
 
-        this.serverURL = serverURL;
+        this.max_items = _max_items;
+        this.max_payload_size = _max_payload_size;
 
-        this.lastAvatarUpdateDate = lastAvatarUpdateDate;
+        this.serverURL = _serverURL;
+
+        this.lastAvatarUpdateDate = _lastAvatarUpdateDate;
         let timestamp = this.lastAvatarUpdateDate ? "&ts=" + new Date(this.lastAvatarUpdateDate).getTime() : "";
-        this.avatar = this.serverURL + "/api/channel-avatar/" + id + "?size=256" + timestamp;
+        this.avatar = this.serverURL + "/api/channel-avatar/" + _id + "?size=256" + timestamp;
 
-        if (subscribed !== undefined) { this.subscribed = subscribed; }
-        if (type !== undefined) { this.userRole = type; }
-        if (invited !== undefined) { this.invited = invited; }
+        if (_subscribed !== undefined) { this.subscribed = _subscribed; }
+        if (_type !== undefined) { this.userRole = _type; }
+        if (_invited !== undefined) { this.invited = _invited; }
 
         if (!this.mode) {
             switch (this.visibility) {
@@ -183,7 +201,7 @@ class Channel {
      */
     public static ChannelFactory() {
         return (data: any, serverURL : string): Channel => {
-            return new Channel(
+            let channel = new Channel(
                 data.name,
                 data.id,
                 data.visibility,
@@ -199,8 +217,34 @@ class Channel {
                 data.category,
                 data.mode,
                 data.subscribers_count,
-                serverURL
-            );
+                serverURL,
+                data.max_items,
+                data.max_payload_size,
+                data.pageIndex,
+                data.isLoading,
+                data.complete,
+                data.users,
+                data.publishersRetreived,
+                data.loaded,
+                data.avatar,
+                data.userRole,
+                data.messageRetrieved,
+                data.messages,
+                data.deleted
+        );
+
+            if (data) {
+                let bubbleproperties = Object.getOwnPropertyNames(channel);
+                Object.getOwnPropertyNames(data).forEach(
+                    (val, idx, array) => {
+                        //console.log(val + " -> " + data[val]);
+                        if (!bubbleproperties.find((el) => { return val == el ;})) {
+                            console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val, " -> ", data[val]);
+                        }
+                    });
+            }
+
+            return channel;
         };
     }
 }

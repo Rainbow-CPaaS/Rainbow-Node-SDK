@@ -257,6 +257,7 @@ class RESTService {
 
         let decodedToken = jwt(that.token);
         that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token");
+        that.logger.log("info", LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
         that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token", decodedToken);
         let halfExpirationDate = ( decodedToken.exp - decodedToken.iat ) / 2 + decodedToken.iat;
         let tokenExpirationTimestamp = halfExpirationDate * 1000;
@@ -280,7 +281,7 @@ class RESTService {
                 that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
                 clearTimeout(that.renewTokenInterval); 
             }
-            that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in " + usedExpirationDuration + "ms");
+            that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
             that.renewTokenInterval = setTimeout(function() {
                 that._renewAuthToken();
             }, usedExpirationDuration );
@@ -2195,7 +2196,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) _entering_");
 
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/unsubscribe", that.getRequestHeader()).then(function(json) {
+            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader()).then(function(json) {
                 that.logger.log("info", LOG_ID + "(unsubscribeToChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(unsubscribeToChannel) REST channel unsubscribed", json.data);
                 that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) _exiting_");
@@ -2255,7 +2256,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(updateChannel) _entering_");
 
-            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel, undefined).then(function(json) {
+            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(updateChannel) successfull");
                 that.logger.log("internal", LOG_ID + "(updateChannel) REST channel updated", json.data);
                 that.logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
@@ -2265,6 +2266,37 @@ class RESTService {
                 that.logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
                 reject(err);
             });
+        });
+    }
+
+    public uploadChannelAvatar(channelId: string, avatar: any, avatarSize: number, fileType : string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            //this.roomService.resizeImage(avatar, avatarSize, avatarSize)
+              //  .then((resizedImage) => {
+                    //var binaryData = this.roomService.getBinaryData(resizedImage);
+                    that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/avatar", that.getRequestHeader(), avatar, fileType).then((response: any) => {
+                        that.logger.log("info", LOG_ID + "(updateChannel) successfull channelId : ", channelId);
+                            resolve(response);
+                        })
+                        .catch((err) => {
+                            reject(err);
+                        });
+                //});
+        });
+    }
+
+    public deleteChannelAvatar(channelId: string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/avatar", that.getRequestHeader("image/jpeg"))
+                .then((response: any) => {
+                    that.logger.log("info", LOG_ID + "(deleteChannelAvatar) successfull channelId : ", channelId);
+                    resolve(response);
+                })
+                .catch((err) => {
+                    reject (err);
+                });
         });
     }
 

@@ -273,7 +273,7 @@ class Core {
 
         // Instantiate basic service
         this._proxy = new ProxyImpl(this.options.proxyOptions, this.logger);
-        this._http = new HTTPService(this.options.httpOptions, this.logger, this._proxy);
+        this._http = new HTTPService(this.options.httpOptions, this.logger, this._proxy, this._eventEmitter.iee);
         this._rest = new RESTService(this.options.credentials, this.options.applicationOptions, this.options._isOfficialRainbow(), this._eventEmitter.iee, this.logger);
         this._xmpp = new XMPPService(this.options.xmppOptions, this.options.imOptions, this.options.applicationOptions, this._eventEmitter.iee, this.logger, this._proxy);
 

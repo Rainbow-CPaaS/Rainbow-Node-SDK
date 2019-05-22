@@ -75,12 +75,14 @@
     "colors": "^1.3.3",
     "crypto-js": "^3.1.9-1",
     "debug-http": "^1.1.0",
+    "deep-equal": "latest",
     "express": "^4.16.3",
     "file-api": "^0.10.4",
     "https-proxy-agent": "2.2.1",
     "humanize-number": "0.0.2",
     "jwt-decode": "2.2.0",
     "md5": "^2.2.1",
+    "mime-types": "^2.1.24",
     "moment": "^2.24.0",
     "moment-duration-format": "^2.2.2",
     "promise.prototype.finally": "^3.1.0",
@@ -93,7 +95,6 @@
     "uuid4": "1.0.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.6.0",
-    "ws": "^6.1.3",
-    "deep-equal": "latest"
+    "ws": "^6.1.3"
   }
 }

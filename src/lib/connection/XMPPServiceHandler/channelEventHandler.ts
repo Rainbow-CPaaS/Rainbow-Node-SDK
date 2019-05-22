@@ -77,6 +77,7 @@ class ChannelEventHandler extends GenericHandler {
                             break;
                         case "thumbnail":
                             break;
+                        case "channel-subscription":
                         case "channel":
                             that.onChannelManagementMessageReceived(node);
                             break;

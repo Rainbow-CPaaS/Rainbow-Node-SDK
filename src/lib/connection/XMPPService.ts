@@ -1729,6 +1729,37 @@ class XMPPService {
             .log("debug", LOG_ID + "(getRosters) _exiting_");
     }
 
+    /****************************************************/
+    /**            XMPP ROSTER MANAGEMENT              **/
+    /****************************************************/
+    async sendSubscription (contact) {
+        let that = this;
+        // Return immediately if already subscribed
+        if (contact.subscribe === "to" || contact.subscribe === "both") {
+            return ;
+        }
+
+        // Send subscriptions for im and telephony presences
+        await that.sendSubscribeInvitation(contact.jid);
+        await that.sendSubscribeInvitation(contact.jidtel);
+
+        return ;
+    };
+
+    async sendSubscribeInvitation (jid) {
+        let that = this;
+        this.logger.log("debug", LOG_ID + "(sendSubscribeInvitation) Send subscribe invitation to ", jid);
+        let stanza = xml("iq", {
+            type: "get",
+            to: that.jid_tel + "/phone",
+            xmlns: NameSpacesLabels.ClientNameSpace,
+            "id": that.xmppUtils.getUniqueMessageId()
+        }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
+
+        this.logger.log("info", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
+        return this.xmppClient.sendIq(stanza);
+    };
+
     sendInitialBubblePresence(jid) {
         let that = this;
         this

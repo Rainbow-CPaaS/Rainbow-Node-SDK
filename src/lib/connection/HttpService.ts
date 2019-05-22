@@ -37,12 +37,14 @@ class HTTPService {
 	public _host: any;
 	public logger: any;
 	public proxy: any;
+    public eventEmitter: any;
 
-    constructor(_http, _logger, _proxy) {
+    constructor(_http, _logger, _proxy, _evtEmitter) {
         this.serverURL = _http.protocol + "://" + _http.host + ":" + _http.port;
         this._host = _http.host;
         this.logger = _logger;
         this.proxy = _proxy;
+        this.eventEmitter = _evtEmitter;
 
         let that = this;
 
@@ -109,7 +111,17 @@ class HTTPService {
         });
     }
 
-    get(url, headers, params): Promise<any> {
+    tokenExpirationControl(bodyjs: {errorCode : number, errorDetails: string}) : void{
+        let that =this;
+        if (bodyjs.errorCode === 401 && bodyjs.errorDetails === "jwt expired") {
+            that.logger.log("debug", LOG_ID + "(_renewAuthToken) _exiting_");
+            that.eventEmitter.emit("rainbow_tokenexpired");
+        }
+    }
+
+
+
+get(url, headers, params): Promise<any> {
 
         let that = this;
 
@@ -140,10 +152,13 @@ class HTTPService {
                         } else {
                             if (response) {
                                 if (response.statusCode) {
-                                    that.logger.log("info", LOG_ID + "(get) HTTP statusCode", response.statusCode);
+                                    that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
                                     if (response.statusCode >= 200 && response.statusCode <= 206) {
                                         if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            let json = JSON.parse(response.body);
+                                            let json = {};
+                                            if (response.body) {
+                                                json = JSON.parse(response.body);
+                                            }
                                             resolve(json);
                                         } else {
                                             reject({
@@ -154,18 +169,21 @@ class HTTPService {
                                         }
                                     } else {
                                         that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
-                                        let bodyjs = JSON.parse(response.body);
-
+                                        let bodyjs : any = {};
+                                        if (response.body) {
+                                            bodyjs = JSON.parse(response.body);
+                                        }
                                         let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                         let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
                                         errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
-
+                                        that.tokenExpirationControl(bodyjs);
                                         reject({
                                             code: response.statusCode,
                                             msg: msg,
                                             details: errorMsgDetail,
                                             error: bodyjs
                                         });
+
                                     }
                                 } else {
                                     if (response.error && response.error.reason) {
@@ -194,57 +212,6 @@ class HTTPService {
                             }
                         }
                     });
-
-
-                    /*
-                    let request = unirest.get(that.serverURL + url);
-                    request.headers(headers);
-                    if (that.proxy && that.proxy.isProxyConfigured) {
-                        request.proxy(that.proxy.proxyURL);
-                    }
-                    request.end(function(response) {
-                        if (response.code) {
-                            that.logger.log("info", LOG_ID + "(get) HTTP code", response.code);
-                            if (response.code === 200) {
-                                if ( !response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                    resolve(response.body);
-                                } else {
-                                    reject({
-                                        code: -1,
-                                        msg: "Bad content, please check your host",
-                                        details: ""
-                                    });
-                                }
-                            }
-                            else {
-                                that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200 , response : ", JSON.stringify(response));
-                                reject({
-                                    code: response.code,
-                                    msg: response.body ? response.body.errorMsg || "" : "",
-                                    details: response.body ? JSON.stringify(response.body.errorDetails) || "" : ""
-                                });
-                            }
-                        }
-                        else {
-                            if (response.error && response.error.reason) {
-                                that.logger.log("error", LOG_ID + "(get) HTTP security issue", response.error.reason);
-                                reject({
-                                    code: -1,
-                                    msg: response.error.reason,
-                                    details: ""
-                                });
-                            }
-                            else {
-                                that.logger.warn("warn", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                that.logger.log("info", LOG_ID + "(get) HTTP other issue", response);
-                                reject({
-                                    code: -1,
-                                    msg: "Unknown error",
-                                    details: response
-                                });
-                            }
-                        }
-                    }); // */
                 } else {
                     let buff = [];
                     let err = {
@@ -342,7 +309,10 @@ class HTTPService {
                             that.logger.log("info", LOG_ID + "(post) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                    let json = JSON.parse(response.body);
+                                    let json = {};
+                                    if (response.body) {
+                                        json = JSON.parse(response.body);
+                                    }
                                     resolve(json);
                                 } else {
                                     reject({
@@ -352,12 +322,17 @@ class HTTPService {
                                     });
                                 }
                             } else {
-                                let bodyjs = JSON.parse(response.body);
+                                let bodyjs : any = {};
+                                if (response.body) {
+                                    bodyjs = JSON.parse(response.body);
+                                }
+
                                 that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
                                 let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                 let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
 
+                                that.tokenExpirationControl(bodyjs);
                                 reject({
                                     code: response.statusCode,
                                     msg: msg,
@@ -392,33 +367,6 @@ class HTTPService {
                     }
                 }
             });
-
-            /*
-            let request = unirest.post(that.serverURL + url);
-            request.headers(headers);
-
-            contentType = contentType || "json";
-            request.type(contentType);
-
-            request.send(data);
-            
-            if (that.proxy && that.proxy.isProxyConfigured) {
-                request.proxy(that.proxy.proxyURL);
-            }
-            request.end(function(response) {
-                that.logger.log("info", LOG_ID + "(post) HTTP code", response.code + ", message : " + response.error ? response.error.message || "" : "");
-                if (response.code === 200 || response.code === 201) {
-                    resolve(response.body);
-                }
-                else {
-                    reject({
-                        code: response.code,
-                        msg: response.body ? response.body.errorMsg || "" : "",
-                        details: response.body ? response.body.errorDetails || "" : ""
-                    });
-                }
-            });
-            // */
         });
     }
 
@@ -461,7 +409,10 @@ class HTTPService {
                                 that.logger.log("info", LOG_ID + "(put) HTTP statusCode", response.statusCode);
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                        let json = JSON.parse(response.body);
+                                        let json = {};
+                                        if (response.body) {
+                                            json = JSON.parse(response.body);
+                                        }
                                         resolve(json);
                                     } else {
                                         reject({
@@ -471,12 +422,16 @@ class HTTPService {
                                         });
                                     }
                                 } else {
-                                    let bodyjs = JSON.parse(response.body);
+                                    let bodyjs : any = {};
+                                    if (response.body) {
+                                        bodyjs = JSON.parse(response.body);
+                                    }
                                     that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
                                     let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                     let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
                                     errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
 
+                                    that.tokenExpirationControl(bodyjs);
                                     reject({
                                         code: response.statusCode,
                                         msg: msg,
@@ -511,32 +466,6 @@ class HTTPService {
                         }
                     }
                 });
-            /*
-            let request = unirest.put(that.serverURL + url);
-            request.headers(headers);
-            if (type) {
-                request.type(type);
-            } else {
-                request.type("json");
-            }
-            request.send(data);
-            if (that.proxy.isProxyConfigured) {
-                request.proxy(that.proxy.proxyURL);
-            }
-            request.end(function(response) {
-                that.logger.log("info", LOG_ID + "(put) HTTP code", response.code);
-                if (response.code === 200 || response.code === 201) {
-                    resolve(response.body);
-                }
-                else {
-                    reject({
-                        code: response.code,
-                        msg: response.body ? response.body.errorMsg || "" : "",
-                        details: response.body ? response.body.errorDetails || "" : ""
-                    });
-                }
-            });
-             // */
         });
     }
 
@@ -622,10 +551,18 @@ class HTTPService {
                 } else {
                     if (response) {
                         that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
-                        if (response.statusCode === 200) {
-                            resolve(JSON.parse(response.body));
+                        if (response.statusCode >= 200 && response.statusCode <= 206) {
+                            let bodyjs = {};
+                            if (response.body) {
+                                bodyjs = JSON.parse(response.body);
+                            }
+                            resolve (bodyjs);
                         } else {
-                            let bodyjs = JSON.parse(response.body);
+                            let bodyjs : any = {};
+                            if (response.body) {
+                                bodyjs=JSON.parse(response.body);
+                            }
+                            that.tokenExpirationControl(bodyjs);
                             reject({
                                 code: response.statusCode,
                                 msg: response.body ? response.body.errorMsg || "" : "",
@@ -637,24 +574,6 @@ class HTTPService {
                 }
             });
 
-            /*let request = unirest.delete(that.serverURL + url);
-            request.headers(headers);
-            if (that.proxy.isProxyConfigured) {
-                request.proxy(that.proxy.proxyURL);
-            }
-            request.end(function(response) {
-                that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
-                if (response.code === 200) {
-                    resolve(response.body);
-                }
-                else {
-                    reject({
-                        code: response.code,
-                        msg: response.body ? response.body.errorMsg || "" : "",
-                        details: response.body ? response.body.errorDetails || "" : ""
-                    });
-                }
-            }); // */
         });
     }
 }

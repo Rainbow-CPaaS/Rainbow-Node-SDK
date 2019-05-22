@@ -143,7 +143,7 @@ rainbowSDK.start().then(() => {
 
 ### List of events
 
-Here is the complete list of the events that you can subscribe on:
+Here is list of some events that you can subscribe on:
 
 | Name | Description |
 |------|------------|
@@ -165,6 +165,7 @@ Here is the complete list of the events that you can subscribe on:
 | **rainbow_onbubbleownaffiliationchanged** | Fired when a user changes the user connected affiliation with a bubble |
 | **rainbow_onbubbleinvitationreceived** | Fired when an invitation to join a bubble is received |
 
+Full list is available at [here](https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/events)
 
 ## Instant Messaging
 

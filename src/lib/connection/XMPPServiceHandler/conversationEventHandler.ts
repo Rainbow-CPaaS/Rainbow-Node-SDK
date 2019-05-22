@@ -515,6 +515,7 @@ class ConversationEventHandler extends GenericHandler {
                         case "thumbnail":
                             that.onThumbnailManagementMessageReceived(node);
                             break;
+                        case "channel-subscription":
                         case "channel":
                             //treated in channelEventHandler::onChannelManagementMessageReceived(node);
                             break;

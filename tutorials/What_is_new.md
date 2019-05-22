@@ -5,7 +5,7 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
-### SDK for Node.JS 1.55 - April 2019
+### SDK for Node.JS 1.56 - April 2019
 
 ---
 
@@ -21,12 +21,24 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--   none
+-   Refactor the channel's events to follow the event received from server : 
+    - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)    
+    - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)
 
 **Others Changes**
 
 -   Add TelephonyService::deflectCall method to deflect a call to an other telephone number
 -   Update TelephonyService doc.
+-   Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value. 
+-   Add event emitter in HttpService to raise event when token fail
+-   Fix json parse in HttpService, and treat token expiration
+-   Add mime-types lib to find file type.
+-   Fix issue RESTService::unsubscribeToChannel method
+-   Add uploadChannelAvatar  deleteChannelAvatar methods to manbage the avatar of a channel.
+-   Add treatment of "channel-subscription" event
+-   Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubbles in cache.
+-   Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
+-   Add method ChannelsService::updateChannel to Update a channel
 
 ### SDK for Node.JS 1.55 - April 2019
 

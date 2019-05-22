@@ -466,7 +466,7 @@ Here is the list of Markdown tags supported by the Rainbow official Web applicat
 
 - **Emphasis**: `*italics*` and `**bold**`
 
-- **Lists**: `- `, `+ ` or `* ``
+- **Lists**: `- `, `+ ` or `* `
 
 - **Links**: `[a link](https://www.hub.openrainbow.com)`
 

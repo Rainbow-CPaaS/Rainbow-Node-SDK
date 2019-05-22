@@ -893,7 +893,8 @@ class Conversations {
             var fileExtension = file.name.split(".").pop();
             var fileMimeType = file.type;
             var viewers = [];
-            var message = typeof (data) === "object" ? data : undefined;
+            //var message = typeof (data) === "object" ? data : undefined;
+            var message = data;
             var currentFileDescriptor;
 
             if (conversation.type === Conversation.Type.ONE_TO_ONE) {
@@ -948,7 +949,7 @@ class Conversations {
                                 return Promise.resolve(fileDesc);
                             },
                             function errorCallback(error) {
-                                that._logger.log("error", LOG_ID + "uploadAFileByChunk error");
+                                that._logger.log("error", LOG_ID + "uploadAFileByChunk error", error);
 
                                 //do we need to delete the file descriptor from the server if error ??
                                 that._fileStorageService.deleteFileDescriptor(currentFileDescriptor.id);
@@ -980,7 +981,7 @@ class Conversations {
                         fileDescriptorResult.state = "uploaded";
                         fileDescriptorResult.chunkPerformed = 0;
                         fileDescriptorResult.chunkTotalNumber = 0;
-                        let messagefs = that.sendExistingFSMessage(conversation, fileDescriptorResult.fileName, fileDescriptorResult);
+                        let messagefs = that.sendExistingFSMessage(conversation, message, fileDescriptorResult);
                         that.storePendingMessage(conversation, messagefs);
                         resolve(messagefs);
                     },

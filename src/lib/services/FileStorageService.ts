@@ -161,7 +161,7 @@ class FileStorage {
 
                 // Allow to pass a file path (for test purpose)
                 if ( typeof (file) === "string") {
-                    let errorMessage = "The file parameter must be an object which describe the file";
+                    let errorMessage = "The file parameter must be an object which describe the file with the porperties : { name, path, type, size }";
                     that.logger.log("error", LOG_ID + "(_addFileToConversation) " + errorMessage);
                     reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     /*let xhr = new XMLHttpRequest();
@@ -250,11 +250,12 @@ class FileStorage {
                     label: "Parameter 'conversation' is not a one-to-one conversation"
                 }); // */
             } else {
-                that.logger.log("debug", LOG_ID + "[uploadFileToConversation ] ::  Try to add a file " + file + " to the conversation " + conversation.id);
+                that.logger.log("debug", LOG_ID + "[uploadFileToConversation ] ::  Try to add a file ", file, " to the conversation ", conversation.id);
                 that._addFileToConversation(conversation, file, strMessage).then(function(msg) {
                     that.logger.log("info", LOG_ID + "[uploadFileToConversation ] ::  file added");
                     resolve(msg);
                 }).catch(function(err) {
+                    that.logger.log("error", LOG_ID + "[uploadFileToConversation ] ::  error when Try to add a file ", file, " to the conversation ", conversation.id, " : ", err);
                     reject(err);
                 });
             }
