@@ -105,10 +105,12 @@ class Contact {
 	public colorIndex: any;
 	public color: any;
 	public _id: any;
-	public isBot: any;
+	//public isBot: any;
 	public isInDefaultCompany: any;
 	public company: any;
 	public hasPhoneNumber: any;
+	public guestMode: any;
+    public openInviteId: any;
 
     constructor() {
 
@@ -284,7 +286,7 @@ class Contact {
         /**
          * @public
          * @readonly
-         * @property {string} roles The role of the Contact. Can be `guest`, `user`, `admin`
+         * @property  {string[]} roles (For the connected user only). The associated roles of the connected user. Can be `guest`, `user`, `admin`
          * @instance
          * @description
          *  This field will soon become unavailable if the user is not allowed to view it, to follow the GPRD law.
@@ -496,6 +498,20 @@ class Contact {
          */
         this.initialized = false;
 
+        /**
+         * @public
+         * @property {boolean} guestMode Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
+         * @readonly
+         */
+        this.guestMode = false;
+
+        /**
+         * @public
+         * @property {string} id The open invite ID of the user
+         * @readonly
+         */
+        this.openInviteId = null;
+
     }
 
     /**
@@ -622,12 +638,14 @@ class Contact {
         that.timezone = userData.timezone;
         that.roles = userData.roles;
         that.adminType = userData.adminType;
-        that.isBot = false;
+        //that.isBot = false;
         that.isTerminated = userData.isTerminated;
         that.isInDefaultCompany = userData.isInDefaultCompany;
         that.lastAvatarUpdateDate = userData.lastAvatarUpdateDate;
         that.initialized = userData.isInitialized;
         that.avatar = userData.avatar;
+        that.guestMode = userData.guestMode ? userData.guestMode : false;
+        this.openInviteId = userData.openInviteId ? userData.openInviteId : this.openInviteId;
 
         // Handle jids
         if (userData.jid_im) {
@@ -734,6 +752,9 @@ class Contact {
         that.computeDisplayName();
     }
 
+    isGuest() {
+        return this.guestMode;
+    };
 }
 
 module.exports = {'Contact' : Contact, 'AdminType' : AdminType, 'NameUpdatePrio' : NameUpdatePrio};

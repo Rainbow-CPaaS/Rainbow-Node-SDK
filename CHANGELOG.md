@@ -26,7 +26,8 @@ Fix new conversation in a Bubble event
 Add calllog API doc  
 Refactor BubblesService::deleteBubble to not close the Bubble before the delete  
 Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).  
-
+Add guestMode property in Contact class : Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
+Add openInviteId property in Contact class : The open invite ID of the user.
 
 ## [1.55.0] - 2018-04-30
 Update comments limitations => limits

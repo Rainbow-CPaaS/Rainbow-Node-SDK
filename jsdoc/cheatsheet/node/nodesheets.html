@@ -63,9 +63,8 @@ Events ::event : rainbow_onfilecreated
 Events ::event : rainbow_onfileupdated
 Events ::event : rainbow_onfiledeleted
 Events ::event : rainbow_onthumbnailcreated
-Events ::event : rainbow_onchannelcreated
-Events ::event : rainbow_onchanneldeleted
 Events ::event : rainbow_onchannelupdated
+Events ::event : rainbow_channelusersubscription
 Events ::event : rainbow_oncalllogupdated
 Events ::event : rainbow_oncalllogackupdated
 Events : Object : on(string, function)
@@ -142,11 +141,11 @@ Contact : string : jid_im
 Contact : string : jid
 Contact : string : jid_tel
 Contact : string : jidtel
-Contact : string : avatar
+Contact : Object : avatar
 Contact : string : lastAvatarUpdateDate
 Contact : string : lastUpdateDate
 Contact : string : adminType
-Contact : string : roles
+Contact : string[] : roles
 Contact : Object[] : phoneNumbers
 Contact : string : phonePro
 Contact : string : phoneProCan
@@ -174,6 +173,8 @@ Contact : number : nameUpdatePrio
 Contact : string : initials
 Contact : string : nickname
 Contact : boolean : roster
+Contact : boolean : guestMode
+Contact : string : openInviteId
 Contact : string : displayName
 Message : string : id
 Message : string : fromJid

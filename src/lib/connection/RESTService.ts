@@ -385,7 +385,7 @@ class RESTService {
                 resolve(null);
             }
             else {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id), that.getRequestHeader() , undefined).then(function(json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id) + "?format=full", that.getRequestHeader() , undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByID) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByID) REST contact received ", json.data);
                     that.logger.log("debug", LOG_ID + "(getContactInformationByID) _exiting_");

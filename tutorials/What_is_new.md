@@ -43,6 +43,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add calllog API doc
 -   Refactor BubblesService::deleteBubble to not close the Bubble before the delete
 -   Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).
+-   Add guestMode property in Contact class : Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
+-   Add openInviteId property in Contact class : The open invite ID of the user.
 
 ### SDK for Node.JS 1.55 - April 2019
 

@@ -496,7 +496,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByLoginEmail(loginEmail) {
+    async getContactByLoginEmail(loginEmail) {
 
         let that = this;
 
@@ -518,34 +518,38 @@ class Contacts {
                 if (contactFound) {
                     that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found locally", contactFound);
                     resolve(contactFound);
-                }
-                else {
+                } else {
                     that.logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
-                    that.rest.getContactInformationByLoginEmail(loginEmail).then((contactsFromServeur : any) => {
+                    that.rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: any) => {
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
-                            let _contactFromServer = contactsFromServeur[0];
                             let contact = null;
+                            that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found on server");
+                            let _contactFromServer = contactsFromServeur[0];
                             if (_contactFromServer) {
-                                that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found on server");
-                                let contactIndex = that.contacts.findIndex((value) => {
-                                    return value.jid_im === _contactFromServer.jid_im;
-                                });
+                                await that.getContactById(_contactFromServer.id).then((contactInformation : any) => {
+                                    contact = contactInformation;
+                                    that.logger.log("info", LOG_ID + "(getContactByLoginEmail) full data contact", contact, ", found on server with loginEmail : ", loginEmail);
 
-                                if ( contactIndex !== -1 ) {
-                                    contact = that.contacts[contactIndex];
-                                } else {
-                                    contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
-                                }
-                                //that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) before updateFromUserData ", contact);
-                                contact.updateFromUserData(_contactFromServer);
-                                contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
-                            }
-                            else {
-                                that.logger.log("info", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail", loginEmail);
+                                    /*let contactIndex = that.contacts.findIndex((value) => {
+                                        return value.jid_im === contactInformation.jid_im;
+                                    });
+
+                                    if (contactIndex !== -1) {
+                                        contact = that.contacts[contactIndex];
+                                    } else {
+                                        contact = that.createBasicContact(contactInformation.jid_im, undefined);
+                                    }
+                                    //that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) before updateFromUserData ", contact);
+                                    contact.updateFromUserData(contactInformation);
+                                    contact.avatar = that.getAvatarByContactId(contactInformation.id, contactInformation.lastAvatarUpdateDate);
+
+                                     */
+                                });
+                            } else {
+                                that.logger.log("info", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
                             }
                             resolve(contact);
-                        }
-                        else {
+                        } else {
                             that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail", loginEmail);
                             resolve(null);
                         }
@@ -659,7 +663,6 @@ class Contacts {
      * @method addToContactsList
      * @instance
      * @memberof Contacts
-     * @description
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
