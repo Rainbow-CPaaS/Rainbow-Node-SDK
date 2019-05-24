@@ -1073,7 +1073,7 @@ class RESTService {
 
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader()).then(function(json) {
                  that.logger.log("info", LOG_ID + "(deleteBubble) successfull");
-                 that.logger.log("internal", LOG_ID + "(deleteBubble) REST leave bubble", json.data);
+                 that.logger.log("internal", LOG_ID + "(deleteBubble) REST leave bubble : ", json);
                  that.logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
                  resolve(json.data);
             }).catch(function(err) {

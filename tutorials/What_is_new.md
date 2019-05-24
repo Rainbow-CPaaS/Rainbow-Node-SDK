@@ -40,6 +40,9 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
 -   Add method ChannelsService::updateChannel to Update a channel
 -   Fix new conversation in a Bubble event 
+-   Add calllog API doc
+-   Refactor BubblesService::deleteBubble to not close the Bubble before the delete
+-   Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).
 
 ### SDK for Node.JS 1.55 - April 2019
 

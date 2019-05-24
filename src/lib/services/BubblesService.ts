@@ -255,6 +255,50 @@ class Bubbles {
     deleteBubble(bubble) {
         let that = this;
 
+        return new Promise(function (resolve, reject) {
+            that._logger.log("debug", LOG_ID + "(deleteBubble) _entering_");
+
+            if (!bubble) {
+                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.deleteBubble(bubble.id).then(function (resultDelete) {
+                //let bubbleRemoved = that.removeBubbleFromCache(updatedBubble.id);
+                /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
+                    return el.id === updatedBubble.id;
+                }), 1); // */
+                that._logger.log("debug", LOG_ID + "(deleteBubble) delete bubble : ", bubble, ", resultDelete : ", resultDelete, " bubble successfull");
+                that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
+                //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
+                //resolve( Object.assign(bubble, bubbleRemoved));
+                resolve(bubble);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(deleteBubble) error");
+                that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method closeAndDeleteBubble
+     * @instance
+     * @param {Bubble} bubble  The bubble to close + delete
+     * @memberof Bubbles
+     * @description
+     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
+     * @async
+     * @return {Promise<Bubble, ErrorManager>}
+     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
+     * @category async
+     */
+    closeAndDeleteBubble(bubble) {
+        let that = this;
+
         return new Promise(function(resolve, reject) {
             that._logger.log("debug", LOG_ID + "(deleteBubble) _entering_");
 
@@ -263,7 +307,7 @@ class Bubbles {
                 that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
-            } 
+            }
 
             that.closeBubble(bubble).then((updatedBubble: any) => {
                 that._rest.deleteBubble(updatedBubble.id).then(function() {
@@ -283,7 +327,7 @@ class Bubbles {
                 });
             }).catch((err) => {
                 reject(err);
-            });    
+            });
         });
     }
 
@@ -337,37 +381,44 @@ class Bubbles {
                 that._logger.log("info", LOG_ID + "(closeBubble) bubble is already closed", bubble);
                 resolve(bubble);
             } else {
-                var queue = [];
-                bubble.users.forEach(function(user) {
-                    if (user.userId !== that._rest.userId) {
+                let queue = [];
+                bubble.users.forEach(function (user) {
+                    if (user.userId !== that._rest.userId && user.status !== Bubble.RoomUserStatus.DELETED && user.status !== Bubble.RoomUserStatus.REJECTED) {
+                        // if (user.userId !== that._rest.userId) {
                         // unsubscribe everyone except the connected user
                         queue.push(user.userId);
+                        //}
                     }
                 });
 
                 // unsubscribe the connected user
-                queue.push(that._rest.userId);
+                // queue.push(that._rest.userId);
 
                 unsubscribeParticipants(queue).then(() => {
                     that._logger.log("info", LOG_ID + "(closeBubble) all users have been unsubscribed from bubble. Bubble is closed");
 
-                    that._rest.getBubble(bubble.id).then(function(bubbleUpdated : any) {
-                        // Update the existing local bubble stored
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    that.removeContactFromBubble({id: that._rest.userId}, bubble).then(() => {
+                        that._rest.getBubble(bubble.id).then(function (bubbleUpdated: any) {
 
-                        /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
-                        if ( foundIndex > -1) {
-                            bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
-                            that._bubbles[foundIndex] = bubbleUpdated;
-                        } else {
-                            that._logger.log("warn", LOG_ID + "(closeBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
-                        }
-                        // */
+                            //
 
-                        that._logger.log("debug", LOG_ID + "(closeBubble) _exiting_");
-                        resolve(bubble);
+                            // Update the existing local bubble stored
+                            let bubbleReturned = that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                            /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                            if ( foundIndex > -1) {
+                                bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
+                                that._bubbles[foundIndex] = bubbleUpdated;
+                            } else {
+                                that._logger.log("warn", LOG_ID + "(closeBubble) bubble with id:" + bubbleUpdated.id + " is no more available");
+                            }
+                            // */
+
+                            that._logger.log("debug", LOG_ID + "(closeBubble) _exiting_");
+                            resolve(bubbleReturned);
+                        });
                     });
-                }).catch( (err) => {
+                }).catch((err) => {
                     reject(err);
                 });
             }

@@ -29,7 +29,9 @@ class Bubble {
         public confEndpoints: [];
         public activeUsersCounter: number;
 
-    constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
+        public static RoomUserStatus = { "INVITED": "invited", "ACCEPTED": "accepted", "UNSUBSCRIBED": "unsubscribed", "REJECTED": "rejected", "DELETED": "deleted" };
+
+        constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                 _disableNotifications : boolean = false, _lastAvatarUpdateDate : any = null, _guestEmails : [] = [], _confEndpoints : [] = [], _activeUsersCounter : number = 0 ) {
         
         /**

@@ -4,25 +4,28 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 
 ## [1.56.0] - 2018-05-XX
-Add TelephonyService::deflectCall method to deflect a call to an other telephone number
-Update TelephonyService doc.
-Move channel events from conversationEventHandler to channelEventHandler. 
-Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value. 
-Refactor the channel's events to follow the event received from server : 
+Add TelephonyService::deflectCall method to deflect a call to an other telephone number  
+Update TelephonyService doc.  
+Move channel events from conversationEventHandler to channelEventHandler.   
+Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value.   
+Refactor the channel's events to follow the event received from server :   
  - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)    
- - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)
-Add event emitter in HttpService to raise event when token fail
-Fix json parse in HttpService, and treat token expiration
-Add mime-types lib to find file type.
-Update Bubble Class to have a factory
-Update Channel Class to have a factory
-Fix issue RESTService::unsubscribeToChannel method
-Add uploadChannelAvatar  deleteChannelAvatar methods to manbage the avatar of a channel.
-Add treatment of "channel-subscription" event
-Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubble in cache.
-Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
-Add method ChannelsService::updateChannel to Update a channel
-Fix new conversation in a Bubble event 
+ - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)  
+Add event emitter in HttpService to raise event when token fail  
+Fix json parse in HttpService, and treat token expiration  
+Add mime-types lib to find file type.  
+Update Bubble Class to have a factory  
+Update Channel Class to have a factory  
+Fix issue RESTService::unsubscribeToChannel method  
+Add uploadChannelAvatar  deleteChannelAvatar methods to manbage the avatar of a channel.  
+Add treatment of "channel-subscription" event  
+Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubble in cache.  
+Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id  
+Add method ChannelsService::updateChannel to Update a channel  
+Fix new conversation in a Bubble event   
+Add calllog API doc  
+Refactor BubblesService::deleteBubble to not close the Bubble before the delete  
+Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).  
 
 
 ## [1.55.0] - 2018-04-30
