@@ -143,6 +143,7 @@ class Bubble {
         if (data) {
 
             let bubbleproperties = Object.getOwnPropertyNames(that);
+            //console.log("updateBubble update Bubble with : ", data["id"]);
             Object.getOwnPropertyNames(data).forEach(
                 (val, idx, array) => {
                     //console.log(val + " -> " + data[val]);

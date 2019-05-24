@@ -1865,7 +1865,7 @@ class Channels {
             //this._channels.splice(channelFoundindex,1,channelObj);
             //channelCached = channelObj;
             this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) in update this._channels : ", this._channels);
-            this._channels[channelFoundindex].updateBubble(channel);
+            this._channels[channelFoundindex].updateChannel(channel);
             channelObj = this._channels[channelFoundindex];
         } else {
             this._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) add in cache channelObj : ", channelObj);

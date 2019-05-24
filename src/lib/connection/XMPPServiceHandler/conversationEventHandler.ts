@@ -745,6 +745,8 @@ class ConversationEventHandler extends GenericHandler {
                     } else {
                         if (action === "create") {
                             let convId = node.find("peer").text();
+                            let peerId = node.find("peerId").text();
+
                             let convDbId = node.attrs.id;
                             let lastModification = new Date(node.find("lastMessageDate").text());
                             let lastMessageText = node.find("lastMessageText").text();
@@ -758,7 +760,10 @@ class ConversationEventHandler extends GenericHandler {
                             if (type === "user") {
                                 conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
                             } else {
-                                conversationGetter = this.conversationService.getConversationByBubbleId(convId);
+                                let bubbleId = convId;
+                                that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId );
+                                // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
+                                conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null,  muted, new Date(), lastMessageSender);
                             }
 
                             conversationGetter

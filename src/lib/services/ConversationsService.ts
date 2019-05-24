@@ -1320,7 +1320,7 @@ class Conversations {
      * @param {String} bubbleId Bubble id of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
-    getConversationByBubbleId(bubbleId) {
+    async getConversationByBubbleId(bubbleId) {
         if (this.conversations) {
             for (var key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.id === bubbleId) {

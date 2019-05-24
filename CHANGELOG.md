@@ -22,6 +22,7 @@ Add treatment of "channel-subscription" event
 Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubble in cache.
 Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
 Add method ChannelsService::updateChannel to Update a channel
+Fix new conversation in a Bubble event 
 
 
 ## [1.55.0] - 2018-04-30

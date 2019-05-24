@@ -39,6 +39,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubbles in cache.
 -   Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
 -   Add method ChannelsService::updateChannel to Update a channel
+-   Fix new conversation in a Bubble event 
 
 ### SDK for Node.JS 1.55 - April 2019
 

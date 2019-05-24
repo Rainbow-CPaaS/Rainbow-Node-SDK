@@ -195,6 +195,7 @@ class Channel {
         if (data) {
 
             let channelproperties = Object.getOwnPropertyNames(that);
+            //console.log("updateChannel update Channel with : ", data["id"]);
             Object.getOwnPropertyNames(data).forEach(
                 (val, idx, array) => {
                     //console.log(val + " -> " + data[val]);
