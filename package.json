@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha --reporter spec",
     "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha",
-    "startafterbuildApiServer": "nodemon $NODE_DEBUG_OPTION  afterbuild/afterbuildApiServer.js"
+    "startafterbuildApiServer": "nodemon $NODE_DEBUG_OPTION  afterbuild/afterbuildApiServer.js",
+    "sendmail": "cd mailing/ && node mailChangelog.js notify -e production"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,13 @@
+fromEmail: "noreply@openrainbow.com"
+fromName: "Rainbow CPAAS Team"
+toEmail: "rainbow-deliveries@al-enterprise.com"
+toName: "Rainbow Deliveries"
+ccEmail: "rainbowcpaas@al-enterprise.com"
+ccName: "Rainbow CPAAS"
+subject: "[Rainbow Node SDK] Version "
+component: "Rainbow Node SDK"
+preproduction: "PRE-PRODUCTION"
+production: "PRODUCTION"
+deliveries:
+    - "title": "Rainbow Node SDK"
+      "path": "./CHANGELOG.md"
