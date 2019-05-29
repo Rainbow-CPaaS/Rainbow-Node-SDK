@@ -111,6 +111,8 @@ class Contact {
 	public hasPhoneNumber: any;
 	public guestMode: any;
     public openInviteId: any;
+    public userInfo1: null;
+    public userInfo2: null;
 
     constructor() {
 
@@ -512,6 +514,9 @@ class Contact {
          */
         this.openInviteId = null;
 
+        this.userInfo1 = null;
+        this.userInfo2 = null;
+
     }
 
     /**
@@ -555,8 +560,8 @@ class Contact {
     }
 
     computeCompleteDisplayName (firstName, lastName) {
-        var displayName = "";
-        var initials = "";
+        let displayName = "";
+        let initials = "";
         if (lastName.length !== 1 && firstName.length !== 2) {
             if (config.displayOrder === "firstLast") {
                 displayName = firstName + " " + lastName;
@@ -580,10 +585,10 @@ class Contact {
         this.initials = initials;
 
         // Compute contact color
-        var upperCaseDisplayName = this.displayName.toUpperCase();
-        var sum = 0;
+        let upperCaseDisplayName = this.displayName.toUpperCase();
+        let sum = 0;
 
-        for (var i = 0; i < upperCaseDisplayName.length; i++) {
+        for (let i = 0; i < upperCaseDisplayName.length; i++) {
             sum += upperCaseDisplayName.charCodeAt(i);
         }
 
@@ -592,9 +597,9 @@ class Contact {
     }
 
     computeDisplayName () {
-        var firstName = this.firstName ? (this.firstName.charAt(0).toUpperCase() + this.firstName.slice(1)) : null;
-        var lastName = this.lastName ? (this.lastName.charAt(0).toUpperCase() + this.lastName.slice(1)) : null;
-        var nickName = this.nickname ? (this.nickname.charAt(0).toUpperCase() + this.nickname.slice(1)) : null;
+        let firstName = this.firstName ? (this.firstName.charAt(0).toUpperCase() + this.firstName.slice(1)) : null;
+        let lastName = this.lastName ? (this.lastName.charAt(0).toUpperCase() + this.lastName.slice(1)) : null;
+        let nickName = this.nickname ? (this.nickname.charAt(0).toUpperCase() + this.nickname.slice(1)) : null;
         if (lastName && firstName) {
             this.computeCompleteDisplayName(firstName, lastName);
         }
@@ -645,7 +650,9 @@ class Contact {
         that.initialized = userData.isInitialized;
         that.avatar = userData.avatar;
         that.guestMode = userData.guestMode ? userData.guestMode : false;
-        this.openInviteId = userData.openInviteId ? userData.openInviteId : this.openInviteId;
+        that.openInviteId = userData.openInviteId ? userData.openInviteId : that.openInviteId;
+        that.userInfo1 = that.userInfo1 ? that.userInfo1 : userData.userInfo1;
+        that.userInfo2 = that.userInfo2 ? that.userInfo2 : userData.userInfo2;
 
         // Handle jids
         if (userData.jid_im) {
@@ -697,9 +704,9 @@ class Contact {
         if (userData.phoneNumbers) {
             that.phoneNumbers = userData.phoneNumbers;
             that.phoneNumbers.forEach(function (phoneNumber) {
-                var number = phoneNumber.number;
-                var numberCan = phoneNumber.numberE164;
-                var deviceType = phoneNumber.deviceType;
+                let number = phoneNumber.number;
+                let numberCan = phoneNumber.numberE164;
+                let deviceType = phoneNumber.deviceType;
                 that.hasPhoneNumber = true;
                 switch (phoneNumber.type) {
                     case "work":

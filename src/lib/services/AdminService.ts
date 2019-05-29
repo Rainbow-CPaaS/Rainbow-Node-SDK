@@ -696,6 +696,48 @@ class Admin {
             }
         });
     }
+
+    /**
+     * @public
+     * @method getContactInfos
+     * @instance
+     * @description
+     *      Get informations about a user
+     * @param {string} userId The id of the user
+     * @memberof Admin
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - Json object containing informations or an error object depending on the result
+     * @category async
+     */
+    getContactInfos(userId) {
+        let that = this;
+
+        this._logger.log("debug", LOG_ID + "(getContactInfos) _entering_");
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getContactInfos(userId).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(getContactInfos) Successfully get all companies");
+                    that._logger.log("internal", LOG_ID + "(getContactInfos) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getContactInfos) ErrorManager when get All companies");
+                    reject(err);
+                });
+
+                that._logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
+
+            } catch (err) {
+                that._logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
+                reject(err);
+            }
+        });
+    }
+
+
+
 }
 
 module.exports = Admin;
