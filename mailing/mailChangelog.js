@@ -160,15 +160,20 @@ function sendMail(vars, mailjet) {
     }
 
     let message =
-        "Note: An early version <b>" +
+        "Note: <BR>* An early version <b>" +
         fullVersion +
-        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag.";
+        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag..<br>" +
+        "* To use the beta version in an other NodeJs project : <br> " +
+        "<i>npm install rainbow-node-sdk@" + fullVersion + " --save </i>";
+
     if (vars.environment !== "PRE-PRODUCTION" || !fullVersion.includes("beta")) {
         message =
-            "Note: A new version <b>" +
+            "Note: <BR>A new version <b>" +
             fullVersion +
-            "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and is now the <i>latest</i> tag.";
+            "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and is now the <i>latest</i> tag";
     }
+
+    console.log("message :" + message);
 
     /*console.log("products : " + [vars.products.map(product => {
         return "<h2><u>" + product.title + "</u></h2>" + product.notes + "<br>";
