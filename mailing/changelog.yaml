@@ -10,4 +10,4 @@ preproduction: "PRE-PRODUCTION"
 production: "PRODUCTION"
 deliveries:
     - "title": "Rainbow Node SDK"
-      "path": "./CHANGELOG.md"
+      "path": "../CHANGELOG.md"

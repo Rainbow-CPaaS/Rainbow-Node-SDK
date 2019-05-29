@@ -36,9 +36,10 @@
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "devDependencies": {
     "chai": "^4.1.2",
+    "commander": "^2.19.0",
+    "got": "^9.6.0",
     "eslint": "^4.19.1",
     "eslint-plugin-node": "^6.0.1",
-    "got": "^8.3.1",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-copy": "^1.0.0",
@@ -54,16 +55,19 @@
     "dts-generator": "^3.0.0",
     "http-server": "^0.11.1",
     "jsonwebtoken": "^8.4.0",
+    "js-yaml": "^3.13.0",
+    "markdown": "^0.5.0",
     "mocha": "^5.2.0",
     "mock-socket": "^7.0.0",
     "nock": "^9.3.3",
     "nodemon": "^1.18.9",
+    "node-mailjet": "^3.3.1",
     "nyc": "^11.9.0",
     "puppeteer": "^1.11.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
     "sitemap": "^1.13.0",
     "typescript": "^3.2.4",
-    "file-api": "^0.10.4"
+    "yamljs": "^0.3.0"
   },
   "dependencies": {
     "@types/node": "^10.12.19",

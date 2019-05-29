@@ -162,13 +162,17 @@ function sendMail(vars, mailjet) {
     let message =
         "Note: An early version <b>" +
         fullVersion +
-        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-cli?activeTab=versions) and has not replaced the <i>latest</i> tag.";
+        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag.";
     if (vars.environment !== "PRE-PRODUCTION" || !fullVersion.includes("beta")) {
         message =
             "Note: A new version <b>" +
             fullVersion +
-            "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-cli?activeTab=versions) and is now the <i>latest</i> tag.";
+            "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and is now the <i>latest</i> tag.";
     }
+
+    /*console.log("products : " + [vars.products.map(product => {
+        return "<h2><u>" + product.title + "</u></h2>" + product.notes + "<br>";
+    })].join("")); // */
 
     const request = mailjet.post("send", { version: "v3.1" }).request({
         Messages: [
@@ -201,11 +205,17 @@ function sendMail(vars, mailjet) {
 
     request
         .then(result => {
+            //console.log("Result ok");
             console.log(result.body);
+            //console.log(JSON.stringify(result));
         })
         .catch(err => {
+            console.log("Result error");
             console.log(err.statusCode);
+            console.log(JSON.stringify(err));
         });
+
+    // */
 }
 
 program

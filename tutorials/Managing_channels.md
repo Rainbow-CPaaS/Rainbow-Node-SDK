@@ -487,4 +487,4 @@ Here is a list of limits regarding Channels:
 
 ---
 
-_Last updated November, 17th 2017_
+_Last updated May, 17th 2019_
