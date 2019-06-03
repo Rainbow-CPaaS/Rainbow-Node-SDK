@@ -8,7 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.57.0] - 2018-06-XX
 -   Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 
--   Add userInfo1 and userInfo2 value in Contact but it can only be filed by roster and AdminService::getContactInfos methods
+-   Add userInfo1 and userInfo2 value in Contact but it can only be filled for the current user himself and AdminService::getContactInfos methods
 -   Add AdminService::updateContactInfos :  Set informations about a user (userInfo1, userInfo2, ...).
  
 ## [1.56.0] - 2018-05-28
