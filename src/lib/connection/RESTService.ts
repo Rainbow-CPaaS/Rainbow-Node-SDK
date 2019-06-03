@@ -1858,6 +1858,27 @@ class RESTService {
         });
     }
 
+    putContactInfos(userId, infos) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+            that.logger.log("debug", LOG_ID + "(getContactInfos) _entering_", that.account.roles);
+
+            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), infos ,undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(getContactInfos) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactInfos) REST get infos :", json);
+                that.logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getContactInfos) error", err);
+                that.logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
+                reject(err);
+            });
+            that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
+        });
+    }
+
     createCompany(name, country, state) {
         let that = this;
 
