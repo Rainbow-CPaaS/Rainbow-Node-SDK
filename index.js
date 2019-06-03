@@ -1,7 +1,7 @@
 "use strict";
 
 const Core = require("./lib/Core");
-const ErrorManager = require("./lib/common/ErrorManager");
+const ErrorManager = require("./lib/common/ErrorManager").ErrorManager ;
 const utils = require( "./lib/common/Utils");
 
 
@@ -150,7 +150,7 @@ class NodeSDK {
                     that.events.publish("connectionerror", err);
                     reject(err);
                 } else {
-                    let error = ErrorManager.UNAUTHORIZED;
+                    let error = ErrorManager.getErrorManager().UNAUTHORIZED;
                     error.details = err;
                     console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(error));
                     that.events.publish("connectionerror", error);
@@ -174,7 +174,7 @@ class NodeSDK {
             return that._core.start(true).then(function() {
                 resolve();
             }).catch(function(err) {
-                var error = ErrorManager.UNAUTHORIZED;
+                var error = ErrorManager.getErrorManager().UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
                 reject(error);
@@ -196,7 +196,7 @@ class NodeSDK {
             return that._core.signin(false).then(function(json) {
                 resolve(json);
             }).catch(function(err) {
-                var error = ErrorManager.UNAUTHORIZED;
+                var error = ErrorManager.getErrorManager().UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
                 reject(error);
@@ -216,14 +216,14 @@ class NodeSDK {
         let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function() {
-                //var success = ErrorManager.OK;
+                //var success = ErrorManager.getErrorManager().OK;
                 utils.setTimeoutPromised(1500).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);
                     resolve();
                 });
             }).catch(function(err) {
-                let error = ErrorManager.ERROR;
+                let error = ErrorManager.getErrorManager().ERROR;
                 error.details = err;
                 that.events.publish("stopped", error);
                 reject(error);
