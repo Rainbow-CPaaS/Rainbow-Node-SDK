@@ -8,6 +8,10 @@ export {};
 
 
 const moment = require("moment");
+
+// @ts-ignore
+global.window = {};
+
 const momentDurationFormatSetup = require("moment-duration-format");
 momentDurationFormatSetup(moment);
 

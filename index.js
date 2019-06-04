@@ -4,8 +4,7 @@ const Core = require("./lib/Core");
 const ErrorManager = require("./lib/common/ErrorManager").ErrorManager ;
 const utils = require( "./lib/common/Utils");
 
-
-/** 
+/**
  * @enum { String }
  * 
 */
