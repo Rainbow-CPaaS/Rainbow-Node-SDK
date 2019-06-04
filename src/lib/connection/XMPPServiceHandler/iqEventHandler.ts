@@ -19,6 +19,7 @@ class IQEventHandler extends GenericHandler {
 	public onIqResultReceived: any;
 	public _onIqGetPingReceived: any;
 	public _onIqGetQueryReceived: any;
+	public _onIqGetPbxAgentStatusReceived: any;
 
     constructor(xmppService : XMPPService) {
         super( xmppService);

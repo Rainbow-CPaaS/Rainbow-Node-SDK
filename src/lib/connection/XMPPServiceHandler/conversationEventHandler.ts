@@ -47,6 +47,8 @@ class ConversationEventHandler extends GenericHandler {
 	public findAttrs: any;
 	public findChildren: any;
 	public onCloseMessageReceived: any;
+    public fileStorageService: any;
+    public fileServerService: any;
 
     constructor(xmppService, conversationService, fileStorageService, fileServerService) {
         super( xmppService);
