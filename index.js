@@ -447,6 +447,18 @@ class NodeSDK {
         return this._core.calllog;
     }
 
+    /**
+     * @public
+     * @property {Object} favorite
+     * @instance
+     * @description
+     *    Get access to the favorite module
+     * @memberof NodeSDK
+     */
+    get favorite() {
+        return this._core._favorite;
+    }
+
 
 
 }

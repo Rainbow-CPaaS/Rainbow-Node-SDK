@@ -433,6 +433,26 @@ class RESTService {
         });
     }
 
+    getServerFavorites() {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+            that.logger.log("debug", LOG_ID + "(getServerFavorites) _entering_");
+
+                //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(getServerFavorites) successfull");
+                    that.logger.log("internal", LOG_ID + "(getServerFavorites) REST contact received ", json.data);
+                    that.logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(getServerFavorites) error", err);
+                    that.logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
+                    reject(err);
+                });
+        });
+    }
 
     /**
      * ACCEPT INVITATION

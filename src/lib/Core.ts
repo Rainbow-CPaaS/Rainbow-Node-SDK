@@ -22,6 +22,7 @@ const FileServer = require("./services/FileServerService");
 const FileStorage = require("./services/FileStorageService");
 const StateManager = require("./common/StateManager");
 const CallLogService = require( "./services/CallLogService");
+const FavoriteService = require( "./services/FavoriteService");
 
 const Events = require("./common/Events");
 
@@ -62,7 +63,8 @@ class Core {
 	public _settings: any;
 	public _fileServer: any;
 	public _fileStorage: any;
-	public _calllog: any;
+    public _calllog: any;
+    public _favorite: any;
 	public _botsjid: any;
 
     constructor(options) {
@@ -141,9 +143,11 @@ class Core {
                             }) : [];
                             return Promise.resolve();
                         }).then(() => {
-                            return that.conversations.getServerConversations();
+                            return that._conversations.getServerConversations();
                         }).then(() => {
-                            return that.calllog.init();
+                            return that._calllog.init();
+                        }).then(() => {
+                            return that._favorite.init();
                         }).then(() => {
                             resolve();
                         }).catch((err) => {
@@ -295,6 +299,7 @@ class Core {
         this._fileServer = new FileServer(this._eventEmitter.iee, this.logger);
         this._fileStorage = new FileStorage(this._eventEmitter.iee, this.logger);
         this._calllog = new CallLogService(this._eventEmitter.iee, this.logger);
+        this._favorite = new FavoriteService(this._eventEmitter.iee,this.logger);
 
         this._botsjid = [];
 
@@ -353,6 +358,8 @@ class Core {
                         return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations);
                     }).then(() => {
                         return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
+                    }).then(() => {
+                        return that._favorite.start(that._xmpp, that._rest);
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -439,6 +446,8 @@ class Core {
                 return that._stateManager.stop();
             }).then(() => {
                 return that._calllog.stop();
+            }).then(() => {
+                return that._favorite.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();

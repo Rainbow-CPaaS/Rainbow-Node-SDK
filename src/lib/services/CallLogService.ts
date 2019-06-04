@@ -123,9 +123,12 @@ function CallLogsBean() : ICallLogsBean {
         this.callLogComplete = false;
         this.callLogIndex = -1;
 
+        this._eventEmitter.on("rainbow_calllogupdated", this.onCallLogUpdated.bind(this));
+        this._eventEmitter.on("rainbow_calllogackupdated", this.onCallLogAckReceived.bind(this));
+
     }
 
-    async start(_xmpp : XMPPService, _rest : RESTService, _contacts , _profiles, _telephony, stats) {
+    async start(_xmpp : XMPPService, _rest : RESTService, _contacts , _profiles, _telephony) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;
@@ -179,8 +182,6 @@ function CallLogsBean() : ICallLogsBean {
     async init () {
         let that = this;
 
-        that._eventEmitter.on("rainbow_calllogupdated", that.onCallLogUpdated.bind(that));
-        that._eventEmitter.on("rainbow_calllogackupdated", that.onCallLogAckReceived.bind(that));
         //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
         await utils.setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
