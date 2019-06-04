@@ -766,6 +766,10 @@ class ConversationEventHandler extends GenericHandler {
                                 conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null,  muted, new Date(), lastMessageSender);
                             }
 
+                            if (!conversationGetter) {
+                                return ;
+                            }
+
                             conversationGetter
                                 .then(function (conv) {
                                     that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
