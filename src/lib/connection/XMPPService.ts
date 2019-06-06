@@ -1051,7 +1051,7 @@ class XMPPService {
                 that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
                 that.jid = account.jid_im;
 
-                that.logger.log("internal", LOG_ID + "(signin) account used", that.jid_im);
+                that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
 
                 that.IQEventHandler = new IQEventHandler(that);
 

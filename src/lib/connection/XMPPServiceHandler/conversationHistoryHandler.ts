@@ -15,6 +15,9 @@ global.window = {};
 const momentDurationFormatSetup = require("moment-duration-format");
 momentDurationFormatSetup(moment);
 
+// @ts-ignore
+global.window = undefined;
+
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 const Message = require("../../common/models/Message");

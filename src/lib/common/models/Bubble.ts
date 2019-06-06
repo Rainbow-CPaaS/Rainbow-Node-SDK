@@ -30,9 +30,10 @@ class Bubble {
         public activeUsersCounter: number;
 
         public static RoomUserStatus = { "INVITED": "invited", "ACCEPTED": "accepted", "UNSUBSCRIBED": "unsubscribed", "REJECTED": "rejected", "DELETED": "deleted" };
+        public autoRegister: any;
 
         constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications : boolean = false, _lastAvatarUpdateDate : any = null, _guestEmails : [] = [], _confEndpoints : [] = [], _activeUsersCounter : number = 0 ) {
+                _disableNotifications : boolean = false, _lastAvatarUpdateDate : any = null, _guestEmails : [] = [], _confEndpoints : [] = [], _activeUsersCounter : number = 0, _autoRegister : boolean = false ) {
         
         /**
          * @public
@@ -127,7 +128,25 @@ class Bubble {
         this.guestEmails = _guestEmails;
         this.confEndpoints = _confEndpoints;
         this.activeUsersCounter = _activeUsersCounter;
-    }
+
+            /**
+             * @public
+             * @readonly
+             * @property  {String} autoRegister    A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(<a href="#api-users_rooms_public_link">users public link</a>).
+             * </br>According with autoRegister value, if another person uses the link to join the room:
+             * <ul>
+             * <li>autoRegister = 'unlock':</br>
+             *    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.</li>
+             * <li>autoRegister = 'lock':</br>
+             *    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.</li>
+             * <li>autoRegister = 'unlock_ack':</br>
+             *    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.</li>
+             * </ul>
+             * @instance
+             */
+            this.autoRegister = _autoRegister;
+
+        }
 
     /**
      * Method helper to know if room is a meeting
@@ -190,8 +209,8 @@ class Bubble {
                     data.lastAvatarUpdateDate,
                     data.guestEmails,
                     data.confEndpoints,
-                    data.activeUsersCounter
-
+                    data.activeUsersCounter,
+                    data.autoRegister
             );
                 if (data) {
                     let bubbleproperties = Object.getOwnPropertyNames(bubble);

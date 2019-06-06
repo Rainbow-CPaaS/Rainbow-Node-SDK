@@ -300,14 +300,14 @@ class Events {
             that.publishEvent("bubbleownaffiliationchanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_ownbubbledeleted", function(bubble) {
+        this._evReceiver.on("rainbow_bubbledeleted", function(bubble) {
             /**
-             * @event Events#rainbow_onbubbleownaffiliationchanged
+             * @event Events#rainbow_onbubbledeleted
              * @param { Bubble } bubble The bubble deleted
              * @description
-             *      Fired when a user deletes a bubble the user is affiliated
+             *      Fired when a user deletes a bubble the user is affiliated to
              */
-            that.publishEvent("ownbubbledeleted", bubble);
+            that.publishEvent("bubbledeleted", bubble);
         });
 
         this._evReceiver.on("rainbow_invitationdetailsreceived", function(bubble) {

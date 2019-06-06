@@ -148,6 +148,10 @@ module.exports = function(grunt) {
         }
     },
     ts: {
+        options: {
+            // disable the grunt-ts fast feature
+            fast: 'never'
+        },
         build: {
             src: ["**/*.ts", "!node_modules/**"],
             tsconfig: true

@@ -1587,13 +1587,13 @@ class Bubbles {
             if (bubbleToRemoved != -1 ) {
                 let bubbleRemoved = that.removeBubbleFromCache(affiliation.bubbleId);
                 that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubbleRemoved);
-                that._eventEmitter.emit("rainbow_ownbubbledeleted", bubbleRemoved);
+                that._eventEmitter.emit("rainbow_bubbledeleted", bubbleRemoved);
             } else {
                 that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) deleted bubble not found in cache, so raised the deleted event with only the id of this bubble : ", affiliation.bubbleId);
                 let bubble = {id:null };
                 bubble.id = affiliation.bubbleId;
                 that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubble);
-                that._eventEmitter.emit("rainbow_ownbubbledeleted", bubble);
+                that._eventEmitter.emit("rainbow_bubbledeleted", bubble);
             } // */
         }
     }
