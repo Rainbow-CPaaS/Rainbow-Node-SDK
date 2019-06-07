@@ -191,7 +191,7 @@ class ConversationEventHandler extends GenericHandler {
                                     resource: resource
                                 };
                                 that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - receipt received");
-                                that.eventEmitter.emit("rainbow_onreceipt", receipt);
+                                that.eventEmitter.emit("evt_internal_onreceipt", receipt);
                             }
                             break;
                         case "active":
@@ -294,7 +294,7 @@ class ConversationEventHandler extends GenericHandler {
                                         resource: resource
                                     };
                                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) invitation received");
-                                    that.eventEmitter.emit("rainbow_invitationreceived", invitation);
+                                    that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
                                 }
                                     break;
                                 case "jabber:x:oob" : {
@@ -519,7 +519,10 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "channel-subscription":
                         case "channel":
-                            //treated in channelEventHandler::onChannelManagementMessageReceived(node);
+                            //treated in channelEventHandler::onFavoriteManagementMessageReceived(node);
+                            break;
+                        case "favorite":
+                            // treated in favoriteEventHandler
                             break;
                         default:
                             that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
@@ -541,7 +544,7 @@ class ConversationEventHandler extends GenericHandler {
                     if (node.attrs.status) {
                         if (node.attrs.userjid === XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(that.fullJid)) {
                             that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble management received for own.");
-                            that.eventEmitter.emit("rainbow_ownaffiliationchanged", {
+                            that.eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                                 "bubbleId": node.attrs.roomid,
                                 "bubbleJid": node.attrs.roomjid,
                                 "userJid": node.attrs.userjid,
@@ -549,7 +552,7 @@ class ConversationEventHandler extends GenericHandler {
                             });
                         } else {
                             that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble affiliation received");
-                            that.eventEmitter.emit("rainbow_affiliationchanged", {
+                            that.eventEmitter.emit("evt_internal_affiliationchanged", {
                                 "bubbleId": node.attrs.roomid,
                                 "bubbleJid": node.attrs.roomjid,
                                 "userJid": node.attrs.userjid,
@@ -560,7 +563,7 @@ class ConversationEventHandler extends GenericHandler {
                     // Custom data changed
                     else if (node.attrs.customData) {
                         that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble custom-data changed");
-                        that.eventEmitter.emit("rainbow_customdatachanged", {
+                        that.eventEmitter.emit("evt_internal_customdatachanged", {
                             "bubbleId": node.attrs.roomid,
                             "bubbleJid": node.attrs.roomjid,
                             "customData": node.attrs.customData
@@ -569,7 +572,7 @@ class ConversationEventHandler extends GenericHandler {
                     // Topic changed
                     if (node.attrs.topic) {
                         that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble topic changed");
-                        that.eventEmitter.emit("rainbow_topicchanged", {
+                        that.eventEmitter.emit("evt_internal_topicchanged", {
                             "bubbleId": node.attrs.roomid,
                             "bubbleJid": node.attrs.roomjid,
                             "topic": node.attrs.topic
@@ -578,7 +581,7 @@ class ConversationEventHandler extends GenericHandler {
                     // Name changed
                     if (node.attrs.name) {
                         that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble name changed");
-                        that.eventEmitter.emit("rainbow_namechanged", {
+                        that.eventEmitter.emit("evt_internal_namechanged", {
                             "bubbleId": node.attrs.roomid,
                             "bubbleJid": node.attrs.roomjid,
                             "name": node.attrs.name
@@ -598,7 +601,7 @@ class ConversationEventHandler extends GenericHandler {
                     switch (node.attrs.action) {
                         case "update":
                             that.logger.log("debug", LOG_ID + "(onUserSettingsManagementMessageReceived) usersettings updated");
-                            that.eventEmitter.emit("rainbow_usersettingschanged");
+                            that.eventEmitter.emit("evt_internal_usersettingschanged");
                             break;
                         default:
                             break;
@@ -622,7 +625,7 @@ class ConversationEventHandler extends GenericHandler {
                                     .log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) user invite received");
                                 that
                                     .eventEmitter
-                                    .emit("rainbow_userinvitereceived", {invitationId: node.attrs.id});
+                                    .emit("evt_internal_userinvitereceived", {invitationId: node.attrs.id});
                             }
                             break;
                         case "update":
@@ -632,14 +635,14 @@ class ConversationEventHandler extends GenericHandler {
                                     .log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) user invite canceled");
                                 that
                                     .eventEmitter
-                                    .emit("rainbow_userinvitecanceled", {invitationId: node.attrs.id});
+                                    .emit("evt_internal_userinvitecanceled", {invitationId: node.attrs.id});
                             } else if (node.attrs.type === "sent" && node.attrs.status === "accepted") {
                                 that
                                     .logger
                                     .log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) user invite accepted");
                                 that
                                     .eventEmitter
-                                    .emit("rainbow_userinviteaccepted", {invitationId: node.attrs.id});
+                                    .emit("evt_internal_userinviteaccepted", {invitationId: node.attrs.id});
                             }
                             break;
                         default:
@@ -665,14 +668,14 @@ class ConversationEventHandler extends GenericHandler {
                             .log("debug", LOG_ID + "(onGroupManagementMessageReceived) group created");
                         that
                             .eventEmitter
-                            .emit("rainbow_groupcreated", {"groupId": node.attrs.id});
+                            .emit("evt_internal_groupcreated", {"groupId": node.attrs.id});
                     } else if (action === "create" && scope === "user" && node.attrs.userId) {
                         that
                             .logger
                             .log("debug", LOG_ID + "(onGroupManagementMessageReceived) user added in group");
                         that
                             .eventEmitter
-                            .emit("rainbow_useraddedingroup", {
+                            .emit("evt_internal_useraddedingroup", {
                                 "groupId": node.attrs.id,
                                 "userId": node.attrs.userId
                             });
@@ -682,14 +685,14 @@ class ConversationEventHandler extends GenericHandler {
                             .log("debug", LOG_ID + "(onGroupManagementMessageReceived) group deleted");
                         that
                             .eventEmitter
-                            .emit("rainbow_groupdeleted", {"groupId": node.attrs.id});
+                            .emit("evt_internal_groupdeleted", {"groupId": node.attrs.id});
                     } else if (action === "delete" && scope === "user" && node.attrs.userId) {
                         that
                             .logger
                             .log("debug", LOG_ID + "(onGroupManagementMessageReceived) user removed from group");
                         that
                             .eventEmitter
-                            .emit("rainbow_userremovedfromgroup", {
+                            .emit("evt_internal_userremovedfromgroup", {
                                 "groupId": node.attrs.id,
                                 "userId": node.attrs.userId
                             });
@@ -700,7 +703,7 @@ class ConversationEventHandler extends GenericHandler {
                                 .log("debug", LOG_ID + "(onGroupManagementMessageReceived) group updated");
                             that
                                 .eventEmitter
-                                .emit("rainbow_groupupdated", {"groupId": node.attrs.id});
+                                .emit("evt_internal_groupupdated", {"groupId": node.attrs.id});
                         }
                     }
                 }

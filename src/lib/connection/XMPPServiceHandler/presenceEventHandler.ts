@@ -34,7 +34,7 @@ class PresenceEventHandler extends GenericHandler {
 
                     that
                         .eventEmitter
-                        .emit("rainbow_onpresencechanged", {
+                        .emit("evt_internal_presencechanged", {
                             "fulljid": from,
                             "jid": xmppUtils.getBareJIDFromFullJID(from),
                             "resource": xmppUtils.getResourceFromFullJID(from),
@@ -95,7 +95,7 @@ class PresenceEventHandler extends GenericHandler {
                     // My presence (node or other resources) in the room changes
                     that
                         .eventEmitter
-                        .emit("rainbow_private_onbubblepresencechanged", {
+                        .emit("evt_internal_onbubblepresencechanged", {
                             fulljid: from,
                             jid: xmppUtils.getBareJIDFromFullJID(from),
                             resource: xmppUtils.getResourceFromFullJID(from),
@@ -113,7 +113,7 @@ class PresenceEventHandler extends GenericHandler {
                         // My presence (node or other resources) in the room changes
                         that
                             .eventEmitter
-                            .emit("rainbow_private_onbubblepresencechanged", {
+                            .emit("evt_internal_onbubblepresencechanged", {
                                 fulljid: from,
                                 jid: xmppUtils.getBareJIDFromFullJID(from),
                                 resource: xmppUtils.getResourceFromFullJID(from)
@@ -162,7 +162,7 @@ class PresenceEventHandler extends GenericHandler {
                                                 // Either avatar or user vcard changed
                                                 that
                                                     .eventEmitter
-                                                    .emit("rainbow_onrostercontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
+                                                    .emit("evt_internal_onrostercontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                                             }
                                         }
                                         break;
@@ -175,7 +175,7 @@ class PresenceEventHandler extends GenericHandler {
 
                     that
                         .eventEmitter
-                        .emit("rainbow_onrosterpresence", {
+                        .emit("evt_internal_onrosterpresence", {
                             fulljid: from,
                             jid: xmppUtils.getBareJIDFromFullJID(from),
                             resource: xmppUtils.getResourceFromFullJID(from),

@@ -36,7 +36,7 @@ class IM {
         this.eventEmitter = _eventEmitter;
         this.pendingMessages = {};
 
-        this.eventEmitter.on("rainbow_onreceipt", this._onmessageReceipt.bind(this));
+        this.eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
 
 
     }

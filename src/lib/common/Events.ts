@@ -77,9 +77,9 @@ class Events {
 
         this._evPublisher = new EventEmitter();
 
-        this._evReceiver.on("rainbow_onreceipt", function(receipt) {
+        this._evReceiver.on("evt_internal_onreceipt", function(receipt) {
             if (_filterCallback && _filterCallback(receipt.fromJid)) {
-                that._logger.log("warn", `${LOG_ID} filtering event rainbow_onreceipt for jid: ${receipt.fromJid}` );
+                that._logger.log("warn", `${LOG_ID} filtering event evt_internal_onreceipt for jid: ${receipt.fromJid}` );
                 return;
             }
             if (receipt.entity === "server") {
@@ -149,7 +149,7 @@ class Events {
             that.publishEvent("messagereceived", message);
         });
 
-        this._evReceiver.on("rainbow_onrosterpresencechanged", function(contact) {
+        this._evReceiver.on("evt_internal_onrosterpresencechanged", function(contact) {
 
             /**
              * @event Events#rainbow_oncontactpresencechanged
@@ -161,7 +161,7 @@ class Events {
             that.publishEvent("contactpresencechanged", contact);
         });
 
-        this._evReceiver.on("rainbow_onpresencechanged", function(presence) {
+        this._evReceiver.on("evt_internal_presencechanged", function(presence) {
 
             /**
              * @event Events#rainbow_onpresencechanged
@@ -441,7 +441,7 @@ class Events {
             that.publishEvent("channelmessagedeletedreceived", message);
         });
 
-        this._evReceiver.on("rainbow_onprofilefeatureupdated", function () {
+        this._evReceiver.on("evt_internal_profilefeatureupdated", function () {
             /**
              * @event Events#rainbow_onprofilefeatureupdated
              * @public
@@ -580,7 +580,7 @@ class Events {
 
         // ****************** CALLLOGS *********************
 
-        this._evReceiver.on("rainbow_calllogupdated", function (data) {
+        this._evReceiver.on("evt_internal_calllogupdated", function (data) {
             /**
              * @event Events#rainbow_oncalllogupdated
              * @public
@@ -591,7 +591,7 @@ class Events {
             that.publishEvent("calllogupdated", data);
         });
 
-        this._evReceiver.on("rainbow_calllogackupdated", function (data) {
+        this._evReceiver.on("evt_internal_calllogackupdated", function (data) {
             /**
              * @event Events#rainbow_oncalllogackupdated
              * @public

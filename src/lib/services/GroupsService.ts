@@ -37,11 +37,11 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
-        this._eventEmitter.on("rainbow_groupcreated", this._onGroupCreated.bind(this));
-        this._eventEmitter.on("rainbow_groupdeleted", this._onGroupDeleted.bind(this));
-        this._eventEmitter.on("rainbow_groupupdated", this._onGroupUpdated.bind(this));
-        this._eventEmitter.on("rainbow_useraddedingroup", this._onUserAddedInGroup.bind(this));
-        this._eventEmitter.on("rainbow_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
+        this._eventEmitter.on("evt_internal_groupcreated", this._onGroupCreated.bind(this));
+        this._eventEmitter.on("evt_internal_groupdeleted", this._onGroupDeleted.bind(this));
+        this._eventEmitter.on("evt_internal_groupupdated", this._onGroupUpdated.bind(this));
+        this._eventEmitter.on("evt_internal_useraddedingroup", this._onUserAddedInGroup.bind(this));
+        this._eventEmitter.on("evt_internal_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
     }
 
      start(_xmpp : XMPPService, _rest : RESTService) {
@@ -55,17 +55,17 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._rest = _rest;
                 that._groups = [];
 /*
-                 that._eventEmitter.removeListener("rainbow_groupcreated", that._onGroupCreated);
-                 that._eventEmitter.removeListener("rainbow_groupdeleted", that._onGroupDeleted);
-                 that._eventEmitter.removeListener("rainbow_groupupdated", that._onGroupUpdated);
-                 that._eventEmitter.removeListener("rainbow_useraddedingroup", that._onUserAddedInGroup);
-                 that._eventEmitter.removeListener("rainbow_userremovedfromgroup", that._onUserRemovedFromGroup);
+                 that._eventEmitter.removeListener("evt_internal_groupcreated", that._onGroupCreated);
+                 that._eventEmitter.removeListener("evt_internal_groupdeleted", that._onGroupDeleted);
+                 that._eventEmitter.removeListener("evt_internal_groupupdated", that._onGroupUpdated);
+                 that._eventEmitter.removeListener("evt_internal_useraddedingroup", that._onUserAddedInGroup);
+                 that._eventEmitter.removeListener("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup);
 
-                 that._eventEmitter.on("rainbow_groupcreated", that._onGroupCreated.bind(that));
-                that._eventEmitter.on("rainbow_groupdeleted", that._onGroupDeleted.bind(that));
-                that._eventEmitter.on("rainbow_groupupdated", that._onGroupUpdated.bind(that));
-                that._eventEmitter.on("rainbow_useraddedingroup", that._onUserAddedInGroup.bind(that));
-                that._eventEmitter.on("rainbow_userremovedfromgroup", that._onUserRemovedFromGroup.bind(that));
+                 that._eventEmitter.on("evt_internal_groupcreated", that._onGroupCreated.bind(that));
+                that._eventEmitter.on("evt_internal_groupdeleted", that._onGroupDeleted.bind(that));
+                that._eventEmitter.on("evt_internal_groupupdated", that._onGroupUpdated.bind(that));
+                that._eventEmitter.on("evt_internal_useraddedingroup", that._onUserAddedInGroup.bind(that));
+                that._eventEmitter.on("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
@@ -87,11 +87,11 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._rest = null;
                 that._groups = null;
 /*
-                that._eventEmitter.removeListener("rainbow_groupcreated", that._onGroupCreated);
-                that._eventEmitter.removeListener("rainbow_groupdeleted", that._onGroupDeleted);
-                that._eventEmitter.removeListener("rainbow_groupupdated", that._onGroupUpdated);
-                that._eventEmitter.removeListener("rainbow_useraddedingroup", that._onUserAddedInGroup);
-                that._eventEmitter.removeListener("rainbow_userremovedfromgroup", that._onUserRemovedFromGroup);
+                that._eventEmitter.removeListener("evt_internal_groupcreated", that._onGroupCreated);
+                that._eventEmitter.removeListener("evt_internal_groupdeleted", that._onGroupDeleted);
+                that._eventEmitter.removeListener("evt_internal_groupupdated", that._onGroupUpdated);
+                that._eventEmitter.removeListener("evt_internal_useraddedingroup", that._onUserAddedInGroup);
+                that._eventEmitter.removeListener("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup);
 */
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();

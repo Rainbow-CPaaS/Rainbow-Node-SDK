@@ -3,7 +3,7 @@ import {accessSync} from "fs";
 
 export {};
 
-//const ErrorCase = require("../common/ErrorManager");
+
 const utils = require("../common/Utils");
 const PubSub = require("pubsub-js");
 
@@ -47,13 +47,12 @@ class FavoriteService {
         this.started = false;
         this._initialized = false;
 
-        //that._eventEmitter.on("rainbow_calllogupdated", that.onCallLogUpdated.bind(that));
-        //that._eventEmitter.on("rainbow_calllogackupdated", that.onCallLogAckReceived.bind(that));
-        //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
+        this._eventEmitter.on("evt_internal_favoritecreated", this.onFavoriteCreated.bind(this));
+        this._eventEmitter.on("evt_internal_favoritedeleted", this.onFavoriteDeleted.bind(this));
     }
 
 
-    async start(_xmpp : XMPPService, _rest : RESTService) {
+    public async start(_xmpp : XMPPService, _rest : RESTService) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;
@@ -70,10 +69,10 @@ class FavoriteService {
 
         let startDuration = Math.round(new Date().getTime() - startDate);
         //stats.push({ service: 'favoriteService', startDuration: startDuration });
-        that._logger.log("info", LOG_ID + `[favoriteService] === STARTED (${startDuration} ms) ===`);
+        that._logger.log("info", LOG_ID + `=== STARTED (${startDuration} ms) ===`);
     }
 
-    async stop() {
+    public async stop() {
         let that = this;
 
         that._logger.log("info", LOG_ID + "[stop] Stopping");
@@ -90,12 +89,12 @@ class FavoriteService {
         that.favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
         that.favoriteHandlerToken = [];
 
-        /*this.$log.info('[favoriteService] Stopping');
+        /*this.$log.info('Stopping');
         if (this.xmppManagementHandler) {
             this.xmppService.deleteHandler(this.xmppManagementHandler);
             this.xmppManagementHandler = null;
         }
-        this.$log.info('[favoriteService] Stopped');
+        this.$log.info('Stopped');
 
          */
 
@@ -103,7 +102,7 @@ class FavoriteService {
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
-    async init () {
+    public async init () {
         let that = this;
         await this.getServerFavorites();
         /*await utils.setTimeoutPromised(3000).then(() => {
@@ -126,7 +125,7 @@ class FavoriteService {
 
     }
 
-    attachHandlers() {
+    private attachHandlers() {
         let that = this;
 
         that._logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
@@ -162,7 +161,7 @@ class FavoriteService {
     }
 
 
-    public async getServerFavorites(): Promise<Favorite[]> {
+    private async getServerFavorites(): Promise<Favorite[]> {
         try {
             let that = this;
             return new Promise(async (resolve, reject) => {
@@ -171,13 +170,13 @@ class FavoriteService {
                     that._logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
                     if (favorite) {
                         let promises = favorite.map(async (data: any) => {
-                            return this.createFavorite(data.id, data.peerId, data.type);
+                            return this.createFavoriteObj(data.id, data.peerId, data.type);
                         });
                         let favorites = await Promise.all(promises);
                         this.favorites = favorites.filter((favorite) => {
                             return favorite !== null;
                         });
-                        that._logger.log("info", LOG_ID + `[favoriteService] getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
+                        that._logger.log("info", LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
                     }
                     resolve(this.favorites);
                 }).catch((err) => {
@@ -192,19 +191,19 @@ class FavoriteService {
             let promises = response.data.data.map(async (data: any) => { return this.createFavorite(data.id, data.peerId, data.type); });
             let favorites = await Promise.all(promises);
             this.favorites = favorites.filter((favorite) => { return favorite !== null; });
-            this.$log.info(`[favoriteService] getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
+            this.$log.info(`getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
             return this.favorites;
             */
             });
         }
         catch (error) {
             let errorMessage = `getServerFavorites -- FAILURE -- ${error.message}`;
-            this._logger.log("error", LOG_ID + `[favoriteService] CATCH Error !!! : ${errorMessage}`);
+            this._logger.log("error", LOG_ID + `CATCH Error !!! : ${errorMessage}`);
             throw new Error(errorMessage);
         }
     }
 
-    public async addServerFavorite(peerId: string, type: string) {
+    private async addServerFavorite(peerId: string, type: string) {
         let that = this;
         try {
             /*let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites`;
@@ -212,16 +211,18 @@ class FavoriteService {
             await this.$http({ method: "POST", url, headers: this.authService.getRequestHeader(), data });
 
              */
-            that._logger.log("debug", LOG_ID +`[favoriteService] addServerFavorite(${peerId}, ${type}) -- SUCCESS`);
+            let favorite = await that._rest.addServerFavorite(peerId, type);
+            that._logger.log("internal", LOG_ID +`addServerFavorite(${peerId}, ${type}) -- SUCCESS`, favorite);
+            return favorite;
         }
         catch (error) {
             let errorMessage = `addServerFavorite(${peerId}, ${type}) -- FAILURE -- ${error.message}`;
-            that._logger.log("error", LOG_ID + `[favoriteService] ${errorMessage}`);
+            that._logger.log("error", LOG_ID + `${errorMessage}`);
             throw new Error(errorMessage);
         }
     }
 
-    public async removeServerFavorite(favoriteId: string) {
+    private async removeServerFavorite(favoriteId: string) {
         let that = this;
         try {
             /*
@@ -229,16 +230,16 @@ class FavoriteService {
             await this.$http({ method: "DELETE", url: url, headers: this.authService.getRequestHeader() });
 
              */
-            that._logger.log("debug", LOG_ID +`[favoriteService] removeServerFavorite(${favoriteId}) -- SUCCESS`);
+            that._logger.log("debug", LOG_ID +`removeServerFavorite(${favoriteId}) -- SUCCESS`);
         }
         catch (error) {
             let errorMessage = `removeServerFavorite(${favoriteId}) -- FAILURE -- ${error.statusText}`;
-            that._logger.log("error", LOG_ID +`[favoriteService] ${errorMessage}`);
+            that._logger.log("error", LOG_ID +`${errorMessage}`);
             throw new Error(errorMessage);
         }
     }
 
-    public toggleFavorite(conversation: any): void {
+    private toggleFavorite(conversation: any): void {
         let peerId = conversation.contact ? conversation.contact.dbId : conversation.room.dbId;
         let type = conversation.contact ? (conversation.contact.isBot ? 'bot' : 'user') : 'room';
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
@@ -246,19 +247,19 @@ class FavoriteService {
         else { this.removeServerFavorite(favorite.id); }
     }
 
-    public updateFavorites(conversation: any): void {
+    private updateFavorites(conversation: any): void {
         let peerId = conversation.contact ? conversation.contact.dbId : conversation.room.dbId;
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
         if (favorite) { conversation.isFavorite = true; favorite.conv = conversation; }
     }
 
-    public async getFavorite(peerId: string) {
+    private async getFavorite(peerId: string) {
         let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
         //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
         //return await convGetter;
     }
 
-    private async createFavorite(id: string, peerId: string, type: string) {
+    private async createFavoriteObj(id: string, peerId: string, type: string) {
         let that = this;
         try {
             let favorite: any = new Favorite(id, peerId, type);
@@ -277,7 +278,7 @@ class FavoriteService {
             return favorite;
         }
         catch (error) {
-            that._logger.log("error", LOG_ID + `[favoriteService] createFavorite(${id}, ${peerId}, ${type}) -- FAILURE -- ${error.message}`);
+            that._logger.log("error", LOG_ID + `createFavorite(${id}, ${peerId}, ${type}) -- FAILURE -- ${error.message}`);
             return null;
         }
     }
@@ -324,6 +325,133 @@ class FavoriteService {
 
      */
 
+
+    /**
+     * @public
+     * @since 1.56
+     * @method fetchAllFavorites()
+     * @instance
+     * @description
+     *   Fetch all the Favorites from the server in a form of an Array
+     * @return {Conversation[]} An array of Favorite objects
+     */
+    public async fetchAllFavorites() {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            that.getServerFavorites()
+                .then(function(favorites) {
+                    that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
+                    that._logger.log("internal", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
+                    resolve(favorites)
+                })
+                .catch(function(err) {
+                    that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: ERROR:`, err);
+                    reject(err)
+                })
+        });
+    };
+
+    /**
+     * @public
+     * @since 1.56
+     * @method createFavorite()
+     * @instance
+     * @description
+     *   Add conversation/bubble/bot to Favorites Array
+     * @param {String} id of the conversation/bubble
+     * @param {String} type of Favorite (can be 'conversation' or 'bubble')
+     * @return {Promise<Favorite>} A Favorite object
+     */
+    public async createFavorite(id, type) : Promise<Favorite> {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            if(!id) {
+                that._logger.log("debug", LOG_ID +  "[createFavorite] :: Error: parameter 'id' is missing or null");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if(!type) {
+                that._logger.log("debug", LOG_ID +  "[createFavorite] :: Error: parameter 'type' is missing or null");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if(type !== "bubble" && type !== "user") {
+                that._logger.log("debug", LOG_ID +  "[createFavorite] :: Error: type should be set to \"user\" or \"bubble\"");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if(type === "bubble") {
+                type = "room"
+            }
+
+            that.addServerFavorite(id, type)
+                .then((favorite : any ) => {
+                    that._logger.log("debug", LOG_ID + `[createFavorite] :: Successfully added ${type} to favorites`);
+                    return resolve(favorite);
+                })
+                .catch(err => {
+                    that._logger.log("debug", LOG_ID + "[createFavorite] :: Error: ", err);
+                    return reject(err)
+                })
+
+        });
+    };
+
+    /**
+     * @public
+     * @since 1.56
+     * @method deleteFavorite()
+     * @instance
+     * @description
+     *   Delete conversation/bubble/bot from Favorites Array
+     * @param {String} id of the Favorite item
+     * @return {Favorite[]} A Favorite object
+     */
+    deleteFavorite(id) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!id) {
+                that._logger.log("debug", LOG_ID + "[deleteFavorite] :: Error: parameter 'id' is missing or null");
+                return reject("[deleteFavorite] :: Error: parameter 'id' is missing or null");
+            }
+
+            that.removeServerFavorite(id)
+                .then(() => {
+                    return resolve()
+                })
+                .catch(err => {
+                    that._logger.log("error", LOG_ID + "[deleteFavorite] :: Error: ", err);
+                    return reject(err)
+                })
+        })
+    }
+
+    // ******************* Event XMPP parsed in favoriteEventHandler ***************
+    public async  onFavoriteCreated(fav: {id:string, peerId: string, type: string}): Promise<void> {
+        let that = this;
+        let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
+        if (!favorite) {
+            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type);
+            this.favorites.push(favorite);
+            that._logger.log("debug", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
+            //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
+        }
+
+    }
+    public async onFavoriteDeleted(fav: {id:string, peerId: string, type: string}): Promise<void> {
+        let that = this;
+        let index = this.favorites.findIndex((fav) => { return fav.id === fav.id; });
+        if (index !== -1) {
+            let favorite = this.favorites[index];
+            if (favorite.conv) { favorite.conv.isFavorite = false; }
+            this.favorites.splice(index, 1);
+            that._logger.log("debug", LOG_ID + "[onFavoriteDeleted] send event : ", { favoriteId: favorite.id });
+            //this.sendEvent('ON_FAVORITE_DELETED', { favoriteId: favorite.id });
+        }
+    }
 }
 
 module.exports = FavoriteService;

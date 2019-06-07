@@ -47,12 +47,12 @@ class Contacts {
         this.rosterPresenceQueue = [];
         this.userContact = new Contact.Contact();
 
-        this.eventEmitter.on("rainbow_onrosterpresence", this._onRosterPresenceChanged.bind(this));
-        this.eventEmitter.on("rainbow_onrostercontactinformationchanged", this._onContactInfoChanged.bind(this));
-        this.eventEmitter.on("rainbow_userinvitereceived", this._onUserInviteReceived.bind(this));
-        this.eventEmitter.on("rainbow_userinviteaccepted", this._onUserInviteAccepted.bind(this));
-        this.eventEmitter.on("rainbow_userinvitecanceled", this._onUserInviteCanceled.bind(this));
-        this.eventEmitter.on("rainbow_onrosters", this._onRostersUpdate.bind(this));
+        this.eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
+        this.eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onContactInfoChanged.bind(this));
+        this.eventEmitter.on("evt_internal_userinvitereceived", this._onUserInviteReceived.bind(this));
+        this.eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
+        this.eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
+        this.eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
@@ -91,12 +91,12 @@ class Contacts {
                 // */
 
 /*
-                that.eventEmitter.on("rainbow_onrosterpresence", that._onRosterPresenceChanged.bind(that));
-                that.eventEmitter.on("rainbow_onrostercontactinformationchanged", that._onContactInfoChanged.bind(that));
-                that.eventEmitter.on("rainbow_userinvitereceived", that._onUserInviteReceived.bind(that));
-                that.eventEmitter.on("rainbow_userinviteaccepted", that._onUserInviteAccepted.bind(that));
-                that.eventEmitter.on("rainbow_userinvitecanceled", that._onUserInviteCanceled.bind(that));
-                that.eventEmitter.on("rainbow_onrosters", that._onRostersUpdate.bind(that));
+                that.eventEmitter.on("evt_internal_onrosterpresence", that._onRosterPresenceChanged.bind(that));
+                that.eventEmitter.on("evt_internal_onrostercontactinformationchanged", that._onContactInfoChanged.bind(that));
+                that.eventEmitter.on("evt_internal_userinvitereceived", that._onUserInviteReceived.bind(that));
+                that.eventEmitter.on("evt_internal_userinviteaccepted", that._onUserInviteAccepted.bind(that));
+                that.eventEmitter.on("evt_internal_userinvitecanceled", that._onUserInviteCanceled.bind(that));
+                that.eventEmitter.on("evt_internal_onrosters", that._onRostersUpdate.bind(that));
 */
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
@@ -119,12 +119,12 @@ class Contacts {
                 that.rest = null;
                 that.contacts = [];
 /*
-                that.eventEmitter.removeListener("rainbow_onrosterpresence", that._onRosterPresenceChanged.bind(that));
-                that.eventEmitter.removeListener("rainbow_onrostercontactinformationchanged", that._onContactInfoChanged.bind(that));
-                that.eventEmitter.removeListener("rainbow_userinvitereceived", that._onUserInviteReceived.bind(that));
-                that.eventEmitter.removeListener("rainbow_userinviteaccepted", that._onUserInviteAccepted.bind(that));
-                that.eventEmitter.removeListener("rainbow_userinvitecanceled", that._onUserInviteCanceled.bind(that));
-                that.eventEmitter.removeListener("rainbow_onrosters", that._onRostersUpdate.bind(that));
+                that.eventEmitter.removeListener("evt_internal_onrosterpresence", that._onRosterPresenceChanged.bind(that));
+                that.eventEmitter.removeListener("evt_internal_onrostercontactinformationchanged", that._onContactInfoChanged.bind(that));
+                that.eventEmitter.removeListener("evt_internal_userinvitereceived", that._onUserInviteReceived.bind(that));
+                that.eventEmitter.removeListener("evt_internal_userinviteaccepted", that._onUserInviteAccepted.bind(that));
+                that.eventEmitter.removeListener("evt_internal_userinvitecanceled", that._onUserInviteCanceled.bind(that));
+                that.eventEmitter.removeListener("evt_internal_onrosters", that._onRostersUpdate.bind(that));
 */
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
@@ -941,7 +941,7 @@ class Contacts {
             let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
             
             this.logger.log("debug", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
-            this.eventEmitter.emit("rainbow_onrosterpresencechanged", contact);
+            this.eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
         }
         else {
             this.logger.log("warn", LOG_ID + "(onRosterPresenceChanged) no contact found for " + presence.jid);

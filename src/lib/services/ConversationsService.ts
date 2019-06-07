@@ -80,8 +80,8 @@ class Conversations {
         this.conversationHandlerToken = [];
         this.conversationHistoryHandlerToken = [];
 
-        //that._eventEmitter.removeListener("rainbow_onreceipt", that._onReceipt.bind(that));
-        this._eventEmitter.on("rainbow_onreceipt", this._onReceipt.bind(this));
+        //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
+        this._eventEmitter.on("evt_internal_onreceipt", this._onReceipt.bind(this));
     }
 
     start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _fileStorageService, _fileServerService) {
@@ -150,7 +150,7 @@ class Conversations {
                 that.conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 that.conversationHistoryHandlerToken = [];
 
-                //that._eventEmitter.removeListener("rainbow_onreceipt", that._onReceipt.bind(that));
+                //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
 
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();

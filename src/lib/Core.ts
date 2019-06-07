@@ -64,7 +64,7 @@ class Core {
 	public _fileServer: any;
 	public _fileStorage: any;
     public _calllog: any;
-    public _favorite: any;
+    public _favorites: any;
 	public _botsjid: any;
 
     constructor(options) {
@@ -147,7 +147,7 @@ class Core {
                         }).then(() => {
                             return that._calllog.init();
                         }).then(() => {
-                            return that._favorite.init();
+                            return that._favorites.init();
                         }).then(() => {
                             resolve();
                         }).catch((err) => {
@@ -168,7 +168,7 @@ class Core {
             this._eventEmitter.iee.removeListener("rainbow_tokenrenewed", this.onTokenRenewed.bind(this));
             this._eventEmitter.iee.removeListener("rainbow_tokenexpired", this.onTokenExpired.bind(this));
 */
-            this._eventEmitter.iee.emit("rainbow_signinrequired");
+            this._eventEmitter.iee.emit("evt_internal_signinrequired");
         };
 
         this._tokenSurvey = () => {
@@ -212,7 +212,7 @@ class Core {
             return self._botsjid.includes(jid);
         });
         this._eventEmitter.setCore(this);
-        this._eventEmitter.iee.on("rainbow_signinrequired", function () {
+        this._eventEmitter.iee.on("evt_internal_signinrequired", function () {
             self.signin(true);
         });
         this._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
@@ -299,7 +299,7 @@ class Core {
         this._fileServer = new FileServer(this._eventEmitter.iee, this.logger);
         this._fileStorage = new FileStorage(this._eventEmitter.iee, this.logger);
         this._calllog = new CallLogService(this._eventEmitter.iee, this.logger);
-        this._favorite = new FavoriteService(this._eventEmitter.iee,this.logger);
+        this._favorites = new FavoriteService(this._eventEmitter.iee,this.logger);
 
         this._botsjid = [];
 
@@ -359,7 +359,7 @@ class Core {
                     }).then(() => {
                         return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
                     }).then(() => {
-                        return that._favorite.start(that._xmpp, that._rest);
+                        return that._favorites.start(that._xmpp, that._rest);
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -447,7 +447,7 @@ class Core {
             }).then(() => {
                 return that._calllog.stop();
             }).then(() => {
-                return that._favorite.stop();
+                return that._favorites.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();

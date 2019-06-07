@@ -123,8 +123,8 @@ function CallLogsBean() : ICallLogsBean {
         this.callLogComplete = false;
         this.callLogIndex = -1;
 
-        this._eventEmitter.on("rainbow_calllogupdated", this.onCallLogUpdated.bind(this));
-        this._eventEmitter.on("rainbow_calllogackupdated", this.onCallLogAckReceived.bind(this));
+        this._eventEmitter.on("evt_internal_calllogupdated", this.onCallLogUpdated.bind(this));
+        this._eventEmitter.on("evt_internal_calllogackupdated", this.onCallLogAckReceived.bind(this));
 
     }
 

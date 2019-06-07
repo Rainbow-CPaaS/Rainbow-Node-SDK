@@ -60,26 +60,38 @@ class ChannelEventHandler extends GenericHandler {
                 children.forEach(function (node) {
                     switch (node.getName()) {
                         case "room":
+                            // treated in conversationEventHandler
                             break;
                         case "usersettings":
+                            // treated in conversationEventHandler
                             break;
                         case "userinvite":
+                            // treated in conversationEventHandler
                             break;
                         case "group":
+                            // treated in conversationEventHandler
                             break;
                         case "conversation":
+                            // treated in conversationEventHandler
                             break;
                         case "mute":
+                            // treated in conversationEventHandler
                             break;
                         case "unmute":
+                            // treated in conversationEventHandler
                             break;
                         case "file":
+                            // treated in conversationEventHandler
                             break;
                         case "thumbnail":
+                            // treated in conversationEventHandler
                             break;
                         case "channel-subscription":
                         case "channel":
                             that.onChannelManagementMessageReceived(node);
+                            break;
+                        case "favorite":
+                            // treated in favoriteEventHandler
                             break;
                         default:
                             that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
@@ -167,7 +179,7 @@ class ChannelEventHandler extends GenericHandler {
                                 });
                             }
 
-                            that.eventEmitter.emit("rainbow_channelitemreceived", message);
+                            that.eventEmitter.emit("evt_internal_channelitemreceived", message);
                         } else {
                             that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.", stanza);
                         }
@@ -185,8 +197,8 @@ class ChannelEventHandler extends GenericHandler {
         };
 
         this.onChannelManagementMessageReceived = (stanza) => {
-            that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) _entering_");
-            that.logger.log("internal", LOG_ID + "(onChannelManagementMessageReceived) _entering_", stanza);
+            that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_");
+            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_", stanza);
 
             try {
                 if (stanza.attrs.xmlns === "jabber:iq:configuration") {
@@ -222,31 +234,31 @@ class ChannelEventHandler extends GenericHandler {
 
                         // Handle channel action events
                         let action = channelElem.attrs.action;
-                        that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - action : " + action + " event received on channel " + channelId);
+                        that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) - action : " + action + " event received on channel " + channelId);
                         switch (action) {
                             case 'add':
-                                that.eventEmitter.emit("rainbow_addtochannel", {'id': channelId});
+                                that.eventEmitter.emit("evt_internal_addtochannel", {'id': channelId});
                                 // this.onAddToChannel(channelId);
                                 break;
                             case 'update':
-                                that.eventEmitter.emit("rainbow_updatetochannel", {'id': channelId});
+                                that.eventEmitter.emit("evt_internal_updatetochannel", {'id': channelId});
                                 //this.onUpdateToChannel(channelId);
                                 break;
                             case 'remove':
-                                that.eventEmitter.emit("rainbow_removefromchannel", {'id': channelId});
+                                that.eventEmitter.emit("evt_internal_removefromchannel", {'id': channelId});
                                 //this.onRemovedFromChannel(channelId);
                                 break;
                             case 'subscribe':
-                                that.eventEmitter.emit("rainbow_subscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
+                                that.eventEmitter.emit("evt_internal_subscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
                                 //this.onSubscribeToChannel(channelId, channelElem.attrs.subscribers);
                                 break;
                             case 'unsubscribe':
-                                that.eventEmitter.emit("rainbow_unsubscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
+                                that.eventEmitter.emit("evt_internal_unsubscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
                                 //this.onUnsubscribeToChannel(channelId, channelElem.attrs.subscribers);
                                 break;
                             case 'delete':
                                 //this.onDeleteChannel(channelId);
-                                that.eventEmitter.emit("rainbow_deletechannel", {'id': channelId});
+                                that.eventEmitter.emit("evt_internal_deletechannel", {'id': channelId});
                                 break;
                             default:
                                 break;
@@ -260,14 +272,14 @@ class ChannelEventHandler extends GenericHandler {
                         let action = channelSubscriptionElem.attrs.action;
                         let userId = channelSubscriptionElem.attrs.id;
                         let subscribers = channelSubscriptionElem.attrs.subscribers;
-                        that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - subscription-" + action + " event received on channel " + channelId);
+                        that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) - subscription-" + action + " event received on channel " + channelId);
                         switch (action) {
                             case 'subscribe':
-                                that.eventEmitter.emit("rainbow_usersubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt(subscribers)});
+                                that.eventEmitter.emit("evt_internal_usersubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt(subscribers)});
                                 //this.onUserSubscribeEvent(channelId, userId);
                                 break;
                             case 'unsubscribe':
-                                that.eventEmitter.emit("rainbow_userunsubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt(subscribers)});
+                                that.eventEmitter.emit("evt_internal_userunsubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt(subscribers)});
                                 //this.onUserUnsubscribeEvent(channelId, userId);
                                 break;
                             default:
@@ -278,33 +290,33 @@ class ChannelEventHandler extends GenericHandler {
                 return true;
             }
             catch (err) {
-                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- " + err.message);
+                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- " + err.message);
                 return true;
             }
 
             /*
             try {
-                that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onChannelManagementMessageReceived) _entering_", stanza);
+                that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_");
+                that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_", stanza);
                 if (stanza.attrs.xmlns === "jabber:iq:configuration") {
 
                     //that.eventEmitter.emit("rainbow_channelmanagementreceived", node);
 
                     switch (stanza.attrs.action) {
                         case "add": {
-                            that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel created");
+                            that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) channel created");
                             let channelid = stanza.attrs.channelid;
                             that.eventEmitter.emit("rainbow_channelcreated", {'id': channelid});
                         }
                             break;
                         case "delete": {
-                            that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel deleted");
+                            that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) channel deleted");
                             let channelid = stanza.attrs.channelid;
                             that.eventEmitter.emit("rainbow_channeldeleted", {'id': channelid});
                         }
                             break;
                         case "update": {
-                            that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) channel updated");
+                            that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) channel updated");
                             let channelid = stanza.attrs.channelid;
 
                             //let json = XMPPUTils.getXMPPUtils().getJson(node);
@@ -317,13 +329,13 @@ class ChannelEventHandler extends GenericHandler {
 
                         default: {
                             let channelid = stanza.attrs.channelid;
-                            that.logger.log("info", LOG_ID + "(onChannelManagementMessageReceived) channel management event unknown : " + stanza.attrs.action + " for channel " + channelid);
+                            that.logger.log("info", LOG_ID + "(onFavoriteManagementMessageReceived) channel management event unknown : " + stanza.attrs.action + " for channel " + channelid);
                         }
                             break;
                     }
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) CATCH Error !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) CATCH Error !!! : ", err);
             } // */
         };
 

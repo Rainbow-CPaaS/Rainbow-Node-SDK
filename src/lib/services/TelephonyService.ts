@@ -206,7 +206,7 @@ class Telephony {
             //that.userJidTel = authService.jidTel;
             that.userJidTel = that._rest.loggedInUser.jid_tel;
 
-            that._eventEmitter.on("rainbow_onpresencechanged", that.onTelPresenceChange.bind(that));
+            that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
 //        that._eventEmitter.on("rainbow_onpbxagentstatusreceived", that.onPbxAgentStatusChange.bind(that));
 
             that.started = false;

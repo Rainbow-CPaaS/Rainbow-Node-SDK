@@ -50,8 +50,8 @@ class Presence {
         that.RAINBOW_PRESENCE_AWAY = RainbowPresence.AWAY;
         that.RAINBOW_PRESENCE_INVISIBLE = RainbowPresence.INVISIBLE;
 
-        that._eventEmitter.on("rainbow_usersettingschanged", that._onUserSettingsChanged.bind(that));
-        that._eventEmitter.on("rainbow_onpresencechanged", that._onPresenceChanged.bind(that));
+        that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
+        that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
     }
 
     start(_xmpp, _settings) {
@@ -68,11 +68,11 @@ class Presence {
                 that.presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that.presenceEventHandler.PRESENCE, that.presenceEventHandler.onPresenceReceived);
 
 /*
-                that._eventEmitter.removeListener("rainbow_usersettingschanged", that._onUserSettingsChanged.bind(that));
-                that._eventEmitter.removeListener("rainbow_onpresencechanged", that._onPresenceChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 
-                that._eventEmitter.on("rainbow_usersettingschanged", that._onUserSettingsChanged.bind(that));
-                that._eventEmitter.on("rainbow_onpresencechanged", that._onPresenceChanged.bind(that));
+                that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
+                that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
@@ -97,8 +97,8 @@ class Presence {
 
                 that._xmpp = null;
 /*
-                that._eventEmitter.removeListener("rainbow_usersettingschanged", that._onUserSettingsChanged.bind(that));
-                that._eventEmitter.removeListener("rainbow_onpresencechanged", that._onPresenceChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
@@ -126,10 +126,10 @@ class Presence {
         that._logger.log("debug", LOG_ID + "(sendInitialPresence) _entering_");
 
         return new Promise((resolve) => {
-            that._eventEmitter.once("rainbow_onpresencechanged", function fn_onpresencechanged(presence) {
+            that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                 that._logger.log("info", LOG_ID + "(sendInitialPresence) received", presence);
                 that._logger.log("debug", LOG_ID + "(sendInitialPresence) - _exiting_");
-                that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
+                that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
             that._xmpp.setPresence("online", "");
@@ -183,10 +183,10 @@ class Presence {
                 break;
             }
 
-            that._eventEmitter.once("rainbow_onpresencechanged", function fn_onpresencechanged (_presence) {
+            that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged (_presence) {
                 that._logger.log("info", LOG_ID + "(setPresenceTo) received", _presence);
                 that._logger.log("debug", LOG_ID + "(setPresenceTo) - _exiting_");
-                that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
+                that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
             that._xmpp.setPresence(show, status);
@@ -211,36 +211,36 @@ class Presence {
 
              if (status === "online") {
                  that.manualState = false;
-                 that._eventEmitter.once("rainbow_onpresencechanged", function fn_onpresencechanged(presence) {
+                 that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                      that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                      that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
-                     that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
+                     that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                      resolve();
                  });
                  that._xmpp.setPresence(null, status);
              } else {
                  that.manualState = true;
                  if (status === "away") {
-                     that._eventEmitter.once("rainbow_onpresencechanged", function fn_onpresencechanged(presence) {
+                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
-                         that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
+                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
                      });
                      that._xmpp.setPresence("away", message);
                  } else if (status === "dnd") {
-                     that._eventEmitter.once("rainbow_onpresencechanged", function fn_onpresencechanged(presence) {
+                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
-                         that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
+                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
                      });
                      that._xmpp.setPresence("dnd", message);
                  } else if (status === "xa") {
-                     that._eventEmitter.once("rainbow_onpresencechanged", function fn_onpresencechanged(presence) {
+                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
-                         that._eventEmitter.removeListener("rainbow_onpresencechanged", fn_onpresencechanged);
+                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
                      });
                      that._xmpp.setPresence("xa", message);

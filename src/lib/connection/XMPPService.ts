@@ -302,7 +302,7 @@ class XMPPService {
                         //                         }
                         //                     });
                         //                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) XMPP Rosters received", contacts.length);
-                        //                     that.eventEmitter.emit("rainbow_onrosters", contacts);
+                        //                     that.eventEmitter.emit("evt_internal_onrosters", contacts);
                         //                 }
                         //             }
                         //             break;
@@ -426,7 +426,7 @@ class XMPPService {
                             //                     resource: resource
                             //                 };
                             //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - receipt received");
-                            //                 that.eventEmitter.emit("rainbow_onreceipt", receipt);
+                            //                 that.eventEmitter.emit("evt_internal_onreceipt", receipt);
                             //             }
                             //             break;
                             //         case "active":
@@ -517,7 +517,7 @@ class XMPPService {
                             //                             resource: resource
                             //                         };
                             //                         that.logger.log("info", LOG_ID + "(handleXMPPConnection) invitation received");
-                            //                         that.eventEmitter.emit("rainbow_invitationreceived", invitation);
+                            //                         that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
                             //                     }
                             //                     break;
                             //                     case NameSpacesLabels.OobNameSpace : {
@@ -591,7 +591,7 @@ class XMPPService {
                             //                 if (node.attrs.status) {
                             //                     if (node.attrs.userjid === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                             //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble management received for own.");
-                            //                         that.eventEmitter.emit("rainbow_ownaffiliationchanged", {
+                            //                         that.eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                             //                             "bubbleId": node.attrs.roomid,
                             //                             "bubbleJid": node.attrs.roomjid,
                             //                             "userJid": node.attrs.userjid,
@@ -599,7 +599,7 @@ class XMPPService {
                             //                         });
                             //                     } else {
                             //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble affiliation received");
-                            //                         that.eventEmitter.emit("rainbow_affiliationchanged", {
+                            //                         that.eventEmitter.emit("evt_internal_affiliationchanged", {
                             //                             "bubbleId": node.attrs.roomid,
                             //                             "bubbleJid": node.attrs.roomjid,
                             //                             "userJid": node.attrs.userjid,
@@ -610,7 +610,7 @@ class XMPPService {
                             //                 // Custom data changed
                             //                 else if (node.attrs.customData) {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble custom-data changed");
-                            //                     that.eventEmitter.emit("rainbow_customdatachanged", {
+                            //                     that.eventEmitter.emit("evt_internal_customdatachanged", {
                             //                         "bubbleId": node.attrs.roomid,
                             //                         "bubbleJid": node.attrs.roomjid,
                             //                         "customData": node.attrs.customData
@@ -619,7 +619,7 @@ class XMPPService {
                             //                 // Topic changed
                             //                 else if (node.attrs.topic) {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble topic changed");
-                            //                     that.eventEmitter.emit("rainbow_topicchanged", {
+                            //                     that.eventEmitter.emit("evt_internal_topicchanged", {
                             //                         "bubbleId": node.attrs.roomid,
                             //                         "bubbleJid": node.attrs.roomjid,
                             //                         "topic": node.attrs.topic
@@ -628,7 +628,7 @@ class XMPPService {
                             //                 // Name changed
                             //                 else if (node.attrs.name) {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble name changed");
-                            //                     that.eventEmitter.emit("rainbow_namechanged", {
+                            //                     that.eventEmitter.emit("evt_internal_namechanged", {
                             //                         "bubbleId": node.attrs.roomid,
                             //                         "bubbleJid": node.attrs.roomjid,
                             //                         "name": node.attrs.name
@@ -641,7 +641,7 @@ class XMPPService {
                             //                 switch (node.attrs.action) {
                             //                     case "update":
                             //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) usersettings updated");
-                            //                         that.eventEmitter.emit("rainbow_usersettingschanged");
+                            //                         that.eventEmitter.emit("evt_internal_usersettingschanged");
                             //                         break;
                             //                     default:
                             //                         break;
@@ -654,19 +654,19 @@ class XMPPService {
                             //                     case "create":
                             //                         if (node.attrs.type === "received" && node.attrs.status === "pending") {
                             //                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user invite received");
-                            //                             that.eventEmitter.emit("rainbow_userinvitereceived", {
+                            //                             that.eventEmitter.emit("evt_internal_userinvitereceived", {
                             //                                 invitationId: node.attrs.id
                             //                             });
                             //                         }
                             //                     case "update":
                             //                         if( node.attrs.type === "sent" && node.attrs.status === "canceled" ) {
                             //                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user invite canceled");
-                            //                             that.eventEmitter.emit("rainbow_userinvitecanceled", {
+                            //                             that.eventEmitter.emit("evt_internal_userinvitecanceled", {
                             //                                 invitationId: node.attrs.id
                             //                             });
                             //                         } else if( node.attrs.type === "sent" && node.attrs.status === "accepted" ) {
                             //                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user invite accepted");
-                            //                             that.eventEmitter.emit("rainbow_userinviteaccepted", {
+                            //                             that.eventEmitter.emit("evt_internal_userinviteaccepted", {
                             //                                 invitationId: node.attrs.id
                             //                             });
                             //                         }
@@ -682,30 +682,30 @@ class XMPPService {
 
                             //                 if (action === "create" && scope === "group") {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group created");
-                            //                     that.eventEmitter.emit("rainbow_groupcreated", {
+                            //                     that.eventEmitter.emit("evt_internal_groupcreated", {
                             //                         "groupId": node.attrs.id
                             //                     });
                             //                 } else if (action === "create" && scope === "user" && node.attrs.userId) {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user added in group");
-                            //                     that.eventEmitter.emit("rainbow_useraddedingroup", {
+                            //                     that.eventEmitter.emit("evt_internal_useraddedingroup", {
                             //                         "groupId": node.attrs.id,
                             //                         "userId": node.attrs.userId
                             //                     });
                             //                 } else if (action === "delete" && scope === "group") {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group deleted");
-                            //                     that.eventEmitter.emit("rainbow_groupdeleted", {
+                            //                     that.eventEmitter.emit("evt_internal_groupdeleted", {
                             //                         "groupId": node.attrs.id
                             //                     });
                             //                 } else if (action === "delete" && scope === "user" && node.attrs.userId) {
                             //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user removed from group");
-                            //                     that.eventEmitter.emit("rainbow_userremovedfromgroup", {
+                            //                     that.eventEmitter.emit("evt_internal_userremovedfromgroup", {
                             //                         "groupId": node.attrs.id,
                             //                         "userId": node.attrs.userId
                             //                     });
                             //                 } else if (action === "update" && scope === "group") {
                             //                     if (node.attrs.name || node.attrs.comment || node.attrs.isFavorite) {
                             //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group updated");
-                            //                         that.eventEmitter.emit("rainbow_groupupdated", {
+                            //                         that.eventEmitter.emit("evt_internal_groupupdated", {
                             //                             "groupId": node.attrs.id
                             //                         });
                             //                     }
@@ -756,7 +756,7 @@ class XMPPService {
                                             .log("info", LOG_ID + "(handleXMPPConnection) server receipt received");
                                         that
                                             .eventEmitter
-                                            .emit("rainbow_onreceipt", receipt);
+                                            .emit("evt_internal_onreceipt", receipt);
                                         break;
                                     default:
                                         break;
@@ -770,7 +770,7 @@ class XMPPService {
                         //     // My presence changes (coming from me or another resource)
                         //     that
                         //         .eventEmitter
-                        //         .emit("rainbow_onpresencechanged", {
+                        //         .emit("evt_internal_presencechanged", {
                         //             fulljid: from,
                         //             jid: that.xmppUtils.getBareJIDFromFullJID(from),
                         //             resource: that.xmppUtils.getResourceFromFullJID(from),
@@ -861,7 +861,7 @@ class XMPPService {
                         //         });
                         //     }
 
-                        //     that.eventEmitter.emit("rainbow_onrosterpresence", {
+                        //     that.eventEmitter.emit("evt_internal_onrosterpresence", {
                         //         fulljid: from,
                         //         jid: that.xmppUtils.getBareJIDFromFullJID(from),
                         //         resource: that.xmppUtils.getResourceFromFullJID(from),

@@ -109,10 +109,10 @@ class CallLogEventHandler extends GenericHandler {
                             let num = that.getMissedCallLogCounter();
 
                             // $rootScope.$broadcast("ON_CALL_LOG_UPDATED");
-                            that.eventEmitter.emit("rainbow_calllogupdated", that.calllogs);
+                            that.eventEmitter.emit("evt_internal_calllogupdated", that.calllogs);
 
                             if (num !== oldMissedCallLogCounter) {
-                                that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
+                                that.eventEmitter.emit("evt_internal_calllogackupdated", that.calllogs);
                                 // $rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
                             }
                         });
@@ -146,7 +146,7 @@ class CallLogEventHandler extends GenericHandler {
                     let oldMissedCallLogCounter = that.calllogs.numberMissedCalls;
                     let num = that.getMissedCallLogCounter();
                     if (num !== oldMissedCallLogCounter) {
-                        that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
+                        that.eventEmitter.emit("evt_internal_calllogackupdated", that.calllogs);
                         //$rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
                     }
                 }
@@ -197,11 +197,11 @@ class CallLogEventHandler extends GenericHandler {
                             let oldMissedCallLogCounter = that.calllogs.numberMissedCalls;
                             let num = that.getMissedCallLogCounter();
 
-                            that.eventEmitter.emit("rainbow_calllogupdated", that.calllogs);
+                            that.eventEmitter.emit("evt_internal_calllogupdated", that.calllogs);
                             //$rootScope.$broadcast("ON_CALL_LOG_UPDATED");
 
                             if (num !== oldMissedCallLogCounter) {
-                                that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
+                                that.eventEmitter.emit("evt_internal_calllogackupdated", that.calllogs);
                                 //$rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
                             }
                         });
@@ -252,11 +252,11 @@ class CallLogEventHandler extends GenericHandler {
         let num = that.getMissedCallLogCounter();
 
         //$rootScope.$broadcast("ON_CALL_LOG_UPDATED");
-        that.eventEmitter.emit("rainbow_calllogupdated", that.calllogs);
+        that.eventEmitter.emit("evt_internal_calllogupdated", that.calllogs);
 
         if (num !== oldMissedCallLogCounter) {
             //$rootScope.$broadcast("ON_CALL_LOG_ACK_UPDATED");
-            that.eventEmitter.emit("rainbow_calllogackupdated", that.calllogs);
+            that.eventEmitter.emit("evt_internal_calllogackupdated", that.calllogs);
         }
     };
 

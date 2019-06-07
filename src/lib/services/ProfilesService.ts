@@ -122,7 +122,7 @@ class ProfilesService {
                     .then(function () {
                         // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
                         that.logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
-                        that._eventEmitter.emit("rainbow_onprofilefeatureupdated");
+                        that._eventEmitter.emit("evt_internal_profilefeatureupdated");
                         clearInterval(that.timer);
                         that.timer = null;
                     })
@@ -191,7 +191,7 @@ class ProfilesService {
 
                     //$rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
                     that.logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
-                    that._eventEmitter.emit("rainbow_onprofilefeatureupdated");
+                    that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
 
                     // NED TO BE PORTED !!!!!!!

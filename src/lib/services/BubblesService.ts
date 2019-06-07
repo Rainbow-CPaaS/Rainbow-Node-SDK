@@ -46,14 +46,13 @@ class Bubbles {
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
-        this._eventEmitter.on("rainbow_invitationreceived", this._onInvitationReceived.bind(this));
-        this._eventEmitter.on("rainbow_affiliationchanged", this._onAffiliationChanged.bind(this));
-        this._eventEmitter.on("rainbow_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
-        this._eventEmitter.on("rainbow_customdatachanged", this._onCustomDataChanged.bind(this));
-        this._eventEmitter.on("rainbow_topicchanged", this._onTopicChanged.bind(this));
-        this._eventEmitter.on("rainbow_namechanged", this._onNameChanged.bind(this));
-
-        this._eventEmitter.on("rainbow_private_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
+        this._eventEmitter.on("evt_internal_invitationreceived", this._onInvitationReceived.bind(this));
+        this._eventEmitter.on("evt_internal_affiliationchanged", this._onAffiliationChanged.bind(this));
+        this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
+        this._eventEmitter.on("evt_internal_customdatachanged", this._onCustomDataChanged.bind(this));
+        this._eventEmitter.on("evt_internal_topicchanged", this._onTopicChanged.bind(this));
+        this._eventEmitter.on("evt_internal_namechanged", this._onNameChanged.bind(this));
+        this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
 
     }
 
@@ -68,12 +67,12 @@ class Bubbles {
                 that._rest = _rest;
                 that._bubbles = [];
 /*
-                that._eventEmitter.on("rainbow_invitationreceived", that._onInvitationReceived.bind(that));
-                that._eventEmitter.on("rainbow_affiliationchanged", that._onAffiliationChanged.bind(that));
-                that._eventEmitter.on("rainbow_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
-                that._eventEmitter.on("rainbow_customdatachanged", that._onCustomDataChanged.bind(that));
-                that._eventEmitter.on("rainbow_topicchanged", that._onTopicChanged.bind(that));
-                that._eventEmitter.on("rainbow_namechanged", that._onNameChanged.bind(that));
+                that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
+                that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
+                that._eventEmitter.on("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
+                that._eventEmitter.on("evt_internal_customdatachanged", that._onCustomDataChanged.bind(that));
+                that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
+                that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
@@ -95,12 +94,12 @@ class Bubbles {
                 that._xmpp = null;
                 that._rest = null;
                 that._bubbles = null;
-                /*that._eventEmitter.removeListener("rainbow_invitationreceived", that._onInvitationReceived.bind(that));
-                that._eventEmitter.removeListener("rainbow_affiliationchanged", that._onAffiliationChanged.bind(that));
-                that._eventEmitter.removeListener("rainbow_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
-                that._eventEmitter.removeListener("rainbow_customdatachanged", that._onCustomDataChanged.bind(that));
-                that._eventEmitter.removeListener("rainbow_topicchanged", that._onTopicChanged.bind(that));
-                that._eventEmitter.removeListener("rainbow_namechanged", that._onNameChanged.bind(that));
+                /*that._eventEmitter.removeListener("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
+                that._eventEmitter.removeListener("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_customdatachanged", that._onCustomDataChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_topicchanged", that._onTopicChanged.bind(that));
+                that._eventEmitter.removeListener("evt_internal_namechanged", that._onNameChanged.bind(that));
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 // */
                 resolve();

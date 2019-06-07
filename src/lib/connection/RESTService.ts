@@ -412,7 +412,7 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) _entering_");
 
             if (!email) {
-                that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) successfull");
+                that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) failed");
                 that.logger.log("info", LOG_ID + "(getContactInformationByLoginEmail) No email provided");
                 that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) _exiting_");
                 resolve(null);
@@ -452,6 +452,53 @@ class RESTService {
                     reject(err);
                 });
         });
+    }
+
+    public async addServerFavorite(peerId: string, type: string) {
+
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+            that.logger.log("debug", LOG_ID + "(addServerFavorite) _entering_");
+
+            if (!peerId) {
+                that.logger.log("debug", LOG_ID + "(addServerFavorite) failed");
+                that.logger.log("info", LOG_ID + "(addServerFavorite) No peerId provided");
+                that.logger.log("debug", LOG_ID + "(addServerFavorite) _exiting_");
+                resolve(null);
+            }
+            else {
+                let data = { peerId, type };
+                that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), data, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(addServerFavorite) successfull");
+                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST contact received ", json.data);
+                    that.logger.log("debug", LOG_ID + "(addServerFavorite) _exiting_");
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(addServerFavorite) error", err);
+                    that.logger.log("debug", LOG_ID + "(addServerFavorite) _exiting_");
+                    reject(err);
+                });
+            }
+        });
+
+        /*
+        let that = this;
+        try {
+            let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites`;
+            let data = { peerId, type };
+            await this.$http({ method: "POST", url, headers: this.authService.getRequestHeader(), data });
+
+            that._logger.log("debug", LOG_ID +`[favoriteService] addServerFavorite(${peerId}, ${type}) -- SUCCESS`);
+        }
+        catch (error) {
+            let errorMessage = `addServerFavorite(${peerId}, ${type}) -- FAILURE -- ${error.message}`;
+            that._logger.log("error", LOG_ID + `[favoriteService] ${errorMessage}`);
+            throw new Error(errorMessage);
+        }
+
+         */
     }
 
     /**

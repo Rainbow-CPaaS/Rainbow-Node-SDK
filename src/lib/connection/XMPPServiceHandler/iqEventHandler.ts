@@ -161,7 +161,7 @@ class IQEventHandler extends GenericHandler {
                         .log("info", LOG_ID + "(handleXMPPConnection) XMPP Rosters received", contacts.length);
                     that
                         .eventEmitter
-                        .emit("rainbow_onrosters", contacts);
+                        .emit("evt_internal_onrosters", contacts);
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_onIqGetQueryReceived) CATCH ErrorManager !!! : ", err);

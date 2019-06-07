@@ -77,18 +77,15 @@ class Channels {
         this.PRIVATE_VISIBILITY = "private";
         this.CLOSED_VISIBILITY = "closed";
 
-        this._eventEmitter.on("rainbow_channelitemreceived", this._onChannelMessageReceived.bind(this));
-
-        this._eventEmitter.on("rainbow_addtochannel", this.onAddToChannel.bind(this));
-        this._eventEmitter.on("rainbow_updatetochannel", this.onUpdateToChannel.bind(this));
-        this._eventEmitter.on("rainbow_removefromchannel", this.onRemovedFromChannel.bind(this));
-        this._eventEmitter.on("rainbow_subscribetochannel", this.onSubscribeToChannel.bind(this));
-        this._eventEmitter.on("rainbow_unsubscribetochannel", this.onUnsubscribeToChannel.bind(this));
-        this._eventEmitter.on("rainbow_deletechannel", this.onDeleteChannel.bind(this));
-
-        this._eventEmitter.on("rainbow_usersubscribechannel", this.onUserSubscribeEvent.bind(this));
-        this._eventEmitter.on("rainbow_userunsubscribechannel", this.onUserUnsubscribeEvent.bind(this));
-
+        this._eventEmitter.on("evt_internal_channelitemreceived", this._onChannelMessageReceived.bind(this));
+        this._eventEmitter.on("evt_internal_addtochannel", this.onAddToChannel.bind(this));
+        this._eventEmitter.on("evt_internal_updatetochannel", this.onUpdateToChannel.bind(this));
+        this._eventEmitter.on("evt_internal_removefromchannel", this.onRemovedFromChannel.bind(this));
+        this._eventEmitter.on("evt_internal_subscribetochannel", this.onSubscribeToChannel.bind(this));
+        this._eventEmitter.on("evt_internal_unsubscribetochannel", this.onUnsubscribeToChannel.bind(this));
+        this._eventEmitter.on("evt_internal_deletechannel", this.onDeleteChannel.bind(this));
+        this._eventEmitter.on("evt_internal_usersubscribechannel", this.onUserSubscribeEvent.bind(this));
+        this._eventEmitter.on("evt_internal_userunsubscribechannel", this.onUserUnsubscribeEvent.bind(this));
 
     }
 

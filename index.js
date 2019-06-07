@@ -454,8 +454,8 @@ class NodeSDK {
      *    Get access to the favorite module
      * @memberof NodeSDK
      */
-    get favorite() {
-        return this._core._favorite;
+    get favorites() {
+        return this._core._favorites;
     }
 
 
