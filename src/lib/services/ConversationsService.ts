@@ -193,7 +193,7 @@ class Conversations {
             that.removePendingMessage(message);
             //delete this.pendingMessages[message.id];
             // Send event
-            that._eventEmitter.emit("rainbow_conversationupdated", conversation);
+            that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
         }
     }
 
@@ -653,7 +653,7 @@ class Conversations {
                         that
                             .getRoomConferences(conversation)
                             .then(function () {
-                                    that._eventEmitter.emit("rainbow_conversationupdated", conversation);
+                                    that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                     resolve(conversation);
                                 } // Create server side if necessary
                             );
@@ -665,7 +665,7 @@ class Conversations {
                                     that._bubbles._sendInitialBubblePresence(bubble);
                                 }
                                 // Send conversations update event
-                                that._eventEmitter.emit("rainbow_conversationupdated", __conversation);
+                                that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
                                 resolve(__conversation);
                             })
                             .catch(function (error) {
@@ -864,7 +864,7 @@ class Conversations {
             conversation.contact = null;
         }
 
-        that._eventEmitter.emit("eventEmitter", { "conversationId": conversation.id});
+        that._eventEmitter.emit("evt_internal_conversationdeleted", { "conversationId": conversation.id});
 
         //conversation = null;
     }

@@ -369,7 +369,7 @@ class XMPPService {
                             //                                         "isEvent": false
                             //                                     };
 
-                            //                                     that.eventEmitter.emit("rainbow_onmessagereceived", data);
+                            //                                     that.eventEmitter.emit("evt_internal_onmessagereceived", data);
 
                             //                                 }
                             //                             });
@@ -408,7 +408,7 @@ class XMPPService {
                             //                                         "isEvent": false
                             //                                     };
 
-                            //                                     that.eventEmitter.emit("rainbow_onmessagereceived", data);
+                            //                                     that.eventEmitter.emit("evt_internal_onmessagereceived", data);
 
                             //                                 }
                             //                             });
@@ -578,7 +578,7 @@ class XMPPService {
                             //         }
                             //     }
 
-                            //     that.eventEmitter.emit("rainbow_onmessagereceived", data);
+                            //     that.eventEmitter.emit("evt_internal_onmessagereceived", data);
                             // }
                         } else if (stanza.attrs.type === "management") {
                             // let children = stanza.children;
@@ -813,7 +813,7 @@ class XMPPService {
                         //         // My presence (node or other resources) in the room changes
                         //         that
                         //             .eventEmitter
-                        //             .emit("rainbow_onbubblepresencechanged", {
+                        //             .emit("evt_internal_bubblepresencechanged", {
                         //                 fulljid: from,
                         //                 jid: that.xmppUtils.getBareJIDFromFullJID(from),
                         //                 resource: that.xmppUtils.getResourceFromFullJID(from)
@@ -1330,11 +1330,15 @@ class XMPPService {
             .log("debug", LOG_ID + "(sendChatMessageToBubble) _entering_");
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
-
+// from="room_85a525f559a14b1d88de9c79d866233f@muc.vberder-all-in-one-dev-1.opentouch.cloud/2c1e9ac0f2254b94bb2d977be498423d@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.56.8_S28ZBemj"
+// from="room_17b2b86803b24bcd9ac70973bb311b9b@muc.vberder-all-in-one-dev-1.opentouch.cloud/2c1e9ac0f2254b94bb2d977be498423d@vberder-all-in-one-dev-1.opentouch.cloud/node_NWGWQN6V"
             let stanza = xml("message", {
-                "to": jid,
-                "type": TYPE_GROUPCHAT,
-                "id": id
+                'xmlns': 'jabber:client',
+                'xml:lang': lang,
+                'to': jid, //that.fullJid,
+               // 'from': jid + "/" + that.fullJid,
+                'type': TYPE_GROUPCHAT,
+                'id': id
             }, xml("body", {
                 "xml:lang": lang
             }, message), xml("request", {

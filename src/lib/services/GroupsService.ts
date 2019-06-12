@@ -485,7 +485,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._groups.push(groupCreated);
             }
 
-            that._eventEmitter.emit("rainbow_ongroupcreated", groupCreated);
+            that._eventEmitter.emit("evt_internal_groupcreated", groupCreated);
         });
     }
 
@@ -508,9 +508,9 @@ const LOG_ID = "GROUPS/SVCE - ";
         if (foundIndex > -1) {
             let groupDeleted = that._groups.splice(foundIndex, 1);
             that._logger.log("debug", LOG_ID + "(_onGroupDeleted) Group deleted", groupDeleted[0].name);
-            that._eventEmitter.emit("rainbow_ongroupdeleted", groupDeleted[0]);
+            that._eventEmitter.emit("evt_internal_groupdeleted", groupDeleted[0]);
         } else {
-            that._eventEmitter.emit("rainbow_ongroupdeleted", null);
+            that._eventEmitter.emit("evt_internal_groupdeleted", null);
         }
     }
 
@@ -536,7 +536,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._groups.push(groupUpdated);
             }
 
-            that._eventEmitter.emit("rainbow_ongroupupdated", groupUpdated);
+            that._eventEmitter.emit("evt_internal_groupupdated", groupUpdated);
         });
     }
 
@@ -565,7 +565,7 @@ const LOG_ID = "GROUPS/SVCE - ";
             var contactAddedIndex = groupUpdated.users.findIndex(userItem => userItem.id === data.userId);
             var contact = groupUpdated.users[contactAddedIndex];
 
-            that._eventEmitter.emit("rainbow_onuseraddedingroup", groupUpdated, contact);
+            that._eventEmitter.emit("evt_internal_useraddedingroup", groupUpdated, contact);
         });
     }
 
@@ -596,7 +596,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._groups.push(groupUpdated);
             }
 
-            that._eventEmitter.emit("rainbow_onuserremovedfromgroup", groupUpdated, contact);
+            that._eventEmitter.emit("evt_internal_userremovedfromgroup", groupUpdated, contact);
         });
     }
  }

@@ -149,7 +149,7 @@ class ChannelEventHandler extends GenericHandler {
                             let message = { messageId: null};
                             message.messageId = item.attrs.id;
                             that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel retract received, for messageId " + message.messageId);
-                            that.eventEmitter.emit("rainbow_onchannelmessagedeletedreceived", message);
+                            that.eventEmitter.emit("evt_internal_channelmessagedeletedreceived", message);
                         }
                     }
                         break;
@@ -323,7 +323,7 @@ class ChannelEventHandler extends GenericHandler {
                             //let json = {};
                             //json = that.findChildren(node);
 
-                            that.eventEmitter.emit("rainbow_channelupdated", {'id': channelid}); //, 'obj' : json
+                            that.eventEmitter.emit("evt_internal_channelupdated", {'id': channelid}); //, 'obj' : json
                         }
                             break;
 

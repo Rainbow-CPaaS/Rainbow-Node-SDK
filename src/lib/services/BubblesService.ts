@@ -153,11 +153,11 @@ class Bubbles {
                 that._logger.log("debug", LOG_ID + "(createBubble) creation successfull");
                 that._logger.log("internal", LOG_ID + "(createBubble) creation successfull, bubble", bubble);
 
-                /*that._eventEmitter.once("rainbow_onbubblepresencechanged", function fn_onbubblepresencechanged() {
+                /*that._eventEmitter.once("evt_internal_bubblepresencechanged", function fn_onbubblepresencechanged() {
                     that._logger.log("debug", LOG_ID + "(createBubble) bubble presence successfull");
                     that._logger.log("debug", LOG_ID + "(createBubble) _exiting_");
                     that._bubbles.push(Object.assign( new Bubble(), bubble));
-                    that._eventEmitter.removeListener("rainbow_onbubblepresencechanged", fn_onbubblepresencechanged);
+                    that._eventEmitter.removeListener("evt_internal_bubblepresencechanged", fn_onbubblepresencechanged);
                     resolve(bubble);
                 }); // */
 
@@ -883,6 +883,7 @@ class Bubbles {
      * @public
      * @method getAllOwnedBubbles
      * @instance
+     * @memberof Bubbles
      * @description
      *    Get the list of bubbles created by the user <br/>
      * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
@@ -1311,7 +1312,7 @@ class Bubbles {
                             that._bubbles.push(bubbleUpdated);
                         } // */
 
-                        that._eventEmitter.emit("rainbow_bubblecustomDatachanged", bubble);
+                        that._eventEmitter.emit("evt_internal_bubblecustomDatachanged", bubble);
                     });
                 }
                 resolve(bubble);
@@ -1484,7 +1485,7 @@ class Bubbles {
                 that._bubbles.push(bubbleUpdated);
             } // */
 
-            that._eventEmitter.emit("rainbow_invitationdetailsreceived", bubble);
+            that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
         });
     }
 
@@ -1518,7 +1519,7 @@ class Bubbles {
                 that._bubbles.push(bubbleUpdated);
             } // */
 
-            that._eventEmitter.emit("rainbow_affiliationdetailschanged", bubble);
+            that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
         });
     }
 
@@ -1573,7 +1574,7 @@ class Bubbles {
 
                 }
     
-                that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubbleUpdated);
+                that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleUpdated);
             });
         } else {
 
@@ -1585,14 +1586,14 @@ class Bubbles {
 
             if (bubbleToRemoved != -1 ) {
                 let bubbleRemoved = that.removeBubbleFromCache(affiliation.bubbleId);
-                that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubbleRemoved);
-                that._eventEmitter.emit("rainbow_bubbledeleted", bubbleRemoved);
+                that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleRemoved);
+                that._eventEmitter.emit("evt_internal_bubbledeleted", bubbleRemoved);
             } else {
                 that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) deleted bubble not found in cache, so raised the deleted event with only the id of this bubble : ", affiliation.bubbleId);
                 let bubble = {id:null };
                 bubble.id = affiliation.bubbleId;
-                that._eventEmitter.emit("rainbow_ownaffiliationdetailschanged", bubble);
-                that._eventEmitter.emit("rainbow_bubbledeleted", bubble);
+                that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble);
+                that._eventEmitter.emit("evt_internal_bubbledeleted", bubble);
             } // */
         }
     }
@@ -1626,7 +1627,7 @@ class Bubbles {
                 that._bubbles.push(bubbleUpdated);
             } // */
 
-            that._eventEmitter.emit("rainbow_bubblecustomDatachanged", bubble);
+            that._eventEmitter.emit("evt_internal_bubblecustomDatachanged", bubble);
         });
     }
 
@@ -1657,7 +1658,7 @@ class Bubbles {
                 that._bubbles.push(bubbleUpdated);
             } // */
 
-            that._eventEmitter.emit("rainbow_bubbletopicchanged", bubble);
+            that._eventEmitter.emit("evt_internal_bubbletopicchanged", bubble);
         });
     }
 
@@ -1689,7 +1690,7 @@ class Bubbles {
                 that._bubbles.push(bubbleUpdated);
             } // */
 
-            that._eventEmitter.emit("rainbow_bubblenamechanged", bubble);
+            that._eventEmitter.emit("evt_internal_bubblenamechanged", bubble);
         });
     }
 
@@ -1716,19 +1717,19 @@ class Bubbles {
             if (bubbleInfo.statusCode === "resumed") {
                 that._xmpp.sendInitialBubblePresence(bubbleInfo.jid).then(()=> {
                     bubbleInMemory.isActive = true;
-                    that._eventEmitter.emit("rainbow_onbubblepresencechanged", bubbleInMemory);
+                    that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 });
             }
             if (bubbleInfo.statusCode === "deactivated") {
                 bubbleInMemory.isActive = false;
-                that._eventEmitter.emit("rainbow_onbubblepresencechanged", bubbleInMemory);
+                that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
             }
         } else {
             that._logger.log("warn", LOG_ID + "(_onbubblepresencechanged) bubble not found !");
             //that._bubbles.push(Object.assign(new Bubble(), bubble));
         }
 
-       // that._eventEmitter.emit("rainbow_onbubblepresencechanged", bubbleInMemory);
+       // that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
     }
 
 }

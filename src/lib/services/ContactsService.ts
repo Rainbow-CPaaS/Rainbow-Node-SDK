@@ -982,13 +982,13 @@ class Contacts {
                     //that.logger.log("internal", LOG_ID + "(_onContactInfoChanged) local contact before updateFromUserData ", contact);
                     contact.updateFromUserData(_contactFromServer);
                     contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
-                    this.eventEmitter.emit("rainbow_oncontactinformationchanged", that.contacts[contactIndex]);
+                    this.eventEmitter.emit("evt_internal_contactinformationchanged", that.contacts[contactIndex]);
                 } else {
                     contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
                     //that.logger.log("internal", LOG_ID + "(_onContactInfoChanged) from server contact before updateFromUserData ", contact);
                     contact.updateFromUserData(_contactFromServer);
                     contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
-                    this.eventEmitter.emit("rainbow_oncontactinformationchanged", contact);
+                    this.eventEmitter.emit("evt_internal_contactinformationchanged", contact);
                 }
             }
 
@@ -1014,7 +1014,7 @@ class Contacts {
         that.rest.getInvitationById(data.invitationId).then( (invitation : any) => {
             that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) invitation received id", invitation.id);
 
-            that.eventEmitter.emit("rainbow_onuserinvitereceived", invitation);
+            that.eventEmitter.emit("evt_internal_userinvitereceived", invitation);
         }, err => {
             that.logger.log("warn", LOG_ID + "(_onUserInviteReceived) no invitation found for " + data.invitationId);
         });
@@ -1037,7 +1037,7 @@ class Contacts {
         that.rest.getInvitationById(data.invitationId).then((invitation : any) => {
             that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) invitation accepted id", invitation.id);
 
-            that.eventEmitter.emit("rainbow_onuserinviteaccepted", invitation);
+            that.eventEmitter.emit("evt_internal_userinviteaccepted", invitation);
         }, err => {
             that.logger.log("warn", LOG_ID + "(_onUserInviteAccepted) no invitation found for " + data.invitationId);
         });
@@ -1065,7 +1065,7 @@ class Contacts {
             .then((invitation : any) => {
                 that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
 
-                that.eventEmitter.emit("rainbow_onuserinvitecanceled", invitation);
+                that.eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
             }, err => {
                 that.logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
             });

@@ -205,7 +205,7 @@ class ConversationEventHandler extends GenericHandler {
                                 chatstate: node.getName()
                             };
                             that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - someone is " + node.getName());
-                            that.eventEmitter.emit("rainbow_onchatstate", chatstate);
+                            that.eventEmitter.emit("evt_internal_chatstate", chatstate);
                             break;
                         case "archived":
                             break;
@@ -327,7 +327,7 @@ class ConversationEventHandler extends GenericHandler {
                                 if (conversation) {
                                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) conversation with all messages deleted received ", conversation.id);
                                     conversation.reset();
-                                    that.eventEmitter.emit("rainbow_allmessagedremovedfromconversationreceived", conversation);
+                                    that.eventEmitter.emit("evt_internal_allmessagedremovedfromconversationreceived", conversation);
                                 }
                             }
                         }
@@ -458,8 +458,8 @@ class ConversationEventHandler extends GenericHandler {
                         /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                             data.conversation.messages.push(data);
                         } // */
-                        this.eventEmitter.emit("rainbow_onmessagereceived", data);
-                        that.eventEmitter.emit("rainbow_conversationupdated", {"conversationId": conv.id});
+                        this.eventEmitter.emit("evt_internal_onmessagereceived", data);
+                        that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": conv.id});
                     });
                 } else {
                     data.conversation = conversation;
@@ -467,8 +467,8 @@ class ConversationEventHandler extends GenericHandler {
                     /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                         data.conversation.messages.push(data);
                     } // */
-                    this.eventEmitter.emit("rainbow_onmessagereceived", data);
-                    that.eventEmitter.emit("rainbow_conversationupdated", {"conversationId": conversation.id});
+                    this.eventEmitter.emit("evt_internal_onmessagereceived", data);
+                    that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": conversation.id});
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! : ", err);
@@ -732,7 +732,7 @@ class ConversationEventHandler extends GenericHandler {
                                 this.conversationService.orderConversations();
                                 //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                                 // Send conversations update event
-                                that.eventEmitter.emit("rainbow_conversationupdated", conversation);
+                                that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                 break;
                             case "delete":
                                 this.conversationService.removeConversation(conversation);
@@ -741,7 +741,7 @@ class ConversationEventHandler extends GenericHandler {
                                 conversation.isFavorite = (node.find("isFavorite").text() === "true");
                                 this.conversationService.orderConversations();
                                 // Send conversations update event
-                                that.eventEmitter.emit("rainbow_conversationupdated", conversation);
+                                that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                 //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                                 break;
                             default:
@@ -787,7 +787,7 @@ class ConversationEventHandler extends GenericHandler {
                                     conv.preload = true;
                                     conv.missedCounter = missedIMCounter;
                                     // Send conversations update event
-                                    that.eventEmitter.emit("rainbow_conversationupdated", conv);
+                                    that.eventEmitter.emit("evt_internal_conversationupdated", conv);
                                     //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
                                 });
                         }
@@ -839,7 +839,7 @@ class ConversationEventHandler extends GenericHandler {
                         .log("debug", LOG_ID + "(onMuteManagementMessageReceived) conversation muted");
                     that
                         .eventEmitter
-                        .emit("rainbow_conversationupdated", {"conversationId": node.attrs.conversation});
+                        .emit("evt_internal_conversationupdated", {"conversationId": node.attrs.conversation});
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! : ", err);
@@ -856,7 +856,7 @@ class ConversationEventHandler extends GenericHandler {
                         .log("debug", LOG_ID + "(onUnmuteManagementMessageReceived) conversation unmuted");
                     that
                         .eventEmitter
-                        .emit("rainbow_conversationupdated", {"conversationId": node.attrs.conversation});
+                        .emit("evt_internal_conversationupdated", {"conversationId": node.attrs.conversation});
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! : ", err);
@@ -877,7 +877,7 @@ class ConversationEventHandler extends GenericHandler {
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
 
-                            that.eventEmitter.emit("rainbow_filecreated", {'fileid': fileid});
+                            that.eventEmitter.emit("evt_internal_filecreated", {'fileid': fileid});
                         }
                             break;
                         case "update": {
@@ -900,7 +900,7 @@ class ConversationEventHandler extends GenericHandler {
                                         });
                                 }
                             });
-                            that.eventEmitter.emit("rainbow_fileupdated", {'fileid': fileid});
+                            that.eventEmitter.emit("evt_internal_fileupdated", {'fileid': fileid});
                         }
                             break;
 
@@ -920,7 +920,7 @@ class ConversationEventHandler extends GenericHandler {
                                 this.fileStorageService.deleteFileDescriptorFromCache(fileid, true);
                             }
 
-                            that.eventEmitter.emit("rainbow_filedeleted", {'fileid': fileid});
+                            that.eventEmitter.emit("evt_internal_filedeleted", {'fileid': fileid});
                         }
                             break;
                         default:
@@ -952,7 +952,7 @@ class ConversationEventHandler extends GenericHandler {
                             let size = node.getChild('size') ? node.getChild('size').children[0] : '';
                             let md5sum = node.getChild('md5sum') ? node.getChild('md5sum').children[0] : '';
                             let fileid = node.getChild('fileid') ? node.getChild('fileid').children[0] : '';
-                            that.eventEmitter.emit("rainbow_thumbnailcreated", {
+                            that.eventEmitter.emit("evt_internal_thumbnailcreated", {
                                 'url': url,
                                 'mime': mime,
                                 'filename': filename,

@@ -1799,7 +1799,7 @@ class Channels {
         this.fetchChannel(message.channelId).then((channel) => {
             message.channel = channel;
             delete message.channelId;
-            this._eventEmitter.emit("rainbow_channelmessagereceived", message);
+            this._eventEmitter.emit("evt_internal_channelmessagereceived", message);
         });
     }
 
@@ -1955,7 +1955,7 @@ class Channels {
                     that._eventEmitter.emit("rainbow_channelcreated", {'id': newChannel.id});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
                 } else { // */
-                    that._eventEmitter.emit("rainbow_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
+                    that._eventEmitter.emit("evt_internal_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                 //}
             });
     }
@@ -1978,15 +1978,15 @@ class Channels {
                     let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.ADD, newChannel.id);
                     //this._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelcreated : ", channelObj.id);
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
+                    that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                 }
 
                 // Handle channel invitation
                 else if (!channel && newChannel.invited) {
                     let channelObj : Channel = this.addOrUpdateChannelToCache(newChannel);
                     this.incrementInvitationCounter();
-                    //this._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelupdated : ", channelObj.id, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
+                    //this._logger.log("debug", LOG_ID + "(onAddToChannel) evt_internal_channelupdated : ", channelObj.id, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
+                    that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, newChannel.id);
                 }
 
@@ -1996,8 +1996,8 @@ class Channels {
                     // TODO : this.feedChannel.messages = [];
                     this.retrieveLatests()
                         .then(() => {
-                            //this._logger.log("debug", LOG_ID + "(onAddToChannel) retrieveLatests rainbow_channelupdated : ", channelId, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
-                            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
+                            //this._logger.log("debug", LOG_ID + "(onAddToChannel) retrieveLatests evt_internal_channelupdated : ", channelId, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
+                            that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                             //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                         });
                 }
@@ -2011,7 +2011,7 @@ class Channels {
         this._logger.log("debug", LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
         let channelDeleted = await that.removeChannelFromCache(channelId);
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
-        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
+        that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
@@ -2030,7 +2030,7 @@ class Channels {
             //this.feedChannel.messages = [];
             this.retrieveLatests()
                 .then(() => {
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
+                    that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                 });
         }
@@ -2044,7 +2044,7 @@ class Channels {
                     return this.retrieveLatests();
                 })
                 .then(() => {
-                    that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
+                    that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                     //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                 });
         }
@@ -2063,7 +2063,7 @@ class Channels {
         // Update messagesList
         //this.feedChannel.messages = [];
         this.retrieveLatests().then(() => {
-            that._eventEmitter.emit("rainbow_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
+            that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
             //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
         });
     }
@@ -2075,7 +2075,7 @@ class Channels {
         let channelDeleted = await that.removeChannelFromCache(channelId);
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
 
-        that._eventEmitter.emit("rainbow_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
+        that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
                 //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
@@ -2085,7 +2085,7 @@ class Channels {
         let channel: Channel = this.getChannelFromCache(info.id);
         channel.subscribers_count = info.subscribers;
 
-        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
+        that._eventEmitter.emit("evt_internal_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId, userId);
     }
 
@@ -2095,7 +2095,7 @@ class Channels {
         let channel: Channel = this.getChannelFromCache(info.id);
         channel.subscribers_count = info.subscribers;
 
-        that._eventEmitter.emit("rainbow_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
+        that._eventEmitter.emit("evt_internal_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId, userId);
     }
 

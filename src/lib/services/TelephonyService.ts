@@ -247,8 +247,8 @@ class Telephony {
                     that.logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
                     that.started = false;
                     that.calls = [];
-                    that.logger.log("debug", LOG_ID + "(onTelPresenceChange) send rainbow_ontelephonystatuschanged ", "stopped");
-                    that._eventEmitter.emit("rainbow_ontelephonystatuschanged", "stopped");
+                    that.logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "stopped");
+                    that._eventEmitter.emit("evt_internal_telephonystatuschanged", "stopped");
                     //$rootScope.$broadcast("ON_TELEPHONY_STATUS_CHANGED_EVENT", "stopped");
 
                     that.logger.log("info", LOG_ID + "[onTelPresenceChange] === STOPPED ===");
@@ -288,8 +288,8 @@ class Telephony {
                             that.logger.log("info", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
                             that.started = true;
                             that.starting = false;
-                            that.logger.log("debug", LOG_ID + "(onTelPresenceChange) send rainbow_ontelephonystatuschanged ", "started");
-                            that._eventEmitter.emit("rainbow_ontelephonystatuschanged", "started");
+                            that.logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "started");
+                            that._eventEmitter.emit("evt_internal_telephonystatuschanged", "started");
                             //$rootScope.$broadcast("ON_TELEPHONY_STATUS_CHANGED_EVENT", "started");
                         })
                         .catch(function(error) {
@@ -480,8 +480,8 @@ class Telephony {
 
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(createCallFromConnectionElem) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(createCallFromConnectionElem) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
 
                     resolve(call);
                 })
@@ -760,8 +760,8 @@ class Telephony {
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     resolve(call.id);
                 },
@@ -777,8 +777,8 @@ class Telephony {
                     that.makingCall = false;
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
@@ -827,8 +827,8 @@ class Telephony {
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     resolve(call.id);
                 },
@@ -844,8 +844,8 @@ class Telephony {
                     that.makingCall = false;
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
@@ -892,8 +892,8 @@ class Telephony {
                     call.errorMessage = "invalidPhoneNumber";
                     that.calls[call.contact.id] = call;
                     that.clearCall(call);
-                    that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
 
 //                    $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
@@ -1041,8 +1041,8 @@ class Telephony {
                     that.logger.log("debug", LOG_ID + "(releaseCall) releaseCall " + call.id + " - success : ");
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(releaseCall) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(releaseCall) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
                     // Clean the call array
@@ -1115,15 +1115,15 @@ class Telephony {
                         that.logger.log("debug", LOG_ID + "(answerCall) answerCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
 
                         // Send call update event
-                        that.logger.log("debug", LOG_ID + "(answerCall) send rainbow_oncallupdated ", call);
-                        that._eventEmitter.emit("rainbow_oncallupdated", call);
+                        that.logger.log("debug", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
+                        that._eventEmitter.emit("evt_internal_callupdated", call);
                         //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                         resolve(call);
                     },
                     function failure(response) {
                         // Send call update event
-                        that.logger.log("debug", LOG_ID + "(answerCall) send rainbow_oncallupdated ", call);
-                        that._eventEmitter.emit("rainbow_oncallupdated", call);
+                        that.logger.log("debug", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
+                        that._eventEmitter.emit("evt_internal_callupdated", call);
                         //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                         reject(error);
@@ -1178,8 +1178,8 @@ class Telephony {
                     call.setStatus(Call.Status.HOLD);
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(holdCall) send rainbow_oncallupdated ", call);
-                    that._eventEmitter.emit("rainbow_oncallupdated", call);
+                    that.logger.log("debug", LOG_ID + "(holdCall) send evt_internal_callupdated ", call);
+                    that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     resolve(call);
                 },
@@ -1252,8 +1252,8 @@ class Telephony {
                         call.setStatus(Call.Status.ACTIVE);
 
                         // Send call update event
-                        that.logger.log("debug", LOG_ID + "(retrieveCall) send rainbow_oncallupdated ", call);
-                        that._eventEmitter.emit("rainbow_oncallupdated", call);
+                        that.logger.log("debug", LOG_ID + "(retrieveCall) send evt_internal_callupdated ", call);
+                        that._eventEmitter.emit("evt_internal_callupdated", call);
                         //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                         resolve();
                     },
@@ -1883,8 +1883,8 @@ class Telephony {
 
         if (!that.nomadicAnswerNotTakedIntoAccount) {
             //$rootScope.$broadcast("ON_CALL_NOMADIC_EVENT", service.nomadicObject);
-            that.logger.log("debug", LOG_ID + "[telephonyService] updateNomadicData send rainbow_onnomadicstatusevent ", that.nomadicObject);
-            that._eventEmitter.emit("rainbow_onnomadicstatusevent", that.nomadicObject);
+            that.logger.log("debug", LOG_ID + "[telephonyService] updateNomadicData send evt_internal_nomadicstatusevent ", that.nomadicObject);
+            that._eventEmitter.emit("evt_internal_nomadicstatusevent", that.nomadicObject);
         }
         that.nomadicAnswerNotTakedIntoAccount = false;
 
@@ -1972,8 +1972,8 @@ class Telephony {
         let that = this;
         call.setStatus(Call.Status.UNKNOWN);
         // $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-        that.logger.log("debug", LOG_ID + "(clearCall) send rainbow_oncallupdated ", call);
-        that._eventEmitter.emit("rainbow_oncallupdated", call);
+        that.logger.log("debug", LOG_ID + "(clearCall) send evt_internal_callupdated ", call);
+        that._eventEmitter.emit("evt_internal_callupdated", call);
 
         if (call.contact) {
             delete that.calls[call.contact.id];

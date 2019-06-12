@@ -46,6 +46,8 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onreconnecting
  * @fires Events#rainbow_onfailed
  * @fires Events#rainbow_oncallupdated
+ * @fires Events#rainbow_ontelephonystatuschanged
+ * @fires Events#rainbow_onnomadicstatusevent
  * @fires Events#rainbow_onvoicemessageupdated
  * @fires Events#rainbow_oncallforwarded
  * @fires Events#rainbow_onchannelmessagereceived
@@ -56,7 +58,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onfiledeleted
  * @fires Events#rainbow_onthumbnailcreated
  * @fires Events#rainbow_onchannelupdated
- * @fires Events#rainbow_channelusersubscription
+ * @fires Events#rainbow_onchannelusersubscription
  * @fires Events#rainbow_oncalllogupdated
  * @fires Events#rainbow_oncalllogackupdated
 */
@@ -133,7 +135,7 @@ class Events {
             }
         });
 
-        this._evReceiver.on("rainbow_onmessagereceived", function(message) {
+        this._evReceiver.on("evt_internal_onmessagereceived", function(message) {
             if (_filterCallback && _filterCallback(message.fromJid)) {
                 that._logger.log("warn", `${LOG_ID} filtering event rainbow_onmessagereceived for jid: ${message.fromJid}` );
                 return;
@@ -180,7 +182,7 @@ class Events {
             that.publishEvent("presencechanged", presence);
         });
 
-        this._evReceiver.on("eventEmitter", function(conversation) {
+        this._evReceiver.on("evt_internal_conversationdeleted", function(conversation) {
 
             /**
              * @event Events#rainbow_onconversationremoved
@@ -192,7 +194,7 @@ class Events {
             that.publishEvent("conversationremoved", conversation);
         });
 
-        this._evReceiver.on("rainbow_conversationupdated", function(conversation) {
+        this._evReceiver.on("evt_internal_conversationupdated", function(conversation) {
 
             /**
              * @event Events#rainbow_onconversationchanged
@@ -203,10 +205,10 @@ class Events {
             that.publishEvent("conversationchanged", conversation);
         });
 
-        this._evReceiver.on("rainbow_allmessagedremovedfromconversationreceived", function(conversation) {
+        this._evReceiver.on("evt_internal_allmessagedremovedfromconversationreceived", function(conversation) {
 
             /**
-             * @event Events#rainbow_onrainbow_allmessagedremovedfromconversationreceived
+             * @event Events#rainbow_onallmessagedremovedfromconversationreceived
              * @param { Conversation } conversation The conversation where the messages as all been removed.
              * @description
              *      This event is fired when a conversation has changed
@@ -214,7 +216,7 @@ class Events {
             that.publishEvent("allmessagedremovedfromconversationreceived", conversation);
         });
 
-        this._evReceiver.on("rainbow_onchatstate", function(chatstate) {
+        this._evReceiver.on("evt_internal_chatstate", function(chatstate) {
 
             /**
              * @event Events#rainbow_onchatstate
@@ -225,7 +227,7 @@ class Events {
             that.publishEvent("chatstate", chatstate);
         });
 
-        this._evReceiver.on("rainbow_oncontactinformationchanged", function(contact) {
+        this._evReceiver.on("evt_internal_contactinformationchanged", function(contact) {
 
             /**
              * @event Events#rainbow_oncontactinformationchanged
@@ -236,7 +238,7 @@ class Events {
             that.publishEvent("contactinformationchanged", contact);
         });
 
-        this._evReceiver.on("rainbow_onuserinvitereceived", function(invitation) {
+        this._evReceiver.on("evt_internal_userinvitereceived", function(invitation) {
             /**
              * @event Events#rainbow_onuserinvitereceived
              * @private
@@ -247,7 +249,7 @@ class Events {
             that.publishEvent("userinvitereceived", invitation);
         });
 
-        this._evReceiver.on("rainbow_onuserinviteaccepted", function(invitation) {
+        this._evReceiver.on("evt_internal_userinviteaccepted", function(invitation) {
             /**
              * @event Events#rainbow_onuserinviteaccepted
              * @private
@@ -258,7 +260,7 @@ class Events {
             that.publishEvent("userinviteaccepted", invitation);
         });
 
-        this._evReceiver.on("rainbow_onuserinvitecanceled", function(invitation) {
+        this._evReceiver.on("evt_internal_userinvitecanceled", function(invitation) {
             /**
              * @event Events#rainbow_onuserinvitecanceled
              * @private
@@ -269,7 +271,7 @@ class Events {
             that.publishEvent("userinvitecanceled", invitation);
         });
 
-        this._evReceiver.on("rainbow_affiliationdetailschanged", function(bubble) {
+        this._evReceiver.on("evt_internal_affiliationdetailschanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubbleaffiliationchanged
              * @public
@@ -280,7 +282,7 @@ class Events {
             that.publishEvent("bubbleaffiliationchanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_onbubblepresencechanged", function(bubble) {
+        this._evReceiver.on("evt_internal_bubblepresencechanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubblepresencechanged
              * @param { Bubble } bubble The bubble updated
@@ -290,7 +292,7 @@ class Events {
             that.publishEvent("bubblepresencechanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_ownaffiliationdetailschanged", function(bubble) {
+        this._evReceiver.on("evt_internal_ownaffiliationdetailschanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubbleownaffiliationchanged
              * @param { Bubble } bubble The bubble updated
@@ -300,7 +302,7 @@ class Events {
             that.publishEvent("bubbleownaffiliationchanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_bubbledeleted", function(bubble) {
+        this._evReceiver.on("evt_internal_bubbledeleted", function(bubble) {
             /**
              * @event Events#rainbow_onbubbledeleted
              * @param { Bubble } bubble The bubble deleted
@@ -310,7 +312,7 @@ class Events {
             that.publishEvent("bubbledeleted", bubble);
         });
 
-        this._evReceiver.on("rainbow_invitationdetailsreceived", function(bubble) {
+        this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
 
             bubble.users.forEach((user) => {
                 if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
@@ -329,7 +331,7 @@ class Events {
             that.publishEvent("bubbleinvitationreceived", bubble);
         });
 
-        this._evReceiver.on("rainbow_bubblecustomDatachanged", function(bubble) {
+        this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubblecustomdatachanged
              * @public
@@ -340,9 +342,9 @@ class Events {
             that.publishEvent("bubblecustomdatachanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_bubbletopicchanged", function(bubble) {
+        this._evReceiver.on("evt_internal_bubbletopicchanged", function(bubble) {
             /**
-             * @event Events#rainbow_bubbletopicchanged
+             * @event Events#rainbow_onbubbletopicchanged
              * @public
              * @param { Bubble } bubble The bubble updated with the new topic set
              * @description 
@@ -351,9 +353,9 @@ class Events {
             that.publishEvent("bubbletopicchanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_bubblenamechanged", function(bubble) {
+        this._evReceiver.on("evt_internal_bubblenamechanged", function(bubble) {
             /**
-             * @event Events#rainbow_bubblenamechanged
+             * @event Events#rainbow_onbubblenamechanged
              * @public
              * @param { Bubble } bubble The bubble updated with the new name set
              * @description 
@@ -362,7 +364,7 @@ class Events {
             that.publishEvent("bubblenamechanged", bubble);
         });
 
-        this._evReceiver.on("rainbow_ongroupcreated", function(group) {
+        this._evReceiver.on("evt_internal_groupcreated", function(group) {
             /**
              * @event Events#rainbow_ongroupcreated
              * @public
@@ -373,7 +375,7 @@ class Events {
             that.publishEvent("groupcreated", group);
         });
 
-        this._evReceiver.on("rainbow_ongroupdeleted", function(group) {
+        this._evReceiver.on("evt_internal_groupdeleted", function(group) {
             /**
              * @event Events#rainbow_ongroupdeleted
              * @public
@@ -384,7 +386,7 @@ class Events {
             that.publishEvent("groupdeleted", group);
         });
 
-        this._evReceiver.on("rainbow_ongroupupdated", function(group) {
+        this._evReceiver.on("evt_internal_groupupdated", function(group) {
             /**
              * @event Events#rainbow_ongroupupdated
              * @public
@@ -395,7 +397,7 @@ class Events {
             that.publishEvent("groupupdated", group);
         });
 
-        this._evReceiver.on("rainbow_onuseraddedingroup", function(group, contact) {
+        this._evReceiver.on("evt_internal_useraddedingroup", function(group, contact) {
             /**
              * @event Events#rainbow_onuseraddedingroup
              * @public
@@ -407,7 +409,7 @@ class Events {
             that.publishEvent("useraddedingroup", group, contact);
         });
 
-        this._evReceiver.on("rainbow_onuserremovedfromgroup", function(group, contact) {
+        this._evReceiver.on("evt_internal_userremovedfromgroup", function(group, contact) {
             /**
              * @event Events#rainbow_onuserremovedfromgroup
              * @public
@@ -419,7 +421,7 @@ class Events {
             that.publishEvent("userremovedfromgroup", group, contact);
         });
 
-        this._evReceiver.on("rainbow_channelmessagereceived", function(message) {
+        this._evReceiver.on("evt_internal_channelmessagereceived", function(message) {
             /**
              * @event Events#rainbow_onchannelmessagereceived
              * @public
@@ -430,7 +432,7 @@ class Events {
             that.publishEvent("channelmessagereceived", message);
         });
 
-        this._evReceiver.on("rainbow_onchannelmessagedeletedreceived", function(message) {
+        this._evReceiver.on("evt_internal_channelmessagedeletedreceived", function(message) {
             /**
              * @event Events#rainbow_onchannelmessagedeletedreceived
              * @public
@@ -452,7 +454,7 @@ class Events {
             that.publishEvent("profilefeatureupdated" );
         });
 
-        this._evReceiver.on("rainbow_oncallupdated", function (data) {
+        this._evReceiver.on("evt_internal_callupdated", function (data) {
             /**
              * @event Events#rainbow_oncallupdated
              * @public
@@ -463,7 +465,7 @@ class Events {
             that.publishEvent("callupdated", data);
         });
 
-        this._evReceiver.on("rainbow_ontelephonystatuschanged", function (data) {
+        this._evReceiver.on("evt_internal_telephonystatuschanged", function (data) {
             /**
              * @event Events#rainbow_ontelephonystatuschanged
              * @public
@@ -474,7 +476,7 @@ class Events {
             that.publishEvent("telephonystatuschanged", data);
         });
 
-        this._evReceiver.on("rainbow_onnomadicstatusevent", function (data) {
+        this._evReceiver.on("evt_internal_nomadicstatusevent", function (data) {
             /**
              * @event Events#rainbow_onnomadicstatusevent
              * @public
@@ -485,7 +487,7 @@ class Events {
             that.publishEvent("nomadicstatusevent", data);
         });
 
-        this._evReceiver.on("rainbow_onvoicemessageupdated", function (data) {
+        this._evReceiver.on("evt_internal_voicemessageupdated", function (data) {
             /**
              * @event Events#rainbow_onvoicemessageupdated
              * @public
@@ -496,7 +498,7 @@ class Events {
             that.publishEvent("voicemessageupdated", data);
         });
 
-        this._evReceiver.on("rainbow_oncallforwarded", function (data) {
+        this._evReceiver.on("evt_internal_callforwarded", function (data) {
             /**
              * @event Events#rainbow_oncallforwarded
              * @public
@@ -507,7 +509,7 @@ class Events {
             that.publishEvent("callforwarded", data);
         });
 
-        this._evReceiver.on("rainbow_filecreated", function (data) {
+        this._evReceiver.on("evt_internal_filecreated", function (data) {
             /**
              * @event Events#rainbow_onfilecreated
              * @public
@@ -518,7 +520,7 @@ class Events {
             that.publishEvent("filecreated", data);
         });
 
-        this._evReceiver.on("rainbow_fileupdated", function (data) {
+        this._evReceiver.on("evt_internal_fileupdated", function (data) {
             /**
              * @event Events#rainbow_onfileupdated
              * @public
@@ -529,7 +531,7 @@ class Events {
             that.publishEvent("fileupdated", data);
         });
 
-        this._evReceiver.on("rainbow_filedeleted", function (data) {
+        this._evReceiver.on("evt_internal_filedeleted", function (data) {
             /**
              * @event Events#rainbow_onfiledeleted
              * @public
@@ -540,7 +542,7 @@ class Events {
             that.publishEvent("filedeleted", data);
         });
 
-        this._evReceiver.on("rainbow_thumbnailcreated", function (data) {
+        this._evReceiver.on("evt_internal_thumbnailcreated", function (data) {
             /**
              * @event Events#rainbow_onthumbnailcreated
              * @public
@@ -553,7 +555,7 @@ class Events {
 
         /************************* Channels **********************/
 
-        this._evReceiver.on("rainbow_channelupdated", function (data) {
+        this._evReceiver.on("evt_internal_channelupdated", function (data) {
             /**
              * @event Events#rainbow_onchannelupdated
              * @public
@@ -565,9 +567,9 @@ class Events {
             that.publishEvent("channelupdated", data);
         });
 
-        this._evReceiver.on("rainbow_channelusersubscription", function (data) {
+        this._evReceiver.on("evt_internal_channelusersubscription", function (data) {
             /**
-             * @event Events#rainbow_channelusersubscription
+             * @event Events#rainbow_onchannelusersubscription
              * @public
              * @param { String } id The id of the channel
              * @param { String } userId The id of the user
