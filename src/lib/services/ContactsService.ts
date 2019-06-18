@@ -824,7 +824,7 @@ class Contacts {
      */
     _onRosterPresenceChanged(presence) {
 
-        var contact = this.contacts.find((contactItem) => {
+        let contact = this.contacts.find((contactItem) => {
             return contactItem.jid_im === presence.jid;
         });
 
@@ -837,22 +837,22 @@ class Contacts {
             // Store the presence of the resource
             contact.resources[presence.resource] = presence.value; 
 
-            var on_the_phone = false;
-            var manual_invisible = false;
-            var manual_dnd = false;
-            var manual_away = false;
-            var in_presentation_mode = false;
-            var in_webrtc_mode = false;
-            var webrtc_reason = "";
-            var is_online = false;
-            var is_online_mobile = false;
-            var auto_away = false;
-            var is_offline = false;
-            for (var resourceId in contact.resources) {
+            let on_the_phone = false;
+            let manual_invisible = false;
+            let manual_dnd = false;
+            let manual_away = false;
+            let in_presentation_mode = false;
+            let in_webrtc_mode = false;
+            let webrtc_reason = "";
+            let is_online = false;
+            let is_online_mobile = false;
+            let auto_away = false;
+            let is_offline = false;
+            for (let resourceId in contact.resources) {
 
-                var resource = contact.resources[resourceId];
+                let resource = contact.resources[resourceId];
 
-                if ( resource !== "phone") {
+                if ( resource.type !== "phone" ) {
                     if (resource.show === "xa" && resource.status === "") {
                         manual_invisible = true;
                     }
@@ -885,8 +885,11 @@ class Contacts {
                     }
                 }
                 else {
-                    if (resource.status === "EVT_SERVICE_INITIATED" && resource.show === "chat") {
+                    if ((resource.status === "EVT_SERVICE_INITIATED" || resource.status === "EVT_ESTABLISHED") && resource.show === "chat") {
                         on_the_phone = true;
+                    }
+                    if (resource.status === "EVT_CONNECTION_CLEARED" && resource.show === "chat") {
+                        on_the_phone = false;
                     }
                 }
             }

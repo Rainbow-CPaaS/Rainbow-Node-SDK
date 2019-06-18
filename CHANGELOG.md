@@ -6,7 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.57.0] - 2018-06-XX
+## [1.58.0] - 2018-06-XX
+- Fix event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.
+
+## [1.57.0] - 2018-06-18
 -   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 
 -   RQRAINB-1550 : Add userInfo1 and userInfo2 value in Contact but it can only be filled for the current user himself and AdminService::getContactInfos methods
 -   RQRAINB-1550 : Add AdminService::updateContactInfos :  Set informations about a user (userInfo1, userInfo2, ...).

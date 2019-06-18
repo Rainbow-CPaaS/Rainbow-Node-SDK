@@ -173,26 +173,26 @@ class PresenceEventHandler extends GenericHandler {
                         });
                     }
 
-                    that
-                        .eventEmitter
-                        .emit("evt_internal_onrosterpresence", {
-                            fulljid: from,
-                            jid: xmppUtils.getBareJIDFromFullJID(from),
-                            resource: xmppUtils.getResourceFromFullJID(from),
-                            value: {
-                                priority: priority,
-                                show: show || "",
-                                delay: delay,
-                                status: status || "",
-                                type: xmppUtils.isFromTelJid(from) ?
-                                    "phone" :
-                                    xmppUtils.isFromMobile(from) ?
-                                        "mobile" :
-                                        xmppUtils.isFromNode(from) ?
-                                            "node" :
-                                            "desktopOrWeb"
-                            }
-                        });
+
+                    let evtParam =  {
+                        fulljid: from,
+                        jid: xmppUtils.getBareJIDFromFullJID(from),
+                        resource: xmppUtils.getResourceFromFullJID(from),
+                        value: {
+                            priority: priority,
+                            show: show || "",
+                            delay: delay,
+                            status: status || "",
+                            type: xmppUtils.isFromTelJid(from) ?
+                                "phone" :
+                                xmppUtils.isFromMobile(from) ?
+                                    "mobile" :
+                                    xmppUtils.isFromNode(from) ?
+                                        "node" :
+                                        "desktopOrWeb"
+                        }
+                    };
+                    that.eventEmitter.emit("evt_internal_onrosterpresence", evtParam);
                 }
                 that.logger.log("debug", LOG_ID + "(onPresenceReceived) _exiting_");
             } catch (err) {
