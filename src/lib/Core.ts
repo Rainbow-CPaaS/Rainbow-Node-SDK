@@ -285,7 +285,7 @@ class Core {
         this._stateManager = new StateManager(this._eventEmitter, this.logger);
 
         // Instantiate others Services
-        this._im = new IMService(this._eventEmitter.iee, this.logger);
+        this._im = new IMService(this._eventEmitter.iee, this.logger, this.options.imOptions);
         this._presence = new PresenceService(this._eventEmitter.iee, this.logger);
         this._channels = new ChannelsService(this._eventEmitter.iee, this.logger);
         this._contacts = new ContactsService(this._eventEmitter.iee, this.options.httpOptions, this.logger);

@@ -52,7 +52,8 @@ module.exports = {
         maxFiles : null
     },
     im: {
-        sendReadReceipt: true
+        sendReadReceipt: true,
+        messageMaxLength: 1024
     },
     mode:"xmpp",
     debug:true,

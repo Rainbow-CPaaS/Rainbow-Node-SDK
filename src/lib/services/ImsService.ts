@@ -7,6 +7,7 @@ import {Conversation} from "./../common/models/Conversation";
 const emoji = require("../common/Emoji");
 import {XMPPUTils} from "../common/XMPPUtils";
 const utils = require("../common/Utils");
+const config = require("../config/config");
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -28,13 +29,15 @@ class IM {
 	public eventEmitter: any;
 	public pendingMessages: any;
 	public bulles: any;
+    private imOptions: any;
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _imOptions) {
         this.xmpp = null;
         this.conversations = null;
         this.logger = _logger;
         this.eventEmitter = _eventEmitter;
         this.pendingMessages = {};
+        this.imOptions = _imOptions;
 
         this.eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
 
@@ -199,7 +202,7 @@ class IM {
      * @category async
      */
     sendMessageToConversation(conversation, message, lang, content, subject) {
-
+        let that = this;
         this.logger.log("debug", LOG_ID + "(sendMessageToConversation) _entering_");
 
         if (!conversation) {
@@ -212,8 +215,8 @@ class IM {
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
-        if (message.length > 1024) {
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+        if (message.length > that.imOptions.messageMaxLength) {
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this
@@ -316,6 +319,7 @@ class IM {
      * @category async
      */
     async sendMessageToJid(message, jid, lang, content, subject) {
+        let that = this;
         if (!lang) {
             lang = "en";
         }
@@ -332,9 +336,9 @@ class IM {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > 1024) {
+        if (messageSize > that.imOptions.messageMaxLength) {
             this.logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -404,9 +408,9 @@ class IM {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > 1024) {
+        if (messageSize > that.imOptions.messageMaxLength) {
             that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -499,9 +503,9 @@ class IM {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > 1024) {
+        if (messageSize > that.imOptions.messageMaxLength) {
             that.logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -580,9 +584,9 @@ class IM {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > 1024) {
+        if (messageSize > that.imOptions.messageMaxLength) {
             that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than 1024 characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {

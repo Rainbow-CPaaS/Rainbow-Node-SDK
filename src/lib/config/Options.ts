@@ -226,8 +226,9 @@ class Options {
 
     _getIMOptions() {
 
-        var optionsIM = {
-            sendReadReceipt:config.im.sendReadReceipt
+        let optionsIM = {
+            sendReadReceipt:config.im.sendReadReceipt,
+            messageMaxLength : 1024
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -236,6 +237,9 @@ class Options {
         else {
                 optionsIM.sendReadReceipt = this._options.im.sendReadReceipt;
         }
+
+        optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
+
         return optionsIM;
     }
 
@@ -268,6 +272,17 @@ class Options {
 
         return applicationOptions;
     }
+
+    /*
+    get messageMaxLength () {
+        let messageMaxLength = 1024;
+
+        messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
+
+        return messageMaxLength
+    }
+
+     */
 
 }
 module.exports = Options;

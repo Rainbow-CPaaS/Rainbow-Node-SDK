@@ -14,6 +14,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update package.json "moment-duration-format": "^2.2.2" and npm audit fix    
 -   RQRAINB-1627 : Update to latest typescript engine
 -   Rename event `rainbow_onownbubbledeleted` to `rainbow_onbubbledeleted` when a bubble is deleted.
+-   Add options::im::messageMaxLength option to define the max size of the messages sent.
  
 ## [1.56.0] - 2018-05-28
 -   Add TelephonyService::deflectCall method to deflect a call to an other telephone number  
