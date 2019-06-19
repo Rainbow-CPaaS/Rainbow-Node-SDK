@@ -243,7 +243,7 @@ class Core {
                     self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
-                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err);
+                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
                     // ErrorManager in REST micro service, so let say it is disconnected
                     self._stateManager.transitTo(self._stateManager.DISCONNECTED);
                     // relaunch the REST connection.
@@ -256,8 +256,14 @@ class Core {
             self._stateManager.transitTo(self._stateManager.RECONNECTING);
         });
 
-        this._eventEmitter.iee.on("rainbow_xmppdisconnect", function () {
-            self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+        this._eventEmitter.iee.on("rainbow_xmppdisconnect", function (xmppDisconnectInfos) {
+            if (xmppDisconnectInfos && xmppDisconnectInfos.reconnect) {
+                self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
+                self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+            }  else {
+                self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
+                self._stateManager.transitTo(self._stateManager.STOPPED);
+            }
         });
 
         this._eventEmitter.iee.on("rainbow_tokenrenewed", this.onTokenRenewed.bind(this));

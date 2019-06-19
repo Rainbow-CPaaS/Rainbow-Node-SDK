@@ -58,7 +58,7 @@ class HTTPService {
             let wasHandled = typeof cb === "function";
 
             //setImmediate(console.log, chalk.gray('      → ' + signature));
-            that.logger.log("debug", LOG_ID + "VBR  " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
+            that.logger.log("debug", LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
 
             return request(options, cb)
                 .on("response", function(response) {
@@ -70,10 +70,10 @@ class HTTPService {
 
                     let status = response.statusCode;
                     let s = status / 100 | 0;
-                    that.logger.log("debug", LOG_ID + "VBR  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
+                    that.logger.log("debug", LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
                 })
                 .on("error", function(err) {
-                    that.logger.log("debug", LOG_ID + "VBR  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
+                    that.logger.log("debug", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
                 });
         }
 

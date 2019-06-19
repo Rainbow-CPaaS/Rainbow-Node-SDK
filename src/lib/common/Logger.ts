@@ -68,7 +68,7 @@ class Logger {
             events: [ 'magenta', 'underline', 'italic']
         });
 
-        var welcome = () => {
+        let welcome = () => {
             this._logger.log("info", LOG_ID + "------------------------------------------------");
 
             this._logger.log("info", LOG_ID + "Welcome to the " + this.colors.magenta("ALE Rainbow SDK for Node.JS") + "");

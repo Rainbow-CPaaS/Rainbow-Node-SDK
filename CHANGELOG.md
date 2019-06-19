@@ -7,7 +7,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.58.0] - 2018-06-XX
-- Fix event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.
+-   Fix : event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.
+-   Fix : put the SDK to STOPPED state if "rainbow_xmppdisconnect" arrive and the reconnection is disabled.
+-   Fix : Allows to make a second 3PCC RCC if the second call is allowed in profile.
 
 ## [1.57.0] - 2018-06-18
 -   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 

@@ -922,7 +922,7 @@ class XMPPService {
 
             this.xmppClient.on(DISCONNECT_EVENT, async () => {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |");
-                that.eventEmitter.emit("rainbow_xmppdisconnect");
+                that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
                 if (that.reconnect) {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait 3 seconds before try to reconnect");
                     await setTimeoutPromised(3000);

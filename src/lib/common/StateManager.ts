@@ -77,15 +77,15 @@ class StateManager {
         });
     }
 
-    transitTo(state, data?) {
-        return new Promise( (resolve, reject) => {
+    async transitTo(state, data?) {
+        return new Promise( async (resolve, reject) => {
             if (this.state === state) {
                 this.logger.log("info", LOG_ID + "(transitTo) the state is yet ", this.state, ", so ignore it.");
                 resolve();
             } else {
                 this.state = state;
                 if (this.isSTOPPED() || this.isREADY()) {
-                    utils.setTimeoutPromised(1500).then(() => {
+                    await utils.setTimeoutPromised(1500).then(() => {
                         this.logger.log("info", LOG_ID + "(transitTo) set state", this.state);
                         this.eventEmitter.publish(state, data);
                         resolve();

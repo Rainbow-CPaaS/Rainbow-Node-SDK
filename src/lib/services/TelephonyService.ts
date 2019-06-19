@@ -703,8 +703,8 @@ class Telephony {
         let that = this;
         let activeCall = that.getActiveCall();
 
-        if (that.makingCall) {
-            that.logger.log("debug", LOG_ID + "(makeCall) makeCall failure - makeCall already making a call");
+        if (that.makingCall && !that.isSecondCallAllowed) {
+            that.logger.log("debug", LOG_ID + "(makeCall) makeCall failure - makeCall already making a call, is second call allowed ? ", that.isSecondCallAllowed);
             return Promise.reject();
         }
 
