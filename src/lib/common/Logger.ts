@@ -285,6 +285,8 @@ class Logger {
             this._logger.log("info", LOG_ID + "(constructor) console and file logs enabled");
 
             this._logger.log("info", LOG_ID + "(constructor) logs store in directory", logDir);
+            this._logger.log("internal", LOG_ID + "(constructor) : ", this._logger.colors.error("\"system-dev\" section in logs for DEVELOPPEMENT ONLY, no production system should use it :\n \
+                \"internals\" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !"));
         }
         else if (enableConsoleLog) {
 
@@ -307,6 +309,8 @@ class Logger {
             welcome();
 
             this._logger.log("info", LOG_ID + "(constructor) No file logs enabled");
+            this._logger.log("internal", LOG_ID + "(constructor) : ", this._logger.colors.error("\"system-dev\" section in logs for DEVELOPPEMENT ONLY, no production system should use it :\n \
+                \"internals\" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !"));
         }
         else if (enableFileLog) {
             this._winston = winston.createLogger({
@@ -339,6 +343,8 @@ class Logger {
             this._logger.log("info", LOG_ID + "(constructor) No console logs enabled");
 
             this._logger.log("info", LOG_ID + "(constructor) logs store in directory", logDir);
+            this._logger.log("internal", LOG_ID + "(constructor) : ", this._logger.colors.error("\"system-dev\" section in logs for DEVELOPPEMENT ONLY, no production system should use it :\n \
+                \"internals\" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !"));
         }
         else {
             this._winston = winston.createLogger({
