@@ -7,7 +7,8 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
-const Call = require("../common/models/Call");
+import {Call} from "../common/models/Call";
+//const Call = require("../common/models/Call");
 
 const moment = require("moment");
 

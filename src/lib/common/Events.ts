@@ -462,6 +462,12 @@ class Events {
              * @description
              *      Fired when a call event is received
              */
+            if (data && data.status) {
+                //that.publishEvent("callupdated_" + data.status.value, data);
+                let eventName = "evt_internal_callupdated_" + data.status.value;
+                that._logger.log("internal", LOG_ID + "(publishEvent) FOR AFTERBUILD TESTS : INTERNAL event ", that._logger.colors.events(eventName), " data : ", that._logger.colors.data(data));
+                that._evPublisher.emit(eventName, data);
+            }
             that.publishEvent("callupdated", data);
         });
 

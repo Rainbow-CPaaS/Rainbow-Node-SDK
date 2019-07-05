@@ -2,7 +2,8 @@
 
 
 
-const Call = require("./Call");
+//const Call = require("./Call");
+import {Call} from "./Call";
 const uuid4 = require("uuid/v4");
 
 
@@ -345,7 +346,7 @@ class Conversation {
     /*************************************************************/
     static createOneToOneConversation(participant) {
         // Create the conversation object
-        var conversation = new Conversation(participant.jid_im);
+        let conversation = new Conversation(participant.jid_im);
 
         // Attach it to contact
         conversation.contact = participant;

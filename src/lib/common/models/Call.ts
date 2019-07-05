@@ -1,30 +1,10 @@
 "use strict";
+import {Channel} from "./Channel";
+
 export {};
 
 
 class Call {
-    get cause() {
-        return this._cause;
-    }
-
-    set cause(value) {
-        this._cause = value;
-    }
-
-    get deviceState() {
-        return this._deviceState;
-    }
-
-    set deviceState(value) {
-        this._deviceState = value;
-    }
-    get deviceType(): any {
-        return this._deviceType;
-    }
-
-    set deviceType(value: any) {
-        this._deviceType = value;
-    }
 	public status: any;
 	public id: any;
 	public conversationId: any;
@@ -46,12 +26,14 @@ class Call {
     public Status: any;
     public Type: any;
     public Media: any;
-    private _deviceType: any;
-    private _cause ;
-    private _deviceState;
+    public deviceType: any;
+    public cause ;
+    public deviceState;
     static Status: { DIALING: { value: string; key: number }; QUEUED_OUTGOING: { value: string; key: number }; ACTIVE: { value: string; key: number }; RELEASING: { value: string; key: number }; ANSWERING: { value: string; key: number }; PUT_ON_HOLD: { value: string; key: number }; CONNECTING: { value: string; key: number }; RINGING_OUTGOING: { value: string; key: number }; QUEUED_INCOMING: { value: string; key: number }; ERROR: { value: string; key: number }; UNKNOWN: { value: string; key: number }; HOLD: { value: string; key: number }; RINGING_INCOMING: { value: string; key: number } };
     static Media: { SHARING: number; VIDEO: number; PHONE: number; AUDIO: number };
     static Type: { PHONE: { value: string; key: number }; WEBRTC: { value: string; key: number } };
+    public jid: undefined;
+    public phoneNumber: undefined;
 
     // Static factories
     static create (status, id, type, contact, deviceType) {
@@ -169,14 +151,14 @@ class Call {
         this.isConference = false;
 
         /**
-         * @private
+         * @public
          * @property {String} avatars array of call avatar sources
          * @readonly
          */
         this.avatars = (contact && contact.avatar) ? [this.contact.avatar.src] : [];
 
         /**
-         * @private
+         * @public
          * @property {Object}  currentCalled contains current called number and contact
          * @readonly
          */
@@ -187,12 +169,64 @@ class Call {
             participants: [],
         };
 
+        /**
+         * @public
+         * @property {String} deviceType type of the RCC phoneset (MAIN, SECONDARY, ...).
+         * @readonly
+         */
         this.deviceType = deviceType;
 
-        this.Status = {};
-        this.Type = {};
-        this.Media = {};
+        /**
+         * @public
+         * @property {String} deviceState state of the RCC phoneset.
+         * @readonly
+         */
+        this.deviceState = undefined;
+
+        /**
+         * @public
+         * @property {String} cause of the event of the call.
+         * @readonly
+         */
+        this.cause = undefined;
+
+        /**
+         * @public
+         * @property {String} jid of the called party.
+         * @readonly
+         */
+        this.jid = undefined;
+
+        /**
+         * @public
+         * @property {String} phonenumber called.
+         * @readonly
+         */
+        this.phoneNumber = undefined;
         // $log.debug("[CALL] createCall : " + this);
+    }
+
+    getCause() {
+        return this.cause;
+    }
+
+    setCause(value) {
+        this.cause = value;
+    }
+
+    getDeviceState() {
+        return this.deviceState;
+    }
+
+    setDeviceState(value) {
+        this.deviceState = value;
+    }
+    getDeviceType(): any {
+        return this.deviceType;
+    }
+
+    setDeviceType(value: any) {
+        this.deviceType = value;
     }
 
     // Public methods
@@ -296,6 +330,62 @@ class Call {
         return connectionId.split("#")[1];
     }
 
+    /**
+     * @function
+     * @public
+     * @name updateCall
+     * @description
+     * This method is used to update a Call from data object
+     */
+    updateCall(data) {
+        let that = this;
+        if (data) {
+
+            let callproperties = Object.getOwnPropertyNames(that);
+            //console.log("updateChannel update Channel with : ", data["id"]);
+            Object.getOwnPropertyNames(data).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    if (callproperties.find((el) => { return val == el ;})) {
+                        //console.log("update property in call instance : ", val, " -> ", data[val]);
+                        that[val] = data[val];
+                    } else {
+                        console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ", val, " -> ", data[val]);
+                    }
+                });
+        }
+
+        return this;
+    }
+
+
+    /**
+     * @function
+     * @public
+     * @name CallFactory
+     * @description
+     * This method is used to create a Call from data object
+     */
+    public static CallFactory() {
+        return (data: any): Call => {
+            let call = Call.create(data.status, data.id, data.type, data.contact, data.deviceType);
+
+            if (data) {
+                let channelproperties = Object.getOwnPropertyNames(call);
+                Object.getOwnPropertyNames(data).forEach(
+                    (val, idx, array) => {
+                        //console.log(val + " -> " + data[val]);
+                        if (!channelproperties.find((el) => { return val == el ;})) {
+                            console.log("WARNING : One property of the parameter of CallFactory method is not present in the Call class : ", val, " -> ", data[val]);
+                        }
+                    });
+            }
+
+            call.updateCall(data);
+
+            return call;
+        };
+    }
 }
 
 
@@ -407,4 +497,7 @@ Call.Media = {
 };
 
 
-module.exports = Call;
+//module.exports = Call;
+
+module.exports.Call = Call;
+export {Call};

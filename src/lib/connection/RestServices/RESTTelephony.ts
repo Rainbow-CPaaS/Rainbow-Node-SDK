@@ -34,11 +34,12 @@ class RESTTelephony {
             that.logger.log("debug", LOG_ID + "(makeCall) _entering_");
             let data = {
                 //data: {
-                calleeExtNumber: phoneInfo.longNumber,
-                calleeIntNumber: phoneInfo.internalNumber,
-                calleeShortNumber: phoneInfo.shortNumber,
-                calleePbxId: phoneInfo.pbxId,
-                calleeDisplayName: contact.displayName
+                "calleeExtNumber": phoneInfo.longNumber,
+                "calleeIntNumber": phoneInfo.internalNumber,
+                "calleeShortNumber": phoneInfo.shortNumber,
+                "calleePbxId": phoneInfo.pbxId,
+                "calleeDisplayName": contact.displayName,
+                "correlatorData":phoneInfo.correlatorData?phoneInfo.correlatorData:" "
                 //}
             };
 
@@ -90,11 +91,12 @@ class RESTTelephony {
             that.logger.log("debug", LOG_ID + "(makeConsultationCall) _entering_");
             if (callId) {
                 let data = {
-                    calleeExtNumber: phoneInfo.longNumber,
-                    calleeIntNumber: phoneInfo.internalNumber,
-                    calleeShortNumber: phoneInfo.shortNumber,
-                    calleePbxId: phoneInfo.pbxId,
-                    calleeDisplayName: contact.displayName
+                    "calleeExtNumber": phoneInfo.longNumber,
+                    "calleeIntNumber": phoneInfo.internalNumber,
+                    "calleeShortNumber": phoneInfo.shortNumber,
+                    "calleePbxId": phoneInfo.pbxId,
+                    "calleeDisplayName": contact.displayName,
+                    "correlatorData":phoneInfo.correlatorData?phoneInfo.correlatorData:" "
                 };
 
                 that.http.post("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(callId) + '/consultation', requestHeader, data).then((json) => {
@@ -314,7 +316,7 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
 
             that.logger.log("debug", LOG_ID + "(getForwardStatus) _entering_");
-            that.http.get("/api/rainbow/telephony/v1.0/calls/forward", requestHeader).then((json) => {
+            that.http.get("/api/rainbow/telephony/v1.0/forward", requestHeader).then((json) => {
                 that.logger.log("info", LOG_ID + "(getForwardStatus) successfull");
                 that.logger.log("info", LOG_ID + "(getForwardStatus) REST conversation consulted", json.data);
                 that.logger.log("debug", LOG_ID + "(getForwardStatus) _exiting_");

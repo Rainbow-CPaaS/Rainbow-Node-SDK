@@ -8,7 +8,9 @@ export {};
 const Utils = require("../../common/Utils");
 const GenericHandler = require("./genericHandler");
 //const Conversation = require("../../common/models/Conversation");
-const Call = require("../../common/models/Call");
+//const Call = require("../../common/models/Call");
+import {Call} from "../../common/models/Call";
+import {type} from "os";
 const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 
 const xml = require("@xmpp/xml");
@@ -39,7 +41,8 @@ class TelephonyEventHandler extends GenericHandler {
 	public onIqResultReceived: any;
 	public onIqGetPbxAgentStatusReceived: any;
 	public onMessageReceived: any;
-	public onOriginatedEvent: any;
+    public onInitiatedEvent: any;
+    public onOriginatedEvent: any;
 	public getCall: any;
 	public onDeliveredEvent: any;
 	public onEstablishedEvent: any;
@@ -83,7 +86,7 @@ class TelephonyEventHandler extends GenericHandler {
         this._profiles = profileService;
 
         this.onIqResultReceived = (msg, stanza) => {
-            var children = stanza.children;
+            let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "pbxagentstatus":
@@ -108,7 +111,7 @@ class TelephonyEventHandler extends GenericHandler {
                 "version" : ""
             };
 
-            var subchildren = node.children;
+            let subchildren = node.children;
             subchildren.forEach(function (item) {
                 if (typeof item === "object") {
                     let itemName = item.getName();
@@ -158,10 +161,13 @@ class TelephonyEventHandler extends GenericHandler {
                 }
                 if (actionElemName) {
                     that.logger.log("debug", LOG_ID + "(onMessageReceived) " + that.logger.colors.debug("-- event -- " + actionElemName));
-
-
                     // Handle the event
                     switch (actionElemName) {
+                        case "initiated" :
+                            this.promiseQueue.add(function () {
+                                return that.onInitiatedEvent(actionElem);
+                            });
+                            break; // */
                         case "originated":
                             this.promiseQueue.add(function () {
                                 return that.onOriginatedEvent(actionElem);
@@ -260,6 +266,40 @@ class TelephonyEventHandler extends GenericHandler {
             return true;
         };
 
+
+        /*********************************************************************/
+        /** INITIATED CALL STUFF                                           **/
+        /*********************************************************************/
+        this.onInitiatedEvent = function (initiatedElem) {
+            that.logger.log("debug", LOG_ID + "(onInitiatedEvent) _entering_", initiatedElem);
+            return this.getCall(initiatedElem)
+                .then(function (call) {
+                    try {
+                        /*if (call.status === Call.Status.QUEUED_INCOMING) {
+                            return Promise.resolve();
+                        } // */
+
+                        let deviceState = initiatedElem.attr("deviceState");
+                        //let devicetype = initiatedElem.attr("devicetype");
+                        //let callId = initiatedElem.attr("callId");
+                        if (deviceState && deviceState === "LCI_INITIATED") {
+                            call.setStatus(Call.Status.DIALING );
+                            // Update call info
+                            that.logger.log("debug", LOG_ID + "(updateCallContact) send evt_internal_callupdated ", call);
+                            that.eventEmitter.emit("evt_internal_callupdated", call);
+                        }
+                        return Promise.resolve();
+                    }
+                    catch (error) {
+                        let errorMessage = "onInitiatedEvent -- " + error.message;
+                        that.logger.log("error", LOG_ID + "(onInitiatedEvent) Catch Error !!! " + errorMessage);
+                        return Promise.reject(new Error(errorMessage));
+                    }
+                });
+            // */
+        };
+
+
         /*********************************************************************/
         /** ORIGINATED CALL STUFF                                           **/
         /*********************************************************************/
@@ -288,10 +328,21 @@ class TelephonyEventHandler extends GenericHandler {
                         }
 
                         call.setCurrentCalled(currentCalled);
+
+                        /*let deviceState = call.deviceState;
+                        //let devicetype = initiatedElem.attr("devicetype");
+                        //let callId = initiatedElem.attr("callId");
+                        if (deviceState && deviceState === "LCI_CONNECTED") {
+                            call.setStatus(Call.Status.DIALING );
+                            // Update call info
+                            that.logger.log("debug", LOG_ID + "(updateCallContact) send evt_internal_callupdated ", call);
+                            that.eventEmitter.emit("evt_internal_callupdated", call);
+                        } */
+
                         return Promise.resolve();
                     }
                     catch (error) {
-                        var errorMessage = "onOriginatedEvent -- " + error.message;
+                        let errorMessage = "onOriginatedEvent -- " + error.message;
                         that.logger.log("error", LOG_ID + "(onOriginatedEvent) Catch Error !!! " + errorMessage);
                         return Promise.reject(new Error(errorMessage));
                     }
@@ -306,26 +357,28 @@ class TelephonyEventHandler extends GenericHandler {
         this.onDeliveredEvent = function (deliveredElem) {
             that.logger.log("debug", LOG_ID + "(onDeliveredEvent) _entering_", deliveredElem);
             //let that = this;
-            return this.getCall(deliveredElem).then(function (call) {
+            return that.getCall(deliveredElem).then(function (call) {
                 try {
                     if (call.status === Call.Status.QUEUED_INCOMING) {
                         return Promise.resolve();
                     }
 
-                    var type = deliveredElem.attr("type");
-                    var jid = deliveredElem.attr("endpointIm");
-                    var phoneNumber = deliveredElem.attr("endpointTel");
+                    let type = deliveredElem.attr("type");
+                    let jid = deliveredElem.attr("endpointIm");
+                    let phoneNumber = deliveredElem.attr("endpointTel");
 
                     // Update call info
                     call.setStatus((type === "outgoing") ? Call.Status.RINGING_OUTGOING : Call.Status.RINGING_INCOMING);
                     call.startDate = null;
                     call.vm = false;
 
+                    that.logger.log("debug", LOG_ID + "(onDeliveredEvent) call : ", call);
+
                     // Update contact info if necessary
                     return that.updateCallContact(jid, phoneNumber, "delivered", call);
                 }
                 catch (error) {
-                    var errorMessage = "onDeliveredEvent -- " + error.message;
+                    let errorMessage = "onDeliveredEvent -- " + error.message;
                     that.logger.log("error", LOG_ID + "(onDeliveredEvent) Catch Error !!! " + errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
@@ -339,10 +392,10 @@ class TelephonyEventHandler extends GenericHandler {
         this.onEstablishedEvent = function (establishedElem) {
             that.logger.log("debug", LOG_ID + "(onEstablishedEvent) _entering_", establishedElem);
             //let that = this;
-            return this.getCall(establishedElem).then(function (call) {
+            return that.getCall(establishedElem).then(function (call) {
                 try {
-                    var jid = establishedElem.attr("endpointIm");
-                    var phoneNumber = establishedElem.attr("endpointTel");
+                    let jid = establishedElem.attr("endpointIm");
+                    let phoneNumber = establishedElem.attr("endpointTel");
 
                     // Call already exists and IS NOT a conference, update contact info if necessary
                     if (call.contact && call.contact._id) {
@@ -355,8 +408,8 @@ class TelephonyEventHandler extends GenericHandler {
                     // Call already exists and IS a conference, update contact info if necessary
                     else if (call.participants && call.participants.length > 0) {
                         //recover former matching contact from participants
-                        var contactRecovered = null;
-                        for (var i = 0; (i < call.participants.length && !contactRecovered); i++) {
+                        let contactRecovered = null;
+                        for (let i = 0; (i < call.participants.length && !contactRecovered); i++) {
                             if (call.participants[i].id === jid) {
                                 contactRecovered = call.participants[i];
                             }
@@ -369,7 +422,7 @@ class TelephonyEventHandler extends GenericHandler {
                         //clean former conf struct & update contact
                         call.participants = [];
                         call.isConference = false;
-                        var currentCalled = call.getCurrentCalled();
+                        let currentCalled = call.getCurrentCalled();
                         if (contactRecovered) {
                             call.setContact(contactRecovered);
                             call.setStatus(Call.Status.ACTIVE);
@@ -400,7 +453,7 @@ class TelephonyEventHandler extends GenericHandler {
                     return Promise.resolve();
                 }
                 catch (error) {
-                    var errorMessage = "onEstablishedEvent -- " + error.message;
+                    let errorMessage = "onEstablishedEvent -- " + error.message;
                     that.logger.log("error", LOG_ID + "(onEstablishedEvent) Catch Error!!! " + errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
@@ -427,16 +480,16 @@ class TelephonyEventHandler extends GenericHandler {
         this.onClearCallEvent = function (clearElem) {
             that.logger.log("debug", LOG_ID + "(onClearCallEvent) _entering_", clearElem);
             //let that = this;
-            return this.getCall(clearElem).then(function (call) {
+            return that.getCall(clearElem).then(async (call) => {
                 if (call.status !== Call.Status.ERROR) {
                     call.setStatus(Call.Status.UNKNOWN);
-                    let cause = clearElem.attr("callId");
-                    let deviceState = clearElem.attr("callId");
+                    let cause = clearElem.attr("cause");
+                    let deviceState = clearElem.attr("deviceState");
                     call.cause = cause;
                     call.deviceState = deviceState;
-                    that.telephonyService.clearCall(call);
                     that.logger.log("debug", LOG_ID + "(onClearCallEvent) send evt_internal_callupdated ", call);
                     that.eventEmitter.emit("evt_internal_callupdated", call);
+                    await that.telephonyService.clearCall(call);
 
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                 }
@@ -448,7 +501,7 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         this.onHeldEvent = function (heldElem) {
             that.logger.log("debug", LOG_ID + "(onHeldEvent) _entering_", heldElem);
-            return this.getCall(heldElem).then(function (call) {
+            return that.getCall(heldElem).then(function (call) {
                 try {
                     let connectionId = heldElem.attr("callId");
                     if (!connectionId) {
@@ -483,7 +536,7 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         this.onQueuedEvent = function (queuedElem) {
             that.logger.log("debug", LOG_ID + "(onQueuedEvent) _entering_", queuedElem);
-            //var that = this;
+            //let that = this;
             let cause = queuedElem.attr("cause");
 
             if (cause === "PARK") {
@@ -495,7 +548,7 @@ class TelephonyEventHandler extends GenericHandler {
                 return Promise.resolve();
             }
 
-            return this.getCall(queuedElem).then(function (call) {
+            return that.getCall(queuedElem).then(function (call) {
                 try {
                     let type = queuedElem.attr("type");
                     let jid = queuedElem.attr("endpointIm");
@@ -510,7 +563,7 @@ class TelephonyEventHandler extends GenericHandler {
                     return that.updateCallContact(jid, phoneNumber, "queued", call);
                 }
                 catch (error) {
-                    var errorMessage = "onQueuedEvent -- " + error.message;
+                    let errorMessage = "onQueuedEvent -- " + error.message;
                     that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " + errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
@@ -521,16 +574,16 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         /** DIVERTED STUFF                                                  **/
         /*********************************************************************/
-        this.onDivertedEvent = function (divertedElem) {
+        this.onDivertedEvent = async (divertedElem) => {
             that.logger.log("debug", LOG_ID + "(onDivertedEvent) _entering_", divertedElem);
             let oldConnectionId = divertedElem.attr("oldCallId");
             let oldCallId = Call.getIdFromConnectionId(oldConnectionId);
-            let call = this.telephonyService.calls[oldCallId];
+            let call = that.telephonyService.getCallFromCaches(oldCallId);
             if (!call) {
                 that.logger.log("warn", LOG_ID + "(onDivertedEvent) - receive divertedEvent on unknown call --- ignored");
                 return Promise.resolve();
             }
-            this.telephonyService.clearCall(call);
+            await that.telephonyService.clearCall(call);
 //            $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
             that.logger.log("debug", LOG_ID + "(onDivertedEvent) send evt_internal_callupdated ", call);
             that.eventEmitter.emit("evt_internal_callupdated", call);
@@ -545,7 +598,7 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         this.onTransferEvent = function (transferElem) {
             that.logger.log("debug", LOG_ID + "(onTransferEvent) _entering_", transferElem);
-            // var that = this;
+            // let that = this;
             // Extract transfert call parameters
             let activeConnectionId = transferElem.attr("activeCallId");
             let heldConnectionId = transferElem.attr("heldCallId");
@@ -553,38 +606,57 @@ class TelephonyEventHandler extends GenericHandler {
 
             // Get active call
             let activeCallId = Call.getIdFromConnectionId(activeConnectionId);
-            let activeCall = this.telephonyService.calls[activeCallId];
+            let activeCall = that.telephonyService.getCallFromCache(activeCallId);
 
             if (heldConnectionId) {
+                that.logger.log("debug", LOG_ID + "(onTransferEvent) heldconnectionId found ", heldConnectionId);
+
                 // Get the held call
                 let heldCallId = Call.getIdFromConnectionId(heldConnectionId);
-                let heldCall = this.telephonyService.calls[heldCallId];
+                let heldCall = that.telephonyService.getCallFromCache(heldCallId);
 
                 // Release both calls (active and held)
-                heldCall.setStatus(Call.Status.UNKNOWN);
-                activeCall.setStatus(Call.Status.UNKNOWN);
-                that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", heldCall);
-                that.eventEmitter.emit("evt_internal_callupdated", heldCall);
-                that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
-                that.eventEmitter.emit("evt_internal_callupdated", activeCall);
+                if (heldCall) {
+                    heldCall.setStatus(Call.Status.UNKNOWN);
+                    that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", heldCall);
+                    that.eventEmitter.emit("evt_internal_callupdated", heldCall);
+                    that.telephonyService.clearCall(heldCall);
+
+                } else {
+                    that.logger.log("debug", LOG_ID + "(onTransferEvent) no  heldCall found");
+                }
+                if (activeCall) {
+                    activeCall.setStatus(Call.Status.UNKNOWN);
+                    that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
+                    that.eventEmitter.emit("evt_internal_callupdated", activeCall);
+                    that.telephonyService.clearCall(activeCall);
+                } else {
+                    that.logger.log("debug", LOG_ID + "(onTransferEvent) no activeCall found");
+                }
 
                 // $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", heldCall);
                 // $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", activeCall);
             }
 
             if (newConnectionId) {
-                var jid = transferElem.attr("newEndpointIm");
-                var phoneNumber = transferElem.attr("newEndpointTel");
-                var deviceState = transferElem.attr("deviceState");
+                that.logger.log("debug", LOG_ID + "(onTransferEvent) newConnectionId found ", newConnectionId);
+                let jid = transferElem.attr("newEndpointIm");
+                let phoneNumber = transferElem.attr("newEndpointTel");
+                let deviceState = transferElem.attr("deviceState");
                 if (!deviceState) {
                     deviceState = transferElem.attr("deviceStatus");
                 } // TO BE REMOVED
 
-                // Release current call
-                activeCall.setStatus(Call.Status.UNKNOWN);
-                //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", activeCall);
-                that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
-                that.eventEmitter.emit("evt_internal_callupdated", activeCall);
+                if (activeCall) {
+                    // Release current call
+                    activeCall.setStatus(Call.Status.UNKNOWN);
+                    //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", activeCall);
+                    that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
+                    that.eventEmitter.emit("evt_internal_callupdated", activeCall);
+                    that.telephonyService.clearCall(activeCall);
+                } else {
+                    that.logger.log("debug", LOG_ID + "(onTransferEvent) no activeCall found");
+                }
                 if (!jid && !phoneNumber) {//secret identity
                     phoneNumber = "****";
                 }
@@ -612,35 +684,43 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         this.onConferenceEvent = function (conferencedElem) {
             that.logger.log("debug", LOG_ID + "(onConferenceEvent) _entering_", conferencedElem);
-/*
-            // Store context
-            //var that = this;
+
+            //let that = this;
 
             // Get connectionsIds
-            var primaryOldConnectionId = conferencedElem.getChild("primaryOldCallId").text();
-            var secondaryOldConnectionId = conferencedElem.getChild("secondaryOldCallId").text();
-            var newConnectionId = conferencedElem.getChild("newCallId").text();
+            let primaryOldConnectionId = conferencedElem.getChild("primaryOldCallId") ? conferencedElem.getChild("primaryOldCallId").getText() : "";
+            let secondaryOldConnectionId = conferencedElem.getChild("secondaryOldCallId") ? conferencedElem.getChild("secondaryOldCallId").getText() : "";
+            let newConnectionId = conferencedElem.getChild("newCallId") ? conferencedElem.getChild("newCallId").getText() : "";
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) primaryOldConnectionId - ", primaryOldConnectionId);
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) secondaryOldConnectionId - ", secondaryOldConnectionId);
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) newConnectionId - ", newConnectionId);
 
             // Extract callIds
-            var primaryOldCallId = Call.getIdFromConnectionId(primaryOldConnectionId);
-            var secondaryOldCallId = Call.getIdFromConnectionId(secondaryOldConnectionId);
+            let primaryOldCallId = Call.getIdFromConnectionId(primaryOldConnectionId);
+            let secondaryOldCallId = Call.getIdFromConnectionId(secondaryOldConnectionId);
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) primaryOldCallId - ", primaryOldCallId);
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) secondaryOldCallId - ", secondaryOldCallId);
 
             // Get current calls
-            var primaryOldCall = this.telephonyService.calls[primaryOldCallId];
-            var secondaryOldCall = this.telephonyService.calls[secondaryOldCallId];
+            let primaryOldCall = that.telephonyService.getCallFromCache(primaryOldCallId);
+            let secondaryOldCall = that.telephonyService.getCallFromCache(secondaryOldCallId);
 
             // Prepare participant promises
-            var confParticipants = [];
-            var participantPromises = [];
-            var confParticipantsPhoneNumbers = [];
+            let confParticipants = [];
+            let participantPromises = [];
+            let confParticipantsPhoneNumbers = [];
 
-            conferencedElem.getChild("participant").each(function () {
-                var participantElem = angular.element(this);
-                var endpointTel = participantElem.find("endpointTel").text();
-                var endpointIm = participantElem.find("endpointIm").text();
+            let participantsElmt = conferencedElem.getChildren("participant");
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) participantsElmt - ", participantsElmt);
+            participantsElmt.forEach(function (participantElem) {
+                //let participantElem = angular.element(this);
+                let endpointTel = participantElem.find("endpointTel").getText();
+                that.logger.log("debug", LOG_ID + "(onConferenceEvent) endpointTel - ", endpointTel);
+                let endpointIm = participantElem.find("endpointIm").getText();
+                that.logger.log("debug", LOG_ID + "(onConferenceEvent) endpointIm - ", endpointIm);
 
                 if (!(endpointIm && contactService.isUserContactJid(endpointIm))) {
-                    participantPromises.push($q(function (resolve, reject) {
+                    participantPromises.push(new Promise(function (resolve, reject) {
                         if (!endpointIm && !endpointTel) {
                             endpointTel = "****";
                         }
@@ -661,29 +741,30 @@ class TelephonyEventHandler extends GenericHandler {
                             contactService.getOrCreateContact(endpointIm, endpointTel)
                                 .then(function (contact) {
                                     //manage Outlook Call Party identification
-                                    var centralizedService = $injector.get("centralizedService");
+                                  /*  let centralizedService = $injector.get("centralizedService");
                                     centralizedService.outlook.updateContactFromOutlookInfos(contact, endpointTel)
                                         .then(
                                             function successCallback(updateStatus) {
                                                 if (updateStatus) {
-                                                    $log.debug("[TelephonyServiceEventHandler] on conferenced, update from outlook for contact :" + contact.displayNameMD5);
+                                                    that.logger.log("debug", LOG_ID + " on conferenced, update from outlook for contact :" + contact.displayNameMD5);
                                                     //that.makeUpdateContact(call, contact, phoneNumber, actionElemName);
                                                 } else {
-                                                    $log.debug("[TelephonyServiceEventHandler] on conferenced, no update from outlook for contact :" + contact.displayNameMD5);
+                                                    that.logger.log("debug", LOG_ID + "on conferenced, no update from outlook for contact :" + contact.displayNameMD5);
                                                 }
                                             },
                                             function errorCallback() {
-                                                $log.debug("[TelephonyServiceEventHandler] on conferenced, no Outlook search available");
+                                                that.logger.log("debug", LOG_ID + "on conferenced, no Outlook search available");
                                             }
                                         )
                                         .finally(function () {
+                                        */
                                             confParticipants.push(contact);
                                             confParticipantsPhoneNumbers.push(endpointTel);
                                             resolve();
-                                        });
+                                        //});
                                 })
                                 .catch(function (error) {
-                                    $log.error("[TelephonyServiceEventHandler] onConferenceEvent - Impossible to get contact - " + error.message);
+                                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) Impossible to get contact - " + error.message);
                                     reject();
                                 });
                         }
@@ -692,26 +773,49 @@ class TelephonyEventHandler extends GenericHandler {
             });
 
             // Get participants asynchronously
-            return $q.all(participantPromises)
-                .then(function () {
+            return Promise.all(participantPromises)
+                .then(async () => {
                     // Release previous calls
                     if (primaryOldCall) {
                         primaryOldCall.setStatus(Call.Status.UNKNOWN);
-                        $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", primaryOldCall);
+                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) release primaryOldCall - ", primaryOldCall);
+                        primaryOldCall.setStatus(Call.Status.UNKNOWN);
+                        //let cause = clearElem.attr("cause");
+                        //let deviceState = clearElem.attr("deviceState");
+                        //call.cause = cause;
+                        //call.deviceState = deviceState;
+                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", primaryOldCall);
+                        that.eventEmitter.emit("evt_internal_callupdated", primaryOldCall);
+                        await that.telephonyService.clearCall(primaryOldCall);
+                        //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", primaryOldCall);
                     }
                     if (secondaryOldCall) {
                         secondaryOldCall.setStatus(Call.Status.UNKNOWN);
-                        $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", secondaryOldCall);
+                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) release secondaryOldCall - ", secondaryOldCall);
+                        secondaryOldCall.setStatus(Call.Status.UNKNOWN);
+                        //let cause = clearElem.attr("cause");
+                        //let deviceState = clearElem.attr("deviceState");
+                        //call.cause = cause;
+                        //call.deviceState = deviceState;
+                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", secondaryOldCall);
+                        that.eventEmitter.emit("evt_internal_callupdated", secondaryOldCall);
+                        await that.telephonyService.clearCall(secondaryOldCall);
+                        //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", secondaryOldCall);
                     }
                     // Create the new conference call
-                    var newConferenceCall = that.createConferenceCall(newConnectionId, confParticipants);
+                    let newConferenceCall = await that.createConferenceCall(newConnectionId, confParticipants);
                     //update currentcalled structure
-                    var currentCalled = newConferenceCall.getCurrentCalled();
+                    let currentCalled = newConferenceCall.getCurrentCalled();
                     currentCalled.participants = confParticipants;
                     currentCalled.participantsPhoneNumbers = confParticipantsPhoneNumbers;
                     newConferenceCall.setCurrentCalled(currentCalled);
                     newConferenceCall.setStatus(Call.Status.ACTIVE);
-                    $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", newConferenceCall);
+                    newConferenceCall.setDeviceType();
+                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) create newConferenceCall - " , newConferenceCall);
+                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) create newConferenceCall - stored :" , that.telephonyService.getCallFromCache(newConferenceCall.id));
+                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", newConferenceCall);
+                    that.eventEmitter.emit("evt_internal_callupdated", newConferenceCall);
+                    //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", newConferenceCall);
                 });
              // */
         };
@@ -729,9 +833,9 @@ class TelephonyEventHandler extends GenericHandler {
                         }
 
                         // Look for a voiceMessageCounter child
-                        var voiceMessageCounterValue = messagingElem.getChild("voiceMessageCounter").text();
+                        let voiceMessageCounterValue = messagingElem.getChild("voiceMessageCounter").text();
                         if (voiceMessageCounterValue) {
-                            var ct = Number(voiceMessageCounterValue);
+                            let ct = Number(voiceMessageCounterValue);
                             if (Number.isInteger(ct) && (ct >= 0)) {
                                 this.telephonyService.voiceMail.setVMCounter(ct);
                                 this.telephonyService.voiceMail.setVMFlag((ct > 0));
@@ -763,7 +867,7 @@ class TelephonyEventHandler extends GenericHandler {
         this.onUpDateCallEvent = function (updatecallElem) {
             that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) _entering_", updatecallElem);
 
-                        return this.getCall(updatecallElem).then(function (call) {
+                        return that.getCall(updatecallElem).then(function (call) {
 
                             let jid = updatecallElem.attr("endpointIm");
                             let phoneNumber = updatecallElem.attr("endpointTel");
@@ -821,7 +925,7 @@ class TelephonyEventHandler extends GenericHandler {
                                             }
                                         } else if (call.participants && call.participants.length > 0) {
                                             let currentCalled = call.getCurrentCalled();
-                                            for (var i = 0; i < call.participants.length; i++) {
+                                            for (let i = 0; i < call.participants.length; i++) {
                                                 if (call.participants[i].temp) {
                                                     if (call.participants[i].phoneProCan && call.participants[i].phoneProCan === phoneNumber) {//concerned participant
                                                         that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) temp participant " +
@@ -912,8 +1016,8 @@ class TelephonyEventHandler extends GenericHandler {
         this.onFailCallEvent = function (failedElem) {
             that.logger.log("debug", LOG_ID + "(onFailCallEvent) _entering_", failedElem);
             let cause = failedElem.attr("cause");
-            //var that = this;
-            return this.getCall(failedElem).then(function (call) {
+            //let that = this;
+            return that.getCall(failedElem).then(function (call) {
                 call.setStatus(Call.Status.ERROR);
                 call.errorMessage = CallFailureLabels[cause];
                 //call.autoClear = $interval(function () {
@@ -984,22 +1088,61 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         /** PRIVATE UTILITY METHODS                                         **/
         /*********************************************************************/
-        this.getCall = function (elem) {
-            let jid = elem.attr("endpointIm");
-            let phoneNumber = elem.attr("endpointTel");
-            let connectionId = elem.attr("callId");
-            let deviceType = elem.attr("deviceType");
+        this.getCall = async (elem) => {
+            let jid = elem.getAttr("endpointIm");
+            let phoneNumber = elem.getAttr("endpointTel");
+            let connectionId = elem.getAttr("callId");
+            let deviceType = elem.getAttr("deviceType");
+            let cause = elem.attr("cause");
+            let deviceState = elem.attr("deviceState");
+            let type = elem.attr("type");
+
             if (!connectionId) {
-                connectionId = elem.attr("heldCallId");
+                connectionId = elem.getAttr("heldCallId");
             } // TODO: WHY and WHEN
             that.logger.log("debug", LOG_ID + "(getCall)  - " + jid + " - " + Utils.anonymizePhoneNumber(phoneNumber) + " - " + connectionId);
-            return that.getOrCreateCall(connectionId, jid,deviceType, phoneNumber );
+            that.logger.log("internal", LOG_ID + "(getCall) jid : ", jid, ", phoneNumber : ", phoneNumber, ", connectionId : ", connectionId, ", deviceType : ", deviceType);
+            let callObj = await that.getOrCreateCall(connectionId, jid, deviceType, phoneNumber);
+            let updatedinformations: { connectionId?: string,
+                jid?: string,
+                deviceType?: string,
+                phoneNumber?: string,
+                cause? : string,
+                deviceState? : string,
+                type? : string,
+            } = {};
+            if (connectionId != null) {
+                updatedinformations.connectionId = connectionId;
+            }
+            if (jid != null) {
+                updatedinformations.jid = jid;
+            }
+            if (deviceType != null) {
+                updatedinformations.deviceType = deviceType;
+            }
+            if (phoneNumber != null) {
+                updatedinformations.phoneNumber = phoneNumber;
+            }
+            if (cause != null) {
+                updatedinformations.cause = cause;
+            }
+            if (deviceState != null) {
+                updatedinformations.deviceState = deviceState;
+            }
+            if (type != null) {
+                updatedinformations.cause = type;
+            }
+
+
+            callObj.updateCall(updatedinformations);
+            // */
+            return callObj;
         };
 
         this.getOrCreateCall = function (connectionId, jid, deviceType, phoneNumber ) {
-           // var that = this;
+           // let that = this;
             let callId = Call.getIdFromConnectionId(connectionId);
-            let call = that.telephonyService.calls[callId];
+            let call = that.telephonyService.getCallFromCache(callId);
             if (call) {
                 return Promise.resolve(call);
             }
@@ -1016,14 +1159,26 @@ class TelephonyEventHandler extends GenericHandler {
             // */
         };
 
-        this.createConferenceCall = function (connectionId, participants) {
+        this.createConferenceCall = async function (connectionId, participants) {
+
+            let conferenceCall = await that.getOrCreateCall(connectionId, undefined, undefined, undefined);
+            that.logger.log("debug", LOG_ID + "(createConferenceCall) conferenceCall : ", conferenceCall);
+
+            conferenceCall.isConference = true;
+            conferenceCall.setParticipants(participants);
+
+            //that.telephonyService.addOrUpdateCallToCache(conferenceCall)
+            that.logger.log("debug", LOG_ID + "(createConferenceCall) conferenceCall stored : ", that.telephonyService.getCallFromCache(conferenceCall.id));
+
+            return conferenceCall;
+
             /*
             // Create and configure the conference call
-            var conferenceCall = Call.create(Call.Status.UNKNOWN, null, Call.Type.PHONE);
+            let conferenceCall = Call.create(Call.Status.UNKNOWN, null, Call.Type.PHONE);
             conferenceCall.setConnectionId(connectionId);
             conferenceCall.isConference = true;
             conferenceCall.setParticipants(participants);
-            this.telephonyService.calls[conferenceCall.id] = conferenceCall;
+            this.telephonyService._calls[conferenceCall.id] = conferenceCall;
             return conferenceCall;
             // */
         };
@@ -1106,11 +1261,11 @@ class TelephonyEventHandler extends GenericHandler {
      * @memberof TelephonyServiceEventHandler
      */
     updateCallContact (jid, phoneNumber, actionElemName, call) {
-        var that = this;
+        let that = this;
 
         try {
             // Determine if the contact has to be updated from event information
-            var updateAnalyse = that.analyzeContactChange(jid, phoneNumber, call);
+            let updateAnalyse = that.analyzeContactChange(jid, phoneNumber, call);
             // Whatever the contact change, for simple call, after analyse, update at least the call current phoneNumber
             if (!call.isConference && phoneNumber !== "") {
                 call.setCurrentCalledContactNumber(phoneNumber);
@@ -1130,7 +1285,7 @@ class TelephonyEventHandler extends GenericHandler {
             }
         }
         catch (error) {
-            var errorMessage = "updateCallContact -- " + error.message;
+            let errorMessage = "updateCallContact -- " + error.message;
             that.logger.log("error", LOG_ID + "(updateCallContact) Catch Error !!! " + errorMessage);
             return Promise.reject(new Error(errorMessage));
         }

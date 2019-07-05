@@ -190,6 +190,13 @@ class Channel {
     public isMember() { return this.userRole === "member"; }
     public getAvatarSrc() { return (this.lastAvatarUpdateDate) ? this.avatar : "/resources/skins/rainbow/images/channels/default_channel_avatar.png"; }
 
+    /**
+     * @function
+     * @public
+     * @name updateChannel
+     * @description
+     * This method is used to update a channel from data object
+     */
     updateChannel (data) {
         let that = this;
         if (data) {
@@ -217,7 +224,7 @@ class Channel {
      * @public
      * @name ChannelFactory
      * @description
-     * This class is used to create a channel from data object
+     * This method is used to create a channel from data object
      */
     public static ChannelFactory() {
         return (data: any, serverURL : string): Channel => {

@@ -7,12 +7,12 @@ import {XMPPService} from "../connection/XMPPService";
 
 import {ErrorManager} from "../common/ErrorManager";
 //const Conversation = require("../common/models/Conversation");
-//const Call = require("../common/models/Call");
 
 const moment = require("moment");
 
 const Deferred = require("../common/Utils").Deferred;
-const Call = require("../common/models/Call");
+import {Call} from "../common/models/Call";
+//const Call = require("../common/models/Call");
 const VoiceMail = require("../common/models/VoiceMail");
 
 const utils = require("../common/Utils");
@@ -43,8 +43,8 @@ class Telephony {
 	public _rest: RESTService;
 	public _contacts: any;
 	public _eventEmitter: any;
-	public logger: any;
-	public calls: any;
+	public _logger: any;
+	public _calls: any;
 	public voiceMail: any;
 	public userJidTel: any;
 	public started: any;
@@ -77,8 +77,8 @@ class Telephony {
         this._rest = null;
         this._contacts = null;
         this._eventEmitter = _eventEmitter;
-        this.logger = logger;
-        this.calls = [];
+        this._logger = logger;
+        this._calls = [];
         this.voiceMail = null;//VoiceMail.createVoiceMail();
         this.userJidTel = "TOBEFILLED";//authService.jidTel;
         this.started = false;
@@ -105,7 +105,7 @@ class Telephony {
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
-        this.logger.log("debug", LOG_ID + "(start) _entering_");
+        this._logger.log("debug", LOG_ID + "(start) _entering_");
         this.voiceMail = VoiceMail.createVoiceMail(_profiles);
         that.startDate = new Date();
 
@@ -121,13 +121,13 @@ class Telephony {
                 that._attachHandlers();
 
                 this
-                    .logger
+                    ._logger
                     .log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
 
             } catch (err) {
                 that
-                    .logger
+                    ._logger
                     .log("error", LOG_ID + "(start) Catch ErrorManager !!! ", err.message);
                 reject();
             }
@@ -137,7 +137,7 @@ class Telephony {
     stop() {
         let that = this;
         this
-            .logger
+            ._logger
             .log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise((resolve, reject) => {
@@ -154,12 +154,12 @@ class Telephony {
                 that.telephonyHistoryHandlerToken = [];
 
                 that
-                    .logger
+                    ._logger
                     .log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
             } catch (err) {
                 that
-                    .logger
+                    ._logger
                     .log("error", LOG_ID + "(stop) _exiting_");
                 reject(err);
             }
@@ -178,7 +178,7 @@ class Telephony {
     init() {
         return new Promise((resolve, reject) => {
             let that = this;
-            that.calls = [];
+            that._calls = [];
 
             //that.started = false;
             that.agentStatus = {phoneApi: "disconnected", xmppAgent: "stopped", agentVersion: "unknown"};
@@ -207,11 +207,13 @@ class Telephony {
             that.userJidTel = that._rest.loggedInUser.jid_tel;
 
             that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
+            that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
+
 //        that._eventEmitter.on("rainbow_onpbxagentstatusreceived", that.onPbxAgentStatusChange.bind(that));
 
             that.started = false;
             that._xmpp.getAgentStatus().then((data) => {
-                that.logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
+                that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
                 resolve();
             });
         });
@@ -227,7 +229,7 @@ class Telephony {
      * @private
      * @method onTelPresenceChange
      * @instance
-     * @memberof Presence
+     * @memberof TelephonyService
      * @description
      *      Method called when receiving an update on user presence
      */
@@ -244,19 +246,19 @@ class Telephony {
 
                 // Receive unavailable status
                 if (status === "unavailable" || status === "offline" || status === "") {
-                    that.logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
+                    that._logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
                     that.started = false;
-                    that.calls = [];
-                    that.logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "stopped");
+                    that._calls = [];
+                    that._logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "stopped");
                     that._eventEmitter.emit("evt_internal_telephonystatuschanged", "stopped");
                     //$rootScope.$broadcast("ON_TELEPHONY_STATUS_CHANGED_EVENT", "stopped");
 
-                    that.logger.log("info", LOG_ID + "[onTelPresenceChange] === STOPPED ===");
+                    that._logger.log("info", LOG_ID + "[onTelPresenceChange] === STOPPED ===");
                 }
 
                 // Service is not started, try to fetch agent status
                 else if (!that.started && !that.starting) {
-                    that.logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
+                    that._logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
                     that.starting = true;
                     that.getAgentStatus()
                         .then(function() {
@@ -285,21 +287,70 @@ class Telephony {
                             // @ts-ignore
                             let startDuration = Math.round(new Date() - that.startDate);
                             that.stats.push({ service: "telephonyService", startDuration: startDuration });
-                            that.logger.log("info", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
+                            that._logger.log("info", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
                             that.started = true;
                             that.starting = false;
-                            that.logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "started");
+                            that._logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "started");
                             that._eventEmitter.emit("evt_internal_telephonystatuschanged", "started");
                             //$rootScope.$broadcast("ON_TELEPHONY_STATUS_CHANGED_EVENT", "started");
                         })
                         .catch(function(error) {
                             that.starting = false;
-                            that.logger.log("error", LOG_ID + "[onTelPresenceChange] receive telephony presence but no agent response - " + error.message);
+                            that._logger.log("error", LOG_ID + "[onTelPresenceChange] receive telephony presence but no agent response - " + error.message);
                         });
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * @private
+     * @method onCallUpdated
+     * @instance
+     * @memberof TelephonyService
+     * @description
+     *      Method called when receiving an update on a call
+     */
+    onCallUpdated (callInfo : Call) {
+        let that = this;
+        let status = callInfo.status;
+
+        if (!status || !callInfo.id) return ;
+
+        /*
+        switch (status.key) {
+            case Call.Status.UNKNOWN:
+                // Delete ended call call
+                if (callInfo.cause === "NORMALCLEARING") {
+                    that._logger.log("debug", LOG_ID + "(onCallUpdated) clearing the call : ", callInfo.id);
+                    delete this._calls[callInfo.id];
+                } else {
+                    that._logger.log("debug", LOG_ID + "(onCallUpdated) Not a normal stop of call, so clearing the call : ", callInfo.id);
+                    delete this._calls[callInfo.id];
+                }
+                break;
+            case Call.Status.DIALING:
+            case Call.Status.QUEUED_OUTGOING:
+            case Call.Status.ACTIVE:
+            case Call.Status.RELEASING:
+            case Call.Status.ANSWERING:
+            case Call.Status.PUT_ON_HOLD:
+            case Call.Status.CONNECTING:
+            case Call.Status.RINGING_OUTGOING:
+            case Call.Status.QUEUED_INCOMING:
+            case Call.Status.ERROR:
+            case Call.Status.HOLD:
+            case Call.Status.RINGING_INCOMING:
+                if ( that._calls[callInfo.id] ) {
+                    that._calls[callInfo.id].updateCall(callInfo);
+                }
+                break;
+            default:
+                break;
+        }
+
+         */
     }
 
     /**
@@ -357,8 +408,9 @@ class Telephony {
         let that = this;
         //return that.agentStatus;
         return that._xmpp.getAgentStatus().then((data) => {
-            that.logger.log("info", LOG_ID + "[getAgentStatus] -- " + data);
+            that._logger.log("info", LOG_ID + "[getAgentStatus] -- ", data);
             that.agentStatus = data;
+            return data;
         }); // */
     }
 
@@ -374,7 +426,7 @@ class Telephony {
             that._xmpp.getTelephonyState(second).then((data : any) => {
                 let existingCalls = data;
 
-                if (existingCalls && existingCalls.length > 0) {
+                if (existingCalls && that.getTabSize(existingCalls) > 0) {
 // Traverse existing call
                     let getCallPromises = [];
                     existingCalls.forEach((child : any) => {
@@ -384,11 +436,11 @@ class Telephony {
 // Send all getContactPromise
                     Promise.all(getCallPromises)
                         .then(function () {
-                            that.logger.log("debug", LOG_ID + "getTelephonyState -- success");
+                            that._logger.log("debug", LOG_ID + "getTelephonyState -- success");
                             resolve();
                         })
                         .catch(function (error) {
-                            that.logger.log("error", LOG_ID + "getTelephonyState -- failure -- " + error.message);
+                            that._logger.log("error", LOG_ID + "getTelephonyState -- failure -- " + error.message);
                             reject(error);
                         });
                 }
@@ -431,7 +483,7 @@ class Telephony {
                     if (identityFirstName && identityFirstName.length) {
                         firstName = identityFirstName;
                     }
-                    that.logger.log("debug", LOG_ID + " createCallFromConnectionElem - name resolution for: " + connectionId + " for phoneNumber:" + utils.anonymizePhoneNumber(phoneNumber) +
+                    that._logger.log("debug", LOG_ID + " createCallFromConnectionElem - name resolution for: " + connectionId + " for phoneNumber:" + utils.anonymizePhoneNumber(phoneNumber) +
                         " with firstname : " + firstName.slice(0, 1) + "***");
                 }
             }
@@ -468,25 +520,25 @@ class Telephony {
                             response.updateName(firstName, lastName);
                         }
                         call = that.getOrCreateCall(callStatus, connectionId,deviceType, response );
-                        that.logger.log("debug", LOG_ID + " createCallFromConnectionElem - create call for user: " + response.id + " with callId: " + connectionId + " " + lci);
+                        that._logger.log("debug", LOG_ID + " createCallFromConnectionElem - create call for user: " + response.id + " with callId: " + connectionId + " " + lci);
                     }
                     else {
                         call = that.getOrCreateCall(callStatus, connectionId, deviceType, null );
                         call.setParticipants(response);
                         call.isConference = true;
-                        that.logger.log("debug", LOG_ID + " createCallFromConnectionElem - create conference call with callId: " + connectionId + " " + lci);
+                        that._logger.log("debug", LOG_ID + " createCallFromConnectionElem - create conference call with callId: " + connectionId + " " + lci);
                     }
                     call.relevantEquipmentId = Call.getDeviceIdFromConnectionId(connectionId);
 
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(createCallFromConnectionElem) send evt_internal_callupdated ", call);
+                    that._logger.log("debug", LOG_ID + "(createCallFromConnectionElem) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
 
                     resolve(call);
                 })
                 .catch(function(error) {
-                    that.logger.log("error", LOG_ID + " createCallFromConnectionElem - failure - " + error.message);
+                    that._logger.log("error", LOG_ID + " createCallFromConnectionElem - failure - " + error.message);
                     reject(error);
                 });
         });
@@ -528,34 +580,6 @@ class Telephony {
     };
 
     /**
-     * @private
-     * @method getOrCreateCall
-     * @param status
-     * @param connectionId
-     * @param deviceType
-     * @param contact
-     */
-    getOrCreateCall(status, connectionId, deviceType, contact?) {
-        let that = this;
-
-        // Extract callid from connectionid
-        let callId = Call.getIdFromConnectionId(connectionId);
-
-        // Get eventual existing call
-        let call = that.calls[callId];
-        if (call) {
-            call.setConnectionId(connectionId);
-            call.startDate = new Date();
-        }
-        else {
-            call = Call.create(status, null, Call.Type.PHONE, contact, deviceType);
-            call.setConnectionId(connectionId);
-            that.calls[callId] = call;
-        }
-        return call;
-    }
-
-    /**
      * @public
      * @method getVoiceMessageCounter
      * @description
@@ -572,7 +596,7 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(getVoiceMessageCounter) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(getVoiceMessageCounter) " + profileError.message);
                 reject(profileError);
             }
 
@@ -582,7 +606,7 @@ class Telephony {
             })
                 .catch(function (error) {
                     let errorMessage = "getVoiceMessageCounter failure : " + error.message;
-                    that.logger.log("error", LOG_ID + "(getVoiceMessageCounter) " + errorMessage);
+                    that._logger.log("error", LOG_ID + "(getVoiceMessageCounter) " + errorMessage);
                     reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                 });
         });
@@ -601,12 +625,12 @@ class Telephony {
      */
     getCallToHangOut() {
         let that = this;
-        let calls = that.getCalls();
-        if (!calls || calls.length === 0) {
+        let calls = that.getActiveCalls();
+        if (!calls || that.getTabSize(calls) === 0) {
             return null;
         }
         let callStatus = calls[0].status;
-        if (calls.length === 1 || (callStatus === Call.Status.DIALING || callStatus === Call.Status.ACTIVE || callStatus === Call.Status.PUT_ON_HOLD)) {
+        if (that.getTabSize(calls) === 1 || (callStatus === Call.Status.DIALING || callStatus === Call.Status.ACTIVE || callStatus === Call.Status.PUT_ON_HOLD)) {
             return calls[0];
         }
         return calls[1];
@@ -622,8 +646,8 @@ class Telephony {
     getActiveCall() {
         let that = this;
         let activeCall = null;
-        Object.keys(that.calls || []).forEach(function (key) {
-            let call = that.calls[key];
+        Object.keys(that._calls || []).forEach(function (key) {
+            let call = that._calls[key];
             if (call.status === Call.Status.ACTIVE) {
                 activeCall = call;
             }
@@ -633,27 +657,62 @@ class Telephony {
 
     /**
      * @public
+     * @method getActiveCalls
+     * @description
+     *      get active calls
+     * @return {Call} The active call
+     */
+    getActiveCalls() {
+        let that = this;
+        let calls = [];
+        Object.keys(that._calls || []).forEach(function (key) {
+            if (
+                that._calls[key].status === Call.Status.DIALING ||
+                that._calls[key].status === Call.Status.RINGING_OUTGOING ||
+                that._calls[key].status === Call.Status.QUEUED_OUTGOING ||
+                that._calls[key].status === Call.Status.ACTIVE ||
+                that._calls[key].status === Call.Status.HOLD ||
+                that._calls[key].status === Call.Status.PUT_ON_HOLD ||
+                that._calls[key].status === Call.Status.ERROR) {
+                calls.push(that._calls[key]);
+            }
+        });
+        return calls;
+    }
+
+    /**
+     * @public
      * @method getCalls
      * @description
-     *      get the calls
-     * @return {Call} The active call
+     *      get calls
+     * @return {Call} The calls
      */
     getCalls() {
         let that = this;
         let calls = [];
-        Object.keys(that.calls || []).forEach(function (key) {
-            if (
-                that.calls[key].status === Call.Status.DIALING ||
-                that.calls[key].status === Call.Status.RINGING_OUTGOING ||
-                that.calls[key].status === Call.Status.QUEUED_OUTGOING ||
-                that.calls[key].status === Call.Status.ACTIVE ||
-                that.calls[key].status === Call.Status.HOLD ||
-                that.calls[key].status === Call.Status.PUT_ON_HOLD ||
-                that.calls[key].status === Call.Status.ERROR) {
-                calls.push(that.calls[key]);
-            }
+        Object.keys(that._calls || []).forEach(function (key) {
+                calls.push(that._calls[key]);
         });
         return calls;
+    }
+
+    /**
+     * @public
+     * @method getCallsSize
+     * @description
+     *      get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1
+     * @return {Call} The calls tab size
+     */
+    getCallsSize() {
+        return this.getTabSize(this.getCalls());
+    }
+
+    /**
+     * @private
+     * @param {Array} tab The tab which need to be sized
+     */
+    getTabSize(tab){
+        return Object.keys(tab).length;
     }
 
     /**
@@ -668,15 +727,15 @@ class Telephony {
         let that = this;
         let calls = [];
         if (contact && contact.jid) {
-            Object.keys(that.calls || []).forEach(function (key) {
+            Object.keys(that._calls || []).forEach(function (key) {
                 if (
-                    (that.calls[key].contact && that.calls[key].contact.jid === contact.jid) &&
-                    (that.calls[key].status === Call.Status.DIALING ||
-                        that.calls[key].status === Call.Status.RINGING_OUTGOING ||
-                        that.calls[key].status === Call.Status.ACTIVE ||
-                        that.calls[key].status === Call.Status.HOLD ||
-                        that.calls[key].status === Call.Status.PUT_ON_HOLD)) {
-                    calls.push(that.calls[key]);
+                    (that._calls[key].contact && that._calls[key].contact.jid === contact.jid) &&
+                    (that._calls[key].status === Call.Status.DIALING ||
+                        that._calls[key].status === Call.Status.RINGING_OUTGOING ||
+                        that._calls[key].status === Call.Status.ACTIVE ||
+                        that._calls[key].status === Call.Status.HOLD ||
+                        that._calls[key].status === Call.Status.PUT_ON_HOLD)) {
+                    calls.push(that._calls[key]);
                 }
             });
         }
@@ -697,14 +756,15 @@ class Telephony {
      *    Return a promise
      * @param {Contact} contact - contact object that you want to call
      * @param {String} phoneNumber The number to call
+     * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      * @return {Promise<Call>} Return a promise with the call created
      */
-    makeCall(contact, phoneNumber) {
+    makeCall(contact, phoneNumber, correlatorData) {
         let that = this;
         let activeCall = that.getActiveCall();
 
         if (that.makingCall && !that.isSecondCallAllowed) {
-            that.logger.log("debug", LOG_ID + "(makeCall) makeCall failure - makeCall already making a call, is second call allowed ? ", that.isSecondCallAllowed);
+            that._logger.log("debug", LOG_ID + "(makeCall) makeCall failure - makeCall already making a call, is second call allowed ? ", that.isSecondCallAllowed);
             return Promise.reject();
         }
 
@@ -713,11 +773,11 @@ class Telephony {
 
         // Handle simpleCall
         if (!activeCall) {
-            return that.makeSimpleCall(contact, phoneNumber);
+            return that.makeSimpleCall(contact, phoneNumber, correlatorData);
         }
 
         // Handle consultationCall
-        return that.makeConsultationCall(contact, phoneNumber, activeCall.connectionId);
+        return that.makeConsultationCall(contact, phoneNumber, activeCall.connectionId, correlatorData);
     }
 
     /**
@@ -725,11 +785,12 @@ class Telephony {
      * @method makeSimpleCall
      * @param contact
      * @param phoneNumber
+     * @param correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      */
-    private makeSimpleCall(contact, phoneNumber) {
+    private makeSimpleCall(contact, phoneNumber, correlatorData) : Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("debug", LOG_ID + "(makeSimpleCall) to " + (contact ? contact.displayName : phoneNumber));
+            that._logger.log("debug", LOG_ID + "(makeSimpleCall) to " + (contact ? contact.displayName : phoneNumber));
 
             //reject not allowed operations
             if (!that.isBasicCallAllowed) {
@@ -737,21 +798,21 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "()[telephonyService] " + profileError.message);
+                that._logger.log("error", LOG_ID + "(makeSimpleCall) " + profileError.message);
 
                 // Release makingCall flag
                 that.makingCall = false;
                 reject(profileError);
             }
 
-            let phoneInfo = that.getPhoneInfo(contact, phoneNumber);
+            let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
             that._rest.makeCall(contact, phoneInfo).then(
                 function success(response) {
                     // Create the call object
-                    let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact);
+                    let callInfos = {status : Call.Status.DIALING, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
+                    let call = Call.CallFactory()(callInfos);
+                    //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
                     call.setConnectionId(response.callId);
-                    that.calls[call.id] = call;
-                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Release makinCall flag
                     that.makingCall = false;
@@ -759,30 +820,37 @@ class Telephony {
                     // Indicate whether it is a call to own voicemail
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
+                    that.addOrUpdateCallToCache(call);
+                    that._logger.log("debug", LOG_ID + "(makeSimpleCall) success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
+
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
+                    /* TREATED BY EVENTS
+                    that._logger.log("debug", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
+                     */
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                    resolve(call.id);
+                    resolve(call);
                 },
-                function failure(response) {
-                    let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact);
-                    call.errorMessage = "invalidPhoneNumber";
-                    that.calls[call.contact.id] = call;
+                async  (response) => {
+                    //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
+                    let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
+                    let call = Call.CallFactory()(callInfos);
+                    call.cause = "invalidPhoneNumber";
+                    that._calls[call.contact.id] = call;
                     // call.autoClear = $interval(function () {
-                    that.clearCall(call);
+                    await that.clearCall(call);
                     //}, 5000, 1);
 
                     // Release makinCall flag
                     that.makingCall = false;
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
+                    that._logger.log("debug", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(makeSimpleCall) ", error);
+                    that._logger.log("error", LOG_ID + "(makeSimpleCall) ", error);
                 });
         });
     }
@@ -792,9 +860,10 @@ class Telephony {
      * @method makeConsultationCall
      * @param contact
      * @param phoneNumber
+     * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      * @param callId
      */
-    private makeConsultationCall(contact, phoneNumber, callId) {
+    private makeConsultationCall(contact, phoneNumber, callId, correlatorData ) {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -804,21 +873,23 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(makeConsultationCall) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(makeConsultationCall) " + profileError.message);
 
                 // Release makingCall flag
                 that.makingCall = false;
                 reject(profileError);
             }
 
-            let phoneInfo = that.getPhoneInfo(contact, phoneNumber);
+            let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
             that._rest.makeConsultationCall(callId, contact, phoneInfo).then(
                 function success(response) {
                     // Create the call object
-                    let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact);
+                    //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
+                    let callInfos = {status : Call.Status.DIALING, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
+                    let call = Call.CallFactory()(callInfos);
                     call.setConnectionId(response.data.data.callId);
-                    that.calls[call.id] = call;
-                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) makeConsultationCall success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
+                    that._calls[call.id] = call;
+                    that._logger.log("debug", LOG_ID + "(makeConsultationCall) makeConsultationCall success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Release makinCall flag
                     that.makingCall = false;
@@ -827,29 +898,33 @@ class Telephony {
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
+                    /* TREATED BY EVENTS
+                    that._logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
+                     */
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     resolve(call.id);
                 },
                 function failure(response) {
-                    let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact);
-                    call.errorMessage = "invalidPhoneNumber";
-                    that.calls[call.contact.id] = call;
+                    //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
+                    let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
+                    let call = Call.CallFactory()(callInfos);
+                    call.cause = "invalidPhoneNumber";
+                    that._calls[call.contact.id] = call;
                     //call.autoClear = $interval(function () {
-                        this.clearCall(call);
+                    that.clearCall(call);
                     //}, 5000, 1);
 
                     // Release makinCall flag
                     that.makingCall = false;
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
+                    that._logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(makeConsultationCall) ", error);
+                    that._logger.log("error", LOG_ID + "(makeConsultationCall) ", error);
                 });
         });
     }
@@ -862,42 +937,45 @@ class Telephony {
      *    Call a number <br/>
      *    Return a promise
      * @param {String} phoneNumber The number to call
+     * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      * @return {Promise<Call>} Return a promise with the call created
      */
-    makeCallByPhoneNumber(phoneNumber) {
+    makeCallByPhoneNumber(phoneNumber, correlatorData) {
         let that = this;
         return new Promise((resolve, reject) => {
 
-            that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) : " + utils.anonymizePhoneNumber(phoneNumber));
+            that._logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) calling : " + utils.anonymizePhoneNumber(phoneNumber));
 
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "makeCallByPhoneNumber) failure: impossible to call its own phone number";
-                that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) " + errorMessage);
+                that._logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) " + errorMessage);
                 reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function (contact) {
                     myContact = contact;
-                    return that.makeCall(contact, phoneNumber);
+                    return that.makeCall(contact, phoneNumber, correlatorData);
                 })
-                .then(function () {
-                    resolve();
+                .then(function (data) {
+                    resolve(data);
                 })
-                .catch(function (error) {
+                .catch(async (error) => {
                     let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
-                    that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) - " + _errorMessage);
+                    that._logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) - " + _errorMessage);
 
-                    let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, myContact);
-                    call.errorMessage = "invalidPhoneNumber";
-                    that.calls[call.contact.id] = call;
-                    that.clearCall(call);
-                    that.logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) send evt_internal_callupdated ", call);
+//                    let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, myContact, undefined);
+                    let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact : myContact, deviceType : undefined} ;
+                    let call = Call.CallFactory()(callInfos);
+                    call.cause = "invalidPhoneNumber";
+                    that._calls[call.contact.id] = call;
+                    await that.clearCall(call);
+                    that._logger.log("debug", LOG_ID + "(makeCallByPhoneNumber) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
 
 //                    $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
-                    reject(ErrorManager.getErrorManager().OTHERERROR(call.errorMessage, _errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(call.cause, _errorMessage));
                 });
         });
     }
@@ -907,17 +985,17 @@ class Telephony {
 
     /*		service.makeCallWithMobile = function(mobileRessource, phoneNumber) {
 
-                var defer = $q.defer();
+                let defer = $q.defer();
 
                 if (contactService.userContact.mobilePro === phoneNumber || contactService.userContact.mobilePerso === phoneNumber) {
-                    var errorMessage = "makeCallWithMobile failure: impossible to call its own mobile phone number";
-                    that.logger.log("error", LOG_ID + "()[telephonyService] " + errorMessage);
+                    let errorMessage = "makeCallWithMobile failure: impossible to call its own mobile phone number";
+                    that._logger.log("error", LOG_ID + "(makeCallWithMobile) " + errorMessage);
                     defer.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage));
                     return defer.promise;
                 }
 
                 // Forge request IQ
-                var makeMobileCallMsg = $iq({ type: "set", to: mobileRessource })
+                let makeMobileCallMsg = $iq({ type: "set", to: mobileRessource })
                     .c("call", { xmlns: "urn:xmpp:call", phoneNumber: phoneNumber, directCall: false });
 
                 xmppService.sendIQ(makeMobileCallMsg)
@@ -925,8 +1003,8 @@ class Telephony {
                         defer.resolve();
                     })
                     .catch(function(error) {
-                        var errorMessageMobile = "makeCallWithMobile failure : " + error.message;
-                        that.logger.log("error", LOG_ID + "()[telephonyService] - callService - " + errorMessageMobile);
+                        let errorMessageMobile = "makeCallWithMobile failure : " + error.message;
+                        that._logger.log("error", LOG_ID + "(makeCallWithMobile) - callService - " + errorMessageMobile);
                         defer.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessageMobile));
                     });
 
@@ -940,8 +1018,9 @@ class Telephony {
      * @method getPhoneInfo
      * @param contact
      * @param phoneNumber
+     * @param correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      */
-    private getPhoneInfo(contact, phoneNumber) {
+    private getPhoneInfo(contact, phoneNumber, correlatorData) {
         let that = this;
 
         let longNumber = phoneNumber;
@@ -963,7 +1042,7 @@ class Telephony {
                 internalNumber = contact.phoneInternalNumber;//#29475
             }
         }
-        return {longNumber: longNumber, shortNumber: shortNumber, pbxId: pbxId, internalNumber: internalNumber};//#29475
+        return {longNumber: longNumber, shortNumber: shortNumber, pbxId: pbxId, internalNumber: internalNumber, correlatorData: correlatorData};//#29475
     }
 
     /*getErrorMessage(data, actionLabel) {
@@ -989,7 +1068,7 @@ class Telephony {
                     }
                 }
 
-                that.logger.log("error", LOG_ID + "()[telephonyService] " + errorMessage);
+                that._logger.log("error", LOG_ID + "(makeCallWithMobile) " + errorMessage);
 
             }
             else {
@@ -1019,7 +1098,7 @@ class Telephony {
     releaseCall(call) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(releaseCall) call " + call.id);
+            that._logger.log("debug", LOG_ID + "(releaseCall) call " + call.id);
 
             //reject not allowed operations
             if (!that.isBasicCallAllowed) {
@@ -1027,34 +1106,39 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(releaseCall) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(releaseCall) " + profileError.message);
                 reject(profileError);
             }
 
 
             that._rest.releaseCall(call).then(
-                function success() {
+                async () => {
                     // Update call status
+                    that._logger.log("debug", LOG_ID + "(releaseCall) releaseCall " + call.id + " - success");
+
+                    // SHOULD BE TREATED BY EVENTS. But server dos not send the event if it is the end of a conference
                     call.setStatus(Call.Status.UNKNOWN);
                     call.startDate = null;
                     call.vm = false;
-                    that.logger.log("debug", LOG_ID + "(releaseCall) releaseCall " + call.id + " - success : ");
 
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(releaseCall) send evt_internal_callupdated ", call);
+                    that._logger.log("debug", LOG_ID + "(releaseCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
                     // Clean the call array
                     // service.calls = []; //// MCO OULALALALA
-                    delete that.calls[call.id];
+                    //delete that.calls[call.id];
+                    // Keep the delete of released Call because the server do not raise the end call event on one participant of an OXE conference.
+                    await that.removeCallFromCache(call.id);
+                   // */
 
                     resolve(call);
                 },
-                function failure(response) {
+                (response) => {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(releaseCall) ", error);
+                    that._logger.log("error", LOG_ID + "(releaseCall) ", error);
                 });
         });
     }
@@ -1077,7 +1161,12 @@ class Telephony {
      answerCall(call) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("debug", LOG_ID + "()[telephonyService] answerCall : " + utils.anonymizePhoneNumber(call.contact.phone) + "(" + call.contact.displayNameForLog() + ")");
+            if (call.contact) {
+                that._logger.log("debug", LOG_ID + "(answerCall) : " + utils.anonymizePhoneNumber(call.contact.phone) + "(" + call.contact.displayNameForLog() + ")");
+            } else {
+                that._logger.log("debug", LOG_ID + "(answerCall) __entering__");
+                that._logger.log("internal", LOG_ID + "(answerCall) : ", call);
+            }
 
             // First hold the current active call
             let activeCall = that.getActiveCall();
@@ -1088,7 +1177,7 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "()[telephonyService] " + profileError.message);
+                that._logger.log("error", LOG_ID + "(answerCall) " + profileError.message);
                 reject(profileError);
             }
 
@@ -1102,7 +1191,7 @@ class Telephony {
                     })
                     .catch(function (error) {
                         let errorMessage = "answerCall failure : " + error.message;
-                        that.logger.log("error", LOG_ID + "() - callService -  " + errorMessage);
+                        that._logger.log("error", LOG_ID + "(answerCall) - callService -  " + errorMessage);
                         reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                     });
             }
@@ -1112,27 +1201,30 @@ class Telephony {
                         // Update call status
                         call.setConnectionId(response.callId);
                         call.setStatus(Call.Status.ACTIVE);
-                        that.logger.log("debug", LOG_ID + "(answerCall) answerCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
+                        that._logger.log("debug", LOG_ID + "(answerCall) answerCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
 
-                        // Send call update event
-                        that.logger.log("debug", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
-                        that._eventEmitter.emit("evt_internal_callupdated", call);
-                        //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                        resolve(call);
-                    },
-                    function failure(response) {
-                        // Send call update event
-                        that.logger.log("debug", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
-                        that._eventEmitter.emit("evt_internal_callupdated", call);
-                        //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                        reject(error);
-                        that.logger.log("error", LOG_ID + "(answerCall) ", error);                    });
-            }
-        });
-    }
+                        /* TREATED BY EVENTS
+                            // Send call update event
+                            that._logger.log("debug", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
+                            that._eventEmitter.emit("evt_internal_callupdated", call);
+                            //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
-    /*************************************************************/
+                         */
+                            resolve(call);
+                        },
+                        function failure(response) {
+                            // Send call update event
+                            that._logger.log("debug", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
+                            that._eventEmitter.emit("evt_internal_callupdated", call);
+                            //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
+                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                            reject(error);
+                            that._logger.log("error", LOG_ID + "(answerCall) ", error);                    });
+                }
+            });
+        }
+
+        /*************************************************************/
     /*                      HOLD CALL STUFF                      */
 
     /*************************************************************/
@@ -1161,7 +1253,7 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(holdCall)[telephonyService] " + profileError.message);
+                that._logger.log("error", LOG_ID + "(holdCall) " + profileError.message);
                 reject(profileError);
             }
 
@@ -1172,21 +1264,23 @@ class Telephony {
             }) // */
             that._rest.holdCall(call).then(
                 function success(response) {
-                    that.logger.log("debug", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
+                    that._logger.log("debug", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
                     // Update call status
                     call.setConnectionId(response.data.data.callId);
                     call.setStatus(Call.Status.HOLD);
 
+                    /* TREATED BY EVENTS
                     // Send call update event
-                    that.logger.log("debug", LOG_ID + "(holdCall) send evt_internal_callupdated ", call);
+                    that._logger.log("debug", LOG_ID + "(holdCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
+                     */
                     resolve(call);
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(holdCall) ", error);
+                    that._logger.log("error", LOG_ID + "(holdCall) ", error);
         });
         });
     }
@@ -1209,7 +1303,7 @@ class Telephony {
     retrieveCall(call) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(retrieveCall) retrieveCall : " + call.contact.displayNameForLog());
+            that._logger.log("debug", LOG_ID + "(retrieveCall) retrieveCall : " + call.contact.displayNameForLog());
 
             //reject not allowed operations
             if (!that.isSecondCallAllowed) {
@@ -1217,7 +1311,7 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(retrieveCall) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(retrieveCall) " + profileError.message);
                 reject(profileError);
             }
 
@@ -1234,7 +1328,7 @@ class Telephony {
                     })
                     .catch(function (error) {
                         let errorMessage = "retrieveCall failure : " + error.message;
-                        that.logger.log("error", LOG_ID + "(retrieveCall) - callService -  " + errorMessage);
+                        that._logger.log("error", LOG_ID + "(retrieveCall) - callService -  " + errorMessage);
                         reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                     });
             }
@@ -1246,27 +1340,30 @@ class Telephony {
                 })// */
                  that._rest.retrieveCall(call).then(
                     function success(response) {
-                        that.logger.log("debug", LOG_ID + "(retrieveCall) retrieveCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
+                        that._logger.log("debug", LOG_ID + "(retrieveCall) retrieveCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
                         // Update call status
                         call.setConnectionId(response.data.data.callId);
                         call.setStatus(Call.Status.ACTIVE);
 
-                        // Send call update event
-                        that.logger.log("debug", LOG_ID + "(retrieveCall) send evt_internal_callupdated ", call);
-                        that._eventEmitter.emit("evt_internal_callupdated", call);
-                        //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                        resolve();
-                    },
-                    function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                        reject(error);
-                        that.logger.log("error", LOG_ID + "(retrieveCall) ", error);
-                    });
-            }
-        });
-    }
+                        /* TREATED BY EVENTS
+                            // Send call update event
+                            that._logger.log("debug", LOG_ID + "(retrieveCall) send evt_internal_callupdated ", call);
+                            that._eventEmitter.emit("evt_internal_callupdated", call);
+                            //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
-    /*************************************************************/
+                         */
+                            resolve();
+                        },
+                        function failure(response) {
+                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                            reject(error);
+                            that._logger.log("error", LOG_ID + "(retrieveCall) ", error);
+                        });
+                }
+            });
+        }
+
+        /*************************************************************/
     /*                     DEFLECT CALL STUFF                    */
 
     /*************************************************************/
@@ -1295,11 +1392,11 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "()[telephonyService] " + profileError.message);
+                that._logger.log("error", LOG_ID + "(deflectCallToVM) " + profileError.message);
                 reject(profileError);
             }
 
-            that.logger.log("debug", LOG_ID + "(deflectCallToVM) deflectCallToVM " + call.contact.displayNameForLog());
+            that._logger.log("debug", LOG_ID + "(deflectCallToVM) deflectCallToVM " + call.contact.displayNameForLog());
 
             /*$http({
                 method: "PUT",
@@ -1320,13 +1417,13 @@ class Telephony {
             };
             that._rest.deflectCallToVM(call, data) .then(
                 function success() {
-                    that.logger.log("debug", LOG_ID + "(deflectCallToVM) deflectCall success");
+                    that._logger.log("debug", LOG_ID + "(deflectCallToVM) deflectCall success");
                     resolve();
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(deflectCallToVM) ", error);                });
+                    that._logger.log("error", LOG_ID + "(deflectCallToVM) ", error);                });
         });
     }
 
@@ -1360,7 +1457,7 @@ class Telephony {
                 resolve();
             }
 
-            that.logger.log("debug", LOG_ID + "(deflectCall) deflectCall " + call.contact.displayNameForLog());
+            that._logger.log("debug", LOG_ID + "(deflectCall) deflectCall " + call.contact.displayNameForLog());
 
             let data = {
                 "calleeExtNumber": callee.calleeExtNumber,
@@ -1373,13 +1470,13 @@ class Telephony {
 
             that._rest.deflectCall(call, data) .then(
                 function success() {
-                    that.logger.log("debug", LOG_ID + "(deflectCall) deflectCall success");
+                    that._logger.log("debug", LOG_ID + "(deflectCall) deflectCall success");
                     resolve();
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(deflectCall) ", error);                });
+                    that._logger.log("error", LOG_ID + "(deflectCall) ", error);                });
         });
     }
 
@@ -1413,11 +1510,11 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(transfertCall) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(transfertCall) " + profileError.message);
                 reject(profileError);
             }
 
-            that.logger.log("debug", LOG_ID + "(transfertCall) transfertCall held(" + heldCall.contact.displayName + ") to active(" + activeCall.contact.displayName + ")");
+            that._logger.log("debug", LOG_ID + "(transfertCall) transfertCall held(" + heldCall.contact.displayName + ") to active(" + activeCall.contact.displayName + ")");
 
             /*$http({
                 method: "PUT",
@@ -1427,7 +1524,7 @@ class Telephony {
                 // */
             that._rest.transfertCall(activeCall, heldCall).then(
                 function success() {
-                    that.logger.log("debug", LOG_ID + "(transfertCall) transferCall success");
+                    that._logger.log("debug", LOG_ID + "(transfertCall) transferCall success");
                     // Release makinCall flag
                     that.makingCall = false;
                     that.clearCall(activeCall);
@@ -1437,7 +1534,7 @@ class Telephony {
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(transfertCall) ", error);
+                    that._logger.log("error", LOG_ID + "(transfertCall) ", error);
                 });
         });
     }
@@ -1473,11 +1570,14 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(conferenceCall) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(conferenceCall) " + profileError.message);
                 reject(profileError);
             }
 
-            that.logger.log("debug", LOG_ID + "(conferenceCall) conferenceCall " + activeCall.contact.displayName + " and " + heldCall.contact.displayName);
+            if (activeCall && activeCall.contact && heldCall && heldCall.contact) {
+                that._logger.log("debug", LOG_ID + "(conferenceCall) conferenceCall " + activeCall.contact.displayName + " and " + heldCall.contact.displayName);
+            }
+            that._logger.log("internal", LOG_ID + "(conferenceCall) conferenceCall activeCall : ", activeCall, ",\n\n(conferenceCall) conferenceCall heldCall : ", heldCall);
 
             /* $http({
                 method: "PUT",
@@ -1486,13 +1586,13 @@ class Telephony {
             }) // */
             that._rest.conferenceCall(activeCall, heldCall).then(
                 function success() {
-                    that.logger.log("debug", LOG_ID + "(conferenceCall) conferenceCall success");
+                    that._logger.log("debug", LOG_ID + "(conferenceCall) conferenceCall success");
                     resolve();
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(conferenceCall) ", error);
+                    that._logger.log("error", LOG_ID + "(conferenceCall) ", error);
                 });
         });
     }
@@ -1514,16 +1614,16 @@ class Telephony {
     forwardToDevice(phoneNumber) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(forwardToDevice) forwardToDevice : " + phoneNumber);
+            that._logger.log("debug", LOG_ID + "(forwardToDevice) forwardToDevice : " + phoneNumber);
 
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "forwardToDevice failure: impossible to forward its own phone number";
-                that.logger.log("error", LOG_ID + "(forwardToDevice) " + errorMessage);
+                that._logger.log("error", LOG_ID + "(forwardToDevice) " + errorMessage);
                 reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function (contact) {
-                    let phoneInfo = that.getPhoneInfo(contact, phoneNumber);
+                    let phoneInfo = that.getPhoneInfo(contact, phoneNumber, undefined);
                     /*$http({
                         method: "PUT",
                         url: service.portalURL + "forward",
@@ -1544,7 +1644,7 @@ class Telephony {
                         function failure(response) {
                             let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                             reject(error);
-                            that.logger.log("error", LOG_ID + "(forwardToDevice) ", error);
+                            that._logger.log("error", LOG_ID + "(forwardToDevice) ", error);
                         });
                 });
         });
@@ -1569,7 +1669,7 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "404";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "(forwardToVoicemail) " + profileError.message);
+                that._logger.log("error", LOG_ID + "(forwardToVoicemail) " + profileError.message);
                 reject(profileError);
             }
 
@@ -1597,7 +1697,7 @@ class Telephony {
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that.logger.log("error", LOG_ID + "(forwardToVoicemail) ", error);
+                    that._logger.log("error", LOG_ID + "(forwardToVoicemail) ", error);
                 });
         });
     }
@@ -1632,13 +1732,13 @@ class Telephony {
                 };
                 that._rest.forwardToDevice({}, phoneInfo).then(
                     function success() {
-                        that.logger.log("debug", LOG_ID + "(cancelForward) cancelForward success");
+                        that._logger.log("debug", LOG_ID + "(cancelForward) cancelForward success");
                         resolve();
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                         reject(error);
-                        that.logger.log("error", LOG_ID + "(cancelForward) ", error);
+                        that._logger.log("error", LOG_ID + "(cancelForward) ", error);
                     });
             }
             else {
@@ -1664,7 +1764,7 @@ class Telephony {
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                         reject(error);
-                        that.logger.log("error", LOG_ID + "(getForwardStatus) ", error);
+                        that._logger.log("error", LOG_ID + "(getForwardStatus) ", error);
                     });
             }
             else {
@@ -1687,23 +1787,23 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that.logger.log("error", LOG_ID + "[telephonyService] " + profileError.message);
+                that._logger.log("error", LOG_ID + "(nomadicLogin) " + profileError.message);
                 reject(profileError);
             }
 
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "nomadicLogin failure: impossible to use its own phone number like nomadic phone";
-                that.logger.log("error", LOG_ID + "[telephonyService] " + errorMessage);
+                that._logger.log("error", LOG_ID + "(nomadicLogin) " + errorMessage);
                 reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
 
-            that.logger.log("info", LOG_ID + "[telephonyService] nomadicLogin : " + phoneNumber);
+            that._logger.log("info", LOG_ID + "(nomadicLogin) phoneNumber : " + phoneNumber);
             NotTakeIntoAccount = NotTakeIntoAccount || false;
             that.nomadicAnswerNotTakedIntoAccount = NotTakeIntoAccount;
 
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function(contact) {
-                    let phoneInfo = that.getPhoneInfo(contact, phoneNumber);
+                    let phoneInfo = that.getPhoneInfo(contact, phoneNumber, undefined);
                     /*$http({
                         method: "PUT",
                         url: that.portalURL + "nomadic/login",
@@ -1729,13 +1829,13 @@ class Telephony {
                         function success() {
                             //service.forwardToDevice(phoneNumberReceived);
                             // TODO: subscribe somehow to ON_NOMADIC_EVENT is order to know that foward is applied
-                            that.logger.log("info", LOG_ID + "[telephonyService] nomadicLogin success");
+                            that._logger.log("info", LOG_ID + "(nomadicLogin) nomadicLogin success");
                             //service.isMakeCallInitiatorIsMain = false;
                             resolve("success");
                         },
                         function failure(response) {
                             let errorMessage = "nomadicLogin failure, nomadicDevice: " + response.message;
-                            that.logger.log("error", LOG_ID + "[telephonyService] " + errorMessage);
+                            that._logger.log("error", LOG_ID + "(nomadicLogin) " + errorMessage);
                             reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
 
                         });
@@ -1748,13 +1848,13 @@ class Telephony {
 
             //reject not allowed operations
             if (!service.isNomadicEnabled || !service.nomadicObject.featureActivated) {
-                var profileError = ErrorManager.getErrorManager().OTHERERROR("nomadicLoginOnOfficePhone failure - Not Allowed");
+                let profileError = ErrorManager.getErrorManager().OTHERERROR("nomadicLoginOnOfficePhone failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
-                $log.error("[telephonyService] " + profileError.message);
+                $log.error("(nomadicLoginOnOfficePhone) " + profileError.message);
                 reject(profileError);
             }
 
-            $log.info("[telephonyService] nomadicLoginOnOfficePhone");
+            $log.info("(nomadicLoginOnOfficePhone) nomadicLoginOnOfficePhone");
 
             $http({
                 method: "PUT",
@@ -1764,14 +1864,14 @@ class Telephony {
                 function success() {
                     //service.cancelForward();
                     // TODO: subscribe somehow to ON_NOMADIC_EVENT is order to know that foward is applied
-                    $log.info("[telephonyService] nomadicLoginOnOfficePhone success");
+                    $log.info("(nomadicLoginOnOfficePhone) nomadicLoginOnOfficePhone success");
                     //service.isMakeCallInitiatorIsMain = true;
                     resolve();
                 },
                 function failure(response) {
-                    var error = errorHelperService.handleError(response);
+                    let error = errorHelperService.handleError(response);
                     reject(error);
-                    $log.error("[telephonyService] " + errorHelperService.getErrorFullMessage(response, "nomadicDevice"));
+                    $log.error("(nomadicLoginOnOfficePhone) " + errorHelperService.getErrorFullMessage(response, "nomadicDevice"));
                 });
         });
     };
@@ -1782,13 +1882,13 @@ class Telephony {
 
             //reject not allowed operations
             if (!that.isNomadicEnabled || !that.nomadicObject.featureActivated) {
-                var profileError = ErrorManager.getErrorManager().OTHERERROR("nomadicLogout failure - Not Allowed");
+                let profileError = ErrorManager.getErrorManager().OTHERERROR("nomadicLogout failure - Not Allowed");
                 profileError.status = profileError.errorDetailsCode = "403";
-                $log.error("[telephonyService] " + profileError.message);
+                $log.error("(nomadicLogout) " + profileError.message);
                 reject(profileError);
             }
 
-            $log.info("[telephonyService] nomadicLogout");
+            $log.info("(nomadicLogout) nomadicLogout");
 
             $http({
                 method: "PUT",
@@ -1798,14 +1898,14 @@ class Telephony {
                 function success() {
                     //service.cancelForward();
                     // TODO: subscribe somehow to ON_NOMADIC_EVENT is order to know that foward is applied
-                    $log.info("[telephonyService] nomadicLogout success");
+                    $log.info("(nomadicLogout) nomadicLogout success");
                     //service.isMakeCallInitiatorIsMain = true;
                     resolve();
                 },
                 function failure(response) {
-                    var error = errorHelperService.handleError(response);
+                    let error = errorHelperService.handleError(response);
                     reject(error);
-                    $log.error("[telephonyService] " + errorHelperService.getErrorFullMessage(response, "nomadicDevice"));
+                    $log.error("(nomadicLogout) " + errorHelperService.getErrorFullMessage(response, "nomadicDevice"));
                 });
         });
     };
@@ -1818,26 +1918,26 @@ class Telephony {
             if (!that.isNomadicEnabled) {
                 let error = ErrorManager.getErrorManager().CUSTOMERROR("403", "getNomadicStatus failure - Not Allowed", "getNomadicStatus failure - Not Allowed");// errorHelperService.handleError(response);
                 reject(error);
-                that.logger.log("error", LOG_ID + "(getNomadicStatus) ", error);
+                that._logger.log("error", LOG_ID + "(getNomadicStatus) ", error);
             }
 
             if (that._contacts.userContact && that._contacts.userContact.phonePbx) {
                 that._rest.getNomadicStatus().then(
                     function success(response) {
-                        that.logger.log("info", LOG_ID + "[telephonyService] nomadicStatus success");
+                        that._logger.log("info", LOG_ID + "(getNomadicStatus) nomadicStatus success");
                         that.updateNomadicData(response);
                         resolve();
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                        that.logger.log("error", LOG_ID + "(getNomadicStatus) ", error);
+                        that._logger.log("error", LOG_ID + "(getNomadicStatus) ", error);
                         reject(error);
                     });
             } else {
                 //let error = ErrorManager.getErrorManager().ERROR();// errorHelperService.handleError(response);
                 let error = ErrorManager.getErrorManager().OTHERERROR("ERROR", "(getNomadicStatus) user logged in pbx info not filled!");
                 //error.msg += "(getNomadicStatus) user logged in pbx info not filled!";
-                that.logger.log("error", LOG_ID + "(getNomadicStatus) user logged in pbx info not filled!", error);
+                that._logger.log("error", LOG_ID + "(getNomadicStatus) user logged in pbx info not filled!", error);
                 reject(error);
             }
         });
@@ -1846,7 +1946,7 @@ class Telephony {
     service.setNomadicState = function() {
         return $q(function(resolve, reject) {
 
-            $log.info("[telephonyService] setNomadicState");
+            $log.info("(setNomadicState) setNomadicState");
 
             $http({
                 method: "PUT",
@@ -1857,13 +1957,13 @@ class Telephony {
                 }
             }).then(
                 function success() {
-                    $log.info("[telephonyService] setNomadicState success");
+                    $log.info(" setNomadicState success");
                     resolve();
                 },
                 function failure(response) {
-                    var error = errorHelperService.handleError(response);
+                    let error = errorHelperService.handleError(response);
                     reject(error);
-                    $log.error("[telephonyService] " + errorHelperService.getErrorFullMessage(response, "setNomadicState"));
+                    $log.error(" " + errorHelperService.getErrorFullMessage(response, "setNomadicState"));
                 });
         });
     };
@@ -1874,7 +1974,7 @@ class Telephony {
      */
    updateNomadicData (response) {
        let that = this;
-       that.logger.log("info", LOG_ID + "[telephonyService] updateNomadicData destination:" + response.destination + " featureActivated:" + response.featureActivated + " makeCallInitiatorIsMain:" + response.makeCallInitiatorIsMain + " modeActivated:" + response.modeActivated);
+       that._logger.log("info", LOG_ID + "(updateNomadicData) destination:" + response.destination + " featureActivated:" + response.featureActivated + " makeCallInitiatorIsMain:" + response.makeCallInitiatorIsMain + " modeActivated:" + response.modeActivated);
 
         that.nomadicObject.featureActivated = response.featureActivated === "true";
         that.nomadicObject.modeActivated = response.modeActivated === "true";
@@ -1883,14 +1983,14 @@ class Telephony {
 
         if (!that.nomadicAnswerNotTakedIntoAccount) {
             //$rootScope.$broadcast("ON_CALL_NOMADIC_EVENT", service.nomadicObject);
-            that.logger.log("debug", LOG_ID + "[telephonyService] updateNomadicData send evt_internal_nomadicstatusevent ", that.nomadicObject);
+            that._logger.log("debug", LOG_ID + "(updateNomadicData) send evt_internal_nomadicstatusevent ", that.nomadicObject);
             that._eventEmitter.emit("evt_internal_nomadicstatusevent", that.nomadicObject);
         }
         that.nomadicAnswerNotTakedIntoAccount = false;
 
         // By default if mobilepro or mobileperso exist, then add it on destination
         /*if (service.nomadicObject.featureActivated && (service.nomadicObject.destination === "" || service.nomadicObject.destination === undefined) && (contactService.userContact.mobileProCan || contactService.userContact.mobilePerso)) {
-            var defaultNumber = contactService.userContact.mobileProCan ? contactService.userContact.mobileProCan : contactService.userContact.mobilePerso;
+            let defaultNumber = contactService.userContact.mobileProCan ? contactService.userContact.mobileProCan : contactService.userContact.mobilePerso;
             service.nomadicLogin(defaultNumber)
                 .then(function() {
                     service.nomadicLoginOnOfficePhone();
@@ -1899,7 +1999,7 @@ class Telephony {
 
         // By default, in monodevice, if mobilepro or mobileperso exist, then add it on destination
         if (that._contacts.userContact.isVirtualTerm && that.nomadicObject.featureActivated && (that.nomadicObject.destination === "" || that.nomadicObject.destination === undefined) && (that._contacts.userContact.mobileProCan || that._contacts.userContact.mobilePerso)) {
-            var defaultNumber = that._contacts.userContact.mobileProCan ? that._contacts.userContact.mobileProCan : that._contacts.userContact.mobilePerso;
+            let defaultNumber = that._contacts.userContact.mobileProCan ? that._contacts.userContact.mobileProCan : that._contacts.userContact.mobilePerso;
             that.nomadicLogin(defaultNumber);
         }
     }
@@ -1954,7 +2054,7 @@ class Telephony {
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                         reject(error);
-                        that.logger.log("error", LOG_ID + "(sendDtmf) ", error);
+                        that._logger.log("error", LOG_ID + "(sendDtmf) ", error);
                     });
             } else {
                 reject();
@@ -1968,16 +2068,21 @@ class Telephony {
      * @param Call call the call to reset.
      * @return nothing.
      */
-    private clearCall(call) {
+    private async clearCall(call) {
         let that = this;
         call.setStatus(Call.Status.UNKNOWN);
-        // $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-        that.logger.log("debug", LOG_ID + "(clearCall) send evt_internal_callupdated ", call);
-        that._eventEmitter.emit("evt_internal_callupdated", call);
+        /* TREATED BY EVENTS
 
-        if (call.contact) {
-            delete that.calls[call.contact.id];
-        }
+// $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
+that._logger.log("debug", LOG_ID + "(clearCall) send evt_internal_callupdated ", call);
+that._eventEmitter.emit("evt_internal_callupdated", call);
+*/
+        //if (call.contact) {
+        //delete that.calls[call.contact.id];
+        //}
+        let callIdToDelete = Call.getIdFromConnectionId(call.connectionId);
+        //delete that._calls[callIdToDelete];
+        await that.removeCallFromCache(callIdToDelete);
         if (call.getCurrentCalled()) {
             call.setCurrentCalled(null);
         }
@@ -1991,6 +2096,121 @@ class Telephony {
             return false;
         }
         return (match[0] === cleanPhoneNumber);
+    }
+
+    /**
+     * @private
+     * @method getOrCreateCall
+     * @param status
+     * @param connectionId
+     * @param deviceType
+     * @param contact
+     */
+    getOrCreateCall(status, connectionId, deviceType, contact?) {
+        let that = this;
+
+        // Extract callid from connectionid
+        let callId = Call.getIdFromConnectionId(connectionId);
+        that._logger.log("debug", LOG_ID + "(getOrCreateCall) callId ", callId);
+        let callInfos = {"status" : status, "id" : callId, "connectionId" : connectionId, "type" : Call.Type.PHONE, "contact" : contact, "deviceType" : deviceType} ;
+        that._logger.log("debug", LOG_ID + "(getOrCreateCall) callInfos : ", callInfos);
+        if (!callId) {
+            let call = Call.CallFactory()(callInfos);
+            call.setConnectionId(connectionId);
+            that._logger.log("debug", LOG_ID + "(getOrCreateCall) no callId found, so return a call which is not stored in calls tab. call : ", call);
+            return call;
+        }
+
+        let call = that.addOrUpdateCallToCache(callInfos);
+        /*
+
+        // Get eventual existing call
+        let call = that.getCallFromCache(callId);
+        if (call) {
+            call.setConnectionId(connectionId);
+            call.startDate = new Date();
+        }
+        else {
+            //call = Call.create(status, null, Call.Type.PHONE, contact, deviceType);
+            let callInfos = {status, id : undefined, type : Call.Type.PHONE, contact, deviceType} ;
+            call = that.addOrUpdateCallToCache(callInfos);
+
+         */
+            /*call = Call.CallFactory()(callInfos);
+            call.setConnectionId(connectionId);
+            that._calls[callId] = call;
+
+             */
+        //}
+        return call;
+    }
+
+    /**
+     * @private
+     * @param callId
+     * @description
+     *      GET A CALL FROM CACHE
+     */
+    private getCallFromCache(callId: string): Call {
+        let that = this;
+        let callFound = null;
+        that._logger.log("internal", LOG_ID + "(getCallFromCache) search id : ", callId);
+
+        if (that._calls) {
+            let callFoundindex = that._calls.findIndex((call) => {
+                if (!call) {
+                    this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
+                }
+                return call.id === callId;
+            });
+            if (callFoundindex != -1) {
+                that._logger.log("internal", LOG_ID + "(getCallFromCache) call found : ", that._calls[callFoundindex], " with id : ", callId);
+                return that._calls[callFoundindex];
+            }
+        }
+        that._logger.log("internal", LOG_ID + "(getCallFromCache) call found : ", callFound, " with id : ", callId);
+        return callFound ;
+    }
+
+    public addOrUpdateCallToCache(call: any): Call {
+        let callObj : Call = Call.CallFactory()(call);
+        let callFoundindex = this._calls.findIndex((callIter) => {
+            return callIter.id === call.id;
+        });
+        if (callFoundindex != -1) {
+            this._logger.log("internal", LOG_ID + "(addOrUpdateCallToCache) update in cache with call : ", call, ", at callFoundindex : ", callFoundindex);
+            //this._channels.splice(callFoundindex,1,callObj);
+            //channelCached = callObj;
+            this._logger.log("internal", LOG_ID + "(addOrUpdateCallToCache) in update this.calls : ", this._calls);
+            this._calls[callFoundindex].updateCall(call);
+            callObj = this._calls[callFoundindex];
+        } else {
+            this._logger.log("internal", LOG_ID + "(addOrUpdateCallToCache) add in cache callObj : ", callObj);
+            this._calls.push(callObj);
+        }
+        return callObj;
+    }
+
+    private removeCallFromCache(callId: string): Promise<Call> {
+        let that = this;
+        this._logger.log("debug", LOG_ID + "(removeCallFromCache) should remove callId : ", callId);
+        return new Promise((resolve, reject) => {
+            // Get the channel to remove
+            let callToRemove = this.getCallFromCache(callId);
+            if (callToRemove) {
+                // Remove from channels
+                let callIdToRemove = callToRemove.id;
+
+                this._logger.log("internal", LOG_ID + "(removeCallFromCache) remove from cache callIdToRemove : ", callIdToRemove);
+                this._calls = this._calls.filter(function (call) {
+                    return !(call.id === callIdToRemove);
+                });
+
+                resolve(callToRemove);
+            } else {
+                resolve(null);
+            }
+        });
     }
 
 
