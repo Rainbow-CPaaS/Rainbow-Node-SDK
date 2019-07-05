@@ -9,7 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.58.0] - 2018-07-XX
 -   Fix : event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.
 -   Fix : put the SDK to STOPPED state if "rainbow_xmppdisconnect" arrive and the reconnection is disabled.
--   Fix : Allows to make a second 3PCC RCC if the second call is allowed in profile.
+-   CRRAINB-6601 : Fix : Allows to make a second 3PCC RCC if the second call is allowed in profile.
 -   Add internals telephony events raised outside the SDK to allow Afterbuild receveid multiple events : "evt_internal_callupdated_***". Must not be used outside Afterbuild context. Note it is available only when internal traces are enabled.
 -   Add Call::updateCall method used to update a Call from data object.
 -   Add Call::CallFactory method used to create a Call from data object.
@@ -17,7 +17,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add correlatorData when makecall (TelephonyService::makeCall, TelephonyService::makeConsultationCall).
 -   Fix getForwardStatus. Update of the URL to get it on server.
 -   Add TelephonyService::getActiveCalls to retrieve active Call.
--   Update TelephonyService::getCalls method to return all the Calls.
+-   CRRAINB-6773: Update TelephonyService::getCalls method to return all the Calls.
 -   Add TelephonyService::getCallsSize method to get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1.
 -   Add TelephonyService::getTabSize method to get the tab size given in parameter. So, use of the getTabSize method to avoid errors on Array length.
 -   Keep the delete of released Call in the releaseCall method because the server do not raise the end call event on one participant of an OXE conference.index.
@@ -25,8 +25,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add TelephonyService::getCallFromCache method to get a call from Calls array cache
 -   Add TelephonyService::addOrUpdateCallToCache method to add or update a call in the Calls array cache
 -   Add TelephonyService::removeCallFromCache method to remove a call from the Calls array cache
--   Add treatment of the initiated event in telephonyEventHandler to raise a dialing event.
--   Add treatment of the conference event in telephonyEventHandler.
+-   CRRAINB-6600 : Add treatment of the initiated event in telephonyEventHandler to raise a dialing event.
+-   CRRAINB-6600  : Add treatment of the conference event in telephonyEventHandler.
 -   Update telephonyEventHandler::getCall to parse more data from XMPP telephony event
 
 ## [1.57.0] - 2018-06-18

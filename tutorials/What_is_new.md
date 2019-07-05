@@ -27,15 +27,15 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Fix : event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.
 -   Fix : put the SDK to STOPPED state if "rainbow_xmppdisconnect" arrive and the reconnection is disabled.
--   Fix : Allows to make a second 3PCC RCC if the second call is allowed in profile.
+-   CRRAINB-6601 : Fix : Allows to make a second 3PCC RCC if the second call is allowed in profile.
 -   Add properties Call::deviceType, Call::deviceState, Call::cause, Call::jid, Call::Call.
 -   Fix getForwardStatus. Update of the URL to get it on server.
 -   Add TelephonyService::getActiveCalls to retrieve active Call.
--   Update TelephonyService::getCalls method to return all the Calls.
+-   CRRAINB-6773: Update TelephonyService::getCalls method to return all the Calls.
 -   Add TelephonyService::getCallsSize method to get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1.
 -   Treat the Calls array cache in TelephonyService with the event received from server instead of doing the treatment when an API method is called.
--   Add treatment of the initiated event in telephonyEventHandler to raise a dialing event.
--   Add treatment of the conference event in telephonyEventHandler.
+-   CRRAINB-6600 : Add treatment of the initiated event in telephonyEventHandler to raise a dialing event.
+-   CRRAINB-6600  : Add treatment of the conference event in telephonyEventHandler.
 -   Update telephonyEventHandler::getCall to parse more data from XMPP telephony event
 
 
