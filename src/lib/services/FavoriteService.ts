@@ -47,8 +47,8 @@ class FavoriteService {
         this.started = false;
         this._initialized = false;
 
-        this._eventEmitter.on("evt_internal_favoritecreated", this.onFavoriteCreated.bind(this));
-        this._eventEmitter.on("evt_internal_favoritedeleted", this.onFavoriteDeleted.bind(this));
+        this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
+        this._eventEmitter.on("evt_internal_favoritedeleted_handle", this.onFavoriteDeleted.bind(this));
     }
 
 
@@ -132,9 +132,8 @@ class FavoriteService {
 
         that._favoriteEventHandler = new FavoriteEventHandler(that._xmpp, that);
         that.favoriteHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.IQ_CALLLOG, that._favoriteEventHandler.onIqCallLogReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.CALLLOG_ACK, that._favoriteEventHandler.onCallLogAckReceived ),
-            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.IQ_CALLOG_NOTIFICATION, that._favoriteEventHandler.onIqCallLogNotificationReceived )
+            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived)
         ];
 
         /*
@@ -206,11 +205,6 @@ class FavoriteService {
     private async addServerFavorite(peerId: string, type: string) {
         let that = this;
         try {
-            /*let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites`;
-            let data = { peerId, type };
-            await this.$http({ method: "POST", url, headers: this.authService.getRequestHeader(), data });
-
-             */
             let favorite = await that._rest.addServerFavorite(peerId, type);
             that._logger.log("internal", LOG_ID +`addServerFavorite(${peerId}, ${type}) -- SUCCESS`, favorite);
             return favorite;
@@ -225,12 +219,17 @@ class FavoriteService {
     private async removeServerFavorite(favoriteId: string) {
         let that = this;
         try {
-            /*
-            let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites/${favoriteId}`;
-            await this.$http({ method: "DELETE", url: url, headers: this.authService.getRequestHeader() });
+            return new Promise(async (resolve, reject) => {
+                that._rest.removeServerFavorite(favoriteId).then(async (favoriteDeleted ) => {
+                    that._logger.log("debug", LOG_ID +"(removeServerFavorite) -- SUCCESS : ", favoriteDeleted);
+                    resolve(favoriteDeleted);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(removeServerFavorite) error : ", err);
+                    that._logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
+                    reject(err);
+                });
 
-             */
-            that._logger.log("debug", LOG_ID +`removeServerFavorite(${favoriteId}) -- SUCCESS`);
+            });
         }
         catch (error) {
             let errorMessage = `removeServerFavorite(${favoriteId}) -- FAILURE -- ${error.statusText}`;
@@ -419,8 +418,8 @@ class FavoriteService {
             }
 
             that.removeServerFavorite(id)
-                .then(() => {
-                    return resolve()
+                .then((favDeleted) => {
+                    return resolve(favDeleted)
                 })
                 .catch(err => {
                     that._logger.log("error", LOG_ID + "[deleteFavorite] :: Error: ", err);
@@ -438,9 +437,11 @@ class FavoriteService {
             this.favorites.push(favorite);
             that._logger.log("debug", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
             //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
-        }
 
+            that._eventEmitter.emit("evt_internal_favoritecreated", fav);
+        }
     }
+
     public async onFavoriteDeleted(fav: {id:string, peerId: string, type: string}): Promise<void> {
         let that = this;
         let index = this.favorites.findIndex((fav) => { return fav.id === fav.id; });
@@ -450,6 +451,7 @@ class FavoriteService {
             this.favorites.splice(index, 1);
             that._logger.log("debug", LOG_ID + "[onFavoriteDeleted] send event : ", { favoriteId: favorite.id });
             //this.sendEvent('ON_FAVORITE_DELETED', { favoriteId: favorite.id });
+            that._eventEmitter.emit("evt_internal_favoritedeleted", fav);
         }
     }
 }

@@ -443,7 +443,7 @@ class RESTService {
                 //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
                 that.http.get("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(getServerFavorites) successfull");
-                    that.logger.log("internal", LOG_ID + "(getServerFavorites) REST contact received ", json.data);
+                    that.logger.log("internal", LOG_ID + "(getServerFavorites) REST result : ", json.data);
                     that.logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
                     resolve(json.data);
                 }).catch(function(err) {
@@ -472,7 +472,7 @@ class RESTService {
                 let data = { peerId, type };
                 that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), data, undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(addServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST contact received ", json.data);
+                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST result : ", json.data);
                     that.logger.log("debug", LOG_ID + "(addServerFavorite) _exiting_");
                     resolve(json.data);
                 }).catch(function(err) {
@@ -499,6 +499,40 @@ class RESTService {
         }
 
          */
+    }
+
+    public async removeServerFavorite(favoriteId: string) {
+
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+            that.logger.log("debug", LOG_ID + "(removeServerFavorite) _entering_");
+
+            if (!favoriteId) {
+                that.logger.log("debug", LOG_ID + "(removeServerFavorite) failed");
+                that.logger.log("info", LOG_ID + "(removeServerFavorite) No favoriteId provided");
+                that.logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
+                resolve(null);
+            }
+            else {
+                that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId, that.getRequestHeader()).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(removeServerFavorite) successfull");
+                    that.logger.log("internal", LOG_ID + "(removeServerFavorite) REST result : ", json.data);
+                    that.logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(removeServerFavorite) error", err);
+                    that.logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
+                    reject(err);
+                });
+            }
+        });
+
+        /*
+                   let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites/${favoriteId}`;
+                   await this.$http({ method: "DELETE", url: url, headers: this.authService.getRequestHeader() });
+                    */
     }
 
     /**

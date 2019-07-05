@@ -139,7 +139,7 @@ class Channels {
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_MANAGEMENT, that.channelEventHandler.onManagementMessageReceived),
-//            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_ERROR, that.conversationEventHandler.onErrorMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_ERROR, that.channelEventHandler.onErrorMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_HEADLINE, that.channelEventHandler.onHeadlineMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
         ];

@@ -93,99 +93,6 @@ class FavoriteEventHandler extends GenericHandler {
             }
         };
 
-        this.onHeadlineMessageReceived = (msg, stanza) => {
-            try {
-                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_", msg, stanza);
-                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
-
-                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
-
-                let eventNode = stanza.children[0];
-                if (!eventNode) {
-                    that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived eventNode is empty");
-                    that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
-                    that.logger.log("internal", LOG_ID + util.inspect(stanza));
-                    return;
-                }
-                let items = eventNode.children[0];
-                if (!items) {
-                    that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived items is empty");
-                    that.logger.log("internal", LOG_ID + util.inspect(eventNode));
-                    that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
-                    return;
-                }
-                let item = items.children[0];
-                if (!item) {
-                    that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived item is empty");
-                    that.logger.log("internal", LOG_ID + util.inspect(items));
-                    that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
-                    return;
-                }
-                let entry = item.children[0];
-                if (!entry) {
-                    that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) onHeadlineMessageReceived entry is empty");
-                    that.logger.log("internal", LOG_ID + util.inspect(item));
-                    that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
-                    //return;
-                }
-
-                switch (item.name) {
-                    case "retract": {
-                        let messageId = item.attrs ? item.attrs.id || null : null;
-                        if (messageId === null) {
-                            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel retract received, but id is empty. So ignored.");
-                        } else {
-                            let message = { messageId: null};
-                            message.messageId = item.attrs.id;
-                            that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel retract received, for messageId " + message.messageId);
-                            that.eventEmitter.emit("evt_internal_channelmessagedeletedreceived", message);
-                        }
-                    }
-                        break;
-                    case "item": {
-                        if (entry) {
-
-                            let message = {
-                                "messageId": item.attrs.id,
-                                "channelId": entry.attrs.channelId,
-                                "fromJid": entry.attrs.from,
-                                "message": entry.getChild("message") ? entry.getChild("message").getText() || "" : "",
-                                "title": entry.getChild("title") ? entry.getChild("title").getText() || "" : "",
-                                "url": entry.getChild("url") ? entry.getChild("url").getText() || "" : "",
-                                "date": new Date(entry.attrs.timestamp),
-                                "images": new Array()
-                            };
-                            let images = entry.getChildren("images");
-                            if (Array.isArray(images)) {
-                                images.forEach((image) => {
-                                    //that.logger.log("info", LOG_ID + "(handleXMPPConnection) channel entry images.", image);
-                                    let id = image.getChild("id") ? image.getChild("id").getText() || null : null;
-                                    if (id === null) {
-                                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel image entry received, but image id empty. So ignored.");
-                                    } else {
-                                        message.images.push(id);
-                                    }
-                                });
-                            }
-
-                            that.eventEmitter.emit("evt_internal_channelitemreceived", message);
-                        } else {
-                            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.", stanza);
-                        }
-                    }
-                        break;
-                    default: {
-                        that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel unknown event " + item.name + " received");
-                    }
-                        break;
-
-                } // */
-            } catch (err) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
-            }
-        };
-
         this.onFavoriteManagementMessageReceived = (stanza) => {
             that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_");
             that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_", stanza);
@@ -202,11 +109,11 @@ class FavoriteEventHandler extends GenericHandler {
                     let action = favoriteElem.attr("action");
 
                     if (action === 'create') {
-                        that.eventEmitter.emit("evt_internal_favoritecreated", fav);
+                        that.eventEmitter.emit("evt_internal_favoritecreated_handle", fav);
                     }
 
                     if (action === 'delete') {
-                        that.eventEmitter.emit("evt_internal_favoritedeleted", fav);
+                        that.eventEmitter.emit("evt_internal_favoritedeleted_handle", fav);
                     }
                 }
                 return true;

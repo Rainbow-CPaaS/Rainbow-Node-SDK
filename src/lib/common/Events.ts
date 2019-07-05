@@ -61,6 +61,8 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onchannelusersubscription
  * @fires Events#rainbow_oncalllogupdated
  * @fires Events#rainbow_oncalllogackupdated
+ * @fires Events#rainbow_onfavoritecreated
+ * @fires Events#rainbow_onfavoritedeleted
 */
 class Events {
 	public _logger: any;
@@ -608,6 +610,28 @@ class Events {
              *      Fired when the number of ack of calllog changes
              */
             that.publishEvent("calllogackupdated", data);
+        });
+
+        this._evReceiver.on("evt_internal_favoritecreated", function (data) {
+            /**
+             * @event Events#rainbow_onfavoritecreated
+             * @public
+             * @param { Favorite } favorite The favorite created
+             * @description
+             *      Fired when a favorite is added to the loggued in user.
+             */
+            that.publishEvent("favoritecreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_favoritedeleted", function (data) {
+            /**
+             * @event Events#rainbow_onfavoritedeleted
+             * @public
+             * @param { Favorite } favorite The favorite deleted
+             * @description
+             *      Fired when a favorite is suppressed to the loggued in user.
+             */
+            that.publishEvent("favoritedeleted", data);
         });
 
     }
