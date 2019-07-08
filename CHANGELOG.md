@@ -27,7 +27,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add TelephonyService::removeCallFromCache method to remove a call from the Calls array cache
 -   CRRAINB-6600 : Add treatment of the initiated event in telephonyEventHandler to raise a dialing event.
 -   CRRAINB-6600  : Add treatment of the conference event in telephonyEventHandler.
--   Update telephonyEventHandler::getCall to parse more data from XMPP telephony event
+-   Update telephonyEventHandler::getCall to parse more data from XMPP telephony event.
+-   Add Favorites service (fetchAllFavorites, createFavorite, deleteFavorite)
+-   Add Favorites events (rainbow_onfavoritecreated, rainbow_onfavoritedeleted)
+
 
 ## [1.57.0] - 2018-06-18
 -   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 

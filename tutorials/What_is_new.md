@@ -37,6 +37,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   CRRAINB-6600 : Add treatment of the initiated event in telephonyEventHandler to raise a dialing event.
 -   CRRAINB-6600  : Add treatment of the conference event in telephonyEventHandler.
 -   Update telephonyEventHandler::getCall to parse more data from XMPP telephony event
+-   Add Favorites service (fetchAllFavorites, createFavorite, deleteFavorite)
+-   Add Favorites events (rainbow_onfavoritecreated, rainbow_onfavoritedeleted)
 
 
 ### SDK for Node.JS 1.57 - June 2019

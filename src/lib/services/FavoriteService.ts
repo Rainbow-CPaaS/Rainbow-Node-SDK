@@ -359,7 +359,7 @@ class FavoriteService {
      * @description
      *   Add conversation/bubble/bot to Favorites Array
      * @param {String} id of the conversation/bubble
-     * @param {String} type of Favorite (can be 'conversation' or 'bubble')
+     * @param {String} type of Favorite (can be 'user' or 'bubble')
      * @return {Promise<Favorite>} A Favorite object
      */
     public async createFavorite(id, type) : Promise<Favorite> {
