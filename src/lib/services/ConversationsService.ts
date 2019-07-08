@@ -29,7 +29,6 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
 
 /**
  * @class
- * @beta
  * @name Conversations
  * @description
  * This module is the basic module for handling conversations in Rainbow. In Rainbow, conversations are the way to get in touch with someone or something (i.e. a Rainbow contact, a external phone number, a connected thing, ...) so a conversation is the "long tail" of communication between you and someone or something else like a bubble.
@@ -390,8 +389,7 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method sendConversationByEmail
      * @instance
      * @description
      *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles)
@@ -410,8 +408,7 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method ackAllMessages
      * @instance
      * @description
      *    Mark all unread messages in the conversation as read.
@@ -429,8 +426,7 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method getHistoryPage
      * @instance
      * @description
      *    Retrieve the remote history of a specific conversation.
@@ -514,7 +510,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      */
@@ -572,7 +567,7 @@ class Conversations {
 
     /**
      * @public
-     * @method
+     * @method getBubbleConversation
      * @instance
      * @description
      *    Get a conversation associated to a bubble (using the bubble ID to retrieve it)
@@ -701,8 +696,9 @@ class Conversations {
 
     /**
      * @public
-     * @method
+     * @method sendIsTypingState
      * @instance Conversations
+     * @memberof Conversations
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
@@ -733,7 +729,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -761,7 +756,6 @@ class Conversations {
     
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -789,8 +783,7 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method closeConversation
      * @instance
      * @description
      *    Close a conversation <br/>
@@ -824,7 +817,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -877,7 +869,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method sendFSMessage
      * @instance
      * @description
@@ -1038,7 +1029,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -1052,7 +1042,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -1071,8 +1060,10 @@ class Conversations {
      * SEND CORRECTED MESSAGE
      */
     /**
+     * @public
      * @method sendCorrectedChatMessage
      * @instance
+     * @memberof Conversations
      * @description
      *    Send a corrected message to a conversation
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
@@ -1088,15 +1079,15 @@ class Conversations {
         let that = this;
 
         if (!conversation) {
-            this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter", conversation);
+            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter", conversation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        if (!data) {
-            this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'data' parameter", data);
+        if (data == undefined || data == null) {
+            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter", data);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!origMsgId) {
-            this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'origMsgId' parameter", origMsgId);
+            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter", origMsgId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1141,6 +1132,39 @@ class Conversations {
     }
 
     /**
+     * @public
+     * @since 1.58
+     * @method deleteMessage
+     * @instance
+     * @memberof Conversations
+     * @async
+     * @description
+     *    Delete a message by sending an empty string in a correctedMessage
+     * @param {Conversation} conversation The conversation object
+     * @param {String} messageId The id of the message to be deleted
+     * @return {Message} - message object with updated replaceMsgs property
+     */
+    async deleteMessage (conversation, messageId) : Promise<any> {
+        let that = this;
+
+        if (!conversation) {
+            that._logger.log("error", LOG_ID + "(deleteMessage) Parameter 'conversation' is missing or null");
+            throw ErrorManager.getErrorManager().BAD_REQUEST();
+        }
+
+        if (!messageId) {
+            that._logger.log("error", LOG_ID + "(deleteMessage) Parameter 'messageId' is missing or empty");
+            throw ErrorManager.getErrorManager().BAD_REQUEST();
+        }
+
+        let messageOrig = conversation.getMessageById(messageId);
+
+        let correctedMsg = await that.sendCorrectedChatMessage(conversation, "", messageId);
+
+        return messageOrig;
+    }
+
+    /**
      * @private
      * @description
      *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
@@ -1168,8 +1192,7 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method removeAllMessages
      * @instance
      * @description
      *    Cleanup a conversation by removing all previous messages<br/>
@@ -1229,8 +1252,7 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method removeMessagesFromConversation
      * @instance
      * @description
      *    Remove a specific range of message in a conversation<br/>
@@ -1271,9 +1293,9 @@ class Conversations {
 
     /**
      * @public
-     * @beta
-     * @method
+     * @method getConversationById
      * @instance
+     * @memberof Conversations
      * @description
      *      Get a p2p conversation by id
      * @param {String} conversationId Conversation id of the conversation to clean
@@ -1291,7 +1313,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -1313,7 +1334,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -1334,7 +1354,6 @@ class Conversations {
 
     /**
      * @private
-     * @beta
      * @method
      * @instance
      * @description
@@ -1353,11 +1372,24 @@ class Conversations {
         return null;
     }
 
+    /**
+     * @public
+     * @method getAllConversations
+     * @instance
+     * @memberof Conversations
+     * @description
+     *    Allow to get the list of existing conversations (p2p and bubbles)
+     * @return {Conversation[]} An array of Conversation object
+     */
+    getAllConversations() {
+        let that = this;
+        return that.getConversations();
+    };
 
     /**
      * @private
-     * @beta
      * @method
+     * @memberof Conversations
      * @instance
      * @description
      *      Get all conversation
@@ -1375,8 +1407,9 @@ class Conversations {
 
     /**
      * @public
-     * @method
+     * @method openConversationForContact
      * @instance
+     * @memberof Conversations
      * @description
      *    Open a conversation to a contact <br/>
      *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>

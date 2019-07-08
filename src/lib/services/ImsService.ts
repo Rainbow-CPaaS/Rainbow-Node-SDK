@@ -1,4 +1,6 @@
 "use strict";
+import {XMPPService} from "../connection/XMPPService";
+
 export {};
 
 
@@ -23,7 +25,7 @@ const LOG_ID = "IM/SVCE - ";
  *      - Mark a message as read <br>
  */
 class IM {
-	public xmpp: any;
+	public xmpp: XMPPService;
 	public conversations: any;
 	public logger: any;
 	public eventEmitter: any;
@@ -350,7 +352,7 @@ class IM {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this.xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject);
+        let messageSent = await this.xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
 
         /*
         this.storePendingMessage(messageSent);
@@ -520,7 +522,7 @@ class IM {
         let bubble = await that.bulles.getBubbleByJid(jid);
         that.logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject);
+            let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
             that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _exiting_");
             return messageSent;
         } else {
@@ -533,7 +535,7 @@ class IM {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject);
+                let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
                 that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _exiting_");
                 return messageSent;
             } catch (err) {

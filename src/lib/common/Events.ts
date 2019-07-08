@@ -20,6 +20,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onpresencechanged
  * @fires Events#rainbow_onconversationremoved
  * @fires Events#rainbow_onconversationchanged
+ * @fires Events#rainbow_onallmessagedremovedfromconversationreceived
  * @fires Events#rainbow_onchatstate
  * @fires Events#rainbow_oncontactinformationchanged
  * @fires Events#rainbow_onuserinvitereceived

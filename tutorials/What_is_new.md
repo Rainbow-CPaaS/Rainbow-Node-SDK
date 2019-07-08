@@ -39,6 +39,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Update telephonyEventHandler::getCall to parse more data from XMPP telephony event
 -   Add Favorites service (fetchAllFavorites, createFavorite, deleteFavorite)
 -   Add Favorites events (rainbow_onfavoritecreated, rainbow_onfavoritedeleted)
+-   Add Favorites doc
+-   Add conversations::deleteMessage to delete a message by sending an empty string in a correctedMessage
 
 
 ### SDK for Node.JS 1.57 - June 2019

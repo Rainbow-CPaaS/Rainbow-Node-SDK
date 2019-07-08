@@ -22,7 +22,7 @@ const FileServer = require("./services/FileServerService");
 const FileStorage = require("./services/FileStorageService");
 const StateManager = require("./common/StateManager");
 const CallLogService = require( "./services/CallLogService");
-const FavoriteService = require( "./services/FavoriteService");
+const FavoritesService = require( "./services/FavoritesService");
 
 const Events = require("./common/Events");
 
@@ -305,7 +305,7 @@ class Core {
         this._fileServer = new FileServer(this._eventEmitter.iee, this.logger);
         this._fileStorage = new FileStorage(this._eventEmitter.iee, this.logger);
         this._calllog = new CallLogService(this._eventEmitter.iee, this.logger);
-        this._favorites = new FavoriteService(this._eventEmitter.iee,this.logger);
+        this._favorites = new FavoritesService(this._eventEmitter.iee,this.logger);
 
         this._botsjid = [];
 

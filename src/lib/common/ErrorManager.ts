@@ -46,7 +46,7 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get BAD_REQUEST() {
+    get BAD_REQUEST() : any{
         return {
             code: code.ERRORBADREQUEST,
             label: "BADREQUEST",

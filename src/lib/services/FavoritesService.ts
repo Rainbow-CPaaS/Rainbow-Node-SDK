@@ -18,7 +18,7 @@ import {CallLogEventHandler} from "../connection/XMPPServiceHandler/calllogEvent
 import {ErrorManager} from "../common/ErrorManager";
 import {Channel} from "../common/models/Channel";
 
-class FavoriteService {
+class FavoritesService {
     public _eventEmitter: any;
     private _logger: any;
     private started: boolean;
@@ -409,7 +409,7 @@ class FavoriteService {
      * @param {String} id of the Favorite item
      * @return {Favorite[]} A Favorite object
      */
-    deleteFavorite(id) {
+    async deleteFavorite(id) : Promise<any>{
         let that = this;
         return new Promise((resolve, reject) => {
             if (!id) {
@@ -456,4 +456,4 @@ class FavoriteService {
     }
 }
 
-module.exports = FavoriteService;
+module.exports = FavoritesService;
