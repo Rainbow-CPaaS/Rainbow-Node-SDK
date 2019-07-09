@@ -42,6 +42,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add Favorites events (rainbow_onfavoritecreated, rainbow_onfavoritedeleted)
 -   Add Favorites doc
 -   Add conversations::deleteMessage to delete a message by sending an empty string in a correctedMessage
+-   Add shortFileDescriptor in message when ImsService::getMessageFromConversationById
 
 
 ### SDK for Node.JS 1.57 - June 2019

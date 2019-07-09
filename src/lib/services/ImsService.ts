@@ -26,37 +26,39 @@ const LOG_ID = "IM/SVCE - ";
  */
 class IM {
 	public xmpp: XMPPService;
-	public conversations: any;
+	public _conversations: any;
 	public logger: any;
-	public eventEmitter: any;
+	public _eventEmitter: any;
 	public pendingMessages: any;
-	public bulles: any;
+	public _bulles: any;
     private imOptions: any;
+    public _fileStorage: any;
 
     constructor(_eventEmitter, _logger, _imOptions) {
         this.xmpp = null;
-        this.conversations = null;
+        this._conversations = null;
         this.logger = _logger;
-        this.eventEmitter = _eventEmitter;
+        this._eventEmitter = _eventEmitter;
         this.pendingMessages = {};
         this.imOptions = _imOptions;
 
-        this.eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
+        this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
 
 
     }
 
-    start(_xmpp, _conversations, _bubbles) {
+    start(_xmpp, __conversations, __bubbles, _filestorage) {
 
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(start) _entering_");
 
         return new Promise(function(resolve, reject) {
             try {
                 that.xmpp = _xmpp;
-                that.conversations = _conversations;
-                that.bulles = _bubbles;
+                that._conversations = __conversations;
+                that._bulles = __bubbles;
+                that._fileStorage = _filestorage;
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
 
@@ -111,7 +113,7 @@ class IM {
             ? Math.min(intNbMessage, 100)
             : 30;
         return this
-            .conversations
+            ._conversations
             .getHistoryPage(conversation, intNbMessage);
 
     }
@@ -129,7 +131,8 @@ class IM {
      * @memberof IM
      * @return {Message} The message if found or null
      */
-    getMessageFromConversationById(conversation, strMessageId) {
+    async getMessageFromConversationById(conversation, strMessageId) {
+        let that = this;
 
         if (!conversation) {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"});
@@ -139,7 +142,13 @@ class IM {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
-        return conversation.getMessageById(strMessageId);
+        let message = conversation.getMessageById(strMessageId);
+
+        // Add FileDescriptor if needed
+        if (message && message.oob && message.oob.url) {
+            message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1));
+        }
+        return message;
     }
 
     /**
@@ -167,7 +176,7 @@ class IM {
         }
 
         var conversation = that
-            .conversations
+            ._conversations
             .getConversationByBubbleId(bubble.id);
 
         if (!conversation) {
@@ -226,7 +235,7 @@ class IM {
             this
                 .sendMessageToBubbleJid(message, conversation.id, lang, content, subject);
         return msgSent.then((messageSent) => {
-            this.conversations.storePendingMessage(conversation, messageSent);
+            this._conversations.storePendingMessage(conversation, messageSent);
             //conversation.messages.push(messageSent);
             //this.conversations.getServerConversations();
             return messageSent;
@@ -519,7 +528,7 @@ class IM {
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
-        let bubble = await that.bulles.getBubbleByJid(jid);
+        let bubble = await that._bulles.getBubbleByJid(jid);
         that.logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
         if (bubble.isActive) {
             let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
@@ -600,7 +609,7 @@ class IM {
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
-        let bubble = await that.bulles.getBubbleByJid(jid);
+        let bubble = await that._bulles.getBubbleByJid(jid);
         that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
             let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
@@ -651,7 +660,7 @@ class IM {
                 } else {
                     that.logger.log("debug",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
 
-                    that.conversations.getBubbleConversation(bubble.jid).then(function (conversation) {
+                    that._conversations.getBubbleConversation(bubble.jid).then(function (conversation) {
                         if (!conversation) {
                             reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
@@ -689,7 +698,7 @@ class IM {
                 reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
             } // */
             else {
-                conversation = conversation.id ? that.conversations.getConversationById(conversation.id) : null;
+                conversation = conversation.id ? that._conversations.getConversationById(conversation.id) : null;
                 if (!conversation) {
                     reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
@@ -751,10 +760,10 @@ class IM {
         this.logger.log("debug", LOG_ID + "(enableCarbon) _entering_");
 
         return new Promise((resolve) => {
-            that.eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
+            that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
                 that.logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
                 that.logger.log("debug", LOG_ID + "(enableCarbon) - _exiting_");
-                that.eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
+                that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
                 resolve();
             });
             that.xmpp.enableCarbon();

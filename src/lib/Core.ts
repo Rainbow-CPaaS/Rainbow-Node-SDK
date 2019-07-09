@@ -351,7 +351,7 @@ class Core {
                     }).then(() => {
                         return that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles);
                     }).then(() => {
-                        return that._im.start(that._xmpp, that._conversations, that._bubbles);
+                        return that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage);
                     }).then(() => {
                         return that._channels.start(that._xmpp, that._rest);
                     }).then(() => {
