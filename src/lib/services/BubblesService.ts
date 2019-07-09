@@ -439,12 +439,12 @@ class Bubbles {
      */
     leaveBubble(bubble) {
 
-        var that = this;
+        let that = this;
 
         return new Promise(function(resolve, reject) {
             that._logger.log("debug", LOG_ID + "(leaveBubble) _entering_");
 
-            var otherModerator = null;
+            let otherModerator = null;
 
             if (bubble) {
                 otherModerator = bubble.users.find((user) => {

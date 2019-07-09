@@ -292,7 +292,7 @@ class FileStorage {
     uploadFileToBubble(bubble, file, strMessage) {
         let that = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(async function(resolve, reject) {
 
             if (!bubble) {
                 let errorMessage = "Parameter 'bubble' is missing or null";
@@ -311,7 +311,9 @@ class FileStorage {
                     label: "Parameter 'file' is missing or null"
                 }); // */
             } else {
-                var conversation = that._conversations.getConversationByBubbleId(bubble.id); // getConversationByRoomDbId(bubble.dbId);
+                let conversation = await that._conversations.getConversationByBubbleId(bubble.id); // getConversationByRoomDbId(bubble.dbId);
+                that.logger.log("debug", LOG_ID + "(uploadFileToBubble) ::  conversation : ", conversation, " by the bubble id ", bubble.id);
+                that.logger.log("debug", LOG_ID + "(uploadFileToBubble) ::  conversation.type : ", conversation.type, " vs Conversation.Type.ROOM ", Conversation.Type.ROOM);
 
                 if (!conversation) {
                     let errorMessage = "Parameter 'bubble' don't have a conversation";
@@ -330,7 +332,7 @@ class FileStorage {
                         label: "Parameter 'conversation' is not a bubble conversation"
                     }); // */
                 } else {
-                    that.logger.log("debug", LOG_ID + "(uploadFileToBubble) ::  Try to add a file " + file + " to the bubble " + bubble.dbId);
+                    that.logger.log("debug", LOG_ID + "(uploadFileToBubble) ::  Try to add a file " + file + " to the bubble " + bubble.id);
                     that._addFileToConversation(conversation, file, strMessage).then(function(msg) {
                         that.logger.log("info", LOG_ID + "(uploadFileToBubble) ::  file added");
                         resolve(msg);
