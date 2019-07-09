@@ -133,9 +133,12 @@ get(url, headers, params): Promise<any> {
 
                 headers["user-agent"] = USER_AGENT;
 
+                //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+                let urlEncoded = that.serverURL + url;
+
                 if (headers.Accept && headers.Accept.indexOf("json") > -1) {
                     let request = Request({
-                        url: that.serverURL + url,
+                        url: urlEncoded,
                         method: "GET",
                         headers: headers,
                         params: params,
@@ -274,8 +277,10 @@ get(url, headers, params): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(post) url", that.serverURL + url, data);
+            that.logger.log("info", LOG_ID + "(post) url", urlEncoded, data);
 
             headers["user-agent"] = USER_AGENT;
             let body = data;
@@ -293,7 +298,7 @@ get(url, headers, params): Promise<any> {
                 method: 'POST',
                 preambleCRLF: true,
                 postambleCRLF: true,
-                url: that.serverURL + url,
+                url: urlEncoded,
                 headers: headers,
                 proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                 body: body
@@ -374,8 +379,10 @@ get(url, headers, params): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(put) url", that.serverURL + url, data);
+            that.logger.log("info", LOG_ID + "(put) url", urlEncoded, data);
 
             headers["user-agent"] = USER_AGENT;
             let body = data;
@@ -393,7 +400,7 @@ get(url, headers, params): Promise<any> {
                     method: 'PUT',
                     preambleCRLF: true,
                     postambleCRLF: true,
-                    url: that.serverURL + url,
+                    url: urlEncoded,
                     headers: headers,
                     proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                     body: body
@@ -475,16 +482,18 @@ get(url, headers, params): Promise<any> {
         return new Promise(function(resolve, reject) {
 
             //that.logger.log("info", LOG_ID + "(putBuffer) option url", that.serverURL + url);
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = that.serverURL + url;
 
             headers["user-agent"] = USER_AGENT;
 
-            that.logger.log("info", LOG_ID + "(putBuffer) url", that.serverURL + url);
+            that.logger.log("info", LOG_ID + "(putBuffer) url", urlEncoded);
 
              Request({
                      method: 'PUT',
                      preambleCRLF: true,
                      postambleCRLF: true,
-                     url: that.serverURL + url,
+                     url: urlEncoded,
                      headers: headers,
                      proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                      body: buffer
@@ -505,13 +514,15 @@ get(url, headers, params): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(put) url", that.serverURL + url, " stream fileName : ", stream.fileName);
+            that.logger.log("info", LOG_ID + "(put) url", urlEncoded, " stream fileName : ", stream.fileName);
 
             headers["user-agent"] = USER_AGENT;
 
             let request = Request.put({
-                url: that.serverURL + url,
+                url: urlEncoded,
                     headers: headers,
                     proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
             }).on("end", () => {
@@ -531,13 +542,15 @@ get(url, headers, params): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(delete) url", that.serverURL + url);
+            that.logger.log("info", LOG_ID + "(delete) url", urlEncoded);
 
             headers["user-agent"] = USER_AGENT;
 
             let request = Request.delete({
-                url: that.serverURL + url,
+                url: urlEncoded,
                 headers: headers,
                 proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
             }, (error, response, body) => {
