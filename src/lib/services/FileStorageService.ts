@@ -2,6 +2,8 @@
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 
+const fileapi = require("file-api");
+
 export {};
 
 const fileViewerElementFactory = require("../common/models/FileViewer").FileViewerElementFactory;
@@ -161,24 +163,30 @@ class FileStorage {
 
                 // Allow to pass a file path (for test purpose)
                 if ( typeof (file) === "string") {
-                    let errorMessage = "The file parameter must be an object which describe the file with the porperties : { name, path, type, size }";
-                    that.logger.log("error", LOG_ID + "(_addFileToConversation) " + errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-                    /*let xhr = new XMLHttpRequest();
-                    xhr.open("GET", file, true);
-                    xhr.onreadystatechange = function() {
-                        if (xhr.readyState === XMLHttpRequest.DONE) {
-                            var blob = xhr.response;
-                            var _file = new File([blob], file.replace(/^.*[\\\/]/, ""), {
-                                type: "",
-                                lastModified: Date.now()
-                            });
-                            _resolve(_file);
+                    let fileObj = new fileapi.File({
+
+                            //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                            "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
+                            //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+
+                            //            buffer: Node.Buffer,          // use this Buffer instead of reading file
+                            //            stream: Node.ReadStream,      // use this ReadStream instead of reading file
+                            //            name: "SomeAwesomeFile.txt",  // optional when using `path`
+                            // must be supplied when using `Node.Buffer` or `Node.ReadStream`
+                            //            type: "text/plain",           // generated based on the extension of `name` or `path`
+
+                            "jsdom": true,                  // be DoM-like and immediately get `size` and `lastModifiedDate`
+                                                          // [default: false]
+                            "async": false                  // use `fs.stat` instead of `fs.statSync` for getting
+                            // the `jsdom` info
+                            // [default: false]
+                            //   lastModifiedDate: fileStat.mtime.toISOString()
+                            //   size: fileStat.size || Buffer.length
                         }
-                    };
-                    xhr.responseType = "blob";
-                    xhr.send();
-                    // */
+                    );
+
+
+                    _resolve (fileObj);
                 } else {
                     _resolve(file);
                 }

@@ -22,6 +22,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 **API Changes**
 
 -   Add correlatorData when makecall (TelephonyService::makeCall, TelephonyService::makeConsultationCall).
+-   Update in fileStorage::uploadFileToConversation method to upload a file by an simple file path in file parameter or by the object description of the file (previous existing behavior).
 
 **Others Changes**
 

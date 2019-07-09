@@ -32,6 +32,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add Favorites events (rainbow_onfavoritecreated, rainbow_onfavoritedeleted)
 -   Add Favorites doc
 -   Add conversations::deleteMessage to delete a message by sending an empty string in a correctedMessage
+-   Update in fileStorage::uploadFileToConversation method to upload a file by an simple file path in file parameter or by the object description of the file (previous existing behavior).
 
 ## [1.57.0] - 2018-06-18
 -   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 
