@@ -1938,6 +1938,27 @@ class RESTService {
         });
     }
 
+    getAllUsers(format = "small", offset = 0, limit = 100, sortField="loginEmail") {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+            that.logger.log("debug", LOG_ID + "(getAllUsers) _entering_", that.account.roles);
+
+            that.http.get("/api/rainbow/admin/v1.0/users?format=" + format + "&limit=" + limit + "&offset=" + offset + "&sortField=" + sortField + "&sortOrder=-1", that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(getAllUsers) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllUsers) REST get all companies :", json.data);
+                that.logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getAllUsers) error", err);
+                that.logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
+                reject(err);
+            });
+            that.logger.log("info", LOG_ID + "(getAllUsers) after sending the request");
+        });
+    }
+
     getContactInfos(userId) {
         let that = this;
 

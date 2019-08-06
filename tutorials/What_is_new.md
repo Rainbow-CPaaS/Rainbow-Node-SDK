@@ -25,7 +25,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 **Others Changes**
 
 -   Fix : 
--   Add 
+-   Add in AdminService the method to get all users for a given admin
 
 
 ### SDK for Node.JS 1.58 - July 2019

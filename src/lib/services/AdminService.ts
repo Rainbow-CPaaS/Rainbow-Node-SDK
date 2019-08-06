@@ -564,7 +564,6 @@ class Admin {
      * @instance
      * @description
      *      Get all companies for a given admin
-     * @param {string} userId The id of the user
      * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -697,7 +696,52 @@ class Admin {
         });
     }
 
-      /**
+    /**
+     * @public
+     * @method getAllUsers
+     * @instance
+     * @description
+     *      Get all users for a given admin
+     * @memberof Admin
+     * @async
+     * @param {string} format Allows to retrieve more or less user details in response.
+     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
+     *   full: all user fields
+     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
+     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
+     * @category async
+     */
+    getAllUsers(format = "small", offset = 0, limit = 100, sortField="loginEmail") {
+        let that = this;
+
+        this._logger.log("debug", LOG_ID + "(getAllUsers) _entering_");
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getAllUsers(format, offset, limit, sortField).then((users : any) => {
+                    that._logger.log("debug", LOG_ID + "(getAllUsers) Successfully get all companies");
+                    that._logger.log("debug", LOG_ID + "(getAllUsers) : companies values : ", users.data);
+                    resolve(users.data);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getAllUsers) ErrorManager when get All companies");
+                    reject(err);
+                });
+
+                that._logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
+
+            } catch (err) {
+                that._logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
+                reject(err);
+            }
+        });
+    }
+
+    /**
      * @public
      * @method getContactInfos
      * @instance
