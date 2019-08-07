@@ -783,6 +783,9 @@ class Bubbles {
                              */
                             
                             that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
+                            // We send the result here, because sometimes the xmpp server does not send us the resulting event.
+                            // So this event change will be sent twice time.
+                            that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
                             resolve(bubble);
                         });
                     }).catch(function(err) {

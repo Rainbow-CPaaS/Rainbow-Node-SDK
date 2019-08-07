@@ -69,10 +69,10 @@ class Core {
 
     constructor(options) {
 
-        var self = this;
+        let self = this;
 
         this._signin = (forceStopXMPP) => {
-            var that = this;
+            let that = this;
             that.logger.log("debug", LOG_ID + "(signin) _entering_");
 
             let json = null;
@@ -105,7 +105,7 @@ class Core {
         };
 
         this._retrieveInformation = (useCLIMode) => {
-            var that = this;
+            let that = this;
             that.logger.log("debug", LOG_ID + "(_retrieveInformation) useCLIMode : ", useCLIMode);
             return new Promise((resolve, reject) => {
 
@@ -151,6 +151,7 @@ class Core {
                         }).then(() => {
                             resolve();
                         }).catch((err) => {
+                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                             reject(err);
                         });
                 }
@@ -172,7 +173,7 @@ class Core {
         };
 
         this._tokenSurvey = () => {
-            var that = this;
+            let that = this;
             that.logger.log("debug", LOG_ID +  "(tokenSurvey) _enter_");
 
             if (that.options.useCLIMode) {
@@ -190,14 +191,14 @@ class Core {
         };
 
         // Initialize the logger
-        var loggerModule = new Logger(options);
+        let loggerModule = new Logger(options);
         this.logger = loggerModule.log;
         this.logger.log("debug", LOG_ID + "(constructor) _entering_");
         this.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
         this.logger.log("info", LOG_ID + " (constructor) SDK version: " + packageVersion.version);
         this.logger.log("info", LOG_ID + " (constructor) Node version: " + process.version);
-        for (var key in process.versions) {
+        for (let key in process.versions) {
             this.logger.log("info", LOG_ID + " (constructor) " + key + " version: " + process.versions[key]);
         }
         this.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
@@ -224,13 +225,13 @@ class Core {
         });
 
         this._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
-            var that = this;
+            let that = this;
             //todo, check that REST part is ok too
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
                 return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
-                    return self._retrieveInformation();
+                    return self._retrieveInformation(that.options.useCLIMode);
                 });
             }).then((data3) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
@@ -313,7 +314,7 @@ class Core {
     }
 
     start(useCLIMode) {
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(start) _entering_");
 
@@ -375,7 +376,7 @@ class Core {
                             reject(err);
                         });
                     }).catch((err) => {
-                        that.logger.log("error", LOG_ID + "(start) error", err);
+                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error during bulding services instances : ", err);
                         that.logger.log("debug", LOG_ID + "(start) _exiting_");
                         reject(err);
                     });
@@ -391,10 +392,10 @@ class Core {
 
     signin(forceStopXMPP) {
 
-        var that = this;
+        let that = this;
         return new Promise(function (resolve, reject) {
 
-            var json = null;
+            let json = null;
 
             return that._signin(forceStopXMPP).then(function (_json) {
                 json = _json;
@@ -413,7 +414,7 @@ class Core {
     }
 
     stop() {
-        var that = this;
+        let that = this;
         this.logger.log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise(function (resolve, reject) {
