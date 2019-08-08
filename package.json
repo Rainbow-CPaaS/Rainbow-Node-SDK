@@ -65,16 +65,16 @@
     "node-mailjet": "^3.3.1",
     "nodemon": "^1.19.1",
     "nyc": "^11.9.0",
-    "puppeteer": "^1.17.0",
+    "puppeteer": "^1.19.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
     "sitemap": "^1.13.0",
-    "typescript": "^3.5.1",
+    "typescript": "^3.5.3",
     "yamljs": "^0.3.0"
   },
   "dependencies": {
-    "@types/node": "^10.14.9",
-    "@xmpp/client": "^0.7.3",
-    "@xmpp/xml": "^0.7.0",
+    "@types/node": "^10.14.15",
+    "@xmpp/client": "^0.7.4",
+    "@xmpp/xml": "^0.7.4",
     "backoff": "^2.5.0",
     "body-parser": "^1.19.0",
     "btoa": "^1.2.1",
@@ -101,7 +101,7 @@
     "uuid": "^3.3.0",
     "uuid4": "1.0.0",
     "winston": "^3.2.1",
-    "winston-daily-rotate-file": "^3.9.0",
+    "winston-daily-rotate-file": "^3.10.0",
     "ws": "^6.2.1"
   }
 }
