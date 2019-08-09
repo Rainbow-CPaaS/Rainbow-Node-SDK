@@ -228,7 +228,8 @@ class Options {
 
         let optionsIM = {
             sendReadReceipt:config.im.sendReadReceipt,
-            messageMaxLength : 1024
+            messageMaxLength : 1024,
+            sendMessageToConnectedUser: false
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -239,6 +240,7 @@ class Options {
         }
 
         optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
+        optionsIM.sendMessageToConnectedUser = this._options.im.sendMessageToConnectedUser ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
 
         return optionsIM;
     }

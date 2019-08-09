@@ -53,7 +53,8 @@ module.exports = {
     },
     im: {
         sendReadReceipt: true,
-        messageMaxLength: 1024
+        messageMaxLength: 1024,
+        sendMessageToConnectedUser: false
     },
     mode:"xmpp",
     debug:true,

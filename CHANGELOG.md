@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.59.0] - 2018-08-xx
 -   Add in AdminService the method to get all users for a given admin
 -   Update method BubblesService::unsubscribeContactFromBubble to send an event when the request to unsubscribe a user from a bubble succeed at end of the microservice call. Because sometimes the xmpp server does not send us the resulting event. So this event change will be sent twice time.
+-   Add options::im::sendMessageToConnectedUser option to allow SDK to send a message to it self.
 
 ## [1.58.0] - 2018-07-10
 -   Fix : event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.

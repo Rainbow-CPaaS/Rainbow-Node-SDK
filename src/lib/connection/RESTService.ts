@@ -1945,7 +1945,7 @@ class RESTService {
 
             that.logger.log("debug", LOG_ID + "(getAllUsers) _entering_", that.account.roles);
 
-            that.http.get("/api/rainbow/admin/v1.0/users?format=" + format + "&limit=" + limit + "&offset=" + offset + "&sortField=" + sortField + "&sortOrder=-1", that.getRequestHeader(), undefined).then(function(json) {
+            that.http.get("/api/rainbow/admin/v1.0/users?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(getAllUsers) successfull");
                 that.logger.log("internal", LOG_ID + "(getAllUsers) REST get all companies :", json.data);
                 that.logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");

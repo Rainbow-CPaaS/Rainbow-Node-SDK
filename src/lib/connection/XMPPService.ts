@@ -121,6 +121,7 @@ class XMPPService {
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
 	private xmppUtils : XMPPUTils;
+    private shouldSendMessageToConnectedUser: any;
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -138,6 +139,7 @@ class XMPPService {
         this.logger = _logger;
         this.proxy = _proxy;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
+        this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.useXMPP = true;
         this.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
         this.isReconnecting = false;
@@ -1254,6 +1256,10 @@ class XMPPService {
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
 
+            if (!that.shouldSendMessageToConnectedUser && that.jid_im == jid) {
+                return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
+            }
+
             // Remove resource if exists
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
@@ -1329,6 +1335,11 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendChatMessageToBubble) _entering_");
         if (that.useXMPP) {
+
+            if (!that.shouldSendMessageToConnectedUser && that.jid_im == jid) {
+                return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
+            }
+
             let id = that.xmppUtils.getUniqueMessageId();
 // from="room_85a525f559a14b1d88de9c79d866233f@muc.vberder-all-in-one-dev-1.opentouch.cloud/2c1e9ac0f2254b94bb2d977be498423d@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.56.8_S28ZBemj"
 // from="room_17b2b86803b24bcd9ac70973bb311b9b@muc.vberder-all-in-one-dev-1.opentouch.cloud/2c1e9ac0f2254b94bb2d977be498423d@vberder-all-in-one-dev-1.opentouch.cloud/node_NWGWQN6V"
@@ -1524,6 +1535,10 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendChatExistingFSMessage) _entering_");
         if (that.useXMPP) {
+            if (!that.shouldSendMessageToConnectedUser && that.jid_im == jid) {
+                return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
+            }
+
             let id = that.xmppUtils.getUniqueMessageId();
 
             // Remove resource if exists
@@ -1589,6 +1604,11 @@ class XMPPService {
             .logger
             .log("debug", LOG_ID + "(sendChatExistingFSMessageToBubble) _entering_");
         if (that.useXMPP) {
+
+            if (!that.shouldSendMessageToConnectedUser && that.jid_im == jid) {
+                return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
+            }
+
             let id = that.xmppUtils.getUniqueMessageId();
 
             // Remove resource if exists
