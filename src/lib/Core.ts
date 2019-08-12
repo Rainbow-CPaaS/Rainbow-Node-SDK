@@ -231,7 +231,7 @@ class Core {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
                 return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
-                    return self._retrieveInformation(that.options.useCLIMode);
+                    return self._retrieveInformation(self.options.useCLIMode);
                 });
             }).then((data3) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
