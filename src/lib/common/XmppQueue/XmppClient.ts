@@ -136,7 +136,7 @@ class XmppClient  {
             ).then(() => {
                 that.logger.log("debug", LOG_ID + "(send) sent");
             }).catch((errr)=> {
-                that.logger.log("error", LOG_ID + "(send) error in send promise");
+                that.logger.log("error", LOG_ID + "(send) error in send promise : ", errr);
                 throw errr;
             });
 
