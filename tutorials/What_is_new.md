@@ -4,7 +4,7 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
-### SDK for Node.JS 1.58 - August 2019
+### SDK for Node.JS 1.59 - August 2019
 
 ---
 
@@ -24,8 +24,10 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   Fix : 
 -   Add in AdminService the method to get all users for a given admin
+-   Update method BubblesService::unsubscribeContactFromBubble to send an event when the request to unsubscribe a user from a bubble succeed at end of the microservice call. Because sometimes the xmpp server does not send us the resulting event. So this event change will be sent twice time.
+-   Add options::im::sendMessageToConnectedUser option to allow SDK to send a message to it self.
+-   Add logs when an error occurred in XmppClient::send.
 
 
 ### SDK for Node.JS 1.58 - July 2019
