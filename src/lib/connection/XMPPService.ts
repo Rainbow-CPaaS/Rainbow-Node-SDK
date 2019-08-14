@@ -1544,7 +1544,8 @@ class XMPPService {
             // Remove resource if exists
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
-            let url = this.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
+            //let url = this.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
+            let url = "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
             let stanza = xml("message", {
                    // "from": this.fullJid,
@@ -1614,7 +1615,8 @@ class XMPPService {
             // Remove resource if exists
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
-            let url = this.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
+            //let url = this.host  + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
+            let url = "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
             let stanza = xml("message", {
                     //"from": this.fullJid,

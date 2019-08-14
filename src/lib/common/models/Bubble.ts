@@ -159,6 +159,14 @@ class Bubble {
         return false;
     }
 
+    getStatusForUser(userId) {
+        let that = this;
+        let user = that.users.find((user) => {
+            return  user.userId === userId ;
+        });
+        return user ? user.status : "none";
+    }
+
     updateBubble (data) {
         let that = this;
         if (data) {

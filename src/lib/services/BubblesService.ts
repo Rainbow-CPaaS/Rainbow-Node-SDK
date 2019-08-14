@@ -445,11 +445,14 @@ class Bubbles {
             that._logger.log("debug", LOG_ID + "(leaveBubble) _entering_");
 
             let otherModerator = null;
+            let userStatus = "none";
 
             if (bubble) {
                 otherModerator = bubble.users.find((user) => {
                     return user.privilege === "moderator" && user.status === "accepted" && user.userId !== that._rest.userId;
                 });
+
+                userStatus = bubble.getStatusForUser(that._rest.userId);
             }
 
             if (!bubble) {
@@ -464,7 +467,7 @@ class Bubbles {
                 return;
             } 
 
-            that._rest.leaveBubble(bubble.id).then(function(json) {
+            that._rest.leaveBubble(bubble.id, userStatus).then(function(json) {
                 that._logger.log("info", LOG_ID + "(leaveBubble) leave successfull");
                 that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                 that._logger.log("debug", LOG_ID + "(leaveBubble) _exiting_");
@@ -476,6 +479,25 @@ class Bubbles {
                 reject(err);
             });
         });
+    }
+
+    /**
+     * @public
+     * @method getStatusForConnectedUserInBubble
+     * @instance
+     * @param {Bubble} bubble           The bubble
+     * @memberof Bubbles
+     * @description
+     *  Get the status of the connected user in a bubble
+     * @async
+     * @return {Promise<Bubble, ErrorManager>}
+     */
+    getStatusForConnectedUserInBubble(bubble) {
+        let that = this;
+        let user = bubble.users.find((user) => {
+            return  user.userId === that._rest.userId ;
+        });
+        return user ? user.status : "none";
     }
 
     /**

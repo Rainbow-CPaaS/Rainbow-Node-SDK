@@ -164,7 +164,7 @@ class IM {
      * @memberof IM
      * @return {Message} The message if found or null
      */
-    getMessageFromBubbleById(bubble, strMessageId) {
+    async getMessageFromBubbleById(bubble, strMessageId) {
         let that = this;
 
         if (!bubble) {
@@ -175,17 +175,17 @@ class IM {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
-        var conversation = that
-            ._conversations
-            .getConversationByBubbleId(bubble.id);
+        let conversation = await that._conversations.getConversationByBubbleId(bubble.id);
 
         if (!conversation) {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' don't have a conversation"});
         }
 
-        if (conversation.type !== Conversation.Type.BUBBLE) {
+        if (conversation.type !== Conversation.Type.ROOM) {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is not a bubble conversation"});
         }
+
+        this.logger.log("internal", LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
 
         return conversation.getMessageById(strMessageId);
     }
