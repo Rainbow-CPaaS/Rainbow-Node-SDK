@@ -494,6 +494,12 @@ class Bubbles {
      */
     getStatusForConnectedUserInBubble(bubble) {
         let that = this;
+        if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter", bubble);
+            that._logger.log("debug", LOG_ID + "(getStatusForConnectedUserInBubble) _exiting_");
+            //reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            return "none";
+        }
         let user = bubble.users.find((user) => {
             return  user.userId === that._rest.userId ;
         });

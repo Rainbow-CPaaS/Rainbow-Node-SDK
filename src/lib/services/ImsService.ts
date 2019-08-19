@@ -142,6 +142,8 @@ class IM {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
+        that.logger.log("internal", LOG_ID + "(getMessageFromConversationById) conversation : ", conversation, ", strMessageId : ", strMessageId);
+
         let message = conversation.getMessageById(strMessageId);
 
         // Add FileDescriptor if needed
@@ -185,9 +187,15 @@ class IM {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is not a bubble conversation"});
         }
 
-        this.logger.log("internal", LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
+        that.logger.log("internal", LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
 
-        return conversation.getMessageById(strMessageId);
+        let message =  conversation.getMessageById(strMessageId);
+
+        if (message && message.oob && message.oob.url) {
+            message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1));
+        }
+
+        return message;
     }
 
     /**

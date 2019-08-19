@@ -12,6 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix file url in XMPPService::sendChatExistingFSMessage and XMPPService::sendChatExistingFSMessageToBubble methods
 -   Add method BubblesService::getStatusForConnectedUserInBubble to Get the status of the connected user in a bubble
 -   Fix ImsService::getMessageFromBubbleById method
+-   Add shortFileDescriptor property in message return by ImsService::getMessageFromBubbleById method
 
 ## [1.59.0] - 2018-08-12
 -   Add in AdminService the method to get all users for a given admin
