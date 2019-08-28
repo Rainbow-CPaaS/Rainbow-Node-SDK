@@ -4,6 +4,35 @@
 
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
+
+
+### SDK for Node.JS 1.60 - August 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 12. This version of SDK Node.js is  compliant with this LTS active version and version >= 10.x. 
+Consequently, you need to update your Node.js version to 10.x/12.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Update the "leaveBubble" method to unsubscribe form a bubble if not already unsubscribed the connected user. Else delete it from bubble.
+
+**Others Changes**
+
+-   Add method getStatusForUser in Bubble class to get the status of a user in the bubble
+-   Fix file url in XMPPService::sendChatExistingFSMessage and XMPPService::sendChatExistingFSMessageToBubble methods
+-   Add method BubblesService::getStatusForConnectedUserInBubble to Get the status of the connected user in a bubble
+-   Fix ImsService::getMessageFromBubbleById method
+-   Add shortFileDescriptor property in message return by ImsService::getMessageFromBubbleById method
+
+
 ### SDK for Node.JS 1.59 - August 2019
 
 ---

@@ -6,9 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.60.0] - 2018-08-xx
+## [1.60.0] - 2018-08-28
 -   Add method getStatusForUser in Bubble class to get the status of a user in the bubble
--   Update the "leaveBubble" method to unsubscribe form a bubble if not alreadyu unsubscribed the connected user. Else delete it from bubble.
+-   Update the "leaveBubble" method to unsubscribe form a bubble if not already unsubscribed the connected user. Else delete it from bubble.
 -   Fix file url in XMPPService::sendChatExistingFSMessage and XMPPService::sendChatExistingFSMessageToBubble methods
 -   Add method BubblesService::getStatusForConnectedUserInBubble to Get the status of the connected user in a bubble
 -   Fix ImsService::getMessageFromBubbleById method
