@@ -12,8 +12,8 @@ Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 12. This version of SDK Node.js is  compliant with this LTS active version and version >= 10.x. 
-Consequently, you need to update your Node.js version to 10.x/12.x in order to use this release of the SDK Node.js.
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
 **API Breaking Changes**

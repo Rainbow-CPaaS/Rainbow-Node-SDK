@@ -67,7 +67,7 @@
     "nyc": "^14.1.1",
     "puppeteer": "^1.19.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
-    "sitemap": "^4.1.1",
+    "sitemap": "^1.13.0",
     "typescript": "^3.5.3",
     "yamljs": "^0.3.0"
   },
