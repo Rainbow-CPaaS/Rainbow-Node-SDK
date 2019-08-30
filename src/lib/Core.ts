@@ -229,7 +229,7 @@ class Core {
             //todo, check that REST part is ok too
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
-                self.logger.log("internnal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
+                self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
                 return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
                     return self._retrieveInformation(self.options.useCLIMode);

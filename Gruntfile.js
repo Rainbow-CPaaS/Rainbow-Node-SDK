@@ -59,10 +59,11 @@ module.exports = function(grunt) {
     removedebugcode: {
         all: {
             options: {
-                singleline: true,
-                multiline: true
+                singleline: false,
+                multiline: false,
+                debugcode: true
             },
-            src: ['lib/*.js']
+            src: ['lib/**/*.js']
         }
     },
 
@@ -181,6 +182,7 @@ module.exports = function(grunt) {
     }
 });
 
+  grunt.loadTasks("tasks");
   grunt.loadNpmTasks("grunt-jsdoc-to-markdown");
   grunt.loadNpmTasks("grunt-eslint");
   grunt.loadNpmTasks("grunt-contrib-clean");
@@ -192,8 +194,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
-  grunt.loadNpmTasks("tasks");
-  grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+
+  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+
+    grunt.registerTask("default", ["preparecode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+//    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };
