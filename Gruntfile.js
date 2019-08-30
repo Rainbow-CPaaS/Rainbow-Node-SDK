@@ -38,7 +38,7 @@ module.exports = function(grunt) {
     },
 
     eslint: {
-        all: ["lib/**/*.js", "index.js", "tests/**/*.js"],
+        all: ["lib/**/*.js", "index.js", "tests/**/*.js", "tasks/*.js"],
         watched: ["Gruntfile.js"],
         options: {
             configFile: ".eslintrc",
@@ -53,6 +53,17 @@ module.exports = function(grunt) {
                 format: "checkstyle"
             }
         },
+    },
+
+      // Configuration to be run (and then tested).
+    removedebugcode: {
+        all: {
+            options: {
+                singleline: true,
+                multiline: true
+            },
+            src: ['lib/*.js']
+        }
     },
 
     watch: {
@@ -181,7 +192,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
-  grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.loadNpmTasks("tasks");
+  grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };

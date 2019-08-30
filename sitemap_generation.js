@@ -30,13 +30,13 @@ try {
         hostname: (args.length && args[0])
             ? args[0]
             : hostname,
-        level : "silent"
+        level :  'silent'
     });
 
     appendUrl(index, "", (value) => {
         sitemap.add({
             url: value.replace(/(ref:)?(.*).md/g, pathPrefix + "$2")
-        }, "silent");
+        },  'silent');
     });
 
     sitemap.toXML(function (err, xml) {

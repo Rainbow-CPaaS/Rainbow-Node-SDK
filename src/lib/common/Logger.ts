@@ -241,7 +241,7 @@ class Logger {
             if (level === "internal" ) {
                 if (logInternals === true) {
                     level = "debug";
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + argumentsToString(arguments)]);
+                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.colors.italic(that.colors.red("FORBIDDEN DATA IN PROD ENV !!! : ")) + argumentsToString(arguments)]);
                 }
             } else {
                 if (logInternals) {
