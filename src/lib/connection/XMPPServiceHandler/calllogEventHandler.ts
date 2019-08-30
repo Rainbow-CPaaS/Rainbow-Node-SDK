@@ -354,7 +354,8 @@ class CallLogEventHandler extends GenericHandler {
 
         if (otherParticipantJid || otherParticipantNumber) {
             this.contactService.getOrCreateContact(otherParticipantJid, otherParticipantNumber).then((contact) => {
-                    that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + "  Number:" + otherParticipantNumber + " => contact retrieved (temp:" + contact.temp + ")");
+                that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + " => contact retrieved (temp:" + contact.temp + ")");
+                that.logger.log("internal", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + "  Number:" + otherParticipantNumber + " => contact retrieved (temp:" + contact.temp + ")");
                     if (!conference && !otherParticipantJid && contact.temp) { //only in case of temp contact
                         //find Xnames from directories
                         if (foundidentity && foundidentity.length) {
@@ -369,7 +370,7 @@ class CallLogEventHandler extends GenericHandler {
                             }
                             if (identityFirstName.length || identityLastName.length) {
                                 //update contact
-                                that.logger.log("debug", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  xNames updated from directories for contact " + contact.id);
+                                that.logger.log("internal", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  xNames updated from directories for contact " + contact.id);
                                 contact.updateName(identityFirstName, identityLastName);
                             }
                         } else { //try to find in outlook
@@ -418,7 +419,8 @@ class CallLogEventHandler extends GenericHandler {
                     if (!that.logAlreadyExists(callLog) && state !== "failed" && state !== "ongoing") {
                         that.calllogs.callLogs.push(callLog);
                     } else {
-                        that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore call log with id: " + id + ", state: " + state);
+                        that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore call log, state: " + state);
+                        that.logger.log("internal", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore call log with id: " + id + ", state: " + state);
                     }
 
                     that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage success");
@@ -426,7 +428,8 @@ class CallLogEventHandler extends GenericHandler {
                     defered.resolve(callLog);
                 })
                 .catch(function (error) {
-                    that.logger.log("error", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error " + error);
+                    that.logger.log("error", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error ");
+                    that.logger.log("internalerror", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error : " + error);
                     defered.resolve();
                 });
         } else {

@@ -2122,7 +2122,8 @@ class XMPPService {
 
                 this.logger.log("info", LOG_ID + "(getTelephonyState) send - 'iq get'", stanza.root().toString());
             this.xmppClient.sendIq(stanza).then((data)=> {
-                this.logger.log("info", LOG_ID + "(getTelephonyState) received - 'iq result'", data);
+                this.logger.log("info", LOG_ID + "(getTelephonyState) received - 'iq result'");
+                this.logger.log("internal", LOG_ID + "(getTelephonyState) received - 'iq result'", data);
 
 
                 // Handle eventual error message

@@ -238,10 +238,14 @@ class Logger {
         }
 
         this._logger.log = function (level) {
-            if (level === "internal" ) {
+            if (level === "internal" || level === "internalerror") {
                 if (logInternals === true) {
-                    level = "debug";
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.colors.italic(that.colors.red("FORBIDDEN DATA IN PROD ENV !!! : ")) + argumentsToString(arguments)]);
+                    level = ( level === "internal" ) ? "debug" : "error";
+                    let datatolog =  that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry.")) ;
+                    // dev-code //
+                    datatolog = that.colors.italic(that.colors.red("DATA HIDDEN IN PROD ENV !!! : ")) + argumentsToString(arguments) ;
+                    // end-dev-code //
+                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
                 }
             } else {
                 if (logInternals) {

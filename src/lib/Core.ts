@@ -2,6 +2,7 @@
 import {XMPPService} from "./connection/XMPPService";
 import {RESTService} from "./connection/RESTService";
 import {HTTPService} from "./connection/HttpService";
+import {isNullOrUndefined} from "util";
 
 export {};
 
@@ -97,7 +98,8 @@ class Core {
                     that.logger.log("debug", LOG_ID + "(signin) _exiting_");
                     resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID + "(signin) can't signed-in", err);
+                    that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
+                    that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
                     that.logger.log("debug", LOG_ID + "(signin) _exiting_");
                     reject(err);
                 });
@@ -151,7 +153,8 @@ class Core {
                         }).then(() => {
                             resolve();
                         }).catch((err) => {
-                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
+                            that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                             reject(err);
                         });
                 }
@@ -231,40 +234,44 @@ class Core {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
                 return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
-                    self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
+                    self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
+                    self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
                     return self._retrieveInformation(self.options.useCLIMode);
                 });
             }).then((data3) => {
-                self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
+                self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed, change state to ready");
+                self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
                 self._stateManager.transitTo(self._stateManager.READY).then((data4) => {
-                    self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed : ", data4);
+                    self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed.");
+                    self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed : ", data4);
                 });
-            }).catch((err) => {
+            }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
                 if (!self._stateManager.isCONNECTED()) {
                     self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
-                    self._stateManager.transitTo(self._stateManager.FAILED);
+                    await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
-                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
+                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
+                    self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
                     // ErrorManager in REST micro service, so let say it is disconnected
-                    self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                    await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
                     // relaunch the REST connection.
                     self._eventEmitter.iee.emit("rainbow_xmppreconnected");
                 }
             });
         });
 
-        this._eventEmitter.iee.on("rainbow_xmppreconnectingattempt", function () {
-            self._stateManager.transitTo(self._stateManager.RECONNECTING);
+        this._eventEmitter.iee.on("rainbow_xmppreconnectingattempt", async function () {
+            await self._stateManager.transitTo(self._stateManager.RECONNECTING);
         });
 
-        this._eventEmitter.iee.on("rainbow_xmppdisconnect", function (xmppDisconnectInfos) {
+        this._eventEmitter.iee.on("rainbow_xmppdisconnect", async function (xmppDisconnectInfos) {
             if (xmppDisconnectInfos && xmppDisconnectInfos.reconnect) {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
-                self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
             }  else {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
-                self._stateManager.transitTo(self._stateManager.STOPPED);
+                await self._stateManager.transitTo(self._stateManager.STOPPED);
             }
         });
 
@@ -377,14 +384,16 @@ class Core {
                             reject(err);
                         });
                     }).catch((err) => {
-                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error during bulding services instances : ", err);
+                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error during bulding services instances.");
+                        that.logger.log("internalerror", LOG_ID + "(start) !!! CATCH Error during bulding services instances : ", err);
                         that.logger.log("debug", LOG_ID + "(start) _exiting_");
                         reject(err);
                     });
                 }
 
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(start)", err.message);
+                that.logger.log("error", LOG_ID + "(start)");
+                that.logger.log("internalerror", LOG_ID + "(start)", err.message);
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject(err);
             }

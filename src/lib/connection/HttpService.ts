@@ -128,7 +128,7 @@ get(url, headers, params): Promise<any> {
         return new Promise(function (resolve, reject) {
 
             try {
-                that.logger.log("info", LOG_ID + "(get) url", that.serverURL + url);
+                that.logger.log("info", LOG_ID + "(get) url", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g)) ;
                 that.logger.log("internal", LOG_ID + "(get) url", that.serverURL + url);
 
                 headers["user-agent"] = USER_AGENT;

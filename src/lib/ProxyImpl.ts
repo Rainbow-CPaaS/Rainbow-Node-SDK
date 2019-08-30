@@ -34,7 +34,8 @@ class ProxyImpl {
             this._proxyURL = this._protocol + "://" + this._host + ":" + this._port.toString();
         }
         if (this._activated) {
-            this._logger.log("info", LOG_ID + "(constructor) proxy configured : ", this._proxyURL);
+            this._logger.log("info", LOG_ID + "(constructor) proxy configured.");
+            this._logger.log("internal", LOG_ID + "(constructor) proxy configured : ", this._proxyURL);
         }
     }
 

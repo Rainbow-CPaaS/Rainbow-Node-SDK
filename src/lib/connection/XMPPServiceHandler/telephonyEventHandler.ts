@@ -824,7 +824,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** VOICE MESSAGE STUFF                                            **/
         /*********************************************************************/
         this.onVoiceMessageEvent = function (messagingElem) {
-            that.logger.log("debug", LOG_ID + "(onVoiceMessageEvent) _entering_", messagingElem);
+            that.logger.log("debug", LOG_ID + "(onVoiceMessageEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onVoiceMessageEvent) _entering_", messagingElem);
 
                         // Ignore forbidden requests
                         if (!that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_VOICE_MAIL)) {
