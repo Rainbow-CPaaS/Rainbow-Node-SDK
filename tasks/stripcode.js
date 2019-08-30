@@ -11,8 +11,9 @@ module.exports = function(grunt) {
         let singleLineComment = /^\s*\t*(\/\/)[^\n\r]*[\n\r]/gm;
         //let debugcode = /^.*debug.*$/g;
         let replaceCode = [];
-        let debugcode = /.*["|']debug["|'].*\r?\n/gm;
-        replaceCode[0] = debugcode;
+        //let debugcode = /.*["|']debug["|'].*\r?\n/gm;
+        replaceCode[0] = /.*["|']debug["|'].*\r?\n/gm;
+        replaceCode[1] = /.*["|']internal["|'].*\r?\n/gm;
 
         let countremovedcode = 0;
 
