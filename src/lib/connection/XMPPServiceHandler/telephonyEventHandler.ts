@@ -129,7 +129,7 @@ class TelephonyEventHandler extends GenericHandler {
                 that.logger.log("info", LOG_ID + "(onIqGetPbxAgentStatusReceived)  - send rainbow_onpbxagentstatusreceived 'agentStatus'", agentStatus);
                 that.eventEmitter.emit("rainbow_onpbxagentstatusreceived", agentStatus);
             }
-        }
+        };
 
 
         this.onMessageReceived = (msg, stanza) => {
@@ -160,7 +160,7 @@ class TelephonyEventHandler extends GenericHandler {
                     }
                 }
                 if (actionElemName) {
-                    that.logger.log("debug", LOG_ID + "(onMessageReceived) " + that.logger.colors.debug("-- event -- " + actionElemName));
+                    that.logger.log("debug", LOG_ID + "(onMessageReceived) ", that.logger.colors.debug("-- event -- ", actionElemName));
                     // Handle the event
                     switch (actionElemName) {
                         case "initiated" :
@@ -253,12 +253,13 @@ class TelephonyEventHandler extends GenericHandler {
                     // */
                     return true;
                 } else {
-                    that.logger.log("error", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children ", stanzaElem);
+                    that.logger.log("error", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children.");
+                    that.logger.log("internalerror", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children : ", stanzaElem);
                 }
             }
-            catch
-                (error) {
-                that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ", error);
+            catch (error) {
+                that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
+                that.logger.log("internalerror", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
                 //return true;
             }
 
@@ -271,8 +272,9 @@ class TelephonyEventHandler extends GenericHandler {
         /** INITIATED CALL STUFF                                           **/
         /*********************************************************************/
         this.onInitiatedEvent = function (initiatedElem) {
-            that.logger.log("debug", LOG_ID + "(onInitiatedEvent) _entering_", initiatedElem);
-            return this.getCall(initiatedElem)
+            that.logger.log("debug", LOG_ID + "(onInitiatedEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onInitiatedEvent) _entering_ : ", initiatedElem);
+            return that.getCall(initiatedElem)
                 .then(function (call) {
                     try {
                         /*if (call.status === Call.Status.QUEUED_INCOMING) {
@@ -285,14 +287,15 @@ class TelephonyEventHandler extends GenericHandler {
                         if (deviceState && deviceState === "LCI_INITIATED") {
                             call.setStatus(Call.Status.DIALING );
                             // Update call info
-                            that.logger.log("debug", LOG_ID + "(updateCallContact) send evt_internal_callupdated ", call);
+                            //that.logger.log("internal", LOG_ID + "(updateCallContact) send evt_internal_callupdated ", call);
                             that.eventEmitter.emit("evt_internal_callupdated", call);
                         }
                         return Promise.resolve();
                     }
                     catch (error) {
                         let errorMessage = "onInitiatedEvent -- " + error.message;
-                        that.logger.log("error", LOG_ID + "(onInitiatedEvent) Catch Error !!! " + errorMessage);
+                        that.logger.log("error", LOG_ID + "(onInitiatedEvent) Catch Error !!! " );
+                        that.logger.log("error", LOG_ID + "(onInitiatedEvent) Catch Error !!! : ", errorMessage);
                         return Promise.reject(new Error(errorMessage));
                     }
                 });
@@ -304,8 +307,9 @@ class TelephonyEventHandler extends GenericHandler {
         /** ORIGINATED CALL STUFF                                           **/
         /*********************************************************************/
         this.onOriginatedEvent = function (originatedElem) {
-            that.logger.log("debug", LOG_ID + "(onOriginatedEvent) _entering_", originatedElem);
-            return this.getCall(originatedElem)
+            that.logger.log("debug", LOG_ID + "(onOriginatedEvent) _entering_");
+            that.logger.log("debug", LOG_ID + "(onOriginatedEvent) _entering_ : ", originatedElem);
+            return that.getCall(originatedElem)
                 .then(function (call) {
                     try {
                         let jid = originatedElem.attr("endpointIm");
@@ -343,7 +347,8 @@ class TelephonyEventHandler extends GenericHandler {
                     }
                     catch (error) {
                         let errorMessage = "onOriginatedEvent -- " + error.message;
-                        that.logger.log("error", LOG_ID + "(onOriginatedEvent) Catch Error !!! " + errorMessage);
+                        that.logger.log("error", LOG_ID + "(onOriginatedEvent) Catch Error !!! " );
+                        that.logger.log("internalerror", LOG_ID + "(onOriginatedEvent) Catch Error !!! : ", errorMessage);
                         return Promise.reject(new Error(errorMessage));
                     }
                 });
@@ -356,6 +361,7 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         this.onDeliveredEvent = function (deliveredElem) {
             that.logger.log("debug", LOG_ID + "(onDeliveredEvent) _entering_", deliveredElem);
+            that.logger.log("internal", LOG_ID + "(onDeliveredEvent) _entering_ : ", deliveredElem);
             //let that = this;
             return that.getCall(deliveredElem).then(function (call) {
                 try {
@@ -372,14 +378,15 @@ class TelephonyEventHandler extends GenericHandler {
                     call.startDate = null;
                     call.vm = false;
 
-                    that.logger.log("debug", LOG_ID + "(onDeliveredEvent) call : ", call);
+                    that.logger.log("internal", LOG_ID + "(onDeliveredEvent) call : ", call);
 
                     // Update contact info if necessary
                     return that.updateCallContact(jid, phoneNumber, "delivered", call);
                 }
                 catch (error) {
                     let errorMessage = "onDeliveredEvent -- " + error.message;
-                    that.logger.log("error", LOG_ID + "(onDeliveredEvent) Catch Error !!! " + errorMessage);
+                    that.logger.log("error", LOG_ID + "(onDeliveredEvent) Catch Error !!! " );
+                    that.logger.log("internalerror", LOG_ID + "(onDeliveredEvent) Catch Error !!! : ", errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
             }); // */
@@ -390,7 +397,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** ESTABLISHED STUFF                                               **/
         /*********************************************************************/
         this.onEstablishedEvent = function (establishedElem) {
-            that.logger.log("debug", LOG_ID + "(onEstablishedEvent) _entering_", establishedElem);
+            that.logger.log("debug", LOG_ID + "(onEstablishedEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onEstablishedEvent) _entering_ : ", establishedElem);
             //let that = this;
             return that.getCall(establishedElem).then(function (call) {
                 try {
@@ -428,7 +436,7 @@ class TelephonyEventHandler extends GenericHandler {
                             call.setStatus(Call.Status.ACTIVE);
                             currentCalled = {contactPhoneNumber: phoneNumber, contact: contactRecovered};
                             call.setCurrentCalled(currentCalled);
-                            that.logger.log("debug", LOG_ID + "(onEstablishedEvent) send evt_internal_callupdated ", call);
+                            //that.logger.log("internal", LOG_ID + "(onEstablishedEvent) send evt_internal_callupdated ", call);
                             that.eventEmitter.emit("evt_internal_callupdated", call);
                             //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                         }
@@ -443,7 +451,7 @@ class TelephonyEventHandler extends GenericHandler {
                                     currentCalled = {contactPhoneNumber: phoneNumber, contact: contact};
                                     call.setCurrentCalled(currentCalled);
 //                                    $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                                    that.logger.log("debug", LOG_ID + "(onEstablishedEvent) send evt_internal_callupdated ", call);
+                                    //that.logger.log("internal", LOG_ID + "(onEstablishedEvent) send evt_internal_callupdated ", call);
                                     that.eventEmitter.emit("evt_internal_callupdated", call);
 
                                     return Promise.resolve();
@@ -454,7 +462,8 @@ class TelephonyEventHandler extends GenericHandler {
                 }
                 catch (error) {
                     let errorMessage = "onEstablishedEvent -- " + error.message;
-                    that.logger.log("error", LOG_ID + "(onEstablishedEvent) Catch Error!!! " + errorMessage);
+                    that.logger.log("error", LOG_ID + "(onEstablishedEvent) Catch Error!!! " );
+                    that.logger.log("internalerror", LOG_ID + "(onEstablishedEvent) Catch Error!!! : ", errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
             }); // */
@@ -464,10 +473,11 @@ class TelephonyEventHandler extends GenericHandler {
         /** RETRIEVE CALL STUFF                                             **/
         /*********************************************************************/
         this.onRetrieveCallEvent = function (retrieveElem) {
-            that.logger.log("debug", LOG_ID + "(onRetrieveCallEvent) _entering_", retrieveElem);
-             return this.getCall(retrieveElem).then(function (call) {
+            that.logger.log("debug", LOG_ID + "(onRetrieveCallEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onRetrieveCallEvent) _entering_ : ", retrieveElem);
+             return that.getCall(retrieveElem).then(function (call) {
                 call.setStatus(Call.Status.ACTIVE);
-                 that.logger.log("debug", LOG_ID + "(onRetrieveCallEvent) send evt_internal_callupdated ", call);
+                 //that.logger.log("internal", LOG_ID + "(onRetrieveCallEvent) send evt_internal_callupdated ", call);
                  that.eventEmitter.emit("evt_internal_callupdated", call);
                  //    $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
             });
@@ -478,7 +488,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** CLEAR CALL STUFF                                                **/
         /*********************************************************************/
         this.onClearCallEvent = function (clearElem) {
-            that.logger.log("debug", LOG_ID + "(onClearCallEvent) _entering_", clearElem);
+            that.logger.log("debug", LOG_ID + "(onClearCallEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onClearCallEvent) _entering_ : ", clearElem);
             //let that = this;
             return that.getCall(clearElem).then(async (call) => {
                 if (call.status !== Call.Status.ERROR) {
@@ -487,7 +498,7 @@ class TelephonyEventHandler extends GenericHandler {
                     let deviceState = clearElem.attr("deviceState");
                     call.cause = cause;
                     call.deviceState = deviceState;
-                    that.logger.log("debug", LOG_ID + "(onClearCallEvent) send evt_internal_callupdated ", call);
+                    //that.logger.log("internal", LOG_ID + "(onClearCallEvent) send evt_internal_callupdated ", call);
                     that.eventEmitter.emit("evt_internal_callupdated", call);
                     await that.telephonyService.clearCall(call);
 
@@ -500,7 +511,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** HOLD CALL STUFF                                                 **/
         /*********************************************************************/
         this.onHeldEvent = function (heldElem) {
-            that.logger.log("debug", LOG_ID + "(onHeldEvent) _entering_", heldElem);
+            that.logger.log("debug", LOG_ID + "(onHeldEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onHeldEvent) _entering_ : ", heldElem);
             return that.getCall(heldElem).then(function (call) {
                 try {
                     let connectionId = heldElem.attr("callId");
@@ -518,14 +530,15 @@ class TelephonyEventHandler extends GenericHandler {
                         call.setStatus(Call.Status.PUT_ON_HOLD);
                     }
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                    that.logger.log("debug", LOG_ID + "(onHeldEvent) send evt_internal_callupdated ", call);
+                    //that.logger.log("internal", LOG_ID + "(onHeldEvent) send evt_internal_callupdated ", call);
                     that.eventEmitter.emit("evt_internal_callupdated", call);
 
                     return Promise.resolve();
                 }
                 catch (error) {
                     let errorMessage = "onHeldEvent -- " + error.message;
-                    that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " + errorMessage);
+                    that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " );
+                    that.logger.log("internalerror", LOG_ID + "(onHeldEvent) Catch Error!!! : ", errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
             }); // */
@@ -535,7 +548,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** QUEUED STUFF                                                    **/
         /*********************************************************************/
         this.onQueuedEvent = function (queuedElem) {
-            that.logger.log("debug", LOG_ID + "(onQueuedEvent) _entering_", queuedElem);
+            that.logger.log("debug", LOG_ID + "(onQueuedEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onQueuedEvent) _entering_ : ", queuedElem);
             //let that = this;
             let cause = queuedElem.attr("cause");
 
@@ -564,7 +578,8 @@ class TelephonyEventHandler extends GenericHandler {
                 }
                 catch (error) {
                     let errorMessage = "onQueuedEvent -- " + error.message;
-                    that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " + errorMessage);
+                    that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " );
+                    that.logger.log("internalerror", LOG_ID + "(onHeldEvent) Catch Error!!! : ", errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
             });
@@ -575,7 +590,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** DIVERTED STUFF                                                  **/
         /*********************************************************************/
         this.onDivertedEvent = async (divertedElem) => {
-            that.logger.log("debug", LOG_ID + "(onDivertedEvent) _entering_", divertedElem);
+            that.logger.log("debug", LOG_ID + "(onDivertedEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onDivertedEvent) _entering_ : ", divertedElem);
             let oldConnectionId = divertedElem.attr("oldCallId");
             let oldCallId = Call.getIdFromConnectionId(oldConnectionId);
             let call = that.telephonyService.getCallFromCaches(oldCallId);
@@ -585,7 +601,7 @@ class TelephonyEventHandler extends GenericHandler {
             }
             await that.telephonyService.clearCall(call);
 //            $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-            that.logger.log("debug", LOG_ID + "(onDivertedEvent) send evt_internal_callupdated ", call);
+            //that.logger.log("internal", LOG_ID + "(onDivertedEvent) send evt_internal_callupdated ", call);
             that.eventEmitter.emit("evt_internal_callupdated", call);
 
             return Promise.resolve();
@@ -596,8 +612,9 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         /** TRANSFER STUFF                                                  **/
         /*********************************************************************/
-        this.onTransferEvent = function (transferElem) {
-            that.logger.log("debug", LOG_ID + "(onTransferEvent) _entering_", transferElem);
+        this.onTransferEvent = async function (transferElem) {
+            that.logger.log("debug", LOG_ID + "(onTransferEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onTransferEvent) _entering_ : ", transferElem);
             // let that = this;
             // Extract transfert call parameters
             let activeConnectionId = transferElem.attr("activeCallId");
@@ -618,18 +635,18 @@ class TelephonyEventHandler extends GenericHandler {
                 // Release both calls (active and held)
                 if (heldCall) {
                     heldCall.setStatus(Call.Status.UNKNOWN);
-                    that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", heldCall);
+                    //that.logger.log("internal", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", heldCall);
                     that.eventEmitter.emit("evt_internal_callupdated", heldCall);
-                    that.telephonyService.clearCall(heldCall);
+                    await that.telephonyService.clearCall(heldCall);
 
                 } else {
                     that.logger.log("debug", LOG_ID + "(onTransferEvent) no  heldCall found");
                 }
                 if (activeCall) {
                     activeCall.setStatus(Call.Status.UNKNOWN);
-                    that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
+                    //that.logger.log("internal", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
                     that.eventEmitter.emit("evt_internal_callupdated", activeCall);
-                    that.telephonyService.clearCall(activeCall);
+                    await that.telephonyService.clearCall(activeCall);
                 } else {
                     that.logger.log("debug", LOG_ID + "(onTransferEvent) no activeCall found");
                 }
@@ -651,9 +668,9 @@ class TelephonyEventHandler extends GenericHandler {
                     // Release current call
                     activeCall.setStatus(Call.Status.UNKNOWN);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", activeCall);
-                    that.logger.log("debug", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
+                    //that.logger.log("internal", LOG_ID + "(onTransferEvent) send evt_internal_callupdated ", activeCall);
                     that.eventEmitter.emit("evt_internal_callupdated", activeCall);
-                    that.telephonyService.clearCall(activeCall);
+                    await that.telephonyService.clearCall(activeCall);
                 } else {
                     that.logger.log("debug", LOG_ID + "(onTransferEvent) no activeCall found");
                 }
@@ -683,7 +700,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** CONFERENCE STUFF                                                **/
         /*********************************************************************/
         this.onConferenceEvent = function (conferencedElem) {
-            that.logger.log("debug", LOG_ID + "(onConferenceEvent) _entering_", conferencedElem);
+            that.logger.log("debug", LOG_ID + "(onConferenceEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onConferenceEvent) _entering_ : ", conferencedElem);
 
             //let that = this;
 
@@ -711,7 +729,7 @@ class TelephonyEventHandler extends GenericHandler {
             let confParticipantsPhoneNumbers = [];
 
             let participantsElmt = conferencedElem.getChildren("participant");
-            that.logger.log("debug", LOG_ID + "(onConferenceEvent) participantsElmt - ", participantsElmt);
+            that.logger.log("internal", LOG_ID + "(onConferenceEvent) participantsElmt - ", participantsElmt);
             participantsElmt.forEach(function (participantElem) {
                 //let participantElem = angular.element(this);
                 let endpointTel = participantElem.find("endpointTel").getText();
@@ -764,7 +782,8 @@ class TelephonyEventHandler extends GenericHandler {
                                         //});
                                 })
                                 .catch(function (error) {
-                                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) Impossible to get contact - " + error.message);
+                                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) Impossible to get contact - " );
+                                    that.logger.log("internaldebug", LOG_ID + "(onConferenceEvent) Impossible to get contact - : ", error.message);
                                     reject();
                                 });
                         }
@@ -778,26 +797,26 @@ class TelephonyEventHandler extends GenericHandler {
                     // Release previous calls
                     if (primaryOldCall) {
                         primaryOldCall.setStatus(Call.Status.UNKNOWN);
-                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) release primaryOldCall - ", primaryOldCall);
+                        that.logger.log("internal", LOG_ID + "(onConferenceEvent) release primaryOldCall - ", primaryOldCall);
                         primaryOldCall.setStatus(Call.Status.UNKNOWN);
                         //let cause = clearElem.attr("cause");
                         //let deviceState = clearElem.attr("deviceState");
                         //call.cause = cause;
                         //call.deviceState = deviceState;
-                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", primaryOldCall);
+                        //that.logger.log("internal", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", primaryOldCall);
                         that.eventEmitter.emit("evt_internal_callupdated", primaryOldCall);
                         await that.telephonyService.clearCall(primaryOldCall);
                         //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", primaryOldCall);
                     }
                     if (secondaryOldCall) {
                         secondaryOldCall.setStatus(Call.Status.UNKNOWN);
-                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) release secondaryOldCall - ", secondaryOldCall);
+                        that.logger.log("internal", LOG_ID + "(onConferenceEvent) release secondaryOldCall - ", secondaryOldCall);
                         secondaryOldCall.setStatus(Call.Status.UNKNOWN);
                         //let cause = clearElem.attr("cause");
                         //let deviceState = clearElem.attr("deviceState");
                         //call.cause = cause;
                         //call.deviceState = deviceState;
-                        that.logger.log("debug", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", secondaryOldCall);
+                        //that.logger.log("internal", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", secondaryOldCall);
                         that.eventEmitter.emit("evt_internal_callupdated", secondaryOldCall);
                         await that.telephonyService.clearCall(secondaryOldCall);
                         //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", secondaryOldCall);
@@ -811,9 +830,9 @@ class TelephonyEventHandler extends GenericHandler {
                     newConferenceCall.setCurrentCalled(currentCalled);
                     newConferenceCall.setStatus(Call.Status.ACTIVE);
                     newConferenceCall.setDeviceType();
-                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) create newConferenceCall - " , newConferenceCall);
-                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) create newConferenceCall - stored :" , that.telephonyService.getCallFromCache(newConferenceCall.id));
-                    that.logger.log("debug", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", newConferenceCall);
+                    that.logger.log("internal", LOG_ID + "(onConferenceEvent) create newConferenceCall - " , newConferenceCall);
+                    that.logger.log("internal", LOG_ID + "(onConferenceEvent) create newConferenceCall - stored :" , that.telephonyService.getCallFromCache(newConferenceCall.id));
+                    //that.logger.log("internal", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", newConferenceCall);
                     that.eventEmitter.emit("evt_internal_callupdated", newConferenceCall);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", newConferenceCall);
                 });
@@ -825,7 +844,7 @@ class TelephonyEventHandler extends GenericHandler {
         /*********************************************************************/
         this.onVoiceMessageEvent = function (messagingElem) {
             that.logger.log("debug", LOG_ID + "(onVoiceMessageEvent) _entering_");
-            that.logger.log("internal", LOG_ID + "(onVoiceMessageEvent) _entering_", messagingElem);
+            that.logger.log("internal", LOG_ID + "(onVoiceMessageEvent) _entering_ : ", messagingElem);
 
                         // Ignore forbidden requests
                         if (!that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_VOICE_MAIL)) {
@@ -838,11 +857,11 @@ class TelephonyEventHandler extends GenericHandler {
                         if (voiceMessageCounterValue) {
                             let ct = Number(voiceMessageCounterValue);
                             if (Number.isInteger(ct) && (ct >= 0)) {
-                                this.telephonyService.voiceMail.setVMCounter(ct);
-                                this.telephonyService.voiceMail.setVMFlag((ct > 0));
-                                this.telephonyService.voiceMail.setInfoMsg("");
+                                that.telephonyService.voiceMail.setVMCounter(ct);
+                                that.telephonyService.voiceMail.setVMFlag((ct > 0));
+                                that.telephonyService.voiceMail.setInfoMsg("");
                                 //$rootScope.$broadcast("ON_VOICE_MESSAGE_UPDATE_EVENT", ct);
-                                that.logger.log("debug", LOG_ID + "(onVoiceMessageEvent) send evt_internal_voicemessageupdated ", ct);
+                                //that.logger.log("internal", LOG_ID + "(onVoiceMessageEvent) send evt_internal_voicemessageupdated ", ct);
                                 that.eventEmitter.emit("evt_internal_voicemessageupdated", ct);
 
                             }
@@ -854,7 +873,7 @@ class TelephonyEventHandler extends GenericHandler {
                         if (voiceMessageWaiting) {
                             voiceMessageWaitingValue = voiceMessageWaiting.text();
                             if (voiceMessageWaitingValue === "changed") {
-                                return this.telephonyService.getVoiceMessageCounter();
+                                return that.telephonyService.getVoiceMessageCounter();
                             }
                         }
 
@@ -866,7 +885,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** UPDATECALL STUFF                                                **/
         /*********************************************************************/
         this.onUpDateCallEvent = function (updatecallElem) {
-            that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) _entering_", updatecallElem);
+            that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) _entering_ : ", updatecallElem);
 
                         return that.getCall(updatecallElem).then(function (call) {
 
@@ -893,8 +913,7 @@ class TelephonyEventHandler extends GenericHandler {
                                 if (identityFirstName && identityFirstName.length) {
                                     firstName = identityFirstName;
                                 }
-                                that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) received for call " + call.id + " for phoneNumber:" + Utils.anonymizePhoneNumber(phoneNumber) +
-                                    " with name : " + firstName.slice(0, 1) + "***");
+                                that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) received for call ", call.id, " for phoneNumber:", Utils.anonymizePhoneNumber(phoneNumber), " with name : ", firstName.slice(0, 1), "***");
                             } else {
                                 if (identityDisplayName && identityDisplayName.length && identityDisplayName !== phoneNumber) {
                                     lastName = identityDisplayName; //Workaround last resort, only displayName is available, hack is to use it as lastName
@@ -922,15 +941,14 @@ class TelephonyEventHandler extends GenericHandler {
                                                 call.setContact(contact);
                                                 call.setCurrentCalled(currentCalled);
                                                 contactUpdateDone = true;
-                                                that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) xnames updated for " + phoneNumber + "with contact : " + contact.displayNameMD5);
+                                                that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) xnames updated for ", phoneNumber, "with contact : ", contact.displayNameMD5);
                                             }
                                         } else if (call.participants && call.participants.length > 0) {
                                             let currentCalled = call.getCurrentCalled();
                                             for (let i = 0; i < call.participants.length; i++) {
                                                 if (call.participants[i].temp) {
                                                     if (call.participants[i].phoneProCan && call.participants[i].phoneProCan === phoneNumber) {//concerned participant
-                                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) temp participant " +
-                                                            call.participants[i].displayNameMD5 + " updated with : " + contact.displayNameMD5);
+                                                        that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) temp participant ", call.participants[i].displayNameMD5, " updated with : ", contact.displayNameMD5);
                                                         call.participants[i] = contact;
                                                         call.participants[i].setNameUpdatePrio(NameUpdatePrio.SERVER_UPDATE_PRIO);//flag as server prio
                                                         currentCalled.participantsPhoneNumbers[i] = phoneNumber;
@@ -939,7 +957,7 @@ class TelephonyEventHandler extends GenericHandler {
                                                     }
                                                 }
                                                 else {//former participant is a rainbow user I don't know what to do !!!???
-                                                    that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) STRANGE former participant was a rainbow: " + call.participants[i].displayNameMD5);
+                                                    that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) STRANGE former participant was a rainbow: " , call.participants[i].displayNameMD5);
                                                 }
                                             }
                                             call.setCurrentCalled(currentCalled);
@@ -957,15 +975,14 @@ class TelephonyEventHandler extends GenericHandler {
                                                 call.setContact(contact);
                                                 call.setCurrentCalled(currentCalled);
                                                 contactUpdateDone = true;
-                                                that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) call update with rainbow contact : " + contact.displayNameMD5);
+                                                that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) call update with rainbow contact : ", contact.displayNameMD5);
                                             }
                                         } else if (call.participants && call.participants.length > 0) {
                                             let currentCalled = call.getCurrentCalled();
                                             for (let i = 0; i < call.participants.length; i++) {
                                                 if (call.participants[i].temp) {
                                                     if (call.participants[i].phoneProCan && call.participants[i].phoneProCan === phoneNumber) {//concerned participant
-                                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) temp participant " +
-                                                            call.participants[i].displayNameMD5 + " updated with : " + contact.displayNameMD5);
+                                                        that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) temp participant ", call.participants[i].displayNameMD5, " updated with : ", contact.displayNameMD5);
                                                         call.participants[i] = contact;
                                                         call.setParticipants(call.participants);//to force an update of the avatars
                                                         currentCalled.participantsPhoneNumbers[i] = phoneNumber;
@@ -979,12 +996,10 @@ class TelephonyEventHandler extends GenericHandler {
                                                         currentCalled.participantsPhoneNumbers[i] = phoneNumber;
                                                         currentCalled.participants[i] = call.participants[i];
                                                         contactUpdateDone = true;//??
-                                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent)rainbow participant " +
-                                                            call.participants[i].displayNameMD5 + " updated with the same : " + contact.displayNameMD5);
+                                                        that.logger.log("internal", LOG_ID + "(onUpDateCallEvent)rainbow participant ", call.participants[i].displayNameMD5, " updated with the same : ", contact.displayNameMD5);
                                                     }
                                                     else {//not the  good participant nothing to do
-                                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) other participant not updated : " +
-                                                            call.participants[i].displayNameMD5 + " vs " + contact.displayNameMD5);
+                                                        that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) other participant not updated : ", call.participants[i].displayNameMD5, " vs ", contact.displayNameMD5);
                                                     }
                                                 }
                                             }
@@ -993,7 +1008,7 @@ class TelephonyEventHandler extends GenericHandler {
                                     }
 
                                     if (contactUpdateDone) {
-                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) send evt_internal_callupdated ", call);
+                                        //that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) send evt_internal_callupdated ", call);
                                         that.eventEmitter.emit("evt_internal_callupdated", call);
 
                                         /*//CR #28178 : workaround : delay event to avoid notification RBNotification mess !!
@@ -1004,7 +1019,7 @@ class TelephonyEventHandler extends GenericHandler {
                                         // */
                                     }
                                     else {
-                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent), no update needed for call : " + call.id);
+                                        that.logger.log("debug", LOG_ID + "(onUpDateCallEvent), no update needed for call : ", call.id);
                                     }
                                 });
                         });
@@ -1015,19 +1030,20 @@ class TelephonyEventHandler extends GenericHandler {
         /** FAILURE STUFF                                                   **/
         /*********************************************************************/
         this.onFailCallEvent = function (failedElem) {
-            that.logger.log("debug", LOG_ID + "(onFailCallEvent) _entering_", failedElem);
+            that.logger.log("debug", LOG_ID + "(onFailCallEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onFailCallEvent) _entering_ : ", failedElem);
             let cause = failedElem.attr("cause");
             //let that = this;
-            return that.getCall(failedElem).then(function (call) {
+            return that.getCall(failedElem).then(async function (call) {
                 call.setStatus(Call.Status.ERROR);
                 call.errorMessage = CallFailureLabels[cause];
                 //call.autoClear = $interval(function () {
-                    that.telephonyService.clearCall(call);
+                    await that.telephonyService.clearCall(call);
                 //}, 5000, 1);
                 if (!call.errorMessage) {
                     call.errorMessage = cause;
                 }
-                that.logger.log("debug", LOG_ID + "(onFailCallEvent) send evt_internal_callupdated ", call);
+                //that.logger.log("internal", LOG_ID + "(onFailCallEvent) send evt_internal_callupdated ", call);
                 that.eventEmitter.emit("evt_internal_callupdated", call);
 
                 //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
@@ -1039,12 +1055,13 @@ class TelephonyEventHandler extends GenericHandler {
         /** FORWARD CALL STUFF                                              **/
         /*********************************************************************/
         this.onCallForwardedEvent = function (forwardElem) {
-            that.logger.log("debug", LOG_ID + "(onCallForwardedEvent) _entering_", forwardElem);
+            that.logger.log("debug", LOG_ID + "(onCallForwardedEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onCallForwardedEvent) _entering_ : ", forwardElem);
             let call = {
                 "forwardType": forwardElem.attr("forwardType"),
                 "forwardTo": forwardElem.attr("forwardTo")
             };
-            that.logger.log("debug", LOG_ID + "(onCallForwardedEvent) send evt_internal_callforwarded ", call);
+            //that.logger.log("internal", LOG_ID + "(onCallForwardedEvent) send evt_internal_callforwarded ", call);
             that.eventEmitter.emit("evt_internal_callforwarded", call);
             return Promise.resolve();
             /* $rootScope.$broadcast("ON_CALL_FORWARDED_EVENT", {
@@ -1064,7 +1081,8 @@ class TelephonyEventHandler extends GenericHandler {
         /** NOMADIC STATUS STUFF                                              **/
         /*********************************************************************/
         this.onNomadicStatusEvent = function (eventElem) {
-            that.logger.log("debug", LOG_ID + "(onNomadicStatusEvent) _entering_", eventElem);
+            that.logger.log("debug", LOG_ID + "(onNomadicStatusEvent) _entering_");
+            that.logger.log("internal", LOG_ID + "(onNomadicStatusEvent) _entering_ : ", eventElem);
 
             let nomadicstate = {
                 "featureActivated": eventElem.attr("featureActivated"),
@@ -1073,7 +1091,7 @@ class TelephonyEventHandler extends GenericHandler {
                 "makeCallInitiatorIsMain": eventElem.attr("makeCallInitiatorIsMain")
             };
 
-            this.telephonyService.updateNomadicData(nomadicstate);
+            that.telephonyService.updateNomadicData(nomadicstate);
             //that.logger.log("debug", LOG_ID + "(onFailCallEvent) send onNomadicStatusEvent ", call);
             //that.eventEmitter.emit("onNomadicStatusEvent", call);
             return Promise.resolve();
@@ -1101,7 +1119,7 @@ class TelephonyEventHandler extends GenericHandler {
             if (!connectionId) {
                 connectionId = elem.getAttr("heldCallId");
             } // TODO: WHY and WHEN
-            that.logger.log("debug", LOG_ID + "(getCall)  - " + jid + " - " + Utils.anonymizePhoneNumber(phoneNumber) + " - " + connectionId);
+            that.logger.log("debug", LOG_ID + "(getCall)  - ", jid, " - ", Utils.anonymizePhoneNumber(phoneNumber), " - ", connectionId);
             that.logger.log("internal", LOG_ID + "(getCall) jid : ", jid, ", phoneNumber : ", phoneNumber, ", connectionId : ", connectionId, ", deviceType : ", deviceType);
             let callObj = await that.getOrCreateCall(connectionId, jid, deviceType, phoneNumber);
             let updatedinformations: { connectionId?: string,
@@ -1163,7 +1181,7 @@ class TelephonyEventHandler extends GenericHandler {
         this.createConferenceCall = async function (connectionId, participants) {
 
             let conferenceCall = await that.getOrCreateCall(connectionId, undefined, undefined, undefined);
-            that.logger.log("debug", LOG_ID + "(createConferenceCall) conferenceCall : ", conferenceCall);
+            that.logger.log("internal", LOG_ID + "(createConferenceCall) conferenceCall : ", conferenceCall);
 
             conferenceCall.isConference = true;
             conferenceCall.setParticipants(participants);
@@ -1274,12 +1292,12 @@ class TelephonyEventHandler extends GenericHandler {
             if (updateAnalyse) {
                 return that.contactService.getOrCreateContact(jid, phoneNumber)
                     .then(function (contact) {
-                        that.logger.log("debug", LOG_ID + "(updateCallContact)  on " + actionElemName + ", update contact :" + contact.displayNameMD5);
+                        that.logger.log("internal", LOG_ID + "(updateCallContact)  on ", actionElemName, ", update contact :", contact.displayNameMD5);
                             that.makeUpdateContact(call, contact, phoneNumber, actionElemName);
                             return Promise.resolve();
                     });
             } else {
-                that.logger.log("debug", LOG_ID + "(updateCallContact) send evt_internal_callupdated ", call);
+                //that.logger.log("internal", LOG_ID + "(updateCallContact) send evt_internal_callupdated ", call);
                 that.eventEmitter.emit("evt_internal_callupdated", call);
                 //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                 return Promise.resolve();
@@ -1287,7 +1305,8 @@ class TelephonyEventHandler extends GenericHandler {
         }
         catch (error) {
             let errorMessage = "updateCallContact -- " + error.message;
-            that.logger.log("error", LOG_ID + "(updateCallContact) Catch Error !!! " + errorMessage);
+            that.logger.log("error", LOG_ID + "(updateCallContact) Catch Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(updateCallContact) Catch Error !!! : ", errorMessage);
             return Promise.reject(new Error(errorMessage));
         }
     }
@@ -1298,7 +1317,7 @@ class TelephonyEventHandler extends GenericHandler {
         let currentCalled = {contactPhoneNumber: phoneNumber, contact: contact};
         call.setCurrentCalled(currentCalled);
 
-        that.logger.log("debug", LOG_ID + "(makeUpdateContact) send evt_internal_callupdated ", call);
+        //that.logger.log("internal", LOG_ID + "(makeUpdateContact) send evt_internal_callupdated ", call);
         that.eventEmitter.emit("evt_internal_callupdated", call);
 
 

@@ -243,9 +243,9 @@ class Logger {
                     level = ( level === "internal" ) ? "debug" : "error";
                     let datatolog =  that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry.")) ;
                     // dev-code //
-                    datatolog = that.colors.italic(that.colors.red("DATA HIDDEN IN PROD ENV !!! : ")) + argumentsToString(arguments) ;
-                    // end-dev-code //
+                    datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + argumentsToString(arguments) ;
                     that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                    // end-dev-code //
                 }
             } else {
                 if (logInternals) {

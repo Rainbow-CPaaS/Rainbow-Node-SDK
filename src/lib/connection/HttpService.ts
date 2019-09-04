@@ -58,7 +58,7 @@ class HTTPService {
             let wasHandled = typeof cb === "function";
 
             //setImmediate(console.log, chalk.gray('      → ' + signature));
-            that.logger.log("debug", LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
+            that.logger.log("internal", LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
 
             return request(options, cb)
                 .on("response", function(response) {
@@ -70,10 +70,10 @@ class HTTPService {
 
                     let status = response.statusCode;
                     let s = status / 100 | 0;
-                    that.logger.log("debug", LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
+                    that.logger.log("internal", LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
                 })
                 .on("error", function(err) {
-                    that.logger.log("debug", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
+                    that.logger.log("internalerror", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
                 });
         }
 
@@ -171,7 +171,8 @@ get(url, headers, params): Promise<any> {
                                             });
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
+                                        that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
+                                        that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
                                         let bodyjs : any = {};
                                         if (response.body) {
                                             bodyjs = JSON.parse(response.body);
@@ -197,8 +198,9 @@ get(url, headers, params): Promise<any> {
                                             details: ""
                                         });
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("info", LOG_ID + "(get) HTTP other issue", response);
+                                        that.logger.warn("warn", LOG_ID + "(get) HTTP other issue");
+                                        that.logger.warn("internal", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                        that.logger.log("internal", LOG_ID + "(get) HTTP other issue", response);
                                         reject({
                                             code: -1,
                                             msg: "Unknown error",
@@ -229,7 +231,7 @@ get(url, headers, params): Promise<any> {
                         proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
                     }).on("response", function (response) {
                         that.logger.log("info", LOG_ID + "(get) status code:" + response.statusCode); // 200
-                        that.logger.log("info", LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
+                        that.logger.log("debug", LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
                         if (response.statusCode === 400) {
                             req.abort();
                             err.statusCode = response.statusCode;
@@ -239,7 +241,8 @@ get(url, headers, params): Promise<any> {
                     }).on("data", (chunk) => {
                         buff.push(chunk);
                     }).on("error", (error) => {
-                        that.logger.log("error", LOG_ID, "(get) error", error);
+                        that.logger.log("error", LOG_ID, "(get) error");
+                        that.logger.log("internalerror", LOG_ID, "(get) error : ", error);
                         that.logger.log("debug", LOG_ID + "(get) _exiting_");
                         reject({
                             code: -1,
@@ -263,7 +266,8 @@ get(url, headers, params): Promise<any> {
                     }); // */
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(get) HTTP ErrorManager", err);
+                that.logger.log("error", LOG_ID + "(get) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(get) HTTP ErrorManager", err);
                 reject({
                     code: -1,
                     msg: "Unknown error",
@@ -280,7 +284,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(post) url", urlEncoded, data);
+            that.logger.log("internal", LOG_ID + "(post) url", urlEncoded, data);
 
             headers["user-agent"] = USER_AGENT;
             let body = data;
@@ -304,7 +308,7 @@ get(url, headers, params): Promise<any> {
                 body: body
             }, (error, response, body) => {
                 if (error) {
-                    that.logger.log("debug", LOG_ID + "(post) failed:", error);
+                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error);
                     reject("post failed");
                     return;
                 }
@@ -332,7 +336,8 @@ get(url, headers, params): Promise<any> {
                                     bodyjs = JSON.parse(response.body);
                                 }
 
-                                that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
+                                that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
+                                that.logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
                                 let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                 let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
@@ -354,8 +359,9 @@ get(url, headers, params): Promise<any> {
                                     details: ""
                                 });
                             } else {
-                                that.logger.warn("warn", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                that.logger.log("info", LOG_ID + "(post) HTTP other issue", response);
+                                that.logger.warn("error", LOG_ID + "(post) HTTP other issue.");
+                                that.logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
                                 reject({
                                     code: -1,
                                     msg: "Unknown error",
@@ -382,7 +388,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(put) url", urlEncoded, data);
+            that.logger.log("internal", LOG_ID + "(put) url", urlEncoded, data);
 
             headers["user-agent"] = USER_AGENT;
             let body = data;
@@ -406,7 +412,7 @@ get(url, headers, params): Promise<any> {
                     body: body
                 }, (error, response, body) => {
                     if (error) {
-                        that.logger.log("debug", LOG_ID + "(put) put failed:", error);
+                        that.logger.log("internalerror", LOG_ID + "(put) put failed:", error);
                         reject("put failed");
                         return;
                     }
@@ -433,7 +439,8 @@ get(url, headers, params): Promise<any> {
                                     if (response.body) {
                                         bodyjs = JSON.parse(response.body);
                                     }
-                                    that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
+                                    that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
+                                    that.logger.warn("internalerror", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
                                     let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                     let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
                                     errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
@@ -455,8 +462,9 @@ get(url, headers, params): Promise<any> {
                                         details: ""
                                     });
                                 } else {
-                                    that.logger.warn("warn", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                    that.logger.log("info", LOG_ID + "(put) HTTP other issue", response);
+                                    that.logger.warn("warn", LOG_ID + "(put) HTTP other issue ");
+                                    that.logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                    that.logger.log("internal", LOG_ID + "(put) HTTP other issue", response);
                                     reject({
                                         code: -1,
                                         msg: "Unknown error",
@@ -487,7 +495,7 @@ get(url, headers, params): Promise<any> {
 
             headers["user-agent"] = USER_AGENT;
 
-            that.logger.log("info", LOG_ID + "(putBuffer) url", urlEncoded);
+            that.logger.log("internal", LOG_ID + "(putBuffer) url", urlEncoded);
 
              Request({
                      method: 'PUT',
@@ -500,11 +508,11 @@ get(url, headers, params): Promise<any> {
                  },
                 function (error, response, body) {
                     if (error) {
-                        that.logger.log("debug", LOG_ID + "(putBuffer) upload failed:", error);
+                        that.logger.log("internalerror", LOG_ID + "(putBuffer) upload failed:", error);
                         reject("upload failed");
                         return;
                     }
-                    that.logger.log("debug", LOG_ID + "(putBuffer) Upload successful!  Server responded with:", body);
+                    that.logger.log("internal", LOG_ID + "(putBuffer) Upload successful!  Server responded with:", body);
                     resolve(body);
                 });
         });
@@ -517,7 +525,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(put) url", urlEncoded, " stream fileName : ", stream.fileName);
+            that.logger.log("internal", LOG_ID + "(put) url", urlEncoded, " stream fileName : ", stream.fileName);
 
             headers["user-agent"] = USER_AGENT;
 
@@ -545,7 +553,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("info", LOG_ID + "(delete) url", urlEncoded);
+            that.logger.log("internal", LOG_ID + "(delete) url", urlEncoded);
 
             headers["user-agent"] = USER_AGENT;
 

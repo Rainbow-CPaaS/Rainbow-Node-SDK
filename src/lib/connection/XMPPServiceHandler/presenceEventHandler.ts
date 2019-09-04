@@ -160,9 +160,7 @@ class PresenceEventHandler extends GenericHandler {
                                             if (node.parent && node.parent.getChild("x") &&
                                                 (node.parent.getChild("x").getChild("data") || node.parent.getChild("x").getChild("avatar"))) {
                                                 // Either avatar or user vcard changed
-                                                that
-                                                    .eventEmitter
-                                                    .emit("evt_internal_onrostercontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
+                                                that.eventEmitter.emit("evt_internal_onrostercontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                                             }
                                         }
                                         break;
@@ -196,7 +194,8 @@ class PresenceEventHandler extends GenericHandler {
                 }
                 that.logger.log("debug", LOG_ID + "(onPresenceReceived) _exiting_");
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
             }
         };
     }

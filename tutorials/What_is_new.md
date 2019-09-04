@@ -26,7 +26,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 **Others Changes**
 
 -   Update the logs to remove all people data.
--   Fix code for the 'read' receipt is sent automatically to the sender when the message is received.
+-   CRRAINB-7686 : Fix code for the 'read' receipt is sent automatically to the sender when the message is received.
 
 
 ### SDK for Node.JS 1.60 - August 2019
