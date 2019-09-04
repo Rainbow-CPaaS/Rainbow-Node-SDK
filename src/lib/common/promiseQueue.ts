@@ -34,14 +34,15 @@ class PromiseQueue{
     execute () {
         let that = this;
         that.logger.log("debug", LOG_ID + "[PromiseQueue] (execute) _entering_");
-        var promise = this.queue.shift();
+        let promise = this.queue.shift();
         if (promise) {
             let pr = promise();
             if (pr) {
                 pr.catch(function (error) {
-                    var errorMessage = (error && error.message) ? error.message : "Unknown error";
+                    let errorMessage = (error && error.message) ? error.message : "Unknown error";
                     //$log.error("[PromiseQueue] execute failure -- " + errorMessage);
-                    that.logger.log("error", LOG_ID + "[PromiseQueue] (execute) failure -- " + errorMessage);
+                    that.logger.log("error", LOG_ID + "[PromiseQueue] (execute) failure ");
+                    that.logger.log("internalerror", LOG_ID + "[PromiseQueue] (execute) failure -- " + errorMessage);
                 })
                     .finally(function () {
                         that.execute();

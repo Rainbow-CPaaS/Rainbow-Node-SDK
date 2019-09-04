@@ -99,7 +99,8 @@ class ChannelEventHandler extends GenericHandler {
                     }
                 });
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -181,7 +182,8 @@ class ChannelEventHandler extends GenericHandler {
 
                             that.eventEmitter.emit("evt_internal_channelitemreceived", message);
                         } else {
-                            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.", stanza);
+                            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.");
+                            that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
                         }
                     }
                         break;
@@ -192,7 +194,8 @@ class ChannelEventHandler extends GenericHandler {
 
                 } // */
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -290,7 +293,8 @@ class ChannelEventHandler extends GenericHandler {
                 return true;
             }
             catch (err) {
-                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- " + err.message);
+                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- " );
+                that.logger.log("internalerror", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : " + err.message);
                 return true;
             }
 
@@ -346,10 +350,11 @@ class ChannelEventHandler extends GenericHandler {
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
                 that.logger.log("debug", LOG_ID + "(onErrorMessageReceived) _entering_");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
                 that.eventEmitter.emit("rainbow_onerror", msg);
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -357,6 +362,7 @@ class ChannelEventHandler extends GenericHandler {
 
         };
 
+        /*
         this.findChildren = (element) => {
             try {
                 that.logger.log("debug", LOG_ID + "(findChildren) _entering_");
@@ -387,6 +393,7 @@ class ChannelEventHandler extends GenericHandler {
                 that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
             }
         };
+         */
 
 
     }

@@ -138,7 +138,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 }
 
                                 if (roomEvent) {
-                                    that.logger.log("info", LOG_ID + "[Conversation] (" + conversation.id + ") add Room admin event message " + roomEvent);
+                                    that.logger.log("internal", LOG_ID + "[Conversation] (" + conversation.id + ") add Room admin event message " + roomEvent);
                                     type = "admin";
 
                                     // Ignore meeting events
@@ -276,7 +276,8 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                 return true;
             } catch (error) {
-                that.logger.log("error", LOG_ID + "[Conversation] onHistoryMessageReceived error : ", error);
+                that.logger.log("error", LOG_ID + "[Conversation] onHistoryMessageReceived error ");
+                that.logger.log("internalerror", LOG_ID + "[Conversation] onHistoryMessageReceived error : ", error);
                 return true;
             }
         };

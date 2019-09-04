@@ -163,7 +163,7 @@ class Options {
 
     _getModeOption() {
 
-        var mode = config.mode;
+        let mode = config.mode;
 
         if ("rainbow" in this._options && "mode" in this._options.rainbow) {
             switch (this._options.rainbow.mode) {
@@ -246,7 +246,7 @@ class Options {
     }
 
     _getApplicationsOptions() {
-        var applicationOptions = {
+        let applicationOptions = {
             appID: "",
             appSecret: ""
         };

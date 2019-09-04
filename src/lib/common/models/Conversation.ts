@@ -325,7 +325,6 @@ class Conversation {
 
         // Check if this message already exist in message store
         if (that.messages.find(function(item) { return item.id === message.id; })) {
-            //$log.info("[Conversation] " + this.id + " try to add an already stored message with id " + message.id);
             return message;
         }
 

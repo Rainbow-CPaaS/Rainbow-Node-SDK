@@ -89,7 +89,8 @@ class FavoriteEventHandler extends GenericHandler {
                     }
                 });
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -118,7 +119,8 @@ class FavoriteEventHandler extends GenericHandler {
                 }
                 return true;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ", err.message);
+                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
+                that.logger.log("internalerror", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
                 return true;
             }
 
@@ -134,10 +136,12 @@ class FavoriteEventHandler extends GenericHandler {
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
                 that.logger.log("debug", LOG_ID + "(onErrorMessageReceived) _entering_");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, stanza);
                 that.eventEmitter.emit("rainbow_onerror", msg);
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
             }
         };
 
@@ -145,6 +149,7 @@ class FavoriteEventHandler extends GenericHandler {
 
         };
 
+        /*
         this.findChildren = (element) => {
             try {
                 that.logger.log("debug", LOG_ID + "(findChildren) _entering_");
@@ -175,6 +180,8 @@ class FavoriteEventHandler extends GenericHandler {
                 that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
             }
         };
+
+         */
 
 
     }

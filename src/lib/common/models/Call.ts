@@ -203,7 +203,6 @@ class Call {
          * @readonly
          */
         this.phoneNumber = undefined;
-        // $log.debug("[CALL] createCall : " + this);
     }
 
     getCause() {
@@ -232,39 +231,32 @@ class Call {
     // Public methods
     setCallId (id) {
         this.id = id;
-        // $log.debug("[CALL] setId : " + this);
     }
 
     setConversationId (id) {
         this.conversationId = id;
-        // $log.debug("[CALL] setConversationId : " + this);
     }
 
     setConnectionId (connectionId) {
         this.connectionId = connectionId;
         this.id = Call.getIdFromConnectionId(connectionId);
-        // $log.debug("[CALL] setId : " + this);
     }
 
     setStatus (status) {
         this.status = status;
-        // $log.debug("[CALL] setStatus : " + this);
     }
 
     setType (type) {
         this.type = type;
-        // $log.debug("[CALL] setType : " + this);
     }
 
     setIsVm (isVM) {
         this.isVm = isVM;
-        // $log.debug("[CALL] setVm : " + this);
     }
 
     setContact (contact) {
         this.contact = contact;
         this.avatars = [this.contact.avatar.src];
-        // $log.debug("[CALL] setContact : " + contact);
     }
 
     setParticipants (participants) {
@@ -274,7 +266,6 @@ class Call {
         this.participants.forEach(function (participant) {
             that.avatars.push(participant.avatar.src);
         });
-        // $log.debug("[CALL] setParticipants : " + participants.join());
     }
 
     getCurrentCalled  () {
@@ -293,8 +284,6 @@ class Call {
                 this.currentCalled.contact = currentCalled.contact ? currentCalled.contact : null;
                 this.currentCalled.participantsPhoneNumbers = null;
                 this.currentCalled.participants = null;
-                // $log.debug("[CALL] setCurrentCalled contactPhoneNumber : " + currentCalled.contactPhoneNumber);
-                // $log.debug("[[TelephonyServiceEventHandler]] setCurrentCalled call " + this.id + " contactPhoneNumber = " + currentCalled.contactPhoneNumber);
 
             } else {//conf case
                 this.currentCalled.contactPhoneNumber = "";
@@ -302,15 +291,12 @@ class Call {
                 this.currentCalled.participantsPhoneNumbers = (currentCalled.participantsPhoneNumbers && currentCalled.participantsPhoneNumbers.length > 0) ? currentCalled.participantsPhoneNumbers : null;
                 this.currentCalled.participants = (currentCalled.participants && currentCalled.participants.length > 0) ? currentCalled.participants : null;
                 if (this.currentCalled.participantsPhoneNumbers && this.currentCalled.participantsPhoneNumbers.length > 0) {
-                    // $log.debug("[CALL] setCurrentCalled participantsPhoneNumbers : " + currentCalled.participantsPhoneNumbers.join());
-                    // $log.debug("[[TelephonyServiceEventHandler]] setCurrentCalled " + this.id + " participantsPhoneNumbers : " + currentCalled.participantsPhoneNumbers.join());
                 }
             }
         }
     }
 
     setCurrentCalledContactNumber (number) {
-        // $log.debug("[[TelephonyServiceEventHandler]] setCurrentCalledContactNumber call " + this.id + " phoneNumber = " + number);
         this.currentCalled.contactPhoneNumber = number;
     }
 
@@ -342,15 +328,12 @@ class Call {
         if (data) {
 
             let callproperties = Object.getOwnPropertyNames(that);
-            //console.log("updateChannel update Channel with : ", data["id"]);
             Object.getOwnPropertyNames(data).forEach(
                 (val, idx, array) => {
-                    //console.log(val + " -> " + data[val]);
                     if (callproperties.find((el) => { return val == el ;})) {
-                        //console.log("update property in call instance : ", val, " -> ", data[val]);
                         that[val] = data[val];
                     } else {
-                        console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ", val, " -> ", data[val]);
+                        console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ");
                     }
                 });
         }
@@ -374,9 +357,8 @@ class Call {
                 let channelproperties = Object.getOwnPropertyNames(call);
                 Object.getOwnPropertyNames(data).forEach(
                     (val, idx, array) => {
-                        //console.log(val + " -> " + data[val]);
                         if (!channelproperties.find((el) => { return val == el ;})) {
-                            console.log("WARNING : One property of the parameter of CallFactory method is not present in the Call class : ", val, " -> ", data[val]);
+                            console.log("WARNING : One property of the parameter of CallFactory method is not present in the Call class : ");
                         }
                     });
             }

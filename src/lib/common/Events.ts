@@ -775,27 +775,7 @@ class Events {
 
         let eventName= "rainbow_on" + event;
 
-        /*function printLog(event1, ...datasParam) {
-            that._logger.log("info", LOG_ID + "(publishEvent) event " + that._logger.colors.events("rainbow_on" + event1));
-            //that._logger.log("internal", LOG_ID + "(publishEvent) event " + that._logger.colors.events("rainbow_on" + event1) , that._logger.colors.data(data1));
-            //that._logger.log("internal", LOG_ID + "(publishEvent) event1 : ", event1);
-
-            let iter = 0;
-            datasParam.forEach((dataIter) => {
-                that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.events("rainbow_on" + event1), " data : ", that._logger.colors.data(dataIter));
-
-            });
-            //that._logger.log("internal", LOG_ID + "(publishEvent) data2 : ", data2);
-        } // */
-
-
-        //this._logger.log("info", LOG_ID + "(publishEvent) event " + this._logger.colors.events("rainbow_on" + event) );
-        //this._logger.log("internal", LOG_ID + "(publishEvent) event " + this._logger.colors.events("rainbow_on" + event) + " : ", info, " : ", ...params);
-        //printLog(event, ...params);
         that._logger.log("info", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));
-        //that._logger.log("internal", LOG_ID + "(publishEvent) event " + that._logger.colors.events("rainbow_on" + event1) , that._logger.colors.data(data1));
-        //that._logger.log("internal", LOG_ID + "(publishEvent) event1 : ", event1);
-
         let iter = 0;
         params.forEach((dataIter) => {
             that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", that._logger.colors.data(dataIter));
