@@ -8,7 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.61.0] - 2018-09-xx
 -   Update the logs to remove all people data.
--   Fix code for the 'read' receipt is sent automatically to the sender when the message is received.
+-   Fix code for the 'read' receipt sent automatically to the sender when the message is received.
 
 ## [1.60.0] - 2018-08-28
 -   Add method getStatusForUser in Bubble class to get the status of a user in the bubble

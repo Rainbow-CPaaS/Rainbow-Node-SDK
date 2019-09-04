@@ -23,13 +23,13 @@ global.window = {};
 let content = fs.readFileSync(path.join(__dirname, "../package.json"));
 let packageJSON = JSON.parse(content);
 let minVersion =
-    packageJSON.version.indexOf("-beta") > -1
-        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-beta") - 2)
+    packageJSON.version.indexOf("-dotnet") > -1
+        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2)
         : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
 let fullVersion = packageJSON.version;
 let currentVersion =
-    packageJSON.version.indexOf("-beta") > -1
-        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-beta"))
+    packageJSON.version.indexOf("-dotnet") > -1
+        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet"))
         : packageJSON.version;
 
 function loadSingleReleaseNotes(item, config) {
@@ -162,11 +162,11 @@ function sendMail(vars, mailjet) {
     let message =
         "Note: <BR>* An early version <b>" +
         fullVersion +
-        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag..<br>" +
-        "* To use the beta version in an other NodeJs project : <br> " +
+        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag.<br>" +
+        "* To use the preprod version in an other NodeJs project : <br> " +
         "<i>npm install rainbow-node-sdk@" + fullVersion + " --save </i>";
 
-    if (vars.environment !== "PRE-PRODUCTION" || !fullVersion.includes("beta")) {
+    if (vars.environment !== "PRE-PRODUCTION" || !fullVersion.includes("dotnet")) {
         message =
             "Note: <BR>A new version <b>" +
             fullVersion +
