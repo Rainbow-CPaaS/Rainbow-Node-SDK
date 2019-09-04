@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.61.0] - 2018-09-xx
+-   Update the logs to remove all people data.
+-   Fix code for the 'read' receipt is sent automatically to the sender when the message is received.
+
 ## [1.60.0] - 2018-08-28
 -   Add method getStatusForUser in Bubble class to get the status of a user in the bubble
 -   Update the "leaveBubble" method to unsubscribe form a bubble if not already unsubscribed the connected user. Else delete it from bubble.
