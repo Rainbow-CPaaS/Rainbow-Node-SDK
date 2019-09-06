@@ -309,8 +309,8 @@ function CallLogsBean() : ICallLogsBean {
     deleteOneCallLog(id) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[deleteOneCallLog] deleteOneCallLog " + id);
-        that._xmpp.deleteOneCallLog(id);
+        that.logger.log("info", LOG_ID + "[deleteOneCallLog] deleteOneCallLog : ", id);
+        return that._xmpp.deleteOneCallLog(id);
     }
 
     /**
@@ -326,8 +326,8 @@ function CallLogsBean() : ICallLogsBean {
     deleteCallLogsForContact(jid) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[deleteCallLogsForContact] deleteCallLogsForContact " + jid);
-        that._xmpp.deleteCallLogsForContact(jid);
+        that.logger.log("info", LOG_ID + "[deleteCallLogsForContact] deleteCallLogsForContact ", jid);
+        return that._xmpp.deleteCallLogsForContact(jid);
     }
 
     /**
@@ -343,7 +343,7 @@ function CallLogsBean() : ICallLogsBean {
         let that = this;
 
         that.logger.log("info", LOG_ID + "[deleteAllCallLogs] deleteAllCallLogs");
-        that._xmpp.deleteAllCallLogs();
+        return that._xmpp.deleteAllCallLogs();
     }
 
     /**
@@ -359,8 +359,8 @@ function CallLogsBean() : ICallLogsBean {
     markCallLogAsRead(id) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[markCallLogAsRead] markCallLogAsRead " + id);
-        that._xmpp.markCallLogAsRead(id);
+        that.logger.log("info", LOG_ID + "[markCallLogAsRead] markCallLogAsRead ", id);
+        return that._xmpp.markCallLogAsRead(id);
     }
 
     /**

@@ -102,7 +102,8 @@ class Contacts {
                 resolve();
 
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(start) Catch ErrorManager !!!", err.message);
+                that.logger.log("error", LOG_ID + "(start) Catch ErrorManager !!!");
+                that.logger.log("internalerror", LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
                 reject();
             }
         });
@@ -199,7 +200,8 @@ class Contacts {
                 that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
                 resolve(that.getAll());
             }).catch((err) => {
-                that.logger.log("error", LOG_ID + "(getRosters) error", err);
+                that.logger.log("error", LOG_ID + "(getRosters) error");
+                that.logger.log("internalerror", LOG_ID + "(getRosters) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
                 reject(err);
             });
@@ -387,14 +389,14 @@ class Contacts {
                     that.rest.getContactInformationByJID(jid).then((_contactFromServer : any) => {
                         let contact = null;
                         if( _contactFromServer ) {
-                            that.logger.log("info", LOG_ID + "(getContactByJid) contact found on the server", _contactFromServer);
+                            that.logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server", _contactFromServer);
                             let contactIndex = that.contacts.findIndex((value) => {
                                 return value.jid_im === _contactFromServer.jid_im;
                             });
 
                             if (contactIndex !== -1) {
                                 contact = that.contacts[contactIndex];
-                                that.logger.log("debug", LOG_ID + "(getContactByJid) contact found on local contacts", contact);
+                                that.logger.log("internal", LOG_ID + "(getContactByJid) contact found on local contacts", contact);
                             } else {
                                 contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
                             }
@@ -446,7 +448,7 @@ class Contacts {
                 }
 
                 if (contactFound) {
-                    that.logger.log("info", LOG_ID + "(getContactById) contact found locally", contactFound);
+                    that.logger.log("internal", LOG_ID + "(getContactById) contact found locally", contactFound);
                     resolve(contactFound);
                 }
                 else {
@@ -502,7 +504,8 @@ class Contacts {
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
-                this.logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter", loginEmail);
+                this.logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
+                this.logger.log("internalerror", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
@@ -516,7 +519,7 @@ class Contacts {
                 }
 
                 if (contactFound) {
-                    that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found locally", contactFound);
+                    that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally : ", contactFound);
                     resolve(contactFound);
                 } else {
                     that.logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
@@ -528,7 +531,7 @@ class Contacts {
                             if (_contactFromServer) {
                                 await that.getContactById(_contactFromServer.id).then((contactInformation : any) => {
                                     contact = contactInformation;
-                                    that.logger.log("info", LOG_ID + "(getContactByLoginEmail) full data contact", contact, ", found on server with loginEmail : ", loginEmail);
+                                    that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) full data contact : ", contact, ", found on server with loginEmail : ", loginEmail);
 
                                     /*let contactIndex = that.contacts.findIndex((value) => {
                                         return value.jid_im === contactInformation.jid_im;
@@ -546,11 +549,11 @@ class Contacts {
                                      */
                                 });
                             } else {
-                                that.logger.log("info", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
+                                that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
                             }
                             resolve(contact);
                         } else {
-                            that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail", loginEmail);
+                            that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
                             resolve(null);
                         }
                     }).catch((err) => {
@@ -677,12 +680,13 @@ class Contacts {
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                this.logger.log("warn", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter", contact);
+                this.logger.log("warn", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter");
+                this.logger.log("internalerror", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter : ", contact);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
 
-                    that.logger.log("debug", LOG_ID + "(addToContactsList) contact invitation to server...", contact);
+                    that.logger.log("internal", LOG_ID + "(addToContactsList) contact invitation to server... : ", contact);
                     that.rest.joinContactInvitation(contact).then((_contact : any) => {
                         if (_contact && _contact.status !== undefined) {
                             that.logger.log("info", LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
@@ -692,7 +696,7 @@ class Contacts {
                                 reject(err);
                             });
                         } else {
-                            that.logger.log("info", LOG_ID + "(addToContactsList) contact cannot be added: ", util.inspect(contact));
+                            that.logger.log("internal", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                             resolve(null);
                         }
                     }).catch((err) => {
@@ -718,7 +722,7 @@ class Contacts {
      */
     async acceptInvitation(invitation) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(acceptInvitation) ", invitation);
+        that.logger.log("internal", LOG_ID + "(acceptInvitation) : ", invitation);
         if (!invitation) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not acceptInvitation";
@@ -742,7 +746,7 @@ class Contacts {
      */
     declineInvitation(invitation) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(declineInvitation) ", invitation);
+        that.logger.log("internal", LOG_ID + "(declineInvitation) : ", invitation);
         if (!invitation) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not declineInvitation";
@@ -781,7 +785,8 @@ class Contacts {
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                this.logger.log("warn", LOG_ID + "(joinContacts) bad or empty 'contact' parameter", contact);
+                this.logger.log("warn", LOG_ID + "(joinContacts) bad or empty 'contact' parameter");
+                this.logger.log("internalerror", LOG_ID + "(joinContacts) bad or empty 'contact' parameter : ", contact);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
@@ -803,7 +808,7 @@ class Contacts {
                             return Object.assign( prev, current);
                         }, { "success": [], "failed": []});
 
-                        that.logger.log("info", LOG_ID + "(joinContacts) " + mergeResult.success.length + " contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
+                        that.logger.log("internal", LOG_ID + "(joinContacts) " + mergeResult.success.length + " contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
                         resolve(mergeResult);
                     }).catch((err) => {
                         reject(err);
@@ -943,7 +948,7 @@ class Contacts {
             
             let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
             
-            this.logger.log("debug", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
+            this.logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
             this.eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
         }
         else {
@@ -969,7 +974,8 @@ class Contacts {
         let that = this;
 
         that.rest.getContactInformationByJID(jid).then((_contactFromServer : any) => {
-            that.logger.log("info", LOG_ID + "(getContactByJid) contact found on the server", util.inspect(_contactFromServer));
+            that.logger.log("info", LOG_ID + "(getContactByJid) contact found on the server");
+            that.logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server : ", util.inspect(_contactFromServer));
             let contactIndex = -1;
             // Update or Add contact
             if (that.contacts) {
@@ -978,7 +984,7 @@ class Contacts {
                 });
 
                 let contact = null;
-                that.logger.log("info", LOG_ID + "(getContactByJid) contact found on the server", contact);
+                that.logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server : ", contact);
 
                 if ( contactIndex !== -1 ) {
                     contact = that.contacts[contactIndex];

@@ -57,7 +57,7 @@ class Bubbles {
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
-        var that = this;
+        let that = this;
 
         this._logger.log("debug", LOG_ID + "(start) _entering_");
 
@@ -85,7 +85,7 @@ class Bubbles {
     }
 
     stop() {
-        var that = this;
+        let that = this;
 
         this._logger.log("debug", LOG_ID + "(stop) _entering_");
 
@@ -127,7 +127,7 @@ class Bubbles {
      */
     async createBubble(name, description, withHistory) {
 
-        var that = this;
+        let that = this;
 
         return new Promise((resolve, reject) => {
 
@@ -138,12 +138,14 @@ class Bubbles {
             }
         
             if (!name) {
-                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'name' parameter", name);
+                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'name' parameter");
+                that._logger.log("internalerror", LOG_ID + "(createBubble) bad or empty 'name' parameter", name);
                 that._logger.log("debug", LOG_ID + "(createBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!description) {
-                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'description' parameter", description);
+                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'description' parameter");
+                that._logger.log("internalerror", LOG_ID + "(createBubble) bad or empty 'description' parameter", description);
                 that._logger.log("debug", LOG_ID + "(createBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -198,11 +200,12 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(isBubbleClosed) _entering_");
         
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter : ", bubble);
             this._logger.log("debug", LOG_ID + "(isBubbleClosed) _exiting_");
             throw (ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
-            var activeUser = bubble.users.find((user) => {
+            let activeUser = bubble.users.find((user) => {
                 return user.status === "invited" || user.status === "accepted";
             });
 
@@ -231,7 +234,7 @@ class Bubbles {
         let bubbles = that.getAll();
 
         bubbles.forEach(function(bubble) {
-            var deleteBubblePromise = function() { return that.deleteBubble(bubble); };
+            let  deleteBubblePromise = function() { return that.deleteBubble(bubble); };
             deleteallBubblePromiseQueue.add(deleteBubblePromise);
         });
 
@@ -258,7 +261,8 @@ class Bubbles {
             that._logger.log("debug", LOG_ID + "(deleteBubble) _entering_");
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -269,7 +273,8 @@ class Bubbles {
                 /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                     return el.id === updatedBubble.id;
                 }), 1); // */
-                that._logger.log("debug", LOG_ID + "(deleteBubble) delete bubble : ", bubble, ", resultDelete : ", resultDelete, " bubble successfull");
+                that._logger.log("debug", LOG_ID + "(deleteBubble) delete bubble with id : ", bubble.id, " successfull");
+                that._logger.log("internal", LOG_ID + "(deleteBubble) delete bubble : ", bubble, ", resultDelete : ", resultDelete, " bubble successfull");
                 that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
                 //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
                 //resolve( Object.assign(bubble, bubbleRemoved));
@@ -302,7 +307,8 @@ class Bubbles {
             that._logger.log("debug", LOG_ID + "(deleteBubble) _entering_");
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter ");
+                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -314,7 +320,8 @@ class Bubbles {
                     /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                         return el.id === updatedBubble.id;
                     }), 1); // */
-                    that._logger.log("info", LOG_ID + "(deleteBubble) delete ", updatedBubble, " bubble successfull");
+                    that._logger.log("debug", LOG_ID + "(deleteBubble) delete with id : ", updatedBubble.id, " bubble successfull");
+                    that._logger.log("internal", LOG_ID + "(deleteBubble) delete ", updatedBubble, " bubble successfull");
                     that._logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
                     //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
                     //resolve( Object.assign(bubble, bubbleRemoved));
@@ -344,13 +351,13 @@ class Bubbles {
      * @category async
      */
     closeBubble(bubble) {
-        var that = this;
+        let that = this;
 
         let unsubscribeParticipants = (participantsIDList) => {
 
             return new Promise((resolve, reject) => {
 
-                var participantID = participantsIDList.shift();
+                let participantID = participantsIDList.shift();
 
                 if (participantID) {
                     return that.removeContactFromBubble({id: participantID}, bubble).then( () => {
@@ -372,12 +379,13 @@ class Bubbles {
             that._logger.log("debug", LOG_ID + "(closeBubble) _entering_");
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(closeBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (that.isBubbleClosed(bubble)) {
-                that._logger.log("info", LOG_ID + "(closeBubble) bubble is already closed", bubble);
+                that._logger.log("internal", LOG_ID + "(closeBubble) bubble is already closed : ", bubble);
                 resolve(bubble);
             } else {
                 let queue = [];
@@ -404,7 +412,7 @@ class Bubbles {
                             // Update the existing local bubble stored
                             let bubbleReturned = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
-                            /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                            /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
                                 that._bubbles[foundIndex] = bubbleUpdated;
@@ -456,7 +464,8 @@ class Bubbles {
             }
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(leaveBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -495,7 +504,8 @@ class Bubbles {
     getStatusForConnectedUserInBubble(bubble) {
         let that = this;
         if (!bubble) {
-            that._logger.log("warn", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter", bubble);
+            that._logger.log("warn", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter");
+            that._logger.log("internalerror", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter : ", bubble);
             that._logger.log("debug", LOG_ID + "(getStatusForConnectedUserInBubble) _exiting_");
             //reject(ErrorManager.getErrorManager().BAD_REQUEST);
             return "none";
@@ -531,12 +541,14 @@ class Bubbles {
             that._logger.log("internal", LOG_ID + "(inviteContactToBubble) arguments : ", ...arguments);
 
             if (!contact) {
-                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter", contact);
+                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter");
+                that._logger.log("internalerror", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter : ", contact);
                 that._logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -577,7 +589,7 @@ class Bubbles {
 
                 /*
                 // Update the existing local bubble stored
-                var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
+                let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
                 if ( foundIndex > -1) {
                     bubbleReUpdated = Object.assign(that._bubbles[foundIndex], bubbleReUpdated);
                     that._bubbles[foundIndex] = bubbleReUpdated;
@@ -619,12 +631,14 @@ class Bubbles {
             that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _entering_");
 
             if (!contact) {
-                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter", contact);
+                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter");
+                that._logger.log("internalerror", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter : ", contact);
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -661,7 +675,7 @@ class Bubbles {
 
                 // Update the existing local bubble stored
                 let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
-                /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
+                /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
                 if ( foundIndex > -1) {
                     bubbleReUpdated = Object.assign(that._bubbles[foundIndex], bubbleReUpdated);
                     that._bubbles[foundIndex] = bubbleReUpdated;
@@ -674,6 +688,7 @@ class Bubbles {
                 resolve(bubble);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(promoteContactInBubble) error");
+                that._logger.log("internalerror", LOG_ID + "(promoteContactInBubble) error : ", err);
                 that._logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
                 reject(err);
             });
@@ -701,11 +716,14 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(changeBubbleOwner) _entering_");
         
         if (!contact) {
-            that._logger.log("warn", LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter", contact);
+            that._logger.log("warn", LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter : ", contact);
             that._logger.log("debug", LOG_ID + "(changeBubbleOwner) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(changeBubbleOwner) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(changeBubbleOwner) bad or empty 'bubble' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(changeBubbleOwner) bad or empty 'bubble' parameter : ", bubble);
+            that._logger.log("debug", LOG_ID + "(changeBubbleOwner) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -716,7 +734,8 @@ class Bubbles {
                 bubble.owner = bubbleData.owner;
                 resolve(bubble);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(changeBubbleOwner) error", err);
+                that._logger.log("error", LOG_ID + "(changeBubbleOwner) error");
+                that._logger.log("internalerror", LOG_ID + "(changeBubbleOwner) error : ", err);
                 that._logger.log("debug", LOG_ID + "(changeBubbleOwner) _exiting_");
                 reject(err);
             });
@@ -739,23 +758,25 @@ class Bubbles {
      */
     removeContactFromBubble(contact, bubble) {
 
-        var that = this;
+        let that = this;
 
         return new Promise(function(resolve, reject) {
 
             if (!contact) {
-                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter", contact);
+                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter");
+                that._logger.log("internalerror", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter : ", contact);
                 that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter : ", bubble);
                 that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             
-            var contactStatus = "";
+            let contactStatus = "";
 
             bubble.users.forEach(function(user) {
                 if (user.userId === contact.id) {
@@ -788,7 +809,8 @@ class Bubbles {
                             resolve(bubble);
                         });
                     }).catch(function(err) {
-                        that._logger.log("error", LOG_ID + "(removeContactFromBubble) error", err);
+                        that._logger.log("error", LOG_ID + "(removeContactFromBubble) error");
+                        that._logger.log("internalerror", LOG_ID + "(removeContactFromBubble) error : ", err);
                         that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
                         reject(err);
                     });
@@ -801,7 +823,7 @@ class Bubbles {
 
                             // Update the existing local bubble stored
                             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
-                            /*var foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                            /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
                                 that._bubbles[foundIndex] = bubbleUpdated;
@@ -817,7 +839,8 @@ class Bubbles {
                             resolve(bubble);
                         });
                     }).catch(function(err) {
-                        that._logger.log("error", LOG_ID + "(removeContactFromBubble) error", err);
+                        that._logger.log("error", LOG_ID + "(removeContactFromBubble) error");
+                        that._logger.log("internalerror", LOG_ID + "(removeContactFromBubble) error : ", err);
                         that._logger.log("debug", LOG_ID + "(removeContactFromBubble) _exiting_");
                         reject(err);
                     });
@@ -837,7 +860,7 @@ class Bubbles {
      *      Internal method
      */
     getBubbles() {
-        var that = this;
+        let that = this;
         
         return new Promise(function(resolve, reject) {
 
@@ -854,7 +877,7 @@ class Bubbles {
                 let prom = [];
                 listOfBubbles.forEach(function(bubble : any) {
 
-                    var users = bubble.users;
+                    let users = bubble.users;
                     users.forEach(function(user) {
                         if (user.userId === that._rest.userId && user.status === "accepted") {
                             if (bubble.isActive) {
@@ -872,12 +895,14 @@ class Bubbles {
                     that._logger.log("debug", LOG_ID + "(getBubbles) _exiting_");
                     resolve();
                 }).catch(function(err) {
-                    that._logger.log("error", LOG_ID + "(getBubbles) error", err);
+                    that._logger.log("error", LOG_ID + "(getBubbles) error");
+                    that._logger.log("internalerror", LOG_ID + "(getBubbles) error : ", err);
                     that._logger.log("debug", LOG_ID + "(getBubbles) _exiting_");
                     reject(err);
                 });
             }).catch(function(err) {
-                that._logger.log("error", LOG_ID + "(getBubbles) error", err);
+                that._logger.log("error", LOG_ID + "(getBubbles) error");
+                that._logger.log("internalerror", LOG_ID + "(getBubbles) error : ", err);
                 that._logger.log("debug", LOG_ID + "(getBubbles) _exiting_");
                 reject(err);
             });
@@ -1016,7 +1041,7 @@ class Bubbles {
             } else {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not found in memory, search in server id : ", id);
                 return that._rest.getBubble(id).then((bubbleFromServer) => {
-                    that._logger.log("debug", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
+                    that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
                         let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
@@ -1038,7 +1063,7 @@ class Bubbles {
             }
 
 
-            that._logger.log("debug", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound);
+            that._logger.log("internal", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound);
             resolve(bubbleFound);
         });
     }
@@ -1057,7 +1082,7 @@ class Bubbles {
     async getBubbleByJid(jid) : Promise<Bubble>  {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  " + jid);
+            that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
 
             if (!jid) {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJid) bad or empty 'jid' parameter", jid);
@@ -1074,7 +1099,7 @@ class Bubbles {
             } else {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
                 return that._rest.getBubbleByJid(jid).then((bubbleFromServer) => {
-                    that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
+                    that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
                         let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
@@ -1190,7 +1215,8 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) _entering_");
         
         if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1217,7 +1243,8 @@ class Bubbles {
                 });
                 
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(acceptInvitationToJoinBubble) error", err);
+                that._logger.log("error", LOG_ID + "(acceptInvitationToJoinBubble) error");
+                that._logger.log("internalerror", LOG_ID + "(acceptInvitationToJoinBubble) error : ", err);
                 that._logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) _exiting_");
                 reject(err);
             });
@@ -1244,14 +1271,15 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) _entering_");
         
         if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.declineInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
-                that._logger.log("info", LOG_ID + "(declineInvitationToJoinBubble) invitation declined", invitationStatus);
+                that._logger.log("info", LOG_ID + "(declineInvitationToJoinBubble) invitation declined : ", invitationStatus);
 
                 that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
                     // Update the existing local bubble stored
@@ -1269,7 +1297,8 @@ class Bubbles {
                 });
                 
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(declineInvitationToJoinBubble) error", err);
+                that._logger.log("error", LOG_ID + "(declineInvitationToJoinBubble) error");
+                that._logger.log("internalerror", LOG_ID + "(declineInvitationToJoinBubble) error : ", err);
                 that._logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) _exiting_");
                 reject(err);
             });
@@ -1298,7 +1327,8 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(setBubbleCustomData) _entering_");
         
         if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1309,7 +1339,7 @@ class Bubbles {
         return new Promise((resolve, reject) => {
 
             that._rest.setBubbleCustomData(bubbleId, custom).then(async (json : any) => {
-                that._logger.log("info", LOG_ID + "(setBubbleCustomData) customData set", json.customData);
+                that._logger.log("internal", LOG_ID + "(setBubbleCustomData) customData set", json.customData);
                 bubble.customData = json.customData || {};
 
                 try {
@@ -1317,7 +1347,7 @@ class Bubbles {
 
                             let bubbleInMemory = that._bubbles.find( (bubbleIter) => { return bubbleIter.id === bubbleId; });
                             if (bubbleInMemory)  {
-                                that._logger.log("debug", LOG_ID + "(setBubbleCustomData) bubbleInMemory : ", bubbleInMemory, ", \nbubble : ", bubble);
+                                that._logger.log("internal", LOG_ID + "(setBubbleCustomData) bubbleInMemory : ", bubbleInMemory, ", \nbubble : ", bubble);
 
                                 return deepEqual(bubbleInMemory.customData, bubble.customData);
                             } else {
@@ -1326,10 +1356,11 @@ class Bubbles {
                         } , "wait in setBubbleCustomData for the customData to be updated by the event rainbow_onbubblecustomdatachanged", 8000);
                     this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData updated in bubble stored in BubblesService.");
                 } catch (err) {
-                    this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.", err);
+                    this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.");
+                    this._logger.log("internal", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.", err);
                     that._rest.getBubble(bubble.id).then((bubbleUpdated: any) => {
 
-                        that._logger.log("debug", LOG_ID + "(setBubbleCustomData) Custom data in bubble retrieved from server : ", bubbleUpdated.name + " | " + bubbleUpdated.customData);
+                        that._logger.log("internal", LOG_ID + "(setBubbleCustomData) Custom data in bubble retrieved from server : ", bubbleUpdated.name + " | " + bubbleUpdated.customData);
 
                         let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -1376,17 +1407,20 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(setBubbleVisibilityStatus) _entering_");
         
         if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.setBubbleVisibility(bubble.id, status).then((bubbleData) => {
-                that._logger.log("info", LOG_ID + "(setBubbleVisibilityStatus) visibility set", bubbleData);
+                that._logger.log("info", LOG_ID + "(setBubbleVisibilityStatus) visibility set ");
+                that._logger.log("internal", LOG_ID + "(setBubbleVisibilityStatus) visibility set : ", bubbleData);
                 resolve(bubbleData);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(setBubbleVisibilityStatus) error", err);
+                that._logger.log("error", LOG_ID + "(setBubbleVisibilityStatus) error");
+                that._logger.log("internalerror", LOG_ID + "(setBubbleVisibilityStatus) error : ", err);
                 that._logger.log("debug", LOG_ID + "(setBubbleVisibilityStatus) _exiting_");
                 reject(err);
             });
@@ -1414,18 +1448,20 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(setBubbleTopic) _entering_");
         
         if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.setBubbleTopic(bubble.id, topic).then((bubbleData : any) => {
-                that._logger.log("info", LOG_ID + "(setBubbleTopic) topic set", bubbleData.topic);
+                that._logger.log("internal", LOG_ID + "(setBubbleTopic) topic set", bubbleData.topic);
                 bubble.topic = bubbleData.topic;
                 resolve(bubble);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(setBubbleTopic) error", err);
+                that._logger.log("error", LOG_ID + "(setBubbleTopic) error");
+                that._logger.log("internalerror", LOG_ID + "(setBubbleTopic) error : ", err);
                 that._logger.log("debug", LOG_ID + "(setBubbleTopic) _exiting_");
                 reject(err);
             });
@@ -1453,7 +1489,8 @@ class Bubbles {
         this._logger.log("debug", LOG_ID + "(setBubbleName) _entering_");
         
         if (!bubble) {
-            this._logger.log("debug", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter", bubble);
+            this._logger.log("warn", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1461,11 +1498,12 @@ class Bubbles {
 
             that._rest.setBubbleName(bubble.id, name).then((bubbleData : any) => {
                 
-                that._logger.log("info", LOG_ID + "(setBubbleName) name set", bubbleData.name);
+                that._logger.log("debug", LOG_ID + "(setBubbleName) name set : ", bubbleData.name);
                 bubble.name = bubbleData.name;
                 resolve(bubble);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(setBubbleName) error", err);
+                that._logger.log("error", LOG_ID + "(setBubbleName) error");
+                that._logger.log("internalerror", LOG_ID + "(setBubbleName) error : ", err);
                 that._logger.log("debug", LOG_ID + "(setBubbleName) _exiting_");
                 reject(err);
             });
@@ -1501,7 +1539,7 @@ class Bubbles {
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
         this._rest.getBubble(invitation.bubbleId).then( (bubbleUpdated : any) => {
-            that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble", bubbleUpdated.name);
+            that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated.name);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -1535,7 +1573,7 @@ class Bubbles {
         that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) enter");
 
         this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
-            that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble", bubbleUpdated.name + " | " + affiliation.status);
+            that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -1570,7 +1608,7 @@ class Bubbles {
 
         if (affiliation.status !== "deleted") {
             this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
-                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble", bubbleUpdated.name + " | " + affiliation.status);
+                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
     
                 // Update the existing local bubble stored
                 let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -1643,7 +1681,7 @@ class Bubbles {
 
         this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
 
-            that._logger.log("debug", LOG_ID + "(_onCustomDataChanged) Custom data changed for bubble", bubbleUpdated.name + " | " + data.customData);
+            that._logger.log("internal", LOG_ID + "(_onCustomDataChanged) Custom data changed for bubble : ", bubbleUpdated.name + " | " + data.customData);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -1675,7 +1713,7 @@ class Bubbles {
         let that = this;
 
         this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
-            that._logger.log("debug", LOG_ID + "(_onTopicChanged) Topic changed for bubble", bubbleUpdated.name + " | " + data.topic);
+            that._logger.log("internal", LOG_ID + "(_onTopicChanged) Topic changed for bubble : ", bubbleUpdated.name + " | " + data.topic);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
             /*// Update the existing local bubble stored
@@ -1706,7 +1744,7 @@ class Bubbles {
         let that = this;
 
         this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
-            that._logger.log("debug", LOG_ID + "(_onNameChanged) Name changed for bubble", bubbleUpdated.name + " | " + data.name);
+            that._logger.log("internal", LOG_ID + "(_onNameChanged) Name changed for bubble : ", bubbleUpdated.name + " | " + data.name);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
