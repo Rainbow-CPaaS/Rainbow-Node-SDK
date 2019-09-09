@@ -1092,7 +1092,7 @@ class Channels {
             this._logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
-            var options : any = {};
+            let options : any = {};
             if (channelTopic != null) {
                 options.topic = channelTopic;
             }

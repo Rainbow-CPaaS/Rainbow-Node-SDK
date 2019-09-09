@@ -70,7 +70,7 @@ class FileServer {
 
     start(_xmpp : XMPPService, _rest : RESTService, _fileStorageService) {
 
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(start) _entering_");
 
@@ -90,7 +90,7 @@ class FileServer {
     }
 
     stop() {
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(stop) _entering_");
 
@@ -191,7 +191,8 @@ class FileServer {
                                 resolve(buffer);
                             },
                             (error) => {
-                                that.logger.log("info", LOG_ID + "[FileServer] " + error);
+                                that.logger.log("error", LOG_ID + "[FileServer] Error." );
+                                that.logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
                                 reject(error);
                             }
                         );
@@ -204,14 +205,15 @@ class FileServer {
 
     /**
      * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
-     * 
-     * @param {string} file [required] destination file
+     *
+     * @param destFile
      * @param {string} url [required] server url for request
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} uploadedDate [optional] date of the upload
      * @returns {Buffer} Buffer created from data received from server
-     * 
+     *
      * @memberof FileServer
      */
     getFileFromUrlWithOptimization(destFile, url, mime, fileSize, fileName, uploadedDate) {
@@ -266,7 +268,8 @@ class FileServer {
                                 resolve(buffer);
                             },
                             (error) => {
-                                that.logger.log("info", LOG_ID + "[FileServer] " + error);
+                                that.logger.log("error", LOG_ID + "[FileServer] Error.");
+                                that.logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
                                 reject(error);
                             }
                         );
@@ -288,14 +291,14 @@ class FileServer {
             (fileDescriptor.isImage() && fileDescriptor.size < (20 * this.ONE_KILOBYTE)) ) {
 
             // Check if a request for this thumbnail is already lauched
-            var existingPromise = this.thumbnailPromises[fileDescriptor.id];
+            let existingPromise = this.thumbnailPromises[fileDescriptor.id];
             if (existingPromise) {
                 this.$log.info("[FileServerService] getBlobThumbnailFromFileDescriptor " + fileDescriptor.id + " already lauched");
                 return existingPromise.promise;
             }
 
             // Create the defered object
-            var defered = this.$q.defer();
+            let defered = this.$q.defer();
             this.thumbnailPromises[fileDescriptor.id] = defered;
 
             // Forge the thumbnail url
@@ -395,7 +398,8 @@ class FileServer {
                         //     filesize: file.size
                         // });
                         reject(errorResponse);
-                        that.logger.log("error", LOG_ID + "(UploadAFile) error: " + errorResponse);
+                        that.logger.log("error", LOG_ID + "(UploadAFile) error." );
+                        that.logger.log("internalerror", LOG_ID + "(UploadAFile) error : ", errorResponse);
                     });
         });
     }
@@ -426,7 +430,8 @@ class FileServer {
                 (errorResponse) => {
                     //let error = this.errorHelperService.handleError(errorResponse);
                     reject(errorResponse);
-                    that.logger.log("error", LOG_ID + "(_sendPartialDataToServer) " + errorResponse);
+                    that.logger.log("error", LOG_ID + "(_sendPartialDataToServer) Error." );
+                    that.logger.log("internalerror", LOG_ID + "(_sendPartialDataToServer) Error : ", errorResponse);
                 });
         });
     }
@@ -473,7 +478,7 @@ class FileServer {
             let fd = fs.openSync(filePath, "r+");
 
             let partialSent = (promiseDeferred, blob, i) => {
-                //var promiseArrayDeferred = new Deferred();
+                //let promiseArrayDeferred = new Deferred();
 
                 that._sendPartialDataToServer(fileDescriptor.id, blob, i)
                     .then((response) => {
@@ -484,7 +489,8 @@ class FileServer {
 
                     })
                     .catch((error) => {
-                        that.logger.log("info", LOG_ID + "(uploadAFileByChunk) error on chunk upload=" + error);
+                        that.logger.log("error", LOG_ID + "(uploadAFileByChunk) error on chunk upload.");
+                        that.logger.log("internalerror", LOG_ID + "(uploadAFileByChunk) error on chunk upload : ", error);
                         promiseDeferred.reject(error);
                     });
                 return promiseDeferred.promise;
@@ -507,7 +513,7 @@ class FileServer {
                 });
 
             }
-            /* var promisesCompletion = () => {
+            /* let promisesCompletion = () => {
                  this.rest.sendPartialFileCompletion(fileDescriptor.id)
                      .then(
                          (response) => {
@@ -523,7 +529,7 @@ class FileServer {
                          deferred.reject(errorResponse);
                      });
              };
-             var promisesReject = (errorResponse) => {
+             let promisesReject = (errorResponse) => {
                  deferred.reject(errorResponse);
              };
              that.transferPromiseQueue.addPromiseArray(promiseArray, promisesCompletion, promisesReject);
@@ -634,7 +640,8 @@ class FileServer {
                         },
                         (errorResponse) => {
                             let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse.message;
-                            that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + errorResponse);
+                            that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error.");
+                            that.logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
                             reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
@@ -667,7 +674,8 @@ class FileServer {
      */
      getBlobFromUrl(url, mime, fileSize, fileName) {
          let that = this;
-        that.logger.log("info", LOG_ID + "[FileServerService] >getBlobFromUrl: " + url);
+        that.logger.log("info", LOG_ID + "[FileServerService] >getBlobFromUrl" );
+        that.logger.log("internal", LOG_ID + "[FileServerService] >getBlobFromUrl : " + url);
 
         return new Promise((resolve, reject) => {
             /*this.$http({
@@ -695,7 +703,8 @@ class FileServer {
                 },
                 (errorResponse) => {
                     let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse;
-                    that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + errorResponse);
+                    that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error." );
+                    that.logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
                     let err = ErrorManager.getErrorManager().ERROR;
                     err.msg = errorMessage;
                     reject(err);

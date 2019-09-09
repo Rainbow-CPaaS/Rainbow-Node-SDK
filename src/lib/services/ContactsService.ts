@@ -57,7 +57,7 @@ class Contacts {
 
     start(_xmpp : XMPPService, _rest : RESTService) {
 
-        var that = this;
+        let that = this;
 
         that.logger.log("debug", LOG_ID + "(start) _entering_");
 
@@ -110,7 +110,7 @@ class Contacts {
     }
 
     stop() {
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(stop) _entering_");
 
@@ -223,7 +223,7 @@ class Contacts {
 
     createEmptyContactContact(jid) {
         let that = this;
-        var contact = that.createBasicContact(jid);
+        let contact = that.createBasicContact(jid);
         contact.initials = "?";
         contact.displayName = "Unknown contact";
         contact.lastName = "Unknown contact";
@@ -364,7 +364,7 @@ class Contacts {
      */
     getContactByJid(jid) {
 
-        var that = this;
+        let that = this;
 
         return new Promise((resolve, reject) => {
             if (!jid) {
@@ -431,7 +431,7 @@ class Contacts {
      */
     getContactById(id) {
 
-        var that = this;
+        let that = this;
 
         return new Promise((resolve, reject) => {
              if (!id) {

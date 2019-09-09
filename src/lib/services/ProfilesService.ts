@@ -5,7 +5,7 @@ import {RESTService} from "../connection/RESTService";
 export {};
 
 
-//var service = this;
+//let service = this;
 import {ErrorManager} from "../common/ErrorManager";
 
 const Offer = require('../common/models/Offer') ;
@@ -121,14 +121,15 @@ class ProfilesService {
                 that.getServerProfile()
                     .then(function () {
                         // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                        that.logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                        //that.logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                         that._eventEmitter.emit("evt_internal_profilefeatureupdated");
                         clearInterval(that.timer);
                         that.timer = null;
                     })
                     .catch(function (error) {
                         that.timer = null;
-                        that.logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE === " + error.message);
+                        that.logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
+                        that.logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
                         // reject(error);
                     });
             }, 3000);
@@ -185,7 +186,7 @@ class ProfilesService {
                     that.started = true;
 
                     // @ts-ignore
-                    var startDuration = Math.round(new Date() - that.startDate);
+                    let startDuration = Math.round(new Date() - that.startDate);
                     that.stats.push({service: "profileService", startDuration: startDuration});
                     that.logger.log("debug", LOG_ID + "(start) [profileService] === STARTED (" + startDuration + " ms) ===");
 
@@ -200,7 +201,8 @@ class ProfilesService {
                     resolve();
                 })
                 .catch(function (error) {
-                    that.logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " + error.message);
+                    that.logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
+                    that.logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
                     reject(error);
                 });
         });
@@ -227,10 +229,10 @@ class ProfilesService {
                     that.profiles = [];
                     that.mainOffers = [];
                     response.forEach(function (profileData) {
-                        that.logger.log("debug", LOG_ID + "(getServerProfiles) === response ===" + profileData);
+                        that.logger.log("internal", LOG_ID + "(getServerProfiles) === response ===" + profileData);
                         //store profile data
                         that.profiles.push(profileData);
-                        var offer = Offer.offerManager.createOfferFromProfileData(profileData);
+                        let offer = Offer.offerManager.createOfferFromProfileData(profileData);
                         if (offer.isExclusive || offer.isDefault) {
                             that.mainOffers.push(offer);
                         }
@@ -239,11 +241,12 @@ class ProfilesService {
                     resolve();
                 },
                 function error(response) {
-                    var errorMessage = "(getServerProfiles) failure: no server response";
+                    let errorMessage = "(getServerProfiles) failure: no server response";
                     if (response) {
                         errorMessage = "(getServerProfiles) failure: " + JSON.stringify(response);
                     }
-                    that.logger.log("error", LOG_ID + "(getServerProfiles) : " + errorMessage);
+                    that.logger.log("error", LOG_ID + "(getServerProfiles) Error. ");
+                    that.logger.log("internalerror", LOG_ID + "(getServerProfiles) Error : ", errorMessage);
                     reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
@@ -261,7 +264,7 @@ class ProfilesService {
                 function success(response : []) {
                     that.features = {};
                     response.forEach(function (featureData : any) {
-                        that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) === response ===" , featureData);
+                        that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) === response === : ", featureData);
                         //store feature data
                         if (featureData.hasOwnProperty("featureUniqueRef")) {
                             that.features[featureData.featureUniqueRef] = featureData;
@@ -274,7 +277,8 @@ class ProfilesService {
                     if (response) {
                         errorMessage = "(getServerProfilesFeatures) failure : " + JSON.stringify(response);
                     }
-                    that.logger.log("error", LOG_ID + "(getServerProfilesFeatures) " + errorMessage);
+                    that.logger.log("error", LOG_ID + "(getServerProfilesFeatures) Error.");
+                    that.logger.log("internalerror", LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
                     reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
@@ -289,7 +293,7 @@ class ProfilesService {
 
     setUserData setUserData(params) {
         return $q(function (resolve, reject) {
-            var url = config.restServerUrl + "/api/rainbow/enduser/v1.0/users/" + contactService.userContact.dbId;
+            let url = config.restServerUrl + "/api/rainbow/enduser/v1.0/users/" + contactService.userContact.dbId;
             $http({method: "PUT", url: url, headers: authService.getRequestHeader(), data: params})
                 .then(
                     function success(result) {
@@ -297,7 +301,7 @@ class ProfilesService {
                         resolve(result.data);
                     },
                     function failure(response) {
-                        var errorMessage = "setUserData failure: no server response";
+                        let errorMessage = "setUserData failure: no server response";
                         if (response) {
                             errorMessage = "setUserData failure: " + JSON.stringify(response);
                         }
@@ -320,7 +324,7 @@ class ProfilesService {
             that.features[featureUniqueRef].hasOwnProperty("featureType") &&
             that.features[featureUniqueRef].featureType === "boolean" &&
             that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
-            var enabled = that.features[featureUniqueRef].isEnabled;
+            let enabled = that.features[featureUniqueRef].isEnabled;
             that.logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
             return enabled;
         }
@@ -335,7 +339,7 @@ class ProfilesService {
             that.features[featureUniqueRef].hasOwnProperty("featureType") &&
             that.features[featureUniqueRef].featureType === "number" &&
             that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
-            var limitMax = that.features[featureUniqueRef].limitMax;
+            let limitMax = that.features[featureUniqueRef].limitMax;
             that.logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
             return limitMax;
         }
@@ -350,7 +354,7 @@ class ProfilesService {
             that.features[featureUniqueRef].hasOwnProperty("featureType") &&
             that.features[featureUniqueRef].featureType === "number" &&
             that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
-            var limitMin = that.features[featureUniqueRef].limitMin;
+            let limitMin = that.features[featureUniqueRef].limitMin;
             that.logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
             return limitMin;
         }
@@ -371,7 +375,7 @@ class ProfilesService {
 
     getMyProfileName () {
         let that = this ;
-        var profile = that.getMyProfileOffer();
+        let profile = that.getMyProfileOffer();
         if (profile) {
             return profile.name;
         }
@@ -384,7 +388,7 @@ class ProfilesService {
      */
     getMyProfiles () {
         let that = this ;
-        var profiles = [];
+        let profiles = [];
         if (that.started) {
             //TODO return a simplified profile object ???
             profiles = that.profiles;
@@ -400,12 +404,12 @@ class ProfilesService {
      */
     getMyProfileFeatures () {
         let that = this;
-        var profileFeatures = {};
+        let profileFeatures = {};
         if (that.started) {
             //return a simplified feature object with featureType, limitMin, limitMax and isEnabled properties only
             Object.keys(that.features).forEach(function (featureUniqueRef) {
-                var originalFeature = that.features[featureUniqueRef];
-                var feature = {};
+                let originalFeature = that.features[featureUniqueRef];
+                let feature = {};
                 Object.keys(originalFeature).filter(function (featureProperty) {
                     return (featureProperty === "featureUniqueRef" || featureProperty === "featureType" || featureProperty === "limitMin" || featureProperty === "limitMax" || featureProperty === "isEnabled");
                 }).forEach(function (featureProperty) {

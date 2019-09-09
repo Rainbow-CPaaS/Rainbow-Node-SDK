@@ -41,7 +41,7 @@ class Settings {
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
-        var that = this;
+        let that = this;
 
         this._logger.log("debug", LOG_ID + "(start) _entering_");
 
@@ -60,7 +60,7 @@ class Settings {
     }
 
     stop() {
-        var that = this;
+        let that = this;
 
         this._logger.log("debug", LOG_ID + "(stop) _entering_");
 
@@ -89,7 +89,7 @@ class Settings {
      */
     getUserSettings() {
 
-        var that = this;
+        let that = this;
 
         this._logger.log("debug", LOG_ID + "(getUserSettings) _entering_");
 
@@ -102,7 +102,8 @@ class Settings {
                 that._logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
                 resolve(settings);
             }).catch(function(err) {
-                that._logger.log("error", LOG_ID + "(getUserSettings) error", err);
+                that._logger.log("error", LOG_ID + "(getUserSettings) error.");
+                that._logger.log("internalerror", LOG_ID + "(getUserSettings) error : ", err);
                 that._logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
                 reject(err);
             });
@@ -133,7 +134,8 @@ class Settings {
                     resolve(newSettings);
                 })
                 .catch( (err) => {
-                    that._logger.log("error", LOG_ID + "(updateUserSettings) error", err);
+                    that._logger.log("error", LOG_ID + "(updateUserSettings) error.");
+                    that._logger.log("internalerror", LOG_ID + "(updateUserSettings) error : ", err);
                     that._logger.log("debug", LOG_ID + "(updateUserSettings) _exiting_");
                     reject(err);
                 });

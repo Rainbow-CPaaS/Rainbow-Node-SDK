@@ -85,7 +85,7 @@ class Presence {
     }
 
     stop() {
-        var that = this;
+        let that = this;
 
         that._logger.log("debug", LOG_ID + "(stop) _entering_");
 
@@ -121,13 +121,14 @@ class Presence {
      */
     sendInitialPresence() {
 
-        var that = this;
+        let that = this;
 
         that._logger.log("debug", LOG_ID + "(sendInitialPresence) _entering_");
 
         return new Promise((resolve) => {
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                that._logger.log("info", LOG_ID + "(sendInitialPresence) received", presence);
+                that._logger.log("info", LOG_ID + "(sendInitialPresence) received.");
+                that._logger.log("internal", LOG_ID + "(sendInitialPresence) received : ", presence);
                 that._logger.log("debug", LOG_ID + "(sendInitialPresence) - _exiting_");
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
@@ -152,9 +153,9 @@ class Presence {
      */
     setPresenceTo(presence) {
 
-        var that = this;
-        var show = "online";
-        var status = "";
+        let that = this;
+        let show = "online";
+        let status = "";
 
         that._logger.log("debug", LOG_ID + "(setPresenceTo) _entering_");
 
@@ -178,13 +179,15 @@ class Presence {
                     status = "";
                     break;
                 default:
-                    that._logger.log("warn", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter", presence);
+                    that._logger.log("warn", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter : ", presence);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 break;
             }
 
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged (_presence) {
-                that._logger.log("info", LOG_ID + "(setPresenceTo) received", _presence);
+                that._logger.log("info", LOG_ID + "(setPresenceTo) received.");
+                that._logger.log("internal", LOG_ID + "(setPresenceTo) received : ", _presence);
                 that._logger.log("debug", LOG_ID + "(setPresenceTo) - _exiting_");
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
@@ -212,7 +215,8 @@ class Presence {
              if (status === "online") {
                  that.manualState = false;
                  that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                     that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
+                     that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                      that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                      resolve();
@@ -222,7 +226,8 @@ class Presence {
                  that.manualState = true;
                  if (status === "away") {
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
+                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
@@ -230,7 +235,8 @@ class Presence {
                      that._xmpp.setPresence("away", message);
                  } else if (status === "dnd") {
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
+                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
@@ -238,7 +244,8 @@ class Presence {
                      that._xmpp.setPresence("dnd", message);
                  } else if (status === "xa") {
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received", presence);
+                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                          that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
@@ -271,8 +278,8 @@ class Presence {
 
             that._settings.getUserSettings()
                 .then(function(settings) {
-                    var message = "";
-                    var presence = settings.presence;
+                    let message = "";
+                    let presence = settings.presence;
                     if (presence === "invisible") {
                         presence = "xa";
                     } else if (presence === "away") {
@@ -280,9 +287,9 @@ class Presence {
                         message = "away";
                     }
 
-                    that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are " + presence + " || message : " + message);
+                    that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are " + presence + " || message : " + message);
                     if (that._currentPresence && (that._currentPresence.show !== presence || (that._currentPresence.show === "xa" && that._currentPresence.status !== message))) {
-                        that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from " + that._currentPresence.show + " to " + presence + " (" + message + ")");
+                        that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from " + that._currentPresence.show + " to " + presence + " (" + message + ")");
                         that._setUserPresenceStatus(presence, message).then(() => { resolve(); });
                     } else {
                         resolve();

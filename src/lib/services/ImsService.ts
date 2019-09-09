@@ -70,7 +70,7 @@ class IM {
     }
 
     stop() {
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(stop) _entering_");
 
@@ -225,12 +225,14 @@ class IM {
         this.logger.log("debug", LOG_ID + "(sendMessageToConversation) _entering_");
 
         if (!conversation) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter", conversation);
+            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
+            this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         if (!message) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter", message);
+            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
+            this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
@@ -273,7 +275,8 @@ class IM {
         this.logger.log("debug", LOG_ID + "(sendMessageToContact) _entering_");
 
         if (!contact || !contact.jid_im) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter", contact);
+            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
+            this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
         }
 
@@ -346,7 +349,8 @@ class IM {
         this.logger.log("debug", LOG_ID + "(sendMessageToJid) _entering_");
 
         if (!message) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter", message);
+            this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
+            this.logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
@@ -412,13 +416,15 @@ class IM {
         that.logger.log("debug", LOG_ID + "(sendMessageToJidAnswer) _entering_");
 
         if (!message) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter", message);
+            this.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
+            this.logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter", answeredMsg);
+            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter.");
+            that.logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         }
 
@@ -479,7 +485,8 @@ class IM {
         this.logger.log("debug", LOG_ID + "(sendMessageToBubble) _entering_");
 
         if (!bubble || !bubble.jid) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter", bubble);
+            this.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
+            this.logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
@@ -513,7 +520,8 @@ class IM {
         that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _entering_");
 
         if (!message) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter", message);
+            that.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter.");
+            that.logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
@@ -589,12 +597,14 @@ class IM {
         }
         that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _entering_");
         if (!message) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter", message);
+            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
+            that.logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter", answeredMsg);
+            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
+            that.logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         }
 
@@ -655,7 +665,7 @@ class IM {
      */
     sendIsTypingStateInBubble(bubble, status) {
         let that = this;
-        return new Promise((resolve,reject) => {
+        return new Promise(async (resolve,reject) => {
             if (!bubble) {
                 reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"}));
             }
@@ -666,14 +676,14 @@ class IM {
                 if (!bubble.jid) {
                     reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
                 } else {
-                    that.logger.log("debug",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
+                    that.logger.log("internal",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
 
-                    that._conversations.getBubbleConversation(bubble.jid).then(function (conversation) {
+                    that._conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
                         if (!conversation) {
                             reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
                         else {
-                            that.xmpp.sendIsTypingState(conversation, status) ;
+                            await that.xmpp.sendIsTypingState(conversation, status) ;
                             //conversationService.sendIsTypingState(conversation, status);
                             resolve();
                         }
@@ -698,7 +708,7 @@ class IM {
      */
     sendIsTypingStateInConversation(conversation, status) {
         let that = this;
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (!conversation) {
                 reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
             }
@@ -710,7 +720,7 @@ class IM {
                 if (!conversation) {
                     reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
-                    that.xmpp.sendIsTypingState(conversation, status);
+                    await that.xmpp.sendIsTypingState(conversation, status);
                     resolve();
                 }
             }
@@ -763,7 +773,7 @@ class IM {
      * @category async
      */
     enableCarbon() {
-        var that = this;
+        let that = this;
 
         this.logger.log("debug", LOG_ID + "(enableCarbon) _entering_");
 

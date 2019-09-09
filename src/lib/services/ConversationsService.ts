@@ -88,9 +88,7 @@ class Conversations {
         let that = this;
         that.conversationHandlerToken = [];
         that.conversationHistoryHandlerToken= [];
-        that
-            ._logger
-            .log("debug", LOG_ID + "(start) _entering_");
+        that._logger.log("debug", LOG_ID + "(start) _entering_");
 
         return new Promise((resolve, reject) => {
             try {
@@ -116,18 +114,13 @@ class Conversations {
 
                 that._attachHandlers();
 
-                that
-                    ._logger
-                    .log("debug", LOG_ID + "(start) _exiting_");
+                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
 
             } catch (err) {
-                that
-                    ._logger
-                    .log("internal", LOG_ID + "(start) !!! Catch error : ", err);
-                that
-                    ._logger
-                    .log("error", LOG_ID + "(start) _exiting_");
+                that._logger.log("error", LOG_ID + "(start) !!! Catch error ");
+                that._logger.log("internalerror", LOG_ID + "(start) !!! Catch error : ", err);
+                that._logger.log("error", LOG_ID + "(start) _exiting_");
                 reject();
             }
         });
@@ -214,11 +207,11 @@ class Conversations {
                 .getServerConversations()
                 .then((conversations : []) => {
                     // Create conversation promises
-                    var conversationPromises = [];
+                    let conversationPromises = [];
                     conversations.forEach(function (conversationData : any) {
-                            var missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
-                            var conversationPromise = null;
-                            var muted = (conversationData.mute === true);
+                            let missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
+                            let conversationPromise = null;
+                            let muted = (conversationData.mute === true);
 
                             if (conversationData.type === "user") {
                                 conversationPromise = that.getOrCreateOneToOneConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, muted, conversationData.creationDate);
@@ -239,21 +232,21 @@ class Conversations {
                             resolve(conversationsResult);
                         })
                         .catch((error) => {
-                            var errorMessage = "getServerConversations failure: " + error.message;
-                            that._logger.log("error", LOG_ID + "[conversationService] ", errorMessage);
+                            let errorMessage = "getServerConversations failure: " + error.message;
+                            that._logger.log("error", LOG_ID + "[conversationService] error.");
+                            that._logger.log("internalerror", LOG_ID + "[conversationService] error : ", errorMessage);
                             reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                         });
                 })
                 .catch((err) => {
-                    var errorMessage = "getServerConversations failure: no server response";
+                    let errorMessage = "getServerConversations failure: no server response";
 
                     if (err) {
                         errorMessage = "getServerConversations failure: " + JSON.stringify(err);
                     }
 
-                    that
-                        ._logger
-                        .log("error", LOG_ID + "[conversationService] " + errorMessage);
+                    that._logger.log("error", LOG_ID + "[conversationService] error.");
+                    that._logger.log("internalerror", LOG_ID + "[conversationService] error : ", errorMessage);
                     reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });
@@ -275,7 +268,7 @@ class Conversations {
         if (conversation.dbId) { return Promise.resolve(conversation); }
 
         // Prepare global variables
-        var data = {peerId:null, type: null};
+        let data = {peerId:null, type: null};
 
         // Handle one to one conversation
         if (conversation.type === Conversation.Type.ONE_TO_ONE) {
@@ -306,7 +299,7 @@ class Conversations {
         }
 
         if (conversation.bubble && conversation.bubble.avatar) {
-            var avatarRoom = conversation.bubble.avatar;
+            let avatarRoom = conversation.bubble.avatar;
         }
 
         return this._rest.createServerConversation( data )
@@ -324,7 +317,7 @@ class Conversations {
                 // TODO ? that.orderConversations();
                 return Promise.resolve(conversation);
         }).catch( (err) => {
-            var errorMessage = "createServerConversation failure: " + err.errorDetails;
+            let errorMessage = "createServerConversation failure: " + err.errorDetails;
             that
             ._logger
             .log("error", LOG_ID + "[conversationService] " + errorMessage);
@@ -353,16 +346,13 @@ class Conversations {
         }).catch( (err) => {
             // Check particular case where we are trying to remove an already removed conversation
             if (err.errorDetailsCode === 404002) {
-                that
-            ._logger
-            .log("info", LOG_ID + "[conversationService] deleteServerConversation success: " + conversationId);
+                that._logger.log("info", LOG_ID + "[conversationService] deleteServerConversation success: " + conversationId);
                 return Promise.resolve();
             }
             
             let errorMessage = "deleteServerConversation failure: " + err.errorDetails;
-            that
-                ._logger
-                .log("warn", LOG_ID + "[conversationService] " + errorMessage);
+            that._logger.log("warn", LOG_ID + "[conversationService] Error.");
+            that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
             return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
        
         });
@@ -443,19 +433,15 @@ class Conversations {
 
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
-            that
-                ._logger
-                .log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(" + conversation.id + ", " + size + ", " + conversation.historyIndex + ") already asked");
+            that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
             return Promise.resolve();
         }
         conversation.currentHistoryId = conversation.historyIndex;
 
-        that
-            ._logger
-            .log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(" + conversation.id + ", " + size + ", " + conversation.historyIndex + ")");
+        that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ")");
 
         // Create the defered object
-        var defered = conversation.historyDefered = new Deferred();
+        let defered = conversation.historyDefered = new Deferred();
 
         // Do nothing for userContact
         if (that._contacts.isUserContact(conversation.contact)) {
@@ -464,14 +450,12 @@ class Conversations {
         }
 
         if (conversation.historyComplete) {
-            that
-                ._logger
-                .log("debug", LOG_ID + "[conversationService] getHistoryPage(" + conversation.id + ") : already complete");
+            that._logger.log("debug", LOG_ID + "[conversationService] getHistoryPage(" + conversation.id + ") : already complete");
             defered.reject();
             return defered.promise;
         }
 
-        var mamRequest = {
+        let mamRequest = {
             "queryid": conversation.id,
             "with": conversation.id,
             "max": size,
@@ -495,14 +479,10 @@ class Conversations {
                 mamRequest.before = conversation.historyIndex;
             }
 
-            that
-                ._xmpp
-                .mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest);
+            that._xmpp.mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest);
         } else {
             // Request for history messages for the conversation
-            that
-                ._xmpp
-                .mamQuery(conversation.id, mamRequest);
+            that._xmpp.mamQuery(conversation.id, mamRequest);
         }
 
         return defered.promise;
@@ -524,9 +504,7 @@ class Conversations {
                 return resolve(conv);
             }
 
-            that
-                ._logger
-                .log("info", LOG_ID + "[conversationService] getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
+            that._logger.log("info", LOG_ID + "[conversationService] getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
 
 
             // No conversation found, then create it
@@ -555,10 +533,9 @@ class Conversations {
                     resolve(conversation);
                 })
                 .catch( (error) => {
-                    var errorMessage = "getOrCreateOneToOneConversation " + conversationId + " failure " + error.message;
-                    that
-                        ._logger
-                        .log("error", LOG_ID + "[conversationService] " + errorMessage);
+                    let errorMessage = "getOrCreateOneToOneConversation " + conversationId + " failure " + error.message;
+                    that._logger.log("error", LOG_ID + "[conversationService] Error." );
+                    that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
 
                     reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
@@ -581,9 +558,7 @@ class Conversations {
     getBubbleConversation(bubbleJid, conversationDbId, lastModification, lastMessageText, missedIMCounter, noError, muted, creationDate, lastMessageSender) {
         let that = this;
 
-        that
-            ._logger
-            .log("info", LOG_ID + "[conversationService] getBubbleConversation " + bubbleJid);
+        that._logger.log("info", LOG_ID + "[conversationService] getBubbleConversation : ", bubbleJid);
 
         // Fetch the conversation in memory
         let conversationResult = that.getConversationById(conversationDbId);
@@ -602,13 +577,11 @@ class Conversations {
         return new Promise((resolve, reject) => {
 
             // Get the associated bubble
-           that._bubbles.getBubbleByJid(bubbleJid).then((bubble)=> {
+            that._bubbles.getBubbleByJid(bubbleJid).then((bubble) => {
                 if (!bubble) {
-                    that
-                        ._logger
-                        .log("debug", LOG_ID + "[conversationService] getBubbleConversation (" + bubbleJid + ") failure : no such bubble");
+                    that._logger.log("debug", LOG_ID + "[conversationService] getBubbleConversation (" + bubbleJid + ") failure : no such bubble");
 
-                    var obj = {
+                    let obj = {
                         jid: bubbleJid,
                         conversationDbId: conversationDbId,
                         lastModification: lastModification,
@@ -618,15 +591,11 @@ class Conversations {
                         creationDate: creationDate
                     };
 
-                    that
-                        .waitingBotConversations
-                        .push(obj);
+                    that.waitingBotConversations.push(obj);
                     that.unlockWaitingBotConversations();
                     resolve();
                 } else {
-                    that
-                        ._logger
-                        .log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
+                    that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
                     conversation = Conversation.createBubbleConversation(bubble);
                     conversation.dbId = conversationDbId;
@@ -654,8 +623,8 @@ class Conversations {
                                 } // Create server side if necessary
                             );
                     } else {
-                            // that.createServerConversation(conversation)
-                            Promise.resolve(conversation)
+                        // that.createServerConversation(conversation)
+                        Promise.resolve(conversation)
                             .then(function (__conversation) {
                                 if (bubble) {
                                     that._bubbles._sendInitialBubblePresence(bubble);
@@ -665,29 +634,27 @@ class Conversations {
                                 resolve(__conversation);
                             })
                             .catch(function (error) {
-                                var errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
-                                that
-                                    ._logger
-                                    .log("error", LOG_ID + "[conversationService] " + errorMessage);
+                                let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
+                                that._logger.log("error", LOG_ID + "[conversationService] Error.");
+                                that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
                                 that.deleteServerConversation(conversationDbId);
                                 if (noError) {
                                     resolve();
                                 } else {
-                                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                                 }
                             });
                     }
                 }
-            }).catch((error)=> {
-                var errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
-                that
-                    ._logger
-                    .log("error", LOG_ID + "[conversationService] " + errorMessage);
+            }).catch((error) => {
+                let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
+                that._logger.log("error", LOG_ID + "[conversationService] Error.");
+                that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
                 that.deleteServerConversation(conversationDbId);
                 if (noError) {
                     resolve();
                 } else {
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                 }
             });
 
@@ -738,12 +705,12 @@ class Conversations {
         let that = this;
 
         return new Promise((resolve) => {
-            var confEndpoints = conversation.bubble.confEndpoints;
+            let confEndpoints = conversation.bubble.confEndpoints;
             if (confEndpoints) {
                 confEndpoints.forEach(function(confEndpoint) {
                     if (confEndpoint.mediaType === "pstnAudio") {
                         // TODO later
-                        // var conferenceSession = pstnConferenceService.getConferenceSessionById(confEndpoint.confEndpointId);
+                        // let conferenceSession = pstnConferenceService.getConferenceSessionById(confEndpoint.confEndpointId);
                         // if (conferenceSession) {
                         //     conversation.pstnConferenceSession = conferenceSession;
                         // }
@@ -764,11 +731,11 @@ class Conversations {
     updateRoomConferences() {
         let that = this;
 
-        var conversations = that.getConversations();
+        let conversations = that.getConversations();
         conversations.forEach(function(conversation) {
             if (conversation.bubble && conversation.bubble.confEndpoints) {
                 // TODO Later
-                // var conferenceSession = pstnConferenceService.getConferenceSessionById(conversation.bubble.getPstnConfEndpointId());
+                // let conferenceSession = pstnConferenceService.getConferenceSessionById(conversation.bubble.getPstnConfEndpointId());
                 // if (conferenceSession) {
                 //     conversation.pstnConferenceSession = conferenceSession;
                 // } else {
@@ -798,9 +765,7 @@ class Conversations {
     closeConversation(conversation) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that
-                ._logger
-                .log("info", LOG_ID + "[conversationService] closeConversation " + conversation.id);
+            that._logger.log("info", LOG_ID + "[conversationService] closeConversation " + conversation.id);
 
             // Remove this contact from favorite group
             that
@@ -826,20 +791,16 @@ class Conversations {
      */
     removeConversation(conversation) {
         let that = this;
-        that
-            ._logger
-            .log("info", LOG_ID + "[conversationService] remove conversation " + conversation.id);
+        that._logger.log("info", LOG_ID + "[conversationService] remove conversation " + conversation.id);
 
         if (conversation.videoCall && conversation.videoCall.status !== Call.Status.UNKNOWN) {
-            that
-            ._logger
-            .log("info", LOG_ID + "[conversationService] Ignore conversation deletion message for conversation" + conversation.id);
+            that._logger.log("info", LOG_ID + "[conversationService] Ignore conversation deletion message for conversation" + conversation.id);
             return;
         }
 
         delete that.conversations[conversation.id];
        /* that.orderConversations();
-        var conversations = that.getOrderedConversations();
+        let conversations = that.getOrderedConversations();
 
         if (that.activeConversation && !(conversations.idle.indexOf(service.activeConversation) >= 0)) {
             if (conversations.idle.length > 0) {
@@ -882,12 +843,12 @@ class Conversations {
             that._logger.log("info", LOG_ID + "sendFSMessage");
 
             // Add message in messages array
-            var fileExtension = file.name.split(".").pop();
-            var fileMimeType = file.type;
-            var viewers = [];
-            //var message = typeof (data) === "object" ? data : undefined;
-            var message = data;
-            var currentFileDescriptor;
+            let fileExtension = file.name.split(".").pop();
+            let fileMimeType = file.type;
+            let viewers = [];
+            //let message = typeof (data) === "object" ? data : undefined;
+            let message = data;
+            let currentFileDescriptor;
 
             if (conversation.type === Conversation.Type.ONE_TO_ONE) {
                 viewers.push(fileViewerElementFactory(conversation.contact.id, "user"));
@@ -908,7 +869,7 @@ class Conversations {
                     currentFileDescriptor = fileDescriptor;
                     fileDescriptor.fileToSend = file;
                     if (fileDescriptor.isImage()) {
-                        // var URLObj = $window.URL || $window.webkitURL;
+                        // let URLObj = $window.URL || $window.webkitURL;
                         // fileDescriptor.previewBlob = URLObj.createObjectURL(file);
                         if (file.preview) {
                             fileDescriptor.previewBlob = file.preview;
@@ -941,13 +902,14 @@ class Conversations {
                                 return Promise.resolve(fileDesc);
                             },
                             function errorCallback(error) {
-                                that._logger.log("error", LOG_ID + "uploadAFileByChunk error", error);
+                                that._logger.log("error", LOG_ID + "uploadAFileByChunk error.");
+                                that._logger.log("internalerror", LOG_ID + "uploadAFileByChunk error : ", error);
 
                                 //do we need to delete the file descriptor from the server if error ??
                                 that._fileStorageService.deleteFileDescriptor(currentFileDescriptor.id);
 
                                 // .then(function() {
-                                // var msgKey = error.translatedMessage ? error.translatedMessage : "Unable to share file";
+                                // let msgKey = error.translatedMessage ? error.translatedMessage : "Unable to share file";
                                 // $rootScope.$broadcast("ON_SHOW_INFO_MESSAGE", { type: "error", messageKey: msgKey });
 
                                 // currentFileDescriptor.state = "uploadError";
@@ -957,7 +919,7 @@ class Conversations {
                                 // that.updateMessage(message);
                                 // });
 
-                               // var msgKey = error.translatedMessage ? error.translatedMessage : "Unable to share file";
+                               // let msgKey = error.translatedMessage ? error.translatedMessage : "Unable to share file";
                                 //$rootScope.$broadcast("ON_SHOW_INFO_MESSAGE", {type: "error", messageKey: msgKey});
 
                                 currentFileDescriptor.state = "uploadError";
@@ -1079,15 +1041,18 @@ class Conversations {
         let that = this;
 
         if (!conversation) {
-            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter", conversation);
+            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter");
+            this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (data == undefined || data == null) {
-            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter", data);
+            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter");
+            this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter : ", data);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!origMsgId) {
-            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter", origMsgId);
+            this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter");
+            this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter : ", origMsgId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1208,17 +1173,18 @@ class Conversations {
         let that = this;
         return new Promise((resolve) => {
             if (!conversation) {
-                this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter", conversation);
+                this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter.");
+                this._logger.log("internalerror", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter : ", conversation);
                 return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             that._logger.log("info", LOG_ID + "(removeAllMessage) _entering_ " + conversation.id);
 
             // Id must be filled by lower layer
-            var mamRequest = {
+            let mamRequest = {
                 //"queryid": mamRequestId,
                 "with": conversation.id,
                 "onComplete": function(result) {
-                    that._logger.log("debug", LOG_ID + " removeAllMessage " + conversation.id, ", result : ", result);
+                    that._logger.log("internal", LOG_ID + " removeAllMessage " + conversation.id, ", result : ", result);
                     // FIXME : handle error message (ask Andreï)
                     resolve(result);
                 }
@@ -1229,7 +1195,7 @@ class Conversations {
             that._xmpp.mamDelete( mamRequest);
 
 /*
-            var mamRequest = {
+            let mamRequest = {
                 "deleteid": "remove_" + conversation.id,
                 "with": conversation.id,
                 "before": moment().add(1, 'minutes')
@@ -1270,7 +1236,7 @@ class Conversations {
             that._logger.log("info", LOG_ID + " removeMessagesFromConversation " + conversation.id);
             that._logger.log("info", LOG_ID + " removing " + number + " messages after " + date);
 
-            var mamRequest = {
+            let mamRequest = {
                 "deleteid": "remove_" + conversation.id,
                 "with": conversation.id,
                 "start": moment(date).format("YYYY-MM-DDTHH:mm:ss.SSSSSSZ"),
@@ -1303,7 +1269,7 @@ class Conversations {
      */
     getConversationById(conversationId) {
         let that = this;
-        that._logger.log("internal", LOG_ID + " (getConversationById) conversationId : ", conversationId);
+        that._logger.log("debug", LOG_ID + " (getConversationById) conversationId : ", conversationId);
         if (!this.conversations) {
             return null;
         }
@@ -1343,7 +1309,7 @@ class Conversations {
      */
     async getConversationByBubbleId(bubbleId) {
         if (this.conversations) {
-            for (var key in this.conversations) {
+            for (let key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.id === bubbleId) {
                     return this.conversations[key];
                 }
@@ -1363,7 +1329,7 @@ class Conversations {
      */
     getConversationByBubbleJid(bubbleJid) {
         if (this.conversations) {
-            for (var key in this.conversations) {
+            for (let key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.jid === bubbleJid) {
                     return this.conversations[key];
                 }
@@ -1397,7 +1363,7 @@ class Conversations {
      */
     getConversations() {
         let conversationArray = [];
-        for (var key in this.conversations) {
+        for (let key in this.conversations) {
             if (this.conversations.hasOwnProperty(key)) {
                 conversationArray.push(this.conversations[key]);
             }
@@ -1426,24 +1392,18 @@ class Conversations {
                     code: ErrorManager.getErrorManager().BAD_REQUEST,
                     label: "Parameter 'contact' is missing or null"
                 });
-            }
-            else {
-                that
-                    ._logger
-                    .log("info", LOG_ID + " :: Try to create of get a conversation with " + contact.lastName + " " + contact.firstName);
-
+            } else {
+                that._logger.log("info", LOG_ID + " :: Try to create of get a conversation.");
+                that._logger.log("internal", LOG_ID + " :: Try to create of get a conversation with " + contact.lastName + " " + contact.firstName);
 
 
                 that.getOrCreateOneToOneConversation(contact.jid)
                     .then(function (conversation: any) {
-                        that
-                            ._logger
-                            .log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
+                        that._logger.log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
                         resolve(conversation);
                     }).catch(function (result) {
-                    that
-                        ._logger
-                        .log("info", LOG_ID + "  :: ErrorManager");
+                    that._logger.log("error", LOG_ID + "[openConversationForContact] Error.");
+                    that._logger.log("internalerror", LOG_ID + "[openConversationForContact] Error : ", result);
                     __reject(result);
                 });
             }
@@ -1454,12 +1414,12 @@ class Conversations {
     /**
      * @private
      */
-    onRoomChangedEvent(__event, bubble, action) {
+    async onRoomChangedEvent(__event, bubble, action) {
         if (bubble) {
-            var conversation = this.getConversationById(bubble.jid);
+            let conversation = this.getConversationById(bubble.jid);
             if (conversation) {
                 if (action === "remove") {
-                    this.closeConversation(conversation);
+                    await this.closeConversation(conversation);
                 } else {
                     conversation.bubble = bubble;
                 }
@@ -1472,7 +1432,7 @@ class Conversations {
      */
     onRoomHistoryChangedEvent(__event, room) {
         if (room) {
-            var conversation = this.getConversationById(room.jid);
+            let conversation = this.getConversationById(room.jid);
             if (conversation && conversation.chatRenderer) {
                 conversation.reset();
                 conversation
@@ -1486,19 +1446,15 @@ class Conversations {
      * @private
      */
     onRoomAdminMessageEvent(__event, roomJid, userJid, type, msgId) {
-        this
-            ._logger
-            .log("info", LOG_ID + " onRoomAdminMessageEvent");
+        this._logger.log("info", LOG_ID + " onRoomAdminMessageEvent");
 
-        var conversation = this.getConversationById(roomJid);
+        let conversation = this.getConversationById(roomJid);
 
         if (conversation && (type === "welcome" || type === "conferenceAdd" || type === "conferenceRemove") && conversation.bubble && conversation.bubble.ownerContact) {
             userJid = conversation.bubble.ownerContact.jid;
         }
 
-        var contact = this
-            ._contacts
-            .getContactByJid(userJid);
+        let contact = this._contacts.getContactByJid(userJid);
 
         if (conversation && contact) {
             // If invitation msg and I'm not the owner
@@ -1508,9 +1464,7 @@ class Conversations {
             if (conversation.bubble && conversation.bubble.isMeetingBubble()) {
                 return;
             }
-            this
-                .conversationServiceEventHandler
-                .onRoomAdminMessageReceived(conversation, contact, type, msgId);
+            this.conversationServiceEventHandler.onRoomAdminMessageReceived(conversation, contact, type, msgId);
         }
     }
 
@@ -1525,9 +1479,7 @@ class Conversations {
         let that = this;
         return new Promise((resolve) => {
 
-            that
-                ._logger
-                .log("info", LOG_ID + " Re-initialize conversation service");
+            that._logger.log("info", LOG_ID + " Re-initialize conversation service");
 
             // Remove all my conversation
             delete that.conversations;
@@ -1565,10 +1517,10 @@ class Conversations {
         if (that.botServiceReady) {
             //stop infinite loop in case of error
             that.botServiceReady = false;
-            that.waitingBotConversations.forEach(function(obj, index) {
-                var contact = that._contacts.getContactByJid(obj.jid);
+            that.waitingBotConversations.forEach(async function(obj, index) {
+                let contact = that._contacts.getContactByJid(obj.jid);
                 if (contact) {
-                    that.getOrCreateOneToOneConversation(contact.jid, null, obj.lastModification, obj.lastMessageText, obj.missedIMCounter, obj.muted, obj.creationDate);
+                    await that.getOrCreateOneToOneConversation(contact.jid, null, obj.lastModification, obj.lastMessageText, obj.missedIMCounter, obj.muted, obj.creationDate);
                     that.waitingBotConversations.splice(index, 1);
                 }
             });
