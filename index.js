@@ -173,7 +173,7 @@ class NodeSDK {
             return that._core.start(true).then(function() {
                 resolve();
             }).catch(function(err) {
-                var error = ErrorManager.getErrorManager().UNAUTHORIZED;
+                let error = ErrorManager.getErrorManager().UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
                 reject(error);
@@ -195,7 +195,7 @@ class NodeSDK {
             return that._core.signin(false).then(function(json) {
                 resolve(json);
             }).catch(function(err) {
-                var error = ErrorManager.getErrorManager().UNAUTHORIZED;
+                let error = ErrorManager.getErrorManager().UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
                 reject(error);
@@ -215,7 +215,7 @@ class NodeSDK {
         let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function() {
-                //var success = ErrorManager.getErrorManager().OK;
+                //let success = ErrorManager.getErrorManager().OK;
                 utils.setTimeoutPromised(1500).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);

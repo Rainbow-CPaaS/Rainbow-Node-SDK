@@ -72,8 +72,8 @@ class Core {
 
         let self = this;
 
-        this._signin = (forceStopXMPP) => {
-            let that = this;
+        self._signin = (forceStopXMPP) => {
+            let that = self;
             that.logger.log("debug", LOG_ID + "(signin) _entering_");
 
             let json = null;
@@ -106,8 +106,8 @@ class Core {
             });
         };
 
-        this._retrieveInformation = (useCLIMode) => {
-            let that = this;
+        self._retrieveInformation = (useCLIMode) => {
+            let that = self;
             that.logger.log("debug", LOG_ID + "(_retrieveInformation) useCLIMode : ", useCLIMode);
             return new Promise((resolve, reject) => {
 
@@ -161,22 +161,22 @@ class Core {
             });
         };
 
-        this.onTokenRenewed = function onTokenRenewed() {
-            this.logger.log("info", LOG_ID +  "(tokenSurvey) token successfully renewed");
-            this._rest.startTokenSurvey();
+        self.onTokenRenewed = function onTokenRenewed() {
+            self.logger.log("info", LOG_ID +  "(tokenSurvey) token successfully renewed");
+            self._rest.startTokenSurvey();
         };
 
-        this.onTokenExpired = function onTokenExpired() {
-            this.logger.log("info", LOG_ID +  "(tokenSurvey) token expired. Signin required");
+        self.onTokenExpired = function onTokenExpired() {
+            self.logger.log("info", LOG_ID +  "(tokenSurvey) token expired. Signin required");
 /*
-            this._eventEmitter.iee.removeListener("rainbow_tokenrenewed", this.onTokenRenewed.bind(this));
-            this._eventEmitter.iee.removeListener("rainbow_tokenexpired", this.onTokenExpired.bind(this));
+            self._eventEmitter.iee.removeListener("rainbow_tokenrenewed", self.onTokenRenewed.bind(self));
+            self._eventEmitter.iee.removeListener("rainbow_tokenexpired", self.onTokenExpired.bind(self));
 */
-            this._eventEmitter.iee.emit("evt_internal_signinrequired");
+            self._eventEmitter.iee.emit("evt_internal_signinrequired");
         };
 
-        this._tokenSurvey = () => {
-            let that = this;
+        self._tokenSurvey = () => {
+            let that = self;
             that.logger.log("debug", LOG_ID +  "(tokenSurvey) _enter_");
 
             if (that.options.useCLIMode) {
@@ -195,40 +195,40 @@ class Core {
 
         // Initialize the logger
         let loggerModule = new Logger(options);
-        this.logger = loggerModule.log;
-        this.logger.log("debug", LOG_ID + "(constructor) _entering_");
-        this.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
+        self.logger = loggerModule.log;
+        self.logger.log("debug", LOG_ID + "(constructor) _entering_");
+        self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
-        this.logger.log("info", LOG_ID + " (constructor) SDK version: " + packageVersion.version);
-        this.logger.log("info", LOG_ID + " (constructor) Node version: " + process.version);
+        self.logger.log("info", LOG_ID + " (constructor) SDK version: " + packageVersion.version);
+        self.logger.log("info", LOG_ID + " (constructor) Node version: " + process.version);
         for (let key in process.versions) {
-            this.logger.log("info", LOG_ID + " (constructor) " + key + " version: " + process.versions[key]);
+            self.logger.log("info", LOG_ID + " (constructor) " + key + " version: " + process.versions[key]);
         }
-        this.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
+        self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
         // Initialize the options
 
-        this.options = new Options(options, this.logger);
-        this.options.parse();
+        self.options = new Options(options, self.logger);
+        self.options.parse();
 
         // Initialize the Events Emitter
-        this._eventEmitter = new Events(self.logger, (jid) => {
+        self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);
         });
-        this._eventEmitter.setCore(this);
-        this._eventEmitter.iee.on("evt_internal_signinrequired", function () {
+        self._eventEmitter.setCore(self);
+        self._eventEmitter.iee.on("evt_internal_signinrequired", function () {
             self.signin(true);
         });
-        this._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
+        self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
             self._rest.applicationToken = token;
         });
 
-        this._eventEmitter.iee.on("rainbow_onxmpperror", function (err) {
+        self._eventEmitter.iee.on("rainbow_onxmpperror", function (err) {
             self._stateManager.transitTo(self._stateManager.ERROR, err);
         });
 
-        this._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
-            let that = this;
+        self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
+            let that = self;
             //todo, check that REST part is ok too
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
@@ -248,7 +248,8 @@ class Core {
             }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
                 if (!self._stateManager.isCONNECTED()) {
-                    self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
+                    self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
+                    self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
                     self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
@@ -261,11 +262,11 @@ class Core {
             });
         });
 
-        this._eventEmitter.iee.on("rainbow_xmppreconnectingattempt", async function () {
+        self._eventEmitter.iee.on("rainbow_xmppreconnectingattempt", async function () {
             await self._stateManager.transitTo(self._stateManager.RECONNECTING);
         });
 
-        this._eventEmitter.iee.on("rainbow_xmppdisconnect", async function (xmppDisconnectInfos) {
+        self._eventEmitter.iee.on("rainbow_xmppdisconnect", async function (xmppDisconnectInfos) {
             if (xmppDisconnectInfos && xmppDisconnectInfos.reconnect) {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
                 await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
@@ -275,50 +276,60 @@ class Core {
             }
         });
 
-        this._eventEmitter.iee.on("rainbow_tokenrenewed", this.onTokenRenewed.bind(this));
-        this._eventEmitter.iee.on("rainbow_tokenexpired", this.onTokenExpired.bind(this));
+        self._eventEmitter.iee.on("rainbow_tokenrenewed", self.onTokenRenewed.bind(self));
+        self._eventEmitter.iee.on("rainbow_tokenexpired", self.onTokenExpired.bind(self));
 
-        if (this.options.useXMPP) {
-            this.logger.log("info", LOG_ID + "(constructor) used in XMPP mode");
+        if (self.options.useXMPP) {
+            self.logger.log("info", LOG_ID + "(constructor) used in XMPP mode");
         }
         else {
-            if (this.options.useCLIMode) {
-                this.logger.log("info", LOG_ID + "(constructor) used in CLI mode");
+            if (self.options.useCLIMode) {
+                self.logger.log("info", LOG_ID + "(constructor) used in CLI mode");
             }
             else {
-                this.logger.log("info", LOG_ID + "(constructor) used in HOOK mode");
+                self.logger.log("info", LOG_ID + "(constructor) used in HOOK mode");
             }
         }
 
         // Instantiate basic service
-        this._proxy = new ProxyImpl(this.options.proxyOptions, this.logger);
-        this._http = new HTTPService(this.options.httpOptions, this.logger, this._proxy, this._eventEmitter.iee);
-        this._rest = new RESTService(this.options.credentials, this.options.applicationOptions, this.options._isOfficialRainbow(), this._eventEmitter.iee, this.logger);
-        this._xmpp = new XMPPService(this.options.xmppOptions, this.options.imOptions, this.options.applicationOptions, this._eventEmitter.iee, this.logger, this._proxy);
+        self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
+        self._http = new HTTPService(self.options.httpOptions, self.logger, self._proxy, self._eventEmitter.iee);
+        self._rest = new RESTService(self.options.credentials, self.options.applicationOptions, self.options._isOfficialRainbow(), self._eventEmitter.iee, self.logger);
+        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
 
         // Instantiate State Manager
-        this._stateManager = new StateManager(this._eventEmitter, this.logger);
+        self._stateManager = new StateManager(self._eventEmitter, self.logger);
 
         // Instantiate others Services
-        this._im = new IMService(this._eventEmitter.iee, this.logger, this.options.imOptions);
-        this._presence = new PresenceService(this._eventEmitter.iee, this.logger);
-        this._channels = new ChannelsService(this._eventEmitter.iee, this.logger);
-        this._contacts = new ContactsService(this._eventEmitter.iee, this.options.httpOptions, this.logger);
-        this._conversations = new ConversationsService(this._eventEmitter.iee, this.logger);
-        this._profiles = new Profiles.ProfilesService(this._eventEmitter.iee, this.logger);
-        this._telephony = new TelephonyService(this._eventEmitter.iee, this.logger);
-        this._bubbles = new BubblesService(this._eventEmitter.iee, this.logger);
-        this._groups = new GroupsService(this._eventEmitter.iee, this.logger);
-        this._admin = new AdminService(this._eventEmitter.iee, this.logger);
-        this._settings = new SettingsService(this._eventEmitter.iee, this.logger);
-        this._fileServer = new FileServer(this._eventEmitter.iee, this.logger);
-        this._fileStorage = new FileStorage(this._eventEmitter.iee, this.logger);
-        this._calllog = new CallLogService(this._eventEmitter.iee, this.logger);
-        this._favorites = new FavoritesService(this._eventEmitter.iee,this.logger);
+        self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions);
+        self._presence = new PresenceService(self._eventEmitter.iee, self.logger);
+        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger);
+        self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger);
+        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger);
+        self._profiles = new Profiles.ProfilesService(self._eventEmitter.iee, self.logger);
+        self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger);
+        self._bubbles = new BubblesService(self._eventEmitter.iee, self.logger);
+        self._groups = new GroupsService(self._eventEmitter.iee, self.logger);
+        self._admin = new AdminService(self._eventEmitter.iee, self.logger);
+        self._settings = new SettingsService(self._eventEmitter.iee, self.logger);
+        self._fileServer = new FileServer(self._eventEmitter.iee, self.logger);
+        self._fileStorage = new FileStorage(self._eventEmitter.iee, self.logger);
+        self._calllog = new CallLogService(self._eventEmitter.iee, self.logger);
+        self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger);
 
-        this._botsjid = [];
+        self._botsjid = [];
 
-        this.logger.log("debug", LOG_ID + "(constructor) _exiting_");
+        self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
+    }
+
+    isStart_upService( serviceoptions) {
+        let start_up = true;
+        if (!serviceoptions.optional) {
+            start_up = true;
+        } else {
+            start_up = !!serviceoptions.start_up;
+        }
+        return start_up;
     }
 
     start(useCLIMode) {
@@ -338,6 +349,8 @@ class Core {
                 else {
                     that.logger.log("debug", LOG_ID + "(start) start all modules");
                     that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
+                    that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
+
 
                     return that._stateManager.start().then(() => {
                         return that._http.start();
@@ -348,33 +361,33 @@ class Core {
                     }).then(() => {
                         return that._settings.start(that._xmpp, that._rest);
                     }).then(() => {
-                        return that._presence.start(that._xmpp, that._settings);
+                        return that.isStart_upService(that.options.servicesToStart.presence) ? that._presence.start(that._xmpp, that._settings) : Promise.resolve;
                     }).then(() => {
-                        return that._contacts.start(that._xmpp, that._rest);
+                        return that.isStart_upService(that.options.servicesToStart.contacts) ? that._contacts.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
-                        return that._bubbles.start(that._xmpp, that._rest);
+                       return that.isStart_upService(that.options.servicesToStart.bubbles) ? that._bubbles.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
-                        return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer);
+                        return that.isStart_upService(that.options.servicesToStart.conversations) ? that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) : Promise.resolve;
                     }).then(() => {
-                        return that._profiles.start(that._xmpp, that._rest);
+                        return that.isStart_upService(that.options.servicesToStart.profiles) ? that._profiles.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
-                        return that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles);
+                        return that.isStart_upService(that.options.servicesToStart.telephony) ? that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles) : Promise.resolve;
                     }).then(() => {
-                        return that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage);
+                        return that.isStart_upService(that.options.servicesToStart.im) ? that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage) : Promise.resolve;
                     }).then(() => {
-                        return that._channels.start(that._xmpp, that._rest);
+                        return that.isStart_upService(that.options.servicesToStart.channels) ? that._channels.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
-                        return that._groups.start(that._xmpp, that._rest);
+                        return that.isStart_upService(that.options.servicesToStart.groups) ? that._groups.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
-                        return that._admin.start(that._xmpp, that._rest);
+                        return that.isStart_upService(that.options.servicesToStart.admin) ? that._admin.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
-                        return that._fileServer.start(that._xmpp, that._rest, that._fileStorage);
+                        return that.isStart_upService(that.options.servicesToStart.fileServer) ? that._fileServer.start(that._xmpp, that._rest, that._fileStorage) : Promise.resolve;
                     }).then(() => {
-                        return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations);
+                        return that.isStart_upService(that.options.servicesToStart.fileStorage) ? that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations) : Promise.resolve;
                     }).then(() => {
-                        return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
+                        return that.isStart_upService(that.options.servicesToStart.calllog) ? that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) : Promise.resolve;
                     }).then(() => {
-                        return that._favorites.start(that._xmpp, that._rest);
+                        return that.isStart_upService(that.options.servicesToStart.favorites) ? that._favorites.start(that._xmpp, that._rest) : Promise.resolve;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {

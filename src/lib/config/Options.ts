@@ -10,8 +10,6 @@ class Options {
 	public _options: any;
 	public _hasCredentials: any;
 	public _hasApplication: any;
-	public withXMPP: any;
-	public CLIMode: any;
 	public _httpOptions: any;
 	public _xmppOptions: any;
 	public _proxyoptions: any;
@@ -19,14 +17,16 @@ class Options {
 	public _applicationOptions: any;
 	public _withXMPP: any;
 	public _CLIMode: any;
+	public _servicesToStart: any;
 
     constructor(_options, _logger) {
         this._logger = _logger;
         this._options = _options;
         this._hasCredentials = true;
         this._hasApplication = true;  
-        this.withXMPP = true;
-        this.CLIMode = true;
+        this._withXMPP = true;
+        this._CLIMode = true;
+
     }
 
     parse() {
@@ -67,9 +67,14 @@ class Options {
         this._imOptions = this._getIMOptions();
         this._applicationOptions = this._getApplicationsOptions();
 
-        var mode = this._getModeOption();
+        let mode = this._getModeOption();
         this._withXMPP = mode === "xmpp";
         this._CLIMode = mode === "cli";
+        this._servicesToStart = this._getservicesToStart();
+    }
+
+    get servicesToStart () {
+        return this._servicesToStart;
     }
 
     get httpOptions() {
@@ -112,12 +117,29 @@ class Options {
         return this._options.credentials;
     }
 
+    _getservicesToStart() {
+        let svceToStart = {};
+        if (!this._options.servicesToStart) {
+            svceToStart = Object.assign({},config.servicesToStart);
+        } else {
+            svceToStart = Object.assign({},config.servicesToStart);
+            // Read each property one by one in the option parameter. To avoid missed service config.
+            if ( typeof(this._options.servicesToStart) === 'object') {
+                Object.keys(this._options.servicesToStart).forEach((key) => {
+                    svceToStart[key] = this._options.servicesToStart[key];
+                });
+            } // Else the options parameter is not well completed, so keep default values to start services.
+        }
+
+        return svceToStart;
+    }
+
     _isOfficialRainbow () {
         return (this._options.rainbow.host === "official");
     }
 
     _getHTTPOptions() {
-        var httpOptions = config.sandbox.http;
+        let httpOptions = config.sandbox.http;
         
         switch (this._options.rainbow.host) {
             case "official":
@@ -138,7 +160,7 @@ class Options {
     }
 
     _getXMPPOptions() {
-        var xmppOptions = config.sandbox.xmpp;
+        let xmppOptions = config.sandbox.xmpp;
         
         switch (this._options.rainbow.host) {
             case "official":
