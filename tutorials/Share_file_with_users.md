@@ -122,7 +122,7 @@ Sharing a file within a Bubble can be done as simply as with a contact by callin
     fileInfos.name = "filename";
 
     // Retrieve the bubble
-    var bubble = rainbowSDK.bubbles.getBubbleById(bubbleId);
+    let bubble = rainbowSDK.bubbles.getBubbleById(bubbleId);
     
     // Upload the file
     rainbowSDK.fileStorage.uploadFileToBubble(bubble, fileInfos, "My message ")
@@ -219,7 +219,7 @@ File shared on Rainbow can be removed at any time. When removed, the file can't 
 
 ```javascript
 
-    var shortFileDescriptor = {...};        
+    let shortFileDescriptor = {...};        
     
     rainbowSDK.fileStorage.removeFile(shortFileDescriptor).then(function(){
         // Do something when the file has been removed
@@ -240,7 +240,7 @@ At any time, for a dedicated conversation, you can ask for retrieving the list o
 
 ```javascript
 
-    var conversation = {...};
+    let conversation = {...};
 
     rainbowSDK.fileStorage.getFilesReceivedInConversation(conversation).then(function(files){
         // Do something with the list of files received in a conversation
@@ -264,7 +264,7 @@ Use the API `getFilesSentInBubble()` and `getFilesReceivedInBubble()` if you nee
 
 ```javascript
 
-    var bubble = {...};
+    let bubble = {...};
 
     rainbowSDK.fileStorage.getFilesReceivedInBubble(bubble).then(function(files){
         // Do something with the list of files received in a bubble

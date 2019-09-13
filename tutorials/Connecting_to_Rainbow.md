@@ -50,7 +50,39 @@ let options = {
     // IM options
     "im": {
         "sendReadReceipt": true   
-    }
+    },
+
+    // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
+    // Take care, severals services are linked, so disabling a service can disturb an other one.
+    // By default all the services are started. Events received from server are not filtered.
+    // So this feature is realy risky, and should be used with much more cautions.
+    servicesToStart: {
+        bubbles:  {
+            start_up:true,
+        }, //need services : 
+        telephony:  {
+            start_up:true,
+        }, //need services : _contacts, _bubbles, _profiles
+        channels:  {
+            start_up:true,
+        }, //need services :  
+        admin:  {
+            start_up:true,
+        }, //need services :  
+        fileServer:  {
+            start_up:true,
+        }, //need services : _fileStorage
+        fileStorage:  {
+            start_up:true,
+        }, //need services : _fileServer, _conversations
+        calllog:  {
+            start_up:true,
+        }, //need services :  _contacts, _profiles, _telephony
+        favorites:  {
+            start_up:true,
+        } //need services :  
+    } // */
+
 };
 
 // Instantiate the SDK
