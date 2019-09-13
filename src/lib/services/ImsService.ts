@@ -33,8 +33,16 @@ class IM {
 	public _bulles: any;
     private imOptions: any;
     public _fileStorage: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _logger, _imOptions) {
+    constructor(_eventEmitter, _logger, _imOptions, _startConfig) {
+        this._startConfig = _startConfig;
         this.xmpp = null;
         this._conversations = null;
         this.logger = _logger;

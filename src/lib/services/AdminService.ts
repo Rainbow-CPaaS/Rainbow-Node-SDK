@@ -31,8 +31,16 @@ class Admin {
     public _bubbles: any;
     public _eventEmitter: any;
     public _logger: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _startConfig) {
+        this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
         this._bubbles = null;

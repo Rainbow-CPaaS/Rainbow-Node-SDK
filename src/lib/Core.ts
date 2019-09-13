@@ -32,8 +32,8 @@ const ProxyImpl = require("./ProxyImpl");
 
 const packageVersion = require("../package.json");
 
-var _signin;
-var _retrieveInformation;
+let _signin;
+let _retrieveInformation;
 
 const LOG_ID = "CORE - ";
 
@@ -302,34 +302,24 @@ class Core {
 
         // Instantiate others Services
         self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions);
-        self._presence = new PresenceService(self._eventEmitter.iee, self.logger);
+        self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
         self._channels = new ChannelsService(self._eventEmitter.iee, self.logger);
-        self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger);
-        self._profiles = new Profiles.ProfilesService(self._eventEmitter.iee, self.logger);
-        self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger);
-        self._bubbles = new BubblesService(self._eventEmitter.iee, self.logger);
-        self._groups = new GroupsService(self._eventEmitter.iee, self.logger);
-        self._admin = new AdminService(self._eventEmitter.iee, self.logger);
-        self._settings = new SettingsService(self._eventEmitter.iee, self.logger);
-        self._fileServer = new FileServer(self._eventEmitter.iee, self.logger);
-        self._fileStorage = new FileStorage(self._eventEmitter.iee, self.logger);
-        self._calllog = new CallLogService(self._eventEmitter.iee, self.logger);
-        self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger);
+        self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
+        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations);
+        self._profiles = new Profiles.ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
+        self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
+        self._bubbles = new BubblesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.bubbles);
+        self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
+        self._admin = new AdminService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
+        self._settings = new SettingsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
+        self._fileServer = new FileServer(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
+        self._fileStorage = new FileStorage(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
+        self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
+        self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
 
         self._botsjid = [];
 
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
-    }
-
-    isStart_upService( serviceoptions) {
-        let start_up = true;
-        if (!serviceoptions.optional) {
-            start_up = true;
-        } else {
-            start_up = !!serviceoptions.start_up;
-        }
-        return start_up;
     }
 
     start(useCLIMode) {
@@ -361,33 +351,33 @@ class Core {
                     }).then(() => {
                         return that._settings.start(that._xmpp, that._rest);
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.presence) ? that._presence.start(that._xmpp, that._settings) : Promise.resolve;
+                        return that._presence.start(that._xmpp, that._settings) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.contacts) ? that._contacts.start(that._xmpp, that._rest) : Promise.resolve;
+                        return  that._contacts.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                       return that.isStart_upService(that.options.servicesToStart.bubbles) ? that._bubbles.start(that._xmpp, that._rest) : Promise.resolve;
+                       return that._bubbles.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.conversations) ? that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) : Promise.resolve;
+                        return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.profiles) ? that._profiles.start(that._xmpp, that._rest) : Promise.resolve;
+                        return that._profiles.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.telephony) ? that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles) : Promise.resolve;
+                        return that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.im) ? that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage) : Promise.resolve;
+                        return that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.channels) ? that._channels.start(that._xmpp, that._rest) : Promise.resolve;
+                        return that._channels.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.groups) ? that._groups.start(that._xmpp, that._rest) : Promise.resolve;
+                        return that._groups.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.admin) ? that._admin.start(that._xmpp, that._rest) : Promise.resolve;
+                        return that._admin.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.fileServer) ? that._fileServer.start(that._xmpp, that._rest, that._fileStorage) : Promise.resolve;
+                        return that._fileServer.start(that._xmpp, that._rest, that._fileStorage) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.fileStorage) ? that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations) : Promise.resolve;
+                        return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.calllog) ? that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) : Promise.resolve;
+                        return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) ;
                     }).then(() => {
-                        return that.isStart_upService(that.options.servicesToStart.favorites) ? that._favorites.start(that._xmpp, that._rest) : Promise.resolve;
+                        return that._favorites.start(that._xmpp, that._rest) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {

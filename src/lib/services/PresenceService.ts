@@ -34,9 +34,17 @@ class Presence {
     RAINBOW_PRESENCE_DONOTDISTURB: any;
     RAINBOW_PRESENCE_AWAY: any;
     RAINBOW_PRESENCE_INVISIBLE: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _startConfig) {
         let that = this;
+        this._startConfig = _startConfig;
 
         that._xmpp = null;
         that._eventEmitter = _eventEmitter;

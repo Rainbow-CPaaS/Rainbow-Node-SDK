@@ -71,8 +71,16 @@ class Telephony {
 	public makingCall: any;
 	public starting: any;
 	public stats: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, logger) {
+    constructor(_eventEmitter, logger, _startConfig) {
+        this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
         this._contacts = null;

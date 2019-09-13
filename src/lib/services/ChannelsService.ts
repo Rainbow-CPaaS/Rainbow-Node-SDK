@@ -44,7 +44,13 @@ class Channels {
     public channelEventHandler: ChannelEventHandler;
     public channelHandlerToken: any;
     public invitationCounter: number = 0;
-
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
     public LIST_EVENT_TYPE = {
         ADD: {code : 0, label : "ADD"},
@@ -64,7 +70,8 @@ class Channels {
     };
 
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _startConfig) {
+        this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
         this._channels = null;

@@ -51,8 +51,16 @@ class FileStorage {
 	public _logger: any;
 	public errorHelperService: any;
 	public helpersService: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _startConfig) {
+        this._startConfig = _startConfig;
         this.eventEmitter = _eventEmitter;
         this.logger = _logger;
 

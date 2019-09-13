@@ -37,8 +37,16 @@ class Contacts {
 	public rest: RESTService;
 	public _logger: any;
 	public _xmpp: XMPPService;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _http, _logger) {
+    constructor(_eventEmitter, _http, _logger, _startConfig) {
+        this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length === 2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port : _http.protocol + "://" + _http.host + ":" + _http.port;
         this.xmpp = null;
         this.contacts = [];

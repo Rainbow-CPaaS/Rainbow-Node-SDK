@@ -84,13 +84,22 @@ function CallLogsBean() : ICallLogsBean {
     private _profiles: any;
     private _calllogEventHandler: CallLogEventHandler;
         _telephony: any;
+        private readonly _startConfig: {
+            start_up:boolean,
+            optional:boolean
+        };
+        get startConfig(): { start_up: boolean; optional: boolean } {
+            return this._startConfig;
+        }
+
 
         // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
-    constructor(_eventEmitter, logger) {
+    constructor(_eventEmitter, logger, _startConfig) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
         /*********************************************************/
+        this._startConfig = _startConfig;
         //let that = this;
         this._eventEmitter = _eventEmitter;
         this.logger = logger;

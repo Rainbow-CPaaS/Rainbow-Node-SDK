@@ -3,12 +3,13 @@
 
 
 const config = require ("../config/config");
+import * as core from "./../../../index";
 
 let makeId = (n) => {
-  var text = "";
-  var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let text = "";
+  let possible = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (var i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
 
@@ -16,13 +17,13 @@ let makeId = (n) => {
 };
 
 let createPassword = (size) => {
-    var possible = ["ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz", "?=.*[_~!@#\$%\^&\*\-\+=`\|\(\){}\[\]:;\"'<>,\.\?\/]", "0123456789"];
-    var key = "";
-    for (var i = 0; i < size - 4; i++) {
-        var index = Math.floor(Math.random() * possible.length);
+    let possible = ["ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz", "?=.*[_~!@#\$%\^&\*\-\+=`\|\(\){}\[\]:;\"'<>,\.\?\/]", "0123456789"];
+    let key = "";
+    for (let i = 0; i < size - 4; i++) {
+        let index = Math.floor(Math.random() * possible.length);
         key += possible[index].charAt(Math.floor(Math.random() * possible[index].length));
     }
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
         key += possible[i].charAt(Math.floor(Math.random() * possible[i].length));
     }
     return key;
@@ -59,7 +60,7 @@ let anonymizePhoneNumber = function (number) {
     if (config && config.debug === true) {
         return number;
     }
-    var result = "";
+    let result = "";
 
     if (number.indexOf("+") === 0) {
         result = "+";
@@ -92,7 +93,7 @@ myFunction() in the original question can be modified as follows
 
 async function myFunction(number) {
 
-    var x=number;
+    let x=number;
 ...
 ... more initializations
 
@@ -191,6 +192,68 @@ function orderByFilter(originalArray, filterFct, flag, sortFct) {
     }
 }
 
+function  isStart_upService( serviceoptions) {
+    let start_up = true;
+    if (!serviceoptions.optional) {
+        start_up = true;
+    } else {
+        start_up = !!serviceoptions.start_up;
+    }
+    return start_up;
+}
+
+function isStarted(...arg) : any{
+    return function (target, key, descriptor) : any {
+        let keys = Object.getOwnPropertyNames(target.prototype);
+        keys.forEach((propertyName)=> {
+            const descriptor = Object.getOwnPropertyDescriptor(target.prototype, propertyName);
+            const isMethod = descriptor.value instanceof Function;
+            if (!isMethod)
+                return;
+
+            // Keep the method store in a local variable
+            const originalMethod = descriptor.value;
+            descriptor.value = function (...args: any[]) {
+
+                // Execute the method with its initial context and arguments
+                // Return value is stored into a variable instead of being passed to the execution stack
+                let returnValue = undefined;
+                let ignoreTheStartedState : boolean = (["start", "stop", "contructor"].find((elt) => { return elt === propertyName; } ) != undefined);
+                let start_up = isStart_upService(this.startConfig);
+                if (ignoreTheStartedState ) {
+                    if ( start_up) {
+                        returnValue = originalMethod.apply(this, args);
+                    } else {
+                        return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
+                        //throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                    }
+                } else {
+                    if (start_up) {
+                        if (this.ready) {
+                            returnValue = originalMethod.apply(this, args);
+                        } else {
+                            //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                            throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                        }
+                    } else {
+                        return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
+                    }
+                }
+                // Return back the value to the execution stack
+                return returnValue;
+
+
+                /* console.log("The method args are: " + JSON.stringify(args));
+                const result = originalMethod.apply(this, args);
+                console.log("The return value is: " + result);
+                return result; // */
+            };
+
+            Object.defineProperty(target.prototype, propertyName, descriptor);
+        });
+    }
+}
+
 export {
     makeId,
     createPassword,
@@ -201,4 +264,6 @@ export {
     setTimeoutPromised,
     until,
     orderByFilter,
+    isStart_upService,
+    isStarted
     };

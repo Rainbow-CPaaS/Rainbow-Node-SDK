@@ -26,20 +26,24 @@ class FavoritesService {
     private _xmpp: XMPPService;
     private _rest: RESTService;
     private _favoriteEventHandler: FavoriteEventHandler;
-    private favoriteHandlerToken: any;
-
-
-
+    private favoriteHandlerToken: any
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
-
     private favorites: any[] = [];
     private xmppManagementHandler: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, logger) {
+    constructor(_eventEmitter, logger, _startConfig) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
         /*********************************************************/
+        this._startConfig = _startConfig;
         //let that = this;
         this._eventEmitter = _eventEmitter;
         this._logger = logger;

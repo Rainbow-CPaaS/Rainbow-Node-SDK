@@ -37,8 +37,16 @@ class FileServer {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public ONE_MEGABYTE: any;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _startConfig) {
+        this._startConfig = _startConfig;
         this.eventEmitter = _eventEmitter;
         this.logger = _logger;
         this._capabilities = null;

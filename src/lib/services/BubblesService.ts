@@ -11,12 +11,46 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
 import {Channel} from "../common/models/Channel";
+import {throws} from "assert";
 
 const PromiseQueue = require("../common/promiseQueue");
 const utils = require("../common/Utils");
 
 const LOG_ID = "BUBBLES/SVCE - ";
 
+import {isStarted} from "../common/Utils";
+
+
+/*
+export function isStarted() {
+    // Return our high-order function
+    return function(target, methodName, descriptor) {
+        // Keep the method store in a local variable
+        let originalMethod = descriptor.value;
+
+        // Redefine the method value with our own
+        descriptor.value = function(...args) {
+            // Execute the method with its initial context and arguments
+            // Return value is stored into a variable instead of being passed to the execution stack
+            let returnValue = undefined;
+
+            if (this.ready) {
+                returnValue = originalMethod.apply(this, args);
+            } else {
+                throw({msg : "The service bubbles is not ready!!!"});
+            }
+
+            // Return back the value to the execution stack
+            return returnValue;
+        };
+
+        // Return the descriptorwith the altered value
+        return descriptor;
+    };
+};
+// */
+
+@isStarted()
 /**
  * @class
  * @name Bubbles
@@ -38,13 +72,23 @@ class Bubbles {
 	public _bubbles: Bubble[];
 	public _eventEmitter: any;
 	public _logger: any;
+    public ready: boolean;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_eventEmitter, _logger) {
+    constructor(_eventEmitter, _logger, _startConfig) {
+        this.ready = false;
         this._xmpp = null;
         this._rest = null;
         this._bubbles = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
+        this._startConfig = _startConfig;
 
         this._eventEmitter.on("evt_internal_invitationreceived", this._onInvitationReceived.bind(this));
         this._eventEmitter.on("evt_internal_affiliationchanged", this._onAffiliationChanged.bind(this));
@@ -75,6 +119,7 @@ class Bubbles {
                 that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
+                that.ready = true;
                 resolve();
             }
             catch (err) {
@@ -102,6 +147,7 @@ class Bubbles {
                 that._eventEmitter.removeListener("evt_internal_namechanged", that._onNameChanged.bind(that));
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 // */
+                that.ready = false;
                 resolve();
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
