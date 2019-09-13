@@ -1,3 +1,6 @@
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+
 module.exports = {
     sandbox: {
         http: {
@@ -118,7 +121,11 @@ module.exports = {
             favorites:  {
                 start_up:true,
                 optional:true
-            } //need services :  (that._xmpp, that._rest);
+            }, //need services :  (that._xmpp, that._rest);
+            settings:  {
+                start_up:true,
+                optional:true
+            } //need services : ( XMPPService, _rest : RESTService)
     }
 
 };

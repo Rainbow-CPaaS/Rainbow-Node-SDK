@@ -160,7 +160,7 @@ function orderByFilter(originalArray, filterFct, flag, sortFct) {
     }
 
     originalArray.forEach((objectOriginal, index) => {
-        let tabOfArgForApply = []
+        let tabOfArgForApply = [];
         tabOfArgForApply.push(objectOriginal);
         let objectComparing = {
             keyToCompare: null,
@@ -202,7 +202,7 @@ function  isStart_upService( serviceoptions) {
     return start_up;
 }
 
-function isStarted(...arg) : any{
+function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
     return function (target, key, descriptor) : any {
         let keys = Object.getOwnPropertyNames(target.prototype);
         keys.forEach((propertyName)=> {
@@ -218,25 +218,31 @@ function isStarted(...arg) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                let ignoreTheStartedState : boolean = (["start", "stop", "contructor"].find((elt) => { return elt === propertyName; } ) != undefined);
-                let start_up = isStart_upService(this.startConfig);
-                if (ignoreTheStartedState ) {
-                    if ( start_up) {
-                        returnValue = originalMethod.apply(this, args);
-                    } else {
-                        return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
-                        //throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
-                    }
+                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers"] ;
+                methodsToIgnoreStartedState = methodsToIgnoreStartedState.concat(_methodsToIgnoreStartedState[0]);
+                let ignoreTheStartedState : boolean = (methodsToIgnoreStartedState.find((elt) => { return elt === propertyName; } ) != undefined);
+                if (this == null) {
+                    returnValue = originalMethod.apply(this, args);
                 } else {
-                    if (start_up) {
-                        if (this.ready) {
+                    let start_up = isStart_upService(this.startConfig);
+                    if (ignoreTheStartedState) {
+                        if (start_up) {
                             returnValue = originalMethod.apply(this, args);
                         } else {
-                            //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
-                            throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                            return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
+                            //throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
                         }
                     } else {
-                        return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
+                        if (start_up) {
+                            if (this.ready) {
+                                returnValue = originalMethod.apply(this, args);
+                            } else {
+                                //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                                throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                            }
+                        } else {
+                            return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
+                        }
                     }
                 }
                 // Return back the value to the execution stack

@@ -10,11 +10,16 @@ const fileViewerElementFactory = require("../common/models/FileViewer").FileView
 const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDescriptorFactory();
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
+import {isStarted} from "../common/Utils";
 const url = require('url');
 const LOG_ID = "FileStorage/SVCE - ";
 
-const orderByFilter = require("../common/Utils").orderByFilter;
+//const orderByFilter = require("../common/Utils").orderByFilter;
+import {orderByFilter} from "../common/Utils";
 
+//const orderByFilter = require("../common/Utils").orderByFilter;
+
+@isStarted()
 /**
  * @module
  * @name FileStorage
@@ -51,6 +56,7 @@ class FileStorage {
 	public _logger: any;
 	public errorHelperService: any;
 	public helpersService: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -76,6 +82,7 @@ class FileStorage {
         this.receivedFileDescriptorsByDate = [];
         this.receivedFileDescriptorsBySize = [];
         this.consumptionData = {};
+        this.ready = false;
     }
 
     start(__xmpp : XMPPService, __rest : RESTService, __fileServerService, __conversations) {
@@ -102,6 +109,7 @@ class FileStorage {
                 that.receivedFileDescriptorsByDate = [];
                 that.receivedFileDescriptorsBySize = [];
                 that.consumptionData = {};
+                this.ready = true;
 
                 resolve();
 
@@ -119,6 +127,7 @@ class FileStorage {
             if (that.started) {
                 that.started = false;
             }
+            this.ready = false;
             that.logger.log("debug", LOG_ID + "(stop) _exiting_");
             resolve();
         });

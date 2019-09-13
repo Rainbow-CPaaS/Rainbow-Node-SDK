@@ -9,9 +9,11 @@ const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 
 const PubSub = require("pubsub-js");
 const PresenceEventHandler = require("../connection/XMPPServiceHandler/presenceEventHandler");
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "PRES/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name Presence
@@ -34,6 +36,7 @@ class Presence {
     RAINBOW_PRESENCE_DONOTDISTURB: any;
     RAINBOW_PRESENCE_AWAY: any;
     RAINBOW_PRESENCE_INVISIBLE: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -60,6 +63,7 @@ class Presence {
 
         that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
         that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
+        this.ready = false;
     }
 
     start(_xmpp, _settings) {
@@ -83,6 +87,7 @@ class Presence {
                 that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
+                that.ready = true;
                 resolve();
 
             } catch (err) {
@@ -109,6 +114,7 @@ class Presence {
                 that._eventEmitter.removeListener("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.ready = false;
                 resolve();
 
             } catch (err) {

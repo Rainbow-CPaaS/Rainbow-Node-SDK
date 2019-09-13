@@ -8,9 +8,11 @@ export {};
 import {ErrorManager} from "../common/ErrorManager";
 const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 const Presence = require("./PresenceService");
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "SETT/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @private
@@ -27,6 +29,7 @@ class Settings {
 	public _rest: RESTService;
 	public _eventEmitter: any;
 	public _logger: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -46,6 +49,7 @@ class Settings {
         // this.RAINBOW_PRESENCE_DONOTDISTURB = "dnd";
         // this.RAINBOW_PRESENCE_AWAY = "away";
         // this.RAINBOW_PRESENCE_INVISIBLE = "invisible";
+        this.ready = false;
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
@@ -58,6 +62,7 @@ class Settings {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
+                that.ready = true;
                 resolve();
 
             } catch (err) {
@@ -77,6 +82,7 @@ class Settings {
                 that._xmpp = null;
                 that._rest = null;
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.ready = false;
                 resolve();
 
             } catch (err) {

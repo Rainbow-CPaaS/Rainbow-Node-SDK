@@ -301,9 +301,9 @@ class Core {
         self._stateManager = new StateManager(self._eventEmitter, self.logger);
 
         // Instantiate others Services
-        self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions);
+        self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
-        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger);
+        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
         self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations);
         self._profiles = new Profiles.ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);

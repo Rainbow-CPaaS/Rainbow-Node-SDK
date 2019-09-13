@@ -14,9 +14,11 @@ import {types} from "util";
 const fs = require("fs");
 const mimetypes = require("mime-types");
 const PubSub = require("pubsub-js");
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CHANNELS/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name Channels
@@ -27,7 +29,6 @@ const LOG_ID = "CHANNELS/SVCE - ";
  *      - Create a new channel <br>
  *      - Manage a channel: update, delete <br>
  *      - Manage users in a channel <br>
- *  @todo Write the documentation.
  */
 class Channels {
 	public _xmpp: XMPPService;
@@ -44,6 +45,7 @@ class Channels {
     public channelEventHandler: ChannelEventHandler;
     public channelHandlerToken: any;
     public invitationCounter: number = 0;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -83,6 +85,7 @@ class Channels {
         this.PUBLIC_VISIBILITY = "company";
         this.PRIVATE_VISIBILITY = "private";
         this.CLOSED_VISIBILITY = "closed";
+        this.ready = false;
 
         this._eventEmitter.on("evt_internal_channelitemreceived", this._onChannelMessageReceived.bind(this));
         this._eventEmitter.on("evt_internal_addtochannel", this.onAddToChannel.bind(this));
@@ -106,15 +109,16 @@ class Channels {
                 that._rest = _rest;
                 that._channels = [];
                 that._channelsList = [];
-                that._attachHandlers();
+                that.attachHandlers();
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
+                this.ready = true;
                 resolve();
             }
             catch (err) {
                 this._logger.log("error", LOG_ID + "(start) error ");
                 this._logger.log("internalerror", LOG_ID + "(start) error : ", err);
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject();
+                reject(err);
             }
         });
     }
@@ -129,6 +133,7 @@ class Channels {
                 this._channels = null;
                 this._channelsList = null;
 //                this._eventEmitter.removeListener("rainbow_onchannelmessagereceived", this._onChannelMessageReceived);
+                this.ready = false;
                 this._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
             } catch (err) {
@@ -140,7 +145,7 @@ class Channels {
         });
     }
 
-    _attachHandlers() {
+    attachHandlers() {
         let that = this;
         that.channelEventHandler = new ChannelEventHandler(that._xmpp, that);
         that.channelHandlerToken = [

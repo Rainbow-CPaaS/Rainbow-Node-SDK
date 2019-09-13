@@ -6,9 +6,11 @@ export {};
 
 
 import {ErrorManager} from "../common/ErrorManager";
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "GROUPS/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name Groups
@@ -22,13 +24,13 @@ const LOG_ID = "GROUPS/SVCE - ";
  *		- Add a contact in a group
  *		- Remove a contact from a group
  */
-
  class Groups {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public _groups: any;
 	public _eventEmitter: any;
 	public _logger: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -50,6 +52,7 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._eventEmitter.on("evt_internal_groupupdated", this._onGroupUpdated.bind(this));
         this._eventEmitter.on("evt_internal_useraddedingroup", this._onUserAddedInGroup.bind(this));
         this._eventEmitter.on("evt_internal_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
+        this.ready = false;
     }
 
      start(_xmpp : XMPPService, _rest : RESTService) {
@@ -76,7 +79,9 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.on("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup.bind(that));
 */
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
-                resolve();
+                that.ready = true;
+
+                 resolve();
              } catch (err) {
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject();
@@ -102,7 +107,8 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.removeListener("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup);
 */
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                resolve();
+                that.ready = false;
+                 resolve();
              } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);

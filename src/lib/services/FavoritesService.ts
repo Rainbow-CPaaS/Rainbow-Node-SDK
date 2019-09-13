@@ -17,7 +17,18 @@ import { Favorite } from '../common/models/Favorite';
 import {CallLogEventHandler} from "../connection/XMPPServiceHandler/calllogEventHandler";
 import {ErrorManager} from "../common/ErrorManager";
 import {Channel} from "../common/models/Channel";
+import {isStarted} from "../common/Utils";
 
+@isStarted()
+/**
+* @module
+* @name FavoritesService
+* @description
+*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots.
+*      The main methods and events proposed in that service allow to: <br>
+*      - Create or delete a Rainbow Favorite (one-to-one, bubble or bot), <br/>
+*      - Retrieve all information linked to that Favorite, <br>
+*/
 class FavoritesService {
     public _eventEmitter: any;
     private _logger: any;
@@ -30,6 +41,7 @@ class FavoritesService {
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
     private favorites: any[] = [];
     private xmppManagementHandler: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -53,6 +65,7 @@ class FavoritesService {
 
         this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
         this._eventEmitter.on("evt_internal_favoritedeleted_handle", this.onFavoriteDeleted.bind(this));
+        this.ready = false;
     }
 
 
@@ -74,6 +87,8 @@ class FavoritesService {
         let startDuration = Math.round(new Date().getTime() - startDate);
         //stats.push({ service: 'favoriteService', startDuration: startDuration });
         that._logger.log("info", LOG_ID + `=== STARTED (${startDuration} ms) ===`);
+        this.ready = true;
+
     }
 
     public async stop() {
@@ -103,6 +118,7 @@ class FavoritesService {
          */
 
 
+        this.ready = false;
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 

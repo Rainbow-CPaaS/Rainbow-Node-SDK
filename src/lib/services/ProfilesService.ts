@@ -7,6 +7,7 @@ export {};
 
 //let service = this;
 import {ErrorManager} from "../common/ErrorManager";
+import {isStarted} from "../common/Utils";
 
 const Offer = require('../common/models/Offer') ;
 
@@ -86,6 +87,7 @@ const FeaturesEnum = {
     WEBRTC_P2P_RECORDING: "WEBRTC_P2P_RECORDING" // */
 };
 
+@isStarted()
 class ProfilesService {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
@@ -100,6 +102,7 @@ class ProfilesService {
 	public mainOffers: any;
 	public startDate: any;
     timer: NodeJS.Timeout;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -143,6 +146,7 @@ class ProfilesService {
             }, 3000);
         } ;
 
+        this.ready = false;
 
     }
 
@@ -164,6 +168,7 @@ class ProfilesService {
         that.profiles = [];
         that.mainOffers = [];
         that.startDate = new Date();
+        this.ready = true;
 
     }
 
@@ -173,6 +178,7 @@ class ProfilesService {
 
         that.started = false;
         that.logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
+        this.ready = false;
         return Promise.resolve();
     }
 

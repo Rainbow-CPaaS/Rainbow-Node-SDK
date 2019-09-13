@@ -11,13 +11,11 @@ import {Call} from "../common/models/Call";
 //const Call = require("../common/models/Call");
 
 const moment = require("moment");
-
 const Deferred = require("../common/Utils").Deferred;
-
 const PubSub = require("pubsub-js");
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
-
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
+import {isStarted} from "../common/Utils";
 
 const emoji = require("../common/Emoji");
 
@@ -27,6 +25,7 @@ const fileViewerElementFactory = require("../common/models/FileViewer").FileView
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name Conversations
@@ -65,6 +64,7 @@ class Conversations {
 	public botServiceReady: any;
 	public conversationHistoryHandler: ConversationHistoryHandler;
 	public chatRenderer: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -89,7 +89,10 @@ class Conversations {
         this.conversationHistoryHandlerToken = [];
 
         //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
+        this.ready = false;
+
         this._eventEmitter.on("evt_internal_onreceipt", this._onReceipt.bind(this));
+
     }
 
     start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _fileStorageService, _fileServerService) {
@@ -120,16 +123,17 @@ class Conversations {
                 that.botServiceReady = false;
 
 
-                that._attachHandlers();
+                that.attachHandlers();
 
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
+                this.ready = true;
                 resolve();
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(start) !!! Catch error ");
+                that._logger.log("error", LOG_ID + "(start) !!! Catch error.");
                 that._logger.log("internalerror", LOG_ID + "(start) !!! Catch error : ", err);
                 that._logger.log("error", LOG_ID + "(start) _exiting_");
-                reject();
+                reject(err);
             }
         });
     }
@@ -152,6 +156,7 @@ class Conversations {
                 that.conversationHistoryHandlerToken = [];
 
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
+                this.ready = false;
 
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
@@ -162,7 +167,7 @@ class Conversations {
         });
     }
 
-    _attachHandlers() {
+    attachHandlers() {
         let that = this;
         that.conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
         that.conversationHandlerToken = [

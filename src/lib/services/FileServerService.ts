@@ -18,6 +18,7 @@ import {ErrorManager} from "../common/ErrorManager";
 //const Blob = require("blob");
 
 const streamBuffers = require('stream-buffers');
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -25,6 +26,14 @@ const ONE_KILOBYTE = 1024;
 const ONE_MEGABYTE = 1024 * 1024;
 const ONE_GIGABYTE = 1024 * 1024 * 1024;
 
+@isStarted()
+/**
+* @module
+* @name FileStorage
+* @public
+* @description
+*      This service manage files on server side
+*/
 class FileServer {
 	public eventEmitter: any;
 	public logger: any;
@@ -37,6 +46,7 @@ class FileServer {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public ONE_MEGABYTE: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -52,6 +62,7 @@ class FileServer {
         this._capabilities = null;
         this.transferPromiseQueue = null;
         this.fileStorageService = null;
+        this.ready = false;
     }
 
     get capabilities() : Promise<any>{
@@ -88,6 +99,7 @@ class FileServer {
                 that.rest = _rest;
                 that.fileStorageService = _fileStorageService;
 
+                that.ready = true;
                 resolve();
 
             } catch (err) {
@@ -108,6 +120,7 @@ class FileServer {
                 that._rest = null;
 
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.ready = false;
                 resolve();
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");

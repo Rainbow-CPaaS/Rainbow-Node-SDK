@@ -29,6 +29,7 @@ import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEvent
 import {setFlagsFromString} from "v8";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
+import {isStarted} from "../common/Utils";
 
 interface ICallLogsBean {
     callLogs: Array<any>;
@@ -53,47 +54,61 @@ function CallLogsBean() : ICallLogsBean {
         "lastTimestamp": 0
     };
 }
-    class CallLogService {
-        public _eventEmitter: any;
-        private logger: any;
-        private started: boolean;
-        private _initialized: boolean;
-        private calllogs: ICallLogsBean;
-        private callLogHandlerRef: any;
-        private callLogMessageAckRef: any;
-        private callLogNotificationRef: any;
-        private callLogsHistory: any;
-        private telephonyCallLog: any;
-        private telephonyCallLogHistory: any;
-        private deferedObject: any;
-        private callLogComplete: any;
-        private callLogIndex: any;
-        private calllogHandlerToken: any;
-        /*private callLogs: any;
-        private callLogsPromises: any;
-        private orderByNameCallLogs: any;
-        private orderByDateCallLogs: any;
-        private orderByDateCallLogsBruts: any;
-        private simplifiedCallLogs: any;
-        private numberMissedCalls: any;
-        private lastTimestamp: any;
-        // */
+
+@isStarted()
+/**
+* @module
+* @name CallsLog
+* @public
+* @description
+*      This service allow to get the call log and manage it. <br><br>
+*      The main methods and events proposed in that service allow to: <br>
+*      - Get all calls log <br/>
+*      - Delete one or all calls log <br/>
+*      - Mark calls as read / unread <br/>
+*/
+ class CallLogService {
+    public _eventEmitter: any;
+    private logger: any;
+    private started: boolean;
+    private _initialized: boolean;
+    private calllogs: ICallLogsBean;
+    private callLogHandlerRef: any;
+    private callLogMessageAckRef: any;
+    private callLogNotificationRef: any;
+    private callLogsHistory: any;
+    private telephonyCallLog: any;
+    private telephonyCallLogHistory: any;
+    private deferedObject: any;
+    private callLogComplete: any;
+    private callLogIndex: any;
+    private calllogHandlerToken: any;
+    /*private callLogs: any;
+    private callLogsPromises: any;
+    private orderByNameCallLogs: any;
+    private orderByDateCallLogs: any;
+    private orderByDateCallLogsBruts: any;
+    private simplifiedCallLogs: any;
+    private numberMissedCalls: any;
+    private lastTimestamp: any;
+    // */
     private _xmpp: XMPPService;
     private _rest: RESTService;
     private _contacts: any;
     private _profiles: any;
     private _calllogEventHandler: CallLogEventHandler;
-        _telephony: any;
-        private readonly _startConfig: {
-            start_up:boolean,
-            optional:boolean
-        };
-        get startConfig(): { start_up: boolean; optional: boolean } {
-            return this._startConfig;
-        }
+    _telephony: any;
+    public ready: boolean = false;
+    private readonly _startConfig: {
+        start_up: boolean,
+        optional: boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
 
-        // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
+    // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
     constructor(_eventEmitter, logger, _startConfig) {
 
         /*********************************************************/
@@ -107,6 +122,7 @@ function CallLogsBean() : ICallLogsBean {
         this.started = false;
         this._initialized = false;
 
+        this.ready = false;
 
         /*this.callLogs = [];
         this.orderByNameCallLogs = [];
@@ -137,7 +153,7 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_xmpp : XMPPService, _rest : RESTService, _contacts , _profiles, _telephony) {
+    async start(_xmpp: XMPPService, _rest: RESTService, _contacts, _profiles, _telephony) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;
@@ -145,11 +161,13 @@ function CallLogsBean() : ICallLogsBean {
         that._profiles = _profiles;
         that._telephony = _telephony;
 
+
         this.calllogHandlerToken = [];
 
         that.logger.log("info", LOG_ID + " ");
         that.logger.log("info", LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
+        this.ready = true;
     }
 
     async stop() {
@@ -184,11 +202,12 @@ function CallLogsBean() : ICallLogsBean {
         that._calllogEventHandler = null;
         that.calllogHandlerToken.forEach((token) => PubSub.unsubscribe(token));
         that.calllogHandlerToken = [];
+        this.ready = false;
 
         that.logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
-    async init () {
+    async init() {
         let that = this;
 
         //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
@@ -199,7 +218,7 @@ function CallLogsBean() : ICallLogsBean {
                     // @ts-ignore
                     let duration = new Date() - startDate;
                     let startDuration = Math.round(duration);
-                    that.logger.log("info", LOG_ID + " callLogService start duration : ",  startDuration);
+                    that.logger.log("info", LOG_ID + " callLogService start duration : ", startDuration);
                     that.logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
                     that.started = true;
                 })
@@ -218,8 +237,8 @@ function CallLogsBean() : ICallLogsBean {
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
             PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived ),
-            PubSub.subscribe( that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived )
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived)
         ];
 
         /*
@@ -233,10 +252,9 @@ function CallLogsBean() : ICallLogsBean {
     }
 
 
-
-
     /*********************************************************/
     /**       MAM REQUESTS                                  **/
+
     /*********************************************************/
 
     async getCallLogHistoryPage(useAfter?) {
@@ -248,6 +266,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /*********************************************************/
     /**                     API                             **/
+
     /*********************************************************/
 
     /**
@@ -268,13 +287,13 @@ function CallLogsBean() : ICallLogsBean {
         for (let i = 0; i < callLogs.length; i++) {
             let durationMs = 0;
             let hmmss = callLogs[i].duration;
-            if ( hmmss && (typeof hmmss === "string") && hmmss.match( /^(?:(?:([01]?\d|2[0-3])h )?([0-5]?\d)m )?([0-5]?\ds)$/ ) ) {
+            if (hmmss && (typeof hmmss === "string") && hmmss.match(/^(?:(?:([01]?\d|2[0-3])h )?([0-5]?\d)m )?([0-5]?\ds)$/)) {
                 // Remove h, m and s
-                hmmss = hmmss.replace( /[hms]/g , "");
+                hmmss = hmmss.replace(/[hms]/g, "");
                 // split it at the "space", also reverse it to get seconds then minutes then hours
                 let parts = hmmss.split(' ').reverse();
 
-                for( let j = 0; j < parts.length; j++) {
+                for (let j = 0; j < parts.length; j++) {
                     durationMs += parts[j] * Math.pow(60, j);
                 }
                 callLogs[i].duration = durationMs * 1000;
@@ -295,7 +314,7 @@ function CallLogsBean() : ICallLogsBean {
         let that = this;
         let num = 0;
 
-        that.calllogs.callLogs.forEach(function(callLog) {
+        that.calllogs.callLogs.forEach(function (callLog) {
             if (!callLog.read && callLog.state === "missed" && callLog.direction === "incoming") {
                 num++;
             }
@@ -403,15 +422,16 @@ function CallLogsBean() : ICallLogsBean {
 
     /*********************************************************/
     /**                  EVENT HANDLERS                     **/
+
     /*********************************************************/
 
     async onCallLogUpdated(calllogs) {
-        this.calllogs = calllogs ;
+        this.calllogs = calllogs;
         this._initialized = true;
     }
 
     async onCallLogAckReceived(calllogs) {
-        this.calllogs = calllogs ;
+        this.calllogs = calllogs;
         this._initialized = true;
     }
 
@@ -422,6 +442,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /*********************************************************/
     /**                  HELPER FUNCTIONS                   **/
+
     /*********************************************************/
 
     getOrderByNameCallLogs() {

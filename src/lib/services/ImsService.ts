@@ -10,9 +10,11 @@ const emoji = require("../common/Emoji");
 import {XMPPUTils} from "../common/XMPPUtils";
 const utils = require("../common/Utils");
 const config = require("../config/config");
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "IM/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name IM
@@ -33,6 +35,7 @@ class IM {
 	public _bulles: any;
     private imOptions: any;
     public _fileStorage: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -51,6 +54,7 @@ class IM {
         this.imOptions = _imOptions;
 
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
+        this.ready = false;
 
 
     }
@@ -68,11 +72,12 @@ class IM {
                 that._bulles = __bubbles;
                 that._fileStorage = _filestorage;
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
+                that.ready = true;
                 resolve();
 
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject();
+                reject(err);
             }
         });
     }
@@ -86,11 +91,12 @@ class IM {
             try {
                 that.xmpp = null;
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.ready = false;
                 resolve();
 
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject();
+                reject(err);
             }
         });
     }

@@ -5,11 +5,12 @@ import {XMPPService} from "../connection/XMPPService";
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
-
 import  {RESTService} from "../connection/RESTService";
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name Admin
@@ -31,6 +32,7 @@ class Admin {
     public _bubbles: any;
     public _eventEmitter: any;
     public _logger: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -46,6 +48,7 @@ class Admin {
         this._bubbles = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
+        this.ready = false;
     }
 
     start(_xmpp : XMPPService, _rest : RESTService) {
@@ -57,6 +60,7 @@ class Admin {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
+                that.ready = true;
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
             } catch (err) {
@@ -76,6 +80,7 @@ class Admin {
             try {
                 that._xmpp = null;
                 that._rest = null;
+                that.ready = false;
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
             } catch (err) {

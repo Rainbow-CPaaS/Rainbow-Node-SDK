@@ -21,9 +21,11 @@ const PubSub = require("pubsub-js");
 const TelephonyEventHandler = require("../connection/XMPPServiceHandler/telephonyEventHandler");
 
 import { XMPPUTils } from "../common/XMPPUtils";
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
+@isStarted()
 /**
  * @module
  * @name Telephony
@@ -71,6 +73,7 @@ class Telephony {
 	public makingCall: any;
 	public starting: any;
 	public stats: any;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -106,6 +109,7 @@ class Telephony {
         this.voiceMailFeatureEnabled = false;
         this.isForwardEnabled = false;
         this.isNomadicEnabled = false;
+        this.ready = false;
 
     }
 
@@ -126,9 +130,10 @@ class Telephony {
                 that._profiles = _profiles;
 
 
-                that._attachHandlers();
+                that.attachHandlers();
 
                 this._logger.log("debug", LOG_ID + "(start) _exiting_");
+                this.ready = true;
                 resolve();
 
             } catch (err) {
@@ -157,6 +162,7 @@ class Telephony {
                 that.telephonyHistoryHandlerToken = [];
 
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
+                this.ready = false;
                 resolve();
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(stop) _exiting_");
@@ -165,7 +171,7 @@ class Telephony {
         });
     }
 
-    _attachHandlers() {
+    attachHandlers() {
         let that = this;
         that.telephonyEventHandler = new TelephonyEventHandler(that._xmpp, that, that._contacts, that._profiles);
         that.telephonyHandlerToken = [

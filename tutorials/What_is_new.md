@@ -27,7 +27,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Update the logs to remove all people data.
 -   CRRAINB-7686 : Fix code for the 'read' receipt is sent automatically to the sender when the message is received.
-
+-   Add the ability to start services one by one. To avoid the calls to unnecessary pay API on server.
 
 ### SDK for Node.JS 1.60 - August 2019
 

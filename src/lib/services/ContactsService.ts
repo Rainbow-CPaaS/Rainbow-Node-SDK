@@ -12,9 +12,11 @@ const Contact = require("../common/models/Contact");
 const util = require('util');
 const md5 = require('md5');
 const path = require('path');
+import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
+@isStarted()
 /**
  * @class
  * @name Contacts
@@ -37,6 +39,7 @@ class Contacts {
 	public rest: RESTService;
 	public _logger: any;
 	public _xmpp: XMPPService;
+    public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -54,6 +57,7 @@ class Contacts {
         this.logger = _logger;
         this.rosterPresenceQueue = [];
         this.userContact = new Contact.Contact();
+        this.ready = false;
 
         this.eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
         this.eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onContactInfoChanged.bind(this));
@@ -107,12 +111,13 @@ class Contacts {
                 that.eventEmitter.on("evt_internal_onrosters", that._onRostersUpdate.bind(that));
 */
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
+                that.ready = true;
                 resolve();
 
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(start) Catch ErrorManager !!!");
                 that.logger.log("internalerror", LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
-                reject();
+                reject(err);
             }
         });
     }
@@ -136,6 +141,7 @@ class Contacts {
                 that.eventEmitter.removeListener("evt_internal_onrosters", that._onRostersUpdate.bind(that));
 */
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.ready = false;
                 resolve();
 
             } catch (err) {
