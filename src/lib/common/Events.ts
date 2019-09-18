@@ -474,6 +474,17 @@ class Events {
             that.publishEvent("callupdated", data);
         });
 
+        this._evReceiver.on("evt_internal_conferenced", function (data) {
+            /**
+             * @event Events#rainbow_onconferenced
+             * @public
+             * @param { data }
+             * @description
+             *      Fired when a conference event is received
+             */
+            that.publishEvent("conferenced", data);
+        });
+
         this._evReceiver.on("evt_internal_telephonystatuschanged", function (data) {
             /**
              * @event Events#rainbow_ontelephonystatuschanged

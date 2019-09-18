@@ -1126,7 +1126,8 @@ class Telephony {
     releaseCall(call) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that._logger.log("debug", LOG_ID + "(releaseCall) call " + call.id);
+            that._logger.log("internal", LOG_ID + "(releaseCall) call : ", call);
+            that._logger.log("debug", LOG_ID + "(releaseCall) call id : ", call.id);
 
             //reject not allowed operations
             if (!that.isBasicCallAllowed) {
@@ -1134,8 +1135,8 @@ class Telephony {
                 // @ts-ignore
                 profileError.status = profileError.errorDetailsCode = "403";
                 // @ts-ignore
-                that._logger.log("error", LOG_ID + "(releaseCall) Error." );
-                that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", profileError.msg);
+                that._logger.log("error", LOG_ID + "(releaseCall) Error : ", profileError );
+                that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", profileError);
                 reject(profileError);
             }
 
@@ -1168,7 +1169,7 @@ class Telephony {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
                     that._logger.log("error", LOG_ID + "(releaseCall) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", error);
+                    that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", error, ", response : ", response);
                 });
         });
     }

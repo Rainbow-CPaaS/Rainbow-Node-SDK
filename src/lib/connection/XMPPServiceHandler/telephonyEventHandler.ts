@@ -727,15 +727,31 @@ class TelephonyEventHandler extends GenericHandler {
             let confParticipants = [];
             let participantPromises = [];
             let confParticipantsPhoneNumbers = [];
+            let confContactsInfos = [];
 
-            let participantsElmt = conferencedElem.getChildren("participant");
+            let participantsElmt = conferencedElem.getChild("participants");
             that.logger.log("internal", LOG_ID + "(onConferenceEvent) participantsElmt - ", participantsElmt);
-            participantsElmt.forEach(function (participantElem) {
+            let participantElmts = participantsElmt.getChildren("participant");
+            that.logger.log("internal", LOG_ID + "(onConferenceEvent) participantElmts - ", participantElmts);
+            participantElmts.forEach(function (participantElem) {
                 //let participantElem = angular.element(this);
                 let endpointTel = participantElem.find("endpointTel").getText();
                 that.logger.log("debug", LOG_ID + "(onConferenceEvent) endpointTel - ", endpointTel);
                 let endpointIm = participantElem.find("endpointIm").getText();
                 that.logger.log("debug", LOG_ID + "(onConferenceEvent) endpointIm - ", endpointIm);
+                let callId = participantElem.find("callId").getText();
+                that.logger.log("debug", LOG_ID + "(onConferenceEvent) callId - ", callId);
+                let role = participantElem.find("role").getText();
+                that.logger.log("debug", LOG_ID + "(onConferenceEvent) role - ", role);
+
+                let contactInfos = {
+                    endpointTel : endpointTel,
+                    endpointIm : endpointIm,
+                    callId : callId,
+                    role : role
+                };
+
+                confContactsInfos.push(contactInfos);
 
                 if (!(endpointIm && contactService.isUserContactJid(endpointIm))) {
                     participantPromises.push(new Promise(function (resolve, reject) {
@@ -833,6 +849,13 @@ class TelephonyEventHandler extends GenericHandler {
                     that.logger.log("internal", LOG_ID + "(onConferenceEvent) create newConferenceCall - " , newConferenceCall);
                     that.logger.log("internal", LOG_ID + "(onConferenceEvent) create newConferenceCall - stored :" , that.telephonyService.getCallFromCache(newConferenceCall.id));
                     //that.logger.log("internal", LOG_ID + "(onConferenceEvent) send evt_internal_callupdated ", newConferenceCall);
+                    let conferenceInfos = {
+                        primaryOldCall : primaryOldCall,
+                        secondaryOldCall : secondaryOldCall,
+                        newConferenceCall : newConferenceCall,
+                        participants : confContactsInfos
+                    };
+                    that.eventEmitter.emit("evt_internal_conferenced", conferenceInfos);
                     that.eventEmitter.emit("evt_internal_callupdated", newConferenceCall);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", newConferenceCall);
                 });

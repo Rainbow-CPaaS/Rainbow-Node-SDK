@@ -75,15 +75,15 @@ class RESTTelephony {
                     that.logger.log("debug", LOG_ID + "(releasecall) _exiting_");
                     resolve(json.data);
                 }).catch((err) => {
-                    that.logger.log("error", LOG_ID, "(releasecall) error");
-                    that.logger.log("internalerror", LOG_ID, "(releasecall) error", err);
+                    that.logger.log("error", LOG_ID, "(releasecall) error.");
+                    that.logger.log("internalerror", LOG_ID, "(releasecall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(releasecall) _exiting_");
                     reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not release call', 'no connectionId found in call ', util.inspect(call));// errorHelperService.handleError(response);
-                that._logger.log("error", LOG_ID + "(releaseCall) ");
-                that._logger.log("internalerror", LOG_ID + "(releaseCall) ", error);
+                that._logger.log("error", LOG_ID + "(releaseCall) Catch Error !!! ");
+                that._logger.log("internalerror", LOG_ID + "(releaseCall) Catch Error !!! Error : ", error);
                 that.logger.log("debug", LOG_ID + "(releasecall) _exiting_");
                 reject(error);
             }
