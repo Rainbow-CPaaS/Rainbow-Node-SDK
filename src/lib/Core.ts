@@ -472,6 +472,9 @@ class Core {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
             }).catch((err) => {
+                that.logger.log("error", LOG_ID + "(stop) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
+                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
             });
         });
