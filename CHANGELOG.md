@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.62.0] - 2018-09-xx
+-   Update
+
 ## [1.61.0] - 2018-09-18
 -   Update the logs to remove all people data.
 -   CRRAINB-7686 : Fix code for the 'read' receipt sent automatically to the sender when the message is received.
