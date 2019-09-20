@@ -1,19 +1,15 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
 
 export {};
-
 
 import {ErrorManager} from "../common/ErrorManager";
 import {Channel} from "../common/models/Channel";
 import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
-import {localeData} from "moment";
-import {types} from "util";
-
-const fs = require("fs");
-const mimetypes = require("mime-types");
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
 import * as PubSub from "pubsub-js";
+import * as fs from "fs";
+import * as mimetypes from "mime-types";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CHANNELS/SVCE - ";

@@ -1,15 +1,12 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-
 export {};
 
-
-const {ErrorManager} = require("../common/ErrorManager");
-import {Conversation} from "./../common/models/Conversation";
-const emoji = require("../common/Emoji");
+import {XMPPService} from "../connection/XMPPService";
+import {ErrorManager} from "../common/ErrorManager";
+import {Conversation} from "../common/models/Conversation";
+import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
-const utils = require("../common/Utils");
-const config = require("../config/config");
+import {until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "IM/SVCE - ";
@@ -383,7 +380,7 @@ class IMService {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = emoji.shortnameToUnicode(message);
+        let messageUnicode = shortnameToUnicode(message);
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
@@ -457,7 +454,7 @@ class IMService {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = emoji.shortnameToUnicode(message);
+        let messageUnicode = shortnameToUnicode(message);
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
@@ -554,7 +551,7 @@ class IMService {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = emoji.shortnameToUnicode(message);
+        let messageUnicode = shortnameToUnicode(message);
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
@@ -570,7 +567,7 @@ class IMService {
                 that.logger.log("internal", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that.xmpp.sendInitialBubblePresence(bubble.jid);
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
-                await utils.until(() => {
+                await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
@@ -637,7 +634,7 @@ class IMService {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = emoji.shortnameToUnicode(message);
+        let messageUnicode = shortnameToUnicode(message);
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
@@ -653,7 +650,7 @@ class IMService {
                 that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that.xmpp.sendInitialBubblePresence(bubble.jid);
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
-                await utils.until(() => {
+                await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
@@ -694,7 +691,7 @@ class IMService {
 
                     that._conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
                         if (!conversation) {
-                            reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
+                            reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
                         else {
                             await that.xmpp.sendIsTypingState(conversation, status) ;
@@ -702,7 +699,7 @@ class IMService {
                             resolve();
                         }
                     }).catch((err)=>{
-                        reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
+                        reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
                     });
                 }
             }
@@ -732,7 +729,7 @@ class IMService {
             else {
                 conversation = conversation.id ? that._conversations.getConversationById(conversation.id) : null;
                 if (!conversation) {
-                    reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
+                    reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     await that.xmpp.sendIsTypingState(conversation, status);
                     resolve();

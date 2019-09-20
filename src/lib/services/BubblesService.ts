@@ -1,24 +1,15 @@
 "use strict";
-import {RESTService} from "../connection/RESTService";
-
-import * as deepEqual from "deep-equal";
-
 export {};
-
-
+import * as deepEqual from "deep-equal";
+import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
-import {Channel} from "../common/models/Channel";
-import {throws} from "assert";
-
 import {createPromiseQueue} from "../common/promiseQueue";
 import {until} from "../common/Utils";
-
-const LOG_ID = "BUBBLES/SVCE - ";
-
 import {isStarted} from "../common/Utils";
 
+const LOG_ID = "BUBBLES/SVCE - ";
 
 @isStarted()
 /**

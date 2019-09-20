@@ -1,14 +1,11 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-
 export {};
 
-
+import {XMPPService} from "../connection/XMPPService";
 import {ErrorManager} from "../common/ErrorManager";
-const RainbowPresence = require("../common/models/Settings").RainbowPresence;
-
+import {RainbowPresence} from "../common/models/Settings";
 import * as PubSub from "pubsub-js";
-const PresenceEventHandler = require("../connection/XMPPServiceHandler/presenceEventHandler");
+import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "PRES/SVCE - ";
@@ -91,6 +88,8 @@ class PresenceService {
                 resolve();
 
             } catch (err) {
+                that._logger.log("error", LOG_ID + "(start) Catch Error !!!");
+                that._logger.log("internalerror", LOG_ID + "(start) Catch Error !!! : ", err);
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject();
             }

@@ -145,3 +145,4 @@ class VoiceMail {
 }
 
 module.exports = {createVoiceMail: createVoiceMail, VoiceMail: VoiceMail};
+export {createVoiceMail as createVoiceMail, VoiceMail as VoiceMail};

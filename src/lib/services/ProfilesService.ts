@@ -1,18 +1,13 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
 export {};
 
-
-//let service = this;
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
+import {Offer, offerManager} from '../common/models/Offer' ;
 import {isStarted} from "../common/Utils";
 
-const Offer = require('../common/models/Offer') ;
-
 const LOG_ID = "PROFILES/SVCE - ";
-
 
 const FeaturesEnum = {
     COMPANY_ADMIN_COUNT : "COMPANY_ADMIN_COUNT",
@@ -246,12 +241,12 @@ class ProfilesService {
                         that.logger.log("internal", LOG_ID + "(getServerProfiles) === response ===" + profileData);
                         //store profile data
                         that.profiles.push(profileData);
-                        let offer = Offer.offerManager.createOfferFromProfileData(profileData);
+                        let offer = offerManager.createOfferFromProfileData(profileData);
                         if (offer.isExclusive || offer.isDefault) {
                             that.mainOffers.push(offer);
                         }
                     });
-                    that.mainOffers.sort(Offer.offerManager.offerComparator);
+                    that.mainOffers.sort(offerManager.offerComparator);
                     resolve();
                 },
                 function error(response) {

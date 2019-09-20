@@ -1,13 +1,9 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
 export {};
 
-
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-const RainbowPresence = require("../common/models/Settings").RainbowPresence;
-const Presence = require("./PresenceService");
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "SETT/SVCE - ";

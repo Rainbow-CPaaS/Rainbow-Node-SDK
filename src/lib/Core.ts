@@ -1,13 +1,9 @@
 "use strict";
+export {};
+
 import {XMPPService} from "./connection/XMPPService";
 import {RESTService} from "./connection/RESTService";
 import {HTTPService} from "./connection/HttpService";
-import {isNullOrUndefined} from "util";
-import {Channel} from "./common/models/Channel";
-
-export {};
-
-
 import {Logger} from "./common/Logger";
 import {IMService} from "./services/ImsService";
 import {PresenceService} from "./services/PresenceService";
@@ -25,10 +21,8 @@ import {FileStorage} from "./services/FileStorageService";
 import {StateManager} from "./common/StateManager";
 import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
-
 import {Events} from "./common/Events";
 import {setFlagsFromString} from "v8";
-
 import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
 

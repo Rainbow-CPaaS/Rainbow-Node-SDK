@@ -21567,3 +21567,4 @@ function shortnameToUnicode(str) {
 };
 
 exports.shortnameToUnicode = shortnameToUnicode;
+export {shortnameToUnicode};

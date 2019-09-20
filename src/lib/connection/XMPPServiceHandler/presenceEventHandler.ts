@@ -201,4 +201,5 @@ class PresenceEventHandler extends GenericHandler {
     }
 }
 
-module.exports = PresenceEventHandler;
+module.exports.PresenceEventHandler = PresenceEventHandler;
+export {PresenceEventHandler};

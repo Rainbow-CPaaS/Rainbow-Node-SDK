@@ -7,7 +7,7 @@ export {};
  * @readonly
  * @enum {string}
  */
-var RainbowPresence = {
+let RainbowPresence = {
     ONLINE: "online",
     AWAY: "away",
     INVISIBLE: "invisible",
@@ -69,3 +69,4 @@ module.exports = {
     Settings: Settings,
     RainbowPresence: RainbowPresence
 };
+export {Settings, RainbowPresence};

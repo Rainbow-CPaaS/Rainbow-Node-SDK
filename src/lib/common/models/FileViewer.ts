@@ -99,3 +99,4 @@ function FileViewerElementFactory(viewerId, type, contact, contactService) {
 
 module.exports.FileViewer = FileViewer;
 module.exports.FileViewerElementFactory = FileViewerElementFactory;
+export {FileViewerElementFactory, FileViewer};

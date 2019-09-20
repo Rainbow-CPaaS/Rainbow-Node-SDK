@@ -1,27 +1,16 @@
 "use strict";
-import {RESTService} from "../connection/RESTService";
-
 export {};
 
+import {RESTService} from "../connection/RESTService";
 import {XMPPService} from "../connection/XMPPService";
-
 import {ErrorManager} from "../common/ErrorManager";
-//const Conversation = require("../common/models/Conversation");
-
-const moment = require("moment");
-
-const Deferred = require("../common/Utils").Deferred;
 import {Call} from "../common/models/Call";
-//const Call = require("../common/models/Call");
-const VoiceMail = require("../common/models/VoiceMail");
-
-const utils = require("../common/Utils");
-
+import * as VoiceMail from "../common/models/VoiceMail";
+import * as utils from "../common/Utils";
 import * as PubSub from "pubsub-js";
-const TelephonyEventHandler = require("../connection/XMPPServiceHandler/telephonyEventHandler");
-
 import { XMPPUTils } from "../common/XMPPUtils";
 import {isStarted} from "../common/Utils";
+import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyEventHandler";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 

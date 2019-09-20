@@ -154,3 +154,4 @@ module.exports = {
     'Offer': Offer,
     'offerManager': offerManager
 };
+export {Offer, offerManager};

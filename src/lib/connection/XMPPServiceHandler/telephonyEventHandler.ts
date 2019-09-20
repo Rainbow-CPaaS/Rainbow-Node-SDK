@@ -1361,4 +1361,5 @@ class TelephonyEventHandler extends GenericHandler {
 
 }
 
-module.exports = TelephonyEventHandler;
+module.exports.TelephonyEventHandler = TelephonyEventHandler;
+export {TelephonyEventHandler};

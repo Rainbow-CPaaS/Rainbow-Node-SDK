@@ -1,23 +1,16 @@
 "use strict";
-import {accessSync} from "fs";
-
 export {};
 
-
-const utils = require("../common/Utils");
-import * as PubSub from "pubsub-js";
-
-const LOG_ID = "FAVTE/SVCE - ";
-
-import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-
+import {setTimeoutPromised} from "../common/Utils";
+import * as PubSub from "pubsub-js";
+import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
 import { Favorite } from '../common/models/Favorite';
-import {CallLogEventHandler} from "../connection/XMPPServiceHandler/calllogEventHandler";
 import {ErrorManager} from "../common/ErrorManager";
-import {Channel} from "../common/models/Channel";
 import {isStarted} from "../common/Utils";
+
+const LOG_ID = "FAVTE/SVCE - ";
 
 @isStarted()
 /**
@@ -125,7 +118,7 @@ class FavoritesService {
     public async init () {
         let that = this;
         await this.getServerFavorites();
-        /*await utils.setTimeoutPromised(3000).then(() => {
+        /*await setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
             that.getCallLogHistoryPage()
                 .then(() => {

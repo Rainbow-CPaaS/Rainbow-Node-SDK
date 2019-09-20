@@ -1,23 +1,18 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
 export {};
 
-
-const crypto = require("crypto");
-const URL = require("url");
-const fs = require("fs");
-
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+import * as  crypto from "crypto";
+import * as URL from "url";
+import * as fs from "fs";
 //const TransferPromiseQueue = require("./TransferPromiseQueue");
-const PromiseQueue = require("../common/promiseQueue");
-
-const Deferred = require("../common/Utils").Deferred;
+import {createPromiseQueue} from "../common/promiseQueue";
+import  {Deferred} from "../common/Utils";
 import {ErrorManager} from "../common/ErrorManager";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
-
-const streamBuffers = require('stream-buffers');
+import * as streamBuffers from 'stream-buffers';
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "FileServer/SVCE - ";
@@ -477,7 +472,7 @@ class FileServer {
     async uploadAFileByChunk(fileDescriptor, filePath /*, progressCallback */) {
         let that = this;
 
-        let promiseQueue = PromiseQueue.createPromiseQueue(that.logger);
+        let promiseQueue = createPromiseQueue(that.logger);
 
         that.logger.log("info", LOG_ID + "(uploadAFileByChunk) _entering_");
 

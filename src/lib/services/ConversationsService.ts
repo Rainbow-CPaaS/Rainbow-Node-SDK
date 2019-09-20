@@ -1,27 +1,19 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
 export {};
 
-
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {Call} from "../common/models/Call";
-//const Call = require("../common/models/Call");
-
-const moment = require("moment");
-const Deferred = require("../common/Utils").Deferred;
+import * as moment from "moment";
+import {Deferred} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
+import {shortnameToUnicode} from "../common/Emoji";
+import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
 import {isStarted} from "../common/Utils";
-
-const emoji = require("../common/Emoji");
-
-const fileViewerElementFactory = require("../common/models/FileViewer").FileViewerElementFactory;
-//const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDescriptorFactory();
-
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -562,6 +554,14 @@ class Conversations {
      * @description
      *    Get a conversation associated to a bubble (using the bubble ID to retrieve it)
      * @param {String} bubbleJid JID of the bubble (dbId field)
+     * @param conversationDbId
+     * @param lastModification
+     * @param lastMessageText
+     * @param missedIMCounter
+     * @param noError
+     * @param muted
+     * @param creationDate
+     * @param lastMessageSender
      * @memberof Conversations
      * @async
      * @return {Promise<Conversation>}
@@ -646,11 +646,11 @@ class Conversations {
                                 that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
                                 resolve(__conversation);
                             })
-                            .catch(function (error) {
+                            .catch(async function (error) {
                                 let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
                                 that._logger.log("error", LOG_ID + "[conversationService] Error.");
                                 that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
-                                that.deleteServerConversation(conversationDbId);
+                                await that.deleteServerConversation(conversationDbId);
                                 if (noError) {
                                     resolve();
                                 } else {
@@ -659,11 +659,11 @@ class Conversations {
                             });
                     }
                 }
-            }).catch((error) => {
+            }).catch(async (error) => {
                 let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
                 that._logger.log("error", LOG_ID + "[conversationService] Error.");
                 that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
-                that.deleteServerConversation(conversationDbId);
+                await that.deleteServerConversation(conversationDbId);
                 if (noError) {
                     resolve();
                 } else {
@@ -864,13 +864,13 @@ class Conversations {
             let currentFileDescriptor;
 
             if (conversation.type === Conversation.Type.ONE_TO_ONE) {
-                viewers.push(fileViewerElementFactory(conversation.contact.id, "user"));
+                viewers.push(fileViewerElementFactory(conversation.contact.id, "user", undefined,  undefined));
                 /*viewers = fileViewerFactory([{
                     "viewerId": this.contact.dbId,
                     "type": "user"
                 }]); // */
             } else {
-                viewers.push(fileViewerElementFactory(conversation.bubble.id, "room")) ;
+                viewers.push(fileViewerElementFactory(conversation.bubble.id, "room", undefined,  undefined)) ;
                 /*viewers = fileViewerFactory([{
                     "viewerId": this.room.dbId,
                     "type": "room"
@@ -1086,7 +1086,7 @@ class Conversations {
             throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified","(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
         }
 
-        let messageUnicode = emoji.shortnameToUnicode(data);
+        let messageUnicode = shortnameToUnicode(data);
 
         try {
             let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang );

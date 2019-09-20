@@ -1,7 +1,4 @@
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
-module.exports = {
+let conf =  {
     sandbox: {
         http: {
             host: "sandbox.openrainbow.com",
@@ -129,3 +126,6 @@ module.exports = {
     }
 
 };
+
+module.exports = conf;
+export {conf};

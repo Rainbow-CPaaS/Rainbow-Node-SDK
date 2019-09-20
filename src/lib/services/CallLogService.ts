@@ -1,36 +1,15 @@
 "use strict";
-import {accessSync} from "fs";
-
-/// <reference path="rainbow-sdk-node.d.ts"/>
-
-
 export {};
 
-//const ErrorCase = require("../common/ErrorManager");
 import {setTimeoutPromised} from "../common/Utils";
-//const PubSub = require("pubsub-js");
 import * as PubSub from "pubsub-js";
-
-    /*"$q",
-    "$log",
-    "$rootScope",
-    "$interval",
-    "contactService",
-    "xmppService",
-    "CallLog",
-    "orderByFilter",
-    "profileService",
-    "$injector",
-    "telephonyService",
-    "webrtcGatewayService",
-    // */
-const LOG_ID = "CALLLOG/SVCE - ";
-
 import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
-import {setFlagsFromString} from "v8";
+//import {setFlagsFromString} from "v8";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {isStarted} from "../common/Utils";
+
+const LOG_ID = "CALLLOG/SVCE - ";
 
 interface ICallLogsBean {
     callLogs: Array<any>;

@@ -1,10 +1,8 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
 export {};
 
-
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
 

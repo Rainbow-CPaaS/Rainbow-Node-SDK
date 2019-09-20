@@ -353,3 +353,4 @@ function FileDescriptorFactory() {
 }
 
 module.exports.fileDescriptorFactory = FileDescriptorFactory;
+export {FileDescriptorFactory as fileDescriptorFactory};

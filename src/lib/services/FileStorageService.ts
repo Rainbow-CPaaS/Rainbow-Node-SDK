@@ -1,23 +1,18 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-
-const fileapi = require("file-api");
-
 export {};
 
-const fileViewerElementFactory = require("../common/models/FileViewer").FileViewerElementFactory;
-const fileDescriptorFactory = require("../common/models/fileDescriptor").fileDescriptorFactory();
+import {XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+import * as fileapi from "file-api";
+import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
+import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
-import {isStarted} from "../common/Utils";
-const url = require('url');
-const LOG_ID = "FileStorage/SVCE - ";
-
-//const orderByFilter = require("../common/Utils").orderByFilter;
+import * as url from 'url';
 import {orderByFilter} from "../common/Utils";
+import {isStarted} from "../common/Utils";
 
-//const orderByFilter = require("../common/Utils").orderByFilter;
+const LOG_ID = "FileStorage/SVCE - ";
 
 @isStarted()
 /**
@@ -861,7 +856,7 @@ class FileStorage {
                 state = "not_uploaded";
             }
 
-            let fd =  fileDescriptorFactory(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
+            let fd =  fileDescriptorFactory()(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
                 data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation);
             
             that.logger.log("debug", LOG_ID + "(createFileDescriptorFromData) _exiting_");
@@ -1419,7 +1414,7 @@ class FileStorage {
                             viewerId: response.data.viewerId,
                             type: response.data.type
                         }])[0]; // */
-                        let viewerAdded = fileViewerElementFactory(response.data.viewerId, response.data.type);
+                        let viewerAdded = fileViewerElementFactory(response.data.viewerId, response.data.type, undefined,  undefined);
                         if (viewerAdded.type === "user") {
                             that.contactService.getContactById(viewerId)
                                 .then((contact) => {

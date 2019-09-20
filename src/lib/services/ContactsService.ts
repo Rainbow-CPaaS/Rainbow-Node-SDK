@@ -1,17 +1,14 @@
 "use strict";
+export {};
+
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {XMPPUTils} from "../common/XMPPUtils";
-
-export {};
-
-
 import {ErrorManager} from "../common/ErrorManager";
-const Contact = require("../common/models/Contact");
-
-const util = require('util');
-const md5 = require('md5');
-const path = require('path');
+import * as Contact from "../common/models/Contact";
+import * as util from 'util';
+import * as md5 from 'md5';
+import * as path from 'path';
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CONTACTS/SVCE - ";
@@ -243,7 +240,7 @@ class Contacts {
         contact.lastName = "Unknown contact";
         contact.firstName = "";
         contact.temp = true;
-        contact.avatar = {}//new Image();
+        contact.avatar = {};//new Image();
         contact.avatar.src = "/resources/skins/rainbow/images/conversations/unknownContact.png";
         return contact;
     }
@@ -321,7 +318,7 @@ class Contacts {
 
         // Handle case where we have no jid
         if (!jid) {
-            contact._id = phoneNumber;
+            contact.id = phoneNumber;
             contact.initials = "?";
             contact.displayName = phoneNumber ? phoneNumber : "Unknown contact";
             contact.lastName = phoneNumber ? phoneNumber : "Unknown contact";
@@ -347,7 +344,7 @@ class Contacts {
         contact.jid = jid;
         contact.jid_im = jid;
         contact.jidtel = "tel_" + jid;
-        contact._id = contactId;
+        contact.id = contactId;
         contact.ask = "none";
         contact.subscription = "none";
         // TODO ? contact.updateRichStatus();

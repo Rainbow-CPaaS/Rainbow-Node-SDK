@@ -1,7 +1,6 @@
 "use strict";
 export {};
 
-
 const LOG_ID = "PROXY - ";
 
 class ProxyImpl {
