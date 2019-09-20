@@ -444,3 +444,4 @@ class ProfilesService {
 }
 
 module.exports = {"ProfilesService" : ProfilesService, "FeaturesEnum" : FeaturesEnum } ;
+export {ProfilesService , FeaturesEnum}

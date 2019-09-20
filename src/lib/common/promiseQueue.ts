@@ -65,3 +65,4 @@ let createPromiseQueue = function (_logger) {
 
 //module.exports.PromiseQueue = PromiseQueue;
 module.exports.createPromiseQueue = createPromiseQueue;
+export {createPromiseQueue};

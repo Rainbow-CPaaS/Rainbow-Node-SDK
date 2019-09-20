@@ -310,4 +310,5 @@ class Options {
      */
 
 }
-module.exports = Options;
+module.exports.Options = Options;
+export {Options};

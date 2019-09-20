@@ -13,7 +13,7 @@ import {types} from "util";
 
 const fs = require("fs");
 const mimetypes = require("mime-types");
-const PubSub = require("pubsub-js");
+import * as PubSub from "pubsub-js";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CHANNELS/SVCE - ";
@@ -2195,4 +2195,5 @@ class Channels {
 
 }
 
-module.exports = Channels;
+module.exports.Channels = Channels;
+export {Channels};

@@ -17,7 +17,7 @@ const LOG_ID = "IM/SVCE - ";
 @isStarted()
 /**
  * @class
- * @name IM
+ * @name IMService
  * @description
  *      This module manages Instant Messages. It allows to send messages to a user or a bubble.
  *      <br><br>
@@ -26,7 +26,7 @@ const LOG_ID = "IM/SVCE - ";
  *      - Send a message to a bubble <br>
  *      - Mark a message as read <br>
  */
-class IM {
+class IMService {
 	public xmpp: XMPPService;
 	public _conversations: any;
 	public logger: any;
@@ -112,7 +112,7 @@ class IM {
      *    Calling several times this method will load older message from the history (pagination) <br/>
      * @param {Conversation} conversation The conversation
      * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Conversation, ErrorManager>}
      * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
@@ -142,7 +142,7 @@ class IM {
      *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
      * @param {Conversation} conversation The conversation where to search for the message
      * @param {String} strMessageId The message id
-     * @memberof IM
+     * @memberof IMService
      * @return {Message} The message if found or null
      */
     async getMessageFromConversationById(conversation, strMessageId) {
@@ -177,7 +177,7 @@ class IM {
      *    Retrieve a specific message in a bubble using its id <br/>
      * @param {Bubble} bubble The bubble where to search for the message
      * @param {String} strMessageId The message id
-     * @memberof IM
+     * @memberof IMService
      * @return {Message} The message if found or null
      */
     async getMessageFromBubbleById(bubble, strMessageId) {
@@ -228,7 +228,7 @@ class IM {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -279,7 +279,7 @@ class IM {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -348,7 +348,7 @@ class IM {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -415,7 +415,7 @@ class IM {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -489,7 +489,7 @@ class IM {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -520,7 +520,7 @@ class IM {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -598,7 +598,7 @@ class IM {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -670,7 +670,7 @@ class IM {
     /**
      * @public
      * @method
-     * @instance Im
+     * @instance IMService
      * @description
      *    Switch the "is typing" state in a bubble/room<br>
      * @param {Bubble} bubble The destination bubble
@@ -713,7 +713,7 @@ class IM {
     /**
      * @public
      * @method
-     * @instance Im
+     * @instance IMService
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
@@ -749,7 +749,7 @@ class IM {
      * @description
      *  Send a 'read' receipt to the recipient
      * @param {Message} messageReceived The message received to mark as read
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -780,7 +780,7 @@ class IM {
      * @instance
      * @description
      *      Enable message carbon XEP-0280
-     * @memberof IM
+     * @memberof IMService
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -806,4 +806,5 @@ class IM {
     
 }
 
-module.exports = IM;
+module.exports.IMService = IMService;
+export {IMService};

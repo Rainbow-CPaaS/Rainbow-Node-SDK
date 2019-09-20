@@ -7,7 +7,7 @@ export {};
 import {ErrorManager} from "../common/ErrorManager";
 const RainbowPresence = require("../common/models/Settings").RainbowPresence;
 
-const PubSub = require("pubsub-js");
+import * as PubSub from "pubsub-js";
 const PresenceEventHandler = require("../connection/XMPPServiceHandler/presenceEventHandler");
 import {isStarted} from "../common/Utils";
 
@@ -16,14 +16,14 @@ const LOG_ID = "PRES/SVCE - ";
 @isStarted()
 /**
  * @class
- * @name Presence
+ * @name PresenceService
  * @description
  *      This module manages the presence of the connected user.
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Change the connected user presence
  */
-class Presence {
+class PresenceService {
 	public _logger: any;
 	public _xmpp: XMPPService;
 	public _settings: any;
@@ -131,7 +131,7 @@ class Presence {
      * @description
      *  Send the initial presence (online)
      * @return {ErrorManager.Ok} A promise containing the result
-     * @memberof Presence
+     * @memberof PresenceService
      */
     sendInitialPresence() {
 
@@ -159,7 +159,7 @@ class Presence {
      *    Allow to change the presence of the connected user <br/>
      *    Only the following values are authorized: 'dnd', 'away', 'xa' (invisible) or 'online'
      * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'xa' (invisible) or 'online'
-     * @memberof Presence
+     * @memberof PresenceService
      * @async
      * @return {Promise<ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -216,7 +216,7 @@ class Presence {
      * @private
      * @method _setUserPresenceStatus
      * @instance
-     * @memberof Presence
+     * @memberof PresenceService
      * @description
      *      Send user presence status and message to xmpp.
      */
@@ -279,7 +279,7 @@ class Presence {
      * @private
      * @method _sendPresenceFromConfiguration
      * @instance
-     * @memberof Presence
+     * @memberof PresenceService
      * @description
      *      Send user presence according to user settings presence.
      */
@@ -321,7 +321,7 @@ class Presence {
      * @private
      * @method _onUserSettingsChanged
      * @instance
-     * @memberof Presence
+     * @memberof PresenceService
      * @description
      *      Method called when receiving an update on user settings
      */
@@ -339,7 +339,7 @@ class Presence {
      * @private
      * @method _onPresenceChanged
      * @instance
-     * @memberof Presence
+     * @memberof PresenceService
      * @description
      *      Method called when receiving an update on user presence
      */
@@ -356,4 +356,5 @@ class Presence {
     }
 }
 
-module.exports = Presence;
+module.exports.PresenceService = PresenceService;
+export {PresenceService } ;

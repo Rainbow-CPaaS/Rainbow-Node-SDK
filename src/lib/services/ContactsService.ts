@@ -1148,4 +1148,5 @@ class Contacts {
     }
 }
 
-module.exports = Contacts;
+module.exports.Contacts = Contacts;
+export {Contacts as ContactsService};

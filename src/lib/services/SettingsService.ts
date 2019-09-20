@@ -157,4 +157,5 @@ class Settings {
     }
 }
 
-module.exports = Settings;
+module.exports.SettingsService = Settings;
+export {Settings as SettingsService};

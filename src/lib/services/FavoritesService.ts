@@ -5,7 +5,7 @@ export {};
 
 
 const utils = require("../common/Utils");
-const PubSub = require("pubsub-js");
+import * as PubSub from "pubsub-js";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -487,4 +487,5 @@ class FavoritesService {
     }
 }
 
-module.exports = FavoritesService;
+module.exports.FavoritesService = FavoritesService;
+export {FavoritesService};

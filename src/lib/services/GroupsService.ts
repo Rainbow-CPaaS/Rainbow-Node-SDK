@@ -625,4 +625,5 @@ const LOG_ID = "GROUPS/SVCE - ";
     }
  }
 
- module.exports = Groups;
+ module.exports.GroupsService = Groups;
+ export {Groups as GroupsService} ;

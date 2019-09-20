@@ -3,32 +3,34 @@ import {XMPPService} from "./connection/XMPPService";
 import {RESTService} from "./connection/RESTService";
 import {HTTPService} from "./connection/HttpService";
 import {isNullOrUndefined} from "util";
+import {Channel} from "./common/models/Channel";
 
 export {};
 
 
-const Logger = require("./common/Logger");
-const IMService = require("./services/ImsService");
-const PresenceService = require("./services/PresenceService");
-const ChannelsService = require("./services/ChannelsService");
-const ContactsService = require("./services/ContactsService");
-const ConversationsService = require("./services/ConversationsService");
-const Profiles = require("./services/ProfilesService");
-const TelephonyService = require("./services/TelephonyService");
-const BubblesService = require("./services/BubblesService");
-const GroupsService = require("./services/GroupsService");
-const AdminService = require("./services/AdminService");
-const SettingsService = require("./services/SettingsService");
-const FileServer = require("./services/FileServerService");
-const FileStorage = require("./services/FileStorageService");
-const StateManager = require("./common/StateManager");
-const CallLogService = require( "./services/CallLogService");
-const FavoritesService = require( "./services/FavoritesService");
+import {Logger} from "./common/Logger";
+import {IMService} from "./services/ImsService";
+import {PresenceService} from "./services/PresenceService";
+import {Channels} from "./services/ChannelsService";
+import {ContactsService} from "./services/ContactsService";
+import {ConversationsService} from "./services/ConversationsService";
+import {ProfilesService} from "./services/ProfilesService";
+import {TelephonyService} from "./services/TelephonyService";
+import {BubblesService} from "./services/BubblesService";
+import {GroupsService} from "./services/GroupsService";
+import {AdminService} from "./services/AdminService";
+import {SettingsService} from "./services/SettingsService";
+import {FileServer} from "./services/FileServerService";
+import {FileStorage} from "./services/FileStorageService";
+import {StateManager} from "./common/StateManager";
+import {CallLogService} from "./services/CallLogService";
+import {FavoritesService} from "./services/FavoritesService";
 
-const Events = require("./common/Events");
+import {Events} from "./common/Events";
+import {setFlagsFromString} from "v8";
 
-const Options = require("./config/Options");
-const ProxyImpl = require("./ProxyImpl");
+import {Options} from "./config/Options";
+import {ProxyImpl} from "./ProxyImpl";
 
 const packageVersion = require("../package.json");
 
@@ -53,7 +55,7 @@ class Core {
 	public _stateManager: any;
 	public _im: any;
 	public _presence: any;
-	public _channels: any;
+	public _channels: Channels;
 	public _contacts: any;
 	public _conversations: any;
 	public _profiles: any;
@@ -303,10 +305,10 @@ class Core {
         // Instantiate others Services
         self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
-        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
+        self._channels = new Channels(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
         self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations);
-        self._profiles = new Profiles.ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
+        self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
         self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
         self._bubbles = new BubblesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.bubbles);
         self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
@@ -470,7 +472,7 @@ class Core {
                 return that._favorites.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
-                resolve();
+                resolve("core stopped");
             }).catch((err) => {
                 that.logger.log("error", LOG_ID + "(stop) CATCH Error !!! ");
                 that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
@@ -549,4 +551,6 @@ class Core {
     }
 }
 
-module.exports = Core;
+//module.exports = Core;
+module.exports.Core = Core;
+export {Core};

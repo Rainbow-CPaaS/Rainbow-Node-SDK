@@ -12,7 +12,7 @@ import {Call} from "../common/models/Call";
 
 const moment = require("moment");
 const Deferred = require("../common/Utils").Deferred;
-const PubSub = require("pubsub-js");
+import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
 import {isStarted} from "../common/Utils";
@@ -1542,4 +1542,5 @@ class Conversations {
     }
 }
 
-module.exports = Conversations;
+module.exports.ConversationsService = Conversations;
+export {Conversations as ConversationsService};

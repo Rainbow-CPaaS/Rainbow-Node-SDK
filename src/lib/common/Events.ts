@@ -2,7 +2,9 @@
 export {};
 
 import {ErrorManager} from "./ErrorManager";
-const EventEmitter = require("events");
+import {EventEmitter} from "events";
+import {Core} from "../Core";
+import {Logger} from "./Logger";
 
 const LOG_ID = "EVENTS - ";
 
@@ -47,6 +49,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onreconnecting
  * @fires Events#rainbow_onfailed
  * @fires Events#rainbow_oncallupdated
+ * @fires Events#rainbow_onconferenced
  * @fires Events#rainbow_ontelephonystatuschanged
  * @fires Events#rainbow_onnomadicstatusevent
  * @fires Events#rainbow_onvoicemessageupdated
@@ -66,14 +69,14 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onfavoritedeleted
 */
 class Events {
-	public _logger: any;
-	public _filterCallback: any;
-	public _evReceiver: any;
-	public _evPublisher: any;
-	public _core: any;
+	public _logger: Logger;
+	public _filterCallback: Function;
+	public _evReceiver: EventEmitter;
+	public _evPublisher: EventEmitter;
+	public _core: Core;
 
-    constructor( _logger, _filterCallback) {
-        var that = this;
+    constructor( _logger : Logger, _filterCallback : Function) {
+        let that = this;
 
         this._logger = _logger;
         this._filterCallback = _filterCallback;
@@ -682,11 +685,11 @@ class Events {
      * @description
      *      Subscribe to an event only one time (fired only the first time)
      */
-    once(event, callback) {
+    once(event: string, callback :  (...args: any[]) => void) {
         return this._evPublisher.once(event, callback);
     }
 
-    publish(event, data) {
+    publish(event: string, data : any) {
 
         let info = data || ErrorManager.getErrorManager().OK;
 
@@ -772,13 +775,12 @@ class Events {
      * @private
      * @memberof Events
      * @instance
-     * @param {string} event The event name to raise
-     * @param {...*} ...args all arguments for the event
+     * @param {...*} args all arguments for the event
      * @return nothing
      * @description
      *      Add "rainbow_on" prefix to event name, print it human readable, and raises it.
      */
-    publishEvent(...args) {
+    publishEvent(...args: any[]) {
         let event;
         let params;
         let that = this;
@@ -796,9 +798,10 @@ class Events {
         this._evPublisher.emit(eventName, ...params);
     }
 
-    setCore(_core) {
+    setCore(_core : Core) {
         this._core = _core;
     }
 
 }
-module.exports = Events;
+module.exports.Events = Events;
+export {Events};

@@ -124,7 +124,7 @@ async function myFunction(number) {
  * @param conditionFunction
  * @returns {Promise<any>}
  */
-function until(conditionFunction, labelOfWaitingCondition, waitMsTimeBeforeReject) {
+function until(conditionFunction : Function, labelOfWaitingCondition : string, waitMsTimeBeforeReject : number = 5000) {
 
     let now = new Date();//.toJSON().replace(/-/g, '_');
 

@@ -7,48 +7,18 @@ export {};
 
 
 import {ErrorManager} from "../common/ErrorManager";
-//const Bubble = require("../common/models/Bubble");
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
 import {Channel} from "../common/models/Channel";
 import {throws} from "assert";
 
-const PromiseQueue = require("../common/promiseQueue");
-const utils = require("../common/Utils");
+import {createPromiseQueue} from "../common/promiseQueue";
+import {until} from "../common/Utils";
 
 const LOG_ID = "BUBBLES/SVCE - ";
 
 import {isStarted} from "../common/Utils";
 
-
-/*
-export function isStarted() {
-    // Return our high-order function
-    return function(target, methodName, descriptor) {
-        // Keep the method store in a local variable
-        let originalMethod = descriptor.value;
-
-        // Redefine the method value with our own
-        descriptor.value = function(...args) {
-            // Execute the method with its initial context and arguments
-            // Return value is stored into a variable instead of being passed to the execution stack
-            let returnValue = undefined;
-
-            if (this.ready) {
-                returnValue = originalMethod.apply(this, args);
-            } else {
-                throw({msg : "The service bubbles is not ready!!!"});
-            }
-
-            // Return back the value to the execution stack
-            return returnValue;
-        };
-
-        // Return the descriptorwith the altered value
-        return descriptor;
-    };
-};
-// */
 
 @isStarted()
 /**
@@ -211,7 +181,7 @@ class Bubbles {
 
                 that._xmpp.sendInitialBubblePresence(bubble.jid).then(async () => {
                     // Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
-                    await utils.until(() => {
+                    await until(() => {
                         return (that._bubbles.find((bubbleIter : any) => {
                                 return (bubbleIter.jid === bubble.jid);
                             }) !== undefined);
@@ -275,7 +245,7 @@ class Bubbles {
      */
     deleteAllBubbles() {
         let that = this;
-        let deleteallBubblePromiseQueue = PromiseQueue.createPromiseQueue(that._logger);
+        let deleteallBubblePromiseQueue = createPromiseQueue(that._logger);
 
         let bubbles = that.getAll();
 
@@ -1389,7 +1359,7 @@ class Bubbles {
                 bubble.customData = json.customData || {};
 
                 try {
-                    await utils.until( () => {
+                    await until( () => {
 
                             let bubbleInMemory = that._bubbles.find( (bubbleIter) => { return bubbleIter.id === bubbleId; });
                             if (bubbleInMemory)  {
@@ -1849,4 +1819,5 @@ class Bubbles {
 
 }
 
-module.exports = Bubbles;
+module.exports.BubblesService = Bubbles;
+export {Bubbles as BubblesService};

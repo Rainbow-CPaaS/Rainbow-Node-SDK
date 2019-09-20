@@ -50,4 +50,5 @@ class ProxyImpl {
 }
 
 
-module.exports = ProxyImpl;
+module.exports.ProxyImpl = ProxyImpl;
+export {ProxyImpl};

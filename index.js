@@ -1,6 +1,6 @@
 "use strict";
 
-const Core = require("./lib/Core");
+const Core = require("./lib/Core").Core;
 const ErrorManager = require("./lib/common/ErrorManager").ErrorManager ;
 const utils = require( "./lib/common/Utils");
 

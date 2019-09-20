@@ -1697,4 +1697,5 @@ class FileStorage {
     }
 }
 
-module.exports = FileStorage;
+module.exports.FileStorage = FileStorage;
+export {FileStorage};

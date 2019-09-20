@@ -29,7 +29,6 @@ const LOG_ID = "ADMIN/SVCE - ";
 class Admin {
     public _xmpp: XMPPService;
     public _rest: RESTService;
-    public _bubbles: any;
     public _eventEmitter: any;
     public _logger: any;
     public ready: boolean = false;
@@ -45,7 +44,6 @@ class Admin {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
-        this._bubbles = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.ready = false;
@@ -1068,4 +1066,5 @@ class Admin {
 
 }
 
-module.exports = Admin;
+module.exports.AdminService = Admin;
+export {Admin as AdminService};

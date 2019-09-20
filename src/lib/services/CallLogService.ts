@@ -7,8 +7,9 @@ import {accessSync} from "fs";
 export {};
 
 //const ErrorCase = require("../common/ErrorManager");
-const utils = require("../common/Utils");
-const PubSub = require("pubsub-js");
+import {setTimeoutPromised} from "../common/Utils";
+//const PubSub = require("pubsub-js");
+import * as PubSub from "pubsub-js";
 
     /*"$q",
     "$log",
@@ -211,7 +212,7 @@ function CallLogsBean() : ICallLogsBean {
         let that = this;
 
         //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
-        await utils.setTimeoutPromised(3000).then(() => {
+        await setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
             that.getCallLogHistoryPage()
                 .then(() => {
@@ -494,4 +495,5 @@ function CallLogsBean() : ICallLogsBean {
 
 }
 
-module.exports = CallLogService;
+module.exports.CallLogService = CallLogService;
+export {CallLogService};

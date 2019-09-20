@@ -173,4 +173,5 @@ class StateManager {
 
 }
 
-module.exports = StateManager;
+module.exports.StateManager = StateManager;
+export{StateManager};

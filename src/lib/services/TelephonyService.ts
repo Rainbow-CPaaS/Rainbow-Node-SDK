@@ -17,7 +17,7 @@ const VoiceMail = require("../common/models/VoiceMail");
 
 const utils = require("../common/Utils");
 
-const PubSub = require("pubsub-js");
+import * as PubSub from "pubsub-js";
 const TelephonyEventHandler = require("../connection/XMPPServiceHandler/telephonyEventHandler");
 
 import { XMPPUTils } from "../common/XMPPUtils";
@@ -2279,4 +2279,5 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
 }
 
-module.exports = Telephony;
+module.exports.Telephony = Telephony;
+export {Telephony as TelephonyService};
