@@ -229,7 +229,7 @@ class Contacts {
      *  Return the list of contacts that are in the network of the connected users (aka rosters)
      */
     getAll() {
-        return this.contacts; 
+        return this.contacts;
     }
 
     createEmptyContactContact(jid) {
@@ -500,7 +500,7 @@ class Contacts {
      * @public
      * @method getContactByLoginEmail
      * @instance
-     * @param {string} loginEmail The contact loginEmail 
+     * @param {string} loginEmail The contact loginEmail
      * @memberof Contacts
      * @description
      *  Get a contact by his loginEmail
@@ -774,7 +774,7 @@ class Contacts {
      * @property {String[]} success List of succeed joined users
      * @property {String[]} failed List of failed to joined users
      */
-  
+
     /**
      * @public
      * @since 1.41
@@ -851,7 +851,7 @@ class Contacts {
             }
 
             // Store the presence of the resource
-            contact.resources[presence.resource] = presence.value; 
+            contact.resources[presence.resource] = presence.value;
 
             let on_the_phone = false;
             let manual_invisible = false;
@@ -877,10 +877,10 @@ class Contacts {
                     }
                     else if (resource.show === "xa" && resource.status === "away") {
                         manual_away = true;
-                    } 
+                    }
                     else if (resource.show === "dnd" && resource.status === "presentation") {
                         in_presentation_mode = true;
-                    } 
+                    }
                     else if (resource.show === "dnd" && resource.status.length > 0) {
                         in_webrtc_mode = true;
                         webrtc_reason = resource.status;
@@ -956,9 +956,9 @@ class Contacts {
             if( contact.presence === oldPresence && contact.status === oldStatus) {
                 return;
             }
-            
+
             let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
-            
+
             this.logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
             this.eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
         }
@@ -1029,14 +1029,18 @@ class Contacts {
     _onUserInviteReceived(data) {
         let that = this;
 
-        that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) enter");
+        that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) enter.");
+        that.logger.log("internal", LOG_ID + "(_onUserInviteReceived) enter : ", data);
 
+        if (!data) return true;
         that.rest.getInvitationById(data.invitationId).then( (invitation : any) => {
-            that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) invitation received id", invitation.id);
+            that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) invitation received.");
+            that.logger.log("internal", LOG_ID + "(_onUserInviteReceived) invitation received : ", invitation);
 
             that.eventEmitter.emit("evt_internal_userinvitereceived", invitation);
         }, err => {
-            that.logger.log("warn", LOG_ID + "(_onUserInviteReceived) no invitation found for " + data.invitationId);
+            that.logger.log("warn", LOG_ID + "(_onUserInviteReceived) no invitation found.");
+            that.logger.log("internalerror", LOG_ID + "(_onUserInviteReceived) no invitation found for : ", data);
         });
     }
 
@@ -1054,12 +1058,16 @@ class Contacts {
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) enter");
 
+        if (!data) return true;
+
         that.rest.getInvitationById(data.invitationId).then((invitation : any) => {
-            that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) invitation accepted id", invitation.id);
+            that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) invitation accepted.");
+            that.logger.log("internal", LOG_ID + "(_onUserInviteAccepted) invitation accepted : ", invitation);
 
             that.eventEmitter.emit("evt_internal_userinviteaccepted", invitation);
         }, err => {
-            that.logger.log("warn", LOG_ID + "(_onUserInviteAccepted) no invitation found for " + data.invitationId);
+            that.logger.log("warn", LOG_ID + "(_onUserInviteAccepted) no invitation found.");
+            that.logger.log("internalerror", LOG_ID + "(_onUserInviteAccepted) no invitation found for : " + data);
         });
     }
 

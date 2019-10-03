@@ -192,7 +192,7 @@ class Bubble {
         /**
          * @function
          * @public
-         * @name ChannelFactory
+         * @name BubbleFactory
          * @description
          * This class is used to create a channel from data object
          */

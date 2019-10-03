@@ -1,4 +1,6 @@
 "use strict";
+import {WebRtcService} from "./services/WebRtcService";
+
 export {};
 
 import {XMPPService} from "./connection/XMPPService";
@@ -50,7 +52,7 @@ class Core {
 	public _im: any;
 	public _presence: any;
 	public _channels: Channels;
-	public _contacts: any;
+	public _contacts: ContactsService;
 	public _conversations: any;
 	public _profiles: any;
 	public _telephony: any;
@@ -63,6 +65,7 @@ class Core {
     public _calllog: any;
     public _favorites: any;
 	public _botsjid: any;
+    public _webrtc: WebRtcService;
 
     constructor(options) {
 
@@ -135,8 +138,8 @@ class Core {
                             return that.im.enableCarbon();
                         }).then(() => {
                             return that._rest.getBots();
-                        }).then((bots) => {
-                            that._botsjid = bots ? bots.map((bot) => {
+                        }).then((bots : []) => {
+                            that._botsjid = bots ? bots.map((bot: any) => {
                                 return bot.jid;
                             }) : [];
                             return Promise.resolve();
@@ -144,6 +147,8 @@ class Core {
                             return that._conversations.getServerConversations();
                         }).then(() => {
                             return that._calllog.init();
+                        }).then(() => {
+                            return that._webrtc.init();
                         }).then(() => {
                             return that._favorites.init();
                         }).then(() => {
@@ -312,6 +317,7 @@ class Core {
         self._fileStorage = new FileStorage(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
+        self._webrtc = new WebRtcService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.webrtc);
 
         self._botsjid = [];
 
@@ -372,6 +378,8 @@ class Core {
                         return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations) ;
                     }).then(() => {
                         return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) ;
+                    }).then(() => {
+                        return that._webrtc.start(that._xmpp, that._rest, that._profiles) ;
                     }).then(() => {
                         return that._favorites.start(that._xmpp, that._rest) ;
                     }).then(() => {
@@ -463,6 +471,8 @@ class Core {
             }).then(() => {
                 return that._calllog.stop();
             }).then(() => {
+                return that._webrtc.stop();
+            }).then(() => {
                 return that._favorites.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
@@ -542,6 +552,10 @@ class Core {
 
     get calllog() {
         return this._calllog;
+    }
+
+    get webrtc() {
+        return this._webrtc;
     }
 }
 

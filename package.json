@@ -92,6 +92,7 @@
     "mime-types": "^2.1.24",
     "moment": "^2.24.0",
     "moment-duration-format": "^2.3.2",
+    "node-xmpp-core": "^5.0.9",
     "promise.prototype.finally": "^3.1.1",
     "pubsub-js": "^1.7.0",
     "request": "^2.88.0",
@@ -102,6 +103,7 @@
     "uuid4": "1.1.4",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.1.0",
+    "wrtc": "^0.4.2",
     "ws": "^7.1.2"
   }
 }

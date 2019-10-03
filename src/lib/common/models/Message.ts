@@ -228,9 +228,10 @@ class Message {
      */
     static create(id, date, from, side, data, status, isMarkdown?, subject?) {
         // convert emojione from unicode to short
-        //var message = $filter("emojiUnicodeToShort")(data);
+        //let message = $filter("emojiUnicodeToShort")(data);
         const message = data;
-        return new Message(id, Message.Type.CHAT, date, from, side, message, status, null, isMarkdown, subject);
+        //return new Message(id, Message.Type.CHAT, date, from, side, message, status, null, isMarkdown, subject);
+        return Message.MessageFactory()({id, type : Message.Type.CHAT, date, from, side, data : message, status, fileId : null, isMarkdown, subject});
     }
 
     /**
@@ -240,8 +241,9 @@ class Message {
      */
     static createFileSharingMessage(id, date, from, side, data, status, fileId) {
         // convert emojione from unicode to short
-        var message = data;
-        return new Message(id, Message.Type.FS, date, from, side, message, status, fileId);
+        let message = data;
+        //return new Message(id, Message.Type.FS, date, from, side, message, status, fileId);
+        return Message.MessageFactory()({id, type : Message.Type.FS, date, from, side, data : message, status, fileId});
     }
 
     /**
@@ -250,7 +252,8 @@ class Message {
      * @instance
      */
     static createWebRTCMessage(id, date, from, side, data, status) {
-        return new Message(id, Message.Type.WEBRTC, date, from, side, data, status);
+        //return new Message(id, Message.Type.WEBRTC, date, from, side, data, status);
+        return Message.MessageFactory()({id, type : Message.Type.WEBRTC, date, from, side, data, status});
     }
 
     /**
@@ -259,7 +262,8 @@ class Message {
      * @instance
      */
     static createFTMessage(id, date, from, side, data, status, fileTransfer) {
-        var message = new Message(id, Message.Type.FT, date, from, side, data, status);
+        //let message = new Message(id, Message.Type.FT, date, from, side, data, status);
+        let message = Message.MessageFactory()({id, type : Message.Type.FT, date, from, side, data, status});
         message.fileTransfer = fileTransfer;
         return message;
     }
@@ -270,9 +274,10 @@ class Message {
      * @instance
      */
     static createBubbleAdminMessage(id, date, from, type) {
-        var data = type + "MsgRoom";
-        var side = Message.Side.ADMIN;
-        var message = Message.create(id, date, from, side, data, false);
+        let data = type + "MsgRoom";
+        let side = Message.Side.ADMIN;
+        //let message = Message.create(id, date, from, side, data, false);
+        let message = Message.MessageFactory()( {id, date, from, side, data, status : false});
 
         return message;
     }
@@ -283,12 +288,13 @@ class Message {
      * @instance
      */
     static createRecordingAdminMessage(id, date, from, type, cmd) {
-        var data = type + "Recording";
+        let data = type + "Recording";
         if (cmd) {
             data = data + cmd;
         }
-        var side = Message.Side.ADMIN;
-        var message = new Message(id, Message.Type.RECORDING, date, from, side, data, false);
+        let side = Message.Side.ADMIN;
+        //let message = new Message(id, Message.Type.RECORDING, date, from, side, data, false);
+        let message = Message.MessageFactory()({id, type : Message.Type.RECORDING, date, from, side, data, status : false});
         return message;
     }
 
@@ -305,6 +311,67 @@ class Message {
         let parts = url.split("/");
         let fileDescriptorId = parts.pop() || parts.pop();
         return fileDescriptorId;
+    }
+
+    updateBubble (data) {
+        let that = this;
+        if (data) {
+
+            let bubbleproperties = Object.getOwnPropertyNames(that);
+            //console.log("updateBubble update Bubble with : ", data["id"]);
+            Object.getOwnPropertyNames(data).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    if (bubbleproperties.find((el) => { return val == el ;})) {
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        that[val] = data[val];
+                    } else {
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ");
+                    }
+                });
+        }
+
+        return this;
+    }
+
+    /**
+     * @function
+     * @public
+     * @name MessageFactory
+     * @description
+     * This class is used to create a message from data object
+     */
+    public static MessageFactory() {
+        //constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
+        return (data: any): Message => {
+
+            let bubble = new Message(
+                data.id,
+                data.type,
+                data.date,
+                data.from,
+                data.side,
+                data.data,
+                data.status,
+                data.fileId,
+                data.isMarkdown,
+                data.subject
+            );
+            if (data) {
+                let bubbleproperties = Object.getOwnPropertyNames(bubble);
+                Object.getOwnPropertyNames(data).forEach(
+                    (val, idx, array) => {
+                        //console.log(val + " -> " + data[val]);
+                        if (!bubbleproperties.find((el) => { return val == el ;})) {
+                            //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class : ", val);
+                        }
+                    });
+            }
+
+            return bubble;
+        };
     }
 
 
@@ -387,4 +454,5 @@ Message.ReceiptStatusText = [
     "read"
 ];
 
-module.exports = Message;
+module.exports.Message = Message;
+export {Message};

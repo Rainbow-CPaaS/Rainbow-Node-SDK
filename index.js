@@ -6,7 +6,7 @@ const utils = require( "./lib/common/Utils");
 
 /**
  * @enum { String }
- * 
+ *
 */
 let Type = {
     home: "home",
@@ -14,9 +14,9 @@ let Type = {
     other: "other"
 };
 
-/** 
+/**
  * @enum { String }
- * 
+ *
 */
 let DeviceType = {
     landline: "landline",
@@ -214,12 +214,12 @@ class NodeSDK {
     stop() {
         let that = this;
         return new Promise(function(resolve, reject) {
-            return that._core.stop().then(function() {
+            return that._core.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
                 utils.setTimeoutPromised(1500).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);
-                    resolve();
+                    resolve(result);
                 });
             }).catch(function(err) {
                 let error = ErrorManager.getErrorManager().ERROR;
@@ -321,7 +321,7 @@ class NodeSDK {
      * @description
      *    Get access to the Events module
      * @memberof NodeSDK
-     */    
+     */
     get events() {
         return this._core.events;
     }
@@ -357,7 +357,7 @@ class NodeSDK {
      * @description
      *    Get access to the Admin module
      * @memberof NodeSDK
-     */    
+     */
     get admin() {
         return this._core.admin;
     }
@@ -385,7 +385,7 @@ class NodeSDK {
     get settings() {
         return this._core.settings;
     }
-    
+
     /**
      * @public
      * @property {String} state
@@ -393,7 +393,7 @@ class NodeSDK {
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
      * @memberof NodeSDK
-     */  
+     */
     get state() {
         return this._core.state;
     }
@@ -444,6 +444,18 @@ class NodeSDK {
      */
     get calllog() {
         return this._core.calllog;
+    }
+
+    /**
+     * @public
+     * @property {Object} webrtc
+     * @instance
+     * @description
+     *    Get access to the webrtc module
+     * @memberof NodeSDK
+     */
+    get webrtc() {
+        return this._core.webrtc;
     }
 
     /**

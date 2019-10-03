@@ -321,4 +321,5 @@ Element.prototype.text = function () {
 
 module.exports.getXmppClient = getXmppClient;
 module.exports.XmppClient = XmppClient;
+export {getXmppClient , XmppClient};
 

@@ -14,7 +14,7 @@ let ws_options = null;
 let isInTest = typeof global.it === "function";
 let WS;
 if ( isInTest ) {
-    WS = require("mock-socket").WebSocket; 
+    WS = require("mock-socket").WebSocket;
 } else {
     WS = require("ws");
 }
@@ -23,7 +23,7 @@ class XmppWebSocket extends WS {
     constructor( address, protocols ) {
         super(address, protocols, ws_options);
     }
-} 
+}
 // @ts-ignore
 global.WebSocket = XmppWebSocket;
 
@@ -82,6 +82,7 @@ const NameSpacesLabels = {
     "ContentNameSpace" : "urn:xmpp:content",
     "MessageCorrectNameSpace" : "urn:xmpp:message-correct:0",
     "HintsNameSpace" : "urn:xmpp:hints",
+    "JingleMessageNameSpace" : "urn:xmpp:jingle-message:0",
     "OobNameSpace" : "jabber:x:oob",
     "Monitoring1NameSpace" : "urn:xmpp:pbxagent:monitoring:1",
     "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1"
@@ -2062,6 +2063,116 @@ class XMPPService {
             this.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");
         }
         this.logger.log("debug", LOG_ID + "(sendPing) _exiting_");
+    }
+
+    public acceptProposition(callId, to){
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(acceptProposition) _entering_ ");
+        that.logger.log("internal", LOG_ID + "(acceptProposition) _entering_ : ",callId, " : ", to);
+/*
+<message from="67ad21d7b3db4e57985824d610533037@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.62.0_rdKyRh9A" id="web_4ee39571-0375-4c92-bf02-8647ab1cb328" to="67ad21d7b3db4e57985824d610533037@vberder-all-in-one-dev-1.opentouch.cloud" xmlns="jabber:client">
+	<accept id="web_d5bfc4fa-618a-4d10-8757-6029f804a307" xmlns="urn:xmpp:jingle-message:0"/>
+</message>
+
+ <message from="67ad21d7b3db4e57985824d610533037@vberder-all-in-one-dev-1.opentouch.cloud/node_rgwFk4jV" id="node_8e189e85-4747-4412-9e78-9008f7593dc42" to="38db98d2907a4c4095742a237b84557c@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.62.0_A198RSl8" xmlns="jabber:client">
+ <accept id="web_74f095dd-3d4f-4d55-8ed5-20c166da64be" xmlns="urn:xmpp:jingle-message:0"/>
+ </message>
+
+ */
+        let id = that.xmppUtils.getUniqueMessageId();
+
+        /*let xmppMessage = $msg({ from: contactService.userContact.fullJid, to: contactService.userContact.jid, id: idAccept })
+           .c("accept", { "xmlns": this.nameSpace, "id": call.id });
+
+       xmppService.send(xmppMessage);
+       // */
+        if (this.useXMPP) {
+            let xmppMessage = xml("message", {
+                //from": that.fullJid,
+                "to": to,
+                "id": id
+                },
+                xml("accept", {"id" : callId, "xmlns": NameSpacesLabels.JingleMessageNameSpace})
+            );
+
+            that.logger.log("internal", LOG_ID + "(acceptProposition) send - 'message'", xmppMessage.root().toString());
+            that.xmppClient.send(xmppMessage).catch((error) => {
+                that.logger.log("error", LOG_ID + "(acceptProposition) error ");
+                that.logger.log("internalerror", LOG_ID + "(acceptProposition) error : ", error);
+            });
+        } else {
+            that.logger.log("warn", LOG_ID + "(acceptProposition) No XMPP connection...");
+        }
+        that.logger.log("debug", LOG_ID + "(acceptProposition) _exiting_");
+    }
+
+    public proceedProposition(callId, to){
+        let that = this;
+        this.logger.log("debug", LOG_ID + "(proceedProposition) _entering_ ");
+        this.logger.log("internal", LOG_ID + "(proceedProposition) _entering_ : ",callId, " : ", to);
+        let id = that.xmppUtils.getUniqueMessageId();
+
+        /*
+        <message from="67ad21d7b3db4e57985824d610533037@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.62.0_rdKyRh9A" id="web_28a02405-c80f-4e44-9b80-07f48fe65b68" to="38db98d2907a4c4095742a237b84557c@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.62.0_1WDMhTRZ" xmlns="jabber:client">
+	<proceed id="web_d5bfc4fa-618a-4d10-8757-6029f804a307" xmlns="urn:xmpp:jingle-message:0"/>
+</message>
+
+       var idProceed = "web_" + uuid4.generate();
+       //send proceed to other participant full jid
+       xmppMessage = $msg({ from: contactService.userContact.fullJid, to: call.fullJid, id: idProceed })
+           .c("proceed", { "xmlns": this.nameSpace, "id": call.id });
+
+       xmppService.send(xmppMessage);
+       // */
+        if (this.useXMPP) {
+            let xmppMessage = xml("message", {
+                //"from": that.fullJid,
+                "to": to,
+                "id": id
+                },
+                xml("proceed", {"id" : callId, "xmlns": NameSpacesLabels.JingleMessageNameSpace})
+            );
+
+            this.logger.log("internal", LOG_ID + "(proceedProposition) send - 'message'", xmppMessage.root().toString());
+            this.xmppClient.send(xmppMessage).catch((error) => {
+                this.logger.log("error", LOG_ID + "(proceedProposition) error ");
+                this.logger.log("internalerror", LOG_ID + "(proceedProposition) error : ", error);
+            });
+        } else {
+            this.logger.log("warn", LOG_ID + "(proceedProposition) No XMPP connection...");
+        }
+        this.logger.log("debug", LOG_ID + "(proceedProposition) _exiting_");
+    }
+
+    sendStore(to) {
+        let that = this;
+        this.logger.log("debug", LOG_ID + "(sendStore) _entering_ ");
+        this.logger.log("internal", LOG_ID + "(sendStore) _entering_ : to : ", to);
+
+        let id = that.xmppUtils.getUniqueMessageId();
+
+        /*
+        <message xmlns='jabber:client' xml:lang='en'
+        to='67ad21d7b3db4e57985824d610533037@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.62.0_rdKyRh9A'
+        from='38db98d2907a4c4095742a237b84557c@vberder-all-in-one-dev-1.opentouch.cloud/12747853863206262785166351'
+        id='node_259d83de-eddf-457d-b471-89d168a3bd6e'>
+        <store xmlns='urn:xmpp:jingle-message:0'/>
+        </message>
+         */
+        if (this.useXMPP) {
+            let xmppMessage = xml("message", {to: to,  id: id},
+                xml("store", {"xmlns": NameSpacesLabels.JingleMessageNameSpace})
+            );
+
+            this.logger.log("internal", LOG_ID + "(sendStore) send - 'message'", xmppMessage.root().toString());
+            this.xmppClient.send(xmppMessage).catch((error) => {
+                this.logger.log("error", LOG_ID + "(sendStore) error ");
+                this.logger.log("internalerror", LOG_ID + "(sendStore) error : ", error);
+            });
+        } else {
+            this.logger.log("warn", LOG_ID + "(sendStore) No XMPP connection...");
+        }
+        this.logger.log("debug", LOG_ID + "(sendStore) _exiting_");
     }
 
     // Mam

@@ -14,7 +14,7 @@ This guide will describe in details how to configure the SDK for Node.JS for usi
 
 When you are behind a proxy, you need to configure NPM in order to go throught this proxy.
 
-A lot of documentation exists on the web to explain how to do it. Here is a link: [Node.js and NPM behind a proxy](https://medium.com/@patdhlk/node-js-and-npm-behind-a-proxy-111708b82718)
+A lot of documentation exists on the web to explain how to do it. Here is a link: [Node.js and NPM behind a proxy](https://jjasonclark.com/how-to-setup-node-behind-web-proxy)
 
 
 ### Configuration

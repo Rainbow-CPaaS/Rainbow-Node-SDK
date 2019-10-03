@@ -83,6 +83,37 @@ class HTTPService {
 
     }
 
+     /*
+     // usage
+     // const [err, result] = safeJsonParse('[Invalid JSON}');
+     // if (err) {
+    //  console.log('Failed to parse JSON: ' + err.message);
+    //  } else {
+    //  console.log(result);
+    //}
+
+     safeJsonParse(str) {
+        try {
+            return [null, JSON.parse(str)];
+        } catch (err) {
+            return [err];
+        }
+    } // */
+     /**
+      *
+      */
+    safeJsonParse(str) {
+        if (typeof str !== 'string') return false;
+        try {
+            const result = JSON.parse(str);
+            const type = Object.prototype.toString.call(result);
+            return type === '[object Object]'
+                || type === '[object Array]';
+        } catch (err) {
+            return false;
+        }
+    }
+
     get host(): any {
         return this._host;
     }
@@ -155,6 +186,11 @@ get(url, headers, params): Promise<any> {
                         } else {
                             if (response) {
                                 if (response.statusCode) {
+
+                                    response.statusCode = 504;
+                                    response.body = "<html><body><h1>504 Gateway Time-out</h1>\n" +
+                                        "The server didn't respond in time.\n" +
+                                        "</body></html>\n";
                                     that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
                                     if (response.statusCode >= 200 && response.statusCode <= 206) {
                                         if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
@@ -175,7 +211,11 @@ get(url, headers, params): Promise<any> {
                                         that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
                                         let bodyjs : any = {};
                                         if (response.body) {
-                                            bodyjs = JSON.parse(response.body);
+                                            if (that.safeJsonParse(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
                                         }
                                         let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                         let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";

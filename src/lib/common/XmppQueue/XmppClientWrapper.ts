@@ -65,6 +65,8 @@ function client(options = {}) {
   );
 
   iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
+  iqCallee.get('urn:xmpp:jingle:1', 'jingle', ctx => { return {} });
+  iqCallee.set('urn:xmpp:jingle:1', 'jingle', ctx => { return {} });
 
   return Object.assign(entity, {
     entity,

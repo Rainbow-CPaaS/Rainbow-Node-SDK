@@ -44,6 +44,10 @@ class IQEventHandler extends GenericHandler {
                         case "ping":
                             that._onIqGetPingReceived(stanza, node);
                             break;
+                        case "jingle":
+                            that.logger.log("info", LOG_ID + "(onIqGetReceived) _entering_ Ignore 'jingle', the treatment is done in webrtcEventHandler.");
+                            //that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_ Ignore it, the treatment is done in webrtcEventHandler : ", msg, stanza);
+                            break;
                         case "default":
                             that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqGetReceived - not managed - 'stanza'", node.getName());
