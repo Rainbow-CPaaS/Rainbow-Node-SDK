@@ -9,6 +9,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.62.0] - 2018-09-xx
 -   Update
 
+## [1.61.2] - 2018-09-18
+-   Fix issue when an http request failed with a no-JSON body.
+-   Add in the proxy section of option parameter : `secureProtocol: "SSLv3_method"` : The parameter to enable the SSL V3.
+
 ## [1.61.1] - 2018-09-18
 -   Same content than 1.61.0
 

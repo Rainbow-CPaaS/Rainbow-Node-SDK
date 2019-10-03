@@ -83,6 +83,37 @@ class HTTPService {
 
     }
 
+    /*
+// usage
+// const [err, result] = safeJsonParse('[Invalid JSON}');
+// if (err) {
+//  console.log('Failed to parse JSON: ' + err.message);
+//  } else {
+//  console.log(result);
+//}
+
+safeJsonParse(str) {
+   try {
+       return [null, JSON.parse(str)];
+   } catch (err) {
+       return [err];
+   }
+} // */
+    /**
+     *
+     */
+    hasJsonStructure(str) {
+        if (typeof str !== 'string') return false;
+        try {
+            const result = JSON.parse(str);
+            const type = Object.prototype.toString.call(result);
+            return type === '[object Object]'
+                || type === '[object Array]';
+        } catch (err) {
+            return false;
+        }
+    }
+
     get host(): any {
         return this._host;
     }
@@ -142,7 +173,10 @@ get(url, headers, params): Promise<any> {
                         method: "GET",
                         headers: headers,
                         params: params,
-                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
+                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                        agentOptions: {
+                            secureProtocol: that.proxy.secureProtocol
+                        }
                     }, (error, response, body) => {
                         that.logger.log("info", LOG_ID + "(get) successfull");
                         if (error) {
@@ -155,6 +189,11 @@ get(url, headers, params): Promise<any> {
                         } else {
                             if (response) {
                                 if (response.statusCode) {
+                                    /*response.statusCode = 504;
+                                    response.body = "<html><body><h1>504 Gateway Time-out</h1>\n" +
+                                        "The server didn't respond in time.\n" +
+                                        "</body></html>\n";
+                                        // */
                                     that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
                                     if (response.statusCode >= 200 && response.statusCode <= 206) {
                                         if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
@@ -174,8 +213,10 @@ get(url, headers, params): Promise<any> {
                                         that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
                                         that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
                                         let bodyjs : any = {};
-                                        if (response.body) {
+                                        if (that.hasJsonStructure(response.body)) {
                                             bodyjs = JSON.parse(response.body);
+                                        } else {
+                                            bodyjs.errorMsg = response.body;
                                         }
                                         let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                         let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
@@ -228,7 +269,10 @@ get(url, headers, params): Promise<any> {
                         url: that.serverURL + url,
                         headers: headers,
                         params: params,
-                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
+                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                        agentOptions: {
+                            secureProtocol: that.proxy.secureProtocol
+                        }
                     }).on("response", function (response) {
                         that.logger.log("info", LOG_ID + "(get) status code:" + response.statusCode); // 200
                         that.logger.log("debug", LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
@@ -305,6 +349,9 @@ get(url, headers, params): Promise<any> {
                 url: urlEncoded,
                 headers: headers,
                 proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                agentOptions: {
+                    secureProtocol: that.proxy.secureProtocol
+                },
                 body: body
             }, (error, response, body) => {
                 if (error) {
@@ -332,8 +379,10 @@ get(url, headers, params): Promise<any> {
                                 }
                             } else {
                                 let bodyjs : any = {};
-                                if (response.body) {
+                                if (that.hasJsonStructure(response.body)) {
                                     bodyjs = JSON.parse(response.body);
+                                } else {
+                                    bodyjs.errorMsg = response.body;
                                 }
 
                                 that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
@@ -409,6 +458,9 @@ get(url, headers, params): Promise<any> {
                     url: urlEncoded,
                     headers: headers,
                     proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                agentOptions: {
+                    secureProtocol: that.proxy.secureProtocol
+                },
                     body: body
                 }, (error, response, body) => {
                     if (error) {
@@ -436,10 +488,11 @@ get(url, headers, params): Promise<any> {
                                     }
                                 } else {
                                     let bodyjs : any = {};
-                                    if (response.body) {
+                                    if (that.hasJsonStructure(response.body)) {
                                         bodyjs = JSON.parse(response.body);
-                                    }
-                                    that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
+                                    } else {
+                                        bodyjs.errorMsg = response.body;
+                                    }                                    that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
                                     that.logger.warn("internalerror", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
                                     let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
                                     let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
@@ -504,6 +557,9 @@ get(url, headers, params): Promise<any> {
                      url: urlEncoded,
                      headers: headers,
                      proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                     agentOptions: {
+                         secureProtocol: that.proxy.secureProtocol
+                     },
                      body: buffer
                  },
                 function (error, response, body) {
@@ -532,7 +588,10 @@ get(url, headers, params): Promise<any> {
             let request = Request.put({
                 url: urlEncoded,
                     headers: headers,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                agentOptions: {
+                    secureProtocol: that.proxy.secureProtocol
+                }
             }).on("end", () => {
                 that.logger.log("info", LOG_ID + "(get) successfull");
                 that.logger.log("info", LOG_ID + "(get) get file buffer from Url");
@@ -560,7 +619,10 @@ get(url, headers, params): Promise<any> {
             let request = Request.delete({
                 url: urlEncoded,
                 headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null
+                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                agentOptions: {
+                    secureProtocol: that.proxy.secureProtocol
+                }
             }, (error, response, body) => {
                 if (error) {
                     reject({
@@ -580,8 +642,10 @@ get(url, headers, params): Promise<any> {
                             resolve (bodyjs);
                         } else {
                             let bodyjs : any = {};
-                            if (response.body) {
-                                bodyjs=JSON.parse(response.body);
+                            if (that.hasJsonStructure(response.body)) {
+                                bodyjs = JSON.parse(response.body);
+                            } else {
+                                bodyjs.errorMsg = response.body;
                             }
                             that.tokenExpirationControl(bodyjs);
                             reject({

@@ -6,6 +6,8 @@ import {setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
 const packageVersion = require("../../package");
+const url = require('url');
+
 
 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
 let ws_options = null;
@@ -14,7 +16,7 @@ let ws_options = null;
 let isInTest = typeof global.it === "function";
 let WS;
 if ( isInTest ) {
-    WS = require("mock-socket").WebSocket; 
+    WS = require("mock-socket").WebSocket;
 } else {
     WS = require("ws");
 }
@@ -23,7 +25,7 @@ class XmppWebSocket extends WS {
     constructor( address, protocols ) {
         super(address, protocols, ws_options);
     }
-} 
+}
 // @ts-ignore
 global.WebSocket = XmppWebSocket;
 
@@ -37,6 +39,7 @@ const HttpsProxyAgent = require("https-proxy-agent");
 import {XMPPUTils} from "../common/XMPPUtils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
+// import {URL} from "url";
 
 const LOG_ID = "XMPP - ";
 
@@ -164,9 +167,14 @@ class XMPPService {
 
             let options = {agent: null};
             Object.assign(options, headers);
+            let opt = url.parse(this.proxy.proxyURL);
             if (this.proxy.isProxyConfigured) {
+                if (this.proxy.secureProtocol) {
+                    opt.secureProxy = true;
+                }
                 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-                options.agent = new HttpsProxyAgent(this.proxy.proxyURL);
+                options.agent = new HttpsProxyAgent(opt);
+                //options.agent = new HttpsProxyAgent(this.proxy.proxyURL);
                 ws_options = options;
             }
 
