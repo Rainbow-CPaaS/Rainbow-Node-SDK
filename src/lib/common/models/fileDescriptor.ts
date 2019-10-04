@@ -64,9 +64,11 @@ interface IFileDescriptor {
     viewers: any[];
     state: FileState;
     // @ts-ignore
-    fileToSend: File;
+    fileToSend: any;
+    //fileToSend: File;
     // @ts-ignore
-    previewBlob: Blob;
+    //previewBlob: Blob;
+    previewBlob: any;
 
     // Download information Part :
     chunkTotalNumber: number;
@@ -111,9 +113,11 @@ class FileDescriptor implements IFileDescriptor {
     dateToSort: Date;
     state: FileState;
     // @ts-ignore
-    fileToSend: File;
+//    fileToSend: File;
+    fileToSend: any;
     // @ts-ignore
-    previewBlob: Blob;
+  //  previewBlob: Blob;
+    previewBlob: any;
 
     // Download information Part :
     chunkTotalNumber: number;
@@ -353,4 +357,4 @@ function FileDescriptorFactory() {
 }
 
 module.exports.fileDescriptorFactory = FileDescriptorFactory;
-export {FileDescriptorFactory as fileDescriptorFactory};
+export {FileDescriptorFactory as fileDescriptorFactory, FileDescriptor};

@@ -23,7 +23,7 @@ class Options {
         this._logger = _logger;
         this._options = _options;
         this._hasCredentials = true;
-        this._hasApplication = true;  
+        this._hasApplication = true;
         this._withXMPP = true;
         this._CLIMode = true;
 
@@ -141,7 +141,7 @@ class Options {
 
     _getHTTPOptions() {
         let httpOptions = config.sandbox.http;
-        
+
         switch (this._options.rainbow.host) {
             case "official":
                 httpOptions = config.official.http;
@@ -162,7 +162,7 @@ class Options {
 
     _getXMPPOptions() {
         let xmppOptions = config.sandbox.xmpp;
-        
+
         switch (this._options.rainbow.host) {
             case "official":
                 xmppOptions = config.official.xmpp;
@@ -204,15 +204,16 @@ class Options {
     }
 
     _getProxyOptions() {
-        
+
         let proxyOptions = {
             protocol: "http",
             host: "",
             port: 80,
             user: undefined,
-            password: undefined
+            password: undefined,
+            secureProtocol: undefined
         };
-        
+
         if (!("host" in this._options.proxy)) {
             this._logger.log("warn", LOG_ID + "(constructor) 'host' property is not defined. No proxy will be used");
         }
@@ -242,6 +243,12 @@ class Options {
         }
         else {
             proxyOptions.password = this._options.proxy.password;
+        }
+        if (!("secureProtocol" in this._options.proxy)) {
+            this._logger.log("info", LOG_ID + "(constructor) 'secureProtocol' property not defined. No SSL3.");
+        }
+        else {
+            proxyOptions.secureProtocol = this._options.proxy.secureProtocol;
         }
 
         return proxyOptions;

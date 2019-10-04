@@ -49,6 +49,8 @@ You need to specify the following parameters:
 
 - `password`: The proxy password (String)
 
+-  `secureProtocol: "SSLv3_method"` : The parameter to enable the SSL V3.
+
 Note: if the user/password are not need by proxy you can remove it from options provided to Rainbow Node Sdk. You can also provide a "" value for user/password.
 
 Here is an example of a complete configuration that uses an HTTP Proxy.

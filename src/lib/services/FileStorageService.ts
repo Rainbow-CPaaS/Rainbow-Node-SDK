@@ -599,10 +599,10 @@ class FileStorage {
      * @private
      * @description
      * Method returns a file descriptor with full contact object in viewers'list by requesting server
-     * 
+     *
      * @param {string} fileId [required] Identifier of file descriptor
      * @return {Promise<FileDescriptor>} file descriptor
-     * 
+     *
      * @memberOf FileStorage
      */
     getCompleteFileDescriptorById(id) {
@@ -789,13 +789,13 @@ class FileStorage {
      * @private
      * @description
      * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors)
-     * 
+     *
      * @param {string} name [required] name of file for which file descriptor has to be created
      * @param {string} extension [required] extension of file
      * @param {number} size [required] size of  file
      * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
      * @return {Promise<FileDescriptor>} file descriptor created by server or error
-     * 
+     *
      * @memberof FileStorage
      */
     createFileDescriptor(name, extension, size, viewers) {
@@ -825,7 +825,7 @@ class FileStorage {
         });
     }
 
-    
+
     /**
      *
      * @private
@@ -834,7 +834,7 @@ class FileStorage {
      * @return {FileDescriptor}
      * @memberof FileStorage
      */
-    createFileDescriptorFromData(data) {
+    createFileDescriptorFromData(data) : any{
         let that = this;
         that.logger.log("debug", LOG_ID + "(createFileDescriptorFromData) _entering_");
         if (data) {
@@ -858,7 +858,7 @@ class FileStorage {
 
             let fd =  fileDescriptorFactory()(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
                 data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation);
-            
+
             that.logger.log("debug", LOG_ID + "(createFileDescriptorFromData) _exiting_");
             return fd;
         }
@@ -881,7 +881,7 @@ class FileStorage {
                 .then(() => {
                     that.logger.log("info", LOG_ID + "(deleteFileDescriptor)  -- success");
                     that.deleteFileDescriptorFromCache(id, false);
-                    
+
                     resolve(null);
                 })
                 .catch((errorResponse) => {
@@ -931,9 +931,9 @@ class FileStorage {
      *
      * @description
      * Method retrieve full list of files belonging to user making the request
-     * 
+     *
      * @return {Promise<FileDescriptor[]>}
-     * 
+     *
      * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwner() {
@@ -1002,9 +1002,9 @@ class FileStorage {
      *
      * @description
      * Method retrieve a list of [limit] files belonging to user making the request begining with offset
-     * 
+     *
      * @return {Promise<FileDescriptor[]>}
-     * 
+     *
      * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit) {
@@ -1017,11 +1017,11 @@ class FileStorage {
      *
      * @description
      * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation)
-     * 
+     *
      * @param {string} userId [required] dbId of user making the request
      * @param {string} peerId [required] dbId of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
-     * 
+     *
      * @memberOf FileStorage
      */
     retrieveFilesReceivedFromPeer(userId, peerId) {
@@ -1054,10 +1054,10 @@ class FileStorage {
      *
      * @description
      * Method request for the list of files sent to a given peer (i.e. inside a given conversation)
-     * 
+     *
      * @param {string} peerId [required] id of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
-     * 
+     *
      * @memberOf FileStorage
      */
     retrieveSentFiles(peerId) {
@@ -1090,10 +1090,10 @@ class FileStorage {
      *
      * @description
      * Method request for the list of files received in a room
-     * 
+     *
      * @param {string} bubbleId [required] Id of the room
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
-     * 
+     *
      * @memberOf FileStorage
      */
     retrieveReceivedFilesForRoom(bubbleId) {
@@ -1133,10 +1133,10 @@ class FileStorage {
      *
      * @description
      * Method request for the list of files received by a user
-     * 
+     *
      * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
-     * 
+     *
      * @memberOf FileStorage
      */
     retrieveReceivedFiles(viewerId) {
@@ -1313,12 +1313,12 @@ class FileStorage {
      *
      * @description
      * Method retrieve the data usage of a given user
-     * 
+     *
      * @return {Promise<{}>} : object data with the following properties:
      *                  - feature {string} : The feature key belonging to the user's profile
      *                  - maxValue {number} : The quota associated to this offer [octet]
      *                  - currentValue {number} : The user's current consumption [octet]
-     *                  - unit {string} : The unit of this counters 
+     *                  - unit {string} : The unit of this counters
      * @memberOf FileStorage
      */
     retrieveUserConsumption() {
@@ -1344,11 +1344,11 @@ class FileStorage {
      *
      * @description
      * Method deletes a viewer from the list of viewer of a given file
-     * 
+     *
      * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
      * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
      * @return {Promise<{}>}
-     * 
+     *
      * @memberof FileStorage
      */
     deleteFileViewer(viewerId, fileId) {
@@ -1389,12 +1389,12 @@ class FileStorage {
      *
      * @description
      * Method adds a viewer to a given file on server if it is not already one
-     * 
+     *
      * @param {string} fileId [required] Identifier of file
      * @param {string} viewerId [required] Identifier of viewer to be added
      * @param {string} viewerType [required] type of viewer to be added (user or room)
      * @return {Promise<FileDescriptor>} file descriptor with newly added viewer
-     * 
+     *
      * @memberOf FileStorage
      */
     addFileViewer(fileId, viewerId, viewerType) {
@@ -1447,10 +1447,10 @@ class FileStorage {
      *
      * @description
      * Method retrieve a specific file descriptor from server
-     * 
+     *
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved
-     * 
+     *
      * @memberOf FileStorage
      */
     retrieveOneFileDescriptor(fileId) {
@@ -1476,10 +1476,10 @@ class FileStorage {
      *
      * @description
      * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new)
-     * 
+     *
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
-     * 
+     *
      * @memberOf FileStorage
      */
     retrieveAndStoreOneFileDescriptor(fileId, forceRetrieve) {
@@ -1679,10 +1679,10 @@ class FileStorage {
      *
      * @description
      * Method extract fileId part of URL
-     * 
-     * @param {string} url 
+     *
+     * @param {string} url
      * @return {string}
-     * 
+     *
      * @memberof FileStorage
      */
     extractFileIdFromUrl(url) {
