@@ -25,7 +25,9 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   Update
+-   Typescript improvement 
+-   Fix issue when an http request failed with a no-JSON body.
+-   Add in the proxy section of option parameter : `secureProtocol: "SSLv3_method"` : The parameter to enable the SSL V3.
 
 ### SDK for Node.JS 1.61 - September 2019
 
