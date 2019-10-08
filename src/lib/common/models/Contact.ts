@@ -51,70 +51,71 @@ const textAvatarColor = ["#ff4500", "#d38700", "#348833", "#007356", "#00b2a9", 
  *      A contact is defined by a set of public information (name, firstName, avatar...) and a set of private information that are only shared with contacts that are in the user's network or in the same company (email, phone numbers...)
  */
 class Contact {
-	private _id: any;
+	public id: any;
 	public _displayName: any;
-	private _name: any;
-	private _displayNameMD5: any;
-	private _companyName: any;
-	private _loginEmail: any;
-	private _nickName: any;
-	private _title: any;
-	private _jobTitle: any;
-	private _country: any;
-	private _timezone: any;
-	private _organisationId: any;
-	private _siteId: any;
-	private _companyId: any;
-	private _jid_im: any;
-	private _jid: any;
-	private _jid_tel: any;
-	private _jidtel: any;
-	private _avatar: any;
-	private _lastAvatarUpdateDate: any;
-	private _lastUpdateDate: any;
-	private _adminType: any;
-	private _roles: any;
-	private _phoneNumbers: any;
-	private _phonePro: any;
-	private _phoneProCan: any;
-	private _phonePbx: any;
-	private _phoneInternalNumber: any;
-	private _pbxId: any;
-	private _mobilePro: any;
-	private _mobileProCan: any;
-	private _phonePerso: any;
-	private _phonePersoCan: any;
-	private _mobilePerso: any;
-	private _mobilePersoCan: any;
-	private _voicemailNumber: any;
-	private _emails: any;
-	private _emailPro: any;
-	private _emailPerso: any;
-	private _lastName: any;
-	private _firstName: any;
-	private _isTerminated: any;
-	private _language: any;
-	private _presence: any;
-	private _status: any;
-	private _resources: any;
-	private _nameUpdatePrio: any;
-	private _initials: any;
-	private _nickname: any;
-	private _roster: any;
-	private _initialized: any;
-	private _colorIndex: any;
-	private _color: any;
+	public name: any;
+	public displayNameMD5: any;
+	public companyName: any;
+	public loginEmail: any;
+	public nickName: any;
+	public title: any;
+	public jobTitle: any;
+	public country: any;
+	public timezone: any;
+	public organisationId: any;
+	public siteId: any;
+	public companyId: any;
+	public jid_im: any;
+	public jid: any;
+	public jid_tel: any;
+	public jidtel: any;
+	public avatar: any;
+	public lastAvatarUpdateDate: any;
+	public lastUpdateDate: any;
+	public adminType: any;
+	public roles: any;
+	public phoneNumbers: any;
+	public phonePro: any;
+	public phoneProCan: any;
+	public phonePbx: any;
+	public phoneInternalNumber: any;
+	public pbxId: any;
+	public mobilePro: any;
+	public mobileProCan: any;
+	public phonePerso: any;
+	public phonePersoCan: any;
+	public mobilePerso: any;
+	public mobilePersoCan: any;
+	public voicemailNumber: any;
+	public emails: any;
+	public emailPro: any;
+	public emailPerso: any;
+	public lastName: any;
+	public firstName: any;
+	public isTerminated: any;
+	public language: any;
+	public presence: any;
+	public status: any;
+	public resources: any;
+	public nameUpdatePrio: any;
+	public initials: any;
+	public nickname: any;
+	public roster: any;
+	public initialized: any;
+	public colorIndex: any;
+	public color: any;
+	public _id: any;
 	//public isBot: any;
-	private _isInDefaultCompany: any;
-	private _company: any;
-	private _hasPhoneNumber: any;
-	private _guestMode: any;
-    private _openInviteId: any;
-    private _userInfo1: null;
-    private _userInfo2: null;
-    private _ask: string;
-    private _subscription: string;
-    private _temp: boolean;
+	public isInDefaultCompany: any;
+	public company: any;
+	public hasPhoneNumber: any;
+	public guestMode: any;
+    public openInviteId: any;
+    public userInfo1: null;
+    public userInfo2: null;
+    public ask: string;
+    public subscription: string;
+    public temp: boolean;
 
     constructor() {
 
@@ -124,7 +125,7 @@ class Contact {
          * @property {string} id The ID of the Contact
          * @instance
          */
-        this._id = "";
+        this.id = "";
 
         /**
          * @private
@@ -137,9 +138,9 @@ class Contact {
          * @property {Object} name The display name of the contact
          * @readonly
          */
-        this._name = {value: this._displayName};
+        this.name = {value: this._displayName};
 
-        this._displayNameMD5 = "";
+        this.displayNameMD5 = "";
 
             /**
          * @public
@@ -147,7 +148,7 @@ class Contact {
          * @property {string} companyName The company name of the Contact
          * @instance
          */
-        this._companyName = "";
+        this.companyName = "";
 
         /**
          * @public
@@ -157,7 +158,7 @@ class Contact {
          * @description
          *  This field will soon become unavailable if the user is not allowed to view it, to follow the GPRD law.
          */
-        this._loginEmail = "";
+        this.loginEmail = "";
 
         /**
          * @public
@@ -165,7 +166,7 @@ class Contact {
          * @property {string} nickName The nickname of the Contact
          * @instance
          */
-        this._nickName = "";
+        this.nickName = "";
 
         /**
          * @public
@@ -173,7 +174,7 @@ class Contact {
          * @property {string} title The title of the Contact
          * @instance
          */
-        this._title = "";
+        this.title = "";
 
         /**
          * @public
@@ -181,7 +182,7 @@ class Contact {
          * @property {string} jobTitle The job title of the Contact
          * @instance
          */
-        this._jobTitle = "";
+        this.jobTitle = "";
 
         /**
          * @public
@@ -189,7 +190,7 @@ class Contact {
          * @property {string} country The country of the Contact
          * @instance
          */
-        this._country = "";
+        this.country = "";
 
         /**
          * @public
@@ -197,7 +198,7 @@ class Contact {
          * @property {string} timezone The timezone of the Contact
          * @instance
          */
-        this._timezone = "Europe/Paris";
+        this.timezone = "Europe/Paris";
 
         /**
          * @public
@@ -205,7 +206,7 @@ class Contact {
          * @property {string} organisationId The organisation ID of the Contact
          * @instance
          */
-        this._organisationId = "";
+        this.organisationId = "";
 
         /**
          * @public
@@ -213,7 +214,7 @@ class Contact {
          * @property {string} siteId The site ID of the Contact
          * @instance
          */
-        this._siteId = "";
+        this.siteId = "";
 
         /**
          * @public
@@ -221,7 +222,7 @@ class Contact {
          * @property {string} companyId The company ID of the Contact
          * @instance
          */
-        this._companyId = "";
+        this.companyId = "";
 
         /**
          * @public
@@ -229,7 +230,7 @@ class Contact {
          * @property {string} jid_im The JID of the Contact
          * @instance
          */
-        this._jid_im = "";
+        this.jid_im = "";
 
         /**
          * @public
@@ -237,7 +238,7 @@ class Contact {
          * @property {string} jid The JID of the Contact (same as jid_im, for compatibility)
          * @instance
          */
-        this._jid = "";
+        this.jid = "";
 
         /**
          * @public
@@ -245,7 +246,7 @@ class Contact {
          * @property {string} jid_tel The JID_TEL of the Contact
          * @instance
          */
-        this._jid_tel = "";
+        this.jid_tel = "";
 
         /**
          * @public
@@ -253,7 +254,7 @@ class Contact {
          * @property {string} jidtel The JID_TEL of the Contact (same as jidtel, for compatibility)
          * @instance
          */
-        this._jidtel = "";
+        this.jidtel = "";
 
         /**
          * @public
@@ -261,7 +262,7 @@ class Contact {
          * @property {string} avatar The Contact avatar, if an avatar exist will return an Url, either a local file.
          * @instance
          */
-        this._avatar = "";
+        this.avatar = "";
 
         /**
          * @public
@@ -269,7 +270,7 @@ class Contact {
          * @property {string} lastAvatarUpdateDate The date of the last avatar update
          * @instance
          */
-        this._lastAvatarUpdateDate = null;
+        this.lastAvatarUpdateDate = null;
 
         /**
          * @public
@@ -277,7 +278,7 @@ class Contact {
          * @property {string} lastUpdateDate The date of the last time information about the contact changed
          * @instance
          */
-        this._lastUpdateDate = "Z";
+        this.lastUpdateDate = "Z";
 
         /**
          * @public
@@ -285,7 +286,7 @@ class Contact {
          * @property {string} adminType The type of admin role. Can be `organization_admin`, `company_admin`, `site_admin`
          * @instance
          */
-        this._adminType = "undefined";
+        this.adminType = "undefined";
 
         /**
          * @public
@@ -295,7 +296,7 @@ class Contact {
          * @description
          *  This field will soon become unavailable if the user is not allowed to view it, to follow the GPRD law.
          */
-        this._roles = ["user"];
+        this.roles = ["user"];
 
         /**
          * @public
@@ -303,84 +304,84 @@ class Contact {
          * @property {Object[]} phoneNumbers The list of phone numbers associated to the Contact
          * @instance
          */
-        this._phoneNumbers = [];
+        this.phoneNumbers = [];
 
         /**
          * @public
          * @property {string} phonePro The professional phone number of the contact
          * @readonly
          */
-        this._phonePro = "";
+        this.phonePro = "";
 
         /**
          * @public
          * @property {string} phoneProCan The professional phone number of the contact (canonical format)
          * @readonly
          */
-        this._phoneProCan = "";
+        this.phoneProCan = "";
 
         /**
          * @public
          * @property {string} phonePbx The phone number if exists associated to the user and monitored by Rainbow
          * @readonly
          */
-        this._phonePbx = "";
+        this.phonePbx = "";
 
         /**
          * @public
          * @property {string} phoneInternalNumber The internal number if exists associated to the user and monitored by Rainbow
          * @readonly
          */
-        this._phoneInternalNumber = "";
+        this.phoneInternalNumber = "";
 
         /**
          * @public
          * @property {string} pbxId The ID of the PBX monitored by Rainbow where the user's phone is associated
          * @readonly
          */
-        this._pbxId = "";
+        this.pbxId = "";
 
         /**
          * @public
          * @property {string} mobilePro The professional mobile phone of the contact
          * @readonly
          */
-        this._mobilePro = "";
+        this.mobilePro = "";
 
         /**
          * @public
          * @property {string} mobileProCan The professional mobile phone of the contact (canonical format)
          * @readonly
          */
-        this._mobileProCan = "";
+        this.mobileProCan = "";
 
         /**
          * @public
          * @property {string} phonePerso The personal phone of the contact
          * @readonly
          */
-        this._phonePerso = "";
+        this.phonePerso = "";
 
         /**
          * @public
          * @property {string} phonePersoCan The personal phone of the contact (canonical format)
          * @readonly
          */
-        this._phonePersoCan = "";
+        this.phonePersoCan = "";
 
         /**
          * @public
          * @property {string} mobilePerso The personal mobile phone of the contact
          * @readonly
          */
-        this._mobilePerso = "";
+        this.mobilePerso = "";
 
         /**
          * @public
          * @property {string} mobilePersoCan The personal mobile phone of the contact (canonical format)
          * @readonly
          */
-        this._mobilePersoCan = "";
+        this.mobilePersoCan = "";
 
         /**
          * @public
@@ -388,7 +389,7 @@ class Contact {
          * @property {String} voicemailNumber The number of the voicemail associated to the Contact
          * @instance
          */
-        this._voicemailNumber = "";
+        this.voicemailNumber = "";
 
         /**
          * @public
@@ -396,21 +397,21 @@ class Contact {
          * @property {Object[]} emails The list of email addresses associated to the Contact
          * @instance
          */
-        this._emails = [];
+        this.emails = [];
 
         /**
          * @public
          * @property {string} emailPro The professional email of the contact
          * @readonly
          */
-        this._emailPro = "";
+        this.emailPro = "";
 
         /**
          * @public
          * @property {string} emailPerso The personal email of the contact
          * @readonly
          */
-        this._emailPerso = "";
+        this.emailPerso = "";
 
         /**
          * @public
@@ -418,7 +419,7 @@ class Contact {
          * @property {string} lastName The lastname of the Contact
          * @instance
          */
-        this._lastName = "";
+        this.lastName = "";
 
         /**
          * @public
@@ -426,7 +427,7 @@ class Contact {
          * @property {string} firstName The firstname of the Contact
          * @instance
          */
-        this._firstName = "";
+        this.firstName = "";
 
         /**
          * @public
@@ -434,7 +435,7 @@ class Contact {
          * @property {Boolean} isTerminated True if the Contact has been removed
          * @instance
          */
-        this._isTerminated = false;
+        this.isTerminated = false;
 
         /**
          * @public
@@ -442,7 +443,7 @@ class Contact {
          * @property {string} language The language of the Contact
          * @instance
          */
-        this._language = "en";
+        this.language = "en";
 
         /**
          * @public
@@ -450,15 +451,15 @@ class Contact {
          * @property {string} presence The presence of the contact. Can be `offline`, `busy`, `away`, `online`, `unknown`
          * @instance
          */
-        this._presence = "";
-        
+        this.presence = "";
+
         /**
          * @public
          * @readonly
          * @property {string} status An additional status information for the presence. Can be `phone`, `presentation`, `mobile` or ``
          * @instance
          */
-        this._status = "";
+        this.status = "";
 
         /**
          * @public
@@ -466,79 +467,79 @@ class Contact {
          * @property {Object[]} resources The list of resources of the Contact
          * @instance
          */
-        this._resources = "";
+        this.resources = "";
 
         /**
          * @public
          * @property {number} nameUpdatePrio Prio of the service having made an update
          * @readonly
          */
-        this._nameUpdatePrio = NameUpdatePrio.MAX_UPDATE_PRIO;//default Max prio
+        this.nameUpdatePrio = NameUpdatePrio.MAX_UPDATE_PRIO;//default Max prio
 
         /**
          * @public
          * @property {string} initials The initials of the contact
          * @readonly
          */
-        this._initials = "";
+        this.initials = "";
 
         /**
          * @public
          * @property {string} nickname The nickname of the contact
          * @readonly
          */
-        this._nickname = "";
+        this.nickname = "";
 
         /**
          * @public
          * @property {boolean} roster True if the contact is part of the favorized contact's list of the connected user
          * @readonly
          */
-        this._roster = false;
+        this.roster = false;
 
         /**
          * @private
          * @readonly
          */
-        this._initialized = false;
+        this.initialized = false;
 
         /**
          * @public
          * @property {boolean} guestMode Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
          * @readonly
          */
-        this._guestMode = false;
+        this.guestMode = false;
 
         /**
          * @public
          * @property {string} id The open invite ID of the user
          * @readonly
          */
-        this._openInviteId = null;
+        this.openInviteId = null;
 
         /**
          * @public
          * @property {string} ask (Contact Only) The subscription progress
          * @readonly
          */
-        this._ask = "none";
+        this.ask = "none";
 
         /**
          * @public
          * @property {string} subscription (Contact only) The subscription state for this contact (none or both)
          * @readonly
          */
-        this._subscription = "none";
+        this.subscription = "none";
 
         // Status
         /**
-         * @private
+         * @public
          * @readonly
          */
-        this._temp = false;
+        this.temp = false;
 
-        this._userInfo1 = null;
-        this._userInfo2 = null;
+        this.userInfo1 = null;
+        this.userInfo2 = null;
 
 
     }
@@ -552,8 +553,8 @@ class Contact {
 
     set displayName(value) {
         this._displayName = value;
-        this._name.value = value;
-        this._displayNameMD5 = MD5(value);
+        this.name.value = value;
+        this.displayNameMD5 = MD5(value);
     }
 
     get displayName () {
@@ -566,21 +567,21 @@ class Contact {
             case NameUpdatePrio.OUTLOOK_UPDATE_PRIO:
             case NameUpdatePrio.SERVER_UPDATE_PRIO:
             case NameUpdatePrio.MAX_UPDATE_PRIO:
-                this._nameUpdatePrio = prio ;
+                this.nameUpdatePrio = prio ;
                 break;
             default://no change
         }
     }
 
     getNameUpdatePrio () {
-        return this._nameUpdatePrio;
+        return this.nameUpdatePrio;
     }
 
     displayNameForLog () {
         /*if (config && config.debug) {
             return this.displayName;
         } // */
-        return this._displayNameMD5;
+        return this.displayNameMD5;
     }
 
     computeCompleteDisplayName (firstName, lastName) {
@@ -606,7 +607,7 @@ class Contact {
             initials = firstName.charAt(0) + firstName.charAt(1);
         }
         this.displayName = displayName;
-        this._initials = initials;
+        this.initials = initials;
 
         // Compute contact color
         let upperCaseDisplayName = this.displayName.toUpperCase();
@@ -616,36 +617,36 @@ class Contact {
             sum += upperCaseDisplayName.charCodeAt(i);
         }
 
-        this._colorIndex = (sum % 12);
-        this._color = textAvatarColor[this._colorIndex];
+        this.colorIndex = (sum % 12);
+        this.color = textAvatarColor[this.colorIndex];
     }
 
     computeDisplayName () {
-        let firstName = this._firstName ? (this._firstName.charAt(0).toUpperCase() + this._firstName.slice(1)) : null;
-        let lastName = this._lastName ? (this._lastName.charAt(0).toUpperCase() + this._lastName.slice(1)) : null;
-        let nickName = this._nickname ? (this._nickname.charAt(0).toUpperCase() + this._nickname.slice(1)) : null;
+        let firstName = this.firstName ? (this.firstName.charAt(0).toUpperCase() + this.firstName.slice(1)) : null;
+        let lastName = this.lastName ? (this.lastName.charAt(0).toUpperCase() + this.lastName.slice(1)) : null;
+        let nickName = this.nickname ? (this.nickname.charAt(0).toUpperCase() + this.nickname.slice(1)) : null;
         if (lastName && firstName) {
             this.computeCompleteDisplayName(firstName, lastName);
         }
         else if (lastName && !firstName) {
             this.displayName = lastName;
-            this._initials = lastName.charAt(0);
+            this.initials = lastName.charAt(0);
         }
         else if (nickName) {
             this.displayName = nickName;
-            this._initials = nickName.charAt(0);
+            this.initials = nickName.charAt(0);
         }
         else {
             this.displayName = "Anonymous";
-            this._initials = "A";
+            this.initials = "A";
         }
     }
 
     updateName (firstName, lastName) {
         let that = this;
         // Identification fields
-        that._firstName = firstName;
-        that._lastName = lastName;
+        that.firstName = firstName;
+        that.lastName = lastName;
         // Compute display name
         that.computeDisplayName();
     }
@@ -653,70 +654,70 @@ class Contact {
     updateFromUserData (userData) {
         let that = this;
         // Identification fields
-        that._id = userData._id;
-        that._id = userData._id;
-        that._loginEmail = userData._loginEmail;
-        that._firstName = userData._firstName;
-        that._lastName = userData._lastName;
-        that._nickname = userData._nickName ? userData._nickName : "";
-        that._title = userData._title ? userData._title : "";
-        that._jobTitle = userData._jobTitle ? userData._jobTitle : "";
-        that._organisationId = userData._organisationId;
-        that._siteId = userData._siteId;
-        that._country = userData._country ? userData._country : "FRA";
-        that._timezone = userData._timezone;
-        that._roles = userData._roles;
-        that._adminType = userData._adminType;
+        that._id = userData.id;
+        that.id = userData.id;
+        that.loginEmail = userData.loginEmail;
+        that.firstName = userData.firstName;
+        that.lastName = userData.lastName;
+        that.nickname = userData.nickName ? userData.nickName : "";
+        that.title = userData.title ? userData.title : "";
+        that.jobTitle = userData.jobTitle ? userData.jobTitle : "";
+        that.organisationId = userData.organisationId;
+        that.siteId = userData.siteId;
+        that.country = userData.country ? userData.country : "FRA";
+        that.timezone = userData.timezone;
+        that.roles = userData.roles;
+        that.adminType = userData.adminType;
         //that.isBot = false;
-        that._isTerminated = userData._isTerminated;
-        that._isInDefaultCompany = userData._isInDefaultCompany;
-        that._lastAvatarUpdateDate = userData._lastAvatarUpdateDate;
-        that._initialized = userData.isInitialized;
-        that._avatar = userData._avatar;
-        that._guestMode = userData._guestMode ? userData._guestMode : false;
-        that._openInviteId = userData._openInviteId ? userData._openInviteId : that._openInviteId;
-        that._userInfo1 = that._userInfo1 ? that._userInfo1 : userData._userInfo1;
-        that._userInfo2 = that._userInfo2 ? that._userInfo2 : userData._userInfo2;
+        that.isTerminated = userData.isTerminated;
+        that.isInDefaultCompany = userData.isInDefaultCompany;
+        that.lastAvatarUpdateDate = userData.lastAvatarUpdateDate;
+        that.initialized = userData.isInitialized;
+        that.avatar = userData.avatar;
+        that.guestMode = userData.guestMode ? userData.guestMode : false;
+        that.openInviteId = userData.openInviteId ? userData.openInviteId : that.openInviteId;
+        that.userInfo1 = that.userInfo1 ? that.userInfo1 : userData.userInfo1;
+        that.userInfo2 = that.userInfo2 ? that.userInfo2 : userData.userInfo2;
 
         // Handle jids
-        if (userData._jid_im) {
-            that._id = userData._jid_im;
-            that._jid = userData._jid_im;
-            that._jidtel = userData._jid_tel;
-            that._jid_im = userData._jid_im;
-            that._jid_tel = userData._jid_tel;
+        if (userData.jid_im) {
+            that._id = userData.jid_im;
+            that.jid = userData.jid_im;
+            that.jidtel = userData.jid_tel;
+            that.jid_im = userData.jid_im;
+            that.jid_tel = userData.jid_tel;
         }
 
         // Company field
-        if (!that._company || that._company._id !== userData._companyId) {
+        if (!that.company || that.company.id !== userData.companyId) {
             // this.company = Company.create(userData.companyId, userData.companyName);
         }
 
         // Telephony fields
-        that._phonePro = that._phoneProCan = "";
-        that._phonePbx = userData._phonePbx + "";
-        that._phoneInternalNumber = "";//#29475
-        that._pbxId = "";
-        that._mobilePro = that._mobileProCan = "";
-        that._phonePerso = that._phonePersoCan = "";
-        that._mobilePerso = that._mobilePersoCan = "";
-        that._voicemailNumber = "";
-        that._hasPhoneNumber = false;
+        that.phonePro = that.phoneProCan = "";
+        that.phonePbx = userData.phonePbx + "";
+        that.phoneInternalNumber = "";//#29475
+        that.pbxId = "";
+        that.mobilePro = that.mobileProCan = "";
+        that.phonePerso = that.phonePersoCan = "";
+        that.mobilePerso = that.mobilePersoCan = "";
+        that.voicemailNumber = "";
+        that.hasPhoneNumber = false;
 
-        that._roster = that._roster ? that._roster : false;
-        that._presence = that._presence ? that._presence : "offline";
-        that._status = that._status ? that._status : "";
+        that.roster = that.roster ? that.roster : false;
+        that.presence = that.presence ? that.presence : "offline";
+        that.status = that.status ? that.status : "";
 
         // Update emails
-        if (userData._emails) {
-            that._emailPerso = "";//PR_14671
-            userData._emails.forEach(function (email) {
+        if (userData.emails) {
+            that.emailPerso = "";//PR_14671
+            userData.emails.forEach(function (email) {
                 switch (email.type) {
                     case "work":
-                        that._emailPro = email.email;
+                        that.emailPro = email.email;
                         break;
                     case "home":
-                        that._emailPerso = email.email;
+                        that.emailPerso = email.email;
                         break;
                     default:
                         break;
@@ -725,40 +726,40 @@ class Contact {
         }
 
         // Update phone numbers
-        if (userData._phoneNumbers) {
-            that._phoneNumbers = userData._phoneNumbers;
-            that._phoneNumbers.forEach(function (phoneNumber) {
+        if (userData.phoneNumbers) {
+            that.phoneNumbers = userData.phoneNumbers;
+            that.phoneNumbers.forEach(function (phoneNumber) {
                 let number = phoneNumber.number;
                 let numberCan = phoneNumber.numberE164;
                 let deviceType = phoneNumber.deviceType;
-                that._hasPhoneNumber = true;
+                that.hasPhoneNumber = true;
                 switch (phoneNumber.type) {
                     case "work":
                         if (deviceType === "landline") {
-                            that._phonePro = number;
-                            that._phoneProCan = numberCan;
+                            that.phonePro = number;
+                            that.phoneProCan = numberCan;
                             if (phoneNumber.isFromSystem) {
-                                that._phonePbx = phoneNumber.shortNumber;
+                                that.phonePbx = phoneNumber.shortNumber;
                                 if (phoneNumber.internalNumber) { //#29475++
-                                    that._phoneInternalNumber = phoneNumber.internalNumber;
+                                    that.phoneInternalNumber = phoneNumber.internalNumber;
                                 } //#29475--
-                                that._pbxId = phoneNumber._pbxId;
-                                that._voicemailNumber = phoneNumber.voiceMailNumber;
+                                that.pbxId = phoneNumber.pbxId;
+                                that.voicemailNumber = phoneNumber.voiceMailNumber;
                             }
                         }
                         if (deviceType === "mobile") {
-                            that._mobilePro = number;
-                            that._mobileProCan = numberCan;
+                            that.mobilePro = number;
+                            that.mobileProCan = numberCan;
                         }
                         break;
                     case "home":
                         if (deviceType === "landline") {
-                            that._phonePerso = number;
-                            that._phonePersoCan = numberCan;
+                            that.phonePerso = number;
+                            that.phonePersoCan = numberCan;
                         }
                         if (deviceType === "mobile") {
-                            that._mobilePerso = number;
-                            that._mobilePersoCan = numberCan;
+                            that.mobilePerso = number;
+                            that.mobilePersoCan = numberCan;
                         }
                         break;
                     default:
@@ -766,17 +767,17 @@ class Contact {
                 }
             });
         } else {
-            that._phoneNumbers = [];
-            that._phonePro = "";
-            that._phoneProCan = "";
-            that._phonePbx = "";
-            that._phoneInternalNumber = "";
-            that._pbxId = "";
-            that._voicemailNumber = "";
-            that._mobilePro = "";
-            that._mobileProCan = "";
-            that._phonePerso = "";
-            that._phonePersoCan = "";
+            that.phoneNumbers = [];
+            that.phonePro = "";
+            that.phoneProCan = "";
+            that.phonePbx = "";
+            that.phoneInternalNumber = "";
+            that.pbxId = "";
+            that.voicemailNumber = "";
+            that.mobilePro = "";
+            that.mobileProCan = "";
+            that.phonePerso = "";
+            that.phonePersoCan = "";
         }
 
         // Compute display name
@@ -784,9 +785,9 @@ class Contact {
     }
 
     isGuest() {
-        return this._guestMode;
+        return this.guestMode;
     };
-
+/*
     get id(): any {
         return this._id;
     }
@@ -1282,6 +1283,8 @@ class Contact {
     set temp(value: boolean) {
         this._temp = value;
     }
+
+ //*/
 }
 
 module.exports = {'Contact' : Contact, 'AdminType' : AdminType, 'NameUpdatePrio' : NameUpdatePrio};
