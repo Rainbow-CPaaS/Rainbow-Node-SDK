@@ -1,7 +1,7 @@
 "use strict";
 
-// @ts-ignore
-const SDP = require('./SDP.js');
+
+import {SDP, createSDP} from './SDP';
 
 // @ts-ignore
 const SDPUtilFac = require('./SDPUtil.js');
@@ -22,8 +22,9 @@ class JingleSession {
     private initiator: any;
     private muted: boolean;
     private delayedCandidates: any[];
+    private responder: any;
 
-    constructor (me, peerjid, initiator, sid) {
+    constructor(me, peerjid, initiator, sid) {
         this.me = me;
         this.sid = sid;
 
@@ -34,6 +35,8 @@ class JingleSession {
         this.fullJid = peerjid;
 
         this.initiator = initiator;
+        this.responder = !initiator ? this.me : peerjid;
+
         this.mediaType = null;
         this.callednumber = null;
         this.callernumber = null;
@@ -43,22 +46,23 @@ class JingleSession {
     }
 
     getInitiator() {
-        return this.initiator == this.me ? this.initiator:this.peerJid;
+        return this.initiator == this.me ? this.initiator : this.peerJid;
     }
 
     sessionInitiate(id, sdp, callerInfo) {
         let self = this;
         //console.log('JingleSession: sessionInitiate SDP', sdp);
-        this.localSDP = SDP.createSDP(sdp);
+        this.localSDP = createSDP(sdp);
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
-        var stanzaPtr;
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
+        let stanzaPtr;
         stanzaPtr = stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-initiate',
             initiator: this.initiator,
             callernumber: this.callernumber,
-            sid: this.sid});
+            sid: this.sid
+        });
 
         //let callerInfo = {"callernumber": this.callernumber};
 
@@ -72,27 +76,30 @@ class JingleSession {
         let self = this;
         //console.log('JingleSession: sessionInfo');
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
         stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-info',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
-            sid: this.sid}).c(state, {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
+            sid: this.sid
+        }).c(state, {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
 
         return stanza;
     }
- //EBR-
+
+    //EBR-
 
     sessionRinging(id) {
         let self = this;
         //console.log('JingleSession: sessionRinging');
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
         stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-info',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
-            sid: this.sid}).c('ringing', {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
+            sid: this.sid
+        }).c('ringing', {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
 
         return stanza;
     }
@@ -101,12 +108,13 @@ class JingleSession {
         let self = this;
         //console.log('JingleSession: sessionProceeding');
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
         stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-info',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
-            sid: this.sid}).c('proceeding', {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
+            sid: this.sid
+        }).c('proceeding', {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
 
         return stanza;
     }
@@ -114,15 +122,15 @@ class JingleSession {
     sessionAccept(id, sdp) {
         let self = this;
         //console.log('JingleSession: sessionAccept');
-        this.localSDP = SDP.createSDP(sdp);
+        this.localSDP = createSDP(sdp);
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
-        var stanzaPtr;
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
+        let stanzaPtr;
         stanzaPtr = stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-accept',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
-            responder: this.initiator == this.me ? this.peerJid:this.initiator,
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
+            responder: this.initiator == this.me ? this.peerJid : this.initiator,
             sid: this.sid,
             localType: this.mediaType
         });
@@ -136,12 +144,13 @@ class JingleSession {
         let self = this;
         //console.log('JingleSession: sessionTerminate reason', reason);
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
         stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-terminate',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
-            sid: this.sid}).c(reason || 'success');
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
+            sid: this.sid
+        }).c(reason || 'success');
 
         return stanza;
     }
@@ -150,12 +159,13 @@ class JingleSession {
         let self = this;
         //console.log('JingleSession: sessionMute');
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
         stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'session-info',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
-            sid: this.sid}).c(muted ? 'mute' : 'unmute', {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
+            sid: this.sid
+        }).c(muted ? 'mute' : 'unmute', {xmlns: 'urn:xmpp:jingle:apps:rtp:info:1'});
 
         return stanza;
     }
@@ -164,36 +174,39 @@ class JingleSession {
         let self = this;
         //console.log('JingleSession: transportInfo candidate ', candidate);
 
-        var SDPUtil = new SDPUtilFac.createSDPUtil();
+        let SDPUtil = new SDPUtilFac.createSDPUtil();
 
-        var candidates = [candidate];
+        let candidates = [candidate];
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
-        var stanzaPtr;
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
+        let stanzaPtr;
         stanzaPtr = stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'transport-info',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
             sid: this.sid,
             localType: this.mediaType
         });
 
-        for (var mid = 0; mid < this.localSDP.media.length; mid++) {
-            var cands = candidates.filter(function (el) { return el.sdpMLineIndex == mid; });
-            var mline = SDPUtil.parse_mline(this.localSDP.media[mid].split('\r\n')[0]);
+        for (let mid = 0; mid < this.localSDP.media.length; mid++) {
+            let cands = candidates.filter(function (el) {
+                return el.sdpMLineIndex == mid;
+            });
+            let mline = SDPUtil.parse_mline(this.localSDP.media[mid].split('\r\n')[0]);
             if (cands.length > 0) {
-                var ice = SDPUtil.iceparams(this.localSDP.media[mid], this.localSDP.session);
+                let ice = SDPUtil.iceparams(this.localSDP.media[mid], this.localSDP.session);
                 ice.xmlns = 'urn:xmpp:jingle:transports:ice-udp:1';
-                stanzaPtr = stanzaPtr.c('content', {creator: this.initiator == this.me ? 'initiator' : 'responder',
-                    name: (cands[0].sdpMid? cands[0].sdpMid : mline.media)
+                stanzaPtr = stanzaPtr.c('content', {
+                    creator: this.initiator == this.me ? 'initiator' : 'responder',
+                    name: (cands[0].sdpMid ? cands[0].sdpMid : mline.media)
                 }).c('transport', ice);
-                for (var i = 0; i < cands.length; i++) {
+                for (let i = 0; i < cands.length; i++) {
                     stanzaPtr = stanzaPtr.c('candidate', SDPUtil.candidateToJingle(cands[i].candidate));
                     stanzaPtr = stanzaPtr.up();
                 }
                 // add fingerprint
                 if (SDPUtil.find_line(this.localSDP.media[mid], 'a=fingerprint:', this.localSDP.session)) {
-                    var tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(this.localSDP.media[mid], 'a=fingerprint:', this.localSDP.session));
+                    let tmp = SDPUtil.parse_fingerprint(SDPUtil.find_line(this.localSDP.media[mid], 'a=fingerprint:', this.localSDP.session));
                     tmp.required = true;
                     stanzaPtr = stanzaPtr.c('fingerprint').t(tmp.fingerprint);
                     delete tmp.fingerprint;
@@ -211,16 +224,17 @@ class JingleSession {
     transportAccept(id, sdp, mediaType = 'audio') {
         let self = this;
         //console.log('JingleSession: transportAccept');
-        this.localSDP = SDP.createSDP(sdp);
+        this.localSDP = createSDP(sdp);
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
-        var stanzaPtr;
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
+        let stanzaPtr;
         stanzaPtr = stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'transport-accept',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
             sid: this.sid,
-            localType: mediaType});
+            localType: mediaType
+        });
 
         this.localSDP.toJingle(stanzaPtr, this.initiator == this.me ? 'initiator' : 'responder');
 
@@ -230,16 +244,17 @@ class JingleSession {
     transportReplace(id, sdp, mediaType = 'audio') {
         let self = this;
         //console.log('JingleSession: transportReplace');
-        this.localSDP = SDP.createSDP(sdp);
+        this.localSDP = createSDP(sdp);
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
-        var stanzaPtr;
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
+        let stanzaPtr;
         stanzaPtr = stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'transport-replace',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
             sid: this.sid,
-            localType: mediaType});
+            localType: mediaType
+        });
 
         this.localSDP.toJingle(stanzaPtr, this.initiator == this.me ? 'initiator' : 'responder');
 
@@ -249,28 +264,30 @@ class JingleSession {
     contentModify(id, sdp, mediaType = 'audio') {
         let self = this;
         //console.log('JingleSession: contentModify');
-        this.localSDP = SDP.createSDP(sdp);
+        this.localSDP = createSDP(sdp);
 
-        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id:id});
-        var stanzaPtr;
+        let stanza = new Stanza('iq', {type: 'set', from: this.me, to: this.fullJid, id: id});
+        let stanzaPtr;
         stanzaPtr = stanza.c('jingle', {
             xmlns: 'urn:xmpp:jingle:1',
             action: 'content-modify',
-            initiator: this.initiator == this.me ? this.initiator:this.peerJid,
+            initiator: this.initiator == this.me ? this.initiator : this.peerJid,
             sid: this.sid,
-            localType: mediaType});
+            localType: mediaType
+        });
 
         this.localSDP.toJingle(stanzaPtr, this.initiator == this.me ? 'initiator' : 'responder');
 
         return stanza;
     }
+
     //EBR200218-
 
     // handlers
     handleSessionInitiate(el) {
         let self = this;
 
-        this.remoteSDP = SDP.createSDP('');
+        this.remoteSDP = createSDP('');
         //console.log('JingleSession: handleSessionInitiate');
         this.remoteSDP.fromJingle(el);
         //console.log('JingleSession: handleSessionInitiate: SDP is ' + this.remoteSDP.raw);
@@ -279,7 +296,7 @@ class JingleSession {
     handleTransportReplace(el) {
         let self = this;
 
-        this.remoteSDP = SDP.createSDP('');
+        this.remoteSDP = createSDP('');
         //console.log('JingleSession: handleTransportReplace');
         this.remoteSDP.fromJingle(el);
         //console.log('JingleSession: handleTransportReplace: SDP is ' + this.remoteSDP.raw);
@@ -288,7 +305,7 @@ class JingleSession {
     handleContentAdd(el) {
         let self = this;
 
-        this.remoteSDP = SDP.createSDP('');
+        this.remoteSDP = createSDP('');
         //console.log('JingleSession: handleContentAdd');
         this.remoteSDP.fromJingle(el);
         //console.log('JingleSession: handleContentAdd: SDP is ' + this.remoteSDP.raw);
@@ -297,7 +314,7 @@ class JingleSession {
     handleContentModify(el) {
         let self = this;
 
-        this.remoteSDP = SDP.createSDP('');
+        this.remoteSDP = createSDP('');
         //console.log('JingleSession: handleContentModify');
         this.remoteSDP.fromJingle(el);
         //console.log('JingleSession: handleContentModify: SDP is ' + this.remoteSDP.raw);
@@ -306,7 +323,7 @@ class JingleSession {
     handleSessionAccept(el) {
         let self = this;
 
-        this.remoteSDP = SDP.createSDP('');
+        this.remoteSDP = createSDP('');
         //console.log('JingleSession: handleSessionAccept');
         this.remoteSDP.fromJingle(el);
         //console.log('JingleSession: handleSessionAccept: SDP is ' + this.remoteSDP.raw);
@@ -317,17 +334,17 @@ class JingleSession {
         //console.log('JingleSession: handleSessionTerminate');
     }
 
-   getDelayedCandidates() {
+    getDelayedCandidates() {
         let self = this;
         //console.log('JingleSession: getDelayedCandidates');
         let candidates = [];
-        for(let i=0;i<self.delayedCandidates.length;i++) {
+        for (let i = 0; i < self.delayedCandidates.length; i++) {
             let newCandidates = self.processCandidates(self.delayedCandidates[i]);
-            for(let j=0;j<newCandidates.length;j++) {
+            for (let j = 0; j < newCandidates.length; j++) {
                 candidates.push(newCandidates[j]);
             }
         }
-       return candidates;
+        return candidates;
     }
 
     deleteDelayedCandidates() {
@@ -339,11 +356,11 @@ class JingleSession {
     processCandidates(el) {
         let self = this;
         let candidates = [];
-        var SDPUtil = new SDPUtilFac.createSDPUtil();
+        let SDPUtil = new SDPUtilFac.createSDPUtil();
         // operate on each content element
         el.forEach(function (content) {
-            var idx = -1;
-            var i;
+            let idx = -1;
+            let i;
             for (i = 0; i < self.remoteSDP.media.length; i++) {
                 if (SDPUtil.find_line(self.remoteSDP.media[i], 'a=mid:' + content.attr('name')) ||
                     self.remoteSDP.media[i].indexOf('m=' + content.attr('name')) === 0) {
@@ -360,12 +377,12 @@ class JingleSession {
                     }
                 }
             }
-            var name = content.attr('name');
-            if( content.getChildren('transport').length ) {
-                if(content.getChildren('transport')[0].getChildren('candidate').length) {
+            let name = content.attr('name');
+            if (content.getChildren('transport').length) {
+                if (content.getChildren('transport')[0].getChildren('candidate').length) {
                     content.getChildren('transport')[0].getChildren('candidate').forEach(function (cand) {
-                        var line, candidate;
-                        var type = cand.getAttr('type');
+                        let line, candidate;
+                        let type = cand.getAttr('type');
                         line = SDPUtil.candidateFromJingle(cand, false);
                         candidates.push({sdpMLineIndex: idx, sdpMid: name, candidate: line});
                     })
@@ -378,7 +395,7 @@ class JingleSession {
     handleTransportInfo(el) {
         let self = this;
         //console.log('JingleSession: handleTransportInfo');
-        if(self.remoteSDP === null ) {
+        if (self.remoteSDP === null) {
             //console.log('JingleSession: handleTransportInfo: store ICE candidate');
             self.delayedCandidates.push(el);
             return [];
@@ -393,16 +410,16 @@ class JingleSession {
 
         //console.log('JingleSession: handleSessionInfo');
         let ringing = el.getChild('ringing', 'urn:xmpp:jingle:apps:rtp:info:1');
-        if( ringing !== undefined ) {
+        if (ringing !== undefined) {
             return 'ringing';
         } else {
             let mute = el.getChild('mute', 'urn:xmpp:jingle:apps:rtp:info:1');
-            if( mute !== undefined ) {
+            if (mute !== undefined) {
                 this.muted = true;
                 return 'mute';
             } else {
                 let unmute = el.getChild('unmute', 'urn:xmpp:jingle:apps:rtp:info:1');
-                if( unmute !== undefined ) {
+                if (unmute !== undefined) {
                     this.muted = false;
                     return 'unmute';
                 } else {
@@ -411,6 +428,58 @@ class JingleSession {
             }
         }
     }
+
+
+    accept(peerconnection) {
+        try {
+            let that = this;
+            let state = 'active';
+
+            let pranswer = peerconnection.localDescription;
+            // let pranswer = this.peerconnection.localDescription;
+            if (!pranswer || ( pranswer.type != 'pranswer' && pranswer.type != 'answer') ) {
+                return;
+            }
+            //Strophe.log("", '[Strophe.jingle] going from pranswer to answer');
+            let SDPUtil = new SDPUtilFac.createSDPUtil();
+
+            while (SDPUtil.find_line(pranswer.sdp, 'a=inactive')) {
+                // FIXME: change any inactive to sendrecv or whatever they were originally
+                pranswer.sdp = pranswer.sdp.replace('a=inactive', 'a=sendrecv');
+            }
+            let prsdp = new SDP(pranswer.sdp);
+
+            let stanza = new Stanza('iq', {type: 'set', to: this.peerJid});
+            let stanzaPtr;
+            stanzaPtr = stanza.c('jingle', {
+                xmlns: 'urn:xmpp:jingle:1',
+                action: 'session-accept',
+                initiator: this.initiator,
+                responder: this.responder,
+                sid: this.sid,
+                localType: "audio" // this.localType
+            });
+
+
+            /*let accept = $iq({
+                to: this.peerjid,
+                type: 'set'
+            })
+                .c('jingle', {
+                    xmlns: 'urn:xmpp:jingle:1',
+                    action: "session-accept",
+                    initiator: this.initiator,
+                    responder: this.responder,
+                    sid: this.sid,
+                    localType: this.localType
+                }); // */
+            prsdp.toJingle(stanzaPtr, this.initiator == this.me ? 'initiator' : 'responder', that.callednumber);
+            return stanzaPtr;
+        } catch (err) {
+            console.log("Catch Error : " + err.message);
+        }
+    }
+
 }
 
 function createJingleSession(me, peerjid, initiator, sid) {

@@ -573,3 +573,4 @@ function createSDP(sdp) {
 }
 
 module.exports.createSDP = createSDP;
+export {SDP, createSDP};

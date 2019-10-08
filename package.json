@@ -99,6 +99,7 @@
     "sasl-digest-md5": "^0.1.0",
     "stream-buffers": "^3.0.2",
     "strip-ansi": "^5.2.0",
+    "strophe": "^1.2.4",
     "uuid": "^3.3.3",
     "uuid4": "1.1.4",
     "winston": "^3.2.1",

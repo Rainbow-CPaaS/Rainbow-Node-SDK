@@ -225,6 +225,7 @@ class JingleService {
             this.sessions[sid] = newSession;
             returnObject.SDP = newSession.remoteSDP.raw;
             returnObject.mediaType = mediaType;
+            returnObject.sessionJingle = newSession;
             break;
         case 'session-accept':
             session.handleSessionAccept(stanza.getChild('jingle'));

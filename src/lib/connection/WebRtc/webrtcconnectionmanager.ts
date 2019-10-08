@@ -24,6 +24,10 @@ class WebRtcConnectionManager {
         await connection.doOffer();
         return connection;
     };
+    async createIncallConnection() {
+        const connection = await this.connectionManager.createConnection();
+        return connection;
+    };
 
     getConnection(id) {
         return this.connectionManager.getConnection(id);

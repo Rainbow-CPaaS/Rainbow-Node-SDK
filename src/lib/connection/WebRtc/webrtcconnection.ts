@@ -1,21 +1,31 @@
 'use strict';
 
-import {RTCPeerConnection as DefaultRTCPeerConnection} from 'wrtc';
+import {RTCPeerConnection as DefaultRTCPeerConnection} from "wrtc";
 import {RTCIceCandidate} from "wrtc";
 import  {ConnectionWebRtc} from './connectionwebrtc';
+import {publicDecrypt} from "crypto";
 
 const TIME_TO_CONNECTED = 10000;
 const TIME_TO_HOST_CANDIDATES = 3000;  // NOTE(mroberts): Too long.
 const TIME_TO_RECONNECTED = 10000;
 
 class WebRtcConnection extends ConnectionWebRtc {
+  get peerConnection(): any {
+    return this._peerConnection;
+  }
   public doOffer: () => Promise<void>;
   public applyAnswer: (answer) => Promise<void>;
+  public createAnswer: () => void;
   public close: () => void;
   public toJSON: () => any;
-    private addIceCandidate: (answer : RTCIceCandidate) => Promise<void>;
-  constructor(id, options : any = {}) {
+  private addIceCandidate: (answer : RTCIceCandidate) => Promise<void>;
+  private _peerConnection : any;
+
+
+    constructor(id, options : any = {}) {
     super(id);
+
+    let that = this;
 
     options = {
       RTCPeerConnection: DefaultRTCPeerConnection,
@@ -35,15 +45,16 @@ class WebRtcConnection extends ConnectionWebRtc {
       timeToReconnected
     }  = options;
 
-    const peerConnection = new RTCPeerConnection({
-      sdpSemantics: 'unified-plan'
+      that._peerConnection = new RTCPeerConnection({
+      //sdpSemantics: 'unified-plan'
+      sdpSemantics: 'plan-b'
     });
 
-    options.beforeOffer.beforeOffer(peerConnection);
+    options.beforeOffer.beforeOffer(that._peerConnection);
 
     let connectionTimer = options.setTimeout(() => {
-      if (peerConnection.iceConnectionState !== 'connected'
-        && peerConnection.iceConnectionState !== 'completed') {
+      if (that._peerConnection.iceConnectionState !== 'connected'
+        && that._peerConnection.iceConnectionState !== 'completed') {
         this.close();
       }
     }, timeToConnected);
@@ -51,16 +62,16 @@ class WebRtcConnection extends ConnectionWebRtc {
     let reconnectionTimer = null;
 
     const onIceConnectionStateChange = () => {
-      if (peerConnection.iceConnectionState === 'connected'
-        || peerConnection.iceConnectionState === 'completed') {
+      if (that._peerConnection.iceConnectionState === 'connected'
+        || that._peerConnection.iceConnectionState === 'completed') {
         if (connectionTimer) {
           options.clearTimeout(connectionTimer);
           connectionTimer = null;
         }
         options.clearTimeout(reconnectionTimer);
         reconnectionTimer = null;
-      } else if (peerConnection.iceConnectionState === 'disconnected'
-        || peerConnection.iceConnectionState === 'failed') {
+      } else if (that._peerConnection.iceConnectionState === 'disconnected'
+        || that._peerConnection.iceConnectionState === 'failed') {
         if (!connectionTimer && !reconnectionTimer) {
           const self = this;
           reconnectionTimer = options.setTimeout(() => {
@@ -70,15 +81,15 @@ class WebRtcConnection extends ConnectionWebRtc {
       }
     };
 
-    peerConnection.addEventListener('iceconnectionstatechange', onIceConnectionStateChange);
+      that._peerConnection.addEventListener('iceconnectionstatechange', onIceConnectionStateChange);
 
     this.doOffer = async () => {
-      const offer = await peerConnection.createOffer();
+      const offer = await that._peerConnection.createOffer();
 
       //disableTrickleIce();
-      await peerConnection.setLocalDescription(offer);
+      await that._peerConnection.setLocalDescription(offer);
       try {
-        await waitUntilIceGatheringStateComplete(peerConnection, options);
+        await waitUntilIceGatheringStateComplete(that._peerConnection, options);
       } catch (error) {
         this.close();
         throw error;
@@ -86,16 +97,27 @@ class WebRtcConnection extends ConnectionWebRtc {
     };
 
     this.applyAnswer = async answer => {
-      await peerConnection.setRemoteDescription(answer);
+      await that._peerConnection.setRemoteDescription(answer);
     };
 
+
+      this.createAnswer = async function () {
+          const originalAnswer = await that._peerConnection.createAnswer();
+          /*
+          const updatedAnswer = new RTCSessionDescription({
+              type: 'answer',
+              sdp: stereo ? enableStereoOpus(originalAnswer.sdp) : originalAnswer.sdp
+          }); // */
+          await that._peerConnection.setLocalDescription(originalAnswer);
+      };
+
     this.addIceCandidate = async candidate => {
-        await peerConnection.addIceCandidate(candidate);
+        await that._peerConnection.addIceCandidate(candidate);
     };
 
 
       this.close = () => {
-      peerConnection.removeEventListener('iceconnectionstatechange', onIceConnectionStateChange);
+        that._peerConnection.removeEventListener('iceconnectionstatechange', onIceConnectionStateChange);
       if (connectionTimer) {
         options.clearTimeout(connectionTimer);
         connectionTimer = null;
@@ -104,7 +126,7 @@ class WebRtcConnection extends ConnectionWebRtc {
         options.clearTimeout(reconnectionTimer);
         reconnectionTimer = null;
       }
-      peerConnection.close();
+        that._peerConnection.close();
       super.close();
     };
 
@@ -121,22 +143,22 @@ class WebRtcConnection extends ConnectionWebRtc {
     Object.defineProperties(this, {
       iceConnectionState: {
         get() {
-          return peerConnection.iceConnectionState;
+          return that._peerConnection.iceConnectionState;
         }
       },
       localDescription: {
         get() {
-          return descriptionToJSON(peerConnection.localDescription, true);
+          return descriptionToJSON(that._peerConnection.localDescription, true);
         }
       },
       remoteDescription: {
         get() {
-          return descriptionToJSON(peerConnection.remoteDescription, false);
+          return descriptionToJSON(that._peerConnection.remoteDescription, false);
         }
       },
       signalingState: {
         get() {
-          return peerConnection.signalingState;
+          return that._peerConnection.signalingState;
         }
       }
     });

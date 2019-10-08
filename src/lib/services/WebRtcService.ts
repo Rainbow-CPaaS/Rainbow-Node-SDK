@@ -1,4 +1,6 @@
 "use strict";
+import {error} from "winston";
+
 export {};
 
 import * as uuidv4 from 'uuid/v4';
@@ -16,6 +18,7 @@ import {ConnectionWebRtc} from '../connection/WebRtc/connectionwebrtc';
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {isStarted} from "../common/Utils";
+
 
 const LOG_ID = "WEBRTC/SVCE - ";
 
@@ -163,17 +166,24 @@ const LOG_ID = "WEBRTC/SVCE - ";
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] result : ", result);
         //that.webrtcConnection.doOffert();
 
-        result.sdp = result.SDP;
-        result.type = "answer";
-
-        that.connection = await that.webRtcConnectionManager.createConnection();
-        that.logger.log("internal", LOG_ID + "[onInitiateRequest] that.connection : ", that.connection);
+      /*  result.sdp = result.SDP;
+        result.type = "offer";
 
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
-        await conn.applyAnswer(result).then(r => {
+        await conn.applyAnswer(result).then(async r => {
             that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyAnswer r : ", r);
+            await conn.createAnswer();
+            let stanzaAccept = await result.sessionJingle.accept(conn.peerConnection);
+            await that._xmpp.sendStanza(stanzaAccept);
+            let callId, bareto;
+            await that._xmpp.proceedProposition(callId, bareto);
+
+        }).catch(err => {
+            that.logger.log("internalerror", LOG_ID + "[onInitiateRequest] Error while applyAnswer r : ", err);
         });
+
+       */
     }
 
     async  onTransportInfoRequest(result): Promise<void> {
@@ -194,21 +204,14 @@ const LOG_ID = "WEBRTC/SVCE - ";
         });
     }
 
-
-
-
-    /*********************************************************/
-    /**                     API                             **/
-
-    /*********************************************************/
-
-
-    /*********************************************************/
-    /**                  HELPER FUNCTIONS                   **/
-
-    /*********************************************************/
-
-
+    async createConnection() {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "[createConnection] _entering_" );
+        that.connection = await that.webRtcConnectionManager.createIncallConnection();
+        that.logger.log("internal", LOG_ID + "[createConnection] create the web rtc connection : ", that.connection);
+        that.logger.log("internal", LOG_ID + "[createConnection] _exiting_" );
+        return that.connection;
+    }
 }
 
 module.exports.WebRtcService = WebRtcService;

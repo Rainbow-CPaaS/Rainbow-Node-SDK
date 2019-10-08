@@ -533,7 +533,7 @@ class WebRtcEventHandler extends GenericHandler {
         this.eventEmitter.emit("evt_internal_TransportInfoRequest", res);
 
         return ;
-        
+
         if (res.mediaType !== 'sip' || !res.candidates[0]) {
             return new Promise((resolve, reject) =>
             {
@@ -1053,12 +1053,33 @@ class WebRtcEventHandler extends GenericHandler {
         let callId = node.attrs.id;
         //let jid =  node.
 
+        let answer = {};
+
         that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) | acceptProposition for callId : ", callId);
         that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) | acceptProposition for bareto : ", bareto);
         //send accept to my ressources
         //that.xmppService.acceptProposition(callId, bareto);
-        that.xmppService.proceedProposition(callId, bareto);
-        //that.xmppService.setPresence("dnd","audio");
+        that._webrtcService.createConnection().then(async (connection) => {
+            that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) connection created : ", connection);
+            //that.xmppService.setPresence("dnd","audio");
+            answer.sdp = answer.SDP;
+            answer.type = "offer";
+
+            //let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
+            that.logger.log("internal", LOG_ID + "[onProposeMessageReceived] conn : ", connection);
+            await connection.applyAnswer(answer).then(async r => {
+                that.logger.log("internal", LOG_ID + "[onProposeMessageReceived] applyAnswer r : ", r);
+                await connection.createAnswer();
+                let stanzaAccept = await answer.sessionJingle.accept(connection.peerConnection);
+                await that._xmpp.sendStanza(stanzaAccept);
+                let callId, bareto;
+                await that._xmpp.proceedProposition(callId, bareto);
+
+            }).catch(err => {
+                that.logger.log("internalerror", LOG_ID + "[onProposeMessageReceived] Error while applyAnswer r : ", err);
+            });
+
+        });
     }
 }
 

@@ -2114,7 +2114,7 @@ class XMPPService {
         that.logger.log("debug", LOG_ID + "(acceptProposition) _exiting_");
     }
 
-    public proceedProposition(callId, to){
+    public async proceedProposition(callId, to){
         let that = this;
         this.logger.log("debug", LOG_ID + "(proceedProposition) _entering_ ");
         this.logger.log("internal", LOG_ID + "(proceedProposition) _entering_ : ",callId, " : ", to);
@@ -2142,7 +2142,7 @@ class XMPPService {
             );
 
             this.logger.log("internal", LOG_ID + "(proceedProposition) send - 'message'", xmppMessage.root().toString());
-            this.xmppClient.send(xmppMessage).catch((error) => {
+            return this.xmppClient.send(xmppMessage).catch((error) => {
                 this.logger.log("error", LOG_ID + "(proceedProposition) error ");
                 this.logger.log("internalerror", LOG_ID + "(proceedProposition) error : ", error);
             });
@@ -2152,7 +2152,7 @@ class XMPPService {
         this.logger.log("debug", LOG_ID + "(proceedProposition) _exiting_");
     }
 
-    sendStore(to) {
+    public async sendStore(to) {
         let that = this;
         this.logger.log("debug", LOG_ID + "(sendStore) _entering_ ");
         this.logger.log("internal", LOG_ID + "(sendStore) _entering_ : to : ", to);
@@ -2181,6 +2181,32 @@ class XMPPService {
             this.logger.log("warn", LOG_ID + "(sendStore) No XMPP connection...");
         }
         this.logger.log("debug", LOG_ID + "(sendStore) _exiting_");
+    }
+
+    public async sendStanza(stanza) {
+        let that = this;
+        this.logger.log("debug", LOG_ID + "(sendStanza) _entering_ ");
+        this.logger.log("internal", LOG_ID + "(sendStanza) _entering_ : stanza : ", stanza);
+
+        let id = that.xmppUtils.getUniqueMessageId();
+
+        /*
+        <message xmlns='jabber:client' xml:lang='en'
+        to='67ad21d7b3db4e57985824d610533037@vberder-all-in-one-dev-1.opentouch.cloud/web_win_1.62.0_rdKyRh9A'
+        from='38db98d2907a4c4095742a237b84557c@vberder-all-in-one-dev-1.opentouch.cloud/12747853863206262785166351'
+        id='node_259d83de-eddf-457d-b471-89d168a3bd6e'>
+        <store xmlns='urn:xmpp:jingle-message:0'/>
+        </message>
+         */
+        if (this.useXMPP) {
+            return this.xmppClient.send(stanza).catch((error) => {
+                this.logger.log("error", LOG_ID + "(sendStanza) error ");
+                this.logger.log("internalerror", LOG_ID + "(sendStanza) error : ", error);
+            });
+        } else {
+            this.logger.log("warn", LOG_ID + "(sendStanza) No XMPP connection...");
+        }
+        this.logger.log("debug", LOG_ID + "(sendStanza) _exiting_");
     }
 
     // Mam
