@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": false,
+    "skipLibCheck": true,
     //"moduleResolution": "node",
     //"noFallthroughCasesInSwitch": false,
     //"noImplicitReturns": true,
@@ -43,11 +44,11 @@
     "placeOpenBraceOnNewLineForControlBlocks": false
   },
   "exclude": [
-    "./build",
-    "node_modules"
+    "./build/**/*",
+    "./node_modules/**/*",
+    "./typings/**/*"
   ],
   "include": [
-    "src/**/*",
-    "typings/**/*"
+    "src/**/*"
   ]
 }

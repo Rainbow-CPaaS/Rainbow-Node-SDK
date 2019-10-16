@@ -31,10 +31,11 @@ class Bubble {
 
         public static RoomUserStatus = { "INVITED": "invited", "ACCEPTED": "accepted", "UNSUBSCRIBED": "unsubscribed", "REJECTED": "rejected", "DELETED": "deleted" };
         public autoRegister: any;
+        public lastActivityDate: any;
 
         constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications : boolean = false, _lastAvatarUpdateDate : any = null, _guestEmails : [] = [], _confEndpoints : [] = [], _activeUsersCounter : number = 0, _autoRegister : boolean = false ) {
-        
+                _disableNotifications : boolean = false, _lastAvatarUpdateDate : any = null, _guestEmails : [] = [], _confEndpoints : [] = [], _activeUsersCounter : number = 0, _autoRegister : boolean = false , _lastActivityDate) {
+
         /**
          * @public
          * @readonly
@@ -42,7 +43,7 @@ class Bubble {
          * @instance
          */
         this.id = _id;
-        
+
         /**
          * @public
          * @readonly
@@ -121,6 +122,13 @@ class Bubble {
          */
         this.isActive = _isActive;
 
+        /**
+             * @private
+             * @property {string} lastActivityDate The date of the last activity in this bubble
+             * @readonly
+        */
+        this.lastActivityDate = _lastActivityDate;
+
         this.conference = _conference
 
         this.disableNotifications = _disableNotifications;
@@ -181,7 +189,7 @@ class Bubble {
                         that[val] = data[val];
                     } else {
                         //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ");
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
                     }
                 });
         }
@@ -200,7 +208,7 @@ class Bubble {
 //     constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [],
 //     _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any) {
             return (data: any): Bubble => {
-                
+
                 let bubble = new Bubble(
                     data.id,
                     data.name,
@@ -219,7 +227,8 @@ class Bubble {
                     data.guestEmails,
                     data.confEndpoints,
                     data.activeUsersCounter,
-                    data.autoRegister
+                    data.autoRegister,
+                    data.lastActivityDate
             );
                 if (data) {
                     let bubbleproperties = Object.getOwnPropertyNames(bubble);

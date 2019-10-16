@@ -166,7 +166,7 @@ module.exports = function(grunt) {
             fast: 'never'
         },
         build: {
-            src: ["**/*.ts", "!node_modules/**"],
+            src: ["src/**/*.ts", "!node_modules/**"],
             tsconfig: true
         }
       },
@@ -177,7 +177,7 @@ module.exports = function(grunt) {
             "out": "typings/rainbow-sdk-node.d.ts"
         },
         "default": {
-            src: [ "**/*.ts" ]
+            src: [ "src/**/*.ts" ]
             }
     }
 });

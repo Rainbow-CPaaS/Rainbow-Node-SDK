@@ -10,33 +10,111 @@ export {};
  *      A message is exchanged when discussing in One-to-One or in a Bubble.
  */
 class Message {
-	public id: any;
-	public fromJid: any;
-	public side: any;
-	public resource: any;
-	public date: any;
-	public toJid: any;
-	public type: any;
-	public content: any;
-	public status: any;
-	public receiptStatus: any;
-	public lang: any;
-	public fileId: any;
-	public cc: any;
-	public cctype: any;
-	public isEvent: any;
-	public event: any;
-	public alternativeContent: any;
-	public isMarkdown: any;
-	public subject: any;
-	public oob: any;
-	public fromBubbleJid: any;
-	public fromBubbleUserJid: any;
-    static ReceiptStatus: any;
-    static Type: any;
+    public id: any;
+    public fromJid: any;
+    public side: any;
+    public resource: any;
+    public date: any;
+    public toJid: any;
+    public type: any;
+    public content: any;
+    public status: any;
+    public receiptStatus: any;
+    public lang: any;
+    public fileId: any;
+    public cc: any;
+    public cctype: any;
+    public isEvent: any;
+    public event: any;
+    public alternativeContent: any;
+    public isMarkdown: any;
+    public subject: any;
+    public oob: any;
+    public fromBubbleJid: any;
+    public fromBubbleUserJid: any;
     fileTransfer: any;
+    /*static ReceiptStatus: any;
+    static Type: any;
     static Side: any;
     static ReceiptStatusText: string[];
+    // */
+
+    /**
+     * @public
+     * @enum {number}
+     * @readonly
+     */
+    static Type :any = {
+        /** A chat message */
+        CHAT: {
+            key: 0,
+            value: "Chat"
+        },
+        /** A file message */
+        FILE: {
+            key: 1,
+            value: "File"
+        },
+        /** A file message */
+        FS: {
+            key: 2,
+            value: "FileSharing"
+        },
+        /** A WebRTC message */
+        WEBRTC: {
+            key: 3,
+            value: "WebRTC CAll"
+        },
+        /** A Recording message */
+        RECORDING: {
+            key: 4,
+            value: "Recording"
+        }
+    };
+    /**
+     * @public
+     * @enum {number}
+     * @readonly
+     */
+    static ReceiptStatus : any = {
+        /** No receipt received yet */
+        NONE: 0,
+        /** No receipt received after a while (The server doesn't answer) */
+        ERROR: 1,
+        /** Receipt in progress */
+        IN_PROGRESS: 2,
+        /** The server has confirmed the reception of the message */
+        SENT: 3,
+        /** The message has been received but not read */
+        UNREAD: 4,
+        /** The message has been read */
+        READ: 5
+    };
+
+    /**
+     * @public
+     * @enum {string}
+     * @readonly
+     */
+    static Side : any = {
+        /** Message is from a recipient */
+        LEFT: "L",
+        /** Message is from me */
+        RIGHT: "R",
+        /** Specific admin message */
+        ADMIN: "ADMIN"
+    };
+    /**
+     * @private
+     */
+    static ReceiptStatusText : string []= [
+        "none",
+        "ko",
+        "inProgress",
+        "sent",
+        "received",
+        "read"
+    ];
 
     constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
 
@@ -63,7 +141,7 @@ class Message {
          * @readonly
          */
         this.side = side;
-            
+
         /**
          * @public
          * @readonly
@@ -118,7 +196,7 @@ class Message {
          * @readonly
          */
         this.receiptStatus = Message.ReceiptStatus.NONE;
-            
+
         /**
          * @public
          * @readonly
@@ -228,9 +306,21 @@ class Message {
      */
     static create(id, date, from, side, data, status, isMarkdown?, subject?) {
         // convert emojione from unicode to short
-        //var message = $filter("emojiUnicodeToShort")(data);
+        //let message = $filter("emojiUnicodeToShort")(data);
         const message = data;
-        return new Message(id, Message.Type.CHAT, date, from, side, message, status, null, isMarkdown, subject);
+        //return new Message(id, Message.Type.CHAT, date, from, side, message, status, null, isMarkdown, subject);
+        return Message.MessageFactory()({
+            id,
+            type: Message.Type.CHAT,
+            date,
+            from,
+            side,
+            data: message,
+            status,
+            fileId: null,
+            isMarkdown,
+            subject
+        });
     }
 
     /**
@@ -240,8 +330,9 @@ class Message {
      */
     static createFileSharingMessage(id, date, from, side, data, status, fileId) {
         // convert emojione from unicode to short
-        var message = data;
-        return new Message(id, Message.Type.FS, date, from, side, message, status, fileId);
+        let message = data;
+        //return new Message(id, Message.Type.FS, date, from, side, message, status, fileId);
+        return Message.MessageFactory()({id, type: Message.Type.FS, date, from, side, data: message, status, fileId});
     }
 
     /**
@@ -250,7 +341,8 @@ class Message {
      * @instance
      */
     static createWebRTCMessage(id, date, from, side, data, status) {
-        return new Message(id, Message.Type.WEBRTC, date, from, side, data, status);
+        //return new Message(id, Message.Type.WEBRTC, date, from, side, data, status);
+        return Message.MessageFactory()({id, type: Message.Type.WEBRTC, date, from, side, data, status});
     }
 
     /**
@@ -259,7 +351,8 @@ class Message {
      * @instance
      */
     static createFTMessage(id, date, from, side, data, status, fileTransfer) {
-        var message = new Message(id, Message.Type.FT, date, from, side, data, status);
+        //let message = new Message(id, Message.Type.FT, date, from, side, data, status);
+        let message = Message.MessageFactory()({id, type: Message.Type.FT, date, from, side, data, status});
         message.fileTransfer = fileTransfer;
         return message;
     }
@@ -270,9 +363,10 @@ class Message {
      * @instance
      */
     static createBubbleAdminMessage(id, date, from, type) {
-        var data = type + "MsgRoom";
-        var side = Message.Side.ADMIN;
-        var message = Message.create(id, date, from, side, data, false);
+        let data = type + "MsgRoom";
+        let side = Message.Side.ADMIN;
+        //let message = Message.create(id, date, from, side, data, false);
+        let message = Message.MessageFactory()({id, date, from, side, data, status: false});
 
         return message;
     }
@@ -283,22 +377,31 @@ class Message {
      * @instance
      */
     static createRecordingAdminMessage(id, date, from, type, cmd) {
-        var data = type + "Recording";
+        let data = type + "Recording";
         if (cmd) {
             data = data + cmd;
         }
-        var side = Message.Side.ADMIN;
-        var message = new Message(id, Message.Type.RECORDING, date, from, side, data, false);
+        let side = Message.Side.ADMIN;
+        //let message = new Message(id, Message.Type.RECORDING, date, from, side, data, false);
+        let message = Message.MessageFactory()({
+            id,
+            type: Message.Type.RECORDING,
+            date,
+            from,
+            side,
+            data,
+            status: false
+        });
         return message;
     }
 
     /**
      * Method extract fileId part of URL
-     * 
+     *
      * @private
-     * @param {string} url 
-     * @returns {string} 
-     * 
+     * @param {string} url
+     * @returns {string}
+     *
      * @memberof Conversation
      */
     static extractFileIdFromUrl(url) {
@@ -307,84 +410,74 @@ class Message {
         return fileDescriptorId;
     }
 
+    updateBubble(data) {
+        let that = this;
+        if (data) {
+
+            let bubbleproperties = Object.getOwnPropertyNames(that);
+            //console.log("updateBubble update Bubble with : ", data["id"]);
+            Object.getOwnPropertyNames(data).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    if (bubbleproperties.find((el) => {
+                        return val == el;
+                    })) {
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        that[val] = data[val];
+                    } else {
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ");
+                    }
+                });
+        }
+
+        return this;
+    }
+
+    /**
+     * @function
+     * @public
+     * @name MessageFactory
+     * @description
+     * This class is used to create a message from data object
+     */
+    public static MessageFactory() {
+        //constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
+        return (data: any): Message => {
+
+            let message = new Message(
+                data.id,
+                data.type,
+                data.date,
+                data.from,
+                data.side,
+                data.data,
+                data.status,
+                data.fileId,
+                data.isMarkdown,
+                data.subject
+            );
+            if (data) {
+                let bubbleproperties = Object.getOwnPropertyNames(message);
+                Object.getOwnPropertyNames(data).forEach(
+                    (val, idx, array) => {
+                        //console.log(val + " -> " + data[val]);
+                        if (!bubbleproperties.find((el) => {
+                            return val == el;
+                        })) {
+                            //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            // from become fromJid and data become content
+                            if (val != "from" && val != "data") {
+                                console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class : ", val);
+                            }
+                        }
+                    });
+            }
+
+            return message;
+        };
+    }
 
 }
-
-/**
- * @public
- * @enum {number}
- * @readonly
- */
-Message.Type = {
-    /** A chat message */
-    CHAT: {
-        key: 0,
-        value: "Chat"
-    },
-    /** A file message */
-    FILE: {
-        key: 1,
-        value: "File"
-    },
-    /** A file message */
-    FS: {
-        key: 2,
-        value: "FileSharing"
-    },
-    /** A WebRTC message */
-    WEBRTC: {
-        key: 3,
-        value: "WebRTC CAll"
-    },
-    /** A Recording message */
-    RECORDING: {
-        key: 4,
-        value: "Recording"
-    }
-};
-/**
- * @public
- * @enum {number}
- * @readonly
- */
-Message.ReceiptStatus = {
-    /** No receipt received yet */
-    NONE: 0,
-    /** No receipt received after a while (The server doesn't answer) */
-    ERROR: 1,
-    /** Receipt in progress */
-    IN_PROGRESS: 2,
-    /** The server has confirmed the reception of the message */
-    SENT: 3,
-    /** The message has been received but not read */
-    UNREAD: 4,
-    /** The message has been read */
-    READ: 5
-};
-
-/**
- * @public
- * @enum {string}
- * @readonly
- */
-Message.Side = {
-    /** Message is from a recipient */
-    LEFT: "L",
-    /** Message is from me */
-    RIGHT: "R",
-    /** Specific admin message */
-    ADMIN: "ADMIN"
-};
-/**
- * @private
- */
-Message.ReceiptStatusText = [
-    "none",
-    "ko",
-    "inProgress",
-    "sent",
-    "received",
-    "read"
-];
-
-module.exports = Message;
+module.exports.Message = Message;
+export {Message};

@@ -6,7 +6,7 @@ const utils = require( "./lib/common/Utils");
 
 /**
  * @enum { String }
- * 
+ *
 */
 let Type = {
     home: "home",
@@ -14,9 +14,9 @@ let Type = {
     other: "other"
 };
 
-/** 
+/**
  * @enum { String }
- * 
+ *
 */
 let DeviceType = {
     landline: "landline",
@@ -142,6 +142,12 @@ class NodeSDK {
             return that._core.start().then(function() {
                 return that._core.signin(false);
             }).then(function(result) {
+
+                // Stop the SDK if the node exe receiv a signal to stop, except for sigkill.
+                process.on("SIGINT", that.stopProcess());
+                process.on("SIGQUIT", that.stopProcess());
+                process.on("SIGTERM", that.stopProcess());
+                //process.on("SIGUSR2", that.stopProcess());
                 resolve(result);
             }).catch(function(err) {
                 if (err) {
@@ -214,12 +220,12 @@ class NodeSDK {
     stop() {
         let that = this;
         return new Promise(function(resolve, reject) {
-            return that._core.stop().then(function() {
+            return that._core.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
                 utils.setTimeoutPromised(1500).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);
-                    resolve();
+                    resolve(result);
                 });
             }).catch(function(err) {
                 let error = ErrorManager.getErrorManager().ERROR;
@@ -228,6 +234,18 @@ class NodeSDK {
                 reject(error);
             });
         });
+    }
+
+    stopProcess() {
+        let self = this;
+        return async () => {
+
+            // console.log("stopProcess");
+            await self.stop();
+            await utils.setTimeoutPromised(1000);
+            // eslint-disable-next-line no-process-exit
+            process.exit(0);
+        };
     }
 
     /**
@@ -321,7 +339,7 @@ class NodeSDK {
      * @description
      *    Get access to the Events module
      * @memberof NodeSDK
-     */    
+     */
     get events() {
         return this._core.events;
     }
@@ -357,7 +375,7 @@ class NodeSDK {
      * @description
      *    Get access to the Admin module
      * @memberof NodeSDK
-     */    
+     */
     get admin() {
         return this._core.admin;
     }
@@ -385,7 +403,7 @@ class NodeSDK {
     get settings() {
         return this._core.settings;
     }
-    
+
     /**
      * @public
      * @property {String} state
@@ -393,7 +411,7 @@ class NodeSDK {
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
      * @memberof NodeSDK
-     */  
+     */
     get state() {
         return this._core.state;
     }
@@ -457,9 +475,6 @@ class NodeSDK {
     get favorites() {
         return this._core._favorites;
     }
-
-
-
 }
 
 module.exports = NodeSDK;

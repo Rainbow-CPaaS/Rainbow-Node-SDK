@@ -123,7 +123,7 @@ class XMPPService {
 	public serverUR: any;
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
-	private xmppUtils : XMPPUTils;
+	public xmppUtils : XMPPUTils;
     private shouldSendMessageToConnectedUser: any;
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {

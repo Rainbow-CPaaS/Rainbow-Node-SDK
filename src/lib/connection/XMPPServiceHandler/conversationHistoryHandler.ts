@@ -20,7 +20,7 @@ global.window = undefined;
 
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
-const Message = require("../../common/models/Message");
+import {Message} from "../../common/models/Message";
 
 const LOG_ID = "XMPP/HNDL - ";
 
