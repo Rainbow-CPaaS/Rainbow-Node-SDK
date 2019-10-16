@@ -119,27 +119,31 @@ class SDPUtil {
 
     parse_icecandidate(line) {
         //console.log('jingle.sdp.parse_icecandidate ' + line );
-        var candidate : any = {},
-            elems = line.split(' ');
-        candidate.foundation = elems[0].substring(12);
-        candidate.component = elems[1];
+        let candidate : any = {},
+            elems = line.split(" ");
+        candidate.foundation = Number(elems[0].substring(12));
+        candidate.component = Number(elems[1]);
         candidate.protocol = elems[2].toLowerCase();
-        candidate.priority = elems[3];
+        candidate.priority = Number (elems[3]);
         candidate.ip = elems[4];
-        candidate.port = elems[5];
+        candidate.sdpMid = null;
+        candidate.sdpMLineIndex = 0;
+        candidate.port = Number (elems[5]);
         // elems[6] => "typ"
         candidate.type = elems[7];
-        candidate.generation = 0; // default value, may be overwritten below
+        candidate.generation = Number(0); // default value, may be overwritten below
         for (var i = 8; i < elems.length; i += 2) {
             switch (elems[i]) {
             case 'raddr':
                 candidate['rel-addr'] = elems[i + 1];
+                candidate["relatedAddress"] = elems[i + 1];
                 break;
             case 'rport':
-                candidate['rel-port'] = elems[i + 1];
+                candidate['rel-port'] = Number(elems[i + 1]);
+                candidate["relatedPort"] = Number(elems[i + 1]);
                 break;
             case 'generation':
-                candidate.generation = elems[i + 1];
+                candidate.generation = Number (elems[i + 1]);
                 break;
             case 'tcptype':
                 candidate.tcptype = elems[i + 1];
@@ -148,8 +152,9 @@ class SDPUtil {
                 //console.log('parse_icecandidate not translating "' + elems[i] + '" = "' + elems[i + 1] + '"');
             }
         }
-        candidate.network = '1';
-        candidate.id = Math.random().toString(36).substr(2, 10); // not applicable to SDP -- FIXME: should be unique, not just random
+        candidate.network = 1;
+        let idStr= Math.random().toString(36).substr(2, 10);
+        candidate.id = Number(idStr); // not applicable to SDP -- FIXME: should be unique, not just random
         return candidate;
     }
 
@@ -356,3 +361,4 @@ function createSDPUtil() {
 }
 
 module.exports.createSDPUtil = createSDPUtil;
+export {createSDPUtil, SDPUtil};

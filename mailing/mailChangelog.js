@@ -17,6 +17,23 @@ const YAML = require("yamljs");
 const process = require("process");
 const Mailjet = require("node-mailjet");
 
+const urlParse = require("url").parse;
+const EventEmitter = require("events").EventEmitter;
+//const humanize = require("humanize-number");
+const chalk = require("chalk");
+
+const debugHttp = require("debug-http");
+
+const LOG_ID = "HTTP - ";
+
+let colorCodes = {
+    5: "red",
+    4: "yellow",
+    3: "cyan",
+    2: "green",
+    1: "green"
+};
+
 global.window = {};
 
 // Extract version
@@ -31,6 +48,38 @@ let currentVersion =
     packageJSON.version.indexOf("-dotnet") > -1
         ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet"))
         : packageJSON.version;
+
+function debugHandler(request, options, cb) {
+    options = typeof options === "string" ? urlParse(options) : options;
+
+    let url = options.href || (options.protocol || "http:") + "//" + (options.host || options.hostname) + options.path;
+    let method = (options.method || "GET").toUpperCase();
+    let signature = method + " " + url;
+    let start = new Date();
+    let wasHandled = typeof cb === "function";
+
+    //setImmediate(console.log, chalk.gray('      → ' + signature));
+    console.log("internal", LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
+
+    return request(options, cb)
+    .on("response", function(response) {
+        // Workaround for res._dump in Node.JS http client
+        // https://github.com/nodejs/node/blob/20285ad17755187ece16b8a5effeaa87f5407da2/lib/_http_client.js#L421-L427
+        if (!wasHandled && EventEmitter.listenerCount(response.req, "response") === 0) {
+            response.resume();
+        }
+
+        let status = response.statusCode;
+        let s = status / 100 | 0;
+        console.log("internal", LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
+    })
+     .on("error", function(err) {
+        console.log("internalerror", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
+    });
+}
+
+debugHttp(debugHandler);
+
 
 function loadSingleReleaseNotes(item, config) {
     return new Promise((resolve, reject) => {

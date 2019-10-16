@@ -20,7 +20,7 @@ global.window = undefined;
 
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
-const Message = require("../../common/models/Message");
+import {Message} from "../../common/models/Message";
 
 const LOG_ID = "XMPP/HNDL - ";
 
@@ -113,7 +113,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         if ( !conversation.pendingPromise ) {
                             conversation.pendingPromise = [];
                         }
-                        
+
                         let promise = new Promise( (resolve) => {
                             conversationService._contacts.getContactByJid(fromJid)
                                 .then( (from) => {
@@ -163,7 +163,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     that.logger.log("info", LOG_ID + "[Conversation] (" + conversation.id + ") try to add an already stored message with id " + message.id);
                                 }
                                 else {
-                                    // Create new message 
+                                    // Create new message
                                     let side = that.conversationService._contacts.isUserContact(from) ? Message.Side.RIGHT : Message.Side.LEFT;
                                     switch (type) {
                                         case "webrtc":
@@ -181,7 +181,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 let fileId = Message.extractFileIdFromUrl(url);
 
                                                 // TODO later - let fileDescriptor = fileStorageService.getFileDescriptorById(fileId);
-                                                
+
                                                 let shortFileDescriptor = {
                                                     id: fileId,
                                                     url: url,
@@ -193,7 +193,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 };
 
                                                 message = Message.createFileSharingMessage(messageId, date, from, side, body, false, shortFileDescriptor);
-                                                
+
                                             } else {
                                                 let isMarkdown = content && content.getAttr("type") === "text/markdown";
                                                 body = isMarkdown ? content.text() : body;
@@ -270,7 +270,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             conversation.messages.sort( ( msg1, msg2 ) => new Date(msg1.date) - new Date(msg2.date) );
                                 conversation.historyDefered.resolve(conversation);
                         }
-                        
+
                     }
                 }
 
@@ -330,7 +330,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     if ( !conversation.pendingPromise ) {
                         conversation.pendingPromise = [];
                     }
-                    
+
                     let promise = new Promise( (resolve) => {
                         conversationService._contacts.getContactByJid(callerJid)
                             .then( (from) => {
@@ -339,7 +339,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 resolve(null);
                             });
                     }).then( (from) => {
-                        // Create new message 
+                        // Create new message
                         if (!from) {
                             that.logger.log("warn", LOG_ID + "[Conversation] onWebrtcHistoryMessageReceived missing contact for jid : " + callerJid + ", ignore message");
                             //create basic contact
@@ -356,7 +356,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         }
 
                         conversation.historyMessages.push(message);
-                        return Promise.resolve();                                
+                        return Promise.resolve();
                     });
                     conversation.pendingPromise.push(promise);
                 }

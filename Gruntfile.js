@@ -88,7 +88,7 @@ module.exports = function(grunt) {
                 "lib/services/Presence.js",
                 "lib/services/Telephony.js",
                 "index.js",
-                "lib/common/Events.js", 
+                "lib/common/Events.js",
                 "lib/common/models/Bubble.js",
                 "lib/common/models/Channel.js",
                 "lib/common/models/Conversation.js",
@@ -123,7 +123,7 @@ module.exports = function(grunt) {
                 {expand: true, cwd: "./jsdoc", src: ["cheatsheet/node/**/*.css"], dest: "bin/jsdoc/sheets", filter: "isFile"},
                 {expand: true, cwd: "./jsdoc", src: ["cheatsheet/assets/**/*.*"], dest: "bin/jsdoc/sheets", filter: "isFile"},
                 {expand: true, cwd: "./node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"},
-                {expand: true, cwd: "./node_modules/rainbow_hub_sheets_generation/node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"}               
+                {expand: true, cwd: "./node_modules/rainbow_hub_sheets_generation/node_modules/mermaid/dist", src: ["mermaid.js"], dest: "bin/jsdoc/sheets/cheatsheet", filter: "isFile"}
             ]
         }
     },
@@ -166,7 +166,7 @@ module.exports = function(grunt) {
             fast: 'never'
         },
         build: {
-            src: ["**/*.ts", "!node_modules/**"],
+            src: ["src/**/*.ts", "!node_modules/**"],
             tsconfig: true
         }
       },
@@ -177,7 +177,7 @@ module.exports = function(grunt) {
             "out": "typings/rainbow-sdk-node.d.ts"
         },
         "default": {
-            src: [ "**/*.ts" ]
+            src: [ "src/**/*.ts" ]
             }
     }
 });

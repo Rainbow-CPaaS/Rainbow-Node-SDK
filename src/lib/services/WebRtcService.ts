@@ -14,6 +14,9 @@ import {WebRtcEventHandler} from '../connection/XMPPServiceHandler/webrtcEventHa
 //import {setFlagsFromString} from "v8";
 import {WebRtcConnectionManager} from "../connection/WebRtc/WebRtcConnectionManager";
 import {ConnectionWebRtc} from '../connection/WebRtc/connectionwebrtc';
+import {createSDPUtil} from '../connection/WebRtc/SDPUtil.js';
+
+const SDPUtil = createSDPUtil();
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
@@ -73,6 +76,8 @@ const LOG_ID = "WEBRTC/SVCE - ";
 
         this._eventEmitter.on("evt_internal_InitiateRequest", this.onInitiateRequest.bind(this));
         this._eventEmitter.on("evt_internal_TransportInfoRequest", this.onTransportInfoRequest.bind(this));
+        this._eventEmitter.on("evt_internal_TerminateRequest", this.onTerminateRequest.bind(this));
+
 
     }
 
@@ -166,7 +171,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] result : ", result);
         //that.webrtcConnection.doOffert();
 
-      /*  result.sdp = result.SDP;
+        result.sdp = result.SDP;
         result.type = "offer";
 
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
@@ -174,16 +179,25 @@ const LOG_ID = "WEBRTC/SVCE - ";
         await conn.applyAnswer(result).then(async r => {
             that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyAnswer r : ", r);
             await conn.createAnswer();
-            let stanzaAccept = await result.sessionJingle.accept(conn.peerConnection);
-            await that._xmpp.sendStanza(stanzaAccept);
+            let id = that._xmpp.xmppUtils.getUniqueMessageId();
+            that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
+            let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
+            that.logger.log("internal", LOG_ID + "[onInitiateRequest] will sessionRinging stanzaSessionRinging : ", stanzaSessionRinging);
+            await that._xmpp.sendStanza(stanzaSessionRinging);
+
+            //await this.xmppService.xmppClient.send(stanzaSessionRinging);
+
+            /* let stanzaAccept = await result.sessionJingle.accept(conn.peerConnection);
+            await that._xmpp.sendStanza(stanzaAccept); // */
+            /*
             let callId, bareto;
             await that._xmpp.proceedProposition(callId, bareto);
-
+            // */
         }).catch(err => {
             that.logger.log("internalerror", LOG_ID + "[onInitiateRequest] Error while applyAnswer r : ", err);
         });
 
-       */
+       // */
     }
 
     async  onTransportInfoRequest(result): Promise<void> {
@@ -196,12 +210,105 @@ const LOG_ID = "WEBRTC/SVCE - ";
             });
         }
         this.logger.log("info", LOG_ID +'(onTransportInfoRequest) candidate : ', result.candidates[0].candidate);
-
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
-        let candidate = new RTCIceCandidate(result.candidates[0].candidate);
+        //let cdte :any = {candidate: result.candidates[0].candidate.slice(2)};
+
+        let cdte = SDPUtil.parse_icecandidate( result.candidates[0].candidate.slice(2));
+        cdte.candidate = result.candidates[0].candidate.slice(2);
+        //cdte.foundation = Number(cdte.candidate.split(" ")[0].split(":")[1]);
+        //cdte["sdpMid"] = "0";
+        //cdte["sdpMLineIndex"] = 0;
+        /*cdte["sdpMid"] = null;
+        cdte["sdpMLineIndex"] = 0;
+        cdte["relatedAddress"] = cdte["rel-addr"];
+        cdte["relatedPort"] = cdte["rel-port"];
+         */
+        /*'candidate',
+            'sdpMid',
+            'sdpMLineIndex',
+            'foundation',
+            'component',
+            'priority',
+            'address',
+            'protocol',
+            'port',
+            'type',
+            'tcpType',
+            'relatedAddress',
+            'relatedPort',
+            'usernameFragment' // */
+
+        this.logger.log("info", LOG_ID +'(onTransportInfoRequest) received cdte : ', cdte);
+
+        /*let candidateSplited = cdte.candidate.split(" ");
+        cdte.sdpMid = "0";
+        cdte.sdpMLineIndex = 0;
+        cdte.foundation = cdte.candidate.split(":")[1];
+        cdte.protocol = candidateSplited[2];
+        cdte.priority = candidateSplited[3];
+        cdte.address = candidateSplited[4];
+        cdte.port = candidateSplited[5];
+        cdte.type = candidateSplited[7];
+         */
+
+        /* succeed exchange in node-webrtc-sample: {
+            "candidate": "candidate:1998826949 1 udp 2122260223 135.118.230.33 58166 typ host generation 0 ufrag KmzI network-id 1",
+            "sdpMid": "0",
+            "sdpMLineIndex": 0,
+            "foundation": "1998826949",
+            "component": "rtp",
+            "priority": 2122260223,
+            "address": "135.118.230.33",
+            "protocol": "udp",
+            "port": 58166,
+            "type": "host",
+            "tcpType": null,
+            "relatedAddress": null,
+            "relatedPort": null,
+            "usernameFragment": "KmzI"
+        }
+
+         // */
+
+        // candidate:3148780118 1 udp 1685987071 165.225.77.40 6072 typ srflx raddr 135.118.230.33 rport 64938 generation 0
+
+        //this.logger.log("info", LOG_ID +'(onTransportInfoRequest) cdte : ', cdte);
+
+        cdte =  {
+            "candidate": "candidate:1998826949 1 udp 2122260223 135.118.230.33 58166 typ host generation 0 ufrag KmzI network-id 1",
+            "sdpMid": "0",
+            "sdpMLineIndex": 0,
+            "foundation": "1998826949",
+            "component": "rtp",
+            "priority": 2122260223,
+            "address": "135.118.230.33",
+            "protocol": "udp",
+            "port": 58166,
+            "type": "host",
+            "tcpType": null,
+            "relatedAddress": null,
+            "relatedPort": null,
+            "usernameFragment": "KmzI"
+        } ;
+
+        this.logger.log("info", LOG_ID +'(onTransportInfoRequest) fake cdte : ', cdte);
+
+        let candidate = new RTCIceCandidate(cdte);
         conn.addIceCandidate(candidate).then(r => {
-            that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] r : ", r);
+            that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
         });
+    }
+
+
+    async  onTerminateRequest(result): Promise<void> {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "[onTerminateRequest] result : ", result);
+
+        //await that.xmppService.setPresence("dnd","audio");
+        //await that._xmpp.setPresence("online", "");
+        await that._xmpp.setPresence("", "");
+
+        // */
     }
 
     async createConnection() {

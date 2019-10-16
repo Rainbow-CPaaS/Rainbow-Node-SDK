@@ -431,7 +431,7 @@ class WebRtcEventHandler extends GenericHandler {
         that.logger.log("debug", LOG_ID + '(_onParseJingleInitiateRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
 
 
-        that.logger.log("info", LOG_ID + "(onSetStanza)  - send evt_internal_InitiateRequest 'res'", res);
+        that.logger.log("internal", LOG_ID + "(onSetStanza)  - send evt_internal_InitiateRequest 'res'", res);
         that.eventEmitter.emit("evt_internal_InitiateRequest", res);
 
 
@@ -529,7 +529,7 @@ class WebRtcEventHandler extends GenericHandler {
 
         this.logger.log("debug", LOG_ID +'(_onParseTransportInfoRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
 
-        this.logger.log("info", LOG_ID + "(_onParseTransportInfoRequest)  - send evt_internal_TransportInfoRequest 'res'", res);
+        this.logger.log("info", LOG_ID + "(_onParseTransportInfoRequest)  - send evt_internal_TransportInfoRequest 'res' : ", res);
         this.eventEmitter.emit("evt_internal_TransportInfoRequest", res);
 
         return ;
@@ -540,7 +540,7 @@ class WebRtcEventHandler extends GenericHandler {
                 resolve(true);
             });
         }
-        this.logger.log("info", LOG_ID +'(_onParseTransportInfoRequest) candidate', res.candidates[0].candidate);
+        this.logger.log("info", LOG_ID +'(_onParseTransportInfoRequest) candidate : ', res.candidates[0].candidate);
 
         let session = this._sipMemoryService.getSession(this._toBareJid(parsed.jid_from));
 
@@ -563,6 +563,7 @@ class WebRtcEventHandler extends GenericHandler {
 
     async _onParseJingleTerminateRequest(parsed, stanza)
     {
+        let that = this;
         let jingleStanza = stanza.getChild('jingle');
         let jingleAction = jingleStanza.attr('action');
 
@@ -602,6 +603,13 @@ class WebRtcEventHandler extends GenericHandler {
         }
 
         this.logger.log("debug", LOG_ID +'(_onParseJingleTerminateRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
+
+
+        that.logger.log("internal", LOG_ID + "(onSetStanza)  - send evt_internal_TerminateRequest 'res'", res);
+        that.eventEmitter.emit("evt_internal_TerminateRequest", res);
+
+
+        return;
 
         if(res.mediaType == 'sip') {
             //First, check if SIP session exist
@@ -1020,14 +1028,15 @@ class WebRtcEventHandler extends GenericHandler {
                 return ;
             }
             let children = stanza.children;
-            let to = stanza.attrs.from;
+            let from = stanza.attrs.from;
+            let to = stanza.attrs.to;
             children.forEach(function (node) {
                 switch (node.getName()) {
                     case "retract":
                     case "delay":
                         break;
                     case "propose":
-                        that.onProposeMessageReceived(node, to);
+                        that.onProposeMessageReceived(node, from,  to); // Send it to my self
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onMessageReceived) unmanaged management message node " + node.getName());
@@ -1043,7 +1052,7 @@ class WebRtcEventHandler extends GenericHandler {
         return true;
     };
 
-    onProposeMessageReceived (node, to) {
+    onProposeMessageReceived (node, from, to) {
         let that = this;
         that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) node - ", node);
 
@@ -1061,23 +1070,21 @@ class WebRtcEventHandler extends GenericHandler {
         //that.xmppService.acceptProposition(callId, bareto);
         that._webrtcService.createConnection().then(async (connection) => {
             that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) connection created : ", connection);
-            //that.xmppService.setPresence("dnd","audio");
-            answer.sdp = answer.SDP;
-            answer.type = "offer";
+            that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) answerCall.");
+            await that.xmppService.acceptProposition(callId, bareto);
+            await that.xmppService.proceedProposition(callId, from);
+            await that.xmppService.setPresence("dnd","audio");
 
-            //let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
-            that.logger.log("internal", LOG_ID + "[onProposeMessageReceived] conn : ", connection);
-            await connection.applyAnswer(answer).then(async r => {
-                that.logger.log("internal", LOG_ID + "[onProposeMessageReceived] applyAnswer r : ", r);
-                await connection.createAnswer();
-                let stanzaAccept = await answer.sessionJingle.accept(connection.peerConnection);
-                await that._xmpp.sendStanza(stanzaAccept);
-                let callId, bareto;
-                await that._xmpp.proceedProposition(callId, bareto);
-
-            }).catch(err => {
-                that.logger.log("internalerror", LOG_ID + "[onProposeMessageReceived] Error while applyAnswer r : ", err);
-            });
+            /*
+            // Need a timer to release the call if failed
+            //set autoreleaseTimeout
+            that.videoService.autoreleaseTimeout = $interval(function(_call) {
+                $log.webrtc("MEDIA   | send proposition : no response after 30 seconds : release the call");
+                if (call) {
+                    that.videoService.rejectCall(_call);
+                }
+            }, 30000, 1, true, call);
+            // */
 
         });
     }

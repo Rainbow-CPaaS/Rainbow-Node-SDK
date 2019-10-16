@@ -11,10 +11,15 @@ module.exports = function(grunt) {
         let singleLineComment = /^\s*\t*(\/\/)[^\n\r]*[\n\r]/gm;
         //let debugcode = /^.*debug.*$/g;
         let replaceCode = [];
+        let replaceBy = [];
         //let debugcode = /.*["|']debug["|'].*\r?\n/gm;
         //replaceCode[0] = /.*["']debug["'][\s\S]*?;{1}/gm;
         //replaceCode[1] = /.*["']internal["'][\s\S]*?;{1}/g;
-        replaceCode[0] = /\/\/ dev-code \/\/([\s\S]*?)\/\/ end-dev-code \/\//g;
+        //replaceCode[0] = /\/\/ dev-code \/\/([\s\S]*?)\/\/ end-dev-code \/\//g;
+        replaceCode[0] = /\/\/ dev-code \/\//g;
+        replaceBy[0] = "/*";
+        replaceCode[1] = /\/\/ end-dev-code \/\//g;
+        replaceBy[1] = "// */";
 
 
         let countremovedcode = 0;
@@ -38,9 +43,10 @@ module.exports = function(grunt) {
             }
 
             if ( options.debugcode ) {
-                replaceCode.forEach((codeToReplace) => {
+                replaceCode.forEach((codeToReplace, index) => {
                     countremovedcode = (contents.match(codeToReplace) || []).length;
-                    contents = contents.replace(codeToReplace, '// replaced debug code \n');
+                    //contents = contents.replace(codeToReplace, '// replaced debug code \n');
+                    contents = contents.replace(codeToReplace, replaceBy[index]);
                     if (countremovedcode > 0) {
                         grunt.log.writeln(">> " + countremovedcode + " debug code " + codeToReplace + " removed from " + file);
                     }

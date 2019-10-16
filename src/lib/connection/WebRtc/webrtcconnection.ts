@@ -46,8 +46,8 @@ class WebRtcConnection extends ConnectionWebRtc {
     }  = options;
 
       that._peerConnection = new RTCPeerConnection({
-      //sdpSemantics: 'unified-plan'
-      sdpSemantics: 'plan-b'
+      sdpSemantics: 'unified-plan'
+      //sdpSemantics: 'plan-b'
     });
 
     options.beforeOffer.beforeOffer(that._peerConnection);
@@ -112,7 +112,9 @@ class WebRtcConnection extends ConnectionWebRtc {
       };
 
     this.addIceCandidate = async candidate => {
-        await that._peerConnection.addIceCandidate(candidate);
+        return await that._peerConnection.addIceCandidate(candidate).catch((err)=> {
+            console.log("addIceCandidate error : ", err);
+        });
     };
 
 

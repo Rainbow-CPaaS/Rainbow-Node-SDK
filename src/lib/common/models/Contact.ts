@@ -1,4 +1,6 @@
 "use strict";
+import {Conversation} from "./Conversation";
+
 export {};
 
 
@@ -1286,6 +1288,10 @@ class Contact {
 
  //*/
 }
+
+Contact.prototype.toString = function contactToString() {
+    return 'Contact toString : ' + this.displayName ;
+};
 
 module.exports = {'Contact' : Contact, 'AdminType' : AdminType, 'NameUpdatePrio' : NameUpdatePrio};
 export {Contact as Contact, AdminType as AdminType, NameUpdatePrio as NameUpdatePrio};

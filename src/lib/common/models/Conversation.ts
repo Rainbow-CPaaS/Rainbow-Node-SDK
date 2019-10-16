@@ -432,7 +432,14 @@ class Conversation {
         });
         return this.messages.slice(-1)[0];
     }
+
 }
+
+Conversation.prototype.toString = function conversationToString() {
+    return 'Conversation toString : ' + this.name + this.id;
+};
+
+
 
 /**
  * Enum conversation type

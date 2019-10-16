@@ -29,19 +29,6 @@ const myFormatNoColors = winston.format.printf(info => {
     return `${tsFormat()}` + ' - ' + stripAnsi(info.level) + ':' + stripAnsi(info.message);
 }) ;
 
-const argumentsToString = (v)=>{
-    // convert arguments object to real array
-    var args = Array.prototype.slice.call(v, 1);
-    for(var k in args){
-        if (typeof args[k] === "object"){
-            // args[k] = JSON.stringify(args[k]);
-            args[k] = util.inspect(args[k], false, null, true);
-        }
-    }
-    var str = args.join(" ");
-    return str;
-}
-
 
 class Logger {
 	public colors: any;
@@ -188,7 +175,7 @@ class Logger {
         this._logger = {};
         this._logger.customLabel = "";
         this._logger.logHttp = logHttp;
-
+        this._logger.argumentsToString = that.argumentsToString;
 
         if (("logs" in config) && ("customLabel" in config.logs))  {
             this._logger.customLabel = config.logs.customLabel + " - " ;
@@ -242,16 +229,17 @@ class Logger {
                 if (logInternals === true) {
                     level = ( level === "internal" ) ? "debug" : "error";
                     let datatolog =  that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry.")) ;
+
                     // dev-code //
-                    datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + argumentsToString(arguments) ;
+                    datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments) ;
                     that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
                     // end-dev-code //
                 }
             } else {
                 if (logInternals) {
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + argumentsToString(arguments)]);
+                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.argumentsToString(arguments)]);
                 } else {
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(argumentsToString(arguments)))]);
+                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
                 }
             }
         };
@@ -366,6 +354,25 @@ class Logger {
 
     get log() {
         return this._logger;
+    }
+
+    argumentsToString (v){
+        // convert arguments object to real array
+        let args = Array.prototype.slice.call(v, 1);
+        for(let k in args){
+            if (typeof args[k] === "object"){
+                // args[k] = JSON.stringify(args[k]);
+                let options = {
+                    showHidden  : false,
+                    depth : 3,
+                    colors : true,
+                    maxArrayLength : 3
+                };
+                args[k] = util.inspect(args[k], options);
+            }
+        }
+        let str = args.join(" ");
+        return str;
     }
 
 }
