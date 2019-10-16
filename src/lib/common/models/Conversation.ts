@@ -337,6 +337,12 @@ class Conversation {
         // Update lastMessageText
         that.lastMessageText = message.content;
 
+        //update last activity date for rooms when we receive/sent messages
+        console.log("conversation bubble : ", this.bubble);
+        if (this.bubble) {
+            this.bubble.lastActivityDate = this.lastModification;
+        }
+
         return message;
     }
 

@@ -142,6 +142,12 @@ class NodeSDK {
             return that._core.start().then(function() {
                 return that._core.signin(false);
             }).then(function(result) {
+
+                // Stop the SDK if the node exe receiv a signal to stop, except for sigkill.
+                process.on("SIGINT", that.stopProcess());
+                process.on("SIGQUIT", that.stopProcess());
+                process.on("SIGTERM", that.stopProcess());
+                //process.on("SIGUSR2", that.stopProcess());
                 resolve(result);
             }).catch(function(err) {
                 if (err) {
@@ -228,6 +234,18 @@ class NodeSDK {
                 reject(error);
             });
         });
+    }
+
+    stopProcess() {
+        let self = this;
+        return async () => {
+
+            // console.log("stopProcess");
+            await self.stop();
+            await utils.setTimeoutPromised(1000);
+            // eslint-disable-next-line no-process-exit
+            process.exit(0);
+        };
     }
 
     /**
@@ -469,9 +487,6 @@ class NodeSDK {
     get favorites() {
         return this._core._favorites;
     }
-
-
-
 }
 
 module.exports = NodeSDK;
