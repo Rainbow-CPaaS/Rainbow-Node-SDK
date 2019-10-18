@@ -126,6 +126,10 @@ class Options {
             // Read each property one by one in the option parameter. To avoid missed service config.
             if ( typeof(this._options.servicesToStart) === 'object') {
                 Object.keys(this._options.servicesToStart).forEach((key) => {
+                    if (!svceToStart[key]) {
+                        this._logger.log("warn", LOG_ID + "(_getservicesToStart) the service ", key, " is requested have start up to be configured, but it is not defined in default config.");
+                        svceToStart[key] = {};
+                    }
                     svceToStart[key].start_up = "start_up" in this._options.servicesToStart[key] ? this._options.servicesToStart[key].start_up : config.servicesToStart[key].start_up;
                     svceToStart[key].optional = "optional" in this._options.servicesToStart[key] ? this._options.servicesToStart[key].optional : config.servicesToStart[key].optional;
                 });
