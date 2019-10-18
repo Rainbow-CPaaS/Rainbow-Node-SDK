@@ -126,11 +126,13 @@ class SDPUtil {
         candidate.protocol = elems[2].toLowerCase();
         candidate.priority = Number (elems[3]);
         candidate.ip = elems[4];
+        candidate.address = candidate.ip; // VBE Added
         candidate.sdpMid = null;
         candidate.sdpMLineIndex = 0;
         candidate.port = Number (elems[5]);
         // elems[6] => "typ"
         candidate.type = elems[7];
+        candidate.tcpType = candidate.type; // VBE Added
         candidate.generation = Number(0); // default value, may be overwritten below
         for (var i = 8; i < elems.length; i += 2) {
             switch (elems[i]) {

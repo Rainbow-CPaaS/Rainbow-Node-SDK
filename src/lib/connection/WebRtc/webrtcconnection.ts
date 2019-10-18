@@ -100,7 +100,8 @@ class WebRtcConnection extends ConnectionWebRtc {
 
     this.applyAnswer = async answer => {
       console.log("applyAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
-      await that._peerConnection.setRemoteDescription(answer);
+      console.log("applyAnswer will setRemoteDescription.");
+      return await that._peerConnection.setRemoteDescription(answer);
     };
 
 
@@ -113,7 +114,7 @@ class WebRtcConnection extends ConnectionWebRtc {
               type: 'answer',
               sdp: stereo ? enableStereoOpus(originalAnswer.sdp) : originalAnswer.sdp
           }); // */
-          await that._peerConnection.setLocalDescription(originalAnswer);
+          return await that._peerConnection.setLocalDescription(originalAnswer);
       };
 
     this.addIceCandidate = async candidate => {

@@ -268,11 +268,15 @@ const LOG_ID = "WEBRTC/SVCE - ";
             tmp.getChildren('candidate').forEach(function (cand) {
             let line, candidate;
             line = SDPUtil.candidateFromJingle2(cand, ufrag, pwd);
-            let cdte = {
+            let cdte = SDPUtil.parse_icecandidate( line);
+            cdte["sdpMid"] = "0";
+            cdte["sdpMLineIndex"] = 0;
+            cdte["candidate"] = line;
+            /* let cdte = {
                 sdpMLineIndex: 0,
                 sdpMid: 0,
                 candidate: line
-            };
+            }; //*/
             that.logger.log("info", LOG_ID +'(onTransportInfoRequest) cdte : ', cdte);
             candidate = new RTCIceCandidate(cdte);
             /*candidate = new window.RTCIceCandidate({
