@@ -838,6 +838,7 @@ class Telephony {
                     resolve(call);
                 },
                 async (response) => {
+                    that._logger.log("internal", LOG_ID + "(makeSimpleCall) failed : ", response);
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
                     let callInfos = {
                         status: Call.Status.ERROR,
@@ -847,7 +848,7 @@ class Telephony {
                         deviceType: undefined
                     };
                     let call = Call.CallFactory()(callInfos);
-                    call.cause = "invalidPhoneNumber";
+                    call.cause = "error";
                     that._calls[call.contact.id] = call;
                     // call.autoClear = $interval(function () {
                     await that.clearCall(call);
@@ -862,8 +863,8 @@ class Telephony {
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that._logger.log("error", LOG_ID + "(makeSimpleCall) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(makeSimpleCall) Error : ", error);
+                    //that._logger.log("error", LOG_ID + "(makeSimpleCall) Error.");
+                    //that._logger.log("internalerror", LOG_ID + "(makeSimpleCall) Error : ", error);
                 });
         });
     }
@@ -923,7 +924,7 @@ class Telephony {
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
                     let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
                     let call = Call.CallFactory()(callInfos);
-                    call.cause = "invalidPhoneNumber";
+                    call.cause = "error";
                     that._calls[call.contact.id] = call;
                     //call.autoClear = $interval(function () {
                     await that.clearCall(call);
@@ -938,8 +939,8 @@ class Telephony {
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                     reject(error);
-                    that._logger.log("error", LOG_ID + "(makeConsultationCall) Error");
-                    that._logger.log("internalerror", LOG_ID + "(makeConsultationCall) Error : ", error);
+                    //that._logger.log("error", LOG_ID + "(makeConsultationCall) Error");
+                    //that._logger.log("internalerror", LOG_ID + "(makeConsultationCall) Error : ", error);
                 });
         });
     }
@@ -977,7 +978,8 @@ class Telephony {
                     resolve(data);
                 })
                 .catch(async (error) => {
-                    let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
+                    reject(error);
+                   /* let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
                     that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) - Error." );
                     that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) - Error : ", _errorMessage);
 
@@ -992,7 +994,7 @@ class Telephony {
 
 //                    $rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
-                    reject(ErrorManager.getErrorManager().OTHERERROR(call.cause, _errorMessage));
+                    reject(ErrorManager.getErrorManager().OTHERERROR(call.cause, _errorMessage)); // */
                 });
         });
     }
@@ -2206,14 +2208,15 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         let that = this;
         let callFound = null;
         that._logger.log("internal", LOG_ID + "(getCallFromCache) search id : ", callId);
-
+        if (!callId) return callFound;
         if (that._calls) {
             let callFoundindex = that._calls.findIndex((call) => {
                 if (!call) {
                     this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
                     this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
+                } else {
+                    return call.id === callId;
                 }
-                return call.id === callId;
             });
             if (callFoundindex != -1) {
                 that._logger.log("internal", LOG_ID + "(getCallFromCache) call found : ", that._calls[callFoundindex], " with id : ", callId);

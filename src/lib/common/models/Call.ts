@@ -55,7 +55,7 @@ class Call {
          * @public
          * @property {string} id the id of the call
          * @readonly
-         */     
+         */
         this.id = id;
 
         /**
@@ -309,10 +309,12 @@ class Call {
     /**                  TELEPHONY STUFF                     */
     /*********************************************************/
     static getIdFromConnectionId(connectionId) {
+        if (!connectionId) return null ;
         return connectionId.split("#")[0];
     }
 
     static getDeviceIdFromConnectionId(connectionId) {
+        if (!connectionId) return null ;
         return connectionId.split("#")[1];
     }
 
