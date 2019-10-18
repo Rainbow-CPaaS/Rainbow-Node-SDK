@@ -83,7 +83,6 @@ class Contacts {
                 that.userContact.subscription = null;
 
                 // Attach xmpp information (check)
-                that.userContact.id = that.xmpp.jid;
                 that.userContact._id = that.xmpp.jid;
                 that.userContact.jid = that.xmpp.jid;
                 that.userContact.jidtel = "tel_" + that.xmpp.jid;
@@ -346,6 +345,7 @@ class Contacts {
         contact.jid_im = jid;
         contact.jidtel = "tel_" + jid;
         contact.id = contactId;
+        contact._id = jid;
         contact.ask = "none";
         contact.subscription = "none";
         // TODO ? contact.updateRichStatus();

@@ -654,7 +654,6 @@ class Contact {
     updateFromUserData (userData) {
         let that = this;
         // Identification fields
-        that._id = userData.id;
         that.id = userData.id;
         that.loginEmail = userData.loginEmail;
         that.firstName = userData.firstName;
@@ -681,7 +680,6 @@ class Contact {
 
         // Handle jids
         if (userData.jid_im) {
-            that.id = userData.jid_im;
             that._id = userData.jid_im;
             that.jid = userData.jid_im;
             that.jidtel = userData.jid_tel;
