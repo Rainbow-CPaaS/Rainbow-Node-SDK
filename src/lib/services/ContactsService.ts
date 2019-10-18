@@ -83,6 +83,7 @@ class Contacts {
                 that.userContact.subscription = null;
 
                 // Attach xmpp information (check)
+                that.userContact.id = that.xmpp.jid;
                 that.userContact._id = that.xmpp.jid;
                 that.userContact.jid = that.xmpp.jid;
                 that.userContact.jidtel = "tel_" + that.xmpp.jid;
@@ -229,7 +230,7 @@ class Contacts {
      *  Return the list of contacts that are in the network of the connected users (aka rosters)
      */
     getAll() {
-        return this.contacts; 
+        return this.contacts;
     }
 
     createEmptyContactContact(jid) {
@@ -500,7 +501,7 @@ class Contacts {
      * @public
      * @method getContactByLoginEmail
      * @instance
-     * @param {string} loginEmail The contact loginEmail 
+     * @param {string} loginEmail The contact loginEmail
      * @memberof Contacts
      * @description
      *  Get a contact by his loginEmail
@@ -774,7 +775,7 @@ class Contacts {
      * @property {String[]} success List of succeed joined users
      * @property {String[]} failed List of failed to joined users
      */
-  
+
     /**
      * @public
      * @since 1.41
@@ -851,7 +852,7 @@ class Contacts {
             }
 
             // Store the presence of the resource
-            contact.resources[presence.resource] = presence.value; 
+            contact.resources[presence.resource] = presence.value;
 
             let on_the_phone = false;
             let manual_invisible = false;
@@ -877,10 +878,10 @@ class Contacts {
                     }
                     else if (resource.show === "xa" && resource.status === "away") {
                         manual_away = true;
-                    } 
+                    }
                     else if (resource.show === "dnd" && resource.status === "presentation") {
                         in_presentation_mode = true;
-                    } 
+                    }
                     else if (resource.show === "dnd" && resource.status.length > 0) {
                         in_webrtc_mode = true;
                         webrtc_reason = resource.status;
@@ -956,9 +957,9 @@ class Contacts {
             if( contact.presence === oldPresence && contact.status === oldStatus) {
                 return;
             }
-            
+
             let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
-            
+
             this.logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
             this.eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
         }

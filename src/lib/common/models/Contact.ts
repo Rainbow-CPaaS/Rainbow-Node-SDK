@@ -681,6 +681,7 @@ class Contact {
 
         // Handle jids
         if (userData.jid_im) {
+            that.id = userData.jid_im;
             that._id = userData.jid_im;
             that.jid = userData.jid_im;
             that.jidtel = userData.jid_tel;
