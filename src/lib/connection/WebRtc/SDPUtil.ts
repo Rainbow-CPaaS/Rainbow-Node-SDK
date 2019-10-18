@@ -320,6 +320,7 @@ class SDPUtil {
         return candidate;
     }
 
+    /*
     candidateFromJingle(cand, newstr) {
         var parts = [
             'a=candidate:' + cand.getAttr('foundation'),
@@ -352,9 +353,56 @@ class SDPUtil {
             return parts.join(' ');
         }
 
-    }
+    } // */
+    candidateFromJingle (cand, ufrag, pwd) {
+        var parts = [
+            'a=candidate:' + cand.getAttribute('foundation'),
+            cand.getAttribute('component'),
+            cand.getAttribute('protocol'),
+            cand.getAttribute('priority'),
+            cand.getAttribute('ip'),
+            cand.getAttribute('port'),
+            'typ',
+            cand.getAttribute('type')
+        ];
+        switch (cand.getAttribute('type')) {
+            case 'srflx':
+            case 'prflx':
+            case 'relay':
+                if (cand.getAttribute('rel-addr') && cand.getAttribute('rel-port')) {
+                    parts.push('raddr');
+                    parts.push(cand.getAttribute('rel-addr'));
+                    parts.push('rport');
+                    parts.push(cand.getAttribute('rel-port'));
+                }
+                break;
+        }
+        parts.push('generation');
+        parts.push(cand.getAttribute('generation') || '0');
 
-};
+        if (cand.getAttribute('network')) {
+            parts.push('network-id');
+            parts.push(cand.getAttribute('network'));
+        }
+
+        if (cand.getAttribute('cost')) {
+            parts.push('network-cost');
+            parts.push(cand.getAttribute('cost'));
+        }
+
+        if (ufrag) {
+            parts.push('ufrag');
+            parts.push(ufrag);
+        }
+
+        if (pwd) {
+            parts.push('pwd');
+            parts.push(pwd);
+        }
+
+        return parts.join(' ') + '\r\n';
+    }
+}
 
 function createSDPUtil() {
     return new SDPUtil();

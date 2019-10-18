@@ -174,6 +174,9 @@ const LOG_ID = "WEBRTC/SVCE - ";
         result.sdp = result.SDP;
         result.type = "offer";
 
+        //result.sdp = 'v=0\r\no=- 4086647801925252121 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:zIR9\r\na=ice-pwd:9efDTGuIpHj0L0Y3No0rfdp1\r\na=ice-options:trickle\r\na=fingerprint:sha-256 9C:E5:A7:73:43:EC:15:AA:0C:4F:5A:FC:D4:E8:3E:0E:D0:07:C2:B6:43:4C:A2:A4:93:97:95:44:02:C9:56:7F\r\na=setup:actpass\r\na=mid:0\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n';
+
+
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
         await conn.applyAnswer(result).then(async r => {
@@ -200,7 +203,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
        // */
     }
 
-    async  onTransportInfoRequest(result): Promise<void> {
+    async  onTransportInfoRequest(result, stanza): Promise<void> {
         let that = this;
         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] result : ", result);
         if ( !result.candidates[0]) {
@@ -211,6 +214,96 @@ const LOG_ID = "WEBRTC/SVCE - ";
         }
         this.logger.log("info", LOG_ID +'(onTransportInfoRequest) candidate : ', result.candidates[0].candidate);
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
+
+
+
+
+       /* ////// to modify
+        var idx = -1;
+        var i;
+        for (i = 0; i < self.remoteSDP.media.length; i++) {
+            if (SDPUtil.find_line(self.remoteSDP.media[i], 'a=mid:' + $(this).attr('name')) ||
+                self.remoteSDP.media[i].indexOf('m=' + $(this).attr('name')) === 0) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx == -1) { // fall back to localdescription
+            for (i = 0; i < self.localSDP.media.length; i++) {
+                if (SDPUtil.find_line(self.localSDP.media[i], 'a=mid:' + $(this).attr('name')) ||
+                    self.localSDP.media[i].indexOf('m=' + $(this).attr('name')) === 0) {
+                    idx = i;
+                    break;
+                }
+            }
+        } //*/
+
+        ////// to modify end
+        //var name = $(this).attr('name');
+        // TODO: check ice-pwd and ice-ufrag?
+        // if ($(this).attr('ufrag') && $(this).attr('pwd')) {
+        //    Strophe.log(Strophe.LogLevel.ERROR, $(this).attr('ufrag'));
+        //    Strophe.log(Strophe.LogLevel.ERROR, $(this).attr('pwd'));
+        // }
+
+        let ufrag,
+            pwd;
+
+        let network = "",
+            id = "";
+        // network = $(this).attr('network');
+        // id = $(this).attr('id');
+
+        stanza.find('content>transport').each(function() {
+            ufrag = this.getAttribute("ufrag");
+            pwd = this.getAttribute("pwd");
+            that.logger.log("info", LOG_ID +'(onTransportInfoRequest) ufrag : ', ufrag, ", pwd : ", pwd);
+        });
+
+        stanza.find('transport>candidate').each(function() {
+            var line, candidate;
+            line = SDPUtil.candidateFromJingle(this, ufrag, pwd);
+            let cdte = {
+                sdpMLineIndex: 0,
+                sdpMid: 0,
+                candidate: line
+            };
+            that.logger.log("info", LOG_ID +'(onTransportInfoRequest) cdte : ', cdte);
+            candidate = new RTCIceCandidate(cdte);
+            /*candidate = new window.RTCIceCandidate({
+                sdpMLineIndex: 0,
+                sdpMid: 0,
+                candidate: line
+            }); // */
+            try {
+                //self.peerconnection.addIceCandidate(candidate);
+
+                that.logger.log("info", LOG_ID +'(onTransportInfoRequest) candidate : ', candidate);
+
+                conn.addIceCandidate(candidate).then(r => {
+                    that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
+                });
+
+            } catch (e) {
+                that.logger.log("info", LOG_ID +'(onTransportInfoRequest) addIceCandidate CATCH Error !!! : ', e);
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      return ;
         //let cdte :any = {candidate: result.candidates[0].candidate.slice(2)};
 
         let cdte = SDPUtil.parse_icecandidate( result.candidates[0].candidate.slice(2));
@@ -274,7 +367,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
 
         //this.logger.log("info", LOG_ID +'(onTransportInfoRequest) cdte : ', cdte);
 
-        cdte =  {
+        /*cdte =  {
             "candidate": "candidate:1998826949 1 udp 2122260223 135.118.230.33 58166 typ host generation 0 ufrag KmzI network-id 1",
             "sdpMid": "0",
             "sdpMLineIndex": 0,
@@ -289,7 +382,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
             "relatedAddress": null,
             "relatedPort": null,
             "usernameFragment": "KmzI"
-        } ;
+        } ; */
 
         this.logger.log("info", LOG_ID +'(onTransportInfoRequest) fake cdte : ', cdte);
 

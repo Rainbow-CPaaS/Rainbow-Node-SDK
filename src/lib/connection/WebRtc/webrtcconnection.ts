@@ -46,8 +46,8 @@ class WebRtcConnection extends ConnectionWebRtc {
     }  = options;
 
       that._peerConnection = new RTCPeerConnection({
-      sdpSemantics: 'unified-plan'
-      //sdpSemantics: 'plan-b'
+      //sdpSemantics: 'unified-plan'
+      sdpSemantics: 'plan-b'
     });
 
     options.beforeOffer.beforeOffer(that._peerConnection);
@@ -62,6 +62,7 @@ class WebRtcConnection extends ConnectionWebRtc {
     let reconnectionTimer = null;
 
     const onIceConnectionStateChange = () => {
+      console.log("onIceConnectionStateChange this.peerconnection.signalingState : ", that._peerConnection.signalingState);
       if (that._peerConnection.iceConnectionState === 'connected'
         || that._peerConnection.iceConnectionState === 'completed') {
         if (connectionTimer) {
@@ -85,6 +86,7 @@ class WebRtcConnection extends ConnectionWebRtc {
 
     this.doOffer = async () => {
       const offer = await that._peerConnection.createOffer();
+      console.log("doOffer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
 
       //disableTrickleIce();
       await that._peerConnection.setLocalDescription(offer);
@@ -97,12 +99,15 @@ class WebRtcConnection extends ConnectionWebRtc {
     };
 
     this.applyAnswer = async answer => {
+      console.log("applyAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
       await that._peerConnection.setRemoteDescription(answer);
     };
 
 
       this.createAnswer = async function () {
-          const originalAnswer = await that._peerConnection.createAnswer();
+        console.log("createAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
+
+        const originalAnswer = await that._peerConnection.createAnswer();
           /*
           const updatedAnswer = new RTCSessionDescription({
               type: 'answer',
@@ -112,7 +117,8 @@ class WebRtcConnection extends ConnectionWebRtc {
       };
 
     this.addIceCandidate = async candidate => {
-        return await that._peerConnection.addIceCandidate(candidate).catch((err)=> {
+      console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState);
+      return await that._peerConnection.addIceCandidate(candidate).catch((err)=> {
             console.log("addIceCandidate error : ", err);
         });
     };

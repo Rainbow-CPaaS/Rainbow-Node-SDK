@@ -530,7 +530,7 @@ class WebRtcEventHandler extends GenericHandler {
         this.logger.log("debug", LOG_ID +'(_onParseTransportInfoRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
 
         this.logger.log("info", LOG_ID + "(_onParseTransportInfoRequest)  - send evt_internal_TransportInfoRequest 'res' : ", res);
-        this.eventEmitter.emit("evt_internal_TransportInfoRequest", res);
+        this.eventEmitter.emit("evt_internal_TransportInfoRequest", res, stanza);
 
         return ;
 
