@@ -320,9 +320,9 @@ class SDPUtil {
         return candidate;
     }
 
-    /*
+
     candidateFromJingle(cand, newstr) {
-        var parts = [
+        let parts = [
             'a=candidate:' + cand.getAttr('foundation'),
             cand.getAttr('component'),
             cand.getAttr('protocol'),
@@ -354,40 +354,40 @@ class SDPUtil {
         }
 
     } // */
-    candidateFromJingle (cand, ufrag, pwd) {
+    candidateFromJingle2 (cand, ufrag, pwd) {
         var parts = [
-            'a=candidate:' + cand.getAttribute('foundation'),
-            cand.getAttribute('component'),
-            cand.getAttribute('protocol'),
-            cand.getAttribute('priority'),
-            cand.getAttribute('ip'),
-            cand.getAttribute('port'),
+            'a=candidate:' + cand.getAttr('foundation'),
+            cand.getAttr('component'),
+            cand.getAttr('protocol'),
+            cand.getAttr('priority'),
+            cand.getAttr('ip'),
+            cand.getAttr('port'),
             'typ',
-            cand.getAttribute('type')
+            cand.getAttr('type')
         ];
-        switch (cand.getAttribute('type')) {
+        switch (cand.getAttr('type')) {
             case 'srflx':
             case 'prflx':
             case 'relay':
-                if (cand.getAttribute('rel-addr') && cand.getAttribute('rel-port')) {
+                if (cand.getAttr('rel-addr') && cand.getAttr('rel-port')) {
                     parts.push('raddr');
-                    parts.push(cand.getAttribute('rel-addr'));
+                    parts.push(cand.getAttr('rel-addr'));
                     parts.push('rport');
-                    parts.push(cand.getAttribute('rel-port'));
+                    parts.push(cand.getAttr('rel-port'));
                 }
                 break;
         }
         parts.push('generation');
-        parts.push(cand.getAttribute('generation') || '0');
+        parts.push(cand.getAttr('generation') || '0');
 
-        if (cand.getAttribute('network')) {
+        if (cand.getAttr('network')) {
             parts.push('network-id');
-            parts.push(cand.getAttribute('network'));
+            parts.push(cand.getAttr('network'));
         }
 
-        if (cand.getAttribute('cost')) {
+        if (cand.getAttr('cost')) {
             parts.push('network-cost');
-            parts.push(cand.getAttribute('cost'));
+            parts.push(cand.getAttr('cost'));
         }
 
         if (ufrag) {

@@ -254,15 +254,20 @@ const LOG_ID = "WEBRTC/SVCE - ";
         // network = $(this).attr('network');
         // id = $(this).attr('id');
 
-        stanza.find('content>transport').each(function() {
+/*        stanza.find('content>transport').each(function() {
             ufrag = this.getAttribute("ufrag");
             pwd = this.getAttribute("pwd");
             that.logger.log("info", LOG_ID +'(onTransportInfoRequest) ufrag : ', ufrag, ", pwd : ", pwd);
-        });
-
-        stanza.find('transport>candidate').each(function() {
-            var line, candidate;
-            line = SDPUtil.candidateFromJingle(this, ufrag, pwd);
+        }); // */
+        let tmp = stanza.find("transport"); //,'urn:xmpp:jingle:transports:ice-udp:1');
+        if (tmp.length) {
+            //tmp = tmp[0];
+            ufrag = tmp.getAttr("ufrag");
+            pwd = tmp.getAttr("pwd");
+            that.logger.log("info", LOG_ID + '(onTransportInfoRequest) ufrag : ', ufrag, ", pwd : ", pwd);
+            tmp.getChildren('candidate').forEach(function (cand) {
+            let line, candidate;
+            line = SDPUtil.candidateFromJingle2(cand, ufrag, pwd);
             let cdte = {
                 sdpMLineIndex: 0,
                 sdpMid: 0,
@@ -282,12 +287,15 @@ const LOG_ID = "WEBRTC/SVCE - ";
 
                 conn.addIceCandidate(candidate).then(r => {
                     that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
+                }).catch((err) => {
+                    that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate error : ", err);
                 });
 
             } catch (e) {
                 that.logger.log("info", LOG_ID +'(onTransportInfoRequest) addIceCandidate CATCH Error !!! : ', e);
             }
-        });
+            });
+        }
 
 
 

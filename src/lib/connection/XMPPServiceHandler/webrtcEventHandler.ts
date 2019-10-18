@@ -307,7 +307,7 @@ class WebRtcEventHandler extends GenericHandler {
             })
             .catch((err) =>
             {
-                this.logger.log("internalerror", LOG_ID +"(onSetStanzaTreatment) IqJingleParser Error occurred while parsing stanza : ", stanza.toString(), ", message : ", err.message);
+                this.logger.log("internalerror", LOG_ID +"(onSetStanzaTreatment) IqJingleParser Error occurred while parsing stanza : ", stanza.toString(), ", error : ", err);
                 //this.logger.log("internalerror", LOG_ID +"%s Error, STACK TRACE : %s ",LOG_ID , this.getstack (arguments.callee.caller));
                 return true;
             });
