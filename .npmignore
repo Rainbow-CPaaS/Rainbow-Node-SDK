@@ -1,6 +1,7 @@
 .eslintrc
 .jshintrc
 .jsintrc
+src/Samples/index.ts
 node_modules/
 build/
 coverage/
@@ -11,4 +12,3 @@ Samples/
 .idea/
 Docs/
 package-lock.json
-src/Samples/index.ts
