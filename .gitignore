@@ -24,4 +24,4 @@ lib/Core.js.map
 lib/ProxyImpl.js
 lib/ProxyImpl.js.map
 lib/services
-src/Samples/index.ts
+src/Samples/
