@@ -11,4 +11,4 @@ Samples/
 .idea/
 Docs/
 package-lock.json
-src/Samples/
+src/Samples/index.ts
