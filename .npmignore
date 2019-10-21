@@ -13,3 +13,4 @@ Samples/
 .idea/
 Docs/
 package-lock.json
+*.ts
