@@ -1,9 +1,10 @@
 'use strict';
 
 import {RTCPeerConnection as DefaultRTCPeerConnection} from "wrtc";
-import {RTCIceCandidate} from "wrtc";
+import {RTCIceCandidate, RTCSessionDescription} from "wrtc";
 import  {ConnectionWebRtc} from './connectionwebrtc';
 import {publicDecrypt} from "crypto";
+import {setFlagsFromString} from "v8";
 
 const TIME_TO_CONNECTED = 10000;
 const TIME_TO_HOST_CANDIDATES = 3000;  // NOTE(mroberts): Too long.
@@ -15,7 +16,7 @@ class WebRtcConnection extends ConnectionWebRtc {
   }
   public doOffer: () => Promise<void>;
   public applyAnswer: (answer) => Promise<void>;
-  public createAnswer: () => void;
+  public createAnswer: () => any;
   public close: () => void;
   public toJSON: () => any;
   private addIceCandidate: (answer : RTCIceCandidate) => Promise<void>;
@@ -109,12 +110,14 @@ class WebRtcConnection extends ConnectionWebRtc {
         console.log("createAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
 
         const originalAnswer = await that._peerConnection.createAnswer();
-          /*
-          const updatedAnswer = new RTCSessionDescription({
-              type: 'answer',
-              sdp: stereo ? enableStereoOpus(originalAnswer.sdp) : originalAnswer.sdp
-          }); // */
-          return await that._peerConnection.setLocalDescription(originalAnswer);
+        console.log("createAnswer originalAnswer : ", originalAnswer);
+        const updatedAnswer = new RTCSessionDescription({
+          type: 'answer',
+          sdp: originalAnswer.sdp
+        }); // */
+        // sdp: stereo ? enableStereoOpus(originalAnswer.sdp) : originalAnswer.sdp
+        console.log("createAnswer updatedAnswer : ", updatedAnswer);
+        return await that._peerConnection.setLocalDescription(updatedAnswer);
       };
 
     this.addIceCandidate = async candidate => {
@@ -172,6 +175,17 @@ class WebRtcConnection extends ConnectionWebRtc {
       }
     });
   }
+
+  async getConfiguration() {
+    let that =this;
+    try {
+      return await that._peerConnection.getConfiguration();
+    } catch (error) {
+      this.close();
+      throw error;
+    }
+  }
+
 }
 
 function descriptionToJSON(description, shouldDisableTrickleIce) {

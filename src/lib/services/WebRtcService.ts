@@ -1,5 +1,5 @@
 "use strict";
-import {error} from "winston";
+import {config, error} from "winston";
 
 export {};
 
@@ -181,7 +181,8 @@ const LOG_ID = "WEBRTC/SVCE - ";
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
         await conn.applyAnswer(result).then(async r => {
             that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyAnswer r : ", r);
-            await conn.createAnswer();
+            let resultAnswer = await conn.createAnswer();
+            that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
             let id = that._xmpp.xmppUtils.getUniqueMessageId();
             that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
             let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
@@ -265,40 +266,43 @@ const LOG_ID = "WEBRTC/SVCE - ";
             ufrag = tmp.getAttr("ufrag");
             pwd = tmp.getAttr("pwd");
             that.logger.log("info", LOG_ID + '(onTransportInfoRequest) ufrag : ', ufrag, ", pwd : ", pwd);
-            tmp.getChildren('candidate').forEach(function (cand) {
-            let line, candidate;
-            line = SDPUtil.candidateFromJingle2(cand, ufrag, pwd);
-            let cdte = SDPUtil.parse_icecandidate( line);
-            cdte["sdpMid"] = "0";
-            cdte["sdpMLineIndex"] = 0;
-            cdte["candidate"] = line;
-            /* let cdte = {
-                sdpMLineIndex: 0,
-                sdpMid: 0,
-                candidate: line
-            }; //*/
-            that.logger.log("info", LOG_ID +'(onTransportInfoRequest) cdte : ', cdte);
-            candidate = new RTCIceCandidate(cdte);
-            /*candidate = new window.RTCIceCandidate({
-                sdpMLineIndex: 0,
-                sdpMid: 0,
-                candidate: line
-            }); // */
-            try {
-                //self.peerconnection.addIceCandidate(candidate);
+            for (const cand of tmp.getChildren('candidate')) {
+                let line, candidate;
+                line = SDPUtil.candidateFromJingle2(cand, ufrag, pwd);
+                let cdte = SDPUtil.parse_icecandidate(line);
+                cdte["sdpMid"] = "0";
+                cdte["sdpMLineIndex"] = 0;
+                cdte["candidate"] = line;
+                /* let cdte = {
+                    sdpMLineIndex: 0,
+                    sdpMid: 0,
+                    candidate: line
+                }; //*/
+                that.logger.log("info", LOG_ID + '(onTransportInfoRequest) cdte : ', cdte);
+                candidate = new RTCIceCandidate(cdte);
+                /*candidate = new window.RTCIceCandidate({
+                    sdpMLineIndex: 0,
+                    sdpMid: 0,
+                    candidate: line
+                }); // */
+                try {
+                    //self.peerconnection.addIceCandidate(candidate);
 
-                that.logger.log("info", LOG_ID +'(onTransportInfoRequest) candidate : ', candidate);
+                    that.logger.log("info", LOG_ID + '(onTransportInfoRequest) candidate : ', candidate);
 
-                conn.addIceCandidate(candidate).then(r => {
-                    that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
-                }).catch((err) => {
-                    that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate error : ", err);
-                });
+                    let connConfig = await conn.getConfiguration();
+                    that.logger.log("info", LOG_ID + '(onTransportInfoRequest) connConfig : ', connConfig);
+                    conn.addIceCandidate(candidate).then(r => {
+                        that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
+                    }).catch((err) => {
+                        that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate error : ", err);
+                    });
 
-            } catch (e) {
-                that.logger.log("info", LOG_ID +'(onTransportInfoRequest) addIceCandidate CATCH Error !!! : ', e);
+                } catch (e) {
+                    that.logger.log("error", LOG_ID + '(onTransportInfoRequest) addIceCandidate CATCH Error !!!');
+                    that.logger.log("internalerror", LOG_ID + '(onTransportInfoRequest) addIceCandidate CATCH Error !!! : ', e);
+                }
             }
-            });
         }
 
 
