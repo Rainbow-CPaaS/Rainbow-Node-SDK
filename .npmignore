@@ -12,3 +12,4 @@ Samples/
 Docs/
 package-lock.json
 src/Samples/
+*.ts
