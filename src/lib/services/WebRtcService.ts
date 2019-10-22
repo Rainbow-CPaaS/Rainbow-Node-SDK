@@ -21,6 +21,7 @@ const SDPUtil = createSDPUtil();
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {isStarted} from "../common/Utils";
+import {AsyncResource} from "async_hooks";
 
 
 const LOG_ID = "WEBRTC/SVCE - ";
@@ -134,8 +135,9 @@ const LOG_ID = "WEBRTC/SVCE - ";
             let startDate = new Date();
 
             //this.webrtcConnection = new WebRtcConnection(that.createId(), options);
-
-            that.webRtcConnectionManager = await WebRtcConnectionManager.create(options);
+            let iceServers = await that._rest.getIceConfig();
+            that.logger.log("info", LOG_ID + " (WebRtcConnection) iceServers : ", iceServers);
+            that.webRtcConnectionManager = await WebRtcConnectionManager.create({iceServers,...options});
 
 //            that.getCallLogHistoryPage()
   //              .then(() => {
@@ -171,33 +173,37 @@ const LOG_ID = "WEBRTC/SVCE - ";
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] result : ", result);
         //that.webrtcConnection.doOffert();
 
-        result.sdp = result.SDP;
-        result.type = "offer";
+        let offer = {
+            "type": "offer",
+            "sdp": result.SDP
+        };
+        // */
 
         //result.sdp = 'v=0\r\no=- 4086647801925252121 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:zIR9\r\na=ice-pwd:9efDTGuIpHj0L0Y3No0rfdp1\r\na=ice-options:trickle\r\na=fingerprint:sha-256 9C:E5:A7:73:43:EC:15:AA:0C:4F:5A:FC:D4:E8:3E:0E:D0:07:C2:B6:43:4C:A2:A4:93:97:95:44:02:C9:56:7F\r\na=setup:actpass\r\na=mid:0\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n';
 
-
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
-        await conn.applyAnswer(result).then(async r => {
-            that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyAnswer r : ", r);
-            let resultAnswer = await conn.createAnswer();
-            that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
-            let id = that._xmpp.xmppUtils.getUniqueMessageId();
-            that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
-            let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
-            that.logger.log("internal", LOG_ID + "[onInitiateRequest] will sessionRinging stanzaSessionRinging : ", stanzaSessionRinging);
-            await that._xmpp.sendStanza(stanzaSessionRinging);
+        let r = await conn.applyOffer(offer);
+        that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyOffer r : ", r);
+        that.logger.log("debug", LOG_ID + "[onInitiateRequest] applyOffer getStats : ", await conn.getStats());
+        let resultAnswer = await conn.createAnswer();
+        that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
+        that.logger.log("debug", LOG_ID + "[onInitiateRequest] createAnswer getStats : ", await conn.getStats());
+        let id = that._xmpp.xmppUtils.getUniqueMessageId();
+        that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
+        let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
+        that.logger.log("internal", LOG_ID + "[onInitiateRequest] will sessionRinging stanzaSessionRinging : ", stanzaSessionRinging);
+        await that._xmpp.sendStanza(stanzaSessionRinging);
 
-            //await this.xmppService.xmppClient.send(stanzaSessionRinging);
+        //await this.xmppService.xmppClient.send(stanzaSessionRinging);
 
-            /* let stanzaAccept = await result.sessionJingle.accept(conn.peerConnection);
-            await that._xmpp.sendStanza(stanzaAccept); // */
-            /*
-            let callId, bareto;
-            await that._xmpp.proceedProposition(callId, bareto);
-            // */
-        }).catch(err => {
+        /* let stanzaAccept = await result.sessionJingle.accept(conn.peerConnection);
+        await that._xmpp.sendStanza(stanzaAccept); // */
+        /*
+        let callId, bareto;
+        await that._xmpp.proceedProposition(callId, bareto);
+        // */
+        /*).catch(err => {
             that.logger.log("internalerror", LOG_ID + "[onInitiateRequest] Error while applyAnswer r : ", err);
         });
 
@@ -291,9 +297,11 @@ const LOG_ID = "WEBRTC/SVCE - ";
                     that.logger.log("info", LOG_ID + '(onTransportInfoRequest) candidate : ', candidate);
 
                     let connConfig = await conn.getConfiguration();
+                    that.logger.log("debug", LOG_ID + "[onTransportInfoRequest] getStats : ", await conn.getStats());
                     that.logger.log("info", LOG_ID + '(onTransportInfoRequest) connConfig : ', connConfig);
-                    conn.addIceCandidate(candidate).then(r => {
+                    conn.addIceCandidate(candidate).then(async r => {
                         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
+                        that.logger.log("debug", LOG_ID + "[onTransportInfoRequest] addIceCandidate getStats : ", await conn.getStats());
                     }).catch((err) => {
                         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate error : ", err);
                     });

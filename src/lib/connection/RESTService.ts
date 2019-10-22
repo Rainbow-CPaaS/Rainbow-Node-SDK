@@ -85,8 +85,8 @@ class RESTService {
 
         this.getRequestHeader = (accept) => {
 
-            let headers = { 
-                "Authorization": "Bearer " + that.token, 
+            let headers = {
+                "Authorization": "Bearer " + that.token,
                 "Accept": accept || "application/json",
             };
 
@@ -107,8 +107,8 @@ class RESTService {
         };
 
         this.getLoginHeader = (auth, password) => {
-            let headers = { 
-                "Accept": "application/json", 
+            let headers = {
+                "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": "Basic " + (auth || that.auth),
                 "x-rainbow-client": "sdk_node",
@@ -130,8 +130,8 @@ class RESTService {
         };
 
         this.getDefaultHeader = () => {
-            return { 
-                "Accept": "application/json", 
+            return {
+                "Accept": "application/json",
                 "Content-Type": "application/json"
             };
         };
@@ -158,7 +158,7 @@ class RESTService {
 
     stop() {
         let that = this;
-        
+
         that.logger.log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise((resolve, reject) => {
@@ -279,7 +279,7 @@ class RESTService {
             that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " tokenExpirationDuration: " + tokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms)");
             if (that.renewTokenInterval) {
                 that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
-                clearTimeout(that.renewTokenInterval); 
+                clearTimeout(that.renewTokenInterval);
             }
             that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
             that.renewTokenInterval = setTimeout(function() {
@@ -693,12 +693,12 @@ class RESTService {
         let getAllGroups = function(page, limit, groups) {
 
             return new Promise((resolve, reject) => {
-                
+
                 getSetOfGroups(page, limit, groups).then((json : any) => {
                     if (json.finished) {
                         that.logger.log("info", LOG_ID + "(getGroups) no need to loop again. All groups retrieve...");
                         return resolve(json.groups);
-                    } 
+                    }
                         page += limit;
                         that.logger.log("internal", LOG_ID + "(getGroups) need another loop to get more groups... [" + json.groups.length + "]");
                         getAllGroups(page, limit, json.groups).then((allGroups) => {
@@ -706,7 +706,7 @@ class RESTService {
                         }).catch((err) => {
                             reject(err);
                         });
-                    
+
                 }).catch((err) => {
                     reject(err);
                 });
@@ -761,7 +761,7 @@ class RESTService {
             that.logger.log("debug", LOG_ID + "(createGroup) _entering_");
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups", that.getRequestHeader(), {
-                name: name, 
+                name: name,
                 comment: comment,
                 isFavorite: isFavorite
             }, undefined).then(function(json) {
@@ -797,7 +797,7 @@ class RESTService {
             });
         });
     }
-	
+
 	updateGroupName(groupId, name) {
         let that = this;
 
@@ -894,7 +894,7 @@ class RESTService {
             }
 
             that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), {
-                name: name, 
+                name: name,
                 topic: description,
                 history: history }
                 , undefined).then(function(json) {
@@ -999,14 +999,14 @@ class RESTService {
         };
 
         let getAllBubbles = function(page, limit, bubbles) {
-            
+
             return new Promise((resolve, reject) => {
                 getSetOfBubbles(page, limit, bubbles).then((json : any) => {
                     if (json.finished) {
                         that.logger.log("info", LOG_ID + "(getAllBubbles) no need to loop again. All bubbles retrieved...");
                         return resolve(json.bubbles);
                     }
-                    
+
                         page += limit;
                         that.logger.log("info", LOG_ID + "(getAllBubbles) need another loop to get more bubbles... [" + json.bubbles.length + "]");
                         getAllBubbles(page, limit, json.bubbles).then((bubbles) => {
@@ -1014,8 +1014,8 @@ class RESTService {
                         }).catch((err) => {
                             reject(err);
                         });
-                    
-                    
+
+
                 }).catch((err) => {
                     reject(err);
                 });
@@ -1567,7 +1567,7 @@ class RESTService {
                 that.logger.log("internalerror", LOG_ID, "(createFileDescriptor) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createFileDescriptor) _exiting_");
                 reject(err);
-            }); 
+            });
         });
     }
 
@@ -1760,7 +1760,7 @@ class RESTService {
             });
         });
     }
-    
+
     // FileServer
     getPartialDataFromServer(url, minRange, maxRange, index) {
         let that = this;
@@ -1781,7 +1781,7 @@ class RESTService {
                 that.logger.log("internalerror", LOG_ID, "(getPartialDataFromServer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) _exiting_");
                 reject(err);
-            }); 
+            });
         });
     }
 
@@ -1804,7 +1804,7 @@ class RESTService {
                 that.logger.log("internalerror", LOG_ID, "(getFileFromUrl) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getFileFromUrl) _exiting_");
                 reject(err);
-            }); 
+            });
         });
     }
 
@@ -1907,7 +1907,7 @@ class RESTService {
                 that.logger.log("internalerror", LOG_ID, "(sendPartialDataToServer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(sendPartialDataToServer) _exiting_");
                 reject(err);
-            }); 
+            });
         });
     }
 
@@ -1932,7 +1932,7 @@ class RESTService {
                 that.logger.log("internalerror", LOG_ID, "(sendPartialFileCompletion) error : ", err);
                 that.logger.log("debug", LOG_ID + "(sendPartialFileCompletion) _exiting_");
                 reject(err);
-            }); 
+            });
         });
     }
 
@@ -1954,7 +1954,7 @@ class RESTService {
                 that.logger.log("debug", LOG_ID + "(getServerCapabilities) _exiting_");
                 reject(err);
             });
-        }); 
+        });
     }
 
     // Settings
@@ -1976,7 +1976,7 @@ class RESTService {
                 that.logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
                 reject(err);
             });
-        }); 
+        });
     }
 
     updateUserSettings(settings) {
@@ -1999,7 +1999,7 @@ class RESTService {
             });
         });
     }
-    
+
     getAllCompanies() {
         let that = this;
 
@@ -2184,7 +2184,7 @@ class RESTService {
     // Channel
     // Create a channel
     createPublicChannel(name, topic, category: string = "globalnews", visibility, max_items, max_payload_size) {
-        
+
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -2322,7 +2322,7 @@ class RESTService {
     getChannels() {
 
     let that = this;
-    
+
         return new Promise(function(resolve, reject) {
 
             that.logger.log("debug", LOG_ID + "(fetchMyChannels) _entering_");
@@ -2342,9 +2342,9 @@ class RESTService {
     }
 
     getChannel(id) {
-        
+
         let that = this;
-    
+
         return new Promise(function(resolve, reject) {
 
             that.logger.log("debug", LOG_ID + "(getChannel) _entering_");
@@ -2454,7 +2454,7 @@ class RESTService {
     // Unsubscribe to a channel
     unsubscribeToChannel( channelId) {
         let that = this;
-        
+
         return new Promise(function(resolve, reject) {
 
             that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) _entering_");
@@ -2567,19 +2567,19 @@ class RESTService {
 
     // Get all users from channel
     getChannelUsers(channelId, options) {
-        
+
     let that = this;
-    
+
         return new Promise(function(resolve, reject) {
 
             that.logger.log("debug", LOG_ID + "(getUsersChannel) _entering_");
 
             let filterToApply = "format=full";
-            
+
             if (options.format) {
                 filterToApply = "format=" + options.format;
             }
-            
+
             if (options.page > 0) {
                 filterToApply += "&offset=";
                 if (options.page > 1) {
@@ -2631,7 +2631,7 @@ class RESTService {
             });
         });
     }
-    
+
     // Update a collection of channel users
     updateChannelUsers(channelId, users) {
         let that = this;
@@ -2943,6 +2943,40 @@ class RESTService {
             });
         });
     }
+
+
+    getIceConfig () {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            // Get and store portalURL
+            //var portalURL = config.restServerUrl + "/api/rainbow/geolocation/v1.0/";
+
+            //$http({ method: "GET", url: portalURL + "settings/iceservers?nbServers=2", headers: authService.getRequestHeader() })
+            that.http.get("/api/rainbow/geolocation/v1.0/settings/iceservers?nbServers=2", that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(videoService) getIceConfig success");
+                that.logger.log("internal", LOG_ID + "(videoService) getIceConfig success : ", json);
+                let iceServers = json.data;
+                that.logger.log("internal", LOG_ID + "(videoService) getIceConfig success iceServers : ", iceServers);
+                iceServers.forEach(function(element) { delete element.id; }, this);
+
+                    // if (adapter.default.browserDetails.browser === "chrome") {
+                    //     iceServers = iceServers.filter(function(element) {
+                    //         if (element.urls.indexOf("turn:") === 0) {
+                    //             return false;
+                    //         }
+                    //         return true;
+                    //     });
+                    // }
+                    //resolve({ iceServers: iceServers });
+                    resolve(iceServers);
+                })
+                .catch(function(error) {
+                    that.logger.log("internalerror", LOG_ID, "(videoService) getIceConfig failure -- " + error.message);
+                    reject(error);
+                });
+        });
+    };
+
 
     //////
     // Generic HTTP VERB

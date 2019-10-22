@@ -409,6 +409,17 @@ class WebRtcEventHandler extends GenericHandler {
 
         let res = that._jingleService.handleIqStanza(stanza);
 
+        that.logger.log("debug", LOG_ID + '(_onParseJingleInitiateRequest) Client SDP : ', JSON.stringify(res));
+
+        //TODO  jingle session accept
+
+        that.logger.log("debug", LOG_ID + '(_onParseJingleInitiateRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
+
+
+        that.logger.log("internal", LOG_ID + "(onSetStanza)  - send evt_internal_InitiateRequest 'res'", res);
+       // that.eventEmitter.emit("evt_internal_InitiateRequest", res);
+        await that._webrtcService.onInitiateRequest(res);
+
         try {
             await that.xmppService.xmppClient.send(res.ack); //just to close the 'session-initiate' transaction
         } catch (err) {
@@ -424,16 +435,6 @@ class WebRtcEventHandler extends GenericHandler {
                 resolve(true);
             });
         }
-        that.logger.log("debug", LOG_ID + '(_onParseJingleInitiateRequest) Client SDP : ', JSON.stringify(res));
-
-        //TODO  jingle session accept
-
-        that.logger.log("debug", LOG_ID + '(_onParseJingleInitiateRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
-
-
-        that.logger.log("internal", LOG_ID + "(onSetStanza)  - send evt_internal_InitiateRequest 'res'", res);
-        that.eventEmitter.emit("evt_internal_InitiateRequest", res);
-
 
         return res;
 

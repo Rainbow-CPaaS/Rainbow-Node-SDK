@@ -5,6 +5,8 @@ import {RTCIceCandidate, RTCSessionDescription} from "wrtc";
 import  {ConnectionWebRtc} from './connectionwebrtc';
 import {publicDecrypt} from "crypto";
 import {setFlagsFromString} from "v8";
+import set = Reflect.set;
+import {until} from "../../common/Utils";
 
 const TIME_TO_CONNECTED = 10000;
 const TIME_TO_HOST_CANDIDATES = 3000;  // NOTE(mroberts): Too long.
@@ -16,6 +18,7 @@ class WebRtcConnection extends ConnectionWebRtc {
   }
   public doOffer: () => Promise<void>;
   public applyAnswer: (answer) => Promise<void>;
+  public applyOffer: (offer) => Promise<void>;
   public createAnswer: () => any;
   public close: () => void;
   public toJSON: () => any;
@@ -48,7 +51,9 @@ class WebRtcConnection extends ConnectionWebRtc {
 
       that._peerConnection = new RTCPeerConnection({
       //sdpSemantics: 'unified-plan'
-      sdpSemantics: 'plan-b'
+      sdpSemantics: 'plan-b',
+        iceCandidatePoolSize: 20,
+        iceServers: options.iceServers
     });
 
     options.beforeOffer.beforeOffer(that._peerConnection);
@@ -63,7 +68,7 @@ class WebRtcConnection extends ConnectionWebRtc {
     let reconnectionTimer = null;
 
     const onIceConnectionStateChange = () => {
-      console.log("onIceConnectionStateChange this.peerconnection.signalingState : ", that._peerConnection.signalingState);
+      console.log("onIceConnectionStateChange this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
       if (that._peerConnection.iceConnectionState === 'connected'
         || that._peerConnection.iceConnectionState === 'completed') {
         if (connectionTimer) {
@@ -87,7 +92,7 @@ class WebRtcConnection extends ConnectionWebRtc {
 
     this.doOffer = async () => {
       const offer = await that._peerConnection.createOffer();
-      console.log("doOffer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
+      console.log("doOffer this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
 
       //disableTrickleIce();
       await that._peerConnection.setLocalDescription(offer);
@@ -100,28 +105,53 @@ class WebRtcConnection extends ConnectionWebRtc {
     };
 
     this.applyAnswer = async answer => {
-      console.log("applyAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
-      console.log("applyAnswer will setRemoteDescription.");
-      return await that._peerConnection.setRemoteDescription(answer);
+      console.log("applyAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+      const answerRTC = new RTCSessionDescription({
+      //const answerRTC = {
+        type: answer.type,
+        sdp: answer.sdp
+      }); //
+      console.log("applyAnswer will setRemoteDescription answerRTC : ", answerRTC);
+      return await that._peerConnection.setRemoteDescription(answerRTC).catch((err) => {
+        console.log("applyAnswer Error setRemoteDescription error : ", err);
+      });
     };
 
+      this.applyOffer = async offer => {
+        console.log("applyOffer this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+        const offerRTCSessionDescription = new RTCSessionDescription({
+          //const answerRTC = {
+          type: offer.type,
+          sdp: offer.sdp
+        }); //
+        console.log("applyOffer will setRemoteDescription offerRTCSessionDescription : ", offerRTCSessionDescription);
+        let setRemtDescResult =  await that._peerConnection.setRemoteDescription(offerRTCSessionDescription).catch((err) => {
+          console.log("applyOffer Error setRemoteDescription error : ", err);
+        });
+        console.log("applyOffer setRemoteDescription setted, this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+        return setRemtDescResult;
+      };
 
       this.createAnswer = async function () {
-        console.log("createAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState);
+        console.log("createAnswer this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
 
         const originalAnswer = await that._peerConnection.createAnswer();
         console.log("createAnswer originalAnswer : ", originalAnswer);
         const updatedAnswer = new RTCSessionDescription({
           type: 'answer',
-          sdp: originalAnswer.sdp
+          sdp: originalAnswer.sdp.replace('a=sendrecv', 'a=recvonly' )
         }); // */
         // sdp: stereo ? enableStereoOpus(originalAnswer.sdp) : originalAnswer.sdp
         console.log("createAnswer updatedAnswer : ", updatedAnswer);
-        return await that._peerConnection.setLocalDescription(updatedAnswer);
+        let setlocalDesc = await that._peerConnection.setLocalDescription(updatedAnswer);
+        console.log("createAnswer setLocalDescription setted, this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+        return setlocalDesc;
       };
 
     this.addIceCandidate = async candidate => {
-      console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState);
+      console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+      await until(() => { return that._peerConnection.signalingState != "have-remote-offer"; }, "waiting for that._peerConnection.signalingState == \"have-remote-offer\" before adding ICE Candidate.", 10000);
+      console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
       return await that._peerConnection.addIceCandidate(candidate).catch((err)=> {
             console.log("addIceCandidate error : ", err);
         });
@@ -181,10 +211,22 @@ class WebRtcConnection extends ConnectionWebRtc {
     try {
       return await that._peerConnection.getConfiguration();
     } catch (error) {
-      this.close();
+      //this.close();
       throw error;
     }
   }
+
+  async getStats() {
+    let that =this;
+    try {
+      return await that._peerConnection.getStats();
+    } catch (error) {
+      //this.close();
+      throw error;
+    }
+  }
+
+
 
 }
 

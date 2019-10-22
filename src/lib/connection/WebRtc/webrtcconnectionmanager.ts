@@ -43,8 +43,10 @@ class WebRtcConnectionManager {
 }
 
 WebRtcConnectionManager.create = function create(options) {
+    console.log("WebRtcConnectionManager, create options : ", options);
   return new WebRtcConnectionManager({
     Connection: function(id) {
+        console.log("WebRtcConnectionManager, Connection options : ", options);
       return new WebRtcConnection(id, options);
     }
   });
