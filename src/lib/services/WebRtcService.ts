@@ -185,10 +185,10 @@ const LOG_ID = "WEBRTC/SVCE - ";
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
         let r = await conn.applyOffer(offer);
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyOffer r : ", r);
-        that.logger.log("debug", LOG_ID + "[onInitiateRequest] applyOffer getStats : ", await conn.getStats());
+        // that.logger.log("debug", LOG_ID + "[onInitiateRequest] applyOffer getStats : ", await conn.getStats());
         let resultAnswer = await conn.createAnswer();
         that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
-        that.logger.log("debug", LOG_ID + "[onInitiateRequest] createAnswer getStats : ", await conn.getStats());
+        // that.logger.log("debug", LOG_ID + "[onInitiateRequest] createAnswer getStats : ", await conn.getStats());
         let id = that._xmpp.xmppUtils.getUniqueMessageId();
         that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
         let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
@@ -296,12 +296,12 @@ const LOG_ID = "WEBRTC/SVCE - ";
 
                     that.logger.log("info", LOG_ID + '(onTransportInfoRequest) candidate : ', candidate);
 
-                    let connConfig = await conn.getConfiguration();
+                    //let connConfig = await conn.getConfiguration();
                     that.logger.log("debug", LOG_ID + "[onTransportInfoRequest] getStats : ", await conn.getStats());
-                    that.logger.log("info", LOG_ID + '(onTransportInfoRequest) connConfig : ', connConfig);
+                    //that.logger.log("info", LOG_ID + '(onTransportInfoRequest) connConfig : ', connConfig);
                     conn.addIceCandidate(candidate).then(async r => {
                         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate result : ", r);
-                        that.logger.log("debug", LOG_ID + "[onTransportInfoRequest] addIceCandidate getStats : ", await conn.getStats());
+                        //that.logger.log("debug", LOG_ID + "[onTransportInfoRequest] addIceCandidate getStats : ", await conn.getStats());
                     }).catch((err) => {
                         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] addIceCandidate error : ", err);
                     });

@@ -117,6 +117,9 @@ class WebRtcConnection extends ConnectionWebRtc {
       });
     };
 
+
+
+
       this.applyOffer = async offer => {
         console.log("applyOffer this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
         const offerRTCSessionDescription = new RTCSessionDescription({
@@ -148,14 +151,16 @@ class WebRtcConnection extends ConnectionWebRtc {
         return setlocalDesc;
       };
 
-    this.addIceCandidate = async candidate => {
-      console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
-      await until(() => { return that._peerConnection.signalingState != "have-remote-offer"; }, "waiting for that._peerConnection.signalingState == \"have-remote-offer\" before adding ICE Candidate.", 10000);
-      console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
-      return await that._peerConnection.addIceCandidate(candidate).catch((err)=> {
-            console.log("addIceCandidate error : ", err);
+      this.addIceCandidate = async candidate => {
+        console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+        await until(() => {
+          return that._peerConnection.signalingState != "have-remote-offer";
+        }, "waiting for that._peerConnection.signalingState == \"have-remote-offer\" before adding ICE Candidate.", 10000);
+        console.log("addIceCandidate this.peerconnection.signalingState : ", that._peerConnection.signalingState, ", iceConnectionState : ", that._peerConnection.iceConnectionState);
+        return await that._peerConnection.addIceCandidate(candidate).catch((err) => {
+          console.log("addIceCandidate error : ", err);
         });
-    };
+      };
 
 
       this.close = () => {
@@ -225,8 +230,6 @@ class WebRtcConnection extends ConnectionWebRtc {
       throw error;
     }
   }
-
-
 
 }
 
