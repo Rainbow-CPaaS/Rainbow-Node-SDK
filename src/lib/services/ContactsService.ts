@@ -345,6 +345,7 @@ class Contacts {
         contact.jid_im = jid;
         contact.jidtel = "tel_" + jid;
         contact.id = contactId;
+        contact._id = jid;
         contact.ask = "none";
         contact.subscription = "none";
         // TODO ? contact.updateRichStatus();

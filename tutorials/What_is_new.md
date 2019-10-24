@@ -5,6 +5,33 @@
 Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
 
 
+### SDK for Node.JS 1.63 - October 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Fix Options.ts the start up service requested to start when it is not already present in default config.
+-   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
+-   Add Message factory
+-   Add listenning of system's signals "SIGINT", "SIGQUIT", "SIGTERM" for automatic call of stop on the rainbow intance.
+-   Fix Makecall when the user doesn't have telephony.
+-   Fix value Contact.id and Contact._id were sometime not filled
+
 ### SDK for Node.JS 1.62 - September 2019
 
 ---

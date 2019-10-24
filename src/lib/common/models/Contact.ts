@@ -656,7 +656,6 @@ class Contact {
     updateFromUserData (userData) {
         let that = this;
         // Identification fields
-        that._id = userData.id;
         that.id = userData.id;
         that.loginEmail = userData.loginEmail;
         that.firstName = userData.firstName;
