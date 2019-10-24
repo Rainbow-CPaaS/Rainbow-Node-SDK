@@ -166,7 +166,7 @@ module.exports = function(grunt) {
             fast: 'never'
         },
         build: {
-            src: ["src/**/*.ts", "!node_modules/**", "IgnoredDir/src/**/*.ts"],
+            src: ["src/**/*.ts", "!node_modules/**"],
             tsconfig: true
         }
       },

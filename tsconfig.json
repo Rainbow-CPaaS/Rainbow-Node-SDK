@@ -18,7 +18,7 @@
     "pretty": true,
     //"removeComments": true,
     "rootDir": "./src",
-    "project": "./src",
+    //"project": "./src",
     //"stripInternal": true,
     "outDir": "./",
     "lib": [
@@ -49,7 +49,6 @@
     "./typings/**/*"
   ],
   "include": [
-    "src/**/*",
-    "IgnoredDir/src/**/*"
+    "src/**/*"
   ]
 }
