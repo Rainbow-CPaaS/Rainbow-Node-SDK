@@ -6,16 +6,16 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.6x.x] - 2018-10-xx
+## [1.63.0] - 2018-10-xx
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.
 -   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
 -   Fix ts build
 -   Reduce logs in dev mod
 -   Add Message factory
--   Update stripcode to put the un needed code in production env in comment during grunt build for delivery.
+-   Update stripcode to put the unneeded code in production env in comment during grunt build for delivery.
 -   Add listenning of system's signals "SIGINT", "SIGQUIT", "SIGTERM" for automatic call of stop on the rainbow intance.
 -   Fix Makecall when the user doesn't have telephony.
--   Fix value Contact.id was sometime different from Contact._id  
+-   Fix value Contact.id and Contact._id were sometime not filled   
 
 ## [1.62.0] - 2018-10-07
 -   Typescript improvement 
