@@ -23,6 +23,7 @@ import {xu} from "../../common/XMPPUtils";
 //import {IQJingleParser} from "../WebRtc/IqJingleParser";
 import {createJingleService, JingleService} from "../WebRtc/JingleService";
 import {stringify} from "querystring";
+import {RTCPeerConnection as DefaultRTCPeerConnection} from "wrtc";
 
 const LOG_ID = "XMPP/HNDL/WEBRTC - ";
 
@@ -46,6 +47,7 @@ class WebRtcEventHandler extends GenericHandler {
     constructor(xmppService : XMPPService, webrtcService,  profileService) {
         super(xmppService);
 
+        let self = this;
         this.MESSAGE = "jabber:client.message";
         this.IQ_RESULT = "jabber:client.iq.result";
         this.IQ_ERROR = "jabber:client.iq.error";
@@ -62,6 +64,19 @@ class WebRtcEventHandler extends GenericHandler {
         // C:\Projets\RandD\Rainbow\Sources\CPaas\Rainbow-Node-SDK - sample2\node_modules\ltx\lib\Element.js
         this._jingleService = createJingleService();
         //this._iqJingleParser = new IQJingleParser(this.xmppService, {} /* this._janusService */, {}/*this._sipMemoryService */, this._jingleService, this.logger);
+
+        let pc1 = new DefaultRTCPeerConnection();
+        function onIceCandidate1({ candidate }) {
+            if (!candidate) {
+                //options.clearTimeout(timeout);
+                pc1.removeEventListener('icecandidate', onIceCandidate1);
+                //deferred.resolve();
+            } else {
+                console.log("onIceCandidate1 Candidates : ", candidate,  ", pc2.signalingState : ", pc2.signalingState, ", iceConnectionState : ", pc2.iceConnectionState);
+                return self._webrtcService.connection.addIceCandidate(candidate);
+            }
+        }
+        pc1.addEventListener('icecandidate', onIceCandidate1);
     }
 
     async onSetStanza(msg, stanza) {
@@ -531,7 +546,8 @@ class WebRtcEventHandler extends GenericHandler {
         this.logger.log("debug", LOG_ID +'(_onParseTransportInfoRequest) Try to find : ', JSON.stringify(this._toBareJid(parsed.jid_from)));
 
         this.logger.log("info", LOG_ID + "(_onParseTransportInfoRequest)  - send evt_internal_TransportInfoRequest 'res' : ", res);
-        this.eventEmitter.emit("evt_internal_TransportInfoRequest", res, stanza);
+        //this.eventEmitter.emit("evt_internal_TransportInfoRequest", res, stanza);
+        await this._webrtcService.onTransportInfoRequest(res, stanza);
 
         return ;
 

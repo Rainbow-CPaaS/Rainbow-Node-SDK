@@ -29,7 +29,7 @@ class WebRtcConnectionManager {
         return connection;
     };
 
-    getConnection(id) {
+    async getConnection(id) {
         return this.connectionManager.getConnection(id);
     };
 

@@ -122,7 +122,7 @@ class SDPUtil {
         let candidate : any = {},
             elems = line.split(" ");
         candidate.foundation = Number(elems[0].substring(12));
-        candidate.component = Number(elems[1]);
+        candidate.component = "rtp"; //Number(elems[1]);
         candidate.protocol = elems[2].toLowerCase();
         candidate.priority = Number (elems[3]);
         candidate.ip = elems[4];
@@ -132,7 +132,7 @@ class SDPUtil {
         candidate.port = Number (elems[5]);
         // elems[6] => "typ"
         candidate.type = elems[7];
-        candidate.tcpType = candidate.type; // VBE Added
+        candidate.tcpType = null; //candidate.type; // VBE Added
         candidate.generation = Number(0); // default value, may be overwritten below
         for (var i = 8; i < elems.length; i += 2) {
             switch (elems[i]) {
@@ -357,8 +357,10 @@ class SDPUtil {
 
     } // */
     candidateFromJingle2 (cand, ufrag, pwd) {
-        var parts = [
-            'a=candidate:' + cand.getAttr('foundation'),
+        //'a=candidate:' + cand.getAttr('foundation'),
+        //             cand.getAttr('component'),
+        let parts = [
+            'candidate:' + cand.getAttr('foundation'),
             cand.getAttr('component'),
             cand.getAttr('protocol'),
             cand.getAttr('priority'),
@@ -382,16 +384,6 @@ class SDPUtil {
         parts.push('generation');
         parts.push(cand.getAttr('generation') || '0');
 
-        if (cand.getAttr('network')) {
-            parts.push('network-id');
-            parts.push(cand.getAttr('network'));
-        }
-
-        if (cand.getAttr('cost')) {
-            parts.push('network-cost');
-            parts.push(cand.getAttr('cost'));
-        }
-
         if (ufrag) {
             parts.push('ufrag');
             parts.push(ufrag);
@@ -402,7 +394,17 @@ class SDPUtil {
             parts.push(pwd);
         }
 
-        return parts.join(' ') + '\r\n';
+        if (cand.getAttr('network')) {
+            parts.push('network-id');
+            parts.push(cand.getAttr('network'));
+        }
+
+        if (cand.getAttr('cost')) {
+            parts.push('network-cost');
+            parts.push(cand.getAttr('cost'));
+        }
+
+        return parts.join(' ') ;// + '\r\n';
     }
 }
 
