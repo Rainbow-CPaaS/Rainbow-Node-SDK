@@ -30,7 +30,8 @@
     "package.json",
     "README.md",
     "CHANGELOG.md",
-    "tsconfig.json"
+    "tsconfig.json",
+    "/src"
   ],
   "author": "Alcatel-Lucent Enterprise",
   "license": "MIT",

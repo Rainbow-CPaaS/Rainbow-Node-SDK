@@ -27,3 +27,4 @@ lib/services
 src/Samples/index.ts
 Samples/index.js.map
 src/lib/common/models/Message.ts.orig
+IgnoredDir/

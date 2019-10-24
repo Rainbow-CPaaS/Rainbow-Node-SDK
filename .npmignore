@@ -14,3 +14,4 @@ Samples/
 Docs/
 package-lock.json
 *.ts
+IgnoredDir/
