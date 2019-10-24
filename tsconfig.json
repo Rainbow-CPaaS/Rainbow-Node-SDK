@@ -49,6 +49,7 @@
     "./typings/**/*"
   ],
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "IgnoredDir/src/**/*"
   ]
 }
