@@ -594,7 +594,7 @@ class TelephonyEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(onDivertedEvent) _entering_ : ", divertedElem);
             let oldConnectionId = divertedElem.attr("oldCallId");
             let oldCallId = Call.getIdFromConnectionId(oldConnectionId);
-            let call = that.telephonyService.getCallFromCaches(oldCallId);
+            let call = that.telephonyService.getCallFromCache(oldCallId);
             if (!call) {
                 that.logger.log("warn", LOG_ID + "(onDivertedEvent) - receive divertedEvent on unknown call --- ignored");
                 return Promise.resolve();
