@@ -15,7 +15,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update stripcode to put the unneeded code in production env in comment during grunt build for delivery.
 -   Add listenning of system's signals "SIGINT", "SIGQUIT", "SIGTERM" for automatic call of stop on the rainbow intance.
 -   Fix Makecall when the user doesn't have telephony.
--   Fix value Contact.id and Contact._id were sometime not filled   
+-   Fix value Contact.id and Contact._id were sometime not filled
+-   Fix onDivertedEvent callback   
 
 ## [1.62.0] - 2018-10-07
 -   Typescript improvement 
