@@ -53,7 +53,8 @@ const LOG_ID = "WEBRTC/SVCE - ";
     };
     public webRtcConnectionManager: WebRtcConnectionManager;
     public connections: Map<any, any> = new Map();
-    public  connection:  ConnectionWebRtc;
+    public connection:  ConnectionWebRtc;
+    public pc1 ;//= new DefaultRTCPeerConnection();
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -62,6 +63,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
     constructor(_eventEmitter, logger, _startConfig) {
 
+        let self = this;
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
         /*********************************************************/
@@ -79,7 +81,6 @@ const LOG_ID = "WEBRTC/SVCE - ";
         this._eventEmitter.on("evt_internal_InitiateRequest", this.onInitiateRequest.bind(this));
         this._eventEmitter.on("evt_internal_TransportInfoRequest", this.onTransportInfoRequest.bind(this));
         this._eventEmitter.on("evt_internal_TerminateRequest", this.onTerminateRequest.bind(this));
-
 
     }
 
@@ -138,10 +139,11 @@ const LOG_ID = "WEBRTC/SVCE - ";
             //this.webrtcConnection = new WebRtcConnection(that.createId(), options);
             let iceServers = await that._rest.getIceConfig();
             that.logger.log("info", LOG_ID + " (WebRtcConnection) iceServers : ", iceServers);
+
             that.webRtcConnectionManager = await WebRtcConnectionManager.create({iceServers,...options});
 
 
-            await that.testconnection();
+           // await that.testconnection();
 
 //            that.getCallLogHistoryPage()
   //              .then(() => {
@@ -189,6 +191,52 @@ const LOG_ID = "WEBRTC/SVCE - ";
 
         //result.sdp = 'v=0\r\no=- 4086647801925252121 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:zIR9\r\na=ice-pwd:9efDTGuIpHj0L0Y3No0rfdp1\r\na=ice-options:trickle\r\na=fingerprint:sha-256 9C:E5:A7:73:43:EC:15:AA:0C:4F:5A:FC:D4:E8:3E:0E:D0:07:C2:B6:43:4C:A2:A4:93:97:95:44:02:C9:56:7F\r\na=setup:actpass\r\na=mid:0\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n';
 
+
+        that.pc1.createOffer().then(d => {
+            console.log("d : ", d);
+            let sldd =  that.pc1.setLocalDescription(d);
+            console.log(" 1 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
+            return sldd;
+        })
+            .then(() =>{
+                console.log(" 2 pc1.localDescription : ", that.pc1.localDescription,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                //let pld =  that.connection.setRemoteDescription(that.pc1.localDescription);
+                let pld = that.connection.applyOffer(that.pc1.localDescription);
+                console.log(" 3 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                return pld;
+            })
+            .then(() => {
+                console.log(" 4 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                let ca = that.connection.createAnswer();
+                console.log(" 5 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                return ca;
+            }).then(d => {
+             /*console.log(" 6 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
+             let sld =  that.connection.setLocalDescription(d);
+             console.log(" 7 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.pc2.iceConnectionState);
+             return sld; // */
+            return d;
+        })
+            .then(() => {
+                console.log(" 8 pc2.localDescription : ", that.connection.localDescription,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+/*
+                let sld2 = pc1.setRemoteDescription(pc2.localDescription);
+                console.log(" 9 pc2.signalingState : ", pc2.signalingState, ", iceConnectionState : ", pc2.iceConnectionState);
+                return sld2;
+*/
+            })
+            .then(() => {
+                console.log("pc1.canTrickleIceCandidates : ", that.pc1.canTrickleIceCandidates,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState)
+            } )
+            .catch(e => console.log(e));
+
+
+
+
+
+
+
+        /*
         let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
         that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
         let r = await conn.applyOffer(offer);
@@ -223,6 +271,9 @@ const LOG_ID = "WEBRTC/SVCE - ";
     async  onTransportInfoRequest(result, stanza): Promise<void> {
         let that = this;
         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] result : ", result);
+
+        return;
+
         if ( !result.candidates[0]) {
             return new Promise((resolve, reject) =>
             {
@@ -446,6 +497,41 @@ const LOG_ID = "WEBRTC/SVCE - ";
         let that = this;
         that.logger.log("internal", LOG_ID + "[createConnection] _entering_" );
         that.connection = await that.webRtcConnectionManager.createIncallConnection();
+        //that.connection = new DefaultRTCPeerConnection();
+        that.pc1 = new DefaultRTCPeerConnection({
+            sdpSemantics: 'plan-b'
+        });
+        that.logger.log("internal", LOG_ID + "[createConnection] DefaultRTCPeerConnection created." );
+        function onIceCandidate1({ candidate }) {
+            console.log("onIceCandidate1 Candidates : ", candidate);
+            if (!candidate) {
+                //options.clearTimeout(timeout);
+                that.pc1.removeEventListener('icecandidate', onIceCandidate1);
+                //deferred.resolve();
+            } else {
+                console.log("onIceCandidate1 Candidates : ", candidate,  ", self.connection.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                return that.connection.addIceCandidate(candidate);
+            }
+        }
+        that.pc1.addEventListener('icecandidate', onIceCandidate1);
+        function onIceCandidate2({ candidate }) {
+            if (!candidate) {
+                //options.clearTimeout(timeout);
+                that.pc1.removeEventListener('icecandidate', onIceCandidate2);
+                //deferred.resolve();
+            } else {
+                console.log("onIceCandidate2 Candidates : ", candidate,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                return that.pc1.addIceCandidate(candidate);
+            }
+        }
+        that.connection.addEventListener('icecandidate', onIceCandidate2);
+
+        that.pc1.onnegotiationneeded = e => {
+            that.logger.log("internal", LOG_ID + "[createConnection] that.pc1.onnegotiationneeded : ", e);
+        };
+
+        that.pc1.createDataChannel("dummy");
+
         that.logger.log("internal", LOG_ID + "[createConnection] create the web rtc connection : ", that.connection);
         that.logger.log("internal", LOG_ID + "[createConnection] _exiting_" );
         return that.connection;
@@ -479,7 +565,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
                 return pc1.addIceCandidate(candidate);
             }
         }
-        pc1.addEventListener('icecandidate', onIceCandidate2);
+        pc2.addEventListener('icecandidate', onIceCandidate2);
 
 
         pc1.onnegotiationneeded = e =>

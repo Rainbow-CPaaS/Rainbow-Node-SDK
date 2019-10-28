@@ -65,18 +65,6 @@ class WebRtcEventHandler extends GenericHandler {
         this._jingleService = createJingleService();
         //this._iqJingleParser = new IQJingleParser(this.xmppService, {} /* this._janusService */, {}/*this._sipMemoryService */, this._jingleService, this.logger);
 
-        let pc1 = new DefaultRTCPeerConnection();
-        function onIceCandidate1({ candidate }) {
-            if (!candidate) {
-                //options.clearTimeout(timeout);
-                pc1.removeEventListener('icecandidate', onIceCandidate1);
-                //deferred.resolve();
-            } else {
-                console.log("onIceCandidate1 Candidates : ", candidate,  ", pc2.signalingState : ", pc2.signalingState, ", iceConnectionState : ", pc2.iceConnectionState);
-                return self._webrtcService.connection.addIceCandidate(candidate);
-            }
-        }
-        pc1.addEventListener('icecandidate', onIceCandidate1);
     }
 
     async onSetStanza(msg, stanza) {

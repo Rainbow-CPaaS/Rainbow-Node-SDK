@@ -51,18 +51,31 @@ class WebRtcConnection extends ConnectionWebRtc {
 
       console.log("(WebRtcConnection) constructor : ");
 
-      that._peerConnection = new RTCPeerConnection({
-      //sdpSemantics: 'unified-plan'
-      sdpSemantics: 'plan-b',
-        iceCandidatePoolSize: 20,
-        iceServers: options.iceServers
-    }, {
+     /* that._peerConnection = new RTCPeerConnection({
+
+      });
+
+      // */
+
+     try {
+       that._peerConnection = new RTCPeerConnection({
+             //sdpSemantics: 'unified-plan'
+             sdpSemantics: 'plan-b'
+             //,
+             //iceCandidatePoolSize: 20,
+             //iceServers: options.iceServers
+           }/* , {
         'optional': [{
           'DtlsSrtpKeyAgreement': true
         }]
-      }
-    ); // */
+      } // */
+       ); // */
+     } catch (err) {
+       console.log("WebRtcConnection::constructor CATCH Error : ", err);
+     }
 
+      that.addEventListener = that._peerConnection.addEventListener;
+      /*
       function onIceCandidate_({ candidate }) {
         if (!candidate) {
           //options.clearTimeout(timeout);
@@ -74,6 +87,8 @@ class WebRtcConnection extends ConnectionWebRtc {
         }
       }
       that._peerConnection.addEventListener('icecandidate', onIceCandidate_);
+      // */
+
 
 /*
       let pc1 = new RTCPeerConnection(), pc2 = new RTCPeerConnection();
