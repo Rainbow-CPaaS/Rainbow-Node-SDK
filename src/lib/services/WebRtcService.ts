@@ -185,12 +185,15 @@ const LOG_ID = "WEBRTC/SVCE - ";
         };
         // */
 
-        offer = { type: 'offer',
+        /*offer = { type: 'offer',
             sdp:
-                'v=0\r\no=- 1203703723252593969 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE audio data\r\na=msid-semantic: WMS 3d370734-f960-4bed-96e4-a37607f3b005\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111 103 104 9 102 0 8 106 105 13 110 112 113 126\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:rCMw\r\na=ice-pwd:CZwOhfqoL8yWd0kTvsWYdGWU\r\na=ice-options:trickle\r\na=fingerprint:sha-256 D3:CC:3A:DC:73:3A:DA:9D:D0:F1:3A:9E:2A:0F:36:E2:9B:55:4F:19:B1:19:6E:0C:B5:C4:B2:50:D6:16:A4:2B\r\na=setup:actpass\r\na=mid:audio\r\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r\na=extmap:2 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\na=sendrecv\r\na=rtcp-mux\r\na=rtpmap:111 opus/48000/2\r\na=rtcp-fb:111 transport-cc\r\na=fmtp:111 minptime=10;useinbandfec=1\r\na=rtpmap:103 ISAC/16000\r\na=rtpmap:104 ISAC/32000\r\na=rtpmap:9 G722/8000\r\na=rtpmap:102 ILBC/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:106 CN/32000\r\na=rtpmap:105 CN/16000\r\na=rtpmap:13 CN/8000\r\na=rtpmap:110 telephone-event/48000\r\na=rtpmap:112 telephone-event/32000\r\na=rtpmap:113 telephone-event/16000\r\na=rtpmap:126 telephone-event/8000\r\na=ssrc:1013980281 cname:w+Sj5nqmNK22vtoa\r\na=ssrc:1013980281 msid:3d370734-f960-4bed-96e4-a37607f3b005 2fa31ea8-c377-451f-9df1-49e4fb2e9890\r\na=ssrc:1013980281 mslabel:3d370734-f960-4bed-96e4-a37607f3b005\r\na=ssrc:1013980281 label:2fa31ea8-c377-451f-9df1-49e4fb2e9890\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:rCMw\r\na=ice-pwd:CZwOhfqoL8yWd0kTvsWYdGWU\r\na=ice-options:trickle\r\na=fingerprint:sha-256 D3:CC:3A:DC:73:3A:DA:9D:D0:F1:3A:9E:2A:0F:36:E2:9B:55:4F:19:B1:19:6E:0C:B5:C4:B2:50:D6:16:A4:2B\r\na=setup:actpass\r\na=mid:data\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n' };
+                'v=0\r\no=- 1203703723252593969 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE audio data\r\na=msid-semantic: WMS 3d370734-f960-4bed-96e4-a37607f3b005\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111 103 104 9 102 0 8 106 105 13 110 112 113 126\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:rCMw\r\na=ice-pwd:CZwOhfqoL8yWd0kTvsWYdGWU\r\na=ice-options:trickle\r\na=fingerprint:sha-256 D3:CC:3A:DC:73:3A:DA:9D:D0:F1:3A:9E:2A:0F:36:E2:9B:55:4F:19:B1:19:6E:0C:B5:C4:B2:50:D6:16:A4:2B\r\na=setup:actpass\r\na=mid:audio\r\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r\na=extmap:2 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\na=sendrecv\r\na=rtcp-mux\r\na=rtpmap:111 opus/48000/2\r\na=rtcp-fb:111 transport-cc\r\na=fmtp:111 minptime=10;useinbandfec=1\r\na=rtpmap:103 ISAC/16000\r\na=rtpmap:104 ISAC/32000\r\na=rtpmap:9 G722/8000\r\na=rtpmap:102 ILBC/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:106 CN/32000\r\na=rtpmap:105 CN/16000\r\na=rtpmap:13 CN/8000\r\na=rtpmap:110 telephone-event/48000\r\na=rtpmap:112 telephone-event/32000\r\na=rtpmap:113 telephone-event/16000\r\na=rtpmap:126 telephone-event/8000\r\na=ssrc:1013980281 cname:w+Sj5nqmNK22vtoa\r\na=ssrc:1013980281 msid:3d370734-f960-4bed-96e4-a37607f3b005 2fa31ea8-c377-451f-9df1-49e4fb2e9890\r\na=ssrc:1013980281 mslabel:3d370734-f960-4bed-96e4-a37607f3b005\r\na=ssrc:1013980281 label:2fa31ea8-c377-451f-9df1-49e4fb2e9890\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:rCMw\r\na=ice-pwd:CZwOhfqoL8yWd0kTvsWYdGWU\r\na=ice-options:trickle\r\na=fingerprint:sha-256 D3:CC:3A:DC:73:3A:DA:9D:D0:F1:3A:9E:2A:0F:36:E2:9B:55:4F:19:B1:19:6E:0C:B5:C4:B2:50:D6:16:A4:2B\r\na=setup:actpass\r\na=mid:data\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n'
+              };
+        // */
 
         //result.sdp = 'v=0\r\no=- 4086647801925252121 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:zIR9\r\na=ice-pwd:9efDTGuIpHj0L0Y3No0rfdp1\r\na=ice-options:trickle\r\na=fingerprint:sha-256 9C:E5:A7:73:43:EC:15:AA:0C:4F:5A:FC:D4:E8:3E:0E:D0:07:C2:B6:43:4C:A2:A4:93:97:95:44:02:C9:56:7F\r\na=setup:actpass\r\na=mid:0\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n';
 
+        let conn = that.connection;
 
         that.pc1.createOffer().then(d => {
             console.log("d : ", d);
@@ -199,59 +202,57 @@ const LOG_ID = "WEBRTC/SVCE - ";
             return sldd;
         })
             .then(() =>{
-                console.log(" 2 pc1.localDescription : ", that.pc1.localDescription,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
-                //let pld =  that.connection.setRemoteDescription(that.pc1.localDescription);
-                let pld = that.connection.applyOffer(that.pc1.localDescription);
-                console.log(" 3 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                console.log(" 2 pc1.localDescription : ", that.pc1.localDescription,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                //let pld =  conn.setRemoteDescription(that.pc1.localDescription);
+                let pld = conn.applyOffer(that.pc1.localDescription);
+                console.log(" 3 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
                 return pld;
             })
             .then(() => {
-                console.log(" 4 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
-                let ca = that.connection.createAnswer();
-                console.log(" 5 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
+                console.log(" 4 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                let ca = conn.createAnswer();
+                console.log(" 5 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
                 return ca;
             }).then(d => {
-             /*console.log(" 6 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
-             let sld =  that.connection.setLocalDescription(d);
-             console.log(" 7 pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.pc2.iceConnectionState);
-             return sld; // */
             return d;
         })
             .then(() => {
-                console.log(" 8 pc2.localDescription : ", that.connection.localDescription,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState);
-/*
-                let sld2 = pc1.setRemoteDescription(pc2.localDescription);
-                console.log(" 9 pc2.signalingState : ", pc2.signalingState, ", iceConnectionState : ", pc2.iceConnectionState);
-                return sld2;
-*/
+                console.log(" 8 pc2.localDescription : ", conn.localDescription,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
             })
             .then(() => {
-                console.log("pc1.canTrickleIceCandidates : ", that.pc1.canTrickleIceCandidates,  ", pc2.signalingState : ", that.connection.signalingState, ", iceConnectionState : ", that.connection.iceConnectionState)
+                console.log("pc1.canTrickleIceCandidates : ", that.pc1.canTrickleIceCandidates,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState)
             } )
             .catch(e => console.log(e));
 
+ //*/
 
+/*
+        let conn = that.connection;
 
+        that.pc1.createOffer().then(async d => {
+            console.log("createOffer d : ", d);
+            let sldd =  that.pc1.setLocalDescription(d);
+            console.log(" 1 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
+            return sldd;
+        }).then(async () =>{
+            //let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
+            that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
+            let r = await conn.applyOffer(offer);
+            that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyOffer r : ", r);
+            // that.logger.log("debug", LOG_ID + "[onInitiateRequest] applyOffer getStats : ", await conn.getStats());
+            let resultAnswer = await conn.createAnswer();
+            that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
+            this.logger.log("info", LOG_ID + '(onInitiateRequest) conn : ', conn.toJSON());
 
-
-
-
-        /*
-        let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
-        that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
-        let r = await conn.applyOffer(offer);
-        that.logger.log("internal", LOG_ID + "[onInitiateRequest] applyOffer r : ", r);
-        // that.logger.log("debug", LOG_ID + "[onInitiateRequest] applyOffer getStats : ", await conn.getStats());
-        let resultAnswer = await conn.createAnswer();
-        that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
-        this.logger.log("info", LOG_ID +'(onInitiateRequest) conn : ', conn.toJSON());
-
-        // that.logger.log("debug", LOG_ID + "[onInitiateRequest] createAnswer getStats : ", await conn.getStats());
-        let id = that._xmpp.xmppUtils.getUniqueMessageId();
-        that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
-        let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
-        that.logger.log("internal", LOG_ID + "[onInitiateRequest] will sessionRinging stanzaSessionRinging : ", stanzaSessionRinging);
-        await that._xmpp.sendStanza(stanzaSessionRinging);
+            // that.logger.log("debug", LOG_ID + "[onInitiateRequest] createAnswer getStats : ", await conn.getStats());
+            let id = that._xmpp.xmppUtils.getUniqueMessageId();
+            that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
+            let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
+            that.logger.log("internal", LOG_ID + "[onInitiateRequest] will sessionRinging stanzaSessionRinging : ", stanzaSessionRinging);
+            await that._xmpp.sendStanza(stanzaSessionRinging);
+        }).catch(error => {
+            that.logger.log("error", LOG_ID + "[onInitiateRequest] error error : ", error);
+        });
 
         //await this.xmppService.xmppClient.send(stanzaSessionRinging);
 
@@ -497,6 +498,20 @@ const LOG_ID = "WEBRTC/SVCE - ";
         let that = this;
         that.logger.log("internal", LOG_ID + "[createConnection] _entering_" );
         that.connection = await that.webRtcConnectionManager.createIncallConnection();
+        function onIceCandidate({ candidate }) {
+            if (!candidate) {
+                //options.clearTimeout(timeout);
+                that.pc1.removeEventListener('icecandidate', onIceCandidate);
+                //deferred.resolve();
+            } else {
+                console.log("onIceCandidate Candidates : ", candidate,  ", that.connection.signalingState : ", that.connection.signalingState, ", that.connection.iceConnectionState : ", that.connection.iceConnectionState);
+                // Send the candidate to remoteParty
+
+                //return that.pc1.addIceCandidate(candidate);
+            }
+        }
+        that.connection.addEventListener('icecandidate', onIceCandidate);
+
         //that.connection = new DefaultRTCPeerConnection();
         that.pc1 = new DefaultRTCPeerConnection({
             sdpSemantics: 'plan-b'
@@ -531,7 +546,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
         };
 
         that.pc1.createDataChannel("dummy");
-
+// */
         that.logger.log("internal", LOG_ID + "[createConnection] create the web rtc connection : ", that.connection);
         that.logger.log("internal", LOG_ID + "[createConnection] _exiting_" );
         return that.connection;
