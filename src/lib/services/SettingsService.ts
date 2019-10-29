@@ -63,7 +63,7 @@ class Settings {
 
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject();
+                return reject();
             }
         });
     }
@@ -83,7 +83,7 @@ class Settings {
 
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject();
+                return reject();
             }
         });
     }
@@ -115,7 +115,7 @@ class Settings {
                 that._logger.log("error", LOG_ID + "(getUserSettings) error.");
                 that._logger.log("internalerror", LOG_ID + "(getUserSettings) error : ", err);
                 that._logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -147,7 +147,7 @@ class Settings {
                     that._logger.log("error", LOG_ID + "(updateUserSettings) error.");
                     that._logger.log("internalerror", LOG_ID + "(updateUserSettings) error : ", err);
                     that._logger.log("debug", LOG_ID + "(updateUserSettings) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
         });
     }

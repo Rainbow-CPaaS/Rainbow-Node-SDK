@@ -82,7 +82,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                  resolve();
              } catch (err) {
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject();
+                 return reject();
              }
          });
      }
@@ -109,7 +109,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                  resolve();
              } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                 return reject(err);
              }
          });
      }
@@ -143,9 +143,8 @@ const LOG_ID = "GROUPS/SVCE - ";
                  that._logger.log("warn", LOG_ID + "(createGroup) bad or empty 'name' parameter");
                  that._logger.log("internalerror", LOG_ID + "(createGroup) bad or empty 'name' parameter : ", name);
                  that._logger.log("debug", LOG_ID + "(createGroup) _exiting_");
-                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                return;
-             } 
+                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+             }
 
             that._rest.createGroup(name, comment, isFavorite).then(group => {
                 that._logger.log("debug", LOG_ID + "(createGroup) creation successfull");
@@ -156,7 +155,7 @@ const LOG_ID = "GROUPS/SVCE - ";
             }, err => {
                 that._logger.log("error", LOG_ID + "(createGroup) error");
                 that._logger.log("debug", LOG_ID + "(createGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
          });
      }
@@ -184,9 +183,8 @@ const LOG_ID = "GROUPS/SVCE - ";
                  that._logger.log("warn", LOG_ID + "(deleteGroup) bad or empty 'group' parameter.");
                  that._logger.log("internalerror", LOG_ID + "(deleteGroup) bad or empty 'group' parameter : ", group);
                  that._logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
-                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                 return;
-             } 
+                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+             }
             that._rest.deleteGroup(group.id).then(function() {
                 let foundIndex = that._groups.findIndex(el => {
                     return el.id === group.id;
@@ -203,11 +201,11 @@ const LOG_ID = "GROUPS/SVCE - ";
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(deleteGroup) error");
                 that._logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
          });
      }
-	
+
 	/**
      * @public
      * @method updateGroupName
@@ -238,8 +236,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                     that._logger.log("internalerror", LOG_ID + "(updateGroupName) bad or empty 'name' parameter : ", name);
                 }
                 that._logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                return;
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else if (group.name === name) {
                 that._logger.log("debug", LOG_ID + "(updateGroupName) name of group is already defined, nothing is done");
                 resolve(group);
@@ -260,7 +257,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 }).catch(function(err) {
                     that._logger.log("error", LOG_ID + "(updateGroupName) error");
                     that._logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -280,31 +277,31 @@ const LOG_ID = "GROUPS/SVCE - ";
             that._rest.getGroups().then((listOfGroups : []) => {
 
                 let promises = [];
-                    
+
                 listOfGroups.forEach((group : any) => {
                     promises.push(new Promise(function(res, rej) {
                         that._rest.getGroup(group.id).then(groupWithUsersInformation => {
                             res(groupWithUsersInformation);
                         }, err => {
-                            rej(err);
+                            return rej(err);
                         });
                     }));
                 });
-    
+
                 Promise.all(promises).then(groups => {
                     that._groups = groups;
                     that._logger.log("info", LOG_ID + "(getGroups) get successfully");
                     that._logger.log("debug", LOG_ID + "(getGroups) _exiting_");
                     resolve();
                 }, err => {
-                    reject(err);
+                    return reject(err);
                 });
-   
+
             }, err => {
                  that._logger.log("error", LOG_ID + "(getGroups) Error.");
                  that._logger.log("internalerror", LOG_ID + "(getGroups) Error : ", err);
                  that._logger.log("debug", LOG_ID + "(getGroups) _exiting_");
-                 reject(err);
+                return reject(err);
             });
          });
      }
@@ -345,24 +342,24 @@ const LOG_ID = "GROUPS/SVCE - ";
             let contactIndex = group.users.findIndex(user => user.id === contact.id);
             if (contactIndex === -1) {
                 that._rest.addUserInGroup(contact.id, group.id).then((groupUpdated : any) => {
-                
+
                 that._rest.getGroup(groupUpdated.id).then((groupRetrieved : any) => {
                         let foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupRetrieved.id);
                         that._groups[foundIndex] = groupRetrieved;
                         that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
                         resolve(groupRetrieved);
                     }, err => {
-                        reject(err);
+                    return reject(err);
                     });
                 }, err => {
                     that._logger.log("error", LOG_ID + "(addUserInGroup) error.");
                     that._logger.log("internalerror", LOG_ID + "(addUserInGroup) error : ", err);
                     that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 that._logger.log("warn", LOG_ID + "(addUserInGroup) User is already a member of the group");
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
          });
      }
@@ -399,8 +396,8 @@ const LOG_ID = "GROUPS/SVCE - ";
                  that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
-             } 
-             
+             }
+
             let contactIndex = group.users.findIndex(user => user.id == contact.id);
             if (contactIndex > -1) {
                 that._rest.removeUserFromGroup(contact.id, group.id).then((group : any) => {
@@ -410,12 +407,12 @@ const LOG_ID = "GROUPS/SVCE - ";
                         that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                         resolve(group);
                     }, err => {
-                        reject(err);
+                        return reject(err);
                     });
                 }, err => {
                     that._logger.log("error", LOG_ID + "(removeUserFromGroup) error");
                     that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 that._logger.log("warn", LOG_ID + "(removeUserFromGroup) contact not found in that group");

@@ -125,7 +125,7 @@ class XmppClient  {
                     }).catch(async(err) => {
                         that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
                         //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
-                        reject2(err);
+                        return reject2(err);
                         /*
                         this.client.restart().finally(() => {
                             reject2(err);

@@ -180,12 +180,11 @@ get(url, headers, params): Promise<any> {
                     }, (error, response, body) => {
                         that.logger.log("info", LOG_ID + "(get) successfull");
                         if (error) {
-                            reject({
+                            return reject({
                                 code: -1,
                                 msg: "ErrorManager while requesting",
                                 details: error
                             });
-                            return;
                         } else {
                             if (response) {
                                 if (response.statusCode) {
@@ -203,7 +202,7 @@ get(url, headers, params): Promise<any> {
                                             }
                                             resolve(json);
                                         } else {
-                                            reject({
+                                            return reject({
                                                 code: -1,
                                                 msg: "Bad content, please check your host",
                                                 details: ""
@@ -224,7 +223,7 @@ get(url, headers, params): Promise<any> {
                                         let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
                                         errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
                                         that.tokenExpirationControl(bodyjs);
-                                        reject({
+                                        return reject({
                                             code: response.statusCode,
                                             msg: msg,
                                             details: errorMsgDetail,
@@ -235,7 +234,7 @@ get(url, headers, params): Promise<any> {
                                 } else {
                                     if (response.error && response.error.reason) {
                                         that.logger.log("error", LOG_ID + "(get) HTTP security issue", response.error.reason);
-                                        reject({
+                                        return reject({
                                             code: -1,
                                             msg: response.error.reason,
                                             details: ""
@@ -244,7 +243,7 @@ get(url, headers, params): Promise<any> {
                                         that.logger.warn("warn", LOG_ID + "(get) HTTP other issue");
                                         that.logger.warn("internal", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
                                         that.logger.log("internal", LOG_ID + "(get) HTTP other issue", response);
-                                        reject({
+                                        return reject({
                                             code: -1,
                                             msg: "Unknown error",
                                             details: response
@@ -252,7 +251,7 @@ get(url, headers, params): Promise<any> {
                                     }
                                 }
                             } else {
-                                reject({
+                                return reject({
                                     code: -1,
                                     msg: "ErrorManager while requesting",
                                     details: "error"
@@ -290,7 +289,7 @@ get(url, headers, params): Promise<any> {
                         that.logger.log("error", LOG_ID, "(get) error");
                         that.logger.log("internalerror", LOG_ID, "(get) error : ", error);
                         that.logger.log("debug", LOG_ID + "(get) _exiting_");
-                        reject({
+                        return reject({
                             code: -1,
                             msg: error.message,
                             details: ""
@@ -303,7 +302,7 @@ get(url, headers, params): Promise<any> {
                             let data = Buffer.concat(buff);
                             resolve(data);
                         } else {
-                            reject({
+                            return reject({
                                 code: err.statusCode,
                                 msg: err.statusMessage,
                                 details: ""
@@ -314,7 +313,7 @@ get(url, headers, params): Promise<any> {
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(get) HTTP ErrorManager");
                 that.logger.log("internalerror", LOG_ID + "(get) HTTP ErrorManager", err);
-                reject({
+                return reject({
                     code: -1,
                     msg: "Unknown error",
                     details: ""
@@ -358,8 +357,7 @@ get(url, headers, params): Promise<any> {
             }, (error, response, body) => {
                 if (error) {
                     that.logger.log("internalerror", LOG_ID + "(post) failed:", error);
-                    reject("post failed");
-                    return;
+                    return reject("post failed");
                 }
                 else {
                     if (response) {
@@ -373,7 +371,7 @@ get(url, headers, params): Promise<any> {
                                     }
                                     resolve(json);
                                 } else {
-                                    reject({
+                                    return reject({
                                         code: -1,
                                         msg: "Bad content, please check your host",
                                         details: ""
@@ -396,7 +394,7 @@ get(url, headers, params): Promise<any> {
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
 
                                 that.tokenExpirationControl(bodyjs);
-                                reject({
+                                return reject({
                                     code: response.statusCode,
                                     msg: msg,
                                     details: errorMsgDetail,
@@ -406,7 +404,7 @@ get(url, headers, params): Promise<any> {
                         } else {
                             if (response.error && response.error.reason) {
                                 that.logger.log("error", LOG_ID + "(post) HTTP security issue", response.error.reason);
-                                reject({
+                                return reject({
                                     code: -1,
                                     msg: response.error.reason,
                                     details: ""
@@ -415,7 +413,7 @@ get(url, headers, params): Promise<any> {
                                 that.logger.warn("error", LOG_ID + "(post) HTTP other issue.");
                                 that.logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
                                 that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
-                                reject({
+                                return reject({
                                     code: -1,
                                     msg: "Unknown error",
                                     details: response
@@ -423,7 +421,7 @@ get(url, headers, params): Promise<any> {
                             }
                         }
                     } else {
-                        reject({
+                        return reject({
                             code: -1,
                             msg: "ErrorManager while requesting",
                             details: "error"
@@ -469,8 +467,7 @@ get(url, headers, params): Promise<any> {
                 }, (error, response, body) => {
                     if (error) {
                         that.logger.log("internalerror", LOG_ID + "(put) put failed:", error);
-                        reject("put failed");
-                        return;
+                        return reject("put failed");
                     }
                     else {
                         if (response) {
@@ -484,7 +481,7 @@ get(url, headers, params): Promise<any> {
                                         }
                                         resolve(json);
                                     } else {
-                                        reject({
+                                        return reject({
                                             code: -1,
                                             msg: "Bad content, please check your host",
                                             details: ""
@@ -506,7 +503,7 @@ get(url, headers, params): Promise<any> {
                                     errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
 
                                     that.tokenExpirationControl(bodyjs);
-                                    reject({
+                                    return reject({
                                         code: response.statusCode,
                                         msg: msg,
                                         details: errorMsgDetail,
@@ -516,7 +513,7 @@ get(url, headers, params): Promise<any> {
                             } else {
                                 if (response.error && response.error.reason) {
                                     that.logger.log("error", LOG_ID + "(put) HTTP security issue", response.error.reason);
-                                    reject({
+                                    return reject({
                                         code: -1,
                                         msg: response.error.reason,
                                         details: ""
@@ -525,7 +522,7 @@ get(url, headers, params): Promise<any> {
                                     that.logger.warn("warn", LOG_ID + "(put) HTTP other issue ");
                                     that.logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
                                     that.logger.log("internal", LOG_ID + "(put) HTTP other issue", response);
-                                    reject({
+                                    return reject({
                                         code: -1,
                                         msg: "Unknown error",
                                         details: response
@@ -533,7 +530,7 @@ get(url, headers, params): Promise<any> {
                                 }
                             }
                         } else {
-                            reject({
+                            return reject({
                                 code: -1,
                                 msg: "ErrorManager while requesting",
                                 details: "error"
@@ -572,8 +569,7 @@ get(url, headers, params): Promise<any> {
                 function (error, response, body) {
                     if (error) {
                         that.logger.log("internalerror", LOG_ID + "(putBuffer) upload failed:", error);
-                        reject("upload failed");
-                        return;
+                        return reject("upload failed");
                     }
                     that.logger.log("internal", LOG_ID + "(putBuffer) Upload successful!  Server responded with:", body);
                     resolve(body);
@@ -632,12 +628,11 @@ get(url, headers, params): Promise<any> {
                 }
             }, (error, response, body) => {
                 if (error) {
-                    reject({
+                    return reject({
                         code: -1,
                         msg: "ErrorManager while requesting",
                         details: error
                     });
-                    return;
                 } else {
                     if (response) {
                         that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
@@ -657,7 +652,7 @@ get(url, headers, params): Promise<any> {
                             }
                             }
                             that.tokenExpirationControl(bodyjs);
-                            reject({
+                            return reject({
                                 code: response.statusCode,
                                 msg: response.body ? response.body.errorMsg || "" : "",
                                 details: response.body ? response.body.errorDetails || "" : "",

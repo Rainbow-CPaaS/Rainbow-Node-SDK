@@ -54,7 +54,7 @@ class RESTTelephony {
                 that.logger.log("error", LOG_ID, "(makeCall) error");
                 that.logger.log("internalerror", LOG_ID, "(makeCall) error : ", err);
                 that.logger.log("debug", LOG_ID + "(makeCall) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -78,14 +78,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(releasecall) error.");
                     that.logger.log("internalerror", LOG_ID, "(releasecall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(releasecall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not release call', 'no connectionId found in call ', util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(releaseCall) Catch Error !!! ");
                 that._logger.log("internalerror", LOG_ID + "(releaseCall) Catch Error !!! Error : ", error);
                 that.logger.log("debug", LOG_ID + "(releasecall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -115,13 +115,13 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(makeConsultationCall) error");
                     that.logger.log("internalerror", LOG_ID, "(makeConsultationCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(makeConsultationCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not makeConsultationCall call', 'makeConsultationCall for callId ' + callId);// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(makeConsultationCall) ", error);
                 that.logger.log("debug", LOG_ID + "(makeConsultationCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -142,14 +142,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(answerCall) error");
                     that.logger.log("internalerror", LOG_ID, "(answerCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(answerCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not answerCall call', 'answerCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(answerCall) ");
                 that._logger.log("internalerror", LOG_ID + "(answerCall) : ", error);
                 that.logger.log("debug", LOG_ID + "(answerCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -170,14 +170,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(holdCall) error");
                     that.logger.log("internalerror", LOG_ID, "(holdCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(holdCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not holdCall call', 'holdCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(answerCall) ");
                 that._logger.log("internalerror", LOG_ID + "(answerCall) ", error);
                 that.logger.log("debug", LOG_ID + "(holdCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -198,14 +198,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(retrieveCall) error");
                     that.logger.log("internal", LOG_ID, "(retrieveCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(retrieveCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not retrieveCall call', 'retrieveCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(retrieveCall) ");
                 that._logger.log("internalerror", LOG_ID + "(retrieveCall) : ", error);
                 that.logger.log("debug", LOG_ID + "(retrieveCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -226,14 +226,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(deflectCallToVM) error");
                     that.logger.log("internalerror", LOG_ID, "(deflectCallToVM) error : ", err);
                     that.logger.log("debug", LOG_ID + "(deflectCallToVM) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not deflectCallToVM call', 'deflectCallToVM for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(deflectCallToVM) ");
                 that._logger.log("internalerror", LOG_ID + "(deflectCallToVM) : ", error);
                 that.logger.log("debug", LOG_ID + "(deflectCallToVM) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -254,14 +254,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(deflectCall) error");
                     that.logger.log("internalerror", LOG_ID, "(deflectCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(deflectCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not deflectCall call', 'deflectCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(deflectCall) ");
                 that._logger.log("internalerror", LOG_ID + "(deflectCall) : ", error);
                 that.logger.log("debug", LOG_ID + "(deflectCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -282,14 +282,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(transfertCall) error");
                     that.logger.log("internalerror", LOG_ID, "(transfertCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(transfertCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not transfertCall call', 'transfertCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(transfertCall) ");
                 that._logger.log("internalerror", LOG_ID + "(transfertCall) : ", error);
                 that.logger.log("debug", LOG_ID + "(transfertCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -310,14 +310,14 @@ class RESTTelephony {
                     that.logger.log("error", LOG_ID, "(conferenceCall) error");
                     that.logger.log("internalerror", LOG_ID, "(conferenceCall) error : ", err);
                     that.logger.log("debug", LOG_ID + "(conferenceCall) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not conferenceCall call', 'conferenceCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(conferenceCall) ");
                 that._logger.log("internalerror", LOG_ID + "(conferenceCall) : ", error);
                 that.logger.log("debug", LOG_ID + "(conferenceCall) _exiting_");
-                reject(error);
+                return reject(error);
             }
         });
     }
@@ -345,7 +345,7 @@ class RESTTelephony {
                 that.logger.log("error", LOG_ID, "(forwardToDevice) error");
                 that.logger.log("internalerror", LOG_ID, "(forwardToDevice) error : ", err);
                 that.logger.log("debug", LOG_ID + "(forwardToDevice) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -365,7 +365,7 @@ class RESTTelephony {
                 that.logger.log("error", LOG_ID, "(getForwardStatus) error");
                 that.logger.log("internalerror", LOG_ID, "(getForwardStatus) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getForwardStatus) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -395,7 +395,7 @@ class RESTTelephony {
                 that.logger.log("error", LOG_ID, "(sendDtmf) error");
                 that.logger.log("internalerror", LOG_ID, "(sendDtmf) error : ", err);
                 that.logger.log("debug", LOG_ID + "(sendDtmf) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -416,7 +416,7 @@ class RESTTelephony {
                 that.logger.log("error", LOG_ID, "(getNomadicStatus) error");
                 that.logger.log("internalerror", LOG_ID, "(getNomadicStatus) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getNomadicStatus) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -436,7 +436,7 @@ class RESTTelephony {
                 that.logger.log("error", LOG_ID, "(nomadicLogin) error");
                 that.logger.log("internalerror", LOG_ID, "(nomadicLogin) error : ", err);
                 that.logger.log("debug", LOG_ID + "(nomadicLogin) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -444,11 +444,5 @@ class RESTTelephony {
 
 let restService = null;
 
-function getRESTTelephony(evtEmitter, logger) {
-    restService = restService ? restService : new RESTTelephony(evtEmitter, logger);
-
-    return restService;
-}
-
 export {RESTTelephony};
-module.exports.RESTTelephony = getRESTTelephony;
+module.exports.RESTTelephony = RESTTelephony;

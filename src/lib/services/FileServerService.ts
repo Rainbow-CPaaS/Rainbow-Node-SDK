@@ -68,13 +68,13 @@ class FileServer {
                     that.rest.getServerCapabilities().then((capabilities) => {
                         that._capabilities = capabilities;
                         //that.transferPromiseQueue = new TransferPromiseQueue(that.logger);
-                        that.logger.log("debug", LOG_ID + "(start) _exiting_");
                         resolve(this._capabilities);
+                        that.logger.log("debug", LOG_ID + "(start) _exiting_");
                     }).catch(() => {
-                        reject();
+                        return reject();
                     });
                 } else {
-                    reject();
+                    return reject();
                 }
                 return;
             }
@@ -99,7 +99,7 @@ class FileServer {
 
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -114,12 +114,12 @@ class FileServer {
                 that._xmpp = null;
                 that._rest = null;
 
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 that.ready = false;
                 resolve();
+                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -135,14 +135,14 @@ class FileServer {
 
     /**
      * Method retrieve data from server using range request mecanism (RFC7233)
-     * 
+     *
      * @private
      * @param {string} url [required] server url for request
      * @param {number} minRange [requied] minimum value of range
      * @param {number} maxRange [required] maximum value of range
-     * @param {number} index [required] index of the part. Used to re-assemble the data 
-     * @returns {Object} structure containing the response data from server and the index 
-     * 
+     * @param {number} index [required] index of the part. Used to re-assemble the data
+     * @returns {Object} structure containing the response data from server and the index
+     *
      * @memberof FileServer
      */
     getPartialDataFromServer(url, minRange, maxRange, index) {
@@ -151,13 +151,13 @@ class FileServer {
 
     /**
      * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
-     * 
+     *
      * @param {string} url [required] server url for request
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
      * @returns {Buffer} Buffer created from data received from server
-     * 
+     *
      * @memberof FileServer
      */
     getBufferFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate) {
@@ -209,7 +209,7 @@ class FileServer {
                             (error) => {
                                 that.logger.log("error", LOG_ID + "[FileServer] Error." );
                                 that.logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
-                                reject(error);
+                                return reject(error);
                             }
                         );
                 } else {
@@ -286,7 +286,7 @@ class FileServer {
                             (error) => {
                                 that.logger.log("error", LOG_ID + "[FileServer] Error.");
                                 that.logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
-                                reject(error);
+                                return reject(error);
                             }
                         );
                 } else {
@@ -354,13 +354,13 @@ class FileServer {
 
     /**
      * Method sends data file to server
-     * 
+     *
      * @private
-     * @param {string} fileId [required] file descriptor ID of file to be sent 
-     * @param {File} file [required] file to be sent 
+     * @param {string} fileId [required] file descriptor ID of file to be sent
+     * @param {File} file [required] file to be sent
      * @param {string} mime [required] mime type of file
      * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
-     * 
+     *
      * @memberof FileServer
      */
     _uploadAFile(fileId, filePath, mime) {
@@ -413,25 +413,25 @@ class FileServer {
                         //     filename: file.name,
                         //     filesize: file.size
                         // });
-                        reject(errorResponse);
                         that.logger.log("error", LOG_ID + "(UploadAFile) error." );
                         that.logger.log("internalerror", LOG_ID + "(UploadAFile) error : ", errorResponse);
+                        return reject(errorResponse);
                     });
         });
     }
 
     /**
      * Method sends data to server using range request mecanism (RFC7233)
-     * 
+     *
      * @private
-     * @param {string} fileId [required] file descriptor ID of file to be sent 
-     * @param {Blob} file [required] file to be sent 
+     * @param {string} fileId [required] file descriptor ID of file to be sent
+     * @param {Blob} file [required] file to be sent
      * @param {number} initialSize [required] initial size of whole file to be sent before partition
      * @param {number} minRange [requied] minimum value of range
      * @param {number} maxRange [required] maximum value of range
      * @param {number} index [required] index of the part. Used to indicate the part number to the server
      * @returns {Promise<{}>} file descriptor data received as response from server or http error response
-     * 
+     *
      * @memberof FileServer
      */
     _sendPartialDataToServer(fileId, file, index) {
@@ -445,9 +445,9 @@ class FileServer {
                 },
                 (errorResponse) => {
                     //let error = this.errorHelperService.handleError(errorResponse);
-                    reject(errorResponse);
                     that.logger.log("error", LOG_ID + "(_sendPartialDataToServer) Error." );
                     that.logger.log("internalerror", LOG_ID + "(_sendPartialDataToServer) Error : ", errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -460,13 +460,13 @@ class FileServer {
 
     /**
      * Method sends data to server using range request mecanism (RFC7233)
-     * 
+     *
      * @private
-     * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent 
-     * @param {File} file [required] filePath of the file to be sent 
+     * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
+     * @param {File} file [required] filePath of the file to be sent
 //     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
      * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
-     * 
+     *
      * @memberof FileServer
      */
     async uploadAFileByChunk(fileDescriptor, filePath /*, progressCallback */) {
@@ -507,7 +507,7 @@ class FileServer {
                     .catch((error) => {
                         that.logger.log("error", LOG_ID + "(uploadAFileByChunk) error on chunk upload.");
                         that.logger.log("internalerror", LOG_ID + "(uploadAFileByChunk) error on chunk upload : ", error);
-                        promiseDeferred.reject(error);
+                        return promiseDeferred.reject(error);
                     });
                 return promiseDeferred.promise;
             };
@@ -564,7 +564,7 @@ class FileServer {
                             deferred.resolve(fileDescriptor);
                         })
                     .catch((errorResponse) => {
-                        deferred.reject(errorResponse);
+                        return deferred.reject(errorResponse);
                     });
             });
             // */
@@ -658,7 +658,7 @@ class FileServer {
                             let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse.message;
                             that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error.");
                             that.logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
-                            reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                            return  reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
 
@@ -667,7 +667,7 @@ class FileServer {
                             that.logger.log("info", LOG_ID + "[FileServerService] " + translatedErrorMessage ? translatedErrorMessage : error.message);
                             */
 
-                            reject(errorMessage);
+                            //reject(errorMessage);
                         }
                     );
             });
@@ -723,7 +723,7 @@ class FileServer {
                     that.logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
                     let err = ErrorManager.getErrorManager().ERROR;
                     err.msg = errorMessage;
-                    reject(err);
+                    return reject(err);
                     /*
             let error = this.errorHelperService.handleError(errorResponse);
 

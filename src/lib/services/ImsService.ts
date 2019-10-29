@@ -74,7 +74,7 @@ class IMService {
 
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -93,7 +93,7 @@ class IMService {
 
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -678,20 +678,20 @@ class IMService {
         let that = this;
         return new Promise(async (resolve,reject) => {
             if (!bubble) {
-                reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"}));
+                return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"}));
             }
             /* else if (!status) {
                 reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
             } // */
             else {
                 if (!bubble.jid) {
-                    reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
+                    return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
                 } else {
                     that.logger.log("internal",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
 
                     that._conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
                         if (!conversation) {
-                            reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
+                            return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
                         else {
                             await that.xmpp.sendIsTypingState(conversation, status) ;
@@ -699,7 +699,7 @@ class IMService {
                             resolve();
                         }
                     }).catch((err)=>{
-                        reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
+                        return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
                     });
                 }
             }
@@ -721,7 +721,7 @@ class IMService {
         let that = this;
         return new Promise(async (resolve, reject) => {
             if (!conversation) {
-                reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
             }
             /* else if (!status) {
                 reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
@@ -729,7 +729,7 @@ class IMService {
             else {
                 conversation = conversation.id ? that._conversations.getConversationById(conversation.id) : null;
                 if (!conversation) {
-                    reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
+                    return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     await that.xmpp.sendIsTypingState(conversation, status);
                     resolve();
@@ -755,7 +755,7 @@ class IMService {
     markMessageAsRead(messageReceived) {
 
         this.logger.log("debug", LOG_ID + "(markMessageAsRead) _entering_");
-        
+
         if (!messageReceived) {
             this.logger.log("warn", LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
@@ -767,7 +767,7 @@ class IMService {
         }
 
         this.logger.log("debug", LOG_ID + "(markMessageAsRead) _exiting_");
-        
+
         return this.xmpp.markMessageAsRead(messageReceived);
     }
 
@@ -800,7 +800,7 @@ class IMService {
     }
 
 
-    
+
 }
 
 module.exports.IMService = IMService;

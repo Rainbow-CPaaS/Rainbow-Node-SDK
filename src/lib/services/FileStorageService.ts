@@ -441,7 +441,7 @@ class FileStorage {
             if (!fileDescriptor) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
                 that._logger.log("error", LOG_ID + "(removeFile) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'fileDescriptor' is missing or null"
@@ -450,7 +450,7 @@ class FileStorage {
             if(!fileDescriptor.id && !fileDescriptor.url) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
                 that._logger.log("error", LOG_ID + "(removeFile) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'fileDescriptor' don't contain information to remove the file"
@@ -471,7 +471,7 @@ class FileStorage {
                     that.logger.log("debug", LOG_ID + "[removeFile    ] ::  file removed");
                     resolve(ErrorManager.getErrorManager().OK);
                 }).catch(function(err) {
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -528,7 +528,7 @@ class FileStorage {
             if (!conversation) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is missing or null";
-                reject(error);
+                return reject(error);
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'conversation' is missing or null"
@@ -536,7 +536,7 @@ class FileStorage {
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is not a one-to-one conversation";
-                reject(error);
+                return reject(error);
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'conversation' is not a one-to-one conversation"
@@ -547,7 +547,7 @@ class FileStorage {
                     that.logger.log("debug", LOG_ID + "[getFilesRcv] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -572,7 +572,7 @@ class FileStorage {
             if (!bubble) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'bubble' is missing or null";
-                reject(error);
+                return reject(error);
                 /* reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'bubble' is missing or null"
@@ -589,7 +589,7 @@ class FileStorage {
                     }
                     resolve(files);
                 }).catch(function(err) {
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -630,7 +630,7 @@ class FileStorage {
                             .catch((error) => {
                                 that.logger.log("error", LOG_ID + "(getCompleteFileDescriptorById) Error.");
                                 that.logger.log("internalerror", LOG_ID + "(getCompleteFileDescriptorById) Error : ", error);
-                                reject(error);
+                                return reject(error);
                             })
                         );
                     } else {
@@ -645,11 +645,11 @@ class FileStorage {
                     .catch((error) => {
                         that.logger.log("error", LOG_ID + "(getCompleteFileDescriptorById) error.");
                         that.logger.log("internalerror", LOG_ID + "(getCompleteFileDescriptorById) error : " + error);
-                        reject(error);
+                        return reject(error);
                     });
 
             } else {
-                reject();
+                return reject();
             }
         });
     }
@@ -820,7 +820,7 @@ class FileStorage {
                     //const error = that.errorHelperService.handleError(errorResponse, "createFileDescriptor");
                     that.logger.log("error", LOG_ID + "(createFileDescriptor) Error." );
                     that.logger.log("internalerror", LOG_ID + "(createFileDescriptor) Error : " + errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -886,7 +886,7 @@ class FileStorage {
                 })
                 .catch((errorResponse) => {
                     //let error = that.errorHelperService.handleError(errorResponse, "deleteFileDescriptor");
-                    reject(errorResponse);
+                    return reject(errorResponse);
                     that.logger.log("error", LOG_ID + "(deleteFileDescriptor) _exiting_");
                 });
         });
@@ -921,7 +921,7 @@ class FileStorage {
                 })
                 .catch((errorResponse) => {
                     ///let error = that.errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -990,7 +990,7 @@ class FileStorage {
                 })
                 .catch((errorResponse) => {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveFileDescriptorsListPerOwner");
-                    reject(errorResponse);
+                    return reject(errorResponse);
                     that.logger.log("error", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error." );
                     that.logger.log("internalerror", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error : " + errorResponse);
                 });
@@ -1044,7 +1044,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveFilesReceivedFromPeer");
                     that.logger.log("error", LOG_ID + "(retrieveFilesReceivedFromPeer) Error." );
                     that.logger.log("internalerror", LOG_ID + "(retrieveFilesReceivedFromPeer) Error : ", errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -1080,7 +1080,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveSentFiles");
                     that.logger.log("error", LOG_ID + "(retrieveSentFiles Error" );
                     that.logger.log("internalerror", LOG_ID + "(retrieveSentFiles Error : " + errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -1122,7 +1122,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveReceivedFilesForRoom");
                     that.logger.log("error", LOG_ID + "(retrieveReceivedFilesForRoom) - retrieveReceivedFilesForRoomOrViewer Error." );
                     that.logger.log("internalerror", LOG_ID + "(retrieveReceivedFilesForRoom) - retrieveReceivedFilesForRoomOrViewer Error : " + errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
             });
         }
@@ -1171,7 +1171,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveReceivedFiles");
                     that.logger.log("error", LOG_ID + "(retrieveReceivedFiles) Error." );
                     that.logger.log("internalerror", LOG_ID + "(retrieveReceivedFiles) Error : " + errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -1193,7 +1193,7 @@ class FileStorage {
             if (!conversation) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is missing or null";
-                reject(error);
+                return reject(error);
 
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
@@ -1202,7 +1202,7 @@ class FileStorage {
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'conversation' is not a one-to-one conversation";
-                reject(error);
+                return reject(error);
 
                 /*
                 reject({
@@ -1215,7 +1215,7 @@ class FileStorage {
                     that.logger.log("info", LOG_ID + "[getFilesSnd] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -1239,7 +1239,7 @@ class FileStorage {
             if (!bubble) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 error.msg = "Parameter 'bubble' is missing or null";
-                reject(error);
+                return reject(error);
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'bubble' is missing or null"
@@ -1253,7 +1253,7 @@ class FileStorage {
                     that.logger.log("info", LOG_ID + "([getFilesSnd] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -1334,7 +1334,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveUserConsumption");
                     that.logger.log("error", LOG_ID + "(retrieveUserConsumption) error." );
                     that.logger.log("internalerror", LOG_ID + "(retrieveUserConsumption) error : " + errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }
@@ -1377,7 +1377,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "deleteFileViewer");
                     that.logger.log("error", LOG_ID + "(deleteFileViewer) error." );
                     that.logger.log("intenralerror", LOG_ID + "(deleteFileViewer) error : " + errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
 
@@ -1425,7 +1425,7 @@ class FileStorage {
                                 .catch((error) => {
                                     that.logger.log("error", LOG_ID + "(addFileViewer) error.");
                                     that.logger.log("internalerror", LOG_ID + "(addFileViewer) error : ", error);
-                                    reject(error);
+                                    return reject(error);
                                 });
                         } else {
                             fd.viewers.push(viewerAdded);
@@ -1437,7 +1437,7 @@ class FileStorage {
                     const error = that.errorHelperService.handleError(errorResponse, "addFileViewer");
                     that.logger.log("error", LOG_ID + "(addFileViewer) error." );
                     that.logger.log("internalerror", LOG_ID + "(addFileViewer) error : ", errorResponse);
-                    reject(error);
+                    return reject(error);
                 });
         });
     }
@@ -1466,7 +1466,7 @@ class FileStorage {
                     //let error = that.errorHelperService.handleError(errorResponse, "getOneFileDescriptor");
                     that.logger.log("error", LOG_ID + "(retrieveOneFileDescriptor) " + errorResponse);
                     that.logger.log("internalerror", LOG_ID + "(retrieveOneFileDescriptor) Error : ", errorResponse);
-                    reject(errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }

@@ -195,7 +195,7 @@ class FavoritesService {
                     that._logger.log("error", LOG_ID + "(getServerFavorites) error.");
                     that._logger.log("internalerror", LOG_ID + "(getServerFavorites) error : ", err);
                     that._logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
 
                 /*
@@ -244,7 +244,7 @@ class FavoritesService {
                     that._logger.log("error", LOG_ID + "(removeServerFavorite) error.");
                     that._logger.log("internalerror", LOG_ID + "(removeServerFavorite) error : ", err);
                     that._logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
 
             });
@@ -370,7 +370,7 @@ class FavoritesService {
                 .catch(function(err) {
                     that._logger.log("error", LOG_ID + `[fetchAllFavorites] :: Error.`);
                     that._logger.log("internalerror", LOG_ID + `[fetchAllFavorites] :: ERROR : `, err);
-                    reject(err)
+                    return reject(err)
                 })
         });
     };

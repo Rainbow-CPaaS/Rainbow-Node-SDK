@@ -1031,7 +1031,7 @@ class XMPPService {
                 resolve();
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -1235,7 +1235,7 @@ class XMPPService {
                     that.logger.log("debug", LOG_ID + "(enableCarbon) sent");
                     resolve();
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -1304,7 +1304,7 @@ class XMPPService {
                     that.logger.log("debug", LOG_ID + "(sendChatMessage) sent");
                     resolve({from: this.jid_im, to: jid, type: "chat", id: id, date: new Date(), content: message});
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -1384,7 +1384,7 @@ class XMPPService {
                         answeredMsg: answeredMsg
                     });
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -1483,7 +1483,7 @@ class XMPPService {
                 }).catch((err) => {
                     that.logger.log("error", LOG_ID + "(markMessageAsRead) error ");
                     that.logger.log("internalerror", LOG_ID + "(markMessageAsRead) error : ", err);
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -1543,7 +1543,7 @@ class XMPPService {
                     that.logger.log("debug", LOG_ID + "(sendChatExistingFSMessage) sent");
                     resolve({from: this.jid_im, to: jid, type: "chat", id: id, date: new Date(), content: message});
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -1602,7 +1602,7 @@ class XMPPService {
                     that.logger.log("debug", LOG_ID + "(sendChatExistingFSMessageToBubble) sent");
                     resolve({from: this.jid_im, to: jid, type: "chat", id: id, date: new Date(), content: message});
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -1648,7 +1648,7 @@ class XMPPService {
                     that.logger.log("debug", LOG_ID + "(sendIsTypingState) sent");
                     resolve();
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         }
@@ -2032,8 +2032,7 @@ class XMPPService {
                 if (errorMessage) {
                     this.logger.log("error", LOG_ID + "getTelephonyState -- failure -- " );
                     this.logger.log("internalerror", LOG_ID + "getTelephonyState -- failure -- : ", errorMessage);
-                    reject(new Error(errorMessage));
-                    return;
+                    return reject(new Error(errorMessage));
                 }
 
                 // Handle existing calls
@@ -2378,7 +2377,7 @@ class XMPPService {
             that.xmppClient.send(stanza).then((data) => {
                 resolve(data);
             }).catch((err) => {
-                reject(err);
+                return reject(err);
             });
         });
     }

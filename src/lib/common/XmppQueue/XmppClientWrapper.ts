@@ -87,6 +87,6 @@ function client(options = {}) {
   })
 }
 
-module.exports.xml = xml
-module.exports.jid = jid
-module.exports.client = client
+module.exports.xml = xml;
+module.exports.jid = jid;
+module.exports.client = client;

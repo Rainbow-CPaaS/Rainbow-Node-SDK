@@ -168,7 +168,7 @@ class RESTService {
                 resolve();
             }).catch((err) => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -193,7 +193,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID,"(signin) ErrorManager during REST signin");
                 that.logger.log("internalerror", LOG_ID,"(signin) ErrorManager during REST signin : ", err);
                 that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -217,7 +217,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "(askTokenOnBehalf) Error requesting a token");
                     that.logger.log("internalerror", LOG_ID, "(askTokenOnBehalf) Error requesting a token : ", err);
                     that.logger.log("debug", LOG_ID + "(askTokenOnBehalf) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
         });
     }
@@ -241,7 +241,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "error at signout");
                     that.logger.log("internalerror", LOG_ID, "error at signout : ", err);
                     that.logger.log("debug", LOG_ID + "(signout) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             }
             else {
@@ -328,7 +328,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getContacts) error");
                 that.logger.log("internalerror", LOG_ID, "(getContacts) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getContacts) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -367,7 +367,7 @@ class RESTService {
                         resolve(null);
                     }
                     else {
-                        reject(err);
+                        return  reject(err);
                     }
                 });
             }
@@ -401,7 +401,7 @@ class RESTService {
                         resolve(null);
                     }
                     else {
-                        reject(err);
+                        return reject(err);
                     }
                 });
             }
@@ -432,7 +432,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "(getContactInformationByLoginEmail) error");
                     that.logger.log("internalerror", LOG_ID, "(getContactInformationByLoginEmail) error : ", err);
                     that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -455,7 +455,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "(getServerFavorites) error");
                     that.logger.log("internalerror", LOG_ID, "(getServerFavorites) error : ", err);
                     that.logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
         });
     }
@@ -485,7 +485,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "(addServerFavorite) error");
                     that.logger.log("internalerror", LOG_ID, "(addServerFavorite) error : ", err);
                     that.logger.log("debug", LOG_ID + "(addServerFavorite) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -532,7 +532,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "(removeServerFavorite) error");
                     that.logger.log("internalerror", LOG_ID, "(removeServerFavorite) error : ", err);
                     that.logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -564,7 +564,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(acceptInvitation) error");
                 that.logger.log("internalerror", LOG_ID, "(acceptInvitation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(acceptInvitation) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -589,7 +589,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(declineInvitation) error");
                 that.logger.log("internalerror", LOG_ID, "(declineInvitation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(declineInvitation) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -617,7 +617,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(joinContactInvitation) error");
                 that.logger.log("internalerror", LOG_ID, "(joinContactInvitation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(joinContactInvitation) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -642,7 +642,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(joinContacts) error");
                 that.logger.log("internalerror", LOG_ID, "(joinContacts) error : ", err);
                 that.logger.log("debug", LOG_ID + "(joinContacts) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -669,7 +669,7 @@ class RESTService {
                     that.logger.log("error", LOG_ID, "(getInvitationById) error");
                     that.logger.log("internalerror", LOG_ID, "(getInvitationById) error : ", err);
                     that.logger.log("debug", LOG_ID + "(getInvitationById) _exiting_");
-                    reject(err);
+                    return reject(err);
                 });
             }
         });
@@ -685,7 +685,7 @@ class RESTService {
                     that.logger.log("internal", LOG_ID + "(getGroups) retrieved " + json.data.length + " groups, total " + groups.length + ", existing " + json.total);
                     resolve({groups: groups, finished: groups.length === json.total});
                 }).catch(function(err) {
-                    reject(err);
+                    return reject(err);
                 });
             });
         };
@@ -704,11 +704,11 @@ class RESTService {
                         getAllGroups(page, limit, json.groups).then((allGroups) => {
                             resolve(allGroups);
                         }).catch((err) => {
-                            reject(err);
+                            return reject(err);
                         });
 
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         };
@@ -728,7 +728,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getGroups) error");
                 that.logger.log("internalerror", LOG_ID, "(getGroups) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getGroups) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -749,7 +749,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(getGroup) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -773,7 +773,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(createGroup) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -793,7 +793,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteGroup) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -815,7 +815,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(updateGroupName) error");
                 that.logger.log("internalerror", LOG_ID, "(updateGroupName) error : ", err);
                 that.logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -835,7 +835,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(addUserInGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(addUserInGroup) error : ", err);
                 that.logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -855,7 +855,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID + "(removeUserFromGroup) error");
                 that.logger.log("internalerror", LOG_ID + "(removeUserFromGroup) error : ", err);
                 that.logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -874,7 +874,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getBots) error");
                 that.logger.log("internalerror", LOG_ID, "(getBots) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getBots) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -906,7 +906,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(createBubble) error", err);
                 that.logger.log("debug", LOG_ID + "(createBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -929,7 +929,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(setBubbleVisibility) error");
                 that.logger.log("internalerror", LOG_ID, "(setBubbleVisibility) error : ", err);
                 that.logger.log("debug", LOG_ID + "(setBubbleVisibility) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -952,7 +952,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(setBubbleTopic) error");
                 that.logger.log("internalerror", LOG_ID, "(setBubbleTopic) error : ", err);
                 that.logger.log("debug", LOG_ID + "(setBubbleTopic) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -975,7 +975,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(setBubbleName) error");
                 that.logger.log("internalerror", LOG_ID, "(setBubbleName) error : ", err);
                 that.logger.log("debug", LOG_ID + "(setBubbleName) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -993,7 +993,7 @@ class RESTService {
                     that.logger.log("debug", LOG_ID + "(getBubbles) _exiting_");
                     resolve({bubbles: bubbles, finished: bubbles.length === json.total});
                }).catch(function(err) {
-                   reject(err);
+                    return reject(err);
                });
             });
         };
@@ -1012,12 +1012,12 @@ class RESTService {
                         getAllBubbles(page, limit, json.bubbles).then((bubbles) => {
                             resolve(bubbles);
                         }).catch((err) => {
-                            reject(err);
+                            return reject(err);
                         });
 
 
                 }).catch((err) => {
-                    reject(err);
+                    return reject(err);
                 });
             });
         };
@@ -1038,7 +1038,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getBubbles) error");
                 that.logger.log("internalerror", LOG_ID, "(getBubbles) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getBubbles) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1059,7 +1059,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(getBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1081,7 +1081,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getBubbleByJid) error");
                 that.logger.log("internalerror", LOG_ID, "(getBubbleByJid) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getBubbleByJid) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1102,7 +1102,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(setBubbleCustomData) error");
                 that.logger.log("internalerror", LOG_ID, "(setBubbleCustomData) error : ", err);
                 that.logger.log("debug", LOG_ID + "(setBubbleCustomData) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1127,7 +1127,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(inviteContactToBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(inviteContactToBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(inviteContactToBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1150,7 +1150,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(promoteContactInBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(promoteContactInBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(promoteContactInBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1171,7 +1171,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(changeBubbleOwner) error");
                 that.logger.log("internalerror", LOG_ID, "(changeBubbleOwner) error : ", err);
                 that.logger.log("debug", LOG_ID + "(changeBubbleOwner) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1195,7 +1195,7 @@ class RESTService {
                         that.logger.log("error", LOG_ID, "(leaveBubble) error");
                         that.logger.log("internalerror", LOG_ID, "(leaveBubble) error : ", err);
                         that.logger.log("debug", LOG_ID + "(leaveBubble) _exiting_");
-                        reject(err);
+                        return reject(err);
                     });
                     break;
                 default:
@@ -1208,7 +1208,7 @@ class RESTService {
                         that.logger.log("error", LOG_ID, "(leaveBubble) error");
                         that.logger.log("internalerror", LOG_ID, "(leaveBubble) error : ", err);
                         that.logger.log("debug", LOG_ID + "(leaveBubble) _exiting_");
-                        reject(err);
+                        return reject(err);
                     });
                     break;
             }
@@ -1234,7 +1234,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1255,7 +1255,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(removeInvitationOfContactToBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(removeInvitationOfContactToBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(removeInvitationOfContactToBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1276,7 +1276,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(unsubscribeContactFromBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(unsubscribeContactFromBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(unsubscribeContactFromBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1297,7 +1297,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(acceptInvitationToJoinBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(acceptInvitationToJoinBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1318,7 +1318,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(declineInvitationToJoinBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(declineInvitationToJoinBubble) error : ", err);
                 that.logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1350,7 +1350,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(inviteUser) error");
                 that.logger.log("internalerror", LOG_ID, "(inviteUser) error : ", err);
                 that.logger.log("debug", LOG_ID + "(inviteUser) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1403,7 +1403,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createUser) error");
                 that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createUser) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1467,7 +1467,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createGuestUser) error");
                 that.logger.log("internalerror", LOG_ID, "(createGuestUser) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createGuestUser) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1493,7 +1493,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(changePassword) error");
                 that.logger.log("internalerror", LOG_ID, "(changePassword) error : ", err);
                 that.logger.log("debug", LOG_ID + "(changePassword) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1514,7 +1514,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(updateInformation) error");
                 that.logger.log("internalerror", LOG_ID, "(updateInformation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(updateInformation) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1535,7 +1535,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteUser) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteUser) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteUser) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1566,7 +1566,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createFileDescriptor) error");
                 that.logger.log("internalerror", LOG_ID, "(createFileDescriptor) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createFileDescriptor) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1585,7 +1585,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteFileDescriptor) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteFileDescriptor) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteFileDescriptor) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1622,7 +1622,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(retrieveFileDescriptors) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveFileDescriptors) error : ", err);
                 that.logger.log("debug", LOG_ID + "(retrieveFileDescriptors) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1645,7 +1645,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(retrieveFilesReceivedFromPeer) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveFilesReceivedFromPeer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1668,7 +1668,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(retrieveFilesReceivedFromPeer) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveFilesReceivedFromPeer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1692,7 +1692,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(retrieveOneFileDescriptor) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveOneFileDescriptor) error : ", err);
                 that.logger.log("debug", LOG_ID + "(retrieveOneFileDescriptor) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1715,7 +1715,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(retrieveUserConsumption) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveUserConsumption) error : ", err);
                 that.logger.log("debug", LOG_ID + "(retrieveUserConsumption) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1734,7 +1734,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteFileViewer) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteFileViewer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteFileViewer) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1756,7 +1756,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createCompany) error");
                 that.logger.log("internalerror", LOG_ID, "(createCompany) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createCompany) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1780,7 +1780,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getPartialDataFromServer) error");
                 that.logger.log("internalerror", LOG_ID, "(getPartialDataFromServer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1803,7 +1803,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getFileFromUrl) error");
                 that.logger.log("internalerror", LOG_ID, "(getFileFromUrl) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getFileFromUrl) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1828,7 +1828,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getBlobFromUrl) error");
                 that.logger.log("internalerror", LOG_ID, "(getBlobFromUrl) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getBlobFromUrl) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1851,7 +1851,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(uploadAFile) error");
                 that.logger.log("internalerror", LOG_ID, "(uploadAFile) error : ", err);
                 that.logger.log("debug", LOG_ID + "(uploadAFile) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1876,7 +1876,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(uploadAStream) error");
                 that.logger.log("internalerror", LOG_ID, "(uploadAStream) error : ", err);
                 that.logger.log("debug", LOG_ID + "(uploadAStream) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1906,7 +1906,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(sendPartialDataToServer) error");
                 that.logger.log("internalerror", LOG_ID, "(sendPartialDataToServer) error : ", err);
                 that.logger.log("debug", LOG_ID + "(sendPartialDataToServer) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1931,7 +1931,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(sendPartialFileCompletion) error");
                 that.logger.log("internalerror", LOG_ID, "(sendPartialFileCompletion) error : ", err);
                 that.logger.log("debug", LOG_ID + "(sendPartialFileCompletion) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1952,7 +1952,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getServerCapabilities) error");
                 that.logger.log("internalerror", LOG_ID, "(getServerCapabilities) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getServerCapabilities) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1974,7 +1974,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getUserSettings) error");
                 that.logger.log("internalerror", LOG_ID, "(getUserSettings) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1995,7 +1995,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(updateUserSettings) error");
                 that.logger.log("internalerror", LOG_ID, "(updateUserSettings) error : ", err);
                 that.logger.log("debug", LOG_ID + "(updateUserSettings) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2016,7 +2016,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getAllCompanies) error");
                 that.logger.log("internalerror", LOG_ID, "(getAllCompanies) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getAllCompanies) _exiting_");
-                reject(err);
+                return reject(err);
             });
             that.logger.log("info", LOG_ID + "(getAllCompanies) after sending the request");
         });
@@ -2038,7 +2038,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getAllUsers) error");
                 that.logger.log("internalerror", LOG_ID, "(getAllUsers) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
-                reject(err);
+                return reject(err);
             });
             that.logger.log("info", LOG_ID + "(getAllUsers) after sending the request");
         });
@@ -2060,7 +2060,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getContactInfos) error");
                 that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
-                reject(err);
+                return reject(err);
             });
             that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
         });
@@ -2082,7 +2082,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getContactInfos) error");
                 that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
-                reject(err);
+                return reject(err);
             });
             that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
         });
@@ -2118,7 +2118,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createCompany) error");
                 that.logger.log("internalerror", LOG_ID, "(createCompany) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createCompany) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2137,7 +2137,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getCompany) error");
                 that.logger.log("internalerror", LOG_ID, "(getCompany) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getCompany) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2157,7 +2157,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteCompany) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteCompany) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteCompany) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2176,7 +2176,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(setVisibilityForCompany) error");
                 that.logger.log("internalerror", LOG_ID, "(setVisibilityForCompany) error : ", err);
                 that.logger.log("debug", LOG_ID + "(setVisibilityForCompany) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2222,7 +2222,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createPublicChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(createPublicChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2265,7 +2265,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2313,7 +2313,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(findChannels) error");
                 that.logger.log("internalerror", LOG_ID, "(findChannels) error : ", err);
                 that.logger.log("debug", LOG_ID + "(findChannels) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2336,7 +2336,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(fetchMyChannels) error");
                 that.logger.log("internalerror", LOG_ID, "(fetchMyChannels) error : ", err);
                 that.logger.log("debug", LOG_ID + "(fetchMyChannels) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2358,7 +2358,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(getChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2391,7 +2391,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(publishMessage) error");
                 that.logger.log("internalerror", LOG_ID, "(publishMessage) error : ", err);
                 that.logger.log("debug", LOG_ID + "(publishMessage) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2424,7 +2424,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getLatestMessages) error");
                 that.logger.log("internalerror", LOG_ID, "(getLatestMessages) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getLatestMessages) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -2446,7 +2446,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(subscribeToChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(subscribeToChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2468,7 +2468,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(unsubscribeToChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(unsubscribeToChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2529,7 +2529,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(updateChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(updateChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(updateChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2545,7 +2545,7 @@ class RESTService {
                             resolve(response);
                         })
                         .catch((err) => {
-                            reject(err);
+                            return reject(err);
                         });
                 //});
         });
@@ -2560,7 +2560,7 @@ class RESTService {
                     resolve(response);
                 })
                 .catch((err) => {
-                    reject (err);
+                    return reject (err);
                 });
         });
     }
@@ -2605,7 +2605,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getUsersChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(getUsersChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getUsersChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2627,7 +2627,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteAllUsersFromChannel) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteAllUsersFromChannel) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2649,7 +2649,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(updateChannelUsers) error");
                 that.logger.log("internalerror", LOG_ID, "(updateChannelUsers) error : ", err);
                 that.logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2671,7 +2671,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getChannelMessages) error");
                 that.logger.log("internalerror", LOG_ID, "(getChannelMessages) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getChannelMessages) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2691,7 +2691,7 @@ class RESTService {
                 .catch((err) => {
                     that.logger.log("error", LOG_ID, "[channelService] deleteChannelItem (" + channelId  + ", " + itemId + ") -- failure -- " );
                     that.logger.log("internalerror", LOG_ID, "[channelService] deleteChannelItem (" + channelId  + ", " + itemId + ") -- failure -- ", err.message);
-                    reject(err);
+                    return reject(err);
                 });
         });
     };
@@ -2714,7 +2714,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getServerProfiles) error");
                 that.logger.log("internalerror", LOG_ID, "(getServerProfiles) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getServerProfiles) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2735,7 +2735,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getServerProfilesFeatures) error");
                 that.logger.log("internalerror", LOG_ID, "(getServerProfilesFeatures) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getServerProfilesFeatures) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2833,7 +2833,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(getServerConversations) error");
                 that.logger.log("internalerror", LOG_ID, "(getServerConversations) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getServerConversations) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2853,7 +2853,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(createServerConversation) error");
                 that.logger.log("internalerror", LOG_ID, "(createServerConversation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(createServerConversation) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2874,7 +2874,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(deleteServerConversation) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteServerConversation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(deleteServerConversation) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2896,7 +2896,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(updateServerConversation) error");
                 that.logger.log("internalerror", LOG_ID, "(updateServerConversation) error : ", err);
                 that.logger.log("debug", LOG_ID + "(updateServerConversation) _exiting_");
-                reject(err);
+                return  reject(err);
             });
         });
     }
@@ -2918,7 +2918,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
                 that.logger.log("internalerror", LOG_ID, "(sendConversationByEmail) error : ", err);
                 that.logger.log("debug", LOG_ID + "(sendConversationByEmail) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2939,7 +2939,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID, "(ackAllMessages) error");
                 that.logger.log("internalerror", LOG_ID, "(ackAllMessages) error : ", err);
                 that.logger.log("debug", LOG_ID + "(ackAllMessages) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -2994,7 +2994,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID + "(get) _exiting_");
                 that.logger.log("internalerror", LOG_ID + "(get) _exiting_ : ", err);
                 that.logger.log("debug", LOG_ID + "(get) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -3013,7 +3013,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID + "(post) _exiting_");
                 that.logger.log("internalerror", LOG_ID + "(post) _exiting_ : ", err);
                 that.logger.log("debug", LOG_ID + "(post) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -3032,7 +3032,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID + "(put) _exiting_");
                 that.logger.log("internalerror", LOG_ID + "(put) _exiting_ : ", err);
                 that.logger.log("debug", LOG_ID + "(put) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -3051,7 +3051,7 @@ class RESTService {
                 that.logger.log("error", LOG_ID + "(delete) _exiting_");
                 that.logger.log("internalerror", LOG_ID + "(delete) _exiting_ : ", err);
                 that.logger.log("debug", LOG_ID + "(delete) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -3104,14 +3104,14 @@ class RESTService {
                     }).catch((err) => {
                         that.logger.log("debug", LOG_ID + "(checkPortalHealth) Connection failed!");
                         that.logger.log("debug", LOG_ID + "(checkPortalHealth) _exiting_");
-                        reject(err);
+                        return reject(err);
                     });
                 }, 1000 * 10);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID + "(checkPortalHealth) ErrorManager ");
                 that.logger.log("internalerror", LOG_ID + "(checkPortalHealth) ErrorManager : ", err);
                 that.logger.log("debug", LOG_ID + "(checkPortalHealth) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }

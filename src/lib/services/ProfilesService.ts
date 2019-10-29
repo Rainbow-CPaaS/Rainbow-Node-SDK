@@ -212,7 +212,7 @@ class ProfilesService {
                 .catch(function (error) {
                     that.logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
                     that.logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
-                    reject(error);
+                    return reject(error);
                 });
         });
     }
@@ -256,7 +256,7 @@ class ProfilesService {
                     }
                     that.logger.log("error", LOG_ID + "(getServerProfiles) Error. ");
                     that.logger.log("internalerror", LOG_ID + "(getServerProfiles) Error : ", errorMessage);
-                    reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
+                    return reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
     }
@@ -288,7 +288,7 @@ class ProfilesService {
                     }
                     that.logger.log("error", LOG_ID + "(getServerProfilesFeatures) Error.");
                     that.logger.log("internalerror", LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
+                    return reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
     }

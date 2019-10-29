@@ -114,7 +114,7 @@ class Contacts {
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(start) Catch ErrorManager !!!");
                 that.logger.log("internalerror", LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -143,7 +143,7 @@ class Contacts {
 
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject();
+                return reject();
             }
         });
     }
@@ -155,7 +155,7 @@ class Contacts {
                 //that.logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
                 that.userContact.updateFromUserData(contact);
             });
-            Promise.all([userInfo]).then(()=> { resolve(); }).catch(() => { reject(); });
+            Promise.all([userInfo]).then(()=> { resolve(); }).catch(() => { return reject(); });
         });
     }
 
@@ -214,7 +214,7 @@ class Contacts {
                 that.logger.log("error", LOG_ID + "(getRosters) error");
                 that.logger.log("internalerror", LOG_ID + "(getRosters) error : ", err);
                 that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -381,7 +381,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
             if (!jid) {
                 that.logger.log("warn", LOG_ID + "(getContactByJid) bad or empty 'jid' parameter", jid);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                 let contactFound = null;
@@ -421,7 +421,7 @@ class Contacts {
                         }
                         resolve(contact);
                     }).catch((err) => {
-                        reject(err);
+                        return reject(err);
                     });
                 }
             }
@@ -448,7 +448,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
              if (!id) {
                 that.logger.log("warn", LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
 
                 let contactFound = null;
@@ -490,7 +490,7 @@ class Contacts {
                         }
                         resolve(contact);
                     }).catch((err) => {
-                        reject(err);
+                        return reject(err);
                     });
                 }
             }
@@ -518,7 +518,7 @@ class Contacts {
             if (!loginEmail) {
                 this.logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
                 this.logger.log("internalerror", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
 
@@ -569,7 +569,7 @@ class Contacts {
                             resolve(null);
                         }
                     }).catch((err) => {
-                        reject(err);
+                        return reject(err);
                     });
                 }
             }
@@ -694,7 +694,7 @@ class Contacts {
             if (!contact) {
                 this.logger.log("warn", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter");
                 this.logger.log("internalerror", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter : ", contact);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
 
@@ -705,14 +705,14 @@ class Contacts {
                             that.getContactById(_contact.invitedUserId).then((invitedUser) => {
                                 resolve(invitedUser);
                             }).catch((err) => {
-                                reject(err);
+                                return reject(err);
                             });
                         } else {
                             that.logger.log("internal", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                             resolve(null);
                         }
                     }).catch((err) => {
-                        reject(err);
+                        return reject(err);
                     });
             }
         });
@@ -799,7 +799,7 @@ class Contacts {
             if (!contact) {
                 this.logger.log("warn", LOG_ID + "(joinContacts) bad or empty 'contact' parameter");
                 this.logger.log("internalerror", LOG_ID + "(joinContacts) bad or empty 'contact' parameter : ", contact);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                     that.logger.log("debug", LOG_ID + "(joinContacts) contact join to server...");
@@ -823,7 +823,7 @@ class Contacts {
                         that.logger.log("internal", LOG_ID + "(joinContacts) " + mergeResult.success.length + " contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
                         resolve(mergeResult);
                     }).catch((err) => {
-                        reject(err);
+                        return reject(err);
                     });
             }
         });
