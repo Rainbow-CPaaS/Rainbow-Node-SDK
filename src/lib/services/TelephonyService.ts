@@ -128,7 +128,7 @@ class Telephony {
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch ErrorManager !!! ");
                 that._logger.log("internalerror", LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
-                reject();
+                return reject();
             }
         });
     }
@@ -155,7 +155,7 @@ class Telephony {
                 resolve();
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -437,7 +437,7 @@ class Telephony {
                         .catch(function (error) {
                             that._logger.log("error", LOG_ID + "getTelephonyState -- failure -- " );
                             that._logger.log("internalerror", LOG_ID + "getTelephonyState -- failure -- : ", error.message);
-                            reject(error);
+                            return reject(error);
                         });
                 }
 
@@ -536,7 +536,7 @@ class Telephony {
                 .catch(function(error) {
                     that._logger.log("error", LOG_ID + " createCallFromConnectionElem - failure - " );
                     that._logger.log("internalerror", LOG_ID + " createCallFromConnectionElem - failure - : ", error.message);
-                    reject(error);
+                    return reject(error);
                 });
         });
     };
@@ -571,7 +571,7 @@ class Telephony {
             // Get participants asynchronously
             Promise.all(participantPromises).then(
                 function success() { resolve(confParticipants); },
-                function failure(error) { reject(error); }
+                function failure(error) { return reject(error); }
             );
         });
     };
@@ -595,7 +595,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(getVoiceMessageCounter) Error." );
                 that._logger.log("internalerror", LOG_ID + "(getVoiceMessageCounter) error : ", profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             that._xmpp.voiceMessageQuery(that.userJidTel).then(function (data) {
@@ -606,7 +606,7 @@ class Telephony {
                     let errorMessage = "getVoiceMessageCounter failure : " + error.message;
                     that._logger.log("error", LOG_ID + "(getVoiceMessageCounter) Error." );
                     that._logger.log("internalerror", LOG_ID + "(getVoiceMessageCounter) Error : ", errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                 });
         });
     }
@@ -802,7 +802,7 @@ class Telephony {
 
                 // Release makingCall flag
                 that.makingCall = false;
-                reject(profileError);
+                return reject(profileError);
             }
 
             let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
@@ -862,7 +862,7 @@ class Telephony {
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
+                    return reject(error);
                     //that._logger.log("error", LOG_ID + "(makeSimpleCall) Error.");
                     //that._logger.log("internalerror", LOG_ID + "(makeSimpleCall) Error : ", error);
                 });
@@ -892,7 +892,7 @@ class Telephony {
 
                 // Release makingCall flag
                 that.makingCall = false;
-                reject(profileError);
+                return reject(profileError);
             }
 
             let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
@@ -938,7 +938,7 @@ class Telephony {
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
+                    return reject(error);
                     //that._logger.log("error", LOG_ID + "(makeConsultationCall) Error");
                     //that._logger.log("internalerror", LOG_ID + "(makeConsultationCall) Error : ", error);
                 });
@@ -966,8 +966,9 @@ class Telephony {
                 let errorMessage = "makeCallByPhoneNumber) failure: impossible to call its own phone number";
                 that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) Error.");
                 that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) Error : ", errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
+            that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) after reject!");
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function (contact) {
@@ -978,7 +979,7 @@ class Telephony {
                     resolve(data);
                 })
                 .catch(async (error) => {
-                    reject(error);
+                    return reject(error);
                    /* let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
                     that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) - Error." );
                     that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) - Error : ", _errorMessage);
@@ -1128,7 +1129,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(releaseCall) Error : ", profileError );
                 that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", profileError);
-                reject(profileError);
+                return reject(profileError);
             }
 
 
@@ -1158,9 +1159,9 @@ class Telephony {
                 },
                 (response) => {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
                     that._logger.log("error", LOG_ID + "(releaseCall) Error.");
                     that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", error, ", response : ", response);
+                    return reject(error);
                 });
         });
     }
@@ -1201,7 +1202,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(answerCall) Error." );
                 that._logger.log("internalerror", LOG_ID + "(answerCall) Error : ", profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             if (call.status === Call.Status.QUEUED_INCOMING && activeCall) {
@@ -1216,7 +1217,7 @@ class Telephony {
                         let errorMessage = "answerCall failure : " + error.message;
                         that._logger.log("error", LOG_ID + "(answerCall) - callService - Error" );
                         that._logger.log("internalerror", LOG_ID + "(answerCall) - callService - Error : ", errorMessage);
-                        reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                        return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                     });
             }
             else {
@@ -1242,9 +1243,9 @@ class Telephony {
                             that._eventEmitter.emit("evt_internal_callupdated", call);
                             //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
                             let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                            reject(error);
                             that._logger.log("error", LOG_ID + "(answerCall) Error.");
                             that._logger.log("internalerror", LOG_ID + "(answerCall) Error : ", error);
+                            return reject(error);
                     });
                 }
             });
@@ -1270,7 +1271,7 @@ class Telephony {
         return new Promise(function (resolve, reject) {
             // Ignore call already hold
             if (!call || call.status === Call.Status.HOLD) {
-                resolve(call);
+                return resolve(call);
             }
 
             //reject not allowed operations
@@ -1281,7 +1282,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(holdCall) Error.");
                 that._logger.log("internalerror", LOG_ID + "(holdCall) ", profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             /* $http({
@@ -1341,7 +1342,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(retrieveCall) Error.");
                 that._logger.log("internalerror", LOG_ID + "(retrieveCall) Error : ", profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             // First hold the current active call
@@ -1359,7 +1360,7 @@ class Telephony {
                         let errorMessage = "retrieveCall failure : " + error.message;
                         that._logger.log("error", LOG_ID + "(retrieveCall) - callService -  Error." );
                         that._logger.log("internalerror", LOG_ID + "(retrieveCall) - callService - Error : ", errorMessage);
-                        reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                        return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                     });
             }
             else {
@@ -1386,9 +1387,9 @@ class Telephony {
                         },
                         function failure(response) {
                             let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                            reject(error);
                             that._logger.log("error", LOG_ID + "(retrieveCall) Error.");
                             that._logger.log("internalerror", LOG_ID + "(retrieveCall) Error : ", error);
+                            return reject(error);
                         });
                 }
             });
@@ -1414,7 +1415,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!call) {
-                resolve(call);
+                return resolve(call);
             }
 
             //reject not allowed operations
@@ -1425,7 +1426,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(deflectCallToVM) Error." );
                 that._logger.log("internalerror", LOG_ID + "(deflectCallToVM) Error : " + profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             that._logger.log("internal", LOG_ID + "(deflectCallToVM) deflectCallToVM ", call.contact.displayNameForLog());
@@ -1454,9 +1455,9 @@ class Telephony {
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
                     that._logger.log("error", LOG_ID + "(deflectCallToVM) Error.");
                     that._logger.log("internalerror", LOG_ID + "(deflectCallToVM) Error : ", error);
+                    return reject(error);
                 });
         });
     }
@@ -1509,9 +1510,9 @@ class Telephony {
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
                     that._logger.log("error", LOG_ID + "(deflectCall) Error. ");
                     that._logger.log("internalerror", LOG_ID + "(deflectCall) Error : ", error);
+                    return reject(error);
                 });
         });
     }
@@ -1537,7 +1538,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!activeCall || !heldCall) {
-                resolve();
+                return resolve();
             }
 
             //reject not allowed operations
@@ -1548,7 +1549,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(transfertCall) Error." );
                 that._logger.log("internalerror", LOG_ID + "(transfertCall) Error : " + profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             that._logger.log("internal", LOG_ID + "(transfertCall) transfertCall held(" + heldCall.contact.displayName + ") to active(" + activeCall.contact.displayName + ")");
@@ -1570,9 +1571,9 @@ class Telephony {
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
                     that._logger.log("error", LOG_ID + "(transfertCall) Error.");
                     that._logger.log("internalerror", LOG_ID + "(transfertCall) Error : ", error);
+                    return reject(error);
                 });
         });
     }
@@ -1599,7 +1600,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!activeCall || !heldCall) {
-                resolve();
+                return resolve();
             }
 
             //reject not allowed operations
@@ -1610,7 +1611,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(conferenceCall) Error." );
                 that._logger.log("internalerror", LOG_ID + "(conferenceCall) Error : " + profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             if (activeCall && activeCall.contact && heldCall && heldCall.contact) {
@@ -1630,7 +1631,7 @@ class Telephony {
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
+                    return reject(error);
                     that._logger.log("error", LOG_ID + "(conferenceCall) error.");
                     that._logger.log("internalerror", LOG_ID + "(conferenceCall) Error : ", error);
                 });
@@ -1660,7 +1661,7 @@ class Telephony {
                 let errorMessage = "forwardToDevice failure: impossible to forward its own phone number";
                 that._logger.log("error", LOG_ID + "(forwardToDevice) Error." );
                 that._logger.log("internalerror", LOG_ID + "(forwardToDevice) Error : ", errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function (contact) {
@@ -1684,7 +1685,7 @@ class Telephony {
                         },
                         function failure(response) {
                             let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                            reject(error);
+                            return reject(error);
                             that._logger.log("error", LOG_ID + "(forwardToDevice) Error.");
                             that._logger.log("internalerror", LOG_ID + "(forwardToDevice) Error : ", error);
                         });
@@ -1713,7 +1714,7 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(forwardToVoicemail) Error.");
                 that._logger.log("internalerror", LOG_ID + "(forwardToVoicemail) Error : ", profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             /*$http({
@@ -1739,9 +1740,9 @@ class Telephony {
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                    reject(error);
                     that._logger.log("error", LOG_ID + "(forwardToVoicemail) Error.");
                     that._logger.log("internalerror", LOG_ID + "(forwardToVoicemail) Error : ", error);
+                    return reject(error);
                 });
         });
     }
@@ -1781,13 +1782,13 @@ class Telephony {
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                        reject(error);
                         that._logger.log("error", LOG_ID + "(cancelForward) Error.");
                         that._logger.log("internalerror", LOG_ID + "(cancelForward) Error : ", error);
+                        return reject(error);
                     });
             }
             else {
-                reject();
+                return reject();
             }
         });
     }
@@ -1808,13 +1809,13 @@ class Telephony {
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                        reject(error);
                         that._logger.log("error", LOG_ID + "(getForwardStatus) error.");
                         that._logger.log("internalerror", LOG_ID + "(getForwardStatus) Error : ", error);
+                        return reject(error);
                     });
             }
             else {
-                reject();
+                return reject();
             }
         });
     }
@@ -1835,14 +1836,14 @@ class Telephony {
                 // @ts-ignore
                 that._logger.log("error", LOG_ID + "(nomadicLogin) Error." );
                 that._logger.log("internalerror", LOG_ID + "(nomadicLogin) Error : " + profileError.msg);
-                reject(profileError);
+                return reject(profileError);
             }
 
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "nomadicLogin failure: impossible to use its own phone number like nomadic phone";
                 that._logger.log("error", LOG_ID + "(nomadicLogin) Error." );
                 that._logger.log("internalerror", LOG_ID + "(nomadicLogin) Error : ", errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
 
             that._logger.log("internal", LOG_ID + "(nomadicLogin) phoneNumber : " + phoneNumber);
@@ -1885,7 +1886,7 @@ class Telephony {
                             let errorMessage = "nomadicLogin failure, nomadicDevice: " + response.message;
                             that._logger.log("error", LOG_ID + "(nomadicLogin) Error.");
                             that._logger.log("internalerror", LOG_ID + "(nomadicLogin) Error : " + errorMessage);
-                            reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                            return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
 
                         });
                 });
@@ -1966,9 +1967,9 @@ class Telephony {
             //reject not allowed operations
             if (!that.isNomadicEnabled) {
                 let error = ErrorManager.getErrorManager().CUSTOMERROR("403", "getNomadicStatus failure - Not Allowed", "getNomadicStatus failure - Not Allowed");// errorHelperService.handleError(response);
-                reject(error);
                 that._logger.log("error", LOG_ID + "(getNomadicStatus) Error.");
                 that._logger.log("internalerror", LOG_ID + "(getNomadicStatus) Error : ", error);
+                return reject(error);
             }
 
             if (that._contacts.userContact && that._contacts.userContact.phonePbx) {
@@ -1982,7 +1983,7 @@ class Telephony {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(getNomadicStatus) Error");
                         that._logger.log("internalerror", LOG_ID + "(getNomadicStatus) Error : ", error);
-                        reject(error);
+                        return reject(error);
                     });
             } else {
                 //let error = ErrorManager.getErrorManager().ERROR();// errorHelperService.handleError(response);
@@ -1990,7 +1991,7 @@ class Telephony {
                 //error.msg += "(getNomadicStatus) user logged in pbx info not filled!";
                 that._logger.log("error", LOG_ID + "(getNomadicStatus) user logged in pbx info not filled!");
                 that._logger.log("internalerror", LOG_ID + "(getNomadicStatus) user logged in pbx info not filled! Error : ", error);
-                reject(error);
+                return reject(error);
             }
         });
     };
@@ -2105,12 +2106,12 @@ class Telephony {
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
-                        reject(error);
                         that._logger.log("error", LOG_ID + "(sendDtmf) Error.");
                         that._logger.log("internalerror", LOG_ID + "(sendDtmf) Error : ", error);
+                        return reject(error);
                     });
             } else {
-                reject();
+                return reject();
             }
         });
     }

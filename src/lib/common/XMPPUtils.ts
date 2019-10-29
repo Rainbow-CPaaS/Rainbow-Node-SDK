@@ -21,10 +21,10 @@ export class XMPPUTils {
 
 
     generateRandomID() {
-        var text = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let text = "";
+        let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        for (var i = 0; i < 8; i++) {
+        for (let i = 0; i < 8; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
         return text;
@@ -32,9 +32,9 @@ export class XMPPUTils {
 
     getUniqueMessageId() {
 
-        var randomBase = uuid4();
+        let randomBase = uuid4();
 
-        var messageToSendID = "node_" + randomBase + this.messageId;
+        let messageToSendID = "node_" + randomBase + this.messageId;
         this.messageId++;
         return messageToSendID;
     }
@@ -46,11 +46,11 @@ export class XMPPUTils {
 
     getBareJIDFromFullJID(fullJid) {
         let index = 0;
-        
+
         if (fullJid.indexOf("tel_") === 0) {
             index = 4;
         }
-        
+
         if (fullJid.includes("/")) {
             fullJid = fullJid.substring(index, fullJid.indexOf("/"));
         }
@@ -60,11 +60,11 @@ export class XMPPUTils {
 
     getRoomJIDFromFullJID(fullJid) {
         let index = 0;
-        
+
         if (fullJid.indexOf("tel_") === 0) {
             index = 4;
         }
-        
+
         if (fullJid.includes("/")) {
             fullJid = fullJid.substring(index, fullJid.lastIndexOf("/"));
         }

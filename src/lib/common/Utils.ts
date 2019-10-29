@@ -39,11 +39,12 @@ class Deferred {
 	public promise: any;
 
     constructor() {
+        let that = this;
         this.resolve = null;
         this.reject = null;
         this.promise = new Promise(function(resolve, reject) {
-            this.resolve = resolve;
-            this.reject = reject;
+            that.resolve = resolve;
+            that.reject = reject;
         }.bind(this));
         Object.freeze(this);
     }
@@ -80,7 +81,7 @@ let setTimeoutPromised = function(time) {
           try {
               resolve();
           } catch (err) {
-              reject(err);
+              return reject(err);
           }
       }, time);
     });
@@ -183,7 +184,7 @@ function orderByFilter(originalArray, filterFct, flag, sortFct) {
 
     o.forEach((objectCompared, index) => {
         tabOrdered.push(objectCompared.objectOriginal) ;
-    })
+    });
 
     if (flag) {
         tabOrdered.reverse();

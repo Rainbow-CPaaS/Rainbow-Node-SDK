@@ -17,6 +17,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix Makecall when the user doesn't have telephony.
 -   Fix value Contact.id and Contact._id were sometime not filled
 -   Fix onDivertedEvent callback   
+-   Fix some missing return when reject Promise.
+-   Remove unused singleton in RESTTelephony  
 
 ## [1.62.0] - 2018-10-07
 -   Typescript improvement 

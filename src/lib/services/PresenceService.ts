@@ -91,7 +91,7 @@ class PresenceService {
                 that._logger.log("error", LOG_ID + "(start) Catch Error !!!");
                 that._logger.log("internalerror", LOG_ID + "(start) Catch Error !!! : ", err);
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject();
+                return reject();
             }
         });
     }
@@ -118,7 +118,7 @@ class PresenceService {
 
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject();
+                return reject();
             }
         });
     }
@@ -194,7 +194,7 @@ class PresenceService {
                 default:
                     that._logger.log("warn", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter");
                     that._logger.log("internalerror", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter : ", presence);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 break;
             }
 
@@ -266,7 +266,7 @@ class PresenceService {
                      that._xmpp.setPresence("xa", message);
                  } else {
                      let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                     reject(error);
+                     return reject(error);
                  }
              }
 
@@ -326,7 +326,7 @@ class PresenceService {
      */
     _onUserSettingsChanged() {
         let that = this;
-        
+
         that._logger.log("debug", LOG_ID + "(_onUserSettingsChanged) _entering_");
 
         that._sendPresenceFromConfiguration();
@@ -344,7 +344,7 @@ class PresenceService {
      */
     _onPresenceChanged(presence) {
         let that = this;
-        
+
         that._logger.log("debug", LOG_ID + "(_onPresenceChanged) _entering_");
 
         if ( presence.fulljid === that._xmpp.fullJid ) {

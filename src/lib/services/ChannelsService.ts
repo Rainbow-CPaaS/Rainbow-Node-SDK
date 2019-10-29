@@ -114,7 +114,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(start) error ");
                 this._logger.log("internalerror", LOG_ID + "(start) error : ", err);
                 that._logger.log("debug", LOG_ID + "(start) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -136,7 +136,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(stop) error ");
                 this._logger.log("internalerror", LOG_ID + "(stop) error : ", err);
                 this._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -189,14 +189,14 @@ class Channels {
         return new Promise((resolve, reject) => {
 
             this._logger.log("debug", LOG_ID + "(createPublicChannel) _entering_");
-        
+
             if (!name) {
                 this._logger.log("warn", LOG_ID + "(createPublicChannel) bad or empty 'name' parameter");
                 this._logger.log("internalerror", LOG_ID + "(createPublicChannel) bad or empty 'name' parameter : ", name);
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
-            } 
+            }
             this._rest.createPublicChannel(name, channelTopic, category, this.PUBLIC_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) creation successfull");
                 //let channelObj : Channel = this.addOrUpdateChannelToCache(channel);
@@ -206,8 +206,8 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(createPublicChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(createPublicChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(createPublicChannel) _exiting_");
-                reject(err);
-            }); 
+                return reject(err);
+            });
         });
     }
 
@@ -244,18 +244,18 @@ class Channels {
      *  Create a new closed channel
      */
     createClosedChannel(name, description, category) : Promise<Channel> {
-        
+
         return new Promise((resolve, reject) => {
 
             this._logger.log("debug", LOG_ID + "(createClosedChannel) _entering_");
-        
+
             if (!name) {
                 this._logger.log("warn", LOG_ID + "(createClosedChannel) bad or empty 'name' parameter");
                 this._logger.log("internalerror", LOG_ID + "(createClosedChannel) bad or empty 'name' parameter : ", name);
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
-            } 
+            }
             this._rest.createPublicChannel(name, description, category, this.PRIVATE_VISIBILITY, this.MAX_ITEMS, this.MAX_PAYLOAD_SIZE).then((channel) => {
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) creation successfull");
                 //let channelObj : Channel = this.addOrUpdateChannelToCache(channel);
@@ -265,8 +265,8 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(createClosedChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(createClosedChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(createClosedChannel) _exiting_");
-                reject(err);
-            }); 
+                return reject(err);
+            });
         });
     }
 
@@ -292,8 +292,8 @@ class Channels {
                 this._logger.log("debug", LOG_ID + "(deleteChannel) _exiting_");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
-            } 
-            
+            }
+
             this._rest.deleteChannel(channel.id).then(async (status) => {
                 this._logger.log("debug", LOG_ID + "(deleteChannel) channel deleted status : ", status);
                 /*let channelRemoved = this._channels.splice(this._channels.findIndex((el) => {
@@ -313,7 +313,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(deleteChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(deleteChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(deleteChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -380,9 +380,9 @@ class Channels {
                 });
             });
         };
-        
+
         this._logger.log("debug", LOG_ID + "(_findChannels) _entering_");
-        
+
         return new Promise((resolve, reject) => {
 
             this._rest.findChannels(name, topic, null, null, null, null, null).then((channels : []) => {
@@ -403,7 +403,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(_findChannels) error ");
                 this._logger.log("internalerror", LOG_ID + "(_findChannels) error : ", err);
                 this._logger.log("debug", LOG_ID + "(_findChannels) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -444,7 +444,7 @@ class Channels {
             if (!id) {
                 this._logger.log("warn", LOG_ID + "(fetchChannel) bad or empty 'jid' parameter");
                 this._logger.log("internalerror", LOG_ID + "(fetchChannel) bad or empty 'jid' parameter : ", id);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                 let channelFound = this.getChannelFromCache(id);
@@ -525,7 +525,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(fetchChannelsByFilter) error ");
                 this._logger.log("internalerror", LOG_ID + "(fetchChannelsByFilter) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchChannelsByFilter) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -569,7 +569,7 @@ class Channels {
                 });
             });
         };
-        
+
         return new Promise((resolve) => {
 
             this._logger.log("debug", LOG_ID + "(fetchMyChannels) _entering_");
@@ -629,7 +629,7 @@ class Channels {
      * @public
      * @method getAllChannels
      * @instance
-     * @return {Channel[]} An array of channels (owned and subscribed) 
+     * @return {Channel[]} An array of channels (owned and subscribed)
      * @memberof Channels
      * @description
      *  Return the list of channels (owned and subscribed)
@@ -754,7 +754,7 @@ class Channels {
      */
     createItem(channel, message, title, url, imagesIds, type) : Promise <{}> {
         this._logger.log("debug", LOG_ID + "(createItem) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(createItem) bad or empty 'channel' parameter ");
             this._logger.log("internalerror", LOG_ID + "(createItem) bad or empty 'channel' parameter : ", channel);
@@ -794,7 +794,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(createItem) error ");
                 this._logger.log("internalerror", LOG_ID + "(createItem) error : ", err);
                 this._logger.log("debug", LOG_ID + "(createItem) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -811,9 +811,9 @@ class Channels {
      * @memberof Channels
      */
     subscribeToChannel(channel : Channel) : Promise<Channel> {
-        
+
         this._logger.log("debug", LOG_ID + "(subscribeToChannel) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ");
             this._logger.log("internalerror", LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter : ", channel);
@@ -834,7 +834,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(subscribeToChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(subscribeToChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(subscribeToChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -874,7 +874,7 @@ class Channels {
                                 });
                             })
                             .catch(function (err) {
-                                reject(err);
+                                return reject(err);
                             });
                     } else {
                         return reject({
@@ -893,7 +893,7 @@ class Channels {
                         });
                     })
                     .catch(function (err) {
-                        reject(err);
+                        return reject(err);
                     });
             }
         });
@@ -912,9 +912,9 @@ class Channels {
      * @memberof Channels
      */
     unsubscribeFromChannel(channel : Channel) : Promise<String> {
-        
+
         this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ");
             this._logger.log("internalerror", LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter : ", channel);
@@ -932,7 +932,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(unsubscribeFromChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(unsubscribeFromChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -966,7 +966,7 @@ class Channels {
      * @memberof Channels
      */
     updateChannelDescription(channel, description) : Promise <Channel> {
-        
+
         this._logger.log("debug", LOG_ID + "(updateChannelDescription) _entering_");
 
         if (!channel || !channel.id) {
@@ -1007,7 +1007,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(updateChannelDescription) error ");
                 this._logger.log("internalerror", LOG_ID + "(updateChannelDescription) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelDescription) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1066,7 +1066,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(updateChannelName) error ");
                 this._logger.log("internalerror", LOG_ID + "(updateChannelName) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelName) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -1131,7 +1131,7 @@ class Channels {
                         resolve(channelObj);
                     })
                     .catch(function (err) {
-                        reject(err);
+                        return reject(err);
                     });
             });
         }
@@ -1196,7 +1196,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(updateChannelVisibility) error ");
                 this._logger.log("internalerror", LOG_ID + "(updateChannelVisibility) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelVisibility) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -1279,12 +1279,12 @@ class Channels {
                     }).catch(function (err) {
                         that._logger.log("error", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
                         that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err,  ", for channel : ", channel);
-                            reject(err);
+                        return reject(err);
                     });
                 } catch (err2) {
                     that._logger.log("error", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
                     that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err2,  ", for channel : ", channel);
-                    reject(err2);
+                    return reject(err2);
                 }
             });
         }
@@ -1322,7 +1322,7 @@ class Channels {
                         });
                     })
                     .catch(function (err) {
-                        reject(err);
+                        return reject(err);
                     });
             });
         }
@@ -1369,7 +1369,7 @@ class Channels {
      */
     public fetchChannelUsers(channel, options) : Promise<Array<{}>> {
         this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter : ", channel);
@@ -1387,11 +1387,11 @@ class Channels {
             if ("page" in options) {
                 json.page = Number(options.page);
             }
-    
+
             if ("limit" in options) {
                 json.limit = Number(options.limit);
             }
-            
+
             if ("onlyPublishers" in options && options.onlyPublishers) {
                 json.type = "publisher";
             }
@@ -1412,7 +1412,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(fetchChannelUsers) error ");
                 this._logger.log("internalerror", LOG_ID + "(fetchChannelUsers) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchChannelUsers) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1447,7 +1447,7 @@ class Channels {
      */
     public deleteAllUsersFromChannel(channel) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter : ", channel);
@@ -1476,10 +1476,10 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(deleteAllUsersFromChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(deleteAllUsersFromChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
-    }    
+    }
 
     /**
      * @public
@@ -1525,7 +1525,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(updateChannelUsers) error ");
                 this._logger.log("internalerror", LOG_ID + "(updateChannelUsers) error : ", err);
                 this._logger.log("debug", LOG_ID + "(updateChannelUsers) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1545,7 +1545,7 @@ class Channels {
      */
     public addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
         this._logger.log("debug", LOG_ID + "(addOwnersToChannel) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter : ", channel);
@@ -1585,7 +1585,7 @@ class Channels {
      */
     public addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _entering_");
-        
+
         if (!channel || !channel.id ) {
             this._logger.log("warn", LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter : ", channel);
@@ -1610,7 +1610,7 @@ class Channels {
         this._logger.log("debug", LOG_ID + "(addPublishersToChannel) _exiting_");
         return updated;
     }
-    
+
     /**
      * @public
      * @method addMembersToChannel
@@ -1693,7 +1693,7 @@ class Channels {
      */
     public deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
         this._logger.log("debug", LOG_ID + "(deleteUsersFromChannel) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter : ", channel);
@@ -1751,14 +1751,14 @@ class Channels {
     public fetchChannelItems (channel : Channel) : Promise<Array<any>>{
 
         this._logger.log("debug", LOG_ID + "(fetchChannelItems) _entering_");
-        
+
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", channel);
             this._logger.log("debug", LOG_ID + "(fetchChannelItems) _exiting_");
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        
+
         return new Promise( (resolve, reject) => {
 
             this._rest.getChannelMessages(channel.id).then((res : any) => {
@@ -1794,7 +1794,7 @@ class Channels {
                 this._logger.log("error", LOG_ID + "(fetchChannelItems) error ");
                 this._logger.log("internalerror", LOG_ID + "(fetchChannelItems) error : ", err);
                 this._logger.log("debug", LOG_ID + "(fetchChannelItems) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
     }
@@ -1866,13 +1866,13 @@ class Channels {
                 }).catch((err) => {
                     this._logger.log("error", LOG_ID + "(deleteItemFromChannel) error getChannel ");
                     this._logger.log("internalerror", LOG_ID + "(deleteItemFromChannel) error getChannel : ", err);
-                    reject(err);
+                    return reject(err);
                 });
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(deleteItemFromChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(deleteItemFromChannel) error : ", err);
                 this._logger.log("debug", LOG_ID + "(deleteItemFromChannel) _exiting_");
-                reject(err);
+                return reject(err);
             });
         });
 
@@ -1903,7 +1903,7 @@ class Channels {
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(getChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(getChannel) error : ", err);
-                reject(err);
+                return reject(err);
             });
         });
     };
@@ -1986,7 +1986,7 @@ class Channels {
                     .catch((err) => {
                         this._logger.log("error", LOG_ID + "(removeChannelFromCache) error retrieveLatests ");
                         this._logger.log("internalerror", LOG_ID + "(removeChannelFromCache) error retrieveLatests : ", err);
-                        reject(err);
+                        return reject(err);
                     });
             } else {
                 resolve(null);

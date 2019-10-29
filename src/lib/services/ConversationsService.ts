@@ -125,7 +125,7 @@ class Conversations {
                 that._logger.log("error", LOG_ID + "(start) !!! Catch error.");
                 that._logger.log("internalerror", LOG_ID + "(start) !!! Catch error : ", err);
                 that._logger.log("error", LOG_ID + "(start) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -154,7 +154,7 @@ class Conversations {
                 resolve();
             } catch (err) {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
-                reject(err);
+                return reject(err);
             }
         });
     }
@@ -240,7 +240,7 @@ class Conversations {
                             let errorMessage = "getServerConversations failure: " + error.message;
                             that._logger.log("error", LOG_ID + "[conversationService] error.");
                             that._logger.log("internalerror", LOG_ID + "[conversationService] error : ", errorMessage);
-                            reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                            return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                         });
                 })
                 .catch((err) => {
@@ -252,7 +252,7 @@ class Conversations {
 
                     that._logger.log("error", LOG_ID + "[conversationService] error.");
                     that._logger.log("internalerror", LOG_ID + "[conversationService] error : ", errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });
     }
@@ -354,12 +354,12 @@ class Conversations {
                 that._logger.log("info", LOG_ID + "[conversationService] deleteServerConversation success: " + conversationId);
                 return Promise.resolve();
             }
-            
+
             let errorMessage = "deleteServerConversation failure: " + err.errorDetails;
             that._logger.log("warn", LOG_ID + "[conversationService] Error.");
             that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
             return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-       
+
         });
     }
 
@@ -501,7 +501,7 @@ class Conversations {
     async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) {
         let that = this;
         return new Promise((resolve, reject) => {
-            
+
             // Fetch the conversation
             let conv = that.getConversationById(conversationId);
             if (conv) {
@@ -542,7 +542,7 @@ class Conversations {
                     that._logger.log("error", LOG_ID + "[conversationService] Error." );
                     that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
 
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });
     }
@@ -654,7 +654,7 @@ class Conversations {
                                 if (noError) {
                                     resolve();
                                 } else {
-                                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                                 }
                             });
                     }
@@ -667,7 +667,7 @@ class Conversations {
                 if (noError) {
                     resolve();
                 } else {
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                 }
             });
 
@@ -689,7 +689,7 @@ class Conversations {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!conversation) {
-                reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+                return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
             }
             /* else if (!status) {
                 reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
@@ -697,7 +697,7 @@ class Conversations {
             else {
                 conversation = conversation.id ? that.getConversationById(conversation.id) : null;
                 if (!conversation) {
-                    reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
+                    return reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     that._xmpp.sendIsTypingState(conversation, status);
                     resolve();
@@ -733,7 +733,7 @@ class Conversations {
             resolve();
         });
     }
-    
+
     /**
      * @private
      * @method
@@ -788,7 +788,7 @@ class Conversations {
                     resolve();
                 })
                 .catch( (error) => {
-                    reject(error);
+                    return reject(error);
                 });
         });
     }
@@ -954,7 +954,7 @@ class Conversations {
                     },
                     function errorCallback(error) {
                         that._logger.log("error", LOG_ID + "createFileDescriptor error");
-                        reject(error);
+                        return reject(error);
                     });
 
 
@@ -1263,7 +1263,7 @@ class Conversations {
             };
 
             that.pendingMessages = that.pendingMessages.filter((messagePending) => { if (messagePending.date > date) { return false; } });
-            
+
             // Request for history messages
             that._xmpp.mamDelete(mamRequest);
             //that._xmpp.mamDelete(conversation.id, mamRequest);
@@ -1401,7 +1401,7 @@ class Conversations {
         return new Promise(function (resolve, __reject) {
 
             if (!contact) {
-                __reject({
+                return __reject({
                     code: ErrorManager.getErrorManager().BAD_REQUEST,
                     label: "Parameter 'contact' is missing or null"
                 });
@@ -1417,7 +1417,7 @@ class Conversations {
                     }).catch(function (result) {
                     that._logger.log("error", LOG_ID + "[openConversationForContact] Error.");
                     that._logger.log("internalerror", LOG_ID + "[openConversationForContact] Error : ", result);
-                    __reject(result);
+                    return __reject(result);
                 });
             }
         });
@@ -1486,7 +1486,7 @@ class Conversations {
     /*********************************************************************/
     /**
      * @private
-     * 
+     *
      */
     reinit() {
         let that = this;
