@@ -229,9 +229,9 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : a
                     let start_up = isStart_upService(this.startConfig);
                     if (ignoreTheStartedState) {
                         if (start_up) {
-                            logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _entering_"));
+                            logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
                             returnValue = originalMethod.apply(this, args);
-                            logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _exiting_"));
+                            logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                         } else {
                             return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
                             //throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
@@ -239,9 +239,9 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : a
                     } else {
                         if (start_up) {
                             if (this.ready) {
-                                logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _entering_"));
+                                logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
                                 returnValue = originalMethod.apply(this, args);
-                                logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _exiting_"));
+                                logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                             } else {
                                 //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
                                 throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
