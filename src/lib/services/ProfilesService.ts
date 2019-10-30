@@ -82,7 +82,7 @@ const FeaturesEnum = {
     WEBRTC_P2P_RECORDING: "WEBRTC_P2P_RECORDING" // */
 };
 
-@isStarted()
+@isStarted([], LOG_ID)
 class ProfilesService {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;

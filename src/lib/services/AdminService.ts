@@ -10,7 +10,7 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
-@isStarted()
+@isStarted([], LOG_ID)
 /**
  * @class
  * @name Admin
@@ -52,18 +52,15 @@ class Admin {
     start(_xmpp : XMPPService, _rest : RESTService) {
         let that = this;
 
-        that._logger.log("debug", LOG_ID + "(start) _entering_");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
                 that.ready = true;
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 resolve();
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(start) error : ", err);
-                that._logger.log("error", LOG_ID + "(start) _exiting_");
                 return reject();
             }
         });
@@ -72,7 +69,6 @@ class Admin {
     stop() {
         let that = this;
 
-        that._logger.log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -80,10 +76,8 @@ class Admin {
                 that._rest = null;
                 that.ready = false;
                 resolve();
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(stop) error : ", err);
-                that._logger.log("error", LOG_ID + "(stop) _exiting_");
                 return reject(err);
             }
         });
@@ -107,14 +101,12 @@ class Admin {
     createCompany(strName, country, state) {
         let that = this;
 
-        that._logger.log("debug", LOG_ID + "(createCompany) _entering_");
-        that._logger.log("internal", LOG_ID + "(createCompany) _entering_ : ", strName, country);
+        that._logger.log("internal", LOG_ID + "(createCompany) parameters : strName : ", strName,", country : ", country);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!strName) {
                     that._logger.log("error", LOG_ID + "(createCompany) bad or empty 'strName' parameter");
-                    that._logger.log("debug", LOG_ID + "(createCompany) _exiting_");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -122,18 +114,15 @@ class Admin {
                 that._rest.createCompany(strName, country, state).then((company) => {
                     that._logger.log("internal", LOG_ID + "(createCompany) Successfully created company : ", strName);
                     resolve(company);
-                    that._logger.log("debug", LOG_ID + "(createCompany) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(createCompany) ErrorManager when creating");
                     that._logger.log("internalerror", LOG_ID + "(createCompany) ErrorManager when creating : ", strName);
-                    that._logger.log("debug", LOG_ID + "(createCompany) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(createCompany) error : ", err);
-                that._logger.log("error", LOG_ID + "(createCompany) _exiting_");
                 return reject(err);
             }
         });
@@ -157,39 +146,33 @@ class Admin {
 
         let that = this;
 
-        that._logger.log("debug", LOG_ID + "(setVisibilityForCompany) _entering_");
-        that._logger.log("internal", LOG_ID + "(setVisibilityForCompany) _entering_ : ", company);
+        that._logger.log("internal", LOG_ID + "(setVisibilityForCompany) parameters : company : ", company);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!company) {
                     that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
-                    that._logger.log("debug", LOG_ID + "(setVisibilityForCompany) _exiting_");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!visibleByCompany) {
                     that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(setVisibilityForCompany) _exiting_");
                     return;
                 }
 
                 that._rest.setVisibilityForCompany(company.id, visibleByCompany.id).then((user) => {
                     that._logger.log("internal", LOG_ID + "(setVisibilityForCompany) Successfully set visibility for company : ", company);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(setVisibilityForCompany) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(setVisibilityForCompany) ErrorManager when set visibility for company");
                     that._logger.log("internalerror", LOG_ID + "(setVisibilityForCompany) ErrorManager when set visibility for company : ", company);
-                    that._logger.log("debug", LOG_ID + "(setVisibilityForCompany) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(setVisibilityForCompany) _exiting_");
-                that._logger.log("internalerror", LOG_ID + "(setVisibilityForCompany) _exiting_ : ", err);
                 return reject(err);
             }
         });
@@ -218,8 +201,6 @@ class Admin {
     createUserInCompany(email, password, firstname, lastname, companyId, language, isCompanyAdmin, roles) {
         let that = this;
 
-        that._logger.log("debug", LOG_ID + "(createUserInCompany) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -230,45 +211,38 @@ class Admin {
                 if (!email) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'email' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) _exiting_");
                     return;
                 }
 
                 if (!password) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'password' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) _exiting_");
                     return;
                 }
 
                 if (!firstname) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'firstname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) _exiting_");
                     return;
                 }
 
                 if (!lastname) {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'lastname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) _exiting_");
                     return;
                 }
 
                 that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user) => {
                     that._logger.log("debug", LOG_ID + "(createUserInCompany) Successfully created user for account : ", email);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) ErrorManager when creating user for account ");
                     that._logger.log("internalerror", LOG_ID + "(createUserInCompany) ErrorManager when creating user for account : ", email);
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(createUserInCompany) error : ", err);
-                that._logger.log("error", LOG_ID + "(createUserInCompany) _exiting_");
                 reject(err);
             }
         });
@@ -293,8 +267,6 @@ class Admin {
     createGuestUser(firstname, lastname, language, timeToLive) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(createGuestUser) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -303,38 +275,32 @@ class Admin {
                 if (!firstname) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createGuestUser) _exiting_");
                     return;
                 }
 
                 if (!lastname) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createGuestUser) _exiting_");
                     return;
                 }
 
                 if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createGuestUser) _exiting_");
                     return;
                 }
 
                 that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user : any) => {
                     that._logger.log("debug", LOG_ID + "(createGuestUser) Successfully created guest user for account : ", user.loginEmail);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(createGuestUser) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + `(createGuestUser) Error when creating guest user`);
                     that._logger.log("internalerror", LOG_ID + `(createGuestUser) Error when creating guest user with firstname: ${firstname}, lastname: ${lastname}`);
-                    that._logger.log("debug", LOG_ID + "(createGuestUser) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(createGuestUser) error : ", err);
-                that._logger.log("error", LOG_ID + "(createGuestUser) _exiting_");
                 return reject(err);
             }
         });
@@ -358,31 +324,25 @@ class Admin {
     createAnonymousGuestUser(timeToLive) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
                 if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) _exiting_");
                     return;
                 }
 
                 that._rest.createGuestUser(null, null, null, timeToLive).then((user : any) => {
                     that._logger.log("internal", LOG_ID + "(createAnonymousGuestUser) Successfully created guest user for account : ", user.loginEmail);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) ErrorManager when creating anonymous guest user");
-                    that._logger.log("debug", LOG_ID + "(createAnonymousGuestUser) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(createAnonymousGuestUser) error : ", err);
-                that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) _exiting_");
                 reject(err);
             }
         });
@@ -407,8 +367,6 @@ class Admin {
     inviteUserInCompany(email, companyId, language, message) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(inviteUserInCompany) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -419,31 +377,26 @@ class Admin {
                 if (!email) {
                     that._logger.log("error", LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(inviteUserInCompany) _exiting_");
                     return;
                 }
 
                 if (!companyId) {
                     that._logger.log("error", LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(inviteUserInCompany) _exiting_");
                     return;
                 }
 
                 that._rest.inviteUser(email, companyId, language, message).then((user) => {
                     that._logger.log("internal", LOG_ID + "(inviteUserInCompany) Successfully inviting user for account : ", email);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(inviteUserInCompany) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(inviteUserInCompany) ErrorManager when inviting user for account");
                     that._logger.log("internalerror", LOG_ID + "(inviteUserInCompany) ErrorManager when inviting user for account : ", email, ", error : ", err);
-                    that._logger.log("debug", LOG_ID + "(inviteUserInCompany) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(inviteUserInCompany) error : ", err);
-                that._logger.log("error", LOG_ID + "(inviteUserInCompany) _exiting_");
                 return reject(err);
             }
         });
@@ -467,39 +420,32 @@ class Admin {
 
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(changePasswordToUser) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!password) {
                     that._logger.log("error", LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(changePasswordToUser) _exiting_");
                     return;
                 }
 
                 if (!userId) {
                     that._logger.log("error", LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(changePasswordToUser) _exiting_");
                     return;
                 }
 
                 that._rest.changePassword(password, userId).then((user) => {
                     that._logger.log("internal", LOG_ID + "(changePasswordToUser) Successfully changing password for user account : ", userId);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(changePasswordToUser) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(changePasswordToUser) ErrorManager when changing password for user account");
                     that._logger.log("internalerror", LOG_ID + "(changePasswordToUser) ErrorManager when changing password for user account : ", userId);
-                    that._logger.log("debug", LOG_ID + "(changePasswordToUser) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(changePasswordToUser) error : ", err);
-                that._logger.log("error", LOG_ID + "(changePasswordToUser) _exiting_");
                 return reject(err);
             }
         });
@@ -523,46 +469,38 @@ class Admin {
 
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(updateInformationForUser) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!objData) {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(updateInformationForUser) _exiting_");
                     return;
                 }
 
                 if ("loginEmail" in objData) {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(updateInformationForUser) _exiting_");
                     return;
                 }
 
                 if ("password" in objData) {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) can't change the password with that API");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(updateInformationForUser) _exiting_");
                     return;
                 }
 
                 that._rest.updateInformation(objData, userId).then((user) => {
                     that._logger.log("internal", LOG_ID + "(updateInformationForUser) Successfully changing information for user account : ", userId);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(updateInformationForUser) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(updateInformationForUser) ErrorManager when changing information for user account");
                     that._logger.log("internalerror", LOG_ID + "(updateInformationForUser) ErrorManager when changing information for user account : ", userId);
-                    that._logger.log("debug", LOG_ID + "(updateInformationForUser) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(updateInformationForUser) error : ", err);
-                that._logger.log("error", LOG_ID + "(updateInformationForUser) _exiting_");
                 return reject(err);
             }
         });
@@ -585,15 +523,12 @@ class Admin {
 
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(deleteUser) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!userId) {
                     that._logger.log("error", LOG_ID + "(deleteUser) bad or empty 'userId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    that._logger.log("debug", LOG_ID + "(deleteUser) _exiting_");
                     return;
                 }
 
@@ -601,16 +536,13 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(deleteUser) Successfully deleting user account ");
                     that._logger.log("internal", LOG_ID + "(deleteUser) Successfully deleting user : ", user);
                     resolve(user);
-                    that._logger.log("debug", LOG_ID + "(deleteUser) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(deleteUser) ErrorManager when deleting user account : ", userId);
-                    that._logger.log("debug", LOG_ID + "(deleteUser) _exiting_");
                     return reject(err);
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(deleteUser) error : ", err);
-                that._logger.log("error", LOG_ID + "(deleteUser) _exiting_");
                 return reject(err);
             }
         });
@@ -631,8 +563,6 @@ class Admin {
     getAllCompanies() {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(getAllCompanies) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -640,17 +570,14 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(getAllCompanies) Successfully get all companies");
                     that._logger.log("internal", LOG_ID + "(getAllCompanies) : companies values : ", companies.data);
                     resolve(companies);
-                    that._logger.log("debug", LOG_ID + "(getAllCompanies) _exiting_");
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getAllCompanies) ErrorManager when get All companies");
-                    that._logger.log("debug", LOG_ID + "(getAllCompanies) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(getAllCompanies) error : ", err);
-                that._logger.log("error", LOG_ID + "(getAllCompanies) _exiting_");
                 return reject(err);
             }
         });
@@ -663,8 +590,6 @@ class Admin {
     getCompanyById(companyId) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(getCompanyById) _entering_");
-
         return new Promise((resolve, reject) => {
             try {
 
@@ -672,17 +597,14 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(getCompanyById) Successfully get a company");
                     that._logger.log("internal", LOG_ID + "(getCompanyById) : companies values : ", company.data);
                     resolve(company.data);
-                    that._logger.log("debug", LOG_ID + "(getCompanyById) _exiting_");
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(getCompanyById) ErrorManager when get a company");
-                    that._logger.log("debug", LOG_ID + "(getCompanyById) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(getCompanyById) error : ", err);
-                that._logger.log("error", LOG_ID + "(getCompanyById) _exiting_");
                 return reject(err);
             }
         });
@@ -695,8 +617,7 @@ class Admin {
     removeCompany(company) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(deleteCompany) _entering_");
-        this._logger.log("internal", LOG_ID + "(deleteCompany) _entering_ : company : ", company);
+        this._logger.log("internal", LOG_ID + "(deleteCompany) parameters : company : ", company);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -705,17 +626,14 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(deleteCompany) Successfully remove company");
                     that._logger.log("internal", LOG_ID + "(deleteCompany) : companies values : ", companies.data);
                     resolve(companies);
-                    that._logger.log("debug", LOG_ID + "(deleteCompany) _exiting_");
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(deleteCompany) ErrorManager when removing company");
-                    that._logger.log("debug", LOG_ID + "(deleteCompany) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(deleteCompany) error : ", err);
-                that._logger.log("error", LOG_ID + "(deleteCompany) _exiting_");
                 return reject(err);
             }
         });
@@ -739,24 +657,19 @@ class Admin {
     askTokenOnBehalf(loginEmail, password) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(getGuestOrUserToken) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
                     that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) Successfully logged-in a user");
                     that._logger.log("internal", LOG_ID + "(getGuestOrUserToken) : user data : ", json);
                     resolve(json);
-                    that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) _exiting_");
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getGuestOrUserToken) Error when getting a token");
                     return reject(err);
-                    that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) _exiting_");
                 });
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(getGuestOrUserToken) error : ", err);
-                that._logger.log("error", LOG_ID + "(getGuestOrUserToken) _exiting_");
                 return reject(err);
             }
         });
@@ -784,8 +697,6 @@ class Admin {
     getAllUsers(format = "small", offset = 0, limit = 100, sortField="loginEmail") {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(getAllUsers) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -793,18 +704,15 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(getAllUsers) Successfully get all companies");
                     that._logger.log("internal", LOG_ID + "(getAllUsers) : companies values : ", users.data);
                     resolve(users.data);
-                    that._logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getAllUsers) ErrorManager when get All companies");
                     that._logger.log("internalerror", LOG_ID + "(getAllUsers) ErrorManager when get All companies : ", err);
-                    that._logger.log("debug", LOG_ID + "(getAllUsers) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(getAllUsers) error : ", err);
-                that._logger.log("error", LOG_ID + "(getAllUsers) _exiting_");
                 return reject(err);
             }
         });
@@ -826,8 +734,6 @@ class Admin {
     getContactInfos(userId) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(getContactInfos) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -835,18 +741,15 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(getContactInfos) Successfully get Contact Infos");
                     that._logger.log("internal", LOG_ID + "(getContactInfos) : result : ", result);
                     resolve(result);
-                    that._logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getContactInfos) ErrorManager when get contact infos ");
                     that._logger.log("internalerror", LOG_ID + "(getContactInfos) ErrorManager when get contact infos : ", err);
-                    that._logger.log("debug", LOG_ID + "(getContactInfos) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(getContactInfos) error : ", err);
-                that._logger.log("internalerror", LOG_ID + "(getContactInfos) _exiting_");
                 return reject(err);
             }
         });
@@ -1019,8 +922,6 @@ class Admin {
     updateContactInfos(userId, infos) {
         let that = this;
 
-        this._logger.log("debug", LOG_ID + "(updateContactInfos) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
 
@@ -1080,17 +981,14 @@ class Admin {
                     that._logger.log("debug", LOG_ID + "(updateContactInfos) Successfully put all infos");
                     that._logger.log("internal", LOG_ID + "(updateContactInfos) : result : ", result);
                     resolve(result);
-                    that._logger.log("debug", LOG_ID + "(updateContactInfos) _exiting_");
                 }).catch(function (err) {
                     that._logger.log("internalerror", LOG_ID + "(updateContactInfos) ErrorManager when put infos", err);
                     that._logger.log("error", LOG_ID + "(updateContactInfos) ErrorManager when put infos");
-                    that._logger.log("debug", LOG_ID + "(updateContactInfos) _exiting_");
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("debug", LOG_ID + "(updateContactInfos) _exiting_");
                 return reject(err);
             }
         });

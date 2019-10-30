@@ -203,7 +203,7 @@ function  isStart_upService( serviceoptions) {
     return start_up;
 }
 
-function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
+function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : any{
     return function (target, key, descriptor) : any {
         let keys = Object.getOwnPropertyNames(target.prototype);
         keys.forEach((propertyName)=> {
@@ -225,10 +225,13 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                 if (this == null) {
                     returnValue = originalMethod.apply(this, args);
                 } else {
+                    let logger = this.logger ? this.logger : this._logger ? this._logger : {};
                     let start_up = isStart_upService(this.startConfig);
                     if (ignoreTheStartedState) {
                         if (start_up) {
+                            logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _entering_"));
                             returnValue = originalMethod.apply(this, args);
+                            logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _exiting_"));
                         } else {
                             return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
                             //throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
@@ -236,7 +239,9 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                     } else {
                         if (start_up) {
                             if (this.ready) {
+                                logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _entering_"));
                                 returnValue = originalMethod.apply(this, args);
+                                logger.log("debug", LOG_ID + logger.colors.data(", call : (" + propertyName + ") _exiting_"));
                             } else {
                                 //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
                                 throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});

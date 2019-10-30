@@ -12,7 +12,7 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
-@isStarted()
+@isStarted([], LOG_ID)
 /**
 * @module
 * @name FavoritesService
@@ -179,7 +179,6 @@ class FavoritesService {
             return new Promise(async (resolve, reject) => {
                 this._rest.getServerFavorites().then(async (favorite : []) => {
                     that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
-                    that._logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
                     if (favorite) {
                         let promises = favorite.map(async (data: any) => {
                             return this.createFavoriteObj(data.id, data.peerId, data.type);
@@ -194,7 +193,6 @@ class FavoritesService {
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(getServerFavorites) error.");
                     that._logger.log("internalerror", LOG_ID + "(getServerFavorites) error : ", err);
-                    that._logger.log("debug", LOG_ID + "(getServerFavorites) _exiting_");
                     return reject(err);
                 });
 
@@ -243,7 +241,6 @@ class FavoritesService {
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(removeServerFavorite) error.");
                     that._logger.log("internalerror", LOG_ID + "(removeServerFavorite) error : ", err);
-                    that._logger.log("debug", LOG_ID + "(removeServerFavorite) _exiting_");
                     return reject(err);
                 });
 

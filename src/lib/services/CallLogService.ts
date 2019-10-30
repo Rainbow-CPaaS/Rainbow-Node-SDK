@@ -35,7 +35,7 @@ function CallLogsBean() : ICallLogsBean {
     };
 }
 
-@isStarted()
+@isStarted([], LOG_ID)
 /**
 * @module
 * @name CallsLog

@@ -10,7 +10,7 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "PRES/SVCE - ";
 
-@isStarted()
+@isStarted([], LOG_ID)
 /**
  * @class
  * @name PresenceService
@@ -65,9 +65,6 @@ class PresenceService {
 
     start(_xmpp, _settings) {
         let that = this;
-
-        that._logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that._xmpp = _xmpp;
@@ -83,14 +80,12 @@ class PresenceService {
                 that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
                 that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 that.ready = true;
                 resolve();
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch Error !!!");
                 that._logger.log("internalerror", LOG_ID + "(start) Catch Error !!! : ", err);
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 return reject();
             }
         });
@@ -98,9 +93,6 @@ class PresenceService {
 
     stop() {
         let that = this;
-
-        that._logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 delete that.presenceEventHandler;
@@ -112,12 +104,10 @@ class PresenceService {
                 that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
                 that._eventEmitter.removeListener("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 that.ready = false;
                 resolve();
 
             } catch (err) {
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 return reject();
             }
         });
@@ -135,14 +125,10 @@ class PresenceService {
     sendInitialPresence() {
 
         let that = this;
-
-        that._logger.log("debug", LOG_ID + "(sendInitialPresence) _entering_");
-
         return new Promise((resolve) => {
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                 that._logger.log("info", LOG_ID + "(sendInitialPresence) received.");
                 that._logger.log("internal", LOG_ID + "(sendInitialPresence) received : ", presence);
-                that._logger.log("debug", LOG_ID + "(sendInitialPresence) - _exiting_");
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
@@ -165,15 +151,10 @@ class PresenceService {
      * @category async
      */
     setPresenceTo(presence) {
-
         let that = this;
         let show = "online";
         let status = "";
-
-        that._logger.log("debug", LOG_ID + "(setPresenceTo) _entering_");
-
         return new Promise((resolve, reject) => {
-
             switch (presence) {
                 case "online":
                     show = "online";
@@ -201,7 +182,6 @@ class PresenceService {
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged (_presence) {
                 that._logger.log("info", LOG_ID + "(setPresenceTo) received.");
                 that._logger.log("internal", LOG_ID + "(setPresenceTo) received : ", _presence);
-                that._logger.log("debug", LOG_ID + "(setPresenceTo) - _exiting_");
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
@@ -221,16 +201,12 @@ class PresenceService {
      */
     _setUserPresenceStatus( status, message?) {
          let that = this;
-
-         that._logger.log("debug", LOG_ID + "(setUserPresenceStatus) _entering_");
          return new Promise((resolve, reject) => {
-
              if (status === "online") {
                  that.manualState = false;
                  that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                      that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                     that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                      resolve();
                  });
@@ -241,7 +217,6 @@ class PresenceService {
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                          that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
                      });
@@ -250,7 +225,6 @@ class PresenceService {
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                          that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
                      });
@@ -259,7 +233,6 @@ class PresenceService {
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                          that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) - _exiting_");
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                          resolve(ErrorManager.getErrorManager().OK);
                      });
@@ -269,8 +242,6 @@ class PresenceService {
                      return reject(error);
                  }
              }
-
-             that._logger.log("debug", LOG_ID + "(setUserPresenceStatus) - _exiting_");
          });
      }
 
@@ -284,8 +255,6 @@ class PresenceService {
      */
     _sendPresenceFromConfiguration() {
         let that = this;
-
-        that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) _entering_");
 
         return new Promise( (resolve) => {
 
@@ -326,12 +295,7 @@ class PresenceService {
      */
     _onUserSettingsChanged() {
         let that = this;
-
-        that._logger.log("debug", LOG_ID + "(_onUserSettingsChanged) _entering_");
-
         that._sendPresenceFromConfiguration();
-
-        that._logger.log("debug", LOG_ID + "(_onUserSettingsChanged) - _exiting_");
     }
 
     /**
@@ -345,13 +309,9 @@ class PresenceService {
     _onPresenceChanged(presence) {
         let that = this;
 
-        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) _entering_");
-
         if ( presence.fulljid === that._xmpp.fullJid ) {
             that._currentPresence = presence;
         }
-
-        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) - _exiting_");
     }
 }
 

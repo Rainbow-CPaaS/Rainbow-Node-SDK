@@ -14,7 +14,7 @@ import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyE
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
-@isStarted()
+@isStarted([], LOG_ID)
 /**
  * @module
  * @name Telephony
@@ -106,7 +106,6 @@ class Telephony {
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
-        this._logger.log("debug", LOG_ID + "(start) _entering_");
         this.voiceMail = VoiceMail.createVoiceMail(_profiles);
         that.startDate = new Date();
 
@@ -121,7 +120,6 @@ class Telephony {
 
                 that.attachHandlers();
 
-                this._logger.log("debug", LOG_ID + "(start) _exiting_");
                 this.ready = true;
                 resolve();
 
@@ -135,7 +133,6 @@ class Telephony {
 
     stop() {
         let that = this;
-        this._logger.log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise((resolve, reject) => {
             try {
@@ -150,11 +147,9 @@ class Telephony {
                 that.telephonyHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 that.telephonyHistoryHandlerToken = [];
 
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 this.ready = false;
                 resolve();
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(stop) _exiting_");
                 return reject(err);
             }
         });
@@ -959,9 +954,7 @@ class Telephony {
     makeCallByPhoneNumber(phoneNumber, correlatorData) {
         let that = this;
         return new Promise((resolve, reject) => {
-
             that._logger.log("internal", LOG_ID + "(makeCallByPhoneNumber) calling : " + utils.anonymizePhoneNumber(phoneNumber));
-
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
                 let errorMessage = "makeCallByPhoneNumber) failure: impossible to call its own phone number";
                 that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) Error.");
@@ -1187,7 +1180,6 @@ class Telephony {
             if (call.contact) {
                 that._logger.log("internal", LOG_ID + "(answerCall) : " + utils.anonymizePhoneNumber(call.contact.phone) + "(" + call.contact.displayNameForLog() + ")");
             } else {
-                that._logger.log("debug", LOG_ID + "(answerCall) __entering__");
                 that._logger.log("internal", LOG_ID + "(answerCall) : ", call);
             }
 

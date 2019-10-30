@@ -13,7 +13,7 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
-@isStarted()
+@isStarted([], LOG_ID)
 /**
  * @class
  * @name Contacts
@@ -68,8 +68,6 @@ class Contacts {
 
         let that = this;
 
-        that.logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that.xmpp = _xmpp;
@@ -107,7 +105,6 @@ class Contacts {
                 that.eventEmitter.on("evt_internal_userinvitecanceled", that._onUserInviteCanceled.bind(that));
                 that.eventEmitter.on("evt_internal_onrosters", that._onRostersUpdate.bind(that));
 */
-                that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 that.ready = true;
                 resolve();
 
@@ -121,9 +118,6 @@ class Contacts {
 
     stop() {
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that.xmpp = null;
@@ -137,12 +131,10 @@ class Contacts {
                 that.eventEmitter.removeListener("evt_internal_userinvitecanceled", that._onUserInviteCanceled.bind(that));
                 that.eventEmitter.removeListener("evt_internal_onrosters", that._onRostersUpdate.bind(that));
 */
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 that.ready = false;
                 resolve();
 
             } catch (err) {
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 return reject();
             }
         });
@@ -186,10 +178,7 @@ class Contacts {
      * @category async
      */
     getRosters() {
-
         let that = this;
-        this.logger.log("debug", LOG_ID + "(getRosters) _entering_");
-
         return new Promise((resolve, reject) => {
             that.rest.getContacts().then((listOfContacts : any) => {
 
@@ -208,12 +197,10 @@ class Contacts {
                 that.logger.log("internal", LOG_ID + "(getRosters) get rosters successfully : ", that.contacts);
 
                 that.logger.log("info", LOG_ID + "(getRosters) get rosters successfully");
-                that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
                 resolve(that.getAll());
             }).catch((err) => {
                 that.logger.log("error", LOG_ID + "(getRosters) error");
                 that.logger.log("internalerror", LOG_ID + "(getRosters) error : ", err);
-                that.logger.log("debug", LOG_ID + "(getRosters) _exiting_");
                 return reject(err);
             });
         });
@@ -442,9 +429,7 @@ class Contacts {
      * @category async
      */
     getContactById(id) {
-
         let that = this;
-
         return new Promise((resolve, reject) => {
              if (!id) {
                 that.logger.log("warn", LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
@@ -734,7 +719,7 @@ class Contacts {
      */
     async acceptInvitation(invitation) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(acceptInvitation) : ", invitation);
+        that.logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
         if (!invitation) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not acceptInvitation";
@@ -758,7 +743,7 @@ class Contacts {
      */
     declineInvitation(invitation) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(declineInvitation) : ", invitation);
+        that.logger.log("internal", LOG_ID + "(declineInvitation) intivation : ", invitation);
         if (!invitation) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not declineInvitation";
