@@ -193,48 +193,49 @@ const LOG_ID = "WEBRTC/SVCE - ";
 
         //result.sdp = 'v=0\r\no=- 4086647801925252121 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=application 9 DTLS/SCTP 5000\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:zIR9\r\na=ice-pwd:9efDTGuIpHj0L0Y3No0rfdp1\r\na=ice-options:trickle\r\na=fingerprint:sha-256 9C:E5:A7:73:43:EC:15:AA:0C:4F:5A:FC:D4:E8:3E:0E:D0:07:C2:B6:43:4C:A2:A4:93:97:95:44:02:C9:56:7F\r\na=setup:actpass\r\na=mid:0\r\na=sctpmap:5000 webrtc-datachannel 1024\r\n';
 
+        /*
+                let conn = that.connection;
+                that.pc1.createOffer().then(d => {
+                    console.log("d : ", d);
+                    let sldd =  that.pc1.setLocalDescription(d);
+                    console.log(" 1 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
+                    return sldd;
+                })
+                    .then(() =>{
+                        console.log(" 2 pc1.localDescription : ", that.pc1.localDescription,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                        //let pld =  conn.setRemoteDescription(that.pc1.localDescription);
+                        let pld = conn.applyOffer(that.pc1.localDescription);
+                        console.log(" 3 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                        return pld;
+                    })
+                    .then(() => {
+                        console.log(" 4 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                        let ca = conn.createAnswer();
+                        console.log(" 5 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                        return ca;
+                    }).then(d => {
+                    return d;
+                })
+                    .then(() => {
+                        console.log(" 8 pc2.localDescription : ", conn.localDescription,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
+                    })
+                    .then(() => {
+                        console.log("pc1.canTrickleIceCandidates : ", that.pc1.canTrickleIceCandidates,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState)
+                    } )
+                    .catch(e => console.log(e));
+
+         //*/
+
+
         let conn = that.connection;
-
-        that.pc1.createOffer().then(d => {
-            console.log("d : ", d);
-            let sldd =  that.pc1.setLocalDescription(d);
-            console.log(" 1 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
-            return sldd;
-        })
-            .then(() =>{
-                console.log(" 2 pc1.localDescription : ", that.pc1.localDescription,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
-                //let pld =  conn.setRemoteDescription(that.pc1.localDescription);
-                let pld = conn.applyOffer(that.pc1.localDescription);
-                console.log(" 3 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
-                return pld;
-            })
-            .then(() => {
-                console.log(" 4 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
-                let ca = conn.createAnswer();
-                console.log(" 5 pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
-                return ca;
-            }).then(d => {
-            return d;
-        })
-            .then(() => {
-                console.log(" 8 pc2.localDescription : ", conn.localDescription,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState);
-            })
-            .then(() => {
-                console.log("pc1.canTrickleIceCandidates : ", that.pc1.canTrickleIceCandidates,  ", pc2.signalingState : ", conn.signalingState, ", iceConnectionState : ", conn.iceConnectionState)
-            } )
-            .catch(e => console.log(e));
-
- //*/
-
 /*
-        let conn = that.connection;
-
         that.pc1.createOffer().then(async d => {
             console.log("createOffer d : ", d);
             let sldd =  that.pc1.setLocalDescription(d);
+            offer = that.pc1.localDescription;
             console.log(" 1 pc1.signalingState : ", that.pc1.signalingState, ", iceConnectionState : ", that.pc1.iceConnectionState);
             return sldd;
-        }).then(async () =>{
+        }).then(async () =>{ // */
             //let conn = await that.webRtcConnectionManager.getConnection(that.connection.id);
             that.logger.log("internal", LOG_ID + "[onInitiateRequest] conn : ", conn);
             let r = await conn.applyOffer(offer);
@@ -244,15 +245,18 @@ const LOG_ID = "WEBRTC/SVCE - ";
             that.logger.log("debug", LOG_ID + "[onInitiateRequest] resultAnswer : ", resultAnswer);
             this.logger.log("info", LOG_ID + '(onInitiateRequest) conn : ', conn.toJSON());
 
+            /*
             // that.logger.log("debug", LOG_ID + "[onInitiateRequest] createAnswer getStats : ", await conn.getStats());
             let id = that._xmpp.xmppUtils.getUniqueMessageId();
             that.logger.log("debug", LOG_ID + "[onInitiateRequest] will sessionRinging.");
             let stanzaSessionRinging = result.sessionJingle.sessionRinging(id);
             that.logger.log("internal", LOG_ID + "[onInitiateRequest] will sessionRinging stanzaSessionRinging : ", stanzaSessionRinging);
             await that._xmpp.sendStanza(stanzaSessionRinging);
-        }).catch(error => {
+
+            // */
+  /*      }).catch(error => {
             that.logger.log("error", LOG_ID + "[onInitiateRequest] error error : ", error);
-        });
+        }); // */
 
         //await this.xmppService.xmppClient.send(stanzaSessionRinging);
 
@@ -273,7 +277,7 @@ const LOG_ID = "WEBRTC/SVCE - ";
         let that = this;
         that.logger.log("internal", LOG_ID + "[onTransportInfoRequest] result : ", result);
 
-        return;
+        //return;
 
         if ( !result.candidates[0]) {
             return new Promise((resolve, reject) =>
