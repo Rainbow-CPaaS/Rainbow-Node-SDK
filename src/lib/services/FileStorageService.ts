@@ -9,12 +9,13 @@ import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
-import {orderByFilter} from "../common/Utils";
+import {logEntryExit, orderByFilter} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @module
  * @name FileStorage

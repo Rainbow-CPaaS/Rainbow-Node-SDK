@@ -6,12 +6,13 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
 import {createPromiseQueue} from "../common/promiseQueue";
-import {until} from "../common/Utils";
+import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "BUBBLES/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name Bubbles

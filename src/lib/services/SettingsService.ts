@@ -4,11 +4,12 @@ export {};
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import {isStarted} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 
 const LOG_ID = "SETT/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @private

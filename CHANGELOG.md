@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.63.0] - 2019-10-xx
+## [1.63.0] - 2019-10-31
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.
 -   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
 -   Fix ts build
@@ -19,7 +19,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix onDivertedEvent callback   
 -   Fix some missing return when reject Promise.
 -   Remove unused singleton in RESTTelephony  
--   Refactor _entering_ _existing_ logs in services
+-   Refactor _entering_ _existing_ logs in services and in some other classes
 
 ## [1.62.0] - 2019-10-07
 -   Typescript improvement 

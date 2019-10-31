@@ -9,11 +9,12 @@ import * as Contact from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
-import {isStarted} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name Contacts

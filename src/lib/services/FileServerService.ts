@@ -8,7 +8,7 @@ import * as URL from "url";
 import * as fs from "fs";
 //const TransferPromiseQueue = require("./TransferPromiseQueue");
 import {createPromiseQueue} from "../common/promiseQueue";
-import  {Deferred} from "../common/Utils";
+import {Deferred, logEntryExit} from "../common/Utils";
 import {ErrorManager} from "../common/ErrorManager";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
@@ -21,7 +21,8 @@ const ONE_KILOBYTE = 1024;
 const ONE_MEGABYTE = 1024 * 1024;
 const ONE_GIGABYTE = 1024 * 1024 * 1024;
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
 * @module
 * @name FileStorage

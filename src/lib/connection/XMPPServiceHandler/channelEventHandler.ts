@@ -9,6 +9,7 @@ import {XMPPUTils} from "../../common/XMPPUtils";
 const GenericHandler = require("./genericHandler");
 import {Conversation} from "../../common/models/Conversation";
 import {Channel} from "../../common/models/Channel";
+import {logEntryExit} from "../../common/Utils";
 
 const util = require('util');
 
@@ -19,6 +20,7 @@ const LOG_ID = "XMPP/HNDL/CHNL - ";
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
+@logEntryExit(LOG_ID)
 class ChannelEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
@@ -54,8 +56,7 @@ class ChannelEventHandler extends GenericHandler {
 
         this.onManagementMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza);
                 let children = stanza.children;
                 children.forEach(function (node) {
                     switch (node.getName()) {
@@ -106,8 +107,7 @@ class ChannelEventHandler extends GenericHandler {
 
         this.onHeadlineMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza);
                 that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
 
                 that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
@@ -200,8 +200,7 @@ class ChannelEventHandler extends GenericHandler {
         };
 
         this.onChannelManagementMessageReceived = (stanza) => {
-            that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_");
-            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_", stanza);
+            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", stanza);
 
             try {
                 if (stanza.attrs.xmlns === "jabber:iq:configuration") {
@@ -349,7 +348,6 @@ class ChannelEventHandler extends GenericHandler {
 
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onErrorMessageReceived) _entering_");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
                 that.eventEmitter.emit("rainbow_onerror", msg);
             } catch (err) {

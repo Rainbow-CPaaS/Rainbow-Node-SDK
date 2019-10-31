@@ -7,7 +7,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {Call} from "../common/models/Call";
 import * as moment from "moment";
-import {Deferred} from "../common/Utils";
+import {Deferred, logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
@@ -17,7 +17,8 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name Conversations

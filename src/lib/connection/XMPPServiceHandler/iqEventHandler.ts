@@ -1,5 +1,6 @@
 "use strict";
 import {XMPPService} from "../XMPPService";
+import {logEntryExit} from "../../common/Utils";
 
 
 
@@ -8,8 +9,9 @@ const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 const packageVersion = require("../../../package");
 
-const LOG_ID = "XMPP/HNDL - ";
+const LOG_ID = "XMPP/HNDL/IQ - ";
 
+@logEntryExit(LOG_ID)
 class IQEventHandler extends GenericHandler {
 	public IQ_GET: any;
 	public IQ_SET: any;
@@ -33,23 +35,22 @@ class IQEventHandler extends GenericHandler {
 
         this.onIqGetReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onIqGetReceived) _entering_");
                 let children = stanza.children;
                 children.forEach((node) => {
                     switch (node.getName()) {
                         case "query":
-                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
+                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_ : ", msg, stanza);
                             that._onIqGetQueryReceived(stanza, node);
                             break;
                         case "ping":
                             that._onIqGetPingReceived(stanza, node);
                             break;
                         case "default":
-                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
+                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_ : ", msg, stanza);
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqGetReceived - not managed - 'stanza'", node.getName());
                             break;
                         default:
-                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_", msg, stanza);
+                            that.logger.log("internal", LOG_ID + "(onIqGetReceived) _entering_ : ", msg, stanza);
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) onIqGetReceived - child not managed for iq - 'stanza'", node.getName());
                             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) onIqGetReceived - child not managed for iq - 'stanza'", node.getName(), "stanza : ", stanza, " node : ", node);
 
@@ -63,7 +64,6 @@ class IQEventHandler extends GenericHandler {
 
         this.onIqResultReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onIqResultReceived) _entering_");
                 that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, stanza);
                 let children = stanza.children;
                 children.forEach((node) => {
@@ -143,8 +143,7 @@ class IQEventHandler extends GenericHandler {
 
         this._onIqGetQueryReceived = (stanza, node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(_onIqGetQueryReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(_onIqGetQueryReceived) _entering_", stanza, node);
+                that.logger.log("internal", LOG_ID + "(_onIqGetQueryReceived) _entering_ : ", stanza, node);
                 if (node.attrs.xmlns === "jabber:iq:roster") {
                     let contacts = [];
                     let subchildren = node.children;

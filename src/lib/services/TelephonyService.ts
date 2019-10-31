@@ -1,4 +1,6 @@
 "use strict";
+import {logEntryExit} from "../common/Utils";
+
 export {};
 
 import {RESTService} from "../connection/RESTService";
@@ -14,7 +16,8 @@ import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyE
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @module
  * @name Telephony
@@ -275,7 +278,7 @@ class Telephony {
                         .then(function() {
                             // @ts-ignore
                             let startDuration = Math.round(new Date() - that.startDate);
-                            that.stats.push({ service: "telephonyService", startDuration: startDuration });
+                           // that.stats.push({ service: "telephonyService", startDuration: startDuration });
                             that._logger.log("info", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
                             that.started = true;
                             that.starting = false;
@@ -961,7 +964,6 @@ class Telephony {
                 that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) Error : ", errorMessage);
                 return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
             }
-            that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) after reject!");
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
                 .then(function (contact) {

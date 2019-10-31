@@ -203,7 +203,7 @@ function  isStart_upService( serviceoptions) {
     return start_up;
 }
 
-function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : any{
+function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
     return function (target, key, descriptor) : any {
         let keys = Object.getOwnPropertyNames(target.prototype);
         keys.forEach((propertyName)=> {
@@ -229,9 +229,9 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : a
                     let start_up = isStart_upService(this.startConfig);
                     if (ignoreTheStartedState) {
                         if (start_up) {
-                            logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
+                            //logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
                             returnValue = originalMethod.apply(this, args);
-                            logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
+                            //logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                         } else {
                             return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
                             //throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
@@ -239,9 +239,9 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : a
                     } else {
                         if (start_up) {
                             if (this.ready) {
-                                logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
+                              //  logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
                                 returnValue = originalMethod.apply(this, args);
-                                logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
+                                //logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                             } else {
                                 //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
                                 throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
@@ -266,6 +266,39 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = [], LOG_ID) : a
     }
 }
 
+function logEntryExit(LOG_ID) : any{
+    return function (target, key, descriptor) : any {
+        let keys = Object.getOwnPropertyNames(target.prototype);
+        keys.forEach((propertyName)=> {
+            const descriptor = Object.getOwnPropertyDescriptor(target.prototype, propertyName);
+            const isMethod = descriptor.value instanceof Function;
+            if (!isMethod)
+                return;
+
+            // Keep the method store in a local variable
+            const originalMethod = descriptor.value;
+            descriptor.value = function (...args: any[]) {
+
+                // Execute the method with its initial context and arguments
+                // Return value is stored into a variable instead of being passed to the execution stack
+                let returnValue = undefined;
+                if (this == null) {
+                    returnValue = originalMethod.apply(this, args);
+                } else {
+                    let logger = this.logger ? this.logger : this._logger ? this._logger : {};
+                    logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
+                    returnValue = originalMethod.apply(this, args);
+                    logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
+                }
+                // Return back the value to the execution stack
+                return returnValue;
+            };
+
+            Object.defineProperty(target.prototype, propertyName, descriptor);
+        });
+    }
+}
+
 export {
     makeId,
     createPassword,
@@ -277,5 +310,6 @@ export {
     until,
     orderByFilter,
     isStart_upService,
-    isStarted
+    isStarted,
+    logEntryExit
     };

@@ -3,7 +3,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import {setTimeoutPromised} from "../common/Utils";
+import {logEntryExit, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
 import { Favorite } from '../common/models/Favorite';
@@ -12,7 +12,8 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
 * @module
 * @name FavoritesService

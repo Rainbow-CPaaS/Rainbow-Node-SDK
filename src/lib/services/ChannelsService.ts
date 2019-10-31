@@ -10,11 +10,12 @@ import {RESTService} from "../connection/RESTService";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
-import {isStarted} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 
 const LOG_ID = "CHANNELS/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name Channels

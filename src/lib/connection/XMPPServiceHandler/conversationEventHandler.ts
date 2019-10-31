@@ -18,7 +18,9 @@ const LOG_ID = "XMPP/HNDL/CONV - ";
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 import {Element} from "ltx";
+import {logEntryExit} from "../../common/Utils";
 
+@logEntryExit(LOG_ID)
 class ConversationEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
@@ -71,8 +73,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onChatMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, stanza);
                 let content = "";
                 let lang = "";
                 let alternativeContent = [];
@@ -449,8 +450,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this._onMessageReceived = (conversationId, data) => {
             try {
-                that.logger.log("debug", LOG_ID + "(_onMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(_onMessageReceived) _entering_", conversationId, data);
+                that.logger.log("internal", LOG_ID + "(_onMessageReceived) _entering_ : ", conversationId, data);
                 let conversation = that.conversationService.getConversationById(conversationId);
                 if (!conversation) {
                     let cs = this.conversationService;
@@ -491,8 +491,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onManagementMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza);
                 let children = stanza.children;
                 children.forEach(function (node) {
                     switch (node.getName()) {
@@ -543,8 +542,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onRoomManagementMessageReceived = (node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onRoomManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
 
                     // Affiliation changed (my own or for a member)
@@ -654,8 +652,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onGroupManagementMessageReceived = (node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onGroupManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onGroupManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     let action = node.attrs.action;
                     let scope = node.attrs.scope;
@@ -693,8 +690,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onConversationManagementMessageReceived = (node: Element) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     let conversation = this.conversationService.getConversationById(node.attrs.id);
                     let action = node.attrs.action;
@@ -811,8 +807,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onMuteManagementMessageReceived = (node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onMuteManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onMuteManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onMuteManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onMuteManagementMessageReceived) conversation muted");
                     that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": node.attrs.conversation});
@@ -825,8 +820,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onUnmuteManagementMessageReceived = (node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onUnmuteManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onUnmuteManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onUnmuteManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onUnmuteManagementMessageReceived) conversation unmuted");
                     that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": node.attrs.conversation});
@@ -839,8 +833,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onFileManagementMessageReceived = async (node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onFileManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onFileManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     let updateConsumption: boolean = false;
                     switch (node.attrs.action) {
@@ -912,8 +905,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onThumbnailManagementMessageReceived = (node) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onThumbnailManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onThumbnailManagementMessageReceived) _entering_", node);
+                that.logger.log("internal", LOG_ID + "(onThumbnailManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     switch (node.attrs.action) {
                         case "create": {
@@ -952,7 +944,6 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onErrorMessageReceived) _entering_");
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, stanza);
                 that.eventEmitter.emit("rainbow_onerror", msg);

@@ -9,16 +9,18 @@ import {XMPPUTils} from "../../common/XMPPUtils";
 const GenericHandler = require("./genericHandler");
 import {Conversation} from "../../common/models/Conversation";
 import {Channel} from "../../common/models/Channel";
+import {logEntryExit} from "../../common/Utils";
 
 const util = require('util');
 
 const xml = require("@xmpp/xml");
 
-const LOG_ID = "XMPP/HNDL/CHNL - ";
+const LOG_ID = "XMPP/HNDL/FAV - ";
 
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
+@logEntryExit(LOG_ID)
 class FavoriteEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
@@ -54,8 +56,7 @@ class FavoriteEventHandler extends GenericHandler {
 
         this.onManagementMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onManagementMessageReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza);
                 let children = stanza.children;
                 children.forEach(function (node) {
                     switch (node.getName()) {
@@ -95,8 +96,7 @@ class FavoriteEventHandler extends GenericHandler {
         };
 
         this.onFavoriteManagementMessageReceived = (stanza) => {
-            that.logger.log("debug", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_");
-            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_", stanza);
+            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", stanza);
 
             try {
                 let stanzaElem = stanza;
@@ -135,7 +135,6 @@ class FavoriteEventHandler extends GenericHandler {
 
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onErrorMessageReceived) _entering_");
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, stanza);
                 that.eventEmitter.emit("rainbow_onerror", msg);

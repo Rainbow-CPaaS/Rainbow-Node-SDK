@@ -6,12 +6,13 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
-import {until} from "../common/Utils";
+import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "IM/SVCE - ";
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name IMService

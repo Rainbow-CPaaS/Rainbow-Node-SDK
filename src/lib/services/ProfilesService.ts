@@ -5,7 +5,7 @@ import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
-import {isStarted} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 
 const LOG_ID = "PROFILES/SVCE - ";
 
@@ -82,7 +82,8 @@ const FeaturesEnum = {
     WEBRTC_P2P_RECORDING: "WEBRTC_P2P_RECORDING" // */
 };
 
-@isStarted([], LOG_ID)
+@logEntryExit(LOG_ID)
+@isStarted([])
 class ProfilesService {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
