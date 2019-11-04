@@ -1,7 +1,7 @@
 "use strict";
 export {};
 
-import {setTimeoutPromised} from "../common/Utils";
+import {logEntryExit, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
 //import {setFlagsFromString} from "v8";
@@ -35,7 +35,8 @@ function CallLogsBean() : ICallLogsBean {
     };
 }
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
 * @module
 * @name CallsLog

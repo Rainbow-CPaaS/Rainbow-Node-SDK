@@ -7,7 +7,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {Call} from "../common/models/Call";
 import * as moment from "moment";
-import {Deferred} from "../common/Utils";
+import {Deferred, logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
@@ -17,7 +17,8 @@ import {isStarted} from "../common/Utils";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name Conversations
@@ -91,8 +92,6 @@ class Conversations {
         let that = this;
         that.conversationHandlerToken = [];
         that.conversationHistoryHandlerToken= [];
-        that._logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise((resolve, reject) => {
             try {
                 that._xmpp = _xmpp;
@@ -117,14 +116,12 @@ class Conversations {
 
                 that.attachHandlers();
 
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 this.ready = true;
                 resolve();
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) !!! Catch error.");
                 that._logger.log("internalerror", LOG_ID + "(start) !!! Catch error : ", err);
-                that._logger.log("error", LOG_ID + "(start) _exiting_");
                 return reject(err);
             }
         });
@@ -132,8 +129,6 @@ class Conversations {
 
     stop() {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise((resolve, reject) => {
             try {
                 that._xmpp = null;
@@ -150,10 +145,8 @@ class Conversations {
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
                 this.ready = false;
 
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve();
             } catch (err) {
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 return reject(err);
             }
         });
@@ -571,7 +564,7 @@ class Conversations {
     getBubbleConversation(bubbleJid, conversationDbId, lastModification, lastMessageText, missedIMCounter, noError, muted, creationDate, lastMessageSender) {
         let that = this;
 
-        that._logger.log("info", LOG_ID + "[conversationService] getBubbleConversation : ", bubbleJid);
+        that._logger.log("internal", LOG_ID + "[conversationService] getBubbleConversation bubbleJib : ", bubbleJid);
 
         // Fetch the conversation in memory
         let conversationResult = that.getConversationById(conversationDbId);
@@ -1069,7 +1062,6 @@ class Conversations {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        that._logger.log("info", LOG_ID + "(sendCorrectedChatMessage) _entering_ ");
         that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : ", data,  "origMsgId : ", origMsgId);
 
         let originalMessage = conversation.getMessageById(origMsgId);

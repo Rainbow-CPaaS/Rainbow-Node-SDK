@@ -4,11 +4,12 @@ export {};
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import {isStarted} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 
 const LOG_ID = "GROUPS/SVCE - ";
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name Groups
@@ -55,9 +56,6 @@ const LOG_ID = "GROUPS/SVCE - ";
 
      start(_xmpp : XMPPService, _rest : RESTService) {
          let that = this;
-
-         this._logger.log("debug", LOG_ID + "(start) _entering_");
-
          return new Promise(function(resolve, reject) {
              try {
                 that._xmpp = _xmpp;
@@ -76,12 +74,10 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.on("evt_internal_useraddedingroup", that._onUserAddedInGroup.bind(that));
                 that._eventEmitter.on("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup.bind(that));
 */
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 that.ready = true;
 
                  resolve();
              } catch (err) {
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                  return reject();
              }
          });
@@ -89,9 +85,6 @@ const LOG_ID = "GROUPS/SVCE - ";
 
      stop() {
          let that = this;
-
-         this._logger.log("debug", LOG_ID + "(stop) _entering_");
-
          return new Promise(function(resolve, reject) {
              try {
                 that._xmpp = null;
@@ -104,11 +97,9 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.removeListener("evt_internal_useraddedingroup", that._onUserAddedInGroup);
                 that._eventEmitter.removeListener("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup);
 */
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 that.ready = false;
                  resolve();
              } catch (err) {
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                  return reject(err);
              }
          });
@@ -133,8 +124,6 @@ const LOG_ID = "GROUPS/SVCE - ";
          let that = this;
 
          return new Promise(function(resolve, reject) {
-             that._logger.log("debug", LOG_ID + "(createGroup) _entering_");
-
              if (typeof isFavorite === "undefined") {
                  isFavorite = false;
              }
@@ -142,7 +131,6 @@ const LOG_ID = "GROUPS/SVCE - ";
              if (!name) {
                  that._logger.log("warn", LOG_ID + "(createGroup) bad or empty 'name' parameter");
                  that._logger.log("internalerror", LOG_ID + "(createGroup) bad or empty 'name' parameter : ", name);
-                 that._logger.log("debug", LOG_ID + "(createGroup) _exiting_");
                  return reject(ErrorManager.getErrorManager().BAD_REQUEST);
              }
 
@@ -154,7 +142,6 @@ const LOG_ID = "GROUPS/SVCE - ";
 
             }, err => {
                 that._logger.log("error", LOG_ID + "(createGroup) error");
-                that._logger.log("debug", LOG_ID + "(createGroup) _exiting_");
                 return reject(err);
             });
          });
@@ -177,12 +164,9 @@ const LOG_ID = "GROUPS/SVCE - ";
          let that = this;
 
          return new Promise(function(resolve, reject) {
-             that._logger.log("debug", LOG_ID + "(deleteGroup) _entering_");
-
              if (!group) {
                  that._logger.log("warn", LOG_ID + "(deleteGroup) bad or empty 'group' parameter.");
                  that._logger.log("internalerror", LOG_ID + "(deleteGroup) bad or empty 'group' parameter : ", group);
-                 that._logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
                  return reject(ErrorManager.getErrorManager().BAD_REQUEST);
              }
             that._rest.deleteGroup(group.id).then(function() {
@@ -193,14 +177,12 @@ const LOG_ID = "GROUPS/SVCE - ";
                 if (foundIndex > -1) {
                     let groupDeleted = that._groups.splice(foundIndex, 1);
                     that._logger.log("info", LOG_ID + "(deleteGroup) delete " + groupDeleted.length + " group successfully");
-                    that._logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
                     resolve(groupDeleted[0]);
                 } else {
                     resolve(null);
                 }
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(deleteGroup) error");
-                that._logger.log("debug", LOG_ID + "(deleteGroup) _exiting_");
                 return reject(err);
             });
          });
@@ -224,8 +206,6 @@ const LOG_ID = "GROUPS/SVCE - ";
         let that = this;
 
         return new Promise(function(resolve, reject) {
-            that._logger.log("debug", LOG_ID + "(updateGroupName) _entering_");
-
             if (!group || !name) {
                 if (!group) {
                     that._logger.log("warn", LOG_ID + "(updateGroupName) bad or empty 'group' parameter");
@@ -235,7 +215,6 @@ const LOG_ID = "GROUPS/SVCE - ";
                     that._logger.log("warn", LOG_ID + "(updateGroupName) bad or empty 'name' parameter.");
                     that._logger.log("internalerror", LOG_ID + "(updateGroupName) bad or empty 'name' parameter : ", name);
                 }
-                that._logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else if (group.name === name) {
                 that._logger.log("debug", LOG_ID + "(updateGroupName) name of group is already defined, nothing is done");
@@ -249,14 +228,12 @@ const LOG_ID = "GROUPS/SVCE - ";
                     if (foundIndex > -1) {
                         that._groups[foundIndex].name = group.name;
                         that._logger.log("internal", LOG_ID + "(updateGroupName) update name to " + group.name + " of group with id " + group.id + " successfully");
-                        that._logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
                         resolve(that._groups[foundIndex]);
                     } else {
                         resolve(null);
                     }
                 }).catch(function(err) {
                     that._logger.log("error", LOG_ID + "(updateGroupName) error");
-                    that._logger.log("debug", LOG_ID + "(updateGroupName) _exiting_");
                     return reject(err);
                 });
             }
@@ -270,10 +247,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      getGroups() {
          let that = this;
-
          return new Promise(function(resolve, reject) {
-
-            that._logger.log("debug", LOG_ID + "(getGroups) _entering_");
             that._rest.getGroups().then((listOfGroups : []) => {
 
                 let promises = [];
@@ -291,7 +265,6 @@ const LOG_ID = "GROUPS/SVCE - ";
                 Promise.all(promises).then(groups => {
                     that._groups = groups;
                     that._logger.log("info", LOG_ID + "(getGroups) get successfully");
-                    that._logger.log("debug", LOG_ID + "(getGroups) _exiting_");
                     resolve();
                 }, err => {
                     return reject(err);
@@ -300,7 +273,6 @@ const LOG_ID = "GROUPS/SVCE - ";
             }, err => {
                  that._logger.log("error", LOG_ID + "(getGroups) Error.");
                  that._logger.log("internalerror", LOG_ID + "(getGroups) Error : ", err);
-                 that._logger.log("debug", LOG_ID + "(getGroups) _exiting_");
                 return reject(err);
             });
          });
@@ -322,20 +294,15 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      addUserInGroup(contact, group) {
          let that = this;
-
          return new Promise(function(resolve, reject) {
-             that._logger.log("debug", LOG_ID + "(addUserInGroup) _entering_");
-
              if (!contact) {
                  that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter.");
                  that._logger.log("internalerror", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter : ", contact);
-                 that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              } else if (!group) {
                  that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter.");
                  that._logger.log("internalerror", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter : ", group);
-                 that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              }
@@ -346,7 +313,6 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._rest.getGroup(groupUpdated.id).then((groupRetrieved : any) => {
                         let foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupRetrieved.id);
                         that._groups[foundIndex] = groupRetrieved;
-                        that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
                         resolve(groupRetrieved);
                     }, err => {
                     return reject(err);
@@ -354,7 +320,6 @@ const LOG_ID = "GROUPS/SVCE - ";
                 }, err => {
                     that._logger.log("error", LOG_ID + "(addUserInGroup) error.");
                     that._logger.log("internalerror", LOG_ID + "(addUserInGroup) error : ", err);
-                    that._logger.log("debug", LOG_ID + "(addUserInGroup) _exiting_");
                     return reject(err);
                 });
             } else {
@@ -380,20 +345,15 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      removeUserFromGroup(contact, group) {
          let that = this;
-
          return new Promise(function(resolve, reject) {
-             that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _entering_");
-
              if (!contact) {
                  that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter.");
                  that._logger.log("internalerror", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter : ", contact);
-                 that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              } else if (!group) {
                  that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter.");
                  that._logger.log("internalerror", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter : ", group);
-                 that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              }
@@ -404,19 +364,16 @@ const LOG_ID = "GROUPS/SVCE - ";
                     that._rest.getGroup(group.id).then((group :any) => {
                         let foundIndex = that._groups.findIndex(groupItem => groupItem.id === group.id);
                         that._groups[foundIndex] = group;
-                        that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                         resolve(group);
                     }, err => {
                         return reject(err);
                     });
                 }, err => {
                     that._logger.log("error", LOG_ID + "(removeUserFromGroup) error");
-                    that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                     return reject(err);
                 });
             } else {
                 that._logger.log("warn", LOG_ID + "(removeUserFromGroup) contact not found in that group");
-                that._logger.log("debug", LOG_ID + "(removeUserFromGroup) _exiting_");
                 resolve(group);
             }
          });

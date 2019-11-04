@@ -6,7 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.63.0] - 2018-10-xx
+## [1.64.0] - 2019-10-xx
+-   Add start duration in result of start.
+-   Use argumentsToStringReduced for internal dev logs and argumentsToStringFull for package built with grunt
+
+## [1.63.0] - 2019-10-31
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.
 -   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
 -   Fix ts build
@@ -19,28 +23,29 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix onDivertedEvent callback   
 -   Fix some missing return when reject Promise.
 -   Remove unused singleton in RESTTelephony  
+-   Refactor _entering_ _existing_ logs in services and in some other classes
 
-## [1.62.0] - 2018-10-07
+## [1.62.0] - 2019-10-07
 -   Typescript improvement 
 
-## [1.61.3] - 2018-10-08
+## [1.61.3] - 2019-10-08
 -   Fix issue in Contact.ts to be compatible with previous datas names.
 
-## [1.61.2] - 2018-09-18
+## [1.61.2] - 2019-09-18
 -   Fix issue when an http request failed with a no-JSON body.
 -   Add in the proxy section of option parameter : `secureProtocol: "SSLv3_method"` : The parameter to enable the SSL V3.
 
-## [1.61.1] - 2018-09-18
+## [1.61.1] - 2019-09-18
 -   Same content than 1.61.0
 
-## [1.61.0] - 2018-09-18
+## [1.61.0] - 2019-09-18
 -   Update the logs to remove all people data.
 -   CRRAINB-7686 : Fix code for the 'read' receipt sent automatically to the sender when the message is received.
 -   Add the ability to start services one by one. To avoid the calls to unnecessary pay API on server.
 -   Add event `rainbow_onconferenced` fired when a conference event is received.
     
 
-## [1.60.0] - 2018-08-28
+## [1.60.0] - 2019-08-28
 -   Add method getStatusForUser in Bubble class to get the status of a user in the bubble
 -   Update the "leaveBubble" method to unsubscribe form a bubble if not already unsubscribed the connected user. Else delete it from bubble.
 -   Fix file url in XMPPService::sendChatExistingFSMessage and XMPPService::sendChatExistingFSMessageToBubble methods
@@ -48,13 +53,13 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix ImsService::getMessageFromBubbleById method
 -   Add shortFileDescriptor property in message return by ImsService::getMessageFromBubbleById method
 
-## [1.59.0] - 2018-08-12
+## [1.59.0] - 2019-08-12
 -   Add in AdminService the method to get all users for a given admin
 -   Update method BubblesService::unsubscribeContactFromBubble to send an event when the request to unsubscribe a user from a bubble succeed at end of the microservice call. Because sometimes the xmpp server does not send us the resulting event. So this event change will be sent twice time.
 -   Add options::im::sendMessageToConnectedUser option to allow SDK to send a message to it self.
 -   Add logs when an error occurred in XmppClient::send.
 
-## [1.58.0] - 2018-07-10
+## [1.58.0] - 2019-07-10
 -   Fix : event presence rainbow_oncontactpresencechanged when a contact in the roster is on phone.
 -   Fix : put the SDK to STOPPED state if "rainbow_xmppdisconnect" arrive and the reconnection is disabled.
 -   CRRAINB-6601 : Fix : Allows to make a second 3PCC RCC if the second call is allowed in profile.
@@ -83,7 +88,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update in fileStorage::uploadFileToConversation method to upload a file by an simple file path in file parameter or by the object description of the file (previous existing behavior).
 -   Add shortFileDescriptor in message when ImsService::getMessageFromConversationById
 
-## [1.57.0] - 2018-06-18
+## [1.57.0] - 2019-06-18
 -   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 
 -   RQRAINB-1550 : Add userInfo1 and userInfo2 value in Contact but it can only be filled for the current user himself and AdminService::getContactInfos methods
 -   RQRAINB-1550 : Add AdminService::updateContactInfos :  Set informations about a user (userInfo1, userInfo2, ...).
@@ -93,7 +98,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Rename event `rainbow_onownbubbledeleted` to `rainbow_onbubbledeleted` when a bubble is deleted.
 -   Add options::im::messageMaxLength option to define the max size of the messages sent.
  
-## [1.56.0] - 2018-05-28
+## [1.56.0] - 2019-05-28
 -   Add TelephonyService::deflectCall method to deflect a call to an other telephone number  
 -   Update TelephonyService doc.  
 -   Move channel events from conversationEventHandler to channelEventHandler.   
@@ -119,7 +124,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add guestMode property in Contact class : Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
 -   Add openInviteId property in Contact class : The open invite ID of the user.
 
-## [1.55.0] - 2018-04-30
+## [1.55.0] - 2019-04-30
 Update comments limitations => limits
 Update ImsService::sendMessageToJidAnswer and XMPPService::sendChatMessage with a new parameter answeredMsg to allow to send a reply to a message
 Update ImsService::sendMessageToBubbleJidAnswer and XMPPService::sendChatMessageToBubble with a new parameter answeredMsg to allow to send a reply to a message
@@ -151,7 +156,7 @@ Update AdminService::createUserInCompany to add the roles parameter when creatin
 Reduce log for the XMPP ping.
 
 
-## [1.54.6] - 2018-04-09
+## [1.54.6] - 2019-04-09
 Update doc
 Fix of FileStorageService::retrieveAndStoreOneFileDescriptor
 Add method ContactService::acceptInvitation Accept a an invitation from an other Rainbow user to mutually join the network
@@ -159,13 +164,13 @@ Add method ContactService::declineInvitation Decline an invitation from an other
 Update onFileManagementMessageReceived event with the file descriptor data
 Fix some type issue find by typescript
 
-## [1.54.2] - 2018-04-04
+## [1.54.2] - 2019-04-04
 * Fix issue in GruntFile about doc generation.
 
-## [1.54.1] - 2018-04-02
+## [1.54.1] - 2019-04-02
 * add missing deep-egal lib.
 
-## [1.54.0] - 2018-04-02
+## [1.54.0] - 2019-04-02
 * Add CallLog service (typeScript sources) to `get/delete` the calllog history.
 * Increase "Element" Behaviour for manipulate XML/XMPP objects in XmppClient 
 * Update XMPPService to factorise the `NameSpaces`
@@ -181,7 +186,7 @@ Fix some type issue find by typescript
 * rename files service
 * update `setBubbleCustomData` to wait for the bubble to be updated by the event `rainbow_bubblecustomDatachanged`, and else get the informations about bubble from server
 
-## [1.51.0] - 2018-01-22
+## [1.51.0] - 2019-01-22
 * Fix property conversation.lastMessageText which was undefined
 * Remove the unirest library (security issue)
 * Fix updateChannel topic value

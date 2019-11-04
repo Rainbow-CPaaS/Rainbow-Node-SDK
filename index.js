@@ -138,6 +138,7 @@ class NodeSDK {
      */
     start() {
         let that = this;
+        that.startTime = new Date();
         return new Promise(function(resolve, reject) {
             return that._core.start().then(function() {
                 return that._core.signin(false);
@@ -148,6 +149,9 @@ class NodeSDK {
                 process.on("SIGQUIT", that.stopProcess());
                 process.on("SIGTERM", that.stopProcess());
                 //process.on("SIGUSR2", that.stopProcess());
+                let startDuration = Math.round(new Date() - that.startTime);
+                if (!result) {result = {};}
+                result.startDuration = startDuration;
                 resolve(result);
             }).catch(function(err) {
                 if (err) {

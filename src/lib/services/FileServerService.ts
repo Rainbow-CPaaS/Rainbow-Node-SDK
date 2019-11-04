@@ -8,7 +8,7 @@ import * as URL from "url";
 import * as fs from "fs";
 //const TransferPromiseQueue = require("./TransferPromiseQueue");
 import {createPromiseQueue} from "../common/promiseQueue";
-import  {Deferred} from "../common/Utils";
+import {Deferred, logEntryExit} from "../common/Utils";
 import {ErrorManager} from "../common/ErrorManager";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
@@ -21,7 +21,8 @@ const ONE_KILOBYTE = 1024;
 const ONE_MEGABYTE = 1024 * 1024;
 const ONE_GIGABYTE = 1024 * 1024 * 1024;
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
 * @module
 * @name FileStorage
@@ -69,7 +70,6 @@ class FileServer {
                         that._capabilities = capabilities;
                         //that.transferPromiseQueue = new TransferPromiseQueue(that.logger);
                         resolve(this._capabilities);
-                        that.logger.log("debug", LOG_ID + "(start) _exiting_");
                     }).catch(() => {
                         return reject();
                     });
@@ -83,11 +83,7 @@ class FileServer {
     }
 
     start(_xmpp : XMPPService, _rest : RESTService, _fileStorageService) {
-
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
                 that.xmpp = _xmpp;
@@ -98,7 +94,6 @@ class FileServer {
                 resolve();
 
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 return reject(err);
             }
         });
@@ -106,9 +101,6 @@ class FileServer {
 
     stop() {
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise(function (resolve, reject) {
             try {
                 that._xmpp = null;
@@ -116,9 +108,7 @@ class FileServer {
 
                 that.ready = false;
                 resolve();
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 return reject(err);
             }
         });
@@ -473,8 +463,6 @@ class FileServer {
         let that = this;
 
         let promiseQueue = createPromiseQueue(that.logger);
-
-        that.logger.log("info", LOG_ID + "(uploadAFileByChunk) _entering_");
 
         let fileStats = fs.statSync(filePath);
 

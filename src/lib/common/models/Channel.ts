@@ -268,7 +268,7 @@ class Channel {
                         //console.log(val + " -> " + data[val]);
                         if (!channelproperties.find((el) => { return val == el ;})) {
                             //console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val, " -> ", data[val]);
-                            console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ");
+                            console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val);
                         }
                     });
             }

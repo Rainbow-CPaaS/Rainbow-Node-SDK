@@ -6,12 +6,13 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
-import {until} from "../common/Utils";
+import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "IM/SVCE - ";
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @name IMService
@@ -57,23 +58,17 @@ class IMService {
     }
 
     start(_xmpp, __conversations, __bubbles, _filestorage) {
-
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that.xmpp = _xmpp;
                 that._conversations = __conversations;
                 that._bulles = __bubbles;
                 that._fileStorage = _filestorage;
-                that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 that.ready = true;
                 resolve();
 
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 return reject(err);
             }
         });
@@ -81,18 +76,13 @@ class IMService {
 
     stop() {
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that.xmpp = null;
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 that.ready = false;
                 resolve();
 
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 return reject(err);
             }
         });
@@ -233,8 +223,6 @@ class IMService {
      */
     sendMessageToConversation(conversation, message, lang, content, subject) {
         let that = this;
-        this.logger.log("debug", LOG_ID + "(sendMessageToConversation) _entering_");
-
         if (!conversation) {
             this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
             this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
@@ -283,8 +271,6 @@ class IMService {
      * @category async
      */
     sendMessageToContact(message, contact, lang, content, subject) {
-        this.logger.log("debug", LOG_ID + "(sendMessageToContact) _entering_");
-
         if (!contact || !contact.jid_im) {
             this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
             this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
@@ -356,9 +342,6 @@ class IMService {
         if (!lang) {
             lang = "en";
         }
-
-        this.logger.log("debug", LOG_ID + "(sendMessageToJid) _entering_");
-
         if (!message) {
             this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
             this.logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
@@ -423,8 +406,6 @@ class IMService {
         if (!lang) {
             lang = "en";
         }
-
-        that.logger.log("debug", LOG_ID + "(sendMessageToJidAnswer) _entering_");
 
         if (!message) {
             this.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
@@ -493,8 +474,6 @@ class IMService {
      * @category async
      */
     sendMessageToBubble(message, bubble, lang, content, subject) {
-        this.logger.log("debug", LOG_ID + "(sendMessageToBubble) _entering_");
-
         if (!bubble || !bubble.jid) {
             this.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
             this.logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -528,8 +507,6 @@ class IMService {
         if (!lang) {
             lang = "en";
         }
-        that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _entering_");
-
         if (!message) {
             that.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter.");
             that.logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter : ", message);
@@ -559,7 +536,6 @@ class IMService {
         that.logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
         if (bubble.isActive) {
             let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
-            that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _exiting_");
             return messageSent;
         } else {
             try {
@@ -572,10 +548,8 @@ class IMService {
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
                 let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
-                that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _exiting_");
                 return messageSent;
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(sendMessageToBubble) _exiting_");
                 return Promise.reject({message: "The sending message process failed!", error: err});
             }
         }
@@ -606,7 +580,6 @@ class IMService {
         if (!lang) {
             lang = "en";
         }
-        that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _entering_");
         if (!message) {
             that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
             that.logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
@@ -642,7 +615,6 @@ class IMService {
         that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
             let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
-            that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _exiting_");
             return messageSent;
         } else {
             try {
@@ -655,10 +627,8 @@ class IMService {
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
                 let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
-                that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _exiting_");
                 return messageSent;
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) _exiting_");
                 return Promise.reject({message: "The sending message process failed!", error: err});
             }
         }
@@ -753,9 +723,6 @@ class IMService {
      * @category async
      */
     markMessageAsRead(messageReceived) {
-
-        this.logger.log("debug", LOG_ID + "(markMessageAsRead) _entering_");
-
         if (!messageReceived) {
             this.logger.log("warn", LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
@@ -765,8 +732,6 @@ class IMService {
             this.logger.log("warn", LOG_ID + "(markMessageAsRead) No receipt for 'event' message");
             return ErrorManager.getErrorManager().OK;
         }
-
-        this.logger.log("debug", LOG_ID + "(markMessageAsRead) _exiting_");
 
         return this.xmpp.markMessageAsRead(messageReceived);
     }
@@ -785,13 +750,9 @@ class IMService {
      */
     enableCarbon() {
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(enableCarbon) _entering_");
-
         return new Promise((resolve) => {
             that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
                 that.logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
-                that.logger.log("debug", LOG_ID + "(enableCarbon) - _exiting_");
                 that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
                 resolve();
             });

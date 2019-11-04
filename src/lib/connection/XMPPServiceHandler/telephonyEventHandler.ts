@@ -11,6 +11,7 @@ const GenericHandler = require("./genericHandler");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call";
 import {type} from "os";
+import {logEntryExit} from "../../common/Utils";
 const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 
 const xml = require("@xmpp/xml");
@@ -30,6 +31,7 @@ const CallFailureLabels = {
     "TRUNKSBUSY": "trunksbusy"
 };
 
+@logEntryExit(LOG_ID)
 class TelephonyEventHandler extends GenericHandler {
 	public MESSAGE: any;
 	public IQ_RESULT: any;
@@ -133,8 +135,7 @@ class TelephonyEventHandler extends GenericHandler {
 
 
         this.onMessageReceived = (msg, stanza) => {
-            that.logger.log("debug", LOG_ID + "(onMessageReceived) _entering_");
-            that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza);
             try {
                 let stanzaElem = stanza;
                 //let that = this;
@@ -272,7 +273,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** INITIATED CALL STUFF                                           **/
         /*********************************************************************/
         this.onInitiatedEvent = function (initiatedElem) {
-            that.logger.log("debug", LOG_ID + "(onInitiatedEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onInitiatedEvent) _entering_ : ", initiatedElem);
             return that.getCall(initiatedElem)
                 .then(function (call) {
@@ -307,7 +307,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** ORIGINATED CALL STUFF                                           **/
         /*********************************************************************/
         this.onOriginatedEvent = function (originatedElem) {
-            that.logger.log("debug", LOG_ID + "(onOriginatedEvent) _entering_");
             that.logger.log("debug", LOG_ID + "(onOriginatedEvent) _entering_ : ", originatedElem);
             return that.getCall(originatedElem)
                 .then(function (call) {
@@ -360,7 +359,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** DELIVERED STUFF                                                 **/
         /*********************************************************************/
         this.onDeliveredEvent = function (deliveredElem) {
-            that.logger.log("debug", LOG_ID + "(onDeliveredEvent) _entering_", deliveredElem);
             that.logger.log("internal", LOG_ID + "(onDeliveredEvent) _entering_ : ", deliveredElem);
             //let that = this;
             return that.getCall(deliveredElem).then(function (call) {
@@ -397,7 +395,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** ESTABLISHED STUFF                                               **/
         /*********************************************************************/
         this.onEstablishedEvent = function (establishedElem) {
-            that.logger.log("debug", LOG_ID + "(onEstablishedEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onEstablishedEvent) _entering_ : ", establishedElem);
             //let that = this;
             return that.getCall(establishedElem).then(function (call) {
@@ -473,7 +470,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** RETRIEVE CALL STUFF                                             **/
         /*********************************************************************/
         this.onRetrieveCallEvent = function (retrieveElem) {
-            that.logger.log("debug", LOG_ID + "(onRetrieveCallEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onRetrieveCallEvent) _entering_ : ", retrieveElem);
              return that.getCall(retrieveElem).then(function (call) {
                 call.setStatus(Call.Status.ACTIVE);
@@ -488,7 +484,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** CLEAR CALL STUFF                                                **/
         /*********************************************************************/
         this.onClearCallEvent = function (clearElem) {
-            that.logger.log("debug", LOG_ID + "(onClearCallEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onClearCallEvent) _entering_ : ", clearElem);
             //let that = this;
             return that.getCall(clearElem).then(async (call) => {
@@ -511,7 +506,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** HOLD CALL STUFF                                                 **/
         /*********************************************************************/
         this.onHeldEvent = function (heldElem) {
-            that.logger.log("debug", LOG_ID + "(onHeldEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onHeldEvent) _entering_ : ", heldElem);
             return that.getCall(heldElem).then(function (call) {
                 try {
@@ -548,7 +542,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** QUEUED STUFF                                                    **/
         /*********************************************************************/
         this.onQueuedEvent = function (queuedElem) {
-            that.logger.log("debug", LOG_ID + "(onQueuedEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onQueuedEvent) _entering_ : ", queuedElem);
             //let that = this;
             let cause = queuedElem.attr("cause");
@@ -590,7 +583,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** DIVERTED STUFF                                                  **/
         /*********************************************************************/
         this.onDivertedEvent = async (divertedElem) => {
-            that.logger.log("debug", LOG_ID + "(onDivertedEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onDivertedEvent) _entering_ : ", divertedElem);
             let oldConnectionId = divertedElem.attr("oldCallId");
             let oldCallId = Call.getIdFromConnectionId(oldConnectionId);
@@ -613,7 +605,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** TRANSFER STUFF                                                  **/
         /*********************************************************************/
         this.onTransferEvent = async function (transferElem) {
-            that.logger.log("debug", LOG_ID + "(onTransferEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onTransferEvent) _entering_ : ", transferElem);
             // let that = this;
             // Extract transfert call parameters
@@ -700,7 +691,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** CONFERENCE STUFF                                                **/
         /*********************************************************************/
         this.onConferenceEvent = function (conferencedElem) {
-            that.logger.log("debug", LOG_ID + "(onConferenceEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onConferenceEvent) _entering_ : ", conferencedElem);
 
             //let that = this;
@@ -866,7 +856,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** VOICE MESSAGE STUFF                                            **/
         /*********************************************************************/
         this.onVoiceMessageEvent = function (messagingElem) {
-            that.logger.log("debug", LOG_ID + "(onVoiceMessageEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onVoiceMessageEvent) _entering_ : ", messagingElem);
 
                         // Ignore forbidden requests
@@ -908,7 +897,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** UPDATECALL STUFF                                                **/
         /*********************************************************************/
         this.onUpDateCallEvent = function (updatecallElem) {
-            that.logger.log("debug", LOG_ID + "(onUpDateCallEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onUpDateCallEvent) _entering_ : ", updatecallElem);
 
                         return that.getCall(updatecallElem).then(function (call) {
@@ -1053,7 +1041,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** FAILURE STUFF                                                   **/
         /*********************************************************************/
         this.onFailCallEvent = function (failedElem) {
-            that.logger.log("debug", LOG_ID + "(onFailCallEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onFailCallEvent) _entering_ : ", failedElem);
             let cause = failedElem.attr("cause");
             //let that = this;
@@ -1078,7 +1065,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** FORWARD CALL STUFF                                              **/
         /*********************************************************************/
         this.onCallForwardedEvent = function (forwardElem) {
-            that.logger.log("debug", LOG_ID + "(onCallForwardedEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onCallForwardedEvent) _entering_ : ", forwardElem);
             let call = {
                 "forwardType": forwardElem.attr("forwardType"),
@@ -1104,7 +1090,6 @@ class TelephonyEventHandler extends GenericHandler {
         /** NOMADIC STATUS STUFF                                              **/
         /*********************************************************************/
         this.onNomadicStatusEvent = function (eventElem) {
-            that.logger.log("debug", LOG_ID + "(onNomadicStatusEvent) _entering_");
             that.logger.log("internal", LOG_ID + "(onNomadicStatusEvent) _entering_ : ", eventElem);
 
             let nomadicstate = {

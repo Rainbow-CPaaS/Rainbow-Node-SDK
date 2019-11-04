@@ -9,12 +9,13 @@ import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
-import {orderByFilter} from "../common/Utils";
+import {logEntryExit, orderByFilter} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @module
  * @name FileStorage
@@ -90,9 +91,6 @@ class FileStorage {
                 that._rest = __rest;
                 that.fileServerService = __fileServerService;
                 that._conversations = __conversations;
-
-                that.logger.log("debug", LOG_ID + "(start) _entering_");
-
                 that.startDate = Date.now();
                 that.started = false;
                 that.fileDescriptors = [];
@@ -109,7 +107,6 @@ class FileStorage {
                 resolve();
 
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 reject(err);
             }
         });
@@ -118,12 +115,10 @@ class FileStorage {
     stop() {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("debug", LOG_ID + "(stop) _entering_");
             if (that.started) {
                 that.started = false;
             }
             this.ready = false;
-            that.logger.log("debug", LOG_ID + "(stop) _exiting_");
             resolve();
         });
     }
@@ -800,7 +795,6 @@ class FileStorage {
      */
     createFileDescriptor(name, extension, size, viewers) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(createFileDescriptor) _entering_");
         return new Promise((resolve, reject) => {
             that._rest.createFileDescriptor(name, extension, size, viewers)
                 .then((response ) => {
@@ -813,7 +807,6 @@ class FileStorage {
                     }
 
                     that.orderDocuments();
-                    that.logger.log("debug", LOG_ID + "(createFileDescriptor) _exiting_");
                     resolve(fileDescriptor);
                 })
                 .catch((errorResponse) => {
@@ -836,7 +829,6 @@ class FileStorage {
      */
     createFileDescriptorFromData(data) : any{
         let that = this;
-        that.logger.log("debug", LOG_ID + "(createFileDescriptorFromData) _entering_");
         if (data) {
             let viewers = [];
             if (data.viewers) {
@@ -859,7 +851,6 @@ class FileStorage {
             let fd =  fileDescriptorFactory()(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
                 data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation);
 
-            that.logger.log("debug", LOG_ID + "(createFileDescriptorFromData) _exiting_");
             return fd;
         }
         return;
@@ -887,7 +878,6 @@ class FileStorage {
                 .catch((errorResponse) => {
                     //let error = that.errorHelperService.handleError(errorResponse, "deleteFileDescriptor");
                     return reject(errorResponse);
-                    that.logger.log("error", LOG_ID + "(deleteFileDescriptor) _exiting_");
                 });
         });
     }
@@ -990,9 +980,9 @@ class FileStorage {
                 })
                 .catch((errorResponse) => {
                     //let error = that.errorHelperService.handleError(errorResponse, "retrieveFileDescriptorsListPerOwner");
-                    return reject(errorResponse);
                     that.logger.log("error", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error." );
                     that.logger.log("internalerror", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error : " + errorResponse);
+                    return reject(errorResponse);
                 });
         });
     }

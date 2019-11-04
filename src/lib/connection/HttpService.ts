@@ -1,6 +1,8 @@
 "use strict";
 
 //let unirest = require("unirest");
+import {logEntryExit} from "../common/Utils";
+
 const Request = require("request");
 const packageVersion = require("../../package.json");
 
@@ -32,6 +34,7 @@ function time(start): any {
 
 const USER_AGENT = "node/" + process.version + " (" + process.platform + "; " + process.arch + ") " + "Rainbow Sdk/" + packageVersion.version;
 
+@logEntryExit(LOG_ID)
 class HTTPService {
 	public serverURL: any;
 	public _host: any;
@@ -120,24 +123,17 @@ safeJsonParse(str) {
 
     start(): Promise<any> {
         let that = this;
-        this.logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise((resolve) => {
             that.logger.log("debug", LOG_ID + "(start) host used", that._host);
             that.logger.log("info", LOG_ID + "(start) REST URL", that.serverURL);
-            that.logger.log("debug", LOG_ID + "(start) _exiting_");
             resolve();
         });
     }
 
     stop(): Promise<any> {
         let that = this;
-
-        this.logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise((resolve) => {
             that.logger.log("info", LOG_ID + "(stop) Successfully stopped");
-            that.logger.log("debug", LOG_ID + "(stop) _exiting_");
             resolve();
         });
     }
@@ -145,7 +141,7 @@ safeJsonParse(str) {
     tokenExpirationControl(bodyjs: {errorCode : number, errorDetails: string}) : void{
         let that =this;
         if (bodyjs.errorCode === 401 && bodyjs.errorDetails === "jwt expired") {
-            that.logger.log("debug", LOG_ID + "(_renewAuthToken) _exiting_");
+            that.logger.log("debug", LOG_ID + "(tokenExpirationControl) rainbow_tokenexpired");
             that.eventEmitter.emit("rainbow_tokenexpired");
         }
     }
@@ -159,8 +155,8 @@ get(url, headers, params): Promise<any> {
         return new Promise(function (resolve, reject) {
 
             try {
-                that.logger.log("info", LOG_ID + "(get) url", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g)) ;
-                that.logger.log("internal", LOG_ID + "(get) url", that.serverURL + url);
+                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g)) ;
+                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url);
 
                 headers["user-agent"] = USER_AGENT;
 
@@ -329,7 +325,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(post) url", urlEncoded, data);
+            that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, data);
 
             headers["user-agent"] = USER_AGENT;
             let body = data;
@@ -439,7 +435,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(put) url", urlEncoded, data);
+            that.logger.log("internal", LOG_ID + "(put) url : ", urlEncoded, data);
 
             headers["user-agent"] = USER_AGENT;
             let body = data;
@@ -552,7 +548,7 @@ get(url, headers, params): Promise<any> {
 
             headers["user-agent"] = USER_AGENT;
 
-            that.logger.log("internal", LOG_ID + "(putBuffer) url", urlEncoded);
+            that.logger.log("internal", LOG_ID + "(putBuffer) url : ", urlEncoded);
 
              Request({
                      method: 'PUT',
@@ -584,7 +580,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(put) url", urlEncoded, " stream fileName : ", stream.fileName);
+            that.logger.log("internal", LOG_ID + "(put) url : ", urlEncoded, " stream fileName : ", stream.fileName);
 
             headers["user-agent"] = USER_AGENT;
 
@@ -598,7 +594,6 @@ get(url, headers, params): Promise<any> {
             }).on("end", () => {
                 that.logger.log("info", LOG_ID + "(get) successfull");
                 that.logger.log("info", LOG_ID + "(get) get file buffer from Url");
-                that.logger.log("debug", LOG_ID + "(get) _exiting_");
                 resolve("done");
             });
 
@@ -615,7 +610,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(delete) url", urlEncoded);
+            that.logger.log("internal", LOG_ID + "(delete) url : ", urlEncoded);
 
             headers["user-agent"] = USER_AGENT;
 

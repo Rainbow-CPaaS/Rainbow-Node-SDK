@@ -4,11 +4,12 @@ export {};
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import {isStarted} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 
 const LOG_ID = "SETT/SVCE - ";
 
-@isStarted()
+@logEntryExit(LOG_ID)
+@isStarted([])
 /**
  * @class
  * @private
@@ -50,19 +51,13 @@ class Settings {
 
     start(_xmpp : XMPPService, _rest : RESTService) {
         let that = this;
-
-        this._logger.log("debug", LOG_ID + "(start) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 that.ready = true;
                 resolve();
-
             } catch (err) {
-                that._logger.log("debug", LOG_ID + "(start) _exiting_");
                 return reject();
             }
         });
@@ -70,19 +65,14 @@ class Settings {
 
     stop() {
         let that = this;
-
-        this._logger.log("debug", LOG_ID + "(stop) _entering_");
-
         return new Promise(function(resolve, reject) {
             try {
                 that._xmpp = null;
                 that._rest = null;
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 that.ready = false;
                 resolve();
 
             } catch (err) {
-                that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 return reject();
             }
         });
@@ -98,23 +88,15 @@ class Settings {
      * @memberof Settings
      */
     getUserSettings() {
-
         let that = this;
-
-        this._logger.log("debug", LOG_ID + "(getUserSettings) _entering_");
-
         return new Promise((resolve, reject) => {
 
             that._rest.getUserSettings().then((settings) => {
-
                 that._logger.log("info", LOG_ID + "(getUserSettings) get successfully");
-
-                that._logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
                 resolve(settings);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(getUserSettings) error.");
                 that._logger.log("internalerror", LOG_ID + "(getUserSettings) error : ", err);
-                that._logger.log("debug", LOG_ID + "(getUserSettings) _exiting_");
                 return reject(err);
             });
         });
@@ -131,22 +113,15 @@ class Settings {
      */
     updateUserSettings(settings) {
         let that = this;
-
-        this._logger.log("debug", LOG_ID + "(updateUserSettings) _entering_");
         return new Promise( (resolve, reject) => {
-
             // Check validity
-
             that._rest.updateUserSettings(settings).then( (newSettings) => {
-
                     that._logger.log("info", LOG_ID + "(updateUserSettings) get successfully");
-                    that._logger.log("debug", LOG_ID + "(updateUserSettings) _exiting_");
                     resolve(newSettings);
                 })
                 .catch( (err) => {
                     that._logger.log("error", LOG_ID + "(updateUserSettings) error.");
                     that._logger.log("internalerror", LOG_ID + "(updateUserSettings) error : ", err);
-                    that._logger.log("debug", LOG_ID + "(updateUserSettings) _exiting_");
                     return reject(err);
                 });
         });

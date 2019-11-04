@@ -21,9 +21,11 @@ global.window = undefined;
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
+import {logEntryExit} from "../../common/Utils";
 
-const LOG_ID = "XMPP/HNDL - ";
+const LOG_ID = "XMPP/HNDL/CONVERSATIONS - ";
 
+@logEntryExit(LOG_ID)
 class ConversationHistoryHandler  extends GenericHandler {
 	public MESSAGE_MAM: any;
 	public FIN_MAM: any;

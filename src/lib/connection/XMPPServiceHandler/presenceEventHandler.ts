@@ -4,12 +4,14 @@ import {XMPPService} from "../XMPPService";
 export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
+import {logEntryExit} from "../../common/Utils";
 
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 
-const LOG_ID = "XMPP/HNDL - ";
+const LOG_ID = "XMPP/HNDL/PRES - ";
 
+@logEntryExit(LOG_ID)
 class PresenceEventHandler extends GenericHandler {
 	public PRESENCE: any;
 	public onPresenceReceived: any;
@@ -24,8 +26,7 @@ class PresenceEventHandler extends GenericHandler {
 
         this.onPresenceReceived = (msg, stanza) => {
             try {
-                that.logger.log("debug", LOG_ID + "(onPresenceReceived) _entering_");
-                that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza);
                 let from = stanza.attrs.from;
                 if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                     // My presence changes (coming from me or another resource)
@@ -192,7 +193,6 @@ class PresenceEventHandler extends GenericHandler {
                     };
                     that.eventEmitter.emit("evt_internal_onrosterpresence", evtParam);
                 }
-                that.logger.log("debug", LOG_ID + "(onPresenceReceived) _exiting_");
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
                 that.logger.log("internalerror", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);

@@ -1,5 +1,6 @@
 "use strict";
 import {WebRtcService} from "./services/WebRtcService";
+import {logEntryExit} from "./common/Utils";
 
 export {};
 
@@ -35,6 +36,7 @@ let _retrieveInformation;
 
 const LOG_ID = "CORE - ";
 
+@logEntryExit(LOG_ID)
 class Core {
 	public _signin: any;
 	public _retrieveInformation: any;

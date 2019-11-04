@@ -1,6 +1,7 @@
 "use strict";
 import {accessSync} from "fs";
 import {XMPPService} from "../XMPPService";
+import {logEntryExit} from "../../common/Utils";
 
 export {};
 
@@ -20,12 +21,13 @@ const orderByFilter = require("../../common/Utils").orderByFilter;
 
 const config = require("../../config/config");
 
-const LOG_ID = "XMPP/HNDL/TEL - ";
+const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 
 /*********************************************************************/
 /** PRIVATE CONSTRUCTOR                                             **/
 /*********************************************************************/
 
+@logEntryExit(LOG_ID)
 class CallLogEventHandler extends GenericHandler {
 	public MESSAGE: any;
 	public IQ_RESULT: any;
