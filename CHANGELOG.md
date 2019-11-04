@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.64.0] - 2019-10-xx
 -   Add start duration in result of start.
 -   Use argumentsToStringReduced for internal dev logs and argumentsToStringFull for package built with grunt
+-   Fix to much logs in TelephonyService::getCallFromCache
 
 ## [1.63.0] - 2019-10-31
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.

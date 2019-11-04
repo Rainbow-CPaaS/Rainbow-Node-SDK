@@ -2204,15 +2204,20 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         let callFound = null;
         that._logger.log("internal", LOG_ID + "(getCallFromCache) search id : ", callId);
         if (!callId) return callFound;
+        let iter = 0;
         if (that._calls) {
             let callFoundindex = that._calls.findIndex((call) => {
+                iter++;
                 if (!call) {
-                    this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
-                    this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
+                    // Warning : do not uncomment these line because when an error happens for a big number it is stored in that._calls at the indice of the called number
+                    // So the size of the tab is egal this big number. And then freeze the SDK when iter the tab.
+                    //this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
+                    //this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
                 } else {
                     return call.id === callId;
                 }
             });
+            that._logger.log("internal", LOG_ID + "(getCallFromCache) that._calls findIndex iter : ", iter);
             if (callFoundindex != -1) {
                 that._logger.log("internal", LOG_ID + "(getCallFromCache) call found : ", that._calls[callFoundindex], " with id : ", callId);
                 return that._calls[callFoundindex];
