@@ -286,9 +286,9 @@ function logEntryExit(LOG_ID) : any{
                     returnValue = originalMethod.apply(this, args);
                 } else {
                     let logger = this.logger ? this.logger : this._logger ? this._logger : {};
-                    logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
+                    logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
                     returnValue = originalMethod.apply(this, args);
-                    logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
+                    logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                 }
                 // Return back the value to the execution stack
                 return returnValue;

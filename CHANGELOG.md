@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.64.0] - 2019-10-xx
+-   Add start duration in result of start.
+-   Use argumentsToStringReduced for internal dev logs and argumentsToStringFull for package built with grunt
+
 ## [1.63.0] - 2019-10-31
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.
 -   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
