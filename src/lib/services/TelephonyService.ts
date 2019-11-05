@@ -765,6 +765,10 @@ class Telephony {
             return Promise.reject();
         }
 
+        if (!contact) {
+            contact = {};
+        }
+
         // Set makingCall flag
         that.makingCall = true;
 
@@ -809,22 +813,24 @@ class Telephony {
                     // Create the call object
                     let callInfos = {
                         status: Call.Status.DIALING,
-                        id: undefined,
+                        id: Call.getIdFromConnectionId(response.callId),
                         type: Call.Type.PHONE,
                         contact,
-                        deviceType: undefined
+                        deviceType: undefined,
+                        connectionId: response.callId
                     };
-                    let call = Call.CallFactory()(callInfos);
+                    //let call = Call.CallFactory()(callInfos);
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
-                    call.setConnectionId(response.callId);
+                    //call.setConnectionId(response.callId);
 
                     // Release makinCall flag
                     that.makingCall = false;
 
+                    let call = that.addOrUpdateCallToCache(callInfos);
+
                     // Indicate whether it is a call to own voicemail
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
-                    that.addOrUpdateCallToCache(call);
                     that._logger.log("internal", LOG_ID + "(makeSimpleCall) success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Send call update event
@@ -838,16 +844,31 @@ class Telephony {
                 async (response) => {
                     that._logger.log("internal", LOG_ID + "(makeSimpleCall) failed : ", response);
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
+
+                    let id = 0;
+                    if (contact && contact.id) {
+                        id = contact.id;
+                    } else {
+                        let min = Math.ceil(1);
+                        let max = Math.floor(9999);
+                        id = 9999 +  Math.floor(Math.random() * (max - min +1)) + min;
+                    }
                     let callInfos = {
                         status: Call.Status.ERROR,
-                        id: undefined,
+                        id: id + "",
                         type: Call.Type.PHONE,
                         contact,
-                        deviceType: undefined
+                        deviceType: undefined,
+                        connectionId: id + "#00",
+                        cause : "error"
                     };
-                    let call = Call.CallFactory()(callInfos);
-                    call.cause = "error";
-                    that._calls[call.contact.id] = call;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.cause = "error";
+                    //that._calls[call.contact.id] = call;
+                    //this._calls.push(call);
+                    let call = this.addOrUpdateCallToCache(callInfos);
+
+                    that._logger.log("error", LOG_ID + "(makeSimpleCall) that._calls.length : ", that._calls.length);
                     // call.autoClear = $interval(function () {
                     await that.clearCall(call);
                     //}, 5000, 1);
@@ -898,10 +919,19 @@ class Telephony {
                 function success(response) {
                     // Create the call object
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
-                    let callInfos = {status : Call.Status.DIALING, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
-                    let call = Call.CallFactory()(callInfos);
-                    call.setConnectionId(response.data.data.callId);
-                    that._calls[call.id] = call;
+                    let callInfos = {
+                        status : Call.Status.DIALING,
+                        id : Call.getIdFromConnectionId(response.data.data.callId),
+                        type : Call.Type.PHONE,
+                        contact,
+                        deviceType : undefined,
+                        connectionId: response.data.data.callId,
+                    } ;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.setConnectionId(response.data.data.callId);
+                    //that._calls[call.id] = call;
+                    //this._calls.push(call);
+                    let call = that.addOrUpdateCallToCache(callInfos);
                     that._logger.log("internal", LOG_ID + "(makeConsultationCall) makeConsultationCall success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Release makinCall flag
@@ -920,10 +950,22 @@ class Telephony {
                 },
                 async function failure(response) {
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
-                    let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
-                    let call = Call.CallFactory()(callInfos);
-                    call.cause = "error";
-                    that._calls[call.contact.id] = call;
+                    let callInfos = {
+                        status : Call.Status.ERROR,
+                        id: contact.id + "",
+                        type : Call.Type.PHONE,
+                        contact,
+                        deviceType : undefined,
+                        connectionId: contact.id + "#00",
+                        cause : "error"
+                    } ;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.cause = "error";
+                    //that._calls[call.contact.id] = call;
+                    //this._calls.push(call);
+
+                    let call = that.addOrUpdateCallToCache(callInfos);
+
                     //call.autoClear = $interval(function () {
                     await that.clearCall(call);
                     //}, 5000, 1);
