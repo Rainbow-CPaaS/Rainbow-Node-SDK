@@ -765,6 +765,10 @@ class Telephony {
             return Promise.reject();
         }
 
+        if (!contact) {
+            contact = {};
+        }
+
         // Set makingCall flag
         that.makingCall = true;
 
@@ -809,22 +813,24 @@ class Telephony {
                     // Create the call object
                     let callInfos = {
                         status: Call.Status.DIALING,
-                        id: undefined,
+                        id: Call.getIdFromConnectionId(response.callId),
                         type: Call.Type.PHONE,
                         contact,
-                        deviceType: undefined
+                        deviceType: undefined,
+                        connectionId: response.callId
                     };
-                    let call = Call.CallFactory()(callInfos);
+                    //let call = Call.CallFactory()(callInfos);
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
-                    call.setConnectionId(response.callId);
+                    //call.setConnectionId(response.callId);
 
                     // Release makinCall flag
                     that.makingCall = false;
 
+                    let call = that.addOrUpdateCallToCache(callInfos);
+
                     // Indicate whether it is a call to own voicemail
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
-                    that.addOrUpdateCallToCache(call);
                     that._logger.log("internal", LOG_ID + "(makeSimpleCall) success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Send call update event
@@ -838,16 +844,31 @@ class Telephony {
                 async (response) => {
                     that._logger.log("internal", LOG_ID + "(makeSimpleCall) failed : ", response);
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
+
+                    let id = 0;
+                    if (contact && contact.id) {
+                        id = contact.id;
+                    } else {
+                        let min = Math.ceil(1);
+                        let max = Math.floor(9999);
+                        id = 9999 +  Math.floor(Math.random() * (max - min +1)) + min;
+                    }
                     let callInfos = {
                         status: Call.Status.ERROR,
-                        id: undefined,
+                        id: id + "",
                         type: Call.Type.PHONE,
                         contact,
-                        deviceType: undefined
+                        deviceType: undefined,
+                        connectionId: id + "#00",
+                        cause : "error"
                     };
-                    let call = Call.CallFactory()(callInfos);
-                    call.cause = "error";
-                    that._calls[call.contact.id] = call;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.cause = "error";
+                    //that._calls[call.contact.id] = call;
+                    //this._calls.push(call);
+                    let call = this.addOrUpdateCallToCache(callInfos);
+
+                    that._logger.log("error", LOG_ID + "(makeSimpleCall) that._calls.length : ", that._calls.length);
                     // call.autoClear = $interval(function () {
                     await that.clearCall(call);
                     //}, 5000, 1);
@@ -898,10 +919,25 @@ class Telephony {
                 function success(response) {
                     // Create the call object
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
-                    let callInfos = {status : Call.Status.DIALING, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
-                    let call = Call.CallFactory()(callInfos);
-                    call.setConnectionId(response.data.data.callId);
-                    that._calls[call.id] = call;
+                    let callInfos = {
+                        status : Call.Status.DIALING,
+                        id:"",
+                        type : Call.Type.PHONE,
+                        contact,
+                        deviceType : undefined,
+                    } ;
+                    if (response && response.data && response.data.data) {
+                        callInfos.id = Call.getIdFromConnectionId(response.data.data.callId);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(makeConsultationCall) makeConsultationCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                        callInfos.id = Call.getIdFromConnectionId(response.callId);
+                    }
+
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.setConnectionId(response.data.data.callId);
+                    //that._calls[call.id] = call;
+                    //this._calls.push(call);
+                    let call = that.addOrUpdateCallToCache(callInfos);
                     that._logger.log("internal", LOG_ID + "(makeConsultationCall) makeConsultationCall success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Release makinCall flag
@@ -920,10 +956,22 @@ class Telephony {
                 },
                 async function failure(response) {
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
-                    let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
-                    let call = Call.CallFactory()(callInfos);
-                    call.cause = "error";
-                    that._calls[call.contact.id] = call;
+                    let callInfos = {
+                        status : Call.Status.ERROR,
+                        id: contact.id + "",
+                        type : Call.Type.PHONE,
+                        contact,
+                        deviceType : undefined,
+                        connectionId: contact.id + "#00",
+                        cause : "error"
+                    } ;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.cause = "error";
+                    //that._calls[call.contact.id] = call;
+                    //this._calls.push(call);
+
+                    let call = that.addOrUpdateCallToCache(callInfos);
+
                     //call.autoClear = $interval(function () {
                     await that.clearCall(call);
                     //}, 5000, 1);
@@ -966,14 +1014,17 @@ class Telephony {
             }
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
-                .then(function (contact) {
+                .then( (contact) => {
                     myContact = contact;
                     return that.makeCall(contact, phoneNumber, correlatorData);
                 })
-                .then(function (data) {
+                .then( (data) => {
+                    that._logger.log("internal", LOG_ID + "(makeCallByPhoneNumber) after makeCall resolve result : ", data);
                     resolve(data);
                 })
-                .catch(async (error) => {
+                .catch( (error) => {
+                    that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) Error : ", error);
                     return reject(error);
                    /* let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
                     that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) - Error." );
@@ -1286,9 +1337,15 @@ class Telephony {
             }) // */
             that._rest.holdCall(call).then(
                 function success(response) {
-                    that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
+                    that._logger.log("info", LOG_ID + "(holdCall) holdCall success.");
+                    that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + "), response : ", response);
                     // Update call status
-                    call.setConnectionId(response.data.data.callId);
+                    if (response && response.data && response.data.data) {
+                        call.setConnectionId(response.data.data.callId);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(holdCall) holdCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                        call.setConnectionId(response.callId);
+                    }
                     call.setStatus(Call.Status.HOLD);
 
                     /* TREATED BY EVENTS
@@ -1367,7 +1424,12 @@ class Telephony {
                     function success(response) {
                         that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
                         // Update call status
-                        call.setConnectionId(response.data.data.callId);
+                        if (response && response.data && response.data.data) {
+                            call.setConnectionId(response.data.data.callId);
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                            call.setConnectionId(response.callId);
+                        }
                         call.setStatus(Call.Status.ACTIVE);
 
                         /* TREATED BY EVENTS
@@ -2204,15 +2266,20 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         let callFound = null;
         that._logger.log("internal", LOG_ID + "(getCallFromCache) search id : ", callId);
         if (!callId) return callFound;
+        let iter = 0;
         if (that._calls) {
             let callFoundindex = that._calls.findIndex((call) => {
+                iter++;
                 if (!call) {
-                    this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
-                    this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
+                    // Warning : do not uncomment these line because when an error happens for a big number it is stored in that._calls at the indice of the called number
+                    // So the size of the tab is egal this big number. And then freeze the SDK when iter the tab.
+                    //this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
+                    //this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
                 } else {
                     return call.id === callId;
                 }
             });
+            that._logger.log("internal", LOG_ID + "(getCallFromCache) that._calls findIndex iter : ", iter);
             if (callFoundindex != -1) {
                 that._logger.log("internal", LOG_ID + "(getCallFromCache) call found : ", that._calls[callFoundindex], " with id : ", callId);
                 return that._calls[callFoundindex];

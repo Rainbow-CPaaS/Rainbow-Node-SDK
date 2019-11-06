@@ -307,6 +307,7 @@ class Contacts {
         // Handle case where we have no jid
         if (!jid) {
             contact.id = phoneNumber;
+            contact._id = phoneNumber;
             contact.initials = "?";
             contact.displayName = phoneNumber ? phoneNumber : "Unknown contact";
             contact.lastName = phoneNumber ? phoneNumber : "Unknown contact";

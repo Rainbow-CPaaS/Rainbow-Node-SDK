@@ -9,7 +9,7 @@ const colors = require("colors/safe");
 const util = require("util");
 const stripAnsi = require('strip-ansi');
 
-var defaultConfig = require("../config/config");
+let defaultConfig = require("../config/config");
 
 const LOG_ID = "LOGS - ";
 
@@ -85,6 +85,11 @@ class Logger {
         let enableConsoleLog = true;
         let enableFileLog = false;
         let customFileName = "";
+
+        // dev-code //
+        this.argumentsToString = this.argumentsToStringReduced;
+        // end-dev-code //
+
 
         // No configuration for file --> Don't store logs in file
         if (!("logs" in config)) {
@@ -356,7 +361,7 @@ class Logger {
         return this._logger;
     }
 
-    argumentsToString (v){
+    argumentsToStringReduced (v){
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
         for(let k in args){
@@ -375,6 +380,20 @@ class Logger {
         return str;
     }
 
+    argumentsToStringFull (v) {
+        // convert arguments object to real array
+        let args = Array.prototype.slice.call(v, 1);
+        /*for(let k in args){
+            if (typeof args[k] === "object"){
+                // args[k] = JSON.stringify(args[k]);
+                args[k] = util.inspect(args[k], false, null, true);
+            }
+        } //*/
+        let str = args.join(" ");
+        return str;
+    }
+
+    argumentsToString = this.argumentsToStringFull;
 }
 
 module.exports.Logger = Logger;

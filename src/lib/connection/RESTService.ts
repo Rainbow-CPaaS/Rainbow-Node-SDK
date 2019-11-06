@@ -2336,7 +2336,7 @@ class RESTService {
         return new Promise(function(resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), undefined, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(ackAllMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST conversation updated", json.data);
+                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST conversation updated : ", json.data);
                 resolve(json.data);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(ackAllMessages) error");
@@ -2345,6 +2345,32 @@ class RESTService {
             });
         });
     }
+
+    /// Conference
+    public MEDIATYPE = {
+        WEBRTC: "webrtc",
+        WEBRTCSHARINGONLY: "webrtcSharingOnly"
+    };
+
+    joinConference(webPontConferenceId, role = "moderator") {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            let muted = "unmuted";
+            let params = { participant: { role: role, type: muted }, mediaType: that.MEDIATYPE.WEBRTC };
+            that.logger.log("internal", LOG_ID + "(joinConference) REST params : ", params);
+
+            that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(joinConference) successfull");
+                that.logger.log("internal", LOG_ID + "(joinConference) REST conference updated : ", json.data);
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(joinConference) error");
+                that.logger.log("internalerror", LOG_ID, "(joinConference) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
 
     //////
     // Generic HTTP VERB

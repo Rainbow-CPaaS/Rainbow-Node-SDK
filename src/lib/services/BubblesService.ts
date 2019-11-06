@@ -574,6 +574,53 @@ class Bubbles {
         });
     }
 
+    // @private for ale rainbow team's tests only
+    joinConference( bubble) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(joinConference) arguments : ", ...arguments);
+
+             if (!bubble || !bubble.id) {
+                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble' parameter : ", bubble);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            /*let isActive = false;
+            let isInvited = false;
+            bubble.users.forEach(function(user) {
+                if (user.userId === contact.id) {
+                    switch (user.status) {
+                        case "invited":
+                            isInvited = true;
+                            break;
+                        case "accepted":
+                            isActive = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+getAllActiveBubbles
+            if (isActive || isInvited) {
+                that._logger.log("warn", LOG_ID + "(joinConference) Contact has been already invited or is already a member of the bubble");
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            } // */
+
+             that._rest.joinConference(bubble.id, "moderator").then(function(joinResult : any) {
+
+                resolve(joinResult);
+            }).catch(function(err) {
+                that._logger.log("error", LOG_ID + "(joinConference) error");
+                return reject(err);
+            });
+        });
+    }
+
     /**
      * @public
      * @method promoteContactInBubble

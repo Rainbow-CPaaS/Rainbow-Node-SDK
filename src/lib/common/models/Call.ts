@@ -310,12 +310,12 @@ class Call {
     /*********************************************************/
     static getIdFromConnectionId(connectionId) {
         if (!connectionId) return null ;
-        return connectionId.split("#")[0];
+        return connectionId.split("#")[0] + "";
     }
 
     static getDeviceIdFromConnectionId(connectionId) {
         if (!connectionId) return null ;
-        return connectionId.split("#")[1];
+        return connectionId.split("#")[1] + "";
     }
 
     /**
