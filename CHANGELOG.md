@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.64.1] - 2019-11-06
+## [1.63.1] - 2019-11-06
 -   Add start duration in result of start.
 -   Use argumentsToStringReduced for internal dev logs and argumentsToStringFull for package built with grunt
 -   Fix to much logs in TelephonyService::getCallFromCache
