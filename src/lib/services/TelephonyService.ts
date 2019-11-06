@@ -921,12 +921,18 @@ class Telephony {
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
                     let callInfos = {
                         status : Call.Status.DIALING,
-                        id : Call.getIdFromConnectionId(response.data.data.callId),
+                        id:"",
                         type : Call.Type.PHONE,
                         contact,
                         deviceType : undefined,
-                        connectionId: response.data.data.callId,
                     } ;
+                    if (response && response.data && response.data.data) {
+                        callInfos.id = Call.getIdFromConnectionId(response.data.data.callId);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(makeConsultationCall) makeConsultationCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                        callInfos.id = Call.getIdFromConnectionId(response.callId);
+                    }
+
                     //let call = Call.CallFactory()(callInfos);
                     //call.setConnectionId(response.data.data.callId);
                     //that._calls[call.id] = call;
@@ -1008,14 +1014,17 @@ class Telephony {
             }
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
-                .then(function (contact) {
+                .then( (contact) => {
                     myContact = contact;
                     return that.makeCall(contact, phoneNumber, correlatorData);
                 })
-                .then(function (data) {
+                .then( (data) => {
+                    that._logger.log("internal", LOG_ID + "(makeCallByPhoneNumber) after makeCall resolve result : ", data);
                     resolve(data);
                 })
-                .catch(async (error) => {
+                .catch( (error) => {
+                    that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) Error : ", error);
                     return reject(error);
                    /* let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
                     that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) - Error." );
@@ -1328,9 +1337,15 @@ class Telephony {
             }) // */
             that._rest.holdCall(call).then(
                 function success(response) {
-                    that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
+                    that._logger.log("info", LOG_ID + "(holdCall) holdCall success.");
+                    that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + "), response : ", response);
                     // Update call status
-                    call.setConnectionId(response.data.data.callId);
+                    if (response && response.data && response.data.data) {
+                        call.setConnectionId(response.data.data.callId);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(holdCall) holdCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                        call.setConnectionId(response.callId);
+                    }
                     call.setStatus(Call.Status.HOLD);
 
                     /* TREATED BY EVENTS
@@ -1409,7 +1424,12 @@ class Telephony {
                     function success(response) {
                         that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
                         // Update call status
-                        call.setConnectionId(response.data.data.callId);
+                        if (response && response.data && response.data.data) {
+                            call.setConnectionId(response.data.data.callId);
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                            call.setConnectionId(response.callId);
+                        }
                         call.setStatus(Call.Status.ACTIVE);
 
                         /* TREATED BY EVENTS

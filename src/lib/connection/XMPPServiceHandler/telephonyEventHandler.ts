@@ -409,7 +409,6 @@ class TelephonyEventHandler extends GenericHandler {
                         // Update contact info as necessary
                         return that.updateCallContact(jid, phoneNumber, "established", call);
                     }
-
                     // Call already exists and IS a conference, update contact info if necessary
                     else if (call.participants && call.participants.length > 0) {
                         //recover former matching contact from participants
@@ -454,6 +453,8 @@ class TelephonyEventHandler extends GenericHandler {
                                     return Promise.resolve();
                                 });
                         }
+                    } else {
+                        that.logger.log("debug", LOG_ID + "(onEstablishedEvent) Neither contact, nor participant found!" );
                     }
                     return Promise.resolve();
                 }
