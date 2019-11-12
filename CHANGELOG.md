@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.63.2] - 2019-11-XX
+Fix comment fo admin::createCompagny, Country is mandatory.
+
 ## [1.63.1] - 2019-11-06
 -   Add start duration in result of start.
 -   Use argumentsToStringReduced for internal dev logs and argumentsToStringFull for package built with grunt
