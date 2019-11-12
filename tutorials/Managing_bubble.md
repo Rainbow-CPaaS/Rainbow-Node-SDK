@@ -135,6 +135,31 @@ rainbowSDK.bubbles.inviteContactToBubble(aContact, aBubble, invitedAsModerator, 
 
 If a user is invited as a moderator, it will have the right to invite or ban users and change the bubble parameters and data.
 
+****
+### Inviting users by email to a bubble
+---
+
+You can invite few users by emails to the Bubble by calling the API `inviteContactsByEmailsToBubble()`:
+
+
+```js
+
+...
+
+let utc = new Date().toJSON().replace(/-/g, '/');
+rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble) => {
+   let contacts = [];
+   contacts.push("invited.01@openrainbow.net");
+   contacts.push("invited.02@openrainbow.net");
+   rainbowSDK.bubbles.inviteContactsByEmailsToBubble(contacts, bubble).then(async(bubble) => {
+      ...
+   });
+});
+
+...
+
+```
+
 
 ### Adding a Rainbow user to a bubble
 ---

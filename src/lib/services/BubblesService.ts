@@ -574,6 +574,50 @@ class Bubbles {
         });
     }
 
+    /**
+     * @public
+     * @method inviteContactsByEmailsToBubble
+     * @instance
+     * @param {Contact} contactsEmails         The contacts email tab to invite
+     * @param {Bubble} bubble           The bubble
+     * @memberof Bubbles
+     * @description
+     *  Invite a list of contacts by emails in a bubble
+     * @async
+     * @return {Promise<Bubble, ErrorManager>}
+     * @fulfil {Bubble} - The bubble updated with the new invitation
+     * @category async
+     */
+    inviteContactsByEmailsToBubble(contactsEmails, bubble) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(inviteContactsByEmailToBubble) arguments : ", ...arguments);
+
+            if (!contactsEmails || !Array.isArray(contactsEmails)) {
+                that._logger.log("warn", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter");
+                that._logger.log("internalerror", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter : ", contactsEmails);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            } else if (!bubble) {
+                that._logger.log("warn", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter : ", bubble);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            return that._rest.inviteContactsByEmailsToBubble(contactsEmails, bubble.id).then(function () {
+                that._logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) invitation successfully sent");
+                return that._rest.getBubble(bubble.id);
+            }).then(function (bubbleReUpdated: any) {
+                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+                resolve(bubble);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(inviteContactsByEmailsToBubble) error");
+                return reject(err);
+            });
+        });
+    }
+
     // @private for ale rainbow team's tests only
     joinConference( bubble) {
         let that = this;
