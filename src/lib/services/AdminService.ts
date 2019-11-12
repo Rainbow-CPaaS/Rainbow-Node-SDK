@@ -91,8 +91,8 @@ class Admin {
      * @description
      *      Create a company
      * @param {string} strName The name of the new company
-     * @param {string} country (optionnel) Company country (ISO 3166-1 alpha3 format, size 3 car)
-     * @param {string} state (optionnel)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
+     * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
+     * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
      * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
