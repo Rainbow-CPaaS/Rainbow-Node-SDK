@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+
+## [1.64.0] - 2019-11-XX
+- Same as the patch 1.63.2
+
 ## [1.63.2] - 2019-11-14
 -   Fix comment for admin::createCompagny, Country is mandatory.
 -   Add method bubbles::inviteContactsByEmailsToBubble to Invite a list of contacts by emails in a bubble.
