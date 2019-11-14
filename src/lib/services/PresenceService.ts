@@ -143,8 +143,8 @@ class PresenceService {
      * @instance
      * @description
      *    Allow to change the presence of the connected user <br/>
-     *    Only the following values are authorized: 'dnd', 'away', 'xa' (invisible) or 'online'
-     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'xa' (invisible) or 'online'
+     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
      * @memberof PresenceService
      * @async
      * @return {Promise<ErrorManager>}
@@ -158,8 +158,8 @@ class PresenceService {
         return new Promise((resolve, reject) => {
             switch (presence) {
                 case "online":
-                    show = "online";
-                    status = "";
+                    show = undefined;
+                    status = "mode=auto";
                     break;
                 case "away":
                     show = "xa";

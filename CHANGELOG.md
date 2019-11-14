@@ -8,7 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
 ## [1.64.0] - 2019-11-XX
-- Same as the patch 1.63.2
+- Fix of the Presence::setPresenceTo to follow the server presence type.
 
 ## [1.63.2] - 2019-11-14
 -   Fix comment for admin::createCompagny, Country is mandatory.
