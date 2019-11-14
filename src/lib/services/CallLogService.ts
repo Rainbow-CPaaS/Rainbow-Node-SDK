@@ -181,7 +181,9 @@ function CallLogsBean() : ICallLogsBean {
 
         delete that._calllogEventHandler;
         that._calllogEventHandler = null;
-        that.calllogHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        if (that.calllogHandlerToken) {
+            that.calllogHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        }
         that.calllogHandlerToken = [];
         this.ready = false;
 

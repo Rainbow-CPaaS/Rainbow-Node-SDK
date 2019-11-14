@@ -136,10 +136,14 @@ class Conversations {
 
                 delete that.conversationEventHandler;
                 that.conversationEventHandler = null;
-                that.conversationHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that.conversationHandlerToken) {
+                    that.conversationHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
                 that.conversationHandlerToken = [];
 
-                that.conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that.conversationHistoryHandlerToken) {
+                    that.conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
                 that.conversationHistoryHandlerToken = [];
 
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));

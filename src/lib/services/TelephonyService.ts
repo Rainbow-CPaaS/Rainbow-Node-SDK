@@ -144,10 +144,14 @@ class Telephony {
 
                 delete that.telephonyEventHandler;
                 that.telephonyEventHandler = null;
-                that.telephonyHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that.telephonyHandlerToken) {
+                    that.telephonyHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
                 that.telephonyHandlerToken = [];
 
-                that.telephonyHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that.telephonyHistoryHandlerToken) {
+                    that.telephonyHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
                 that.telephonyHistoryHandlerToken = [];
 
                 this.ready = false;

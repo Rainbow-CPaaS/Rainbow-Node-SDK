@@ -99,7 +99,9 @@ class FavoritesService {
 
         delete that._favoriteEventHandler;
         that._favoriteEventHandler = null;
-        that.favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        if (that.favoriteHandlerToken) {
+            that.favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        }
         that.favoriteHandlerToken = [];
 
         /*this.$log.info('Stopping');
