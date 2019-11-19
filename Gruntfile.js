@@ -25,6 +25,7 @@ module.exports = function(grunt) {
             { src: "index.js", dest: "build/sdk.md" },
             { src: "lib/common/models/Bubble.js", dest: "build/bubble.md" },
             { src: "lib/common/models/Channel.js", dest: "build/channel.md" },
+            { src: "lib/common/models/Call.js", dest: "build/call.md" },
             { src: "lib/common/models/Contact.js", dest: "build/contact.md" },
             { src: "lib/common/models/Conversation.js", dest: "build/conversation.md" },
             { src: "lib/common/models/Message.js", dest: "build/message.md" },

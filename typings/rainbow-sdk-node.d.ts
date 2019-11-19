@@ -192,8 +192,8 @@ declare module 'lib/common/models/Call' {
 	    /*********************************************************/
 	    /**                  TELEPHONY STUFF                     */
 	    /*********************************************************/
-	    static getIdFromConnectionId(connectionId: any): any;
-	    static getDeviceIdFromConnectionId(connectionId: any): any;
+	    static getIdFromConnectionId(connectionId: any): string;
+	    static getDeviceIdFromConnectionId(connectionId: any): string;
 	    /**
 	     * @function
 	     * @public
@@ -452,7 +452,7 @@ declare module 'lib/connection/HttpService' {
 	     *
 	     */
 	    hasJsonStructure(str: any): boolean;
-	    readonly host: any;
+	    get host(): any;
 	    start(): Promise<any>;
 	    stop(): Promise<any>;
 	    tokenExpirationControl(bodyjs: {
@@ -498,8 +498,8 @@ declare module 'lib/connection/RESTService' {
 	    getDefaultHeader: any;
 	    applicationToken: string;
 	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: any, _logger: any);
-	    readonly userId: any;
-	    readonly loggedInUser: any;
+	    get userId(): any;
+	    get loggedInUser(): any;
 	    start(http: any): any;
 	    stop(): Promise<unknown>;
 	    signin(): Promise<unknown>;
@@ -551,6 +551,7 @@ declare module 'lib/connection/RESTService' {
 	    getBubbleByJid(bubbleJid: any): Promise<unknown>;
 	    setBubbleCustomData(bubbleId: any, customData: any): Promise<unknown>;
 	    inviteContactToBubble(contactId: any, bubbleId: any, asModerator: any, withInvitation: any, reason: any): Promise<unknown>;
+	    inviteContactsByEmailsToBubble(contactsEmails: any, bubbleId: any): Promise<unknown>;
 	    promoteContactInBubble(contactId: any, bubbleId: any, asModerator: any): Promise<unknown>;
 	    changeBubbleOwner(bubbleId: any, contactId: any): Promise<unknown>;
 	    leaveBubble(bubbleId: any, bubbleStatus: any): Promise<unknown>;
@@ -639,6 +640,11 @@ declare module 'lib/connection/RESTService' {
 	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
 	    sendConversationByEmail(conversationId: any): Promise<unknown>;
 	    ackAllMessages(conversationId: any): Promise<unknown>;
+	    MEDIATYPE: {
+	        WEBRTC: string;
+	        WEBRTCSHARINGONLY: string;
+	    };
+	    joinConference(webPontConferenceId: any, role?: string): Promise<unknown>;
 	    get(url: any, token: any): Promise<unknown>;
 	    post(url: any, token: any, data: any, contentType: any): Promise<unknown>;
 	    put(url: any, token: any, data: any): Promise<unknown>;
@@ -663,7 +669,7 @@ declare module 'lib/common/Logger' {
 	    hideId: any;
 	    hideUuid: any;
 	    constructor(config: any);
-	    readonly log: any;
+	    get log(): any;
 	    argumentsToStringReduced(v: any): any;
 	    argumentsToStringFull(v: any): any;
 	    argumentsToString: (v: any) => any;
@@ -692,13 +698,13 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly BAD_REQUEST: any;
+	    get BAD_REQUEST(): any;
 	    /**
 	     * @readonly
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly FORBIDDEN: {
+	    get FORBIDDEN(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -708,7 +714,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly OK: {
+	    get OK(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -718,7 +724,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly XMPP: {
+	    get XMPP(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -728,7 +734,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly ERROR: {
+	    get ERROR(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -738,7 +744,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly UNAUTHORIZED: {
+	    get UNAUTHORIZED(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -775,7 +781,7 @@ declare module 'lib/services/ImsService' {
 	    _fileStorage: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -1089,7 +1095,7 @@ declare module 'lib/services/PresenceService' {
 	    RAINBOW_PRESENCE_INVISIBLE: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -1112,8 +1118,8 @@ declare module 'lib/services/PresenceService' {
 	     * @instance
 	     * @description
 	     *    Allow to change the presence of the connected user <br/>
-	     *    Only the following values are authorized: 'dnd', 'away', 'xa' (invisible) or 'online'
-	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'xa' (invisible) or 'online'
+	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
 	     * @memberof PresenceService
 	     * @async
 	     * @return {Promise<ErrorManager>}
@@ -1206,7 +1212,7 @@ declare module 'lib/services/ChannelsService' {
 	    invitationCounter: number;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -2007,7 +2013,8 @@ declare module 'lib/common/models/Contact' {
 	     * @property {string} displayName The display name of the Contact
 	     * @instance
 	     */
-	    displayName: any;
+	    set displayName(value: any);
+	    get displayName(): any;
 	    setNameUpdatePrio(prio: any): void;
 	    getNameUpdatePrio(): any;
 	    displayNameForLog(): any;
@@ -2037,7 +2044,7 @@ declare module 'lib/services/ContactsService' {
 	    _xmpp: XMPPService;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -2469,7 +2476,7 @@ declare module 'lib/common/models/FileViewer' {
 	     * @this FileViewer
 	     */
 	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
-	    readonly avatarSrc: any;
+	    get avatarSrc(): any;
 	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
 	export { FileViewerElementFactory, FileViewer };
 
@@ -2506,7 +2513,7 @@ declare module 'lib/services/ConversationsService' {
 	    chatRenderer: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -3002,7 +3009,7 @@ declare module 'lib/services/ProfilesService' {
 	    timer: NodeJS.Timeout;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -3255,7 +3262,7 @@ declare module 'lib/services/TelephonyService' {
 	    stats: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -3729,7 +3736,7 @@ declare module 'lib/services/BubblesService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -3859,6 +3866,22 @@ declare module 'lib/services/BubblesService' {
 	     * @category async
 	     */
 	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method inviteContactsByEmailsToBubble
+	     * @instance
+	     * @param {Contact} contactsEmails         The contacts email tab to invite
+	     * @param {Bubble} bubble           The bubble
+	     * @memberof Bubbles
+	     * @description
+	     *  Invite a list of contacts by emails in a bubble
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the new invitation
+	     * @category async
+	     */
+	    inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
+	    joinConference(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method promoteContactInBubble
@@ -4185,7 +4208,7 @@ declare module 'lib/services/GroupsService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -4379,7 +4402,7 @@ declare module 'lib/services/AdminService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -4393,8 +4416,8 @@ declare module 'lib/services/AdminService' {
 	     * @description
 	     *      Create a company
 	     * @param {string} strName The name of the new company
-	     * @param {string} country (optionnel) Company country (ISO 3166-1 alpha3 format, size 3 car)
-	     * @param {string} state (optionnel)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
+	     * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
+	     * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
 	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
@@ -4779,7 +4802,7 @@ declare module 'lib/services/SettingsService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -4827,12 +4850,12 @@ declare module 'lib/services/FileServerService' {
 	    ONE_MEGABYTE: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    readonly capabilities: Promise<any>;
+	    get capabilities(): Promise<any>;
 	    start(_xmpp: XMPPService, _rest: RESTService, _fileStorageService: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
@@ -5079,7 +5102,7 @@ declare module 'lib/services/FileStorageService' {
 	    helpersService: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -5572,15 +5595,15 @@ declare module 'lib/common/StateManager' {
 	    start(): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    transitTo(state: any, data?: any): Promise<unknown>;
-	    readonly STOPPED: string;
-	    readonly CONNECTED: string;
-	    readonly STARTED: string;
-	    readonly STARTING: string;
-	    readonly DISCONNECTED: string;
-	    readonly RECONNECTING: string;
-	    readonly READY: string;
-	    readonly FAILED: string;
-	    readonly ERROR: string;
+	    get STOPPED(): string;
+	    get CONNECTED(): string;
+	    get STARTED(): string;
+	    get STARTING(): string;
+	    get DISCONNECTED(): string;
+	    get RECONNECTING(): string;
+	    get READY(): string;
+	    get FAILED(): string;
+	    get ERROR(): string;
 	    isSTOPPED(): boolean;
 	    isCONNECTED(): boolean;
 	    isSTARTED(): boolean;
@@ -5663,7 +5686,7 @@ declare module 'lib/services/CallLogService' {
 	    _telephony: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -5832,7 +5855,7 @@ declare module 'lib/services/FavoritesService' {
 	    private xmppManagementHandler;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -5909,8 +5932,8 @@ declare module 'lib/common/Events' {
 	    _evPublisher: EventEmitter;
 	    _core: Core;
 	    constructor(_logger: Logger, _filterCallback: Function);
-	    readonly iee: EventEmitter;
-	    readonly eee: EventEmitter;
+	    get iee(): EventEmitter;
+	    get eee(): EventEmitter;
 	    /**
 	     * @method on
 	     * @public
@@ -5968,17 +5991,17 @@ declare module 'lib/config/Options' {
 	    _servicesToStart: any;
 	    constructor(_options: any, _logger: any);
 	    parse(): void;
-	    readonly servicesToStart: any;
-	    readonly httpOptions: any;
-	    readonly xmppOptions: any;
-	    readonly proxyOptions: any;
-	    readonly imOptions: any;
-	    readonly applicationOptions: any;
-	    readonly hasCredentials: any;
-	    readonly hasApplication: any;
-	    readonly useXMPP: any;
-	    readonly useCLIMode: any;
-	    readonly credentials: any;
+	    get servicesToStart(): any;
+	    get httpOptions(): any;
+	    get xmppOptions(): any;
+	    get proxyOptions(): any;
+	    get imOptions(): any;
+	    get applicationOptions(): any;
+	    get hasCredentials(): any;
+	    get hasApplication(): any;
+	    get useXMPP(): any;
+	    get useCLIMode(): any;
+	    get credentials(): any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
 	    _getHTTPOptions(): any;
@@ -6017,9 +6040,10 @@ declare module 'lib/ProxyImpl' {
 	    private _password;
 	    private _secureProtocol;
 	    constructor(config: any, _logger: any);
-	    readonly proxyURL: any;
-	    readonly isProxyConfigured: any;
-	    secureProtocol: string;
+	    get proxyURL(): any;
+	    get isProxyConfigured(): any;
+	    get secureProtocol(): string;
+	    set secureProtocol(value: string);
 	}
 	export { ProxyImpl };
 
@@ -6062,23 +6086,23 @@ declare module 'lib/Core' {
 	    start(useCLIMode: any): Promise<unknown>;
 	    signin(forceStopXMPP: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    readonly settings: any;
-	    readonly presence: any;
-	    readonly im: any;
-	    readonly contacts: any;
-	    readonly conversations: any;
-	    readonly channels: Channels;
-	    readonly bubbles: any;
-	    readonly groups: any;
-	    readonly admin: any;
-	    readonly fileServer: any;
-	    readonly fileStorage: any;
-	    readonly events: any;
-	    readonly rest: RESTService;
-	    readonly state: any;
-	    readonly version: any;
-	    readonly telephony: any;
-	    readonly calllog: any;
+	    get settings(): any;
+	    get presence(): any;
+	    get im(): any;
+	    get contacts(): any;
+	    get conversations(): any;
+	    get channels(): Channels;
+	    get bubbles(): any;
+	    get groups(): any;
+	    get admin(): any;
+	    get fileServer(): any;
+	    get fileStorage(): any;
+	    get events(): any;
+	    get rest(): RESTService;
+	    get state(): any;
+	    get version(): any;
+	    get telephony(): any;
+	    get calllog(): any;
 	}
 	export { Core };
 
