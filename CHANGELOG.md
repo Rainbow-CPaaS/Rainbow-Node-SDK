@@ -7,7 +7,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-## [1.64.0] - 2019-11-XX
+## [1.64.0] - 2019-11-20
 -   Fix of the Presence::setPresenceTo to follow the server presence type.
 -   Doc update
 -   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. Note : The SDK is not any more connected, so the bot is offline.

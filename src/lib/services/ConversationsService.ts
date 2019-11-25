@@ -332,8 +332,8 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *    Allow to create a conversations on server (p2p and bubbles)
-     * @param {String} ID of the conversation (dbId field)
+     *    Allow to delete a conversation on server (p2p and bubbles)
+     * @param {String} conversationId of the conversation (id field)
      * @return {Promise}
      */
     deleteServerConversation(conversationId) {
