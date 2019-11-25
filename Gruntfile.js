@@ -19,6 +19,7 @@ module.exports = function(grunt) {
             { src: "lib/services/FavoritesService.js", dest: "build/favorites.md" },
             { src: "lib/services/FileStorageService.js", dest: "build/filestorage.md" },
             { src: "lib/services/ImsService.js", dest: "build/im.md" },
+            { src: "lib/services/InvitationsService.js", dest: "build/invitation.md" },
             { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
             { src: "lib/services/GroupsService.js", dest: "build/groups.md" },
             { src: "lib/services/TelephonyService.js", dest: "build/telephony.md" },
@@ -28,6 +29,7 @@ module.exports = function(grunt) {
             { src: "lib/common/models/Call.js", dest: "build/call.md" },
             { src: "lib/common/models/Contact.js", dest: "build/contact.md" },
             { src: "lib/common/models/Conversation.js", dest: "build/conversation.md" },
+            { src: "lib/common/models/Invitation.js", dest: "build/invitation.md" },
             { src: "lib/common/models/Message.js", dest: "build/message.md" },
             { src: "lib/common/models/Settings.js", dest: "build/settings.md" }
         ]

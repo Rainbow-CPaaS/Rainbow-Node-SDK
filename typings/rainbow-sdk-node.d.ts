@@ -452,7 +452,7 @@ declare module 'lib/connection/HttpService' {
 	     *
 	     */
 	    hasJsonStructure(str: any): boolean;
-	    get host(): any;
+	    readonly host: any;
 	    start(): Promise<any>;
 	    stop(): Promise<any>;
 	    tokenExpirationControl(bodyjs: {
@@ -494,6 +494,106 @@ declare module 'lib/common/models/Invitation' {
 	export { Invitation as Invitation };
 
 }
+declare module 'lib/common/models/Contact' {
+	export {}; const AdminType: {
+	    /** Organization administrator */
+	    'ORGANIZATION_ADMIN': string;
+	    /** Company administrator */
+	    'COMPANY_ADMIN': string;
+	    /** Site administrator */
+	    'SITE_ADMIN': string;
+	    /** No administrator right */
+	    'UNDEFINED': string;
+	}; const NameUpdatePrio: {
+	    'NO_UPDATE_PRIO': number;
+	    'OUTLOOK_UPDATE_PRIO': number;
+	    'SERVER_UPDATE_PRIO': number;
+	    'MAX_UPDATE_PRIO': number;
+	}; class Contact {
+	    id: any;
+	    _displayName: any;
+	    name: any;
+	    displayNameMD5: any;
+	    companyName: any;
+	    loginEmail: any;
+	    nickName: any;
+	    title: any;
+	    jobTitle: any;
+	    country: any;
+	    timezone: any;
+	    organisationId: any;
+	    siteId: any;
+	    companyId: any;
+	    jid_im: any;
+	    jid: any;
+	    jid_tel: any;
+	    jidtel: any;
+	    avatar: any;
+	    lastAvatarUpdateDate: any;
+	    lastUpdateDate: any;
+	    adminType: any;
+	    roles: any;
+	    phoneNumbers: any;
+	    phonePro: any;
+	    phoneProCan: any;
+	    phonePbx: any;
+	    phoneInternalNumber: any;
+	    pbxId: any;
+	    mobilePro: any;
+	    mobileProCan: any;
+	    phonePerso: any;
+	    phonePersoCan: any;
+	    mobilePerso: any;
+	    mobilePersoCan: any;
+	    voicemailNumber: any;
+	    emails: any;
+	    emailPro: any;
+	    emailPerso: any;
+	    lastName: any;
+	    firstName: any;
+	    isTerminated: any;
+	    language: any;
+	    presence: any;
+	    status: any;
+	    resources: any;
+	    nameUpdatePrio: any;
+	    initials: any;
+	    nickname: any;
+	    roster: any;
+	    initialized: any;
+	    colorIndex: any;
+	    color: any;
+	    _id: any;
+	    isInDefaultCompany: any;
+	    company: any;
+	    hasPhoneNumber: any;
+	    guestMode: any;
+	    openInviteId: any;
+	    userInfo1: null;
+	    userInfo2: null;
+	    ask: string;
+	    subscription: string;
+	    temp: boolean;
+	    constructor();
+	    /**
+	     * @public
+	     * @readonly
+	     * @property {string} displayName The display name of the Contact
+	     * @instance
+	     */
+	    displayName: any;
+	    setNameUpdatePrio(prio: any): void;
+	    getNameUpdatePrio(): any;
+	    displayNameForLog(): any;
+	    computeCompleteDisplayName(firstName: any, lastName: any): void;
+	    computeDisplayName(): void;
+	    updateName(firstName: any, lastName: any): void;
+	    updateFromUserData(userData: any): void;
+	    isGuest(): any;
+	}
+	export { Contact as Contact, AdminType as AdminType, NameUpdatePrio as NameUpdatePrio };
+
+}
 declare module 'lib/connection/RESTService' {
 	import { HTTPService } from 'lib/connection/HttpService'; class RESTService {
 	    http: HTTPService;
@@ -523,8 +623,8 @@ declare module 'lib/connection/RESTService' {
 	    getDefaultHeader: any;
 	    applicationToken: string;
 	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: any, _logger: any);
-	    get userId(): any;
-	    get loggedInUser(): any;
+	    readonly userId: any;
+	    readonly loggedInUser: any;
 	    start(http: any): any;
 	    stop(): Promise<unknown>;
 	    signin(): Promise<unknown>;
@@ -535,7 +635,7 @@ declare module 'lib/connection/RESTService' {
 	    getContacts(): Promise<unknown>;
 	    getContactInformationByJID(jid: any): Promise<unknown>;
 	    getContactInformationByID(id: any): Promise<unknown>;
-	    getContactInformationByLoginEmail(email: any): Promise<unknown>;
+	    getContactInformationByLoginEmail(email: any): Promise<[any]>;
 	    getServerFavorites(): Promise<unknown>;
 	    addServerFavorite(peerId: string, type: string): Promise<unknown>;
 	    removeServerFavorite(favoriteId: string): Promise<unknown>;
@@ -701,7 +801,7 @@ declare module 'lib/common/Logger' {
 	    hideId: any;
 	    hideUuid: any;
 	    constructor(config: any);
-	    get log(): any;
+	    readonly log: any;
 	    argumentsToStringReduced(v: any): any;
 	    argumentsToStringFull(v: any): any;
 	    argumentsToString: (v: any) => any;
@@ -730,13 +830,13 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    get BAD_REQUEST(): any;
+	    readonly BAD_REQUEST: any;
 	    /**
 	     * @readonly
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    get FORBIDDEN(): {
+	    readonly FORBIDDEN: {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -746,7 +846,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    get OK(): {
+	    readonly OK: {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -756,7 +856,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    get XMPP(): {
+	    readonly XMPP: {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -766,7 +866,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    get ERROR(): {
+	    readonly ERROR: {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -776,7 +876,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    get UNAUTHORIZED(): {
+	    readonly UNAUTHORIZED: {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -813,7 +913,7 @@ declare module 'lib/services/ImsService' {
 	    _fileStorage: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -1127,7 +1227,7 @@ declare module 'lib/services/PresenceService' {
 	    RAINBOW_PRESENCE_INVISIBLE: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -1159,6 +1259,15 @@ declare module 'lib/services/PresenceService' {
 	     * @category async
 	     */
 	    setPresenceTo(presence: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getUserConnectedPresence
+	     * @instance
+	     * @memberof PresenceService
+	     * @description
+	     *      Get user presence status calculated from events.
+	     */
+	    getUserConnectedPresence(): any;
 	    /**
 	    * @private
 	    * @method _setUserPresenceStatus
@@ -1244,7 +1353,7 @@ declare module 'lib/services/ChannelsService' {
 	    invitationCounter: number;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -1955,7 +2064,7 @@ declare module 'lib/services/ChannelsService' {
 	    private onUserSubscribeEvent;
 	    private onUserUnsubscribeEvent;
 	}
-	export { Channels };
+	export { Channels as ChannelsService };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
@@ -2099,14 +2208,14 @@ declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
 	export { InvitationEventHandler };
 
 }
-declare module 'lib/services/InvitationService' {
+declare module 'lib/services/InvitationsService' {
 	/// <reference types="node" />
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
 	import EventEmitter = NodeJS.EventEmitter;
 	import { InvitationEventHandler } from 'lib/connection/XMPPServiceHandler/invitationEventHandler';
-	import { Logger } from 'lib/common/Logger'; class InvitationService {
+	import { Logger } from 'lib/common/Logger'; class InvitationsService {
 	    receivedInvitations: {};
 	    sentInvitations: {};
 	    acceptedInvitationsArray: any[];
@@ -2147,8 +2256,8 @@ declare module 'lib/services/InvitationService' {
 	    /************************************************************/
 	    attachHandlers(): void;
 	    onRosterChanged(): Promise<unknown>;
-	    onInvitationsUpdate(userInvite: any): Promise<boolean>;
-	    handleReceivedInvitation(id: any, action: any): void;
+	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
+	    handleReceivedInvitation(id: any, action: any): Promise<void>;
 	    handleSentInvitation(id: any, action: any): Promise<unknown>;
 	    updateReceivedInvitationsArray(): void;
 	    updateSentInvitationsArray(): void;
@@ -2211,116 +2320,16 @@ declare module 'lib/services/InvitationService' {
 	    getAllReceivedInvitations(): Promise<unknown>;
 	    getAllSentInvitations(): Promise<unknown>;
 	}
-	export { InvitationService };
-
-}
-declare module 'lib/common/models/Contact' {
-	export {}; const AdminType: {
-	    /** Organization administrator */
-	    'ORGANIZATION_ADMIN': string;
-	    /** Company administrator */
-	    'COMPANY_ADMIN': string;
-	    /** Site administrator */
-	    'SITE_ADMIN': string;
-	    /** No administrator right */
-	    'UNDEFINED': string;
-	}; const NameUpdatePrio: {
-	    'NO_UPDATE_PRIO': number;
-	    'OUTLOOK_UPDATE_PRIO': number;
-	    'SERVER_UPDATE_PRIO': number;
-	    'MAX_UPDATE_PRIO': number;
-	}; class Contact {
-	    id: any;
-	    _displayName: any;
-	    name: any;
-	    displayNameMD5: any;
-	    companyName: any;
-	    loginEmail: any;
-	    nickName: any;
-	    title: any;
-	    jobTitle: any;
-	    country: any;
-	    timezone: any;
-	    organisationId: any;
-	    siteId: any;
-	    companyId: any;
-	    jid_im: any;
-	    jid: any;
-	    jid_tel: any;
-	    jidtel: any;
-	    avatar: any;
-	    lastAvatarUpdateDate: any;
-	    lastUpdateDate: any;
-	    adminType: any;
-	    roles: any;
-	    phoneNumbers: any;
-	    phonePro: any;
-	    phoneProCan: any;
-	    phonePbx: any;
-	    phoneInternalNumber: any;
-	    pbxId: any;
-	    mobilePro: any;
-	    mobileProCan: any;
-	    phonePerso: any;
-	    phonePersoCan: any;
-	    mobilePerso: any;
-	    mobilePersoCan: any;
-	    voicemailNumber: any;
-	    emails: any;
-	    emailPro: any;
-	    emailPerso: any;
-	    lastName: any;
-	    firstName: any;
-	    isTerminated: any;
-	    language: any;
-	    presence: any;
-	    status: any;
-	    resources: any;
-	    nameUpdatePrio: any;
-	    initials: any;
-	    nickname: any;
-	    roster: any;
-	    initialized: any;
-	    colorIndex: any;
-	    color: any;
-	    _id: any;
-	    isInDefaultCompany: any;
-	    company: any;
-	    hasPhoneNumber: any;
-	    guestMode: any;
-	    openInviteId: any;
-	    userInfo1: null;
-	    userInfo2: null;
-	    ask: string;
-	    subscription: string;
-	    temp: boolean;
-	    constructor();
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} displayName The display name of the Contact
-	     * @instance
-	     */
-	    set displayName(value: any);
-	    get displayName(): any;
-	    setNameUpdatePrio(prio: any): void;
-	    getNameUpdatePrio(): any;
-	    displayNameForLog(): any;
-	    computeCompleteDisplayName(firstName: any, lastName: any): void;
-	    computeDisplayName(): void;
-	    updateName(firstName: any, lastName: any): void;
-	    updateFromUserData(userData: any): void;
-	    isGuest(): any;
-	}
-	export { Contact as Contact, AdminType as AdminType, NameUpdatePrio as NameUpdatePrio };
+	export { InvitationsService };
 
 }
 declare module 'lib/services/ContactsService' {
-	import { InvitationService } from 'lib/services/InvitationService';
+	import { InvitationsService } from 'lib/services/InvitationsService';
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
-	import * as Contact from 'lib/common/models/Contact'; class Contacts {
+	import { Contact } from 'lib/common/models/Contact';
+	import { PresenceService } from 'lib/services/PresenceService'; class Contacts {
 	    avatarDomain: any;
 	    xmpp: any;
 	    contacts: any;
@@ -2329,17 +2338,18 @@ declare module 'lib/services/ContactsService' {
 	    rosterPresenceQueue: any;
 	    userContact: any;
 	    rest: RESTService;
-	    invitationService: InvitationService;
+	    invitationsService: InvitationsService;
+	    presenceService: PresenceService;
 	    _logger: any;
 	    _xmpp: XMPPService;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: any, _http: any, _logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _invitationService: InvitationService): Promise<unknown>;
+	    start(_xmpp: XMPPService, _rest: RESTService, _invitationsService: InvitationsService, _presenceService: PresenceService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
 	    /**
@@ -2376,10 +2386,10 @@ declare module 'lib/services/ContactsService' {
 	     *  Return the list of contacts that are in the network of the connected users (aka rosters)
 	     */
 	    getAll(): any;
-	    createEmptyContactContact(jid: any): Contact.Contact;
+	    createEmptyContactContact(jid: any): Contact;
 	    getContact(jid: any, phoneNumber: any): any;
 	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
-	    createBasicContact(jid: any, phoneNumber?: any): Contact.Contact;
+	    createBasicContact(jid: any, phoneNumber?: any): Contact;
 	    /**
 	     * @public
 	     * @method getContactByJid
@@ -2399,6 +2409,7 @@ declare module 'lib/services/ContactsService' {
 	     * @method getContactById
 	     * @instance
 	     * @param {string} id The contact id
+	     * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
 	     * @memberof Contacts
 	     * @description
 	     *  Get a contact by his id
@@ -2407,7 +2418,7 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
 	     * @category async
 	     */
-	    getContactById(id: any): Promise<unknown>;
+	    getContactById(id: any, forceServerSearch: any): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getContactByLoginEmail
@@ -2421,7 +2432,7 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
 	     * @category async
 	     */
-	    getContactByLoginEmail(loginEmail: any): Promise<unknown>;
+	    getContactByLoginEmail(loginEmail: any): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getAvatarByContactId
@@ -2439,7 +2450,7 @@ declare module 'lib/services/ContactsService' {
 	    getImJid(jid: any): any;
 	    getRessourceFromJid(jid: any): string;
 	    isUserContactJid(jid: any): boolean;
-	    isUserContact(contact: any): boolean;
+	    isUserContact(contact: Contact): boolean;
 	    /**
 	     * @public
 	     * @method getConnectedUser
@@ -2448,11 +2459,7 @@ declare module 'lib/services/ContactsService' {
 	     *    Get the connected user information
 	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
 	     */
-	    getConnectedUser(): Contact.Contact | {
-	        code: number;
-	        label: string;
-	        msg: string;
-	    };
+	    getConnectedUser(): Contact;
 	    /**
 	     * @public
 	     * @since 1.17
@@ -2466,7 +2473,7 @@ declare module 'lib/services/ContactsService' {
 	     * @param {Contact} contact The contact object to subscribe
 	     * @return {Object} A promise that contains the contact added or an object describing an error
 	     */
-	    addToNetwork(contact: any): Promise<unknown>;
+	    addToNetwork(contact: Contact): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.17
@@ -2482,7 +2489,7 @@ declare module 'lib/services/ContactsService' {
 	     * @return {Object} A promise that contains the contact added or an object describing an error
 	     * @category async
 	     */
-	    addToContactsList(contact: any): Promise<unknown>;
+	    addToContactsList(contact: Contact): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.64.0
@@ -2500,7 +2507,7 @@ declare module 'lib/services/ContactsService' {
 	     * @method
 	     * @instance
 	     * @description
-	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
 	     *    Once accepted, the user will be part of your network. <br>
 	     *    Return a promise
 	     * @param {Invitation} invitation The invitation to accept
@@ -2541,7 +2548,7 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
 	     * @category async
 	     */
-	    joinContacts(contact: any, contactIds: any): Promise<unknown>;
+	    joinContacts(contact: Contact, contactIds: any): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method _onRosterPresenceChanged
@@ -2572,7 +2579,6 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *      Method called when an user invite is received
 	     */
-	    _onUserInviteReceived(data: any): void;
 	    /**
 	     * @private
 	     * @method _onUserInviteAccepted
@@ -2582,7 +2588,6 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *      Method called when an user invite is accepted
 	     */
-	    _onUserInviteAccepted(data: any): void;
 	    /**
 	     * @private
 	     * @method _onUserInviteCanceled
@@ -2592,7 +2597,6 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *      Method called when an user invite is canceled
 	     */
-	    _onUserInviteCanceled(data: any): void;
 	    /**
 	     * @private
 	     * @method _onRostersUpdate
@@ -2777,7 +2781,7 @@ declare module 'lib/common/models/FileViewer' {
 	     * @this FileViewer
 	     */
 	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
-	    get avatarSrc(): any;
+	    readonly avatarSrc: any;
 	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
 	export { FileViewerElementFactory, FileViewer };
 
@@ -2814,7 +2818,7 @@ declare module 'lib/services/ConversationsService' {
 	    chatRenderer: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -2846,8 +2850,8 @@ declare module 'lib/services/ConversationsService' {
 	     * @method
 	     * @instance
 	     * @description
-	     *    Allow to create a conversations on server (p2p and bubbles)
-	     * @param {String} ID of the conversation (dbId field)
+	     *    Allow to delete a conversation on server (p2p and bubbles)
+	     * @param {String} conversationId of the conversation (id field)
 	     * @return {Promise}
 	     */
 	    deleteServerConversation(conversationId: any): Promise<void>;
@@ -3310,7 +3314,7 @@ declare module 'lib/services/ProfilesService' {
 	    timer: NodeJS.Timeout;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -3563,7 +3567,7 @@ declare module 'lib/services/TelephonyService' {
 	    stats: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -4037,7 +4041,7 @@ declare module 'lib/services/BubblesService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -4509,7 +4513,7 @@ declare module 'lib/services/GroupsService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -4703,7 +4707,7 @@ declare module 'lib/services/AdminService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -5103,7 +5107,7 @@ declare module 'lib/services/SettingsService' {
 	    _logger: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -5151,12 +5155,12 @@ declare module 'lib/services/FileServerService' {
 	    ONE_MEGABYTE: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    get capabilities(): Promise<any>;
+	    readonly capabilities: Promise<any>;
 	    start(_xmpp: XMPPService, _rest: RESTService, _fileStorageService: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
@@ -5286,7 +5290,7 @@ declare module 'lib/services/FileServerService' {
 	    */
 	    getServerCapabilities(): any;
 	}
-	export { FileServer };
+	export { FileServer as FileServerService };
 
 }
 declare module 'lib/common/models/fileDescriptor' {
@@ -5403,7 +5407,7 @@ declare module 'lib/services/FileStorageService' {
 	    helpersService: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -5884,7 +5888,7 @@ declare module 'lib/services/FileStorageService' {
 	     */
 	    extractFileIdFromUrl(url: any): any;
 	}
-	export { FileStorage };
+	export { FileStorage as FileStorageService };
 
 }
 declare module 'lib/common/StateManager' {
@@ -5896,15 +5900,15 @@ declare module 'lib/common/StateManager' {
 	    start(): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    transitTo(state: any, data?: any): Promise<unknown>;
-	    get STOPPED(): string;
-	    get CONNECTED(): string;
-	    get STARTED(): string;
-	    get STARTING(): string;
-	    get DISCONNECTED(): string;
-	    get RECONNECTING(): string;
-	    get READY(): string;
-	    get FAILED(): string;
-	    get ERROR(): string;
+	    readonly STOPPED: string;
+	    readonly CONNECTED: string;
+	    readonly STARTED: string;
+	    readonly STARTING: string;
+	    readonly DISCONNECTED: string;
+	    readonly RECONNECTING: string;
+	    readonly READY: string;
+	    readonly FAILED: string;
+	    readonly ERROR: string;
 	    isSTOPPED(): boolean;
 	    isCONNECTED(): boolean;
 	    isSTARTED(): boolean;
@@ -5987,7 +5991,7 @@ declare module 'lib/services/CallLogService' {
 	    _telephony: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    get startConfig(): {
+	    readonly startConfig: {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -6115,8 +6119,8 @@ declare module 'lib/common/Events' {
 	    _evPublisher: EventEmitter;
 	    _core: Core;
 	    constructor(_logger: Logger, _filterCallback: Function);
-	    get iee(): EventEmitter;
-	    get eee(): EventEmitter;
+	    readonly iee: EventEmitter;
+	    readonly eee: EventEmitter;
 	    /**
 	     * @method on
 	     * @public
@@ -6174,17 +6178,17 @@ declare module 'lib/config/Options' {
 	    _servicesToStart: any;
 	    constructor(_options: any, _logger: any);
 	    parse(): void;
-	    get servicesToStart(): any;
-	    get httpOptions(): any;
-	    get xmppOptions(): any;
-	    get proxyOptions(): any;
-	    get imOptions(): any;
-	    get applicationOptions(): any;
-	    get hasCredentials(): any;
-	    get hasApplication(): any;
-	    get useXMPP(): any;
-	    get useCLIMode(): any;
-	    get credentials(): any;
+	    readonly servicesToStart: any;
+	    readonly httpOptions: any;
+	    readonly xmppOptions: any;
+	    readonly proxyOptions: any;
+	    readonly imOptions: any;
+	    readonly applicationOptions: any;
+	    readonly hasCredentials: any;
+	    readonly hasApplication: any;
+	    readonly useXMPP: any;
+	    readonly useCLIMode: any;
+	    readonly credentials: any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
 	    _getHTTPOptions(): any;
@@ -6223,10 +6227,9 @@ declare module 'lib/ProxyImpl' {
 	    private _password;
 	    private _secureProtocol;
 	    constructor(config: any, _logger: any);
-	    get proxyURL(): any;
-	    get isProxyConfigured(): any;
-	    get secureProtocol(): string;
-	    set secureProtocol(value: string);
+	    readonly proxyURL: any;
+	    readonly isProxyConfigured: any;
+	    secureProtocol: string;
 	}
 	export { ProxyImpl };
 
@@ -6235,59 +6238,77 @@ declare module 'lib/Core' {
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
-	import { Channels } from 'lib/services/ChannelsService';
-	import { InvitationService } from 'lib/services/InvitationService'; class Core {
+	import { HTTPService } from 'lib/connection/HttpService';
+	import { IMService } from 'lib/services/ImsService';
+	import { PresenceService } from 'lib/services/PresenceService';
+	import { ChannelsService } from 'lib/services/ChannelsService';
+	import { ContactsService } from 'lib/services/ContactsService';
+	import { ConversationsService } from 'lib/services/ConversationsService';
+	import { ProfilesService } from 'lib/services/ProfilesService';
+	import { TelephonyService } from 'lib/services/TelephonyService';
+	import { BubblesService } from 'lib/services/BubblesService';
+	import { GroupsService } from 'lib/services/GroupsService';
+	import { AdminService } from 'lib/services/AdminService';
+	import { SettingsService } from 'lib/services/SettingsService';
+	import { FileServerService } from 'lib/services/FileServerService';
+	import { FileStorageService } from 'lib/services/FileStorageService';
+	import { StateManager } from 'lib/common/StateManager';
+	import { CallLogService } from 'lib/services/CallLogService';
+	import { FavoritesService } from 'lib/services/FavoritesService';
+	import { InvitationsService } from 'lib/services/InvitationsService';
+	import { Events } from 'lib/common/Events';
+	import { ProxyImpl } from 'lib/ProxyImpl'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
 	    onTokenRenewed: any;
 	    logger: any;
 	    _rest: RESTService;
 	    onTokenExpired: any;
-	    _eventEmitter: any;
+	    _eventEmitter: Events;
 	    _tokenSurvey: any;
 	    options: any;
-	    _proxy: any;
-	    _http: any;
+	    _proxy: ProxyImpl;
+	    _http: HTTPService;
 	    _xmpp: XMPPService;
-	    _stateManager: any;
-	    _im: any;
-	    _presence: any;
-	    _channels: Channels;
-	    _contacts: any;
-	    _conversations: any;
-	    _profiles: any;
-	    _telephony: any;
-	    _bubbles: any;
-	    _groups: any;
-	    _admin: any;
-	    _settings: any;
-	    _fileServer: any;
-	    _fileStorage: any;
-	    _calllog: any;
-	    _favorites: any;
-	    _invitation: InvitationService;
+	    _stateManager: StateManager;
+	    _im: IMService;
+	    _presence: PresenceService;
+	    _channels: ChannelsService;
+	    _contacts: ContactsService;
+	    _conversations: ConversationsService;
+	    _profiles: ProfilesService;
+	    _telephony: TelephonyService;
+	    _bubbles: BubblesService;
+	    _groups: GroupsService;
+	    _admin: AdminService;
+	    _settings: SettingsService;
+	    _fileServer: FileServerService;
+	    _fileStorage: FileStorageService;
+	    _calllog: CallLogService;
+	    _favorites: FavoritesService;
+	    _invitations: InvitationsService;
 	    _botsjid: any;
 	    constructor(options: any);
 	    start(useCLIMode: any): Promise<unknown>;
 	    signin(forceStopXMPP: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    get settings(): any;
-	    get presence(): any;
-	    get im(): any;
-	    get contacts(): any;
-	    get conversations(): any;
-	    get channels(): Channels;
-	    get bubbles(): any;
-	    get groups(): any;
-	    get admin(): any;
-	    get fileServer(): any;
-	    get fileStorage(): any;
-	    get events(): any;
-	    get rest(): RESTService;
-	    get state(): any;
-	    get version(): any;
-	    get telephony(): any;
-	    get calllog(): any;
+	    readonly settings: SettingsService;
+	    readonly presence: PresenceService;
+	    readonly im: IMService;
+	    readonly contacts: ContactsService;
+	    readonly conversations: ConversationsService;
+	    readonly channels: ChannelsService;
+	    readonly bubbles: BubblesService;
+	    readonly groups: GroupsService;
+	    readonly admin: AdminService;
+	    readonly fileServer: FileServerService;
+	    readonly fileStorage: FileStorageService;
+	    readonly events: Events;
+	    readonly rest: RESTService;
+	    readonly state: any;
+	    readonly version: any;
+	    readonly telephony: TelephonyService;
+	    readonly calllog: CallLogService;
 	}
 	export { Core };
 

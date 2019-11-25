@@ -23,7 +23,7 @@ import {FileStorageService} from "./services/FileStorageService";
 import {StateManager} from "./common/StateManager";
 import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
-import {InvitationService} from "./services/InvitationService";
+import {InvitationsService} from "./services/InvitationsService";
 import {Events} from "./common/Events";
 import {setFlagsFromString} from "v8";
 import {Options} from "./config/Options";
@@ -67,7 +67,7 @@ class Core {
 	public _fileStorage: FileStorageService;
     public _calllog: CallLogService;
     public _favorites: FavoritesService;
-    public _invitation: InvitationService;
+    public _invitations: InvitationsService;
 	public _botsjid: any;
 
     constructor(options) {
@@ -153,7 +153,7 @@ class Core {
                         }).then(() => {
                             return that._favorites.init();
                         }).then(() => {
-                            return that._invitation.init();
+                            return that._invitations.init();
                         }).then(() => {
                             resolve();
                         }).catch((err) => {
@@ -328,7 +328,7 @@ class Core {
         self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
-        self._invitation = new InvitationService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
+        self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
 
@@ -364,7 +364,7 @@ class Core {
                     }).then(() => {
                         return that._presence.start(that._xmpp, that._settings) ;
                     }).then(() => {
-                        return  that._contacts.start(that._xmpp, that._rest, that._invitation, that._presence ) ;
+                        return  that._contacts.start(that._xmpp, that._rest, that._invitations, that._presence ) ;
                     }).then(() => {
                        return that._bubbles.start(that._xmpp, that._rest) ;
                     }).then(() => {
@@ -390,7 +390,7 @@ class Core {
                     }).then(() => {
                         return that._favorites.start(that._xmpp, that._rest) ;
                     }).then(() => {
-                        return that._invitation.start(that._xmpp, that._rest, that._contacts, []) ;
+                        return that._invitations.start(that._xmpp, that._rest, that._contacts, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -482,7 +482,7 @@ class Core {
             }).then(() => {
                 return that._favorites.stop();
             }).then(() => {
-                return that._invitation.stop();
+                return that._invitations.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve("core stopped");

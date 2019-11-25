@@ -499,14 +499,14 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} invitation
+     * @property {Object} invitations
      * @instance
      * @description
      *    Get access to the invitation module
      * @memberof NodeSDK
      */
-    get invitation() {
-        return this._core._invitation;
+    get invitations() {
+        return this._core._invitations;
     }
 
 

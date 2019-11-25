@@ -23,7 +23,9 @@
   - Channel: 'ref:doc/sdk/node/api/channel.md'
   - Contact: 'ref:doc/sdk/node/api/contact.md'
   - Conversation: 'ref:doc/sdk/node/api/conversation.md'
+  - Invitation: 'ref:doc/sdk/node/api/invitation.md'
   - Message: 'ref:doc/sdk/node/api/message.md'
+  - Settings.js: 'ref:doc/sdk/node/api/settings.md'
   # Services :
   - Admin Service: 'ref:doc/sdk/node/api/admin.md'
   - Bubbles Service: 'ref:doc/sdk/node/api/bubbles.md'
@@ -36,5 +38,6 @@
   - FileStorage Service: 'ref:doc/sdk/node/api/filestorage.md'
   - Groups Service: 'ref:doc/sdk/node/api/groups.md'
   - IM Service: 'ref:doc/sdk/node/api/im.md'
+  - Invitations Service: 'ref:doc/sdk/node/api/invitations.md'
   - Presence Service: 'ref:doc/sdk/node/api/presence.md'
   - Telephony Service: 'ref:doc/sdk/node/api/telephony.md'

@@ -18,13 +18,13 @@ const LOG_ID = "INVITATION/SVCE - ";
 
 /**
  * @ngdoc service
- * @name InvitationService
+ * @name InvitationsService
  * @module rainbow
  * @description Rainbow InvitationService
  */
 @logEntryExit(LOG_ID)
 @isStarted([])
-class InvitationService {
+class InvitationsService {
 	receivedInvitations: {};
 	sentInvitations: {};
 	acceptedInvitationsArray: any[];
@@ -733,5 +733,5 @@ class InvitationService {
 	}
 }
 
-module.exports.InvitationService = InvitationService;
-export {InvitationService};
+module.exports.InvitationsService = InvitationsService;
+export {InvitationsService};

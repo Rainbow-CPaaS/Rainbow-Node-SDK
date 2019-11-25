@@ -1,5 +1,5 @@
 "use strict";
-import {InvitationService} from "./InvitationService";
+import {InvitationsService} from "./InvitationsService";
 
 export {};
 
@@ -38,7 +38,7 @@ class Contacts {
 	public rosterPresenceQueue: any;
 	public userContact: any;
 	public rest: RESTService;
-	public invitationService: InvitationService;
+	public invitationsService: InvitationsService;
     public presenceService: PresenceService;
 	public _logger: any;
 	public _xmpp: XMPPService;
@@ -70,7 +70,7 @@ class Contacts {
         this.eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _invitationService : InvitationService, _presenceService : PresenceService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService) {
 
         let that = this;
 
@@ -78,7 +78,7 @@ class Contacts {
             try {
                 that.xmpp = _xmpp;
                 that.rest = _rest;
-                that.invitationService = _invitationService;
+                that.invitationsService = _invitationsService;
                 that.presenceService = _presenceService;
                 that.contacts = [];
 
@@ -737,7 +737,7 @@ class Contacts {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        return this.invitationService.getInvitation(strInvitationId);
+        return this.invitationsService.getInvitation(strInvitationId);
     };
 
     /**
@@ -760,7 +760,7 @@ class Contacts {
             error.msg += ", invitation not defined, can not acceptInvitation";
             throw error;
         } else {
-            return that.invitationService.acceptInvitation(invitation);
+            return that.invitationsService.acceptInvitation(invitation);
             //return that.rest.acceptInvitation(invitation);
         }
     };
@@ -785,7 +785,7 @@ class Contacts {
             error.msg += ", invitation not defined, can not declineInvitation";
             throw error;
         } else {
-            return that.invitationService.declineInvitation(invitation);
+            return that.invitationsService.declineInvitation(invitation);
             //return that.rest.declineInvitation(invitation);
         }
 
