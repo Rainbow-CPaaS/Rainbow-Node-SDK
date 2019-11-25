@@ -7,9 +7,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-## [1.64.0] - 2019-11-20
--   Fix of the Presence::setPresenceTo to follow the server presence type.
--   Doc update
+## [1.65.0] - 2019-12-XX
 -   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. Note : The SDK is not any more connected, so the bot is offline.
 -   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
 -   Fix fill of properties Contact.companyId and Contact.companyName.
@@ -18,6 +16,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix datas of channel when fetched.
 -   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
 -   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events. 
+
+## [1.64.0] - 2019-11-20
+-   Fix of the Presence::setPresenceTo to follow the server presence type.
+-   Doc update
 
 ## [1.63.2] - 2019-11-14
 -   Fix comment for admin::createCompagny, Country is mandatory.
