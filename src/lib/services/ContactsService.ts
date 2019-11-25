@@ -64,9 +64,9 @@ class Contacts {
 
         this.eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
         this.eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onContactInfoChanged.bind(this));
-        this.eventEmitter.on("evt_internal_userinvitemngtreceived", this._onUserInviteReceived.bind(this));
-        this.eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
-        this.eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
+        // this.eventEmitter.on("evt_internal_userinvitemngtreceived", this._onUserInviteReceived.bind(this));
+        // this.eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
+        // this.eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
         this.eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
     }
 
@@ -732,6 +732,8 @@ class Contacts {
         if (!strInvitationId) {
             this.logger.log("warn", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
             this.logger.log("internalerror", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter : ", strInvitationId);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += ", invitation not defined, can not getInvitationById";
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -758,7 +760,8 @@ class Contacts {
             error.msg += ", invitation not defined, can not acceptInvitation";
             throw error;
         } else {
-            return that.rest.acceptInvitation(invitation);
+            return that.invitationService.acceptInvitation(invitation);
+            //return that.rest.acceptInvitation(invitation);
         }
     };
 
@@ -782,7 +785,8 @@ class Contacts {
             error.msg += ", invitation not defined, can not declineInvitation";
             throw error;
         } else {
-            return that.rest.declineInvitation(invitation);
+            return that.invitationService.declineInvitation(invitation);
+            //return that.rest.declineInvitation(invitation);
         }
 
     };
@@ -1045,7 +1049,7 @@ class Contacts {
      * @description
      *      Method called when an user invite is received
      */
-    _onUserInviteReceived(data) {
+    /* _onUserInviteReceived(data) {
         let that = this;
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) enter");
@@ -1058,7 +1062,7 @@ class Contacts {
         }, err => {
             that.logger.log("warn", LOG_ID + "(_onUserInviteReceived) no invitation found for " + data.invitationId);
         });
-    }
+    } // */
 
     /**
      * @private
@@ -1069,7 +1073,7 @@ class Contacts {
      * @description
      *      Method called when an user invite is accepted
      */
-    _onUserInviteAccepted(data) {
+    /* _onUserInviteAccepted(data) {
         let that = this;
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) enter");
@@ -1081,7 +1085,7 @@ class Contacts {
         }, err => {
             that.logger.log("warn", LOG_ID + "(_onUserInviteAccepted) no invitation found for " + data.invitationId);
         });
-    }
+    } // */
 
     /**
      * @private
@@ -1092,24 +1096,18 @@ class Contacts {
      * @description
      *      Method called when an user invite is canceled
      */
-    _onUserInviteCanceled(data) {
+    /* _onUserInviteCanceled(data) {
         let that = this;
 
-        that
-            .logger
-            .log("debug", LOG_ID + "(_onUserInviteCanceled) enter");
+        that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) enter");
 
-        that
-            .rest
-            .getInvitationById(data.invitationId)
-            .then((invitation : any) => {
-                that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
-
-                that.eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
-            }, err => {
-                that.logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
-            });
-}
+        that.rest.getInvitationById(data.invitationId).then((invitation: any) => {
+            that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
+            that.eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
+        }, err => {
+            that.logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
+        });
+    } // */
 
     /**
      * @private

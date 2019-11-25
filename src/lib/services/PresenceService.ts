@@ -323,8 +323,9 @@ class PresenceService {
      */
     _onPresenceChanged(presence) {
         let that = this;
-
-        if ( presence.fulljid === that._xmpp.fullJid ) {
+        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) presence : ", presence, ", presence.fulljid : ", presence.fulljid, ", that._xmpp.jid", that._xmpp.jid);
+        if ( presence.jid === that._xmpp.jid ) {
+            that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", presence);
             that._currentPresence = presence;
         }
     }

@@ -92,9 +92,7 @@ class PresenceEventHandler extends GenericHandler {
                     });
 
                     // My presence (node or other resources) in the room changes
-                    that
-                        .eventEmitter
-                        .emit("evt_internal_onbubblepresencechanged", {
+                    that.eventEmitter.emit("evt_internal_onbubblepresencechanged", {
                             fulljid: from,
                             jid: xmppUtils.getBareJIDFromFullJID(from),
                             resource: xmppUtils.getResourceFromFullJID(from),

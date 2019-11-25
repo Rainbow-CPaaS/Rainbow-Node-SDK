@@ -623,17 +623,14 @@ class ConversationEventHandler extends GenericHandler {
             try {
                 that.logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) _entering_");
                 that.logger.log("internal", LOG_ID + "(onUserInviteManagementMessageReceived) _entering_", node);
+                /*
+                // Know the treatment is done in invitationEventHandler
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) xmlns configuration, treat action : ");
                     switch (node.attrs.action) {
                         case "create":
-                           // if (node.attrs.type === "received" && node.attrs.status === "pending") {
                                 that.logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) user invite received");
                                 that.eventEmitter.emit("evt_internal_userinvitemngtreceived", {invitationId: node.attrs.id});
-                            /*} else {
-                                that.logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) user invite received : ", node.attrs.type );
-
-                            } // */
                             break;
                         case "update":
                             if (node.attrs.type === "sent" && node.attrs.status === "canceled") {
@@ -651,6 +648,7 @@ class ConversationEventHandler extends GenericHandler {
                 } else {
                     that.logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) not xmlns configuration, ignore it : ", node.attrs.xmlns);
                 }
+                // */
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! ");
                 that.logger.log("internalerror", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! : ", err);

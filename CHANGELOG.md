@@ -8,14 +8,15 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
 ## [1.65.0] - 2019-12-XX
--   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. Note : The SDK is not any more connected, so the bot is offline.
+-   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
 -   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
 -   Fix fill of properties Contact.companyId and Contact.companyName.
 -   Forbid the sent over the XMPP socket if closed (XmppClient::socketClosed)
 -   Update the use of types.
 -   Fix datas of channel when fetched.
 -   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
--   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events. 
+-   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
+-   Move treatment of invitations events from Conversation/Contacts services to Presence service. 
 
 ## [1.64.0] - 2019-11-20
 -   Fix of the Presence::setPresenceTo to follow the server presence type.

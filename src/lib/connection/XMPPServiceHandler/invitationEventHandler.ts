@@ -215,7 +215,7 @@ class InvitationEventHandler extends GenericHandler {
                         action,
                         status
                     };
-                    that.eventEmitter.emit("evt_internal_invitationsUpdate", invitation);
+                    that.eventEmitter.emit("evt_internal_invitationsManagementUpdate", invitation);
                     return true;
                 } else {
                     that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty.");

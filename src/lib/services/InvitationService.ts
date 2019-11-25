@@ -66,7 +66,7 @@ class InvitationService {
 		//update the sentInvitations list when new invitation is accepted
 		// DONE : VBR that.listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
 		this._eventEmitter.on("evt_internal_onrosters", that.onRosterChanged.bind(this));
-		this._eventEmitter.on("evt_internal_invitationsUpdate", that.onInvitationsUpdate.bind(this));
+		this._eventEmitter.on("evt_internal_invitationsManagementUpdate", that.onInvitationsManagementUpdate.bind(this));
 	}
 
 	/************************************************************/
@@ -166,7 +166,7 @@ class InvitationService {
 		return that.getAllSentInvitations();
 	}
 
-	async onInvitationsUpdate(userInvite) {
+	async onInvitationsManagementUpdate(userInvite) {
 		let that = this;
         that.logger.log("internal", LOG_ID + "(onInvitationsUpdate) userInvite : ", userInvite);
 		//let userInviteElem = stanza.find("userinvite");
@@ -201,57 +201,65 @@ class InvitationService {
 	async handleReceivedInvitation(id, action) {
 		let that = this;
 		that.logger.log("info", LOG_ID + "(handleReceivedInvitation).");
-		that.logger.log("info", LOG_ID + "(handleReceivedInvitation) : ", id,  ", action : ", action);
+		that.logger.log("info", LOG_ID + "(handleReceivedInvitation) : ", id, ", action : ", action);
 
 		// Handle deletion action
 		if (action === "delete") {
 			delete that.receivedInvitations[id];
 			that.updateReceivedInvitationsArray();
-		}
-
-		// Hanle other actions
-		else {
+			// Hanle other actions
+		} else {
 			await that.getServerInvitation(id).then((invitation: any) => {
-                that.logger.log("info", LOG_ID + "(handleReceivedInvitation) invitation received from server : ", invitation);
-                    let updateInvitation = null;
-					let status = "none";
+				that.logger.log("info", LOG_ID + "(handleReceivedInvitation) invitation received from server : ", invitation);
+				let updateInvitation = null;
+				let status = "none";
 
-					switch (invitation.status) {
-						case "pending":
-							that.receivedInvitations[invitation.id] = invitation;
-							updateInvitation = invitation;
-							status = "ask";
-							break;
-						case "accepted":
-						case "auto-accepted":
-							that.receivedInvitations[invitation.id] = invitation;
-							// TODO : VBR $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitingUserId); // evt_internal_userinviteaccepted
-							if (invitation.invitingUserId) {
-								that._contacts.getContactByDBId(invitation.invitingUserId, true).then(function (contact) {
-										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
-								});
-							}
+				if (action === "create") {
+					that._logger.log("debug", LOG_ID + "(handleReceivedInvitation) user invite create received");
+					that._eventEmitter.emit("evt_internal_userinvitereceived", invitation);
+				}
 
-							//$rootScope.$broadcast("ON_INVITATION_EMAIL_RECEIVED", invitation);
-							break;
-						default:
-							delete that.receivedInvitations[invitation.id];
-							status = "unknown";
-							break;
-					}
-
-					if (invitation.invitingUserId) {
-						that.updateContactInvitationStatus(invitation.invitingUserId, status, updateInvitation)
-							.then(function () {
-								that.updateReceivedInvitationsArray();
+				switch (invitation.status) {
+					case "pending":
+						that.receivedInvitations[invitation.id] = invitation;
+						updateInvitation = invitation;
+						status = "ask";
+						break;
+					case "accepted":
+					case "auto-accepted":
+						that.receivedInvitations[invitation.id] = invitation;
+						//that._logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) user invite accepted");
+						//that._eventEmitter.emit("evt_internal_userinviteaccepted", invitation);
+						// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitingUserId); // evt_internal_userinviteaccepted
+						if (invitation.invitingUserId) {
+							that._contacts.getContactByDBId(invitation.invitingUserId, true).then(function (contact) {
+								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 							});
-					} else {
-						that.updateReceivedInvitationsArray();
-					}
+						}
 
-					// Needed for SDK
-					// TODO : VBR $rootScope.$broadcast("ON_INVITATION_CHANGED", invitation);
-				});
+						//$rootScope.$broadcast("ON_INVITATION_EMAIL_RECEIVED", invitation);
+						break;
+					case "canceled":
+						//that._logger.log("debug", LOG_ID + "(handleReceivedInvitation) user invite canceled");
+						//that._eventEmitter.emit("evt_internal_userinvitecanceled", {invitationId: id, invitation});
+						break;
+					default:
+						delete that.receivedInvitations[invitation.id];
+						status = "unknown";
+						break;
+				}
+
+				if (invitation.invitingUserId) {
+					that.updateContactInvitationStatus(invitation.invitingUserId, status, updateInvitation).then(function () {
+							that.updateReceivedInvitationsArray();
+						});
+				} else {
+					that.updateReceivedInvitationsArray();
+				}
+
+				// Needed for SDK
+				// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATION_CHANGED", invitation);
+			});
 		}
 	};
 
@@ -280,14 +288,20 @@ class InvitationService {
 								break;
 							case "accepted":
 							case "auto-accepted":
+								that._logger.log("debug", LOG_ID + "(handleSentInvitation) user invite accepted");
+								that._eventEmitter.emit("evt_internal_userinviteaccepted",  invitation);
 								// TODO : VBR $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitedUserId); // evt_internal_userinviteaccepted
 								if (invitation.invitedUserId) {
-									that._contacts.getContactByDBId(invitation.invitedUserId, true)
-										.then(function (contact) {
-											// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
-										});
+									that._contacts.getContactByDBId(invitation.invitedUserId, true).then(function (contact) {
+										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
+									});
 								}
 								break;
+							case "canceled":
+								that._logger.log("debug", LOG_ID + "(handleSentInvitation) user invite canceled");
+								that._eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
+								break;
+
 							default:
 								delete that.sentInvitations[invitation.id];
 								contactStatus = "unknown";
@@ -307,7 +321,7 @@ class InvitationService {
 					});
 
 				if (action === "resend") {
-					// TODO : VBR $rootScope.$broadcast("ON_INVITATIONS_RE_SEND", id);
+					// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATIONS_RE_SEND", id);
 				}
 			}
 		});
@@ -565,11 +579,17 @@ class InvitationService {
 	 */
 	acceptInvitation(invitation) {
 		let that = this;
+		if (!invitation) {
+			let error = ErrorManager.getErrorManager().BAD_REQUEST;
+			error.msg += ", invitation not defined, can not acceptInvitation";
+			return Promise.reject(error);
+		}
 		return new Promise(function (resolve, reject) {
 			that._rest.acceptInvitation(invitation).then(
-				function success() {
+				function success(data) {
 					that.logger.log("info", LOG_ID + "(acceptInvitation) success");
-					resolve();
+					that.logger.log("internal", LOG_ID + "(acceptInvitation) success : ", data);
+					resolve(data);
 				},
 				function failure(err) {
 					//let error = errorHelperService.handleError(err);
@@ -595,11 +615,17 @@ class InvitationService {
 	 */
 	declineInvitation(invitation) {
 		let that = this;
+		if (!invitation) {
+			let error = ErrorManager.getErrorManager().BAD_REQUEST;
+			error.msg += ", invitation not defined, can not declineInvitation";
+			return Promise.reject(error);
+		}
 		return new Promise(function (resolve, reject) {
 			that._rest.declineInvitation(invitation).then(
-				function success() {
+				function success(data) {
 					that.logger.log("info", LOG_ID + "(declineInvitation) success");
-					resolve();
+					that.logger.log("internal", LOG_ID + "(declineInvitation) success : ", data);
+					resolve(data);
 				},
 				function failure(err) {
 					that._logger.log("error", LOG_ID + "(declineInvitation) error ");
