@@ -25,6 +25,16 @@ let DeviceType = {
     other: "other"
 };
 
+function uncaughtException(err) {
+    console.error('Possibly uncaughtException err : ', err);
+}
+function warning(err) {
+    console.error('Possibly unhandledRejection err : ', err);
+}
+function unhandledRejection(reason, p) {
+    console.error('Possibly Unhandled Rejection at: Promise ', p, " reason: ", reason);
+}
+
 /**
  * @typedef {Object} Email
  * @property {String} email User email address
@@ -113,7 +123,7 @@ let DeviceType = {
 class NodeSDK {
 
     constructor(options) {
-        process.on("uncaughtException", (err) => {
+        /* process.on("uncaughtException", (err) => {
             console.error(err);
         });
 
@@ -123,7 +133,14 @@ class NodeSDK {
 
         process.on("unhandledRejection", (err, p) => {
             console.error(err);
-        });
+        }); // */
+        process.removeListener("unhandledRejection", unhandledRejection);
+        process.removeListener("warning", warning);
+        process.removeListener("uncaughtException", uncaughtException);
+
+        process.on("unhandledRejection", unhandledRejection);
+        process.on("warning", warning);
+        process.on("uncaughtException", uncaughtException);
 
         this._core = new Core(options);
     }
@@ -470,7 +487,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} favorite
+     * @property {Object} favorites
      * @instance
      * @description
      *    Get access to the favorite module
@@ -479,6 +496,21 @@ class NodeSDK {
     get favorites() {
         return this._core._favorites;
     }
+
+    /**
+     * @public
+     * @property {Object} invitation
+     * @instance
+     * @description
+     *    Get access to the invitation module
+     * @memberof NodeSDK
+     */
+    get invitation() {
+        return this._core._invitation;
+    }
+
+
+
 }
 
 module.exports = NodeSDK;

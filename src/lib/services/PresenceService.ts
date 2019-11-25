@@ -158,6 +158,8 @@ class PresenceService {
         return new Promise((resolve, reject) => {
             switch (presence) {
                 case "online":
+                    //show = "online";
+                    //status = "";
                     show = undefined;
                     status = "mode=auto";
                     break;
@@ -190,6 +192,18 @@ class PresenceService {
 
             that._settings.updateUserSettings({ presence: presence});
         });
+    }
+
+    /**
+     * @private
+     * @method getUserConnectedPresence
+     * @instance
+     * @memberof PresenceService
+     * @description
+     *      Get user presence status calculated from events.
+     */
+    getUserConnectedPresence() {
+        return this._currentPresence;
     }
 
      /**

@@ -897,12 +897,12 @@ class XMPPService {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " |", util.inspect(err.condition || err));
                 that.stopIdleTimer();
                 if (that.reconnect) {
-                    if (err.condition === "system-shutdown") { // && err.condition != "conflict"
+                    if (err.condition === "system-shutdown" && err.condition != "conflict" ) {
                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait 10 seconds before try to reconnect");
                         await setTimeoutPromised(3000);
                         if (!that.isReconnecting) {
                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                            that.reconnect.reconnect();
+                            await that.reconnect.reconnect();
                         } else {
                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
                         }
@@ -928,11 +928,12 @@ class XMPPService {
             });
 
             this.xmppClient.on(DISCONNECT_EVENT, async () => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |");
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |", {'reconnect': that.reconnect});
                 that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
+                let waitime = 3 + Math.floor(Math.random() * Math.floor(15));
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
+                await setTimeoutPromised(waitime);
                 if (that.reconnect) {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait 3 seconds before try to reconnect");
-                    await setTimeoutPromised(3000);
                     if (!that.isReconnecting) {
                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : try to reconnect...");
                         await that.reconnect.reconnect();
@@ -954,11 +955,21 @@ class XMPPService {
 
             this.reconnect.on(RECONNECTING_EVENT, () => {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
-                that.reconnect.delay = that.fibonacciStrategy.next();
-                that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) update reconnect delay - ${that.reconnect.delay} ms`);
+                if (that.reconnect) {
+                    that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
+                    if (!that.isReconnecting) {
+                        that.reconnect.delay = that.fibonacciStrategy.next();
+                        that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT update reconnect delay - ${that.reconnect.delay} ms`);
 
-                that.eventEmitter.emit("rainbow_xmppreconnectingattempt");
-                this.isReconnecting = true;
+                        that.eventEmitter.emit("rainbow_xmppreconnectingattempt");
+                        this.isReconnecting = true;
+                    } else {
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - RECONNECTING_EVENT : Do nothing, already trying to reconnect...");
+                    }
+                } else {
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECTING_EVENT : reconnection disabled so no reconnect");
+                    this.isReconnecting = false;
+                }
             });
 
             this.reconnect.on(RECONNECTED_EVENT, () => {

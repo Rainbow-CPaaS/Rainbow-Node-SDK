@@ -469,6 +469,31 @@ declare module 'lib/connection/HttpService' {
 	export { HTTPService };
 
 }
+declare module 'lib/common/models/Invitation' {
+	export {}; class Invitation {
+	    id: any;
+	    invitedUserId: any;
+	    invitedUserEmail: any;
+	    invitedPhoneNumber: any;
+	    invitingUserId: any;
+	    invitingUserEmail: any;
+	    requestNotificationLanguage: any;
+	    invitingDate: any;
+	    lastNotificationDate: any;
+	    status: any;
+	    type: any;
+	    defaultAvatar: null;
+	    inviteToJoinMeeting: any;
+	    constructor(id: any, invitedUserId: any, invitedUserEmail: any, invitingUserId: any, invitingUserEmail: any, requestNotificationLanguage: any, invitingDate: any, lastNotificationDate: any, status: any, type: any, inviteToJoinMeeting: any, invitedPhoneNumber: any);
+	    createDefaultAvatar(): void;
+	    /*************************************************************/
+	    /*************************************************************/
+	    static create(id: any, invitedUserId: any, invitedUserEmail: any, invitingUserId: any, invitingUserEmail: any, requestNotificationLanguage: any, invitingDate: any, lastNotificationDate: any, status: any, type: any, inviteToJoinMeeting: any, invitedPhoneNumber: any): Invitation;
+	    static createFromData(invitationData: any): Invitation;
+	}
+	export { Invitation as Invitation };
+
+}
 declare module 'lib/connection/RESTService' {
 	import { HTTPService } from 'lib/connection/HttpService'; class RESTService {
 	    http: HTTPService;
@@ -645,6 +670,13 @@ declare module 'lib/connection/RESTService' {
 	        WEBRTCSHARINGONLY: string;
 	    };
 	    joinConference(webPontConferenceId: any, role?: string): Promise<unknown>;
+	    getAllSentInvitations(): Promise<unknown>;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    getAllReceivedInvitations(): Promise<unknown>;
 	    get(url: any, token: any): Promise<unknown>;
 	    post(url: any, token: any, data: any, contentType: any): Promise<unknown>;
 	    put(url: any, token: any, data: any): Promise<unknown>;
@@ -1926,6 +1958,262 @@ declare module 'lib/services/ChannelsService' {
 	export { Channels };
 
 }
+declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
+	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    channelsService: any;
+	    eventEmitter: any;
+	    onManagementMessageReceived: any;
+	    onFavoriteManagementMessageReceived: any;
+	    onHeadlineMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    constructor(xmppService: any, channelsService: any);
+	}
+	export { FavoriteEventHandler };
+
+}
+declare module 'lib/common/models/Favorite' {
+	export {};
+	export class Favorite {
+	    id: string;
+	    peerId: string;
+	    type: string;
+	    room: any;
+	    contact: any;
+	    conv: any;
+	    constructor(id: string, peerId: string, type: string);
+	}
+
+}
+declare module 'lib/services/FavoritesService' {
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Favorite } from 'lib/common/models/Favorite'; class FavoritesService {
+	    _eventEmitter: any;
+	    private _logger;
+	    private started;
+	    private _initialized;
+	    private _xmpp;
+	    private _rest;
+	    private _favoriteEventHandler;
+	    private favoriteHandlerToken;
+	    private favorites;
+	    private xmppManagementHandler;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    readonly startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: any, logger: any, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService): Promise<void>;
+	    stop(): Promise<void>;
+	    init(): Promise<void>;
+	    private attachHandlers;
+	    reconnect(): Promise<void>;
+	    private getServerFavorites;
+	    private addServerFavorite;
+	    private removeServerFavorite;
+	    private toggleFavorite;
+	    private updateFavorites;
+	    private getFavorite;
+	    private createFavoriteObj;
+	    private onXmppEvent;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method fetchAllFavorites()
+	     * @instance
+	     * @description
+	     *   Fetch all the Favorites from the server in a form of an Array
+	     * @return {Conversation[]} An array of Favorite objects
+	     */
+	    fetchAllFavorites(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method createFavorite()
+	     * @instance
+	     * @description
+	     *   Add conversation/bubble/bot to Favorites Array
+	     * @param {String} id of the conversation/bubble
+	     * @param {String} type of Favorite (can be 'user' or 'bubble')
+	     * @return {Promise<Favorite>} A Favorite object
+	     */
+	    createFavorite(id: any, type: any): Promise<Favorite>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method deleteFavorite()
+	     * @instance
+	     * @description
+	     *   Delete conversation/bubble/bot from Favorites Array
+	     * @param {String} id of the Favorite item
+	     * @return {Favorite[]} A Favorite object
+	     */
+	    deleteFavorite(id: any): Promise<any>;
+	    onFavoriteCreated(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	    onFavoriteDeleted(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	}
+	export { FavoritesService };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
+	export {}; const GenericHandler: any; class InvitationEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    invitationService: any;
+	    eventEmitter: any;
+	    onManagementMessageReceived: any;
+	    onInvitationManagementMessageReceived: any;
+	    onHeadlineMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    constructor(xmppService: any, invitationService: any);
+	}
+	export { InvitationEventHandler };
+
+}
+declare module 'lib/services/InvitationService' {
+	/// <reference types="node" />
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { InvitationEventHandler } from 'lib/connection/XMPPServiceHandler/invitationEventHandler';
+	import { Logger } from 'lib/common/Logger'; class InvitationService {
+	    receivedInvitations: {};
+	    sentInvitations: {};
+	    acceptedInvitationsArray: any[];
+	    sentInvitationsArray: any[];
+	    receivedInvitationsArray: any[];
+	    listeners: any[];
+	    portalURL: string;
+	    contactConfigRef: any;
+	    acceptedInvitations: {};
+	    logger: Logger;
+	    _logger: any;
+	    private _xmpp;
+	    private _rest;
+	    private started;
+	    private _eventEmitter;
+	    invitationEventHandler: InvitationEventHandler;
+	    invitationHandlerToken: any;
+	    _contacts: any;
+	    stats: any;
+	    private readonly _startConfig;
+	    ready: boolean;
+	    readonly startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: any, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
+	    /************************************************************/
+	    /** LIFECYCLE STUFF                                        **/
+	    /************************************************************/
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: any, stats: any): Promise<void>;
+	    init(): Promise<void>;
+	    stop(): Promise<void>;
+	    /************************************************************/
+	    /** EVENT HANDLING STUFF                                   **/
+	    /************************************************************/
+	    attachHandlers(): void;
+	    onRosterChanged(): Promise<unknown>;
+	    onInvitationsUpdate(userInvite: any): Promise<boolean>;
+	    handleReceivedInvitation(id: any, action: any): void;
+	    handleSentInvitation(id: any, action: any): Promise<unknown>;
+	    updateReceivedInvitationsArray(): void;
+	    updateSentInvitationsArray(): void;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PUBLIC METHODS                                         **/
+	    /************************************************************/
+	    /**
+	     * GET RECEIVED INVITATIONS
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    getReceivedInvitations(): any[];
+	    getAcceptedInvitations(): any[];
+	    /**
+	     * GET SENT INVITATIONS
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    getSentInvitations(): any[];
+	    getInvitationsNumberForCounter(): number;
+	    getAllInvitationsNumber: () => any;
+	    /**
+	     * GET INVITATION BY ID
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    getInvitation(invitationId: any): any;
+	    /**
+	     * SEND INVITATION
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    joinContactInvitation(contact: any): Promise<unknown>;
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    /**
+	     * SEND INVITATIONS PAR BULK
+	     * LIMITED TO 100 invitations
+	     */
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    /**
+	     * ACCEPT INVITATION
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * DECLINE INVITATION
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PRIVATE METHODS                                        **/
+	    /************************************************************/
+	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
+	    sortInvitationArray(invitA: any, invitB: any): number;
+	    getAllReceivedInvitations(): Promise<unknown>;
+	    getAllSentInvitations(): Promise<unknown>;
+	}
+	export { InvitationService };
+
+}
 declare module 'lib/common/models/Contact' {
 	export {}; const AdminType: {
 	    /** Organization administrator */
@@ -2028,6 +2316,7 @@ declare module 'lib/common/models/Contact' {
 
 }
 declare module 'lib/services/ContactsService' {
+	import { InvitationService } from 'lib/services/InvitationService';
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
@@ -2040,6 +2329,7 @@ declare module 'lib/services/ContactsService' {
 	    rosterPresenceQueue: any;
 	    userContact: any;
 	    rest: RESTService;
+	    invitationService: InvitationService;
 	    _logger: any;
 	    _xmpp: XMPPService;
 	    ready: boolean;
@@ -2049,7 +2339,7 @@ declare module 'lib/services/ContactsService' {
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: any, _http: any, _logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    start(_xmpp: XMPPService, _rest: RESTService, _invitationService: InvitationService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
 	    /**
@@ -2193,6 +2483,17 @@ declare module 'lib/services/ContactsService' {
 	     * @category async
 	     */
 	    addToContactsList(contact: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.64.0
+	     * @method getInvitationById
+	     * @instance
+	     * @description
+	     *    Get an invite by its id
+	     * @param {String} strInvitationId the id of the invite to retrieve
+	     * @return {Invitation} The invite if found
+	     */
+	    getInvitationById(strInvitationId: any): Promise<any>;
 	    /**
 	     * @public
 	     * @since 1.17
@@ -5802,124 +6103,6 @@ declare module 'lib/services/CallLogService' {
 	export { CallLogService };
 
 }
-declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
-	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    channelsService: any;
-	    eventEmitter: any;
-	    onManagementMessageReceived: any;
-	    onFavoriteManagementMessageReceived: any;
-	    onHeadlineMessageReceived: any;
-	    onReceiptMessageReceived: any;
-	    onErrorMessageReceived: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    constructor(xmppService: any, channelsService: any);
-	}
-	export { FavoriteEventHandler };
-
-}
-declare module 'lib/common/models/Favorite' {
-	export {};
-	export class Favorite {
-	    id: string;
-	    peerId: string;
-	    type: string;
-	    room: any;
-	    contact: any;
-	    conv: any;
-	    constructor(id: string, peerId: string, type: string);
-	}
-
-}
-declare module 'lib/services/FavoritesService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Favorite } from 'lib/common/models/Favorite'; class FavoritesService {
-	    _eventEmitter: any;
-	    private _logger;
-	    private started;
-	    private _initialized;
-	    private _xmpp;
-	    private _rest;
-	    private _favoriteEventHandler;
-	    private favoriteHandlerToken;
-	    private favorites;
-	    private xmppManagementHandler;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<void>;
-	    stop(): Promise<void>;
-	    init(): Promise<void>;
-	    private attachHandlers;
-	    reconnect(): Promise<void>;
-	    private getServerFavorites;
-	    private addServerFavorite;
-	    private removeServerFavorite;
-	    private toggleFavorite;
-	    private updateFavorites;
-	    private getFavorite;
-	    private createFavoriteObj;
-	    private onXmppEvent;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method fetchAllFavorites()
-	     * @instance
-	     * @description
-	     *   Fetch all the Favorites from the server in a form of an Array
-	     * @return {Conversation[]} An array of Favorite objects
-	     */
-	    fetchAllFavorites(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method createFavorite()
-	     * @instance
-	     * @description
-	     *   Add conversation/bubble/bot to Favorites Array
-	     * @param {String} id of the conversation/bubble
-	     * @param {String} type of Favorite (can be 'user' or 'bubble')
-	     * @return {Promise<Favorite>} A Favorite object
-	     */
-	    createFavorite(id: any, type: any): Promise<Favorite>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method deleteFavorite()
-	     * @instance
-	     * @description
-	     *   Delete conversation/bubble/bot from Favorites Array
-	     * @param {String} id of the Favorite item
-	     * @return {Favorite[]} A Favorite object
-	     */
-	    deleteFavorite(id: any): Promise<any>;
-	    onFavoriteCreated(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	    onFavoriteDeleted(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	}
-	export { FavoritesService };
-
-}
 declare module 'lib/common/Events' {
 	/// <reference types="node" />
 	export {};
@@ -6052,7 +6235,8 @@ declare module 'lib/Core' {
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
-	import { Channels } from 'lib/services/ChannelsService'; class Core {
+	import { Channels } from 'lib/services/ChannelsService';
+	import { InvitationService } from 'lib/services/InvitationService'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
 	    onTokenRenewed: any;
@@ -6081,6 +6265,7 @@ declare module 'lib/Core' {
 	    _fileStorage: any;
 	    _calllog: any;
 	    _favorites: any;
+	    _invitation: InvitationService;
 	    _botsjid: any;
 	    constructor(options: any);
 	    start(useCLIMode: any): Promise<unknown>;
@@ -6240,6 +6425,10 @@ declare module 'lib/config/config' {
 	            optional: boolean;
 	        };
 	        favorites: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        invitation: {
 	            start_up: boolean;
 	            optional: boolean;
 	        };

@@ -735,5 +735,5 @@ class FileServer {
     }
 }
 
-module.exports.FileServer = FileServer;
-export {FileServer};
+module.exports.FileServerService = FileServer;
+export {FileServer as FileServerService};

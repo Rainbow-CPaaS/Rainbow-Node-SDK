@@ -216,7 +216,7 @@ class Logger {
                 }
                 return ret;
             });
-        }
+        };
 
         this.hideUuid =function (url) {
             return url.replace(/[a-f0-9]{8}[a-f0-9]{4}4[a-f0-9]{3}[89aAbB][a-f0-9]{3}[a-f0-9]{12}[(@|c%40|\'|\")]/ig, (x) => {
@@ -226,26 +226,29 @@ class Logger {
                 }
                 return ret;
             });
-
-        }
+        };
 
         this._logger.log = function (level) {
-            if (level === "internal" || level === "internalerror") {
-                if (logInternals === true) {
-                    level = ( level === "internal" ) ? "debug" : "error";
-                    let datatolog =  that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry.")) ;
+            try {
+                if (level === "internal" || level === "internalerror") {
+                    if (logInternals === true) {
+                        level = (level === "internal") ? "debug" : "error";
+                        let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
 
-                    // dev-code //
-                    datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments) ;
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
-                    // end-dev-code //
-                }
-            } else {
-                if (logInternals) {
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.argumentsToString(arguments)]);
+                        // dev-code //
+                        datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
+                        that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                        // end-dev-code //
+                    }
                 } else {
-                    that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
+                    if (logInternals) {
+                        that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.argumentsToString(arguments)]);
+                    } else {
+                        that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
+                    }
                 }
+            } catch (err) {
+                console.error("CATCH Error !!! while logging : " + err);
             }
         };
 

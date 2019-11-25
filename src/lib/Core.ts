@@ -9,7 +9,7 @@ import {HTTPService} from "./connection/HttpService";
 import {Logger} from "./common/Logger";
 import {IMService} from "./services/ImsService";
 import {PresenceService} from "./services/PresenceService";
-import {Channels} from "./services/ChannelsService";
+import {ChannelsService} from "./services/ChannelsService";
 import {ContactsService} from "./services/ContactsService";
 import {ConversationsService} from "./services/ConversationsService";
 import {ProfilesService} from "./services/ProfilesService";
@@ -18,15 +18,17 @@ import {BubblesService} from "./services/BubblesService";
 import {GroupsService} from "./services/GroupsService";
 import {AdminService} from "./services/AdminService";
 import {SettingsService} from "./services/SettingsService";
-import {FileServer} from "./services/FileServerService";
-import {FileStorage} from "./services/FileStorageService";
+import {FileServerService} from "./services/FileServerService";
+import {FileStorageService} from "./services/FileStorageService";
 import {StateManager} from "./common/StateManager";
 import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
+import {InvitationService} from "./services/InvitationService";
 import {Events} from "./common/Events";
 import {setFlagsFromString} from "v8";
 import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
+import {ErrorManager} from "./common/ErrorManager";
 
 const packageVersion = require("../package.json");
 
@@ -43,28 +45,29 @@ class Core {
 	public logger: any;
 	public _rest: RESTService;
 	public onTokenExpired: any;
-	public _eventEmitter: any;
+	public _eventEmitter: Events;
 	public _tokenSurvey: any;
 	public options: any;
-	public _proxy: any;
-	public _http: any;
+	public _proxy: ProxyImpl;
+	public _http: HTTPService;
 	public _xmpp: XMPPService;
-	public _stateManager: any;
-	public _im: any;
-	public _presence: any;
-	public _channels: Channels;
-	public _contacts: any;
-	public _conversations: any;
-	public _profiles: any;
-	public _telephony: any;
-	public _bubbles: any;
-	public _groups: any;
-	public _admin: any;
-	public _settings: any;
-	public _fileServer: any;
-	public _fileStorage: any;
-    public _calllog: any;
-    public _favorites: any;
+	public _stateManager: StateManager;
+	public _im: IMService;
+	public _presence: PresenceService;
+	public _channels: ChannelsService;
+	public _contacts: ContactsService;
+	public _conversations: ConversationsService;
+	public _profiles: ProfilesService;
+	public _telephony: TelephonyService;
+	public _bubbles: BubblesService;
+	public _groups: GroupsService;
+	public _admin: AdminService;
+	public _settings: SettingsService;
+	public _fileServer: FileServerService;
+	public _fileStorage: FileStorageService;
+    public _calllog: CallLogService;
+    public _favorites: FavoritesService;
+    public _invitation: InvitationService;
 	public _botsjid: any;
 
     constructor(options) {
@@ -138,7 +141,7 @@ class Core {
                             return that.im.enableCarbon();
                         }).then(() => {
                             return that._rest.getBots();
-                        }).then((bots) => {
+                        }).then((bots : any) => {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
@@ -149,6 +152,8 @@ class Core {
                             return that._calllog.init();
                         }).then(() => {
                             return that._favorites.init();
+                        }).then(() => {
+                            return that._invitation.init();
                         }).then(() => {
                             resolve();
                         }).catch((err) => {
@@ -222,8 +227,16 @@ class Core {
             self._rest.applicationToken = token;
         });
 
-        self._eventEmitter.iee.on("rainbow_onxmpperror", function (err) {
-            self._stateManager.transitTo(self._stateManager.ERROR, err);
+        self._eventEmitter.iee.on("rainbow_onxmpperror", async (err) => {
+            console.log("Error XMPP, Stop le SDK : ", err);
+            await self._stateManager.transitTo(self._stateManager.ERROR, err);
+            await self.stop().then(function(result) {
+                //let success = ErrorManager.getErrorManager().OK;
+            }).catch(function(err) {
+                let error = ErrorManager.getErrorManager().ERROR;
+                error.msg = err;
+                self.events.publish("stopped", error);
+            });
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -302,7 +315,7 @@ class Core {
         // Instantiate others Services
         self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
-        self._channels = new Channels(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
+        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
         self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations);
         self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
@@ -311,10 +324,11 @@ class Core {
         self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
         self._admin = new AdminService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
         self._settings = new SettingsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
-        self._fileServer = new FileServer(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
-        self._fileStorage = new FileStorage(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
+        self._fileServer = new FileServerService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
+        self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
+        self._invitation = new InvitationService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
 
@@ -339,8 +353,6 @@ class Core {
                     that.logger.log("debug", LOG_ID + "(start) start all modules");
                     that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
                     that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
-
-
                     return that._stateManager.start().then(() => {
                         return that._http.start();
                     }).then(() => {
@@ -352,13 +364,13 @@ class Core {
                     }).then(() => {
                         return that._presence.start(that._xmpp, that._settings) ;
                     }).then(() => {
-                        return  that._contacts.start(that._xmpp, that._rest) ;
+                        return  that._contacts.start(that._xmpp, that._rest, that._invitation, that._presence ) ;
                     }).then(() => {
                        return that._bubbles.start(that._xmpp, that._rest) ;
                     }).then(() => {
                         return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
                     }).then(() => {
-                        return that._profiles.start(that._xmpp, that._rest) ;
+                        return that._profiles.start(that._xmpp, that._rest, []) ;
                     }).then(() => {
                         return that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles) ;
                     }).then(() => {
@@ -377,6 +389,8 @@ class Core {
                         return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) ;
                     }).then(() => {
                         return that._favorites.start(that._xmpp, that._rest) ;
+                    }).then(() => {
+                        return that._invitation.start(that._xmpp, that._rest, that._contacts, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -467,6 +481,8 @@ class Core {
                 return that._calllog.stop();
             }).then(() => {
                 return that._favorites.stop();
+            }).then(() => {
+                return that._invitation.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve("core stopped");

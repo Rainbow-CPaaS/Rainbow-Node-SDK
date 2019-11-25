@@ -61,7 +61,6 @@ let conf =  {
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
     servicesToStart : {
-
             presence: {
                 start_up:true,
                 optional:false
@@ -116,6 +115,10 @@ let conf =  {
                 optional:true
             }, //need services :  (that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
             favorites:  {
+                start_up:true,
+                optional:true
+            }, //need services :  (that._xmpp, that._rest);
+            invitation:  {
                 start_up:true,
                 optional:true
             }, //need services :  (that._xmpp, that._rest);

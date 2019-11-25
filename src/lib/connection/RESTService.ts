@@ -11,6 +11,8 @@ import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
 import {HTTPService} from "./HttpService";
+import {Invitation} from "../common/models/Invitation";
+import {Contact} from "../common/models/Contact";
 
 let packageVersion = require("../../package.json");
 
@@ -358,7 +360,7 @@ class RESTService {
         });
     }
 
-    getContactInformationByLoginEmail(email) {
+    getContactInformationByLoginEmail(email) : Promise <[any]>{
         let that = this;
         return new Promise(function(resolve, reject) {
             if (!email) {
@@ -504,8 +506,6 @@ class RESTService {
             });
         });
     };
-
-
 
     /**
      * SEND INVITATION
@@ -2392,6 +2392,115 @@ class RESTService {
         });
     }
 
+    // ***** INVITATIONS *****
+    getAllSentInvitations() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getAllSentInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSentInvitations) received : ", json);
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getAllSentInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSentInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    getServerInvitation(invitationId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getServerInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(getServerInvitation) received : ", json);
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getServerInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(getServerInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    sendInvitationByEmail(email, lang, customMessage) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let params = {email: email, lang: lang, customMessage: customMessage};
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
+                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation created : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
+                that.logger.log("internalerror", LOG_ID, "(sendConversationByEmail) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    cancelOneSendInvitation(invitation) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(cancelOneSendInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST conversation created : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(cancelOneSendInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(cancelOneSendInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    reSendInvitation(invitationId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST conversation created : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(reSendInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(reSendInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    sendInvitationsParBulk(listOfMails) {
+        let that = this;
+        let data = {
+            emails: listOfMails
+        };
+        return new Promise(function (resolve, reject) {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST conversation created : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationsParBulk) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    getAllReceivedInvitations() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) received : ", json);
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getAllReceivedInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllReceivedInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    };
 
     //////
     // Generic HTTP VERB

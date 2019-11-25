@@ -1682,5 +1682,5 @@ class FileStorage {
     }
 }
 
-module.exports.FileStorage = FileStorage;
-export {FileStorage};
+module.exports.FileStorageService = FileStorage;
+export {FileStorage as FileStorageService};
