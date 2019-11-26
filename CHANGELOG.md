@@ -6,6 +6,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.64.2] - 2019-11-26
+-   rebundle of the 1.64.0 version with the same content.
 
 ## [1.64.0] - 2019-11-20
 -   Fix of the Presence::setPresenceTo to follow the server presence type.
