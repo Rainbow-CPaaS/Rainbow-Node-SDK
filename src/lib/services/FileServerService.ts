@@ -26,6 +26,7 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
 /**
 * @module
 * @name FileStorage
+ * @version SDKVERSION
 * @public
 * @description
 *      This service manage files on server side

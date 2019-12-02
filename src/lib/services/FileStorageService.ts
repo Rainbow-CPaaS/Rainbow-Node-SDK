@@ -19,6 +19,7 @@ const LOG_ID = "FileStorage/SVCE - ";
 /**
  * @module
  * @name FileStorage
+ * @version SDKVERSION
  * @public
  * @description
  *      This service shares files with a single user (one-to-one conversation) or with several persons (bubble conversation). <br><br>

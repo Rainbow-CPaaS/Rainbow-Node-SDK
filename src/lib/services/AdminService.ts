@@ -15,6 +15,8 @@ const LOG_ID = "ADMIN/SVCE - ";
 /**
  * @class
  * @name Admin
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module handles the management of users. Using it, You will be able to create new users, to modify information of users and to delete them.<br>
  *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow.

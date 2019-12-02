@@ -84,6 +84,14 @@ const FeaturesEnum = {
 
 @logEntryExit(LOG_ID)
 @isStarted([])
+/**
+ * @class
+ * @name ProfilesService
+ * @version SDKVERSION
+ * @private
+ * @description
+ *  This module is the service used to retrieve profiles from server.
+*/
 class ProfilesService {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;

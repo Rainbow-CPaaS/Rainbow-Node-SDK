@@ -17,10 +17,13 @@ import {Logger} from "../common/Logger";
 const LOG_ID = "INVITATION/SVCE - ";
 
 /**
- * @ngdoc service
+ * @class
  * @name InvitationsService
- * @module rainbow
- * @description Rainbow InvitationService
+ * @version SDKVERSION
+ * @public
+ * @description
+ *      This services manages the invitations received/ sent from/to server.
+ *
  */
 @logEntryExit(LOG_ID)
 @isStarted([])

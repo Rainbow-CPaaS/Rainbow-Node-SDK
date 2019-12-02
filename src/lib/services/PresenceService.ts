@@ -15,6 +15,8 @@ const LOG_ID = "PRES/SVCE - ";
 /**
  * @class
  * @name PresenceService
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module manages the presence of the connected user.
  *      <br><br>

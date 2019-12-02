@@ -22,6 +22,8 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
 /**
  * @class
  * @name Conversations
+ * @version SDKVERSION
+ * @public
  * @description
  * This module is the basic module for handling conversations in Rainbow. In Rainbow, conversations are the way to get in touch with someone or something (i.e. a Rainbow contact, a external phone number, a connected thing, ...) so a conversation is the "long tail" of communication between you and someone or something else like a bubble.
  * A Rainbow conversation by default supports sending and receiving Instant Messages with a single recipient (one-to-one conversation) or with several persons (bubble). Using the FileStorage service, you can share files in conversations.
@@ -36,7 +38,6 @@ class Conversations {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public _contacts: any;
-	public _bubles: any;
 	public _fileStorageService: any;
 	public _fileServerService: any;
 	public _eventEmitter: any;
@@ -62,16 +63,16 @@ class Conversations {
         start_up:boolean,
         optional:boolean
     };
+    private conversationsRetrievedFormat: string = "small";
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter, _logger, _startConfig, _conversationsRetrievedFormat) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
         this._contacts = null;
-        this._bubles = null;
         this._fileStorageService = null;
         this._fileServerService = null;
         this._eventEmitter = _eventEmitter;
@@ -80,6 +81,7 @@ class Conversations {
         this.conversationEventHandler = null;
         this.conversationHandlerToken = [];
         this.conversationHistoryHandlerToken = [];
+        this.conversationsRetrievedFormat = _conversationsRetrievedFormat
 
         //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
         this.ready = false;
@@ -204,22 +206,20 @@ class Conversations {
         let that = this;
 
         return new Promise((resolve, reject) => {
-            that
-                ._rest
-                .getServerConversations()
-                .then((conversations : []) => {
+            that._rest.getServerConversations(that.conversationsRetrievedFormat).then((conversations : []) => {
                     // Create conversation promises
                     let conversationPromises = [];
+                    that._logger.log("debug", LOG_ID + "[conversationService] getServerConversations conversations.length retrieved : ", conversations.length);
                     conversations.forEach(function (conversationData : any) {
                             let missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
                             let conversationPromise = null;
                             let muted = (conversationData.mute === true);
-
+                            //that._logger.log("debug", LOG_ID + "[conversationService] getServerConversations conversationData retrieved : ", conversationData);
                             if (conversationData.type === "user") {
                                 conversationPromise = that.getOrCreateOneToOneConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, muted, conversationData.creationDate);
                             } else {
                                 conversationPromise = that.getBubbleConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, true, muted, conversationData.creationDate, conversationData.lastMessageSender);
-                            }
+                            } // */
                             conversationPromises.push(conversationPromise);
                         });
 
@@ -510,11 +510,7 @@ class Conversations {
 
 
             // No conversation found, then create it
-            that
-                ._contacts
-                .getOrCreateContact(conversationId)
-                // Get or create the conversation
-                .then( (contact) => {
+            that._contacts.getOrCreateContact(conversationId) /* Get or create the conversation*/ .then( (contact) => {
                     that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation (" + contact.id + ")");
 
                     let  conversation = Conversation.createOneToOneConversation(contact);
@@ -582,7 +578,6 @@ class Conversations {
             conversation.preload = true;
             return Promise.resolve(conversation);
         }
-
         // No conversation found, then create it
         return new Promise((resolve, reject) => {
 
@@ -609,14 +604,10 @@ class Conversations {
 
                     conversation = Conversation.createBubbleConversation(bubble);
                     conversation.dbId = conversationDbId;
-                    conversation.lastModification = lastModification ?
-                        new Date(lastModification) :
-                        undefined;
+                    conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                     conversation.lastMessageText = lastMessageText;
                     conversation.muted = muted;
-                    conversation.creationDate = creationDate ?
-                        new Date(creationDate) :
-                        new Date();
+                    conversation.creationDate = creationDate ? new Date(creationDate) : new Date();
                     conversation.preload = false;
                     conversation.lastMessageSender = lastMessageSender;
                     if (missedIMCounter) {
@@ -625,25 +616,21 @@ class Conversations {
                     that.conversations[conversation.id] = conversation;
 
                     if (conversationDbId) {
-                        that
-                            .getRoomConferences(conversation)
-                            .then(function () {
+                        that.getRoomConferences(conversation).then(function () {
                                     that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                     resolve(conversation);
                                 } // Create server side if necessary
                             );
                     } else {
                         // that.createServerConversation(conversation)
-                        Promise.resolve(conversation)
-                            .then(function (__conversation) {
+                        Promise.resolve(conversation).then(function (__conversation) {
                                 if (bubble) {
                                     that._bubbles._sendInitialBubblePresence(bubble);
                                 }
                                 // Send conversations update event
                                 that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
                                 resolve(__conversation);
-                            })
-                            .catch(async function (error) {
+                            }).catch(async function (error) {
                                 let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
                                 that._logger.log("error", LOG_ID + "[conversationService] Error.");
                                 that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
@@ -1496,14 +1483,14 @@ class Conversations {
 
             // bot service is ready / TODO ? service.botServiceReady = true; Fetch
             // conversations from server
-            that._rest.getServerConversations().then(function () {
+            that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                     // TODO ? service.linkAllActiveCallsToConversations();
                     resolve();
                 })
                 .catch(function () {
                     setInterval(() => {
                         that._logger.log("info", LOG_ID + " getServerConversations failure, try again");
-                        that._rest.getServerConversations().then(function () {
+                        that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                                 // TODO ? that.linkAllActiveCallsToConversations();
                             });
                     }, 10000, 1, true);

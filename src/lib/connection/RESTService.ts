@@ -980,6 +980,26 @@ class RESTService {
         });
     }
 
+    archiveBubble(bubbleId) {
+        // /api/rainbow/enduser/v1.0/rooms/:roomId/archive
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(archiveBubble) bubbleId : ", bubbleId);
+            let data = {
+
+            };
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/archive", that.getRequestHeader(), data, undefined ).then(function (json) {
+                that.logger.log("info", LOG_ID + "(archiveBubble) successfull");
+                that.logger.log("internal", LOG_ID + "(archiveBubble) REST leave bubble", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(archiveBubble) error.");
+                that.logger.log("internalerror", LOG_ID, "(archiveBubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     leaveBubble(bubbleId,  bubbleStatus) {
         let that = this;
         return new Promise(function(resolve, reject) {
@@ -2274,10 +2294,10 @@ class RESTService {
 
     ////////
     // Conversations
-    getServerConversations() {
+    getServerConversations(format:String = "small") {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations", that.getRequestHeader(), undefined).then(function(json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format, that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getServerConversations) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerConversations) received " + JSON.stringify(json) + " conversations");
                 resolve(json.data);

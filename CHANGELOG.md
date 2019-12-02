@@ -6,8 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-
-## [1.65.0] - 2019-12-XX
+## [1.65.0] - 2019-11-28
 -   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
 -   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
 -   Fix fill of properties Contact.companyId and Contact.companyName.
@@ -17,6 +16,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
 -   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
 -   Move treatment of invitations events from Conversation/Contacts services to Presence service. 
+-   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
+-   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/guides/CHANGELOGRSS.xml)
+-   Add automatic version of the SDK in jsdoc of service's classes.
+-   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
 
 ## [1.64.0] - 2019-11-20
 -   Fix of the Presence::setPresenceTo to follow the server presence type.
@@ -26,7 +30,6 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix comment for admin::createCompagny, Country is mandatory.
 -   Add method bubbles::inviteContactsByEmailsToBubble to Invite a list of contacts by emails in a bubble.
 -   Fix stop of the services if the SDK did not been started before.
-
 
 ## [1.63.1] - 2019-11-06
 -   Add start duration in result of start.

@@ -126,6 +126,8 @@ class XMPPService {
 	public IQEventHandler: any;
 	public xmppUtils : XMPPUTils;
     private shouldSendMessageToConnectedUser: any;
+    private storeMessages: boolean;
+    private copyMessage: boolean;
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -144,6 +146,8 @@ class XMPPService {
         this.proxy = _proxy;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
+        this.storeMessages = _im.storeMessages;
+        this.copyMessage = _im.copyMessage;
         this.useXMPP = true;
         this.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
         this.isReconnecting = false;
@@ -204,7 +208,7 @@ class XMPPService {
             }); //"domain": domain,
 // */
 
-            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests);
+            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages);
 
             //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
             this.reconnect = this.xmppClient.reconnect;
@@ -2192,6 +2196,7 @@ class XMPPService {
 
 }
 
-export { XMPPService };
+export { XMPPService, NameSpacesLabels };
 module.exports.XMPPService = XMPPService;
+module.exports.NameSpacesLabels = NameSpacesLabels;
 

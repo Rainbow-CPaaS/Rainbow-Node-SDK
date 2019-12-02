@@ -21,6 +21,7 @@ const LOG_ID = "TELEPHONY/SVCE - ";
 /**
  * @module
  * @name Telephony
+ * @version SDKVERSION
  * @public
  * @description
  *      This services manages PBX phone calls in a conversation. so it manages PBX calls between your PABX associated phone and a recipient's phone. If you don't have this service activated for your Rainbow user, all these methods will return an error when called. <br/><br>

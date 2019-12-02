@@ -17,6 +17,8 @@ const LOG_ID = "FAVTE/SVCE - ";
 /**
 * @module
 * @name FavoritesService
+ * @version SDKVERSION
+ * @public
 * @description
 *      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots.
 *      The main methods and events proposed in that service allow to: <br>

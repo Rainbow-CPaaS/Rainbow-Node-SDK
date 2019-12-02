@@ -16,6 +16,8 @@ const LOG_ID = "IM/SVCE - ";
 /**
  * @class
  * @name IMService
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module manages Instant Messages. It allows to send messages to a user or a bubble.
  *      <br><br>

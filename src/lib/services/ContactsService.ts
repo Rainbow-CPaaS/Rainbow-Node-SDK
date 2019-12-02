@@ -21,6 +21,8 @@ const LOG_ID = "CONTACTS/SVCE - ";
 /**
  * @class
  * @name Contacts
+ * @version SDKVERSION
+ * @public
  * @description
  *       This module manages contacts. A contact is defined by a set of public information (name, firstname, avatar...) and a set of private information.<br>
  *       Using this module, you can get access to your network contacts or search for Rainbow contacts.

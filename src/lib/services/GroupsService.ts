@@ -13,6 +13,8 @@ const LOG_ID = "GROUPS/SVCE - ";
 /**
  * @class
  * @name Groups
+ * @version SDKVERSION
+ * @public
  * @description
  *		This service manages groups which allow to create his own lists of contacts.
  *		<br><br>

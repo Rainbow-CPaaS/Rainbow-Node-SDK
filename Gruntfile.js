@@ -70,7 +70,25 @@ module.exports = function(grunt) {
         }
     },
 
-    watch: {
+    generateRss:{
+        all: {
+            options: {
+                debugcode: true
+            },
+            files: [
+                {
+                    src: "CHANGELOG.md", dest:"build/CHANGELOGRSS.xml"
+                }
+                /* ,
+                {
+                src: "tutorials/What_is_new.md", dest: "build/What_is_new.rss"
+                } */
+                ]
+        }
+    },
+
+
+      watch: {
         lint: {
             files: ["lib/**/*.js", "index.js", "tests/**/*.js"],
             tasks: ["eslint:all"]
@@ -80,23 +98,29 @@ module.exports = function(grunt) {
     jsdoc: {
         nodesheets: {
             src: [
-                "lib/services/Admin.js",
-                "lib/services/Bubbles.js",
-                "lib/services/Channels.js",
-                "lib/services/Contacts.js",
-                "lib/services/Conversations.js",
-                "lib/services/FileStorage.js",
-                "lib/services/Groups.js",
-                "lib/services/IM.js",
-                "lib/services/Presence.js",
-                "lib/services/Telephony.js",
+                "lib/services/AdminService.js",
+                "lib/services/BubblesService.js",
+                 "lib/services/CallLogService.js",
+                "lib/services/ChannelsService.js",
+                "lib/services/ContactsService.js",
+                "lib/services/ConversationsService.js",
+                "lib/services/FavoritesService.js",
+                "lib/services/FileStorageService.js",
+                "lib/services/GroupsService.js",
+                "lib/services/ImsService.js",
+                "lib/services/InvitationsService.js",
+                "lib/services/PresenceService.js",
+                "lib/services/TelephonyService.js",
                 "index.js",
                 "lib/common/Events.js",
                 "lib/common/models/Bubble.js",
+                "lib/common/models/Call.js",
                 "lib/common/models/Channel.js",
-                "lib/common/models/Conversation.js",
                 "lib/common/models/Contact.js",
-                "lib/common/models/Message.js"
+                "lib/common/models/Conversation.js",
+                "lib/common/models/Invitation.js",
+                "lib/common/models/Message.js",
+                "lib/common/models/Settings.js",
             ],
             dest: "bin/jsdoc",
             options: {
@@ -205,8 +229,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("dts-generator");
 
   grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
-
-    grunt.registerTask("default", ["preparecode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
 //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);

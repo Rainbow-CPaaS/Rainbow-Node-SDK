@@ -360,7 +360,29 @@ declare module 'lib/connection/XMPPServiceHandler/iqEventHandler' {
 
 }
 declare module 'lib/connection/XMPPService' {
-	import { XMPPUTils } from 'lib/common/XMPPUtils'; class XMPPService {
+	import { XMPPUTils } from 'lib/common/XMPPUtils'; const NameSpacesLabels: {
+	    "ChatstatesNS": string;
+	    "ReceiptNS": string;
+	    "CallLogNamespace": string;
+	    "CallLogAckNamespace": string;
+	    "CallLogNotificationsNamespace": string;
+	    "RsmNameSpace": string;
+	    "Carbon2NameSpace": string;
+	    "ApplicationNameSpace": string;
+	    "RosterNameSpace": string;
+	    "ClientNameSpace": string;
+	    "PingNameSpace": string;
+	    "DataNameSpace": string;
+	    "MucNameSpace": string;
+	    "ReceiptsNameSpace": string;
+	    "ChatestatesNameSpace": string;
+	    "ContentNameSpace": string;
+	    "MessageCorrectNameSpace": string;
+	    "HintsNameSpace": string;
+	    "OobNameSpace": string;
+	    "Monitoring1NameSpace": string;
+	    "CallService1NameSpace": string;
+	}; class XMPPService {
 	    serverURL: any;
 	    host: any;
 	    eventEmitter: any;
@@ -394,6 +416,8 @@ declare module 'lib/connection/XMPPService' {
 	    IQEventHandler: any;
 	    xmppUtils: XMPPUTils;
 	    private shouldSendMessageToConnectedUser;
+	    private storeMessages;
+	    private copyMessage;
 	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
 	    start(withXMPP: any): Promise<unknown>;
 	    signin(account: any, headers: any): Promise<unknown>;
@@ -437,7 +461,7 @@ declare module 'lib/connection/XMPPService' {
 	    mamDelete(options: any): void;
 	    voiceMessageQuery(jid: any): Promise<unknown>;
 	}
-	export { XMPPService };
+	export { XMPPService, NameSpacesLabels };
 
 }
 declare module 'lib/connection/HttpService' {
@@ -679,6 +703,7 @@ declare module 'lib/connection/RESTService' {
 	    inviteContactsByEmailsToBubble(contactsEmails: any, bubbleId: any): Promise<unknown>;
 	    promoteContactInBubble(contactId: any, bubbleId: any, asModerator: any): Promise<unknown>;
 	    changeBubbleOwner(bubbleId: any, contactId: any): Promise<unknown>;
+	    archiveBubble(bubbleId: any): Promise<unknown>;
 	    leaveBubble(bubbleId: any, bubbleStatus: any): Promise<unknown>;
 	    deleteBubble(bubbleId: any): Promise<unknown>;
 	    removeInvitationOfContactToBubble(contactId: any, bubbleId: any): Promise<unknown>;
@@ -4129,6 +4154,22 @@ declare module 'lib/services/BubblesService' {
 	    closeBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
+	     * @method archiveBubble
+	     * @instance
+	     * @param {Bubble} bubble  The bubble to archive
+	     * @memberof Bubbles
+	     * @description
+	     *  Archive  a bubble.
+	     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
+	     *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The operation result
+	     * @category async
+	     */
+	    archiveBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
 	     * @method leaveBubble
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to leave
@@ -6206,6 +6247,8 @@ declare module 'lib/config/Options' {
 	        sendReadReceipt: any;
 	        messageMaxLength: number;
 	        sendMessageToConnectedUser: boolean;
+	        storeMessages: boolean;
+	        copyMessage: boolean;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -6387,6 +6430,8 @@ declare module 'lib/config/config' {
 	        sendReadReceipt: boolean;
 	        messageMaxLength: number;
 	        sendMessageToConnectedUser: boolean;
+	        storeMessages: boolean;
+	        copyMessage: boolean;
 	    };
 	    mode: string;
 	    debug: boolean;

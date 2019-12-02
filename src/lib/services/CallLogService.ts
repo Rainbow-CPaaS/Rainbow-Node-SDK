@@ -40,6 +40,7 @@ function CallLogsBean() : ICallLogsBean {
 /**
 * @module
 * @name CallsLog
+ * @version SDKVERSION
 * @public
 * @description
 *      This service allow to get the call log and manage it. <br><br>

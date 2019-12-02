@@ -122,6 +122,85 @@ function unhandledRejection(reason, p) {
  */
 class NodeSDK {
 
+    /**
+     * @method constructor
+     * @public
+     * @description
+     *      The entry point of the Rainbow Node SDK
+     * @param {Object} options : The options provided to manage the SDK behavior <br>
+     *   "rainbow": {<br>
+     *       "host": "official",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
+     *    },<br>
+     *   "credentials": {<br>
+     *       "login": "user@xxxx.xxx",  // The Rainbow email account to use<br>
+     *       "password": "XXXXX",<br>
+     *   },<br>
+     *   // Application identifier<br>
+     *   "application": {<br>
+     *       "appID": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Identifier<br>
+     *       "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret<br>
+     *   },<br>
+     *   // Proxy configuration<br>
+     *   proxy: {<br>
+     *       host: "xxx.xxx.xxx.xxx",<br>
+     *       port: xxxx,<br>
+     *       protocol: "http",<br>
+     *       user: "proxyuser",<br>
+     *       password: "XXXXX",<br>
+     *   },<br>
+     *   // Logs options<br>
+     *   "logs": {<br>
+     *       "enableConsoleLogs": false, Activate logs on the console<br>
+     *       "enableFileLogs": false, Activate the logs in a file<br>
+     *       "color": true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)) <br>
+     *       "level": "info", The level of logs. The value can be "info", "debug", "warn", "error"<br>
+     *       "customLabel": "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.<br>
+     *       "file": {<br>
+     *           "path": "c:/temp/", Path to the log file<br>
+     *           "customFileName": "R-SDK-Node-MyRBProject", A label inserted in the name of the log file<br>
+     *           "zippedArchive": false Can activate a zip of file. It needs CPU process, so avoid it.<br>
+     *       }<br>
+     *   },<br>
+     *   // IM options<br>
+     *   "im": {<br>
+     *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
+     *       "messageMaxLength": 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.<br>
+     *       "sendMessageToConnectedUser": false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.<br>
+     *       "conversationsRetrievedFormat": "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`<br>
+     *       "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoir to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *   },<br>
+     *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
+     *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
+     *   // By default all the services are started. Events received from server are not yet filtered.<br>
+     *   // So this feature is realy risky, and should be used with much more cautions.<br>
+     *   "servicesToStart": {<br>
+     *       "bubbles": {<br>
+     *           "start_up": true,<br>
+     *       },<br>
+     *       "telephony": {<br>
+     *           "start_up": true,<br>
+     *       },<br>
+     *       "channels": {<br>
+     *           "start_up": true,<br>
+     *       },<br>
+     *       "admin": {<br>
+     *           "start_up": true,<br>
+     *       },<br>
+     *       "fileServer": {<br>
+     *           "start_up": true,<br>
+     *       },<br>
+     *       "fileStorage": {<br>
+     *           start_up: true,<br>
+     *       },<br>
+     *       "calllog": {<br>
+     *           "start_up": true,<br>
+     *       },<br>
+     *       "favorites": {<br>
+     *           "start_up": true,<br>
+     *       }<br>
+     *   }<br>
+     * }<br>
+     */
     constructor(options) {
         /* process.on("uncaughtException", (err) => {
             console.error(err);

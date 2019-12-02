@@ -49,7 +49,11 @@ let options = {
     },
     // IM options
     "im": {
-        "sendReadReceipt": true   
+        "sendReadReceipt": true,
+        "messageMaxLength": 1024,
+        "sendMessageToConnectedUser": false,
+        "conversationsRetrievedFormat": "small",
+        "storeMessages": false
     },
 
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.

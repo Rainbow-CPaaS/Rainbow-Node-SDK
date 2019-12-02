@@ -21,9 +21,11 @@ const _sasl = require('@xmpp/sasl');
 const _middleware = require('@xmpp/middleware');
 const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
+const xml = require("@xmpp/xml");
 
 const Element = require('ltx').Element;
 //import Element from "ltx";
+import {NameSpacesLabels} from "../../connection/XMPPService";
 
 let LOG_ID='XMPPCLIENT';
 
@@ -40,6 +42,7 @@ class XmppClient  {
 	public username: any;
 	public password: any;
     socketClosed: boolean = false;
+    storeMessages: any;
 
     constructor(...args) {
         //super(...args);
@@ -102,11 +105,12 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests) {
+    init(_logger, _timeBetweenXmppRequests, _storeMessages) {
         let that = this;
         that.logger = _logger;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
+        that.storeMessages = _storeMessages;
         that.on('open', () => {
             that.logger.log("debug", LOG_ID + "(event) open");
             that.socketClosed = false;
@@ -142,6 +146,25 @@ class XmppClient  {
                     if (that.socketClosed) {
                         that.logger.log("debug", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
                         return Promise.reject("Error the socket is close, so do not send data on it.")
+                    }
+
+                    let stanza = args[0];
+                    if ( that.storeMessages == false && stanza && typeof stanza === "object" &&  stanza.name == "message") {
+                       // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
+                       // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
+                        //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
+                        // <no-copy xmlns="urn:xmpp:hints"/>
+                        //   <no-store xmlns="urn:xmpp:hints"/>
+                      /*  stanza.append(xml("no-copy", {
+                            "xmlns": NameSpacesLabels.HintsNameSpace
+                        }));
+                        // */
+
+                        stanza.append(xml("no-store", {
+                            "xmlns": NameSpacesLabels.HintsNameSpace
+                        }));
+                        // */
+                        //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
                     }
 
                     return this.client.send(...args).then(() => {

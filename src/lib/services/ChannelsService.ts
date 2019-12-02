@@ -19,6 +19,8 @@ const LOG_ID = "CHANNELS/SVCE - ";
 /**
  * @class
  * @name Channels
+ * @version SDKVERSION
+ * @public
  * @description
  *      This service manages Channels. This service is in Beta.
  *      <br><br>

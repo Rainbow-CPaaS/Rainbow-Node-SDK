@@ -14,6 +14,7 @@ const LOG_ID = "SETT/SVCE - ";
  * @class
  * @private
  * @name Settings
+ * @version SDKVERSION
  * @description
  *      This module manages the settings of the connected user.
  *      <br><br>

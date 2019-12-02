@@ -16,6 +16,8 @@ const LOG_ID = "BUBBLES/SVCE - ";
 /**
  * @class
  * @name Bubbles
+ * @version SDKVERSION
+ * @public
  * @description
  *      This service manages multi-party communications (aka bubbles). Bubbles allow to chat and to share files with several participants.<br><br>
  *      Each user can create bubbles and invite other users to be part of it.
@@ -412,6 +414,46 @@ class Bubbles {
 
     /**
      * @public
+     * @method archiveBubble
+     * @instance
+     * @param {Bubble} bubble  The bubble to archive
+     * @memberof Bubbles
+     * @description
+     *  Archive  a bubble.
+     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
+     *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
+     * @async
+     * @return {Promise<Bubble, ErrorManager>}
+     * @fulfil {Bubble} - The operation result
+     * @category async
+     */
+    archiveBubble(bubble) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            let otherModerator = null;
+
+            if (!bubble) {
+                that._logger.log("warn", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter");
+                that._logger.log("internalerror", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter : ", bubble);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.archiveBubble(bubble.id).then(function(json) {
+                that._logger.log("info", LOG_ID + "(archiveBubble) leave successfull");
+                that._xmpp.sendUnavailableBubblePresence(bubble.jid);
+                resolve(json);
+
+            }).catch(function(err) {
+                that._logger.log("error", LOG_ID + "(archiveBubble) error.");
+                that._logger.log("internalerror", LOG_ID + "(archiveBubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
      * @method leaveBubble
      * @instance
      * @param {Bubble} bubble  The bubble to leave
@@ -424,9 +466,7 @@ class Bubbles {
      * @category async
      */
     leaveBubble(bubble) {
-
         let that = this;
-
         return new Promise(function(resolve, reject) {
             let otherModerator = null;
             let userStatus = "none";
@@ -456,7 +496,8 @@ class Bubbles {
                 resolve(json);
 
             }).catch(function(err) {
-                that._logger.log("error", LOG_ID + "(leaveBubble) error");
+                that._logger.log("error", LOG_ID + "(leaveBubble) error.");
+                that._logger.log("internalerror", LOG_ID + "(leaveBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -903,7 +944,8 @@ getAllActiveBubbles
         let that = this;
 
         return new Promise(function(resolve, reject) {
-            that._rest.getBubbles().then(function(listOfBubbles : any) {
+            that._rest.getBubbles().then(function(listOfBubbles : any = []) {
+                that._logger.log("debug", LOG_ID + "(getBubbles)  listOfBubbles.length : ", listOfBubbles.length);
 
                 //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
                 that._bubbles = [];
@@ -934,7 +976,7 @@ getAllActiveBubbles
                     that._logger.log("error", LOG_ID + "(getBubbles) error");
                     that._logger.log("internalerror", LOG_ID + "(getBubbles) error : ", err);
                     return reject(err);
-                });
+                }); // */
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(getBubbles) error");
                 that._logger.log("internalerror", LOG_ID + "(getBubbles) error : ", err);
