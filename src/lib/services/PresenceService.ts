@@ -1,4 +1,6 @@
 "use strict";
+import {Logger} from "../common/Logger";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -7,6 +9,8 @@ import {RainbowPresence} from "../common/models/Settings";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
 import {isStarted, logEntryExit} from "../common/Utils";
+import {SettingsService} from "./SettingsService";
+import EventEmitter = NodeJS.EventEmitter;
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -24,12 +28,12 @@ const LOG_ID = "PRES/SVCE - ";
  *      - Change the connected user presence
  */
 class PresenceService {
-	public _logger: any;
+	public _logger: Logger;
 	public _xmpp: XMPPService;
-	public _settings: any;
+	public _settings: SettingsService;
 	public presenceEventHandler: any;
 	public presenceHandlerToken: any;
-	public _eventEmitter: any;
+	public _eventEmitter: EventEmitter;
 	public manualState: any;
 	public _currentPresence: any;
     RAINBOW_PRESENCE_ONLINE: any;
@@ -66,7 +70,7 @@ class PresenceService {
         this.ready = false;
     }
 
-    start(_xmpp, _settings) {
+    start(_xmpp, _settings : SettingsService) {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
@@ -272,11 +276,8 @@ class PresenceService {
      */
     _sendPresenceFromConfiguration() {
         let that = this;
-
         return new Promise( (resolve) => {
-
-            that._settings.getUserSettings()
-                .then(function(settings) {
+            that._settings.getUserSettings().then(function(settings : any) {
                     let message = "";
                     let presence = settings.presence;
                     if (presence === "invisible") {

@@ -1,5 +1,7 @@
 "use strict";
 
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
@@ -11,6 +13,7 @@ import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
 import {isStarted, logEntryExit} from "../common/Utils";
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "CHANNELS/SVCE - ";
 
@@ -34,8 +37,8 @@ class Channels {
 	public _rest: RESTService;
 	public _channels: any;
 	public _channelsList: any;
-	public _eventEmitter: any;
-	public _logger: any;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
 	public MAX_ITEMS: any;
 	public MAX_PAYLOAD_SIZE: any;
 	public PUBLIC_VISIBILITY: any;
@@ -71,7 +74,7 @@ class Channels {
     };
 
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;

@@ -1,4 +1,6 @@
 "use strict";
+import {ContactsService} from "./ContactsService";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -14,6 +16,12 @@ import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conve
 import {shortnameToUnicode} from "../common/Emoji";
 import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
 import {isStarted} from "../common/Utils";
+import {BubblesService} from "./BubblesService";
+import {FileStorageService} from "./FileStorageService";
+import {FileServerService} from "./FileServerService";
+import {Logger} from "../common/Logger";
+import {EventEmitter} from "events";
+import {Contact} from "../common/models/Contact";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -37,11 +45,11 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
 class Conversations {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
-	public _contacts: any;
-	public _fileStorageService: any;
-	public _fileServerService: any;
-	public _eventEmitter: any;
-	public _logger: any;
+	public _contacts: ContactsService;
+	public _fileStorageService: FileStorageService;
+	public _fileServerService: FileServerService;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
 	public pendingMessages: any;
 	public conversationEventHandler: ConversationEventHandler;
 	public conversationHandlerToken: any;
@@ -68,7 +76,7 @@ class Conversations {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig, _conversationsRetrievedFormat) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig, _conversationsRetrievedFormat) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -90,7 +98,7 @@ class Conversations {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _fileStorageService, _fileServerService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService) {
         let that = this;
         that.conversationHandlerToken = [];
         that.conversationHistoryHandlerToken= [];
@@ -510,7 +518,7 @@ class Conversations {
 
 
             // No conversation found, then create it
-            that._contacts.getOrCreateContact(conversationId) /* Get or create the conversation*/ .then( (contact) => {
+            that._contacts.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
                     that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation (" + contact.id + ")");
 
                     let  conversation = Conversation.createOneToOneConversation(contact);
@@ -861,8 +869,7 @@ class Conversations {
                 }]); // */
             }
 
-            that._fileStorageService.createFileDescriptor(file.name, fileExtension, file.size, viewers)
-                .then(function (fileDescriptor) {
+            that._fileStorageService.createFileDescriptor(file.name, fileExtension, file.size, viewers).then(function (fileDescriptor: any) {
                     currentFileDescriptor = fileDescriptor;
                     fileDescriptor.fileToSend = file;
                     if (fileDescriptor.isImage()) {
@@ -1514,7 +1521,7 @@ class Conversations {
             //stop infinite loop in case of error
             that.botServiceReady = false;
             that.waitingBotConversations.forEach(async function(obj, index) {
-                let contact = that._contacts.getContactByJid(obj.jid);
+                let contact : Contact = await that._contacts.getContactByJid(obj.jid);
                 if (contact) {
                     await that.getOrCreateOneToOneConversation(contact.jid, null, obj.lastModification, obj.lastMessageText, obj.missedIMCounter, obj.muted, obj.creationDate);
                     that.waitingBotConversations.splice(index, 1);

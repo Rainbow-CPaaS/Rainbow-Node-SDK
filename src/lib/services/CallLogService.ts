@@ -1,4 +1,6 @@
 "use strict";
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 import {logEntryExit, setTimeoutPromised} from "../common/Utils";
@@ -8,6 +10,10 @@ import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEvent
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {isStarted} from "../common/Utils";
+import {Logger} from "../common/Logger";
+import {ContactsService} from "./ContactsService";
+import {ProfilesService} from "./ProfilesService";
+import {TelephonyService} from "./TelephonyService";
 
 const LOG_ID = "CALLLOG/SVCE - ";
 
@@ -50,8 +56,8 @@ function CallLogsBean() : ICallLogsBean {
 *      - Mark calls as read / unread <br/>
 */
  class CallLogService {
-    public _eventEmitter: any;
-    private logger: any;
+    public _eventEmitter: EventEmitter;
+    private logger: Logger;
     private started: boolean;
     private _initialized: boolean;
     private calllogs: ICallLogsBean;
@@ -76,10 +82,10 @@ function CallLogsBean() : ICallLogsBean {
     // */
     private _xmpp: XMPPService;
     private _rest: RESTService;
-    private _contacts: any;
-    private _profiles: any;
+    private _contacts: ContactsService;
+    private _profiles: ProfilesService;
     private _calllogEventHandler: CallLogEventHandler;
-    _telephony: any;
+    private _telephony: TelephonyService;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up: boolean,
@@ -91,7 +97,7 @@ function CallLogsBean() : ICallLogsBean {
 
 
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
-    constructor(_eventEmitter, logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -135,7 +141,7 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_xmpp: XMPPService, _rest: RESTService, _contacts, _profiles, _telephony) {
+    async start(_xmpp: XMPPService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;

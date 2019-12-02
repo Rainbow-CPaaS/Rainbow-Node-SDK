@@ -13,6 +13,7 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {Invitation} from "../common/models/Invitation";
 import * as moment from 'moment';
 import {Logger} from "../common/Logger";
+import {ContactsService} from "./ContactsService";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -37,12 +38,11 @@ class InvitationsService {
 	portalURL: string;
 	contactConfigRef: any;
 	acceptedInvitations: {};
-	logger: Logger;
-	_logger: any;
+	private _logger: Logger;
 	private _xmpp: XMPPService;
 	private _rest: RESTService;
 	private started: boolean = false;
-	private _eventEmitter: any;
+	private _eventEmitter: EventEmitter;
 	public invitationEventHandler: InvitationEventHandler;
 	public invitationHandlerToken: any;
 	public _contacts: any;
@@ -56,14 +56,13 @@ class InvitationsService {
 		return this._startConfig;
 	}
 
-	constructor(_eventEmitter: EventEmitter, _logger: any, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
+	constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
 		let that = this;
 		this._startConfig = _startConfig;
 		this._xmpp = null;
 		this._rest = null;
 		this._eventEmitter = _eventEmitter;
 		this._logger = _logger;
-		this.logger = _logger;
 		this.started = false;
 
 		//update the sentInvitations list when new invitation is accepted
@@ -76,10 +75,10 @@ class InvitationsService {
 	/** LIFECYCLE STUFF                                        **/
 
 	/************************************************************/
-	async start(_xmpp: XMPPService, _rest: RESTService, _contacts, stats) {
+	async start(_xmpp: XMPPService, _rest: RESTService, _contacts : ContactsService, stats) {
 		let that = this;
-		that.logger.log("info", LOG_ID + "");
-		that.logger.log("info", LOG_ID + "[InvitationService] === STARTING ===");
+		that._logger.log("info", LOG_ID + "");
+		that._logger.log("info", LOG_ID + "[InvitationService] === STARTING ===");
 		that.stats = stats ? stats : [];
 
 		that._xmpp = _xmpp;
@@ -104,7 +103,7 @@ class InvitationsService {
 		let now: any = new Date();
 		let startDuration = Math.round(now - startDate);
 		stats.push({service: "InvitationService", startDuration: startDuration});
-		that.logger.log("info", LOG_ID + "[InvitationService] === STARTED (" + startDuration + " ms) ===");
+		that._logger.log("info", LOG_ID + "[InvitationService] === STARTED (" + startDuration + " ms) ===");
 
 		this.started = true;
 		this.ready = true;
@@ -119,8 +118,8 @@ class InvitationsService {
 
 	async stop() {
 		let that = this;
-		that.logger.log("info", LOG_ID + "");
-		that.logger.log("info", LOG_ID + "[InvitationService] === STOPPING ===");
+		that._logger.log("info", LOG_ID + "");
+		that._logger.log("info", LOG_ID + "[InvitationService] === STOPPING ===");
 
 		// Remove listeners
 		let listener;
@@ -130,7 +129,7 @@ class InvitationsService {
 			}
 		}
 
-		that.logger.log("info", LOG_ID + "[InvitationService] === STOPPED ===");
+		that._logger.log("info", LOG_ID + "[InvitationService] === STOPPED ===");
 		that.started = false;
 		this.ready = false;
 	};
@@ -142,7 +141,7 @@ class InvitationsService {
 	/************************************************************/
 	attachHandlers() {
 		let that = this;
-		that.logger.log("info", LOG_ID + "[InvitationService] attachHandlers");
+		that._logger.log("info", LOG_ID + "[InvitationService] attachHandlers");
 		/* TODO : VBR
 		if (that.contactConfigRef) {
 			that._xmpp.connection.deleteHandler(that.contactConfigRef);
@@ -165,13 +164,13 @@ class InvitationsService {
 
 	onRosterChanged() {
 		let that = this;
-		that.logger.log("info", LOG_ID + "onRosterChanged");
+		that._logger.log("info", LOG_ID + "onRosterChanged");
 		return that.getAllSentInvitations();
 	}
 
 	async onInvitationsManagementUpdate(userInvite) {
 		let that = this;
-        that.logger.log("internal", LOG_ID + "(onInvitationsUpdate) userInvite : ", userInvite);
+        that._logger.log("internal", LOG_ID + "(onInvitationsUpdate) userInvite : ", userInvite);
 		//let userInviteElem = stanza.find("userinvite");
 		if (userInvite) {
 			let id = userInvite.id;
@@ -179,32 +178,32 @@ class InvitationsService {
 			let action = userInvite.action;
 			switch (type) {
 				case "received":
-                    that.logger.log("internal", LOG_ID + "(onInvitationsUpdate) received");
+                    that._logger.log("internal", LOG_ID + "(onInvitationsUpdate) received");
 					await that.handleReceivedInvitation(id, action);
-                    that.logger.log("internal", LOG_ID + "(onInvitationsUpdate) received after");
+                    that._logger.log("internal", LOG_ID + "(onInvitationsUpdate) received after");
 					break;
 				case "sent":
-                    that.logger.log("internal", LOG_ID + "(onInvitationsUpdate) sent");
+                    that._logger.log("internal", LOG_ID + "(onInvitationsUpdate) sent");
 					await that.handleSentInvitation(id, action);
-                    that.logger.log("internal", LOG_ID + "(onInvitationsUpdate) sent after");
+                    that._logger.log("internal", LOG_ID + "(onInvitationsUpdate) sent after");
 					break;
 				default:
-					that.logger.log("warn", LOG_ID + "(onInvitationsUpdate) - received unexpected type - " + type);
+					that._logger.log("warn", LOG_ID + "(onInvitationsUpdate) - received unexpected type - " + type);
 					break;
 			}
 		} else {
-			that.logger.log("warn", LOG_ID + "(onInvitationsUpdate) userInvite undefined!");
+			that._logger.log("warn", LOG_ID + "(onInvitationsUpdate) userInvite undefined!");
 		}
-        that.logger.log("info", LOG_ID + "(onInvitationsUpdate) that.receivedInvitations : ", that.receivedInvitations);
-        that.logger.log("info", LOG_ID + "(onInvitationsUpdate) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
-        that.logger.log("info", LOG_ID + "(onInvitationsUpdate) that.sentInvitations : ", that.sentInvitations);
+        that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.receivedInvitations : ", that.receivedInvitations);
+        that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
+        that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.sentInvitations : ", that.sentInvitations);
 		return true;
 	};
 
 	async handleReceivedInvitation(id, action) {
 		let that = this;
-		that.logger.log("info", LOG_ID + "(handleReceivedInvitation).");
-		that.logger.log("info", LOG_ID + "(handleReceivedInvitation) : ", id, ", action : ", action);
+		that._logger.log("info", LOG_ID + "(handleReceivedInvitation).");
+		that._logger.log("info", LOG_ID + "(handleReceivedInvitation) : ", id, ", action : ", action);
 
 		// Handle deletion action
 		if (action === "delete") {
@@ -213,7 +212,7 @@ class InvitationsService {
 			// Hanle other actions
 		} else {
 			await that.getServerInvitation(id).then((invitation: any) => {
-				that.logger.log("info", LOG_ID + "(handleReceivedInvitation) invitation received from server : ", invitation);
+				that._logger.log("info", LOG_ID + "(handleReceivedInvitation) invitation received from server : ", invitation);
 				let updateInvitation = null;
 				let status = "none";
 
@@ -269,7 +268,7 @@ class InvitationsService {
 	handleSentInvitation(id, action) {
 		let that = this;
 		return new Promise(function (resolve) {
-			that.logger.log("info", LOG_ID + "(handleSentInvitation) id : ", id, ", action : ", action);
+			that._logger.log("info", LOG_ID + "(handleSentInvitation) id : ", id, ", action : ", action);
 
 			// Handle deletion action
 			if (action === "delete") {
@@ -281,7 +280,7 @@ class InvitationsService {
 			// Handle other actions
 			else {
 				that.getServerInvitation(id).then(function (invitation: any) {
-                    that.logger.log("info", LOG_ID + "(handleSentInvitation) invitation received from server : ", invitation);
+                    that._logger.log("info", LOG_ID + "(handleSentInvitation) invitation received from server : ", invitation);
 						let contactStatus = null;
 
 						switch (invitation.status) {
@@ -385,8 +384,8 @@ class InvitationsService {
         return new Promise(function (resolve, reject) {
             that._rest.getServerInvitation(invitationId).then(
                 (response: any) => {
-                    that.logger.log("info", LOG_ID + "(getServerInvitation) success");
-                    that.logger.log("internal", LOG_ID + "(getServerInvitation) success : ", response);
+                    that._logger.log("info", LOG_ID + "(getServerInvitation) success");
+                    that._logger.log("internal", LOG_ID + "(getServerInvitation) success : ", response);
                     let receivedInvitation = Invitation.createFromData(response.data);
                     resolve(receivedInvitation);
                 }).catch((err) => {
@@ -447,9 +446,9 @@ class InvitationsService {
 	 */
 	getInvitation(invitationId) {
 		let that = this;
-        that.logger.log("info", LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
-        that.logger.log("info", LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
-        that.logger.log("info", LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
+        that._logger.log("info", LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
+        that._logger.log("info", LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
+        that._logger.log("info", LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
 
         let invitationFound = that.receivedInvitations[invitationId];
 		if (!invitationFound) {
@@ -460,11 +459,11 @@ class InvitationsService {
 		}
         /*if (!invitationFound) {
             that._rest.getInvitationById(data.invitationId).then((invitation : any) => {
-                    that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
+                    that._logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
 
                     that._eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
                 }, err => {
-                    that.logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
+                    that._logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
                 });
         } // */
 		return invitationFound;
@@ -481,10 +480,10 @@ class InvitationsService {
 	joinContactInvitation(contact) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
-			that.logger.log("info", LOG_ID + "(joinContactInvitation) contact (" + contact.jid + ")");
+			that._logger.log("info", LOG_ID + "(joinContactInvitation) contact (" + contact.jid + ")");
 			return that._rest.joinContactInvitation(contact).then(
 				async function success(data) {
-					that.logger.log("info", LOG_ID + "(joinContactInvitation) - success (" + contact.jid + ")");
+					that._logger.log("info", LOG_ID + "(joinContactInvitation) - success (" + contact.jid + ")");
 					if (contact.status === "unknown") {
 						await that.updateContactInvitationStatus(contact.id, "wait", null);
 					}
@@ -500,10 +499,10 @@ class InvitationsService {
 	sendInvitationByEmail(email, lang, customMessage) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
-			that.logger.log("info", LOG_ID + "sendInvitationByEmail");
+			that._logger.log("info", LOG_ID + "sendInvitationByEmail");
 			return that._rest.sendInvitationByEmail(email, lang, customMessage ).then(
 				function success(data) {
-					that.logger.log("info", LOG_ID + "[InvitationService] sendInvitationByEmail - success");
+					that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationByEmail - success");
 					resolve(data);
 				},
 				function failure(err) {
@@ -519,8 +518,8 @@ class InvitationsService {
 		return new Promise(function (resolve, reject) {
 			that._rest.cancelOneSendInvitation(invitation).then(
 				function success(data) {
-					that.logger.log("info", LOG_ID + "(cancelOneSendInvitation) success");
-					that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) success : ", data);
+					that._logger.log("info", LOG_ID + "(cancelOneSendInvitation) success");
+					that._logger.log("internal", LOG_ID + "(cancelOneSendInvitation) success : ", data);
 					resolve(data);
 				},
 				function failure(err) {
@@ -536,7 +535,7 @@ class InvitationsService {
 		return new Promise(function (resolve, reject) {
 		that._rest.reSendInvitation(invitationId).then(
 				function success() {
-					that.logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
+					that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
 					resolve();
 				},
 				function failure(err) {
@@ -555,14 +554,14 @@ class InvitationsService {
 		let that = this;
 
 		if (!listOfMails.length || listOfMails.length > 100) {
-			that.logger.log("error", LOG_ID + "[InvitationService] sendInvitationsParBulk mail list length not correct");
+			that._logger.log("error", LOG_ID + "[InvitationService] sendInvitationsParBulk mail list length not correct");
 			return Promise.reject();
 		}
 
 		return new Promise(function (resolve, reject) {
 			that._rest.sendInvitationsParBulk(listOfMails).then(
 				function success(data) {
-					that.logger.log("info", LOG_ID + "[InvitationService] sendInvitationsParBulk - success");
+					that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationsParBulk - success");
 					resolve(data);
 				},
 				function failure(err) {
@@ -590,8 +589,8 @@ class InvitationsService {
 		return new Promise(function (resolve, reject) {
 			that._rest.acceptInvitation(invitation).then(
 				function success(data) {
-					that.logger.log("info", LOG_ID + "(acceptInvitation) success");
-					that.logger.log("internal", LOG_ID + "(acceptInvitation) success : ", data);
+					that._logger.log("info", LOG_ID + "(acceptInvitation) success");
+					that._logger.log("internal", LOG_ID + "(acceptInvitation) success : ", data);
 					resolve(data);
 				},
 				function failure(err) {
@@ -626,8 +625,8 @@ class InvitationsService {
 		return new Promise(function (resolve, reject) {
 			that._rest.declineInvitation(invitation).then(
 				function success(data) {
-					that.logger.log("info", LOG_ID + "(declineInvitation) success");
-					that.logger.log("internal", LOG_ID + "(declineInvitation) success : ", data);
+					that._logger.log("info", LOG_ID + "(declineInvitation) success");
+					that._logger.log("internal", LOG_ID + "(declineInvitation) success : ", data);
 					resolve(data);
 				},
 				function failure(err) {
@@ -681,7 +680,7 @@ class InvitationsService {
 			that._rest.getAllReceivedInvitations().then(
 				function success(response : any) {
 					let invitationsData : any = response.data;
-					that.logger.log("info", LOG_ID + "(getAllReceivedInvitations) success (find " + invitationsData.length + " invitations)");
+					that._logger.log("info", LOG_ID + "(getAllReceivedInvitations) success (find " + invitationsData.length + " invitations)");
 
 					that.receivedInvitations = {};
 					that.acceptedInvitations = {};
@@ -713,7 +712,7 @@ class InvitationsService {
 			return that._rest.getAllSentInvitations().then(
 				function success(response: any) {
 					let invitationsData = response.data;
-					that.logger.log("info", LOG_ID + "(getAllSentInvitations) success (find " + invitationsData.length + " invitations)");
+					that._logger.log("info", LOG_ID + "(getAllSentInvitations) success (find " + invitationsData.length + " invitations)");
 					that.sentInvitations = {};
 					invitationsData.forEach(async function (invitationData) {
 						if (invitationData.status === "pending" && !invitationData.inviteToJoinMeeting) {

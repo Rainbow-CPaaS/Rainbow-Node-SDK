@@ -13,6 +13,11 @@ import * as PubSub from "pubsub-js";
 import { XMPPUTils } from "../common/XMPPUtils";
 import {isStarted} from "../common/Utils";
 import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyEventHandler";
+import {ContactsService} from "./ContactsService";
+import {BubblesService} from "./BubblesService";
+import {ProfilesService} from "./ProfilesService";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -36,9 +41,11 @@ const LOG_ID = "TELEPHONY/SVCE - ";
 class Telephony {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
-	public _contacts: any;
-	public _eventEmitter: any;
-	public _logger: any;
+	public _contacts: ContactsService;
+    public _bubbles: BubblesService;
+    public _profiles: ProfilesService;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
 	public _calls: any;
 	public voiceMail: any;
 	public userJidTel: any;
@@ -60,8 +67,6 @@ class Telephony {
 	public telephonyHandlerToken: any;
 	public telephonyHistoryHandlerToken: any;
 	public startDate: any;
-	public _bubbles: any;
-	public _profiles: any;
 	public telephonyEventHandler: any;
 	public makingCall: any;
 	public starting: any;
@@ -106,7 +111,7 @@ class Telephony {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _profiles) {
+    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService) {
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
@@ -501,8 +506,7 @@ class Telephony {
             };
 
             // Call the promise
-            getParticipants()
-                .then(function(response) {
+            getParticipants().then(function(response : any) {
 
                     // Extract call status
                     let callStatus = Call.Status.ACTIVE;

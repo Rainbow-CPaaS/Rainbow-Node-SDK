@@ -13,6 +13,9 @@ import * as md5 from 'md5';
 import * as path from 'path';
 import {isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
+import {HTTPService} from "../connection/HttpService";
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
@@ -33,17 +36,16 @@ const LOG_ID = "CONTACTS/SVCE - ";
  */
 class Contacts {
 	public avatarDomain: any;
-	public xmpp: any;
+	public xmpp: XMPPService;
 	public contacts: any;
-	public eventEmitter: any;
-	public logger: any;
+	public eventEmitter: EventEmitter;
+	public logger: Logger;
 	public rosterPresenceQueue: any;
 	public userContact: any;
 	public rest: RESTService;
 	public invitationsService: InvitationsService;
     public presenceService: PresenceService;
-	public _logger: any;
-	public _xmpp: XMPPService;
+	public _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -53,7 +55,7 @@ class Contacts {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _http, _logger, _startConfig) {
+    constructor(_eventEmitter: EventEmitter, _http : any, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length === 2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port : _http.protocol + "://" + _http.host + ":" + _http.port;
         this.xmpp = null;
@@ -372,7 +374,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid) {
+    getContactByJid(jid) : Promise<Contact>{
 
         let that = this;
 
@@ -629,7 +631,7 @@ class Contacts {
     isUserContact(contact: Contact) {
         let that = this;
         if (!contact || !contact.jid) { return false; }
-        if (!that.rest.account) { return (contact.jid === that._xmpp.jid); }
+        if (!that.rest.account) { return (contact.jid === that.xmpp.jid); }
         return (that.rest.account.jid === contact.jid);
     }
 

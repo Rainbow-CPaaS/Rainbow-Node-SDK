@@ -1,4 +1,6 @@
 "use strict";
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -6,6 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
 import {isStarted, logEntryExit} from "../common/Utils";
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "PROFILES/SVCE - ";
 
@@ -95,9 +98,8 @@ const FeaturesEnum = {
 class ProfilesService {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
-	public _eventEmitter: any;
-	public _logger: any;
-	public logger: any;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
 	public started: any;
 	public onUserUpdateNeeded: any;
 	public stats: any;
@@ -115,14 +117,13 @@ class ProfilesService {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
-        this.logger = _logger;
         this.started = false;
         let that = this;
 
@@ -136,15 +137,15 @@ class ProfilesService {
                 that.getServerProfile()
                     .then(function () {
                         // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                        //that.logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                        //that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                         that._eventEmitter.emit("evt_internal_profilefeatureupdated");
                         clearInterval(that.timer);
                         that.timer = null;
                     })
                     .catch(function (error) {
                         that.timer = null;
-                        that.logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
-                        that.logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
+                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
+                        that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
                         // reject(error);
                     });
             }, 3000);
@@ -160,8 +161,8 @@ class ProfilesService {
     start (_xmpp : XMPPService, _rest : RESTService, stats) {
         let that = this;
 
-        //that.logger.log("debug", LOG_ID + "(start) ");
-        that.logger.log("info", LOG_ID + "(start) [profileService] === STARTING ===");
+        //that._logger.log("debug", LOG_ID + "(start) ");
+        that._logger.log("info", LOG_ID + "(start) [profileService] === STARTING ===");
 
         that.stats = stats ? stats : [];
 
@@ -178,17 +179,17 @@ class ProfilesService {
 
     stop () {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPING ===");
+        that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPING ===");
 
         that.started = false;
-        that.logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
+        that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
         this.ready = false;
         return Promise.resolve();
     }
 
     restart () {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(restart) [profileService] === RESTART ===");
+        that._logger.log("debug", LOG_ID + "(restart) [profileService] === RESTART ===");
 
         //resend the features for the desktop client
         this.onUserUpdateNeeded();
@@ -206,10 +207,10 @@ class ProfilesService {
                     // @ts-ignore
                     let startDuration = Math.round(new Date() - that.startDate);
                     that.stats.push({service: "profileService", startDuration: startDuration});
-                    that.logger.log("debug", LOG_ID + "(start) [profileService] === STARTED (" + startDuration + " ms) ===");
+                    that._logger.log("debug", LOG_ID + "(start) [profileService] === STARTED (" + startDuration + " ms) ===");
 
                     //$rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                    that.logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                    that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                     that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
 
@@ -219,8 +220,8 @@ class ProfilesService {
                     resolve();
                 })
                 .catch(function (error) {
-                    that.logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
-                    that.logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
+                    that._logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
+                    that._logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
                     return reject(error);
                 });
         });
@@ -247,7 +248,7 @@ class ProfilesService {
                     that.profiles = [];
                     that.mainOffers = [];
                     response.forEach(function (profileData) {
-                        that.logger.log("internal", LOG_ID + "(getServerProfiles) === response ===" + profileData);
+                        that._logger.log("internal", LOG_ID + "(getServerProfiles) === response ===" + profileData);
                         //store profile data
                         that.profiles.push(profileData);
                         let offer = offerManager.createOfferFromProfileData(profileData);
@@ -263,8 +264,8 @@ class ProfilesService {
                     if (response) {
                         errorMessage = "(getServerProfiles) failure: " + JSON.stringify(response);
                     }
-                    that.logger.log("error", LOG_ID + "(getServerProfiles) Error. ");
-                    that.logger.log("internalerror", LOG_ID + "(getServerProfiles) Error : ", errorMessage);
+                    that._logger.log("error", LOG_ID + "(getServerProfiles) Error. ");
+                    that._logger.log("internalerror", LOG_ID + "(getServerProfiles) Error : ", errorMessage);
                     return reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
@@ -282,7 +283,7 @@ class ProfilesService {
                 function success(response : []) {
                     that.features = {};
                     response.forEach(function (featureData : any) {
-                        that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) === response === : ", featureData);
+                        that._logger.log("internal", LOG_ID + "(getServerProfilesFeatures) === response === : ", featureData);
                         //store feature data
                         if (featureData.hasOwnProperty("featureUniqueRef")) {
                             that.features[featureData.featureUniqueRef] = featureData;
@@ -295,8 +296,8 @@ class ProfilesService {
                     if (response) {
                         errorMessage = "(getServerProfilesFeatures) failure : " + JSON.stringify(response);
                     }
-                    that.logger.log("error", LOG_ID + "(getServerProfilesFeatures) Error.");
-                    that.logger.log("internalerror", LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
+                    that._logger.log("error", LOG_ID + "(getServerProfilesFeatures) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
                     return reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
@@ -343,10 +344,10 @@ class ProfilesService {
             that.features[featureUniqueRef].featureType === "boolean" &&
             that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
             let enabled = that.features[featureUniqueRef].isEnabled;
-            that.logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
+            that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
             return enabled;
         }
-        that.logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : service not started or feature not enabled");
+        that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : service not started or feature not enabled");
         return false;
     }
 
@@ -358,10 +359,10 @@ class ProfilesService {
             that.features[featureUniqueRef].featureType === "number" &&
             that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
             let limitMax = that.features[featureUniqueRef].limitMax;
-            that.logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
+            that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
             return limitMax;
         }
-        that.logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : service not started or feature not enabled");
+        that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : service not started or feature not enabled");
         return 0;
     }
 
@@ -373,10 +374,10 @@ class ProfilesService {
             that.features[featureUniqueRef].featureType === "number" &&
             that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
             let limitMin = that.features[featureUniqueRef].limitMin;
-            that.logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
+            that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
             return limitMin;
         }
-        that.logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : service not started or feature not enabled");
+        that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : service not started or feature not enabled");
         return 0;
     }
 
@@ -411,7 +412,7 @@ class ProfilesService {
             //TODO return a simplified profile object ???
             profiles = that.profiles;
         } else {
-            that.logger.log("debug", LOG_ID + "(getMyProfiles) : service not started");
+            that._logger.log("debug", LOG_ID + "(getMyProfiles) : service not started");
         }
         return profiles;
     }
@@ -436,7 +437,7 @@ class ProfilesService {
                 profileFeatures[featureUniqueRef] = feature;
             });
         } else {
-            that.logger.log("warn", LOG_ID + "(getMyProfileFeatures) : service not started");
+            that._logger.log("warn", LOG_ID + "(getMyProfileFeatures) : service not started");
         }
         return profileFeatures;
     }

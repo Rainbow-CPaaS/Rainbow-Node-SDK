@@ -7,6 +7,8 @@ export {};
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
 import {isStarted, logEntryExit} from "../common/Utils";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -32,8 +34,8 @@ const LOG_ID = "ADMIN/SVCE - ";
 class Admin {
     public _xmpp: XMPPService;
     public _rest: RESTService;
-    public _eventEmitter: any;
-    public _logger: any;
+    public _eventEmitter: EventEmitter;
+    public _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -43,7 +45,7 @@ class Admin {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;

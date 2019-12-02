@@ -1,4 +1,6 @@
 "use strict";
+import {Logger} from "../common/Logger";
+
 export {};
 
 
@@ -9,8 +11,8 @@ const LOG_ID = "TRFPROMISEQUEUE - ";
 class TransferPromiseQueue {
 	public fileQueue: any;
 	public currentQueue: any;
-	public logger: any;
-	public currentPromise: any;
+	public logger: Logger;
+	public currentPromise: Promise<any>;
 	public promiseCompletion: any;
 	public promiseReject: any;
 	public initialQueueSize: any;
@@ -73,8 +75,7 @@ class TransferPromiseQueue {
         if (that.currentPromise) {
             that.logger.log("internal", LOG_ID + "(execute) performing promise: " + that.promisesDone);
 
-            that.currentPromise
-                .then(() => {
+            that.currentPromise.then(() => {
                     that.logger.log("internal", LOG_ID + "(execute) promise success go to next one");
                     that.promisesDone++;
                     that.chunkErrorCounter = 0;

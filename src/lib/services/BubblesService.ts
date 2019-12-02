@@ -1,4 +1,6 @@
 "use strict";
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 import * as deepEqual from "deep-equal";
 import {RESTService} from "../connection/RESTService";
@@ -8,6 +10,7 @@ import {XMPPService} from "../connection/XMPPService";
 import {createPromiseQueue} from "../common/promiseQueue";
 import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "BUBBLES/SVCE - ";
 
@@ -34,8 +37,8 @@ class Bubbles {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public _bubbles: Bubble[];
-	public _eventEmitter: any;
-	public _logger: any;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
     public ready: boolean;
     private readonly _startConfig: {
         start_up:boolean,
@@ -45,7 +48,7 @@ class Bubbles {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this.ready = false;
         this._xmpp = null;
         this._rest = null;
