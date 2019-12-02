@@ -22,6 +22,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add automatic version of the SDK in jsdoc of service's classes.
 -   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
 
+## [1.64.2] - 2019-11-26
+-   rebundle of the 1.64.0 version with the same content.
+
 ## [1.64.0] - 2019-11-20
 -   Fix of the Presence::setPresenceTo to follow the server presence type.
 -   Doc update
