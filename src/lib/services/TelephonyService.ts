@@ -818,7 +818,7 @@ class Telephony {
 
             let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
             that._rest.makeCall(contact, phoneInfo).then(
-                function success(response) {
+                function success(response : any) {
                     // Create the call object
                     let callInfos = {
                         status: Call.Status.DIALING,
@@ -925,7 +925,7 @@ class Telephony {
 
             let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
             that._rest.makeConsultationCall(callId, contact, phoneInfo).then(
-                function success(response) {
+                function success(response : any) {
                     // Create the call object
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
                     let callInfos = {
@@ -1276,7 +1276,7 @@ class Telephony {
             }
             else {
                that._rest.answerCall(call).then(
-                    function success(response) {
+                    function success(response : any) {
                         // Update call status
                         call.setConnectionId(response.callId);
                         call.setStatus(Call.Status.ACTIVE);
@@ -1345,7 +1345,7 @@ class Telephony {
                 headers: authService.getRequestHeader()
             }) // */
             that._rest.holdCall(call).then(
-                function success(response) {
+                function success(response : any) {
                     that._logger.log("info", LOG_ID + "(holdCall) holdCall success.");
                     that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + "), response : ", response);
                     // Update call status
@@ -1430,7 +1430,7 @@ class Telephony {
                     headers: authService.getRequestHeader()
                 })// */
                  that._rest.retrieveCall(call).then(
-                    function success(response) {
+                    function success(response : any) {
                         that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
                         // Update call status
                         if (response && response.data && response.data.data) {
@@ -2339,6 +2339,174 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         });
     }
 
+
+    /**
+     * @public
+     * @method logon
+     * @param {String} endpointTel The endpoint device phone number.
+     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+     * @param {String} password optionnel Password or authorization code.
+     * @param {String} groupId optionnel CCD Agent's group number
+     * @description
+     *      This api allows an CCD Agent to logon into the CCD system.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    logon(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!endpointTel) {
+                that._logger.log("warn", LOG_ID + "(logon) bad or empty 'endpointTel' parameter");
+                that._logger.log("internalerror", LOG_ID + "(logon) bad or empty 'endpointTel' parameter", endpointTel);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.logon(endpointTel, agentId, password, groupId).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(logon) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(logon) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method logoff
+     * @param {String} endpointTel The endpoint device phone number.
+     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+     * @param {String} password optionnel Password or authorization code.
+     * @param {String} groupId optionnel CCD Agent's group number
+     * @description
+     *      This api allows an CCD Agent logoff logon from the CCD system.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    logoff(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!endpointTel) {
+                that._logger.log("warn", LOG_ID + "(logoff) bad or empty 'endpointTel' parameter");
+                that._logger.log("internalerror", LOG_ID + "(logoff) bad or empty 'endpointTel' parameter", endpointTel);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.logoff(endpointTel, agentId, password, groupId).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(logoff) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(logoff) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method withdrawal
+     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+     * @param {String} groupId optionnel CCD Agent's group number
+     * @param {String} status optionnel Used to deactivate the withdrawal state. Values: 'on', 'off'; 'on' is optional.
+     * @description
+     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    withdrawal(agentId, groupId, status) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!agentId) {
+                that._logger.log("warn", LOG_ID + "(withdrawal) bad or empty 'agentId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(withdrawal) bad or empty 'agentId' parameter", agentId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            if (!groupId) {
+                that._logger.log("warn", LOG_ID + "(withdrawal) bad or empty 'groupId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(withdrawal) bad or empty 'groupId' parameter", groupId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.withdrawal(agentId, groupId, status).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(withdrawal) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(withdrawal) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method wrapup
+     * @param {String} agentId CCD Agent identifier (agent device number).
+     * @param {String} groupId CCD Agent's group number
+     * @param {String} password optionnel Password or authorization code.
+     * @param {String} status optionnel Used to deactivate the WrapUp state. Values: 'on', 'off'; 'on' is optional.
+     * @description
+     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    wrapup(agentId, groupId, password, status) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!agentId) {
+                that._logger.log("warn", LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(wrapup) bad or empty 'agentId' parameter", agentId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            if (!agentId) {
+                that._logger.log("warn", LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(wrapup) bad or empty 'agentId' parameter", agentId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.wrapup(agentId, groupId, password, status).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(wrapup) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(wrapup) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+
+
+    /*
+        login(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return that.restTelephony.login(that.getRequestHeader(), endpointTel, agentId, password, groupId);
+    }
+
+    logoff(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return that.restTelephony.logoff(that.getRequestHeader(), endpointTel, agentId, password, groupId);
+    }
+
+    withdrawal(agentId, groupId, status) {
+        let that = this;
+        return that.restTelephony.withdrawal(that.getRequestHeader(), agentId, groupId, status);
+    }
+
+    wrapup( agentId, password, groupId, status) {
+        let that = this;
+        return that.restTelephony.wrapup(that.getRequestHeader(), agentId, password, groupId, status);
+    }
+
+     */
 
 }
 

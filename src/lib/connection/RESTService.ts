@@ -13,6 +13,8 @@ import  {RESTTelephony} from "./RestServices/RESTTelephony";
 import {HTTPService} from "./HttpService";
 import {Invitation} from "../common/models/Invitation";
 import {Contact} from "../common/models/Contact";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
 
 let packageVersion = require("../../package.json");
 
@@ -39,8 +41,8 @@ class RESTService {
 	public _credentials: any;
 	public _application: any;
 	public loginEmail: any;
-	public eventEmitter: any;
-	public logger: any;
+	public eventEmitter: EventEmitter;
+	public logger: Logger;
 	public currentAttempt: any;
 	public attempt_succeeded_callback: any;
 	public attempt_failed_callback: any;
@@ -49,7 +51,7 @@ class RESTService {
 	public maxAttemptToReconnect: any;
 	public fibonacciStrategy: any;
 	public reconnectDelay: any;
-	public restTelephony: any;
+	public restTelephony: RESTTelephony;
 	public getRequestHeader: any;
 	public getRequestHeaderWithRange: any;
 	public getPostHeaderWithRange: any;
@@ -57,9 +59,9 @@ class RESTService {
 	public getDefaultHeader: any;
 	public applicationToken: string;
 
-    constructor(_credentials, _application, _isOfficialRainbow, evtEmitter, _logger) {
+    constructor(_credentials, _application, _isOfficialRainbow, evtEmitter : EventEmitter, _logger : Logger) {
         let that = this;
-        var self = this;
+        let self = this;
         this.http = null;
         this.account = null;
         this.app = null;
@@ -474,7 +476,7 @@ class RESTService {
     acceptInvitation (invitation) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.info("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
+            that.logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/accept", that.getRequestHeader(), {}, undefined ).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(acceptInvitation) successfull");
                 that.logger.log("internal", LOG_ID + "(acceptInvitation) REST invitation received ", json.data);
@@ -495,7 +497,7 @@ class RESTService {
     declineInvitation (invitation) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.info("internal", LOG_ID + "(declineInvitation) invitation : ", invitation);
+            that.logger.log("internal", LOG_ID + "(declineInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined ).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(declineInvitation) successfull");
                 resolve();
@@ -515,7 +517,7 @@ class RESTService {
     joinContactInvitation(contact) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.info("internal", LOG_ID + "(joinContactInvitation) contact : ", contact);
+            that.logger.log("internal", LOG_ID + "(joinContactInvitation) contact : ", contact);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), {"invitedUserId": contact.id}, undefined ).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(joinContactInvitation) successfull");
                 that.logger.log("internal", LOG_ID + "(joinContactInvitation) REST invitation received ", json.data);
@@ -2290,6 +2292,26 @@ class RESTService {
     sendDtmf(callId, deviceId, data) {
         let that = this;
         return that.restTelephony.sendDtmf(that.getRequestHeader(), callId, deviceId, data);
+    }
+
+    logon(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return that.restTelephony.logon(that.getRequestHeader(), endpointTel, agentId, password, groupId);
+    }
+
+    logoff(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return that.restTelephony.logoff(that.getRequestHeader(), endpointTel, agentId, password, groupId);
+    }
+
+    withdrawal(agentId, groupId, status) {
+        let that = this;
+        return that.restTelephony.withdrawal(that.getRequestHeader(), agentId, groupId, status);
+    }
+
+    wrapup( agentId, groupId, password, status) {
+        let that = this;
+        return that.restTelephony.wrapup(that.getRequestHeader(), agentId, groupId, password, status);
     }
 
     ////////
