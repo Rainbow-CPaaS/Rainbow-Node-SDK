@@ -306,8 +306,12 @@ class ChannelEventHandler extends GenericHandler {
 
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
-                that.eventEmitter.emit("rainbow_onerror", msg);
+                if (stanza.getChild('no-store') != undefined){
+                    // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                } else {
+                    that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
+                    that.eventEmitter.emit("rainbow_onerror", msg);
+                }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);

@@ -949,9 +949,22 @@ class ConversationEventHandler extends GenericHandler {
 
         this.onErrorMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, stanza);
-                that.eventEmitter.emit("rainbow_onerror", msg);
+
+                if (stanza.getChild('no-store') != undefined){
+                    that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                    let err = {
+                        "id": stanza.attrs.id,
+                        "body": stanza.getChild('body').text(),
+                        "subject": stanza.getChild('subject').text()
+                    };
+                    that.logger.log("error", LOG_ID + "(onErrorMessageReceived) no-store message setted...");
+                    that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
+                    that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
+                } else {
+                    that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                    that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, util.inspect(stanza));
+                    that.eventEmitter.emit("rainbow_onerror", msg);
+                }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);

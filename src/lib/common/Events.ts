@@ -18,6 +18,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onmessagereceiptreceived
  * @fires Events#rainbow_onmessagereceiptreadreceived
  * @fires Events#rainbow_onmessagereceived
+ * @fires Events#rainbow_onsendmessagefailed
  * @fires Events#rainbow_oncontactpresencechanged
  * @fires Events#rainbow_onpresencechanged
  * @fires Events#rainbow_onconversationremoved
@@ -100,7 +101,7 @@ class Events {
                  * @param {string} receipt.type The type of the message. Can be `chat` or `groupchat`.
                  * @param {string} receipt.id The id of the message sent (linked to that receipt)
                  * @memberof Events
-                 * @description 
+                 * @description
                  *      Fired when the message has been received by the server
                  */
                 that.publishEvent("messageserverreceiptreceived", receipt);
@@ -116,8 +117,8 @@ class Events {
                      * @param {string} receipt.type The type of the message. Can be `chat` or `groupchat`
                      * @param {string} receipt.id The id of the message sent (linked to that receipt)
                      * @param {string} receipt.fromJid The Bare JID of the recipient who sent this receipt,
-                     * @param {string} receipt.resource The resource JID of the recipient who sent this receipt 
-                     * @description 
+                     * @param {string} receipt.resource The resource JID of the recipient who sent this receipt
+                     * @description
                      *      Fired when the message has been received by the recipient
                      */
                     that.publishEvent("messagereceiptreceived", receipt);
@@ -132,8 +133,8 @@ class Events {
                      * @param {string} receipt.type The type of the message. Can be `chat` or `groupchat`
                      * @param {string} receipt.id The id of the message sent (linked to that receipt)
                      * @param {string} receipt.fromJid The Bare JID of the recipient who sent this receipt,
-                     * @param {string} receipt.resource The resource JID of the recipient who sent this receipt 
-                     * @description 
+                     * @param {string} receipt.resource The resource JID of the recipient who sent this receipt
+                     * @description
                      *      Fired when the message has been read by the recipient
                      */
                     that.publishEvent("messagereceiptreadreceived", receipt);
@@ -151,10 +152,21 @@ class Events {
              * @event Events#rainbow_onmessagereceived
              * @public
              * @param {Message} message The message received
-             * @description 
+             * @description
              *      Fired when a chat message is received (in a one-to-one conversation or in a Bubble conversation)
              */
             that.publishEvent("messagereceived", message);
+        });
+
+        this._evReceiver.on("evt_internal_onsendmessagefailed", function(message) {
+            /**
+             * @event Events#rainbow_onsendmessagefailed
+             * @public
+             * @param { id, body, subject } message The message which failed to be sent.
+             * @description
+             *      Fired when a chat message with no-store attribut sent has failed.
+             */
+            that.publishEvent("sendmessagefailed", message);
         });
 
         this._evReceiver.on("evt_internal_onrosterpresencechanged", function(contact) {
@@ -163,7 +175,7 @@ class Events {
              * @event Events#rainbow_oncontactpresencechanged
              * @public
              * @param { Contact } contact The contact
-             * @description 
+             * @description
              *      Fired when the presence of a contact changes
              */
             that.publishEvent("contactpresencechanged", contact);
@@ -194,7 +206,7 @@ class Events {
              * @event Events#rainbow_onconversationremoved
              * @param { Object } conversation The conversation object
              * @param { String } conversation.conversationId Conversation identifier
-             * @description 
+             * @description
              *      This event is fired when a conversation has been removed
              */
             that.publishEvent("conversationremoved", conversation);
@@ -205,7 +217,7 @@ class Events {
             /**
              * @event Events#rainbow_onconversationchanged
              * @param { Conversation } conversation The conversation
-             * @description 
+             * @description
              *      This event is fired when a conversation has changed
              */
             that.publishEvent("conversationchanged", conversation);
@@ -227,7 +239,7 @@ class Events {
             /**
              * @event Events#rainbow_onchatstate
              * @param { Object } chatstate The chatstate
-             * @description 
+             * @description
              *      This event is fired when a chatstate event occurs
              */
             that.publishEvent("chatstate", chatstate);
@@ -238,7 +250,7 @@ class Events {
             /**
              * @event Events#rainbow_oncontactinformationchanged
              * @param { Contact } contact The contact
-             * @description 
+             * @description
              *      This event is fired when a conversation has been removed
              */
             that.publishEvent("contactinformationchanged", contact);
@@ -282,7 +294,7 @@ class Events {
              * @event Events#rainbow_onbubbleaffiliationchanged
              * @public
              * @param { Bubble } bubble The bubble updated
-             * @description 
+             * @description
              *      Fired when a user changes his affiliation with a bubble
              */
             that.publishEvent("bubbleaffiliationchanged", bubble);
@@ -302,7 +314,7 @@ class Events {
             /**
              * @event Events#rainbow_onbubbleownaffiliationchanged
              * @param { Bubble } bubble The bubble updated
-             * @description 
+             * @description
              *      Fired when a user changes the user connected affiliation with a bubble
              */
             that.publishEvent("bubbleownaffiliationchanged", bubble);
@@ -331,7 +343,7 @@ class Events {
              * @event Events#rainbow_onbubbleinvitationreceived
              * @public
              * @param { Bubble } bubble The invitation bubble
-             * @description 
+             * @description
              *      Fired when an invitation to join a bubble is received
              */
             that.publishEvent("bubbleinvitationreceived", bubble);
@@ -342,7 +354,7 @@ class Events {
              * @event Events#rainbow_onbubblecustomdatachanged
              * @public
              * @param { Bubble } bubble The bubble updated with the new custom data set
-             * @description 
+             * @description
              *      Fired when the custom data of a bubble has changed
              */
             that.publishEvent("bubblecustomdatachanged", bubble);
@@ -353,7 +365,7 @@ class Events {
              * @event Events#rainbow_onbubbletopicchanged
              * @public
              * @param { Bubble } bubble The bubble updated with the new topic set
-             * @description 
+             * @description
              *      Fired when the topic of a bubble has changed
              */
             that.publishEvent("bubbletopicchanged", bubble);
@@ -364,7 +376,7 @@ class Events {
              * @event Events#rainbow_onbubblenamechanged
              * @public
              * @param { Bubble } bubble The bubble updated with the new name set
-             * @description 
+             * @description
              *      Fired when the name of a bubble has changed
              */
             that.publishEvent("bubblenamechanged", bubble);
