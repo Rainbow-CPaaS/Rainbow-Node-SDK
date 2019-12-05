@@ -228,16 +228,17 @@ class NodeSDK {
      * @public
      * @method start
      * @instance
+     * @param {String} token a valid token to login without login/password.
      * @description
      *    Start the SDK
      * @memberof NodeSDK
      */
-    start() {
+    start(token) {
         let that = this;
         that.startTime = new Date();
         return new Promise(function(resolve, reject) {
-            return that._core.start().then(function() {
-                return that._core.signin(false);
+            return that._core.start(undefined, token).then(function() {
+                return that._core.signin(false, token);
             }).then(function(result) {
 
                 // Stop the SDK if the node exe receiv a signal to stop, except for sigkill.

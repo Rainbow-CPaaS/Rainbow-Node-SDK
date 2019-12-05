@@ -74,7 +74,7 @@ class Core {
 
         let self = this;
 
-        self._signin = (forceStopXMPP) => {
+        self._signin = (forceStopXMPP, token) => {
             let that = self;
             that.logger.log("debug", LOG_ID + "(signin) _entering_");
 
@@ -83,7 +83,7 @@ class Core {
             return new Promise(function (resolve, reject) {
 
                 return that._xmpp.stop(forceStopXMPP).then(() => {
-                    return that._rest.signin();
+                    return that._rest.signin(token);
                 }).then((_json) => {
                     json = _json;
                     let headers = {
@@ -220,8 +220,8 @@ class Core {
             return self._botsjid.includes(jid);
         });
         self._eventEmitter.setCore(self);
-        self._eventEmitter.iee.on("evt_internal_signinrequired", function () {
-            self.signin(true);
+        self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
+            await self.signin(true, undefined);
         });
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
             self._rest.applicationToken = token;
@@ -335,7 +335,7 @@ class Core {
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
     }
 
-    start(useCLIMode) {
+    start(useCLIMode, token) {
         let that = this;
 
         this.logger.log("debug", LOG_ID + "(start) _entering_");
@@ -344,12 +344,11 @@ class Core {
 
             try {
 
-                if (!that.options.hasCredentials) {
+                if (!that.options.hasCredentials && !token) {
                     that.logger.log("error", LOG_ID + "(start) No credentials. Stop loading...");
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
                     reject("Credentials are missing. Check your configuration!");
-                }
-                else {
+                } else {
                     that.logger.log("debug", LOG_ID + "(start) start all modules");
                     that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
                     that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
@@ -416,14 +415,14 @@ class Core {
         });
     }
 
-    signin(forceStopXMPP) {
+    signin(forceStopXMPP, token) {
 
         let that = this;
         return new Promise(function (resolve, reject) {
 
             let json = null;
 
-            return that._signin(forceStopXMPP).then(function (_json) {
+            return that._signin(forceStopXMPP, token).then(function (_json) {
                 json = _json;
                 that._tokenSurvey();
                 return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {

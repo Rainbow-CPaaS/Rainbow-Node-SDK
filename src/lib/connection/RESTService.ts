@@ -170,8 +170,47 @@ class RESTService {
         });
     }
 
-    signin() {
+    async signin(token) {
         let that = this;
+
+        // Login by the token provided in parameter.
+        if (token) {
+            try {
+                let decodedtoken = jwt(token);
+                let JSON = {
+                    "loggedInUser": decodedtoken.user,
+                    "loggedInApplication": decodedtoken.app,
+                    "token": token
+                };
+                that.account = JSON.loggedInUser;
+                that.app = JSON.loggedInApplication;
+                that.token = JSON.token;
+
+                let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
+                    if (contactsFromServeur && contactsFromServeur.length > 0) {
+                        let contact: Contact = null;
+                        that.logger.log("info", LOG_ID + "(signin) contact found on server, get full infos.");
+                        let _contactFromServer = contactsFromServeur[0];
+                        if (_contactFromServer) {
+                            // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
+                            return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
+                                that.logger.log("internal", LOG_ID + "(signin) contact full infos : ", _contactInformation);
+                                return _contactInformation;
+                            });
+                        }
+                    }
+                });
+                that.account = JSON.loggedInUser = loggedInUser;
+                that.logger.log("debug", LOG_ID + "(signin) token signin, welcome " + that.account.id + "!");
+                that.logger.log("internal", LOG_ID + "(signin) user information ", that.account);
+                that.logger.log("internal", LOG_ID + "(signin) application information : ", that.app);
+                return Promise.resolve(JSON);
+            }  catch (err) {
+                that.logger.log("debug", LOG_ID + "(signin) CATCH Error !!! error : ", err);
+                return Promise.reject(err);
+            }
+        }
+        // If no token is provided, then signin with user/pwd credentials.
         return new Promise(function(resolve, reject) {
             that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(function(JSON) {
                 that.account = JSON.loggedInUser;
@@ -179,7 +218,7 @@ class RESTService {
                 that.token = JSON.token;
                 that.logger.log("internal", LOG_ID + "(signin) welcome " + that.account.displayName + "!");
                 //that.logger.log("debug", LOG_ID + "(signin) user information ", that.account);
-                that.logger.log("internal", LOG_ID + "(signin) application information ", that.app);
+                that.logger.log("internal", LOG_ID + "(signin) application information : ", that.app);
                 resolve(JSON);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID,"(signin) ErrorManager during REST signin");
@@ -194,9 +233,7 @@ class RESTService {
         return new Promise(function(resolve, reject) {
             let auth = btoa(loginEmail + ":" + password);
 
-            that.http
-                .get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(auth, password), undefined)
-                .then(function(JSON) {
+            that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(auth, password), undefined).then(function(JSON) {
                     that.logger.log("internal", LOG_ID + "(askTokenOnBehalf) successfully received token for ", JSON.loggedInUser.id, " !");
                     resolve(JSON);
                 })
@@ -238,7 +275,7 @@ class RESTService {
         let decodedToken = jwt(that.token);
         that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token");
         that.logger.log("info", LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
-        that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token", decodedToken);
+        that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token, decodedToken : ", decodedToken);
         let halfExpirationDate = ( decodedToken.exp - decodedToken.iat ) / 2 + decodedToken.iat;
         let tokenExpirationTimestamp = halfExpirationDate * 1000;
         let expirationDate = new Date(tokenExpirationTimestamp);
