@@ -221,6 +221,15 @@ class NodeSDK {
         process.on("warning", warning);
         process.on("uncaughtException", uncaughtException);
 
+        // Stop the SDK if the node exe receiv a signal to stop, except for sigkill.
+        process.removeListener("SIGINT", this.stopProcess());
+        process.removeListener("SIGQUIT", this.stopProcess());
+        process.removeListener("SIGTERM", this.stopProcess());
+        process.on("SIGINT", this.stopProcess());
+        process.on("SIGQUIT", this.stopProcess());
+        process.on("SIGTERM", this.stopProcess());
+        //process.on("SIGUSR2", that.stopProcess());
+
         this._core = new Core(options);
     }
 
@@ -231,6 +240,9 @@ class NodeSDK {
      * @param {String} token a valid token to login without login/password.
      * @description
      *    Start the SDK
+     *    Note :
+     *    The token must be empty to signin with credentials.
+     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)
      * @memberof NodeSDK
      */
     start(token) {
@@ -240,12 +252,6 @@ class NodeSDK {
             return that._core.start(undefined, token).then(function() {
                 return that._core.signin(false, token);
             }).then(function(result) {
-
-                // Stop the SDK if the node exe receiv a signal to stop, except for sigkill.
-                process.on("SIGINT", that.stopProcess());
-                process.on("SIGQUIT", that.stopProcess());
-                process.on("SIGTERM", that.stopProcess());
-                //process.on("SIGUSR2", that.stopProcess());
                 let startDuration = Math.round(new Date() - that.startTime);
                 if (!result) {result = {};}
                 result.startDuration = startDuration;

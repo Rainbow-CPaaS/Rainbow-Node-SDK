@@ -80,7 +80,8 @@ class Telephony {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+        let that = this;
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -108,6 +109,11 @@ class Telephony {
         this.isForwardEnabled = false;
         this.isNomadicEnabled = false;
         this.ready = false;
+
+        that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
+        that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
+
+//        that._eventEmitter.on("rainbow_onpbxagentstatusreceived", that.onPbxAgentStatusChange.bind(that));
 
     }
 
@@ -207,11 +213,6 @@ class Telephony {
             // Store the user jid tel
             //that.userJidTel = authService.jidTel;
             that.userJidTel = that._rest.loggedInUser.jid_tel;
-
-            that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
-            that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
-
-//        that._eventEmitter.on("rainbow_onpbxagentstatusreceived", that.onPbxAgentStatusChange.bind(that));
 
             that.started = false;
             that._xmpp.getAgentStatus().then((data) => {
