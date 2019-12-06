@@ -15,7 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix datas of channel when fetched.
 -   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
 -   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
--   Move treatment of invitations events from Conversation/Contacts services to Presence service. 
+-   Move treatment of invitations events from Conversation/Contacts services to invitations service. 
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
