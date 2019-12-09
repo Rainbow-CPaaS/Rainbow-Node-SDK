@@ -14,6 +14,7 @@ Its powerfull APIs enable you to create the best Node.js applications that conne
 
 This documentation will help you to use it.
 
+Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE. 
 
 ## Rainbow developper account
 

@@ -2,7 +2,9 @@
 
 ---
 
-Welcome to the new release of the Rainbow SDK for Node.JS. There are a number of significant updates in this version that we hope you will like, some of the key highlights include:
+Welcome to the new release of the Rainbow SDK for Node.JS. 
+Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE. 
+Some of the key highlights include:
 
 ### SDK for Node.JS 1.64 - November 2019
 

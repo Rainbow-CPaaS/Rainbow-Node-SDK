@@ -119,6 +119,8 @@ function unhandledRejection(reason, p) {
  *      - Start and stop the SDK <br>
  *      - Get the version number <br>
  *      - Get the SDK internal state
+ *
+ *      Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
  */
 class NodeSDK {
 
@@ -127,7 +129,7 @@ class NodeSDK {
      * @public
      * @description
      *      The entry point of the Rainbow Node SDK
-     * @param {Object} options : The options provided to manage the SDK behavior <br>
+     * @param {{rainbow: {host: string}, application: {appID: string, appSecret: string}, im: {sendReadReceipt: boolean, sendMessageToConnectedUser: boolean, conversationsRetrievedFormat: string, copyMessage: boolean, storeMessages: boolean, messageMaxLength: number}, credentials: {password: string, login: string}, logs: {file: {zippedArchive: boolean, path: string, customFileName: string}, color: boolean, level: string, "system-dev": {http: boolean, internals: boolean}, enableFileLogs: boolean, customLabel: string, enableConsoleLogs: boolean}, servicesToStart: {favorites: {start_up: boolean}, fileStorage: {start_up: boolean}, webrtc: {start_up: boolean, optional: boolean}, channels: {start_up: boolean}, calllog: {start_up: boolean}, telephony: {start_up: boolean}, admin: {start_up: boolean}, bubbles: {start_up: boolean}, fileServer: {start_up: boolean}}}} options : The options provided to manage the SDK behavior <br>
      *   "rainbow": {<br>
      *       "host": "official",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
      *    },<br>
