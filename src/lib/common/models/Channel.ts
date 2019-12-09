@@ -40,6 +40,7 @@ class Channel {
     public messageRetrieved: boolean = false;
     public messages: any[] = [];
     public deleted: boolean = false;
+    public provisioning: boolean = false;
 
     /**
      * @this Channel
@@ -73,7 +74,8 @@ class Channel {
         _userRole: string = 'none',
         _messageRetrieved: boolean = false,
         _messages: any[] = [],
-        _deleted: boolean = false
+        _deleted: boolean = false,
+        _provisioning: boolean = false
     ) {
         /**
          * @public
@@ -182,6 +184,8 @@ class Channel {
             }
         }
 
+        this.deleted = _deleted;
+        this.provisioning = _provisioning;
     }
 
     public isNotMember() { return (this.userRole = "none"); }
@@ -258,7 +262,8 @@ class Channel {
                 data.userRole,
                 data.messageRetrieved,
                 data.messages,
-                data.deleted
+                data.deleted,
+                data.provisioning
         );
 
             if (data) {

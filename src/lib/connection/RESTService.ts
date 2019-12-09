@@ -1934,7 +1934,7 @@ class RESTService {
         return new Promise(function(resolve, reject) {
             that.http.get("/api/rainbow/channels/v1.0/channels/" + id, that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("debug", LOG_ID + "(getChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(getChannel) received " + JSON.stringify(json) + " channels");
+                that.logger.log("internal", LOG_ID + "(getChannel) received channels : ", json);
                 resolve(json.data);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(getChannel) error");

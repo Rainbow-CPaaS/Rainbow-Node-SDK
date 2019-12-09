@@ -33,18 +33,18 @@ let options = {
         }, // */
     // Logs options
     "logs": {
-        "enableConsoleLogs": true,
-        "enableFileLogs": true,
+        "enableConsoleLogs": false,
+        "enableFileLogs": false,
         "color": true,
         "level": "debug",
-        "customLabel": "vincent01",
+        "customLabel": "ChangeLog",
         "system-dev": {
             "internals": true,
             "http": true,
         },
         "file": {
             "path": "c:/temp/",
-            "customFileName": "R-SDK-Node-Sample2",
+            "customFileName": "R-SDK-Node-ChangeLog",
             //"level": 'info',                    // Default log level used
             "zippedArchive": false /*,
             "maxSize" : '10m',
