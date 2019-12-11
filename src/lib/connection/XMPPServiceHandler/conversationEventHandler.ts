@@ -464,7 +464,7 @@ class ConversationEventHandler extends GenericHandler {
                             data.conversation.messages.push(data);
                         } // */
                         this.eventEmitter.emit("evt_internal_onmessagereceived", data);
-                        that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": conv.id});
+                        that.eventEmitter.emit("evt_internal_conversationupdated", conv);
                     });
                 } else {
                     data.conversation = conversation;
@@ -473,7 +473,7 @@ class ConversationEventHandler extends GenericHandler {
                         data.conversation.messages.push(data);
                     } // */
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
-                    that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": conversation.id});
+                    that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
@@ -817,7 +817,17 @@ class ConversationEventHandler extends GenericHandler {
                 that.logger.log("internal", LOG_ID + "(onMuteManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onMuteManagementMessageReceived) conversation muted");
-                    that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": node.attrs.conversation});
+                    let conversationId = node.attrs.conversation;
+                    let conversation = that.conversationService.getConversationById(conversationId);
+                    if (!conversation) {
+                        let cs = this.conversationService;
+                        let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId,undefined, undefined, undefined, undefined,undefined,undefined,undefined,undefined) : cs.getOrCreateOneToOneConversation(conversationId);
+                        createPromise.then((conv) => {
+                            that.eventEmitter.emit("evt_internal_conversationupdated", conv);
+                        });
+                    } else {
+                        that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                    }
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! ");
@@ -830,7 +840,17 @@ class ConversationEventHandler extends GenericHandler {
                 that.logger.log("internal", LOG_ID + "(onUnmuteManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onUnmuteManagementMessageReceived) conversation unmuted");
-                    that.eventEmitter.emit("evt_internal_conversationupdated", {"conversationId": node.attrs.conversation});
+                    let conversationId = node.attrs.conversation;
+                    let conversation = that.conversationService.getConversationById(conversationId);
+                    if (!conversation) {
+                        let cs = this.conversationService;
+                        let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId,undefined, undefined, undefined, undefined,undefined,undefined,undefined,undefined) : cs.getOrCreateOneToOneConversation(conversationId);
+                        createPromise.then((conv) => {
+                            that.eventEmitter.emit("evt_internal_conversationupdated", conv);
+                        });
+                    } else {
+                        that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                    }
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! ");
@@ -851,6 +871,20 @@ class ConversationEventHandler extends GenericHandler {
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
 
+                            let fileDescriptor = this.fileStorageService.getFileDescriptorById(fileid);
+                            if (!fileDescriptor) {
+                                updateConsumption = true;
+                            }
+
+                            await that.fileStorageService.retrieveAndStoreOneFileDescriptor(fileid, true).then(function (fileDesc) {
+                                that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) fileDescriptor retrieved");
+                                if (!fileDesc.previewBlob) {
+                                    that.fileServerService.getBlobThumbnailFromFileDescriptor(fileDesc)
+                                        .then(function (blob) {
+                                            fileDesc.previewBlob = blob;
+                                        });
+                                }
+                            });
                             that.eventEmitter.emit("evt_internal_filecreated", {'fileid': fileid});
                         }
                             break;

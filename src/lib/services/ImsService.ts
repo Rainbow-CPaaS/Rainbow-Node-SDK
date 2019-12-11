@@ -201,7 +201,9 @@ class IMService {
         let message =  conversation.getMessageById(strMessageId);
 
         if (message && message.oob && message.oob.url) {
-            message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1));
+            let fileDescriptorId = message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1);
+            that._logger.log("internal", LOG_ID + "(getMessageFromBubbleById) oob url defined so build shortFileDescriptor :", fileDescriptorId);
+            message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(fileDescriptorId);
         }
 
         return message;

@@ -483,6 +483,7 @@ class FileStorage {
     /**********************************************************/
     getFileDescriptorById(id) {
         let that = this;
+        that._logger.log("internal", LOG_ID + "(getFileDescriptorById) FileDescriptorId : ", id, ", from : ", that.fileDescriptors);
 
         for (let fileDescriptor of that.fileDescriptors) {
             if (fileDescriptor.id === id) {

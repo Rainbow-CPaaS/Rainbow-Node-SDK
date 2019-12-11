@@ -27,6 +27,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add the ability to login with a token to the Rainbow Node SDK (token parameter to SDK start method.).
 -   Fix MaxListenersExceededWarning issue about too much listener registred.
 -   Add a program using the SDK to post changelog in a channel. Should be used in jenkins job delivery.
+-   Fix onFileManagementMessageReceived when a file created to store the filedescriptor in internal list
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.
