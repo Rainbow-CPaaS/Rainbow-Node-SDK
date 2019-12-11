@@ -176,6 +176,7 @@ class RESTService {
         // Login by the token provided in parameter.
         if (token) {
             try {
+                that.logger.log("internal", LOG_ID + "(signin) with token : ", token, " : ", that.getLoginHeader());
                 let decodedtoken = jwt(token);
                 let JSON = {
                     "loggedInUser": decodedtoken.user,

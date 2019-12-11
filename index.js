@@ -348,11 +348,17 @@ class NodeSDK {
     stopProcess() {
         let self = this;
         return async () => {
-
-            // console.log("stopProcess");
-            await self.stop();
-            await utils.setTimeoutPromised(1000);
-            // eslint-disable-next-line no-process-exit
+            try {
+                // console.log("stopProcess");
+                await self.stop().catch((ee)=>{
+                    console.log("stopProcess, stop failed : ", ee);
+                });
+                await utils.setTimeoutPromised(1000);
+                // eslint-disable-next-line no-process-exit
+            }
+            catch (e) {
+                console.log("stopProcess, CATCH Error !!! stop failed : ", e);
+            }
             process.exit(0);
         };
     }

@@ -315,6 +315,8 @@ class ConversationEventHandler extends GenericHandler {
                             }
                             break;
                         }
+                        case "no-store":
+                            break;
                         case "store":
                             break;
                         case "replace": {
