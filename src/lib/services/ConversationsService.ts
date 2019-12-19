@@ -1413,6 +1413,41 @@ class Conversations {
         });
     }
 
+    /**
+     * @public
+     * @method openConversationForBubble
+     * @since 1.65
+     * @instance
+     * @description
+     *    Open a conversation to a bubble <br/>
+     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
+     *    This method returns a promise
+     * @param {Bubble} bubble The bubble involved in this conversation
+     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+     */
+    openConversationForBubble(bubble) {
+        let that = this;
+        return new Promise(function (resolve, __reject) {
+
+            if (!bubble) {
+                return __reject({
+                    code: ErrorManager.getErrorManager().BAD_REQUEST,
+                    label: "Parameter 'bubble' is missing or null"
+                });
+            } else {
+                that._logger.log("info", LOG_ID + "(openConversationForBubble), Try to create of get a conversation for bubble.");
+                that._logger.log("internal", LOG_ID + "(openConversationForBubble), Try to create of get a conversation with bubble : ", bubble);
+
+                that.getBubbleConversation(bubble.jid,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(function (conversation) {
+                    that._logger.log("internal", LOG_ID + "(openConversationForBubble), Conversation retrieved or created, conversation : ", conversation);
+                    resolve(conversation)
+                }).catch(function (result) {
+                    that._logger.log("internal", LOG_ID + "(openConversationForBubble) Error : ", result);
+                    __reject(result);
+                });
+            }
+        });
+    }
 
     /**
      * @private

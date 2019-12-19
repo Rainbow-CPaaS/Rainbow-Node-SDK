@@ -58,6 +58,7 @@ class RESTService {
 	public getLoginHeader: any;
 	public getDefaultHeader: any;
 	public applicationToken: string;
+    public getPostHeader: any;
 
     constructor(_credentials, _application, _isOfficialRainbow, evtEmitter : EventEmitter, _logger : Logger) {
         let that = this;
@@ -89,7 +90,6 @@ class RESTService {
         this.restTelephony = new RESTTelephony(evtEmitter, _logger);
 
         this.getRequestHeader = (accept) => {
-
             let headers = {
                 "Authorization": "Bearer " + that.token,
                 "Accept": accept || "application/json",
@@ -102,6 +102,13 @@ class RESTService {
             let header = this.getRequestHeader(accept);
 			header.Range = range;
 			return header;
+        };
+
+        this.getPostHeader = (contentType) => {
+            let header = this.getRequestHeader();
+            let type = contentType || "application/json";
+            header["Content-Type"] = type;
+            return header;
         };
 
         this.getPostHeaderWithRange = (accept, initialSize, minRange, maxRange) => {
@@ -1170,6 +1177,82 @@ class RESTService {
             });
         });
     }
+
+    setAvatarRoom(bubbleid, binaryData) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+            let data = binaryData.data;
+
+            that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleid + "/avatar", that.getRequestHeader("application/json"), data, "image/" + binaryData.type).then(function(json) {
+                that.logger.log("info", LOG_ID + "(setAvatarRoom) successfull");
+                that.logger.log("internal", LOG_ID + "(setAvatarRoom) REST bubble Avatar sent : ", json);
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(setAvatarRoom) error");
+                that.logger.log("internalerror", LOG_ID, "(setAvatarRoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteAvatarRoom (roomId) {
+        return new Promise((resolve, reject) => {
+            let that = this;
+
+            that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/avatar", that.getRequestHeader()).then( (json) => {
+                that.logger.log("info", LOG_ID + "(deleteAvatarRoom) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAvatarRoom) REST deletion file descriptor", json);
+                resolve(json);
+            }).catch( (err)  => {
+                that.logger.log("error", LOG_ID, "(deleteAvatarRoom) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAvatarRoom) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    /*
+    ownerUpdateRoomCustomData (roomData) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+            let data = { "customData": roomData.customData };
+            that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) roomData : ", roomData);
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomData.id + "/custom-data", that.getRequestHeader("application/json"), data, undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(ownerUpdateRoomCustomData) successfull");
+                that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) REST bubble Avatar sent : ", json);
+                resolve(json.data.customData || {});
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(ownerUpdateRoomCustomData) error");
+                that.logger.log("internalerror", LOG_ID, "(ownerUpdateRoomCustomData) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    ownerUpdateRoom (roomData) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+            let data = {
+                name: roomData.name,
+                topic: roomData.desc,
+                visibility: roomData.type ? "public" : "private"
+            };
+            that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) roomData : ", roomData);
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomData.id , that.getRequestHeader("application/json"), data, undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(ownerUpdateRoomCustomData) successfull");
+                that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) REST bubble Avatar sent : ", json);
+                resolve(json.data || {});
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(ownerUpdateRoomCustomData) error");
+                that.logger.log("internalerror", LOG_ID, "(ownerUpdateRoomCustomData) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+    // */
 
     createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
         let that = this;

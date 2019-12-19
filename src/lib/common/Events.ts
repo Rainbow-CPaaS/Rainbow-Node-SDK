@@ -34,6 +34,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onbubbleinvitationreceived
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
+ * @fires Events#rainbow_onbubbleavatarchanged
  * @fires Events#rainbow_onbubblenamechanged
  * @fires Events#rainbow_ongroupcreated
  * @fires Events#rainbow_ongroupdeleted
@@ -162,7 +163,7 @@ class Events {
             /**
              * @event Events#rainbow_onsendmessagefailed
              * @public
-             * @param { id, body, subject } message The message which failed to be sent.
+             * @param { Message } message The message which failed to be sent.
              * @description
              *      Fired when a chat message with no-store attribut sent has failed.
              */
@@ -331,14 +332,18 @@ class Events {
         });
 
         this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
-
-            bubble.users.forEach((user) => {
-                if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
-                    // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                    that._core.bubbles._sendInitialBubblePresence(bubble);
+            try {
+                if (bubble && bubble.users) {
+                    bubble.users.forEach((user) => {
+                        if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                            // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                            that._core.bubbles._sendInitialBubblePresence(bubble);
+                        }
+                    });
                 }
-            });
-
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(publishEvent) CATCH Error when evt_internal_invitationdetailsreceived received : ", err);
+            }
             /**
              * @event Events#rainbow_onbubbleinvitationreceived
              * @public
@@ -370,6 +375,18 @@ class Events {
              */
             that.publishEvent("bubbletopicchanged", bubble);
         });
+
+        this._evReceiver.on("evt_internal_bubbleavatarchanged", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleavatarchanged
+             * @public
+             * @param { Bubble } bubble The bubble updated with a new avatar
+             * @description
+             *      Fired when the avatar of a bubble has changed
+             */
+            that.publishEvent("bubbleavatarchanged", bubble);
+        });
+
 
         this._evReceiver.on("evt_internal_bubblenamechanged", function(bubble) {
             /**

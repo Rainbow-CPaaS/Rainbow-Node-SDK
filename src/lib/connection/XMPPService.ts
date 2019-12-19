@@ -1102,7 +1102,9 @@ class XMPPService {
                     delete that.IQEventHandler;
                     that.IQEventHandler = null;
 
-                    that.IQEventHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                    if (that.IQEventHandlerToken) {
+                        that.IQEventHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                    }
                     that.IQEventHandlerToken = [];
 
                     that.forceClose = true;

@@ -320,7 +320,7 @@ class Core {
         self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat);
         self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
         self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
-        self._bubbles = new BubblesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.bubbles);
+        self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
         self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
         self._admin = new AdminService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
         self._settings = new SettingsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);

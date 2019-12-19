@@ -318,6 +318,10 @@ declare module 'lib/connection/RestServices/RESTTelephony' {
 	    sendDtmf(requestHeader: any, callId: any, deviceId: any, data: any): Promise<unknown>;
 	    getNomadicStatus(requestHeader: any): Promise<unknown>;
 	    nomadicLogin(requestHeader: any, data: any): Promise<unknown>;
+	    logon(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    logoff(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    withdrawal(requestHeader: any, agentId: any, groupId: any, status: any): Promise<unknown>;
+	    wrapup(requestHeader: any, agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
 	}
 	export { RESTTelephony };
 
@@ -476,7 +480,7 @@ declare module 'lib/connection/HttpService' {
 	     *
 	     */
 	    hasJsonStructure(str: any): boolean;
-	    readonly host: any;
+	    get host(): any;
 	    start(): Promise<any>;
 	    stop(): Promise<any>;
 	    tokenExpirationControl(bodyjs: {
@@ -488,7 +492,7 @@ declare module 'lib/connection/HttpService' {
 	    put(url: any, headers: any, data: any, type: any): Promise<any>;
 	    putBuffer(url: any, headers: any, buffer: any): Promise<any>;
 	    putStream(url: any, headers: any, stream: any): Promise<any>;
-	    delete(url: any, headers: any): Promise<any>;
+	    delete(url: any, headers?: any): Promise<any>;
 	}
 	export { HTTPService };
 
@@ -605,7 +609,8 @@ declare module 'lib/common/models/Contact' {
 	     * @property {string} displayName The display name of the Contact
 	     * @instance
 	     */
-	    displayName: any;
+	    set displayName(value: any);
+	    get displayName(): any;
 	    setNameUpdatePrio(prio: any): void;
 	    getNameUpdatePrio(): any;
 	    displayNameForLog(): any;
@@ -618,8 +623,28 @@ declare module 'lib/common/models/Contact' {
 	export { Contact as Contact, AdminType as AdminType, NameUpdatePrio as NameUpdatePrio };
 
 }
+declare module 'lib/common/Logger' {
+	export {}; class Logger {
+	    colors: any;
+	    _logger: any;
+	    _winston: any;
+	    hideId: any;
+	    hideUuid: any;
+	    constructor(config: any);
+	    get log(): any;
+	    argumentsToStringReduced(v: any): any;
+	    argumentsToStringFull(v: any): any;
+	    argumentsToString: (v: any) => any;
+	}
+	export { Logger };
+
+}
 declare module 'lib/connection/RESTService' {
-	import { HTTPService } from 'lib/connection/HttpService'; class RESTService {
+	/// <reference types="node" />
+	import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
+	import { HTTPService } from 'lib/connection/HttpService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger'; class RESTService {
 	    http: HTTPService;
 	    account: any;
 	    app: any;
@@ -629,8 +654,8 @@ declare module 'lib/connection/RESTService' {
 	    _credentials: any;
 	    _application: any;
 	    loginEmail: any;
-	    eventEmitter: any;
-	    logger: any;
+	    eventEmitter: EventEmitter;
+	    logger: Logger;
 	    currentAttempt: any;
 	    attempt_succeeded_callback: any;
 	    attempt_failed_callback: any;
@@ -639,19 +664,20 @@ declare module 'lib/connection/RESTService' {
 	    maxAttemptToReconnect: any;
 	    fibonacciStrategy: any;
 	    reconnectDelay: any;
-	    restTelephony: any;
+	    restTelephony: RESTTelephony;
 	    getRequestHeader: any;
 	    getRequestHeaderWithRange: any;
 	    getPostHeaderWithRange: any;
 	    getLoginHeader: any;
 	    getDefaultHeader: any;
 	    applicationToken: string;
-	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: any, _logger: any);
-	    readonly userId: any;
-	    readonly loggedInUser: any;
-	    start(http: any): any;
+	    getPostHeader: any;
+	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: EventEmitter, _logger: Logger);
+	    get userId(): any;
+	    get loggedInUser(): any;
+	    start(http: any): Promise<void>;
 	    stop(): Promise<unknown>;
-	    signin(): Promise<unknown>;
+	    signin(token: any): Promise<unknown>;
 	    askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
 	    signout(): Promise<unknown>;
 	    startTokenSurvey(): void;
@@ -711,6 +737,8 @@ declare module 'lib/connection/RESTService' {
 	    acceptInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
 	    declineInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
 	    inviteUser(email: any, companyId: any, language: any, message: any): Promise<unknown>;
+	    setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
+	    deleteAvatarRoom(roomId: any): Promise<unknown>;
 	    createUser(email: any, password: any, firstname: any, lastname: any, companyId: any, language: any, isAdmin: any, roles: any): Promise<unknown>;
 	    createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<unknown>;
 	    changePassword(password: any, userId: any): Promise<unknown>;
@@ -769,22 +797,26 @@ declare module 'lib/connection/RESTService' {
 	    deleteChannelMessage(channelId: any, itemId: any): Promise<unknown>;
 	    getServerProfiles(): Promise<unknown>;
 	    getServerProfilesFeatures(): Promise<unknown>;
-	    makeCall(contact: any, phoneInfo: any): any;
-	    releaseCall(call: any): any;
-	    makeConsultationCall(callId: any, contact: any, phoneInfo: any): any;
-	    answerCall(call: any): any;
-	    holdCall(call: any): any;
-	    retrieveCall(call: any): any;
-	    deflectCallToVM(call: any, VMInfos: any): any;
-	    deflectCall(call: any, calleeInfos: any): any;
-	    transfertCall(activeCall: any, heldCall: any): any;
-	    conferenceCall(activeCall: any, heldCall: any): any;
-	    forwardToDevice(contact: any, phoneInfo: any): any;
-	    getForwardStatus(): any;
-	    getNomadicStatus(): any;
-	    nomadicLogin(data: any): any;
-	    sendDtmf(callId: any, deviceId: any, data: any): any;
-	    getServerConversations(): Promise<unknown>;
+	    makeCall(contact: any, phoneInfo: any): Promise<unknown>;
+	    releaseCall(call: any): Promise<unknown>;
+	    makeConsultationCall(callId: any, contact: any, phoneInfo: any): Promise<unknown>;
+	    answerCall(call: any): Promise<unknown>;
+	    holdCall(call: any): Promise<unknown>;
+	    retrieveCall(call: any): Promise<unknown>;
+	    deflectCallToVM(call: any, VMInfos: any): Promise<unknown>;
+	    deflectCall(call: any, calleeInfos: any): Promise<unknown>;
+	    transfertCall(activeCall: any, heldCall: any): Promise<unknown>;
+	    conferenceCall(activeCall: any, heldCall: any): Promise<unknown>;
+	    forwardToDevice(contact: any, phoneInfo: any): Promise<unknown>;
+	    getForwardStatus(): Promise<unknown>;
+	    getNomadicStatus(): Promise<unknown>;
+	    nomadicLogin(data: any): Promise<unknown>;
+	    sendDtmf(callId: any, deviceId: any, data: any): Promise<unknown>;
+	    logon(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
+	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
+	    getServerConversations(format?: String): Promise<unknown>;
 	    createServerConversation(conversation: any): Promise<unknown>;
 	    deleteServerConversation(conversationId: any): Promise<unknown>;
 	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
@@ -818,20 +850,40 @@ declare module 'lib/connection/RESTService' {
 	export { RESTService };
 
 }
-declare module 'lib/common/Logger' {
-	export {}; class Logger {
-	    colors: any;
-	    _logger: any;
-	    _winston: any;
-	    hideId: any;
-	    hideUuid: any;
-	    constructor(config: any);
-	    readonly log: any;
-	    argumentsToStringReduced(v: any): any;
-	    argumentsToStringFull(v: any): any;
-	    argumentsToString: (v: any) => any;
+declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
+	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    channelsService: any;
+	    eventEmitter: any;
+	    onManagementMessageReceived: any;
+	    onFavoriteManagementMessageReceived: any;
+	    onHeadlineMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    constructor(xmppService: any, channelsService: any);
 	}
-	export { Logger };
+	export { FavoriteEventHandler };
+
+}
+declare module 'lib/common/models/Favorite' {
+	export {};
+	export class Favorite {
+	    id: string;
+	    peerId: string;
+	    type: string;
+	    room: any;
+	    contact: any;
+	    conv: any;
+	    constructor(id: string, peerId: string, type: string);
+	}
 
 }
 declare module 'lib/common/ErrorManager' {
@@ -855,13 +907,13 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly BAD_REQUEST: any;
+	    get BAD_REQUEST(): any;
 	    /**
 	     * @readonly
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly FORBIDDEN: {
+	    get FORBIDDEN(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -871,7 +923,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly OK: {
+	    get OK(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -881,7 +933,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly XMPP: {
+	    get XMPP(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -891,7 +943,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly ERROR: {
+	    get ERROR(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -901,7 +953,7 @@ declare module 'lib/common/ErrorManager' {
 	     * @memberof ErrorManager
 	     * @return {Err}
 	     */
-	    readonly UNAUTHORIZED: {
+	    get UNAUTHORIZED(): {
 	        code: number;
 	        label: string;
 	        msg: string;
@@ -920,30 +972,2896 @@ declare module 'lib/common/ErrorManager' {
 	export { ErrorManager, code };
 
 }
+declare module 'lib/services/FavoritesService' {
+	/// <reference types="node" />
+	import { Logger } from 'lib/common/Logger';
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Favorite } from 'lib/common/models/Favorite';
+	import EventEmitter = NodeJS.EventEmitter; class FavoritesService {
+	    _eventEmitter: EventEmitter;
+	    private _logger;
+	    private started;
+	    private _initialized;
+	    private _xmpp;
+	    private _rest;
+	    private _favoriteEventHandler;
+	    private favoriteHandlerToken;
+	    private favorites;
+	    private xmppManagementHandler;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService): Promise<void>;
+	    stop(): Promise<void>;
+	    init(): Promise<void>;
+	    private attachHandlers;
+	    reconnect(): Promise<void>;
+	    private getServerFavorites;
+	    private addServerFavorite;
+	    private removeServerFavorite;
+	    private toggleFavorite;
+	    private updateFavorites;
+	    private getFavorite;
+	    private createFavoriteObj;
+	    private onXmppEvent;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method fetchAllFavorites()
+	     * @instance
+	     * @description
+	     *   Fetch all the Favorites from the server in a form of an Array
+	     * @return {Conversation[]} An array of Favorite objects
+	     */
+	    fetchAllFavorites(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method createFavorite()
+	     * @instance
+	     * @description
+	     *   Add conversation/bubble/bot to Favorites Array
+	     * @param {String} id of the conversation/bubble
+	     * @param {String} type of Favorite (can be 'user' or 'bubble')
+	     * @return {Promise<Favorite>} A Favorite object
+	     */
+	    createFavorite(id: any, type: any): Promise<Favorite>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method deleteFavorite()
+	     * @instance
+	     * @description
+	     *   Delete conversation/bubble/bot from Favorites Array
+	     * @param {String} id of the Favorite item
+	     * @return {Favorite[]} A Favorite object
+	     */
+	    deleteFavorite(id: any): Promise<any>;
+	    onFavoriteCreated(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	    onFavoriteDeleted(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	}
+	export { FavoritesService };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
+	export {}; const GenericHandler: any; class InvitationEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    invitationService: any;
+	    eventEmitter: any;
+	    onManagementMessageReceived: any;
+	    onInvitationManagementMessageReceived: any;
+	    onHeadlineMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    constructor(xmppService: any, invitationService: any);
+	}
+	export { InvitationEventHandler };
+
+}
+declare module 'lib/services/InvitationsService' {
+	/// <reference types="node" />
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { InvitationEventHandler } from 'lib/connection/XMPPServiceHandler/invitationEventHandler';
+	import { Logger } from 'lib/common/Logger';
+	import { ContactsService } from 'lib/services/ContactsService'; class InvitationsService {
+	    receivedInvitations: {};
+	    sentInvitations: {};
+	    acceptedInvitationsArray: any[];
+	    sentInvitationsArray: any[];
+	    receivedInvitationsArray: any[];
+	    listeners: any[];
+	    portalURL: string;
+	    contactConfigRef: any;
+	    acceptedInvitations: {};
+	    private _logger;
+	    private _xmpp;
+	    private _rest;
+	    private started;
+	    private _eventEmitter;
+	    invitationEventHandler: InvitationEventHandler;
+	    invitationHandlerToken: any;
+	    _contacts: any;
+	    stats: any;
+	    private readonly _startConfig;
+	    ready: boolean;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
+	    /************************************************************/
+	    /** LIFECYCLE STUFF                                        **/
+	    /************************************************************/
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, stats: any): Promise<void>;
+	    init(): Promise<void>;
+	    stop(): Promise<void>;
+	    /************************************************************/
+	    /** EVENT HANDLING STUFF                                   **/
+	    /************************************************************/
+	    attachHandlers(): void;
+	    onRosterChanged(): Promise<unknown>;
+	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
+	    handleReceivedInvitation(id: any, action: any): Promise<void>;
+	    handleSentInvitation(id: any, action: any): Promise<unknown>;
+	    updateReceivedInvitationsArray(): void;
+	    updateSentInvitationsArray(): void;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PUBLIC METHODS                                         **/
+	    /************************************************************/
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getReceivedInvitations
+	     * @instance
+	     * @description
+	     *    Get the invite received coming from Rainbow users
+	     * @return {Invitation[]} The list of invitations received
+	     */
+	    getReceivedInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method 	getAcceptedInvitations() {
+
+	     * @instance
+	     * @description
+	     *    Get the invites you accepted received from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getAcceptedInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getSentInvitations
+	     * @instance
+	     * @description
+	     *    Get the invites sent to others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getSentInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getInvitationsNumberForCounter
+	     * @instance
+	     * @description
+	     *    Get the number of invitations received from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getInvitationsNumberForCounter(): number;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getAllInvitationsNumber
+	     * @instance
+	     * @description
+	     *    Get the number of invitations sent/received to/from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getAllInvitationsNumber: () => any;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getInvitation
+	     * @instance
+	     * @description
+	     *    Get an invite by its id
+	     * @param {String} invitationId the id of the invite to retrieve
+	     * @return {Invitation} The invite if found
+	     */
+	    getInvitation(invitationId: any): any;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method joinContactInvitation
+	     * @instance
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Contact} contact The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    joinContactInvitation(contact: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method sendInvitationByEmail
+	     * @instance
+	     * @description
+	     *    Send an invitation email as UCaaS
+	     * @param {string} email The email
+	     * @param {string} [customMessage] The email text (optional)
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     */
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method cancelOneSendInvitation
+	     * @instance
+	     * @param {Invitation} invitation The invitation to cancel
+	     * @description
+	     *    Cancel an invitation sent
+	     * @return {Object} The SDK Ok object or an error
+	     */
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method reSendInvitation
+	     * @instance
+	     * @param {Number} invitationId The invitation to re send
+	     * @description
+	     *    Re send an invitation sent
+	     * @return {Object} The SDK Ok object or an error
+	     */
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method sendInvitationByEmail
+	     * @instance
+	     * @description
+	     *    Send invitations for a list of emails as UCaaS
+	     *    LIMITED TO 100 invitations
+	     * @param {Array} listOfMails The list of emails
+	     * @return {Object} A promise that the invite result or an object describing an error
+	     */
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method acceptInvitation
+	     * @instance
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method declineInvitation
+	     * @instance
+	     * @description
+	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once declined, the user will not be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to decline
+	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PRIVATE METHODS                                        **/
+	    /************************************************************/
+	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
+	    sortInvitationArray(invitA: any, invitB: any): number;
+	    getAllReceivedInvitations(): Promise<unknown>;
+	    getAllSentInvitations(): Promise<unknown>;
+	}
+	export { InvitationsService };
+
+}
+declare module 'lib/common/models/Settings' {
+	export {}; let RainbowPresence: {
+	    ONLINE: string;
+	    AWAY: string;
+	    INVISIBLE: string;
+	    DND: string;
+	}; class Settings {
+	    presence: any;
+	    displayNameOrderFirstNameFirst: any;
+	    activeAlarm: any;
+	    activeNotif: any;
+	    constructor();
+	}
+	export { Settings, RainbowPresence };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService';
+	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
+	    PRESENCE: any;
+	    onPresenceReceived: any;
+	    constructor(xmppService: XMPPService);
+	}
+	export { PresenceEventHandler };
+
+}
+declare module 'lib/services/SettingsService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger'; class Settings {
+	    _xmpp: XMPPService;
+	    _rest: RESTService;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getUserSettings
+	     * @instance
+	     * @description
+	     *  Get current User Settings
+	     * @return {Promise<UserSettings>} A promise containing the result
+	     * @memberof Settings
+	     */
+	    getUserSettings(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method updateUserSettings
+	     * @instance
+	     * @description
+	     *  Update current User Settings
+	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
+	     * @memberof Settings
+	     */
+	    updateUserSettings(settings: any): Promise<unknown>;
+	}
+	export { Settings as SettingsService };
+
+}
+declare module 'lib/services/PresenceService' {
+	/// <reference types="node" />
+	import { Logger } from 'lib/common/Logger';
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { SettingsService } from 'lib/services/SettingsService';
+	import EventEmitter = NodeJS.EventEmitter; class PresenceService {
+	    _logger: Logger;
+	    _xmpp: XMPPService;
+	    _settings: SettingsService;
+	    presenceEventHandler: any;
+	    presenceHandlerToken: any;
+	    _eventEmitter: EventEmitter;
+	    manualState: any;
+	    _currentPresence: any;
+	    RAINBOW_PRESENCE_ONLINE: any;
+	    RAINBOW_PRESENCE_DONOTDISTURB: any;
+	    RAINBOW_PRESENCE_AWAY: any;
+	    RAINBOW_PRESENCE_INVISIBLE: any;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    start(_xmpp: any, _settings: SettingsService): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method sendInitialPresence
+	     * @instance
+	     * @description
+	     *  Send the initial presence (online)
+	     * @return {ErrorManager.Ok} A promise containing the result
+	     * @memberof PresenceService
+	     */
+	    sendInitialPresence(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setPresenceTo
+	     * @instance
+	     * @description
+	     *    Allow to change the presence of the connected user <br/>
+	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+	     * @memberof PresenceService
+	     * @async
+	     * @return {Promise<ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+	     * @category async
+	     */
+	    setPresenceTo(presence: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getUserConnectedPresence
+	     * @instance
+	     * @memberof PresenceService
+	     * @description
+	     *      Get user presence status calculated from events.
+	     */
+	    getUserConnectedPresence(): any;
+	    /**
+	    * @private
+	    * @method _setUserPresenceStatus
+	    * @instance
+	    * @memberof PresenceService
+	    * @description
+	    *      Send user presence status and message to xmpp.
+	    */
+	    _setUserPresenceStatus(status: any, message?: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _sendPresenceFromConfiguration
+	     * @instance
+	     * @memberof PresenceService
+	     * @description
+	     *      Send user presence according to user settings presence.
+	     */
+	    _sendPresenceFromConfiguration(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _onUserSettingsChanged
+	     * @instance
+	     * @memberof PresenceService
+	     * @description
+	     *      Method called when receiving an update on user settings
+	     */
+	    _onUserSettingsChanged(): void;
+	    /**
+	     * @private
+	     * @method _onPresenceChanged
+	     * @instance
+	     * @memberof PresenceService
+	     * @description
+	     *      Method called when receiving an update on user presence
+	     */
+	    _onPresenceChanged(presence: any): void;
+	}
+	export { PresenceService };
+
+}
+declare module 'lib/services/ContactsService' {
+	/// <reference types="node" />
+	import { InvitationsService } from 'lib/services/InvitationsService';
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Contact } from 'lib/common/models/Contact';
+	import { PresenceService } from 'lib/services/PresenceService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger'; class Contacts {
+	    avatarDomain: any;
+	    xmpp: XMPPService;
+	    contacts: any;
+	    eventEmitter: EventEmitter;
+	    logger: Logger;
+	    rosterPresenceQueue: any;
+	    userContact: any;
+	    rest: RESTService;
+	    invitationsService: InvitationsService;
+	    presenceService: PresenceService;
+	    _logger: Logger;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService, _invitationsService: InvitationsService, _presenceService: PresenceService): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    init(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getDisplayName
+	     * @instance
+	     * @param {Contact} contact  The contact to get display name
+	     * @return {String} The contact first name and last name
+	     * @memberof Contacts
+	     * @description
+	     *      Get the display name of a contact
+	     */
+	    getDisplayName(contact: any): string;
+	    /**
+	     * @public
+	     * @method getRosters
+	     * @instance
+	     * @memberof Contacts
+	     * @description
+	     *      Get the list of contacts that are in the user's network (aka rosters)
+	     * @async
+	     * @return {Promise<Array>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+	     * @category async
+	     */
+	    getRosters(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAll
+	     * @instance
+	     * @return {Contact[]} the list of contacts
+	     * @memberof Contacts
+	     * @description
+	     *  Return the list of contacts that are in the network of the connected users (aka rosters)
+	     */
+	    getAll(): any;
+	    createEmptyContactContact(jid: any): Contact;
+	    getContact(jid: any, phoneNumber: any): any;
+	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
+	    createBasicContact(jid: any, phoneNumber?: any): Contact;
+	    /**
+	     * @public
+	     * @method getContactByJid
+	     * @instance
+	     * @param {string} jid The contact jid
+	     * @memberof Contacts
+	     * @description
+	     *  Get a contact by his JID by searching in the connected user contacts list (full information) and if not found by searching on the server too (limited set of information)
+	     * @async
+	     * @return {Promise<Contact, ErrorManager>}
+	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
+	     * @category async
+	     */
+	    getContactByJid(jid: any): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getContactById
+	     * @instance
+	     * @param {string} id The contact id
+	     * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
+	     * @memberof Contacts
+	     * @description
+	     *  Get a contact by his id
+	     * @async
+	     * @return {Promise<Contact, ErrorManager>}
+	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
+	     * @category async
+	     */
+	    getContactById(id: any, forceServerSearch: any): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getContactByLoginEmail
+	     * @instance
+	     * @param {string} loginEmail The contact loginEmail
+	     * @memberof Contacts
+	     * @description
+	     *  Get a contact by his loginEmail
+	     * @async
+	     * @return {Promise<Contact, ErrorManager>}
+	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
+	     * @category async
+	     */
+	    getContactByLoginEmail(loginEmail: any): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getAvatarByContactId
+	     * @instance
+	     * @param {string} id The contact id
+	     * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
+	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
+	     * @memberof Contacts
+	     * @description
+	     *  Get a contact avatar by his contact id
+	     * @return {String} Contact avatar URL or file
+	     */
+	    getAvatarByContactId(id: any, lastUpdate: any): string;
+	    isTelJid(jid: any): boolean;
+	    getImJid(jid: any): any;
+	    getRessourceFromJid(jid: any): string;
+	    isUserContactJid(jid: any): boolean;
+	    isUserContact(contact: Contact): boolean;
+	    /**
+	     * @public
+	     * @method getConnectedUser
+	     * @instance
+	     * @description
+	     *    Get the connected user information
+	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+	     */
+	    getConnectedUser(): Contact;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method
+	     * @instance
+	     * @description
+	     *    Send an invitation to a Rainbow user for joining his network. <br>
+	     *    The user will receive an invitation that can be accepted or declined <br>
+	     *    In return, when accepted, he will be part of your network <br>
+	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+	     * @param {Contact} contact The contact object to subscribe
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     */
+	    addToNetwork(contact: Contact): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method addToContactsList
+	     * @instance
+	     * @memberof Contacts
+	     * @description
+	     *    Send an invitation to a Rainbow user for joining his network. <br>
+	     *    The user will receive an invitation that can be accepted or declined <br>
+	     *    In return, when accepted, he will be part of your network <br>
+	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+	     * @param {Contact} contact The contact object to subscribe
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     * @category async
+	     */
+	    addToContactsList(contact: Contact): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.64.0
+	     * @method getInvitationById
+	     * @instance
+	     * @description
+	     *    Get an invite by its id
+	     * @param {String} strInvitationId the id of the invite to retrieve
+	     * @return {Invitation} The invite if found
+	     */
+	    getInvitationById(strInvitationId: any): Promise<any>;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method
+	     * @instance
+	     * @description
+	     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method
+	     * @instance
+	     * @description
+	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once declined, the user will not be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to decline
+	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @typedef {Object} joinContactsResult
+	     * @property {String[]} success List of succeed joined users
+	     * @property {String[]} failed List of failed to joined users
+	     */
+	    /**
+	     * @public
+	     * @since 1.41
+	     * @beta
+	     * @method joinContacts
+	     * @instance
+	     * @memberof Contacts
+	     * @description
+	     *    As admin, add contacts to a user roster
+	     * @param {Contact} contact The contact object to subscribe
+	     * @param {String[]} contactIds List of contactId to add to the user roster
+	     * @async
+	     * @return {Promise<joinContactsResult, ErrorManager>}
+	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
+	     * @category async
+	     */
+	    joinContacts(contact: Contact, contactIds: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _onRosterPresenceChanged
+	     * @instance
+	     * @memberof Contacts
+	     * @param {Object} presence contains informations about contact changes
+	     * @memberof Contacts
+	     * @description
+	     *      Method called when the presence of a contact changed
+	     */
+	    _onRosterPresenceChanged(presence: any): void;
+	    /**
+	     * @private
+	     * @method _onContactInfoChanged
+	     * @instance
+	     * @param {string} jid modified roster contact Jid
+	     * @memberof Contacts
+	     * @description
+	     *     Method called when an roster user information are updated
+	     */
+	    _onContactInfoChanged(jid: any): void;
+	    /**
+	     * @private
+	     * @method _onUserInviteReceived
+	     * @instance
+	     * @param {Object} data contains the invitationId
+	     * @memberof Contacts
+	     * @description
+	     *      Method called when an user invite is received
+	     */
+	    /**
+	     * @private
+	     * @method _onUserInviteAccepted
+	     * @instance
+	     * @param {Object} data contains the invitationId
+	     * @memberof Contacts
+	     * @description
+	     *      Method called when an user invite is accepted
+	     */
+	    /**
+	     * @private
+	     * @method _onUserInviteCanceled
+	     * @instance
+	     * @param {Object} data contains the invitationId
+	     * @memberof Contacts
+	     * @description
+	     *      Method called when an user invite is canceled
+	     */
+	    /**
+	     * @private
+	     * @method _onRostersUpdate
+	     * @instance
+	     * @param {Object} contacts contains a contact list with updated elements
+	     * @memberof Contacts
+	     * @description
+	     *      Method called when the roster contacts is updated
+	     */
+	    _onRostersUpdate(contacts: any): void;
+	}
+	export { Contacts as ContactsService };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
+	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    conversationService: any;
+	    onChatMessageReceived: any;
+	    _onMessageReceived: any;
+	    eventEmitter: any;
+	    onRoomAdminMessageReceived: any;
+	    onFileMessageReceived: any;
+	    onWebRTCMessageReceived: any;
+	    onManagementMessageReceived: any;
+	    onRoomManagementMessageReceived: any;
+	    onUserSettingsManagementMessageReceived: any;
+	    onUserInviteManagementMessageReceived: any;
+	    onGroupManagementMessageReceived: any;
+	    onConversationManagementMessageReceived: any;
+	    onMuteManagementMessageReceived: any;
+	    onUnmuteManagementMessageReceived: any;
+	    onFileManagementMessageReceived: any;
+	    onThumbnailManagementMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    onCloseMessageReceived: any;
+	    fileStorageService: any;
+	    fileServerService: any;
+	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any);
+	}
+	export { ConversationEventHandler };
+
+}
+declare module 'lib/common/models/Message' {
+	export {}; class Message {
+	    id: any;
+	    fromJid: any;
+	    side: any;
+	    resource: any;
+	    date: any;
+	    toJid: any;
+	    type: any;
+	    content: any;
+	    status: any;
+	    receiptStatus: any;
+	    lang: any;
+	    fileId: any;
+	    cc: any;
+	    cctype: any;
+	    isEvent: any;
+	    event: any;
+	    alternativeContent: any;
+	    isMarkdown: any;
+	    subject: any;
+	    oob: any;
+	    fromBubbleJid: any;
+	    fromBubbleUserJid: any;
+	    fileTransfer: any;
+	    /**
+	     * @public
+	     * @enum {number}
+	     * @readonly
+	     */
+	    static Type: any;
+	    /**
+	     * @public
+	     * @enum {number}
+	     * @readonly
+	     */
+	    static ReceiptStatus: any;
+	    /**
+	     * @public
+	     * @enum {string}
+	     * @readonly
+	     */
+	    static Side: any;
+	    /**
+	     * @private
+	     */
+	    static ReceiptStatusText: string[];
+	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, fileId?: any, isMarkdown?: any, subject?: any);
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static create(id: any, date: any, from: any, side: any, data: any, status: any, isMarkdown?: any, subject?: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createFileSharingMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileId: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createWebRTCMessage(id: any, date: any, from: any, side: any, data: any, status: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createFTMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileTransfer: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createRecordingAdminMessage(id: any, date: any, from: any, type: any, cmd: any): Message;
+	    /**
+	     * Method extract fileId part of URL
+	     *
+	     * @private
+	     * @param {string} url
+	     * @returns {string}
+	     *
+	     * @memberof Conversation
+	     */
+	    static extractFileIdFromUrl(url: any): any;
+	    updateBubble(data: any): this;
+	    /**
+	     * @function
+	     * @public
+	     * @name MessageFactory
+	     * @description
+	     * This class is used to create a message from data object
+	     */
+	    static MessageFactory(): (data: any) => Message;
+	}
+	export { Message };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/conversationHistoryHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService';
+	export {}; const GenericHandler: any; class ConversationHistoryHandler extends GenericHandler {
+	    MESSAGE_MAM: any;
+	    FIN_MAM: any;
+	    conversationService: any;
+	    onMamMessageReceived: any;
+	    onHistoryMessageReceived: any;
+	    onWebrtcHistoryMessageReceived: any;
+	    constructor(xmppService: XMPPService, conversationService: any);
+	}
+	export { ConversationHistoryHandler };
+
+}
 declare module 'lib/common/Emoji' {
 	export {}; function shortnameToUnicode(str: any): any;
 	export { shortnameToUnicode };
 
 }
-declare module 'lib/services/ImsService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService'; class IMService {
-	    xmpp: XMPPService;
-	    _conversations: any;
+declare module 'lib/common/models/FileViewer' {
+	export {}; class FileViewer {
+	    contactService: any;
+	    viewerId: any;
+	    type: any;
+	    contact: any;
+	    _avatarSrc: any;
+	    /**
+	     * @this FileViewer
+	     */
+	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
+	    get avatarSrc(): any;
+	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
+	export { FileViewerElementFactory, FileViewer };
+
+}
+declare module 'lib/common/models/Bubble' {
+	export {}; class Bubble {
+	    id: any;
+	    name: any;
+	    topic: any;
+	    jid: any;
+	    creator: any;
+	    history: any;
+	    users: any;
+	    creationDate: any;
+	    visibility: any;
+	    customData: any;
+	    isActive: any;
+	    conference: any;
+	    disableNotifications: boolean;
+	    lastAvatarUpdateDate: null;
+	    guestEmails: any[];
+	    confEndpoints: [];
+	    activeUsersCounter: number;
+	    avatar: String;
+	    static RoomUserStatus: {
+	        "INVITED": string;
+	        "ACCEPTED": string;
+	        "UNSUBSCRIBED": string;
+	        "REJECTED": string;
+	        "DELETED": string;
+	    };
+	    autoRegister: any;
+	    lastActivityDate: any;
+	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _avatarDomain?: String);
+	    /**
+	     * Method helper to know if room is a meeting
+	     * @private
+	     */
+	    isMeetingBubble(): boolean;
+	    getStatusForUser(userId: any): any;
+	    updateBubble(data: any): this;
+	    /**
+	     * @function
+	     * @public
+	     * @name ChannelFactory
+	     * @description
+	     * This class is used to create a channel from data object
+	     */
+	    static BubbleFactory(avatarDomain: any): (data: any) => Bubble;
+	}
+	export { Bubble };
+
+}
+declare module 'lib/common/promiseQueue' {
+	export {}; class PromiseQueue {
 	    logger: any;
-	    _eventEmitter: any;
+	    queue: any;
+	    started: any;
+	    constructor(_logger: any);
+	    add(promise: any): void;
+	    execute(): void;
+	} let createPromiseQueue: (_logger: any) => PromiseQueue;
+	export { createPromiseQueue };
+
+}
+declare module 'lib/services/BubblesService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Bubble } from 'lib/common/models/Bubble';
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { Logger } from 'lib/common/Logger'; class Bubbles {
+	    _xmpp: XMPPService;
+	    _rest: RESTService;
+	    _bubbles: Bubble[];
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    private avatarDomain;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createBubble
+	     * @instance
+	     * @description
+	     *  Create a new bubble
+	     * @param {string} name  The name of the bubble to create
+	     * @param {string} description  The description of the bubble to create
+	     * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - Bubble object, else an ErrorManager object
+	     * @category async
+	     */
+	    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method isBubbleClosed
+	     * @instance
+	     * @param {Bubble} bubble  The bubble to check
+	     * @return {boolean} True if the bubble is closed
+	     * @memberof Bubbles
+	     * @description
+	     *  Check if the bubble is closed or not.
+	     */
+	    isBubbleClosed(bubble: any): boolean;
+	    /**
+	     * @public
+	     * @method
+	     * @instance
+	     * @description
+	     *    Delete all existing owned bubbles <br/>
+	     *    Return a promise
+	     * @return {Object} Nothing or an error object depending on the result
+	     */
+	    deleteAllBubbles(): void;
+	    /**
+	     * @public
+	     * @method deleteBubble
+	     * @instance
+	     * @param {Bubble} bubble  The bubble to delete
+	     * @memberof Bubbles
+	     * @description
+	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
+	     * @category async
+	     */
+	    deleteBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method closeAndDeleteBubble
+	     * @instance
+	     * @param {Bubble} bubble  The bubble to close + delete
+	     * @memberof Bubbles
+	     * @description
+	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
+	     * @category async
+	     */
+	    closeAndDeleteBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method closeBubble
+	     * @instance
+	     * @param {Bubble} bubble The Bubble to close
+	     * @memberof Bubbles
+	     * @description
+	     *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants.
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble closed, else an ErrorManager object
+	     * @category async
+	     */
+	    closeBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method archiveBubble
+	     * @instance
+	     * @param {Bubble} bubble  The bubble to archive
+	     * @memberof Bubbles
+	     * @description
+	     *  Archive  a bubble.
+	     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
+	     *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The operation result
+	     * @category async
+	     */
+	    archiveBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method leaveBubble
+	     * @instance
+	     * @param {Bubble} bubble  The bubble to leave
+	     * @memberof Bubbles
+	     * @description
+	     *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble.
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The operation result
+	     * @category async
+	     */
+	    leaveBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getStatusForConnectedUserInBubble
+	     * @instance
+	     * @param {Bubble} bubble           The bubble
+	     * @memberof Bubbles
+	     * @description
+	     *  Get the status of the connected user in a bubble
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     */
+	    getStatusForConnectedUserInBubble(bubble: any): any;
+	    /**
+	     * @public
+	     * @method inviteContactToBubble
+	     * @instance
+	     * @param {Contact} contact         The contact to invite
+	     * @param {Bubble} bubble           The bubble
+	     * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
+	     * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
+	     * @param {string} reason        The reason of the invitation (optional)
+	     * @memberof Bubbles
+	     * @description
+	     *  Invite a contact in a bubble
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the new invitation
+	     * @category async
+	     */
+	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method inviteContactsByEmailsToBubble
+	     * @instance
+	     * @param {Contact} contactsEmails         The contacts email tab to invite
+	     * @param {Bubble} bubble           The bubble
+	     * @memberof Bubbles
+	     * @description
+	     *  Invite a list of contacts by emails in a bubble
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the new invitation
+	     * @category async
+	     */
+	    inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
+	    joinConference(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method promoteContactInBubble
+	     * @instance
+	     * @param {Contact} contact         The contact to promote or downgraded
+	     * @param {Bubble} bubble           The bubble
+	     * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
+	     * @memberof Bubbles
+	     * @description
+	     *  Promote or not a contact in a bubble
+	     *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'.
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the modifications
+	     * @category async
+	     */
+	    promoteContactInBubble(contact: any, bubble: any, isModerator: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method promoteContactToModerator
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Promote a contact to moderator in a bubble <br/>
+	     *    Return a promise.
+	     * @param {Contact} contact The contact to promote
+	     * @param {Bubble} bubble   The destination bubble
+	     * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
+	     */
+	    promoteContactToModerator(contact: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method demoteContactFromModerator
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Demote a contact to user in a bubble <br/>
+	     *    Return a promise.
+	     * @param {Contact} contact The contact to promote
+	     * @param {Bubble} bubble   The destination bubble
+	     * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
+	     */
+	    demoteContactFromModerator(contact: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method changeBubbleOwner
+	     * @instance
+	     * @param {Contact} contact         The contact to set a new bubble owner
+	     * @param {Bubble} bubble           The bubble
+	     * @memberof Bubbles
+	     * @description
+	     *  Set a moderator contact as owner of a bubble
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the modifications
+	     * @category async
+	     */
+	    changeBubbleOwner(bubble: any, contact: any): Promise<unknown>;
+	    /**
+	    * @public
+	    * @method removeContactFromBubble
+	    * @instance
+	    * @param {Contact} contact The contact to remove
+	    * @param {Bubble} bubble   The destination bubble
+	    * @memberof Bubbles
+	    * @description
+	    *    Remove a contact from a bubble
+	    * @async
+	    * @return {Promise<Bubble, ErrorManager>}
+	    * @fulfil {Bubble} - The bubble object or an error object depending on the result
+	    * @category async
+	    */
+	    removeContactFromBubble(contact: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @description
+	     *      Internal method
+	     */
+	    getBubbles(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAll
+	     * @instance
+	     * @return {Bubble[]} The list of existing bubbles
+	     * @memberof Bubbles
+	     * @description
+	     *  Return the list of existing bubbles
+	     */
+	    getAll(): Bubble[];
+	    /**
+	     * @public
+	     * @method getAllBubbles
+	     * @instance
+	     * @return {Bubble[]} The list of existing bubbles
+	     * @memberof Bubbles
+	     * @description
+	     *  Return the list of existing bubbles
+	     */
+	    getAllBubbles(): Bubble[];
+	    /**
+	     * @public
+	     * @method getAllOwnedBubbles
+	     * @instance
+	     * @memberof Bubbles
+	     * @description
+	     *    Get the list of bubbles created by the user <br/>
+	     * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
+	     */
+	    getAllOwnedBubbles(): Bubble[];
+	    private getBubbleFromCache;
+	    private addOrUpdateBubbleToCache;
+	    private removeBubbleFromCache;
+	    /**
+	     * @method getAvatarFromBubble
+	     * @public
+	     * @instance
+	     * @param {Bubble} bubble   The destination bubble
+	     * @async
+	     * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
+	     * @memberof Bubbles
+	     * @description
+	     *  Get A Blob object with data about the avatar picture of the bubble.
+	     */
+	    getAvatarFromBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubbleById
+	     * @instance
+	     * @param {string} id the id of the bubble
+	     * @async
+	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+	     * @memberof Bubbles
+	     * @description
+	     *  Get a bubble by its ID in memory and if it is not found in server.
+	     */
+	    getBubbleById(id: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubbleByJid
+	     * @instance
+	     * @param {string} jid the JID of the bubble
+	     * @async
+	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+	     * @memberof Bubbles
+	     * @description
+	     *  Get a bubble by its JID in memory and if it is not found in server.
+	     */
+	    getBubbleByJid(jid: any): Promise<Bubble>;
+	    /**
+	     * @public
+	     * @method getAllPendingBubbles
+	     * @instance
+	     * @return {Bubble[]} An array of Bubbles not accepted or declined
+	     * @description
+	     *  Get the list of Bubbles that have a pending invitation not yet accepted of declined
+	     * @memberof Bubbles
+	     */
+	    getAllPendingBubbles(): Bubble[];
+	    /**
+	     * @public
+	     * @method getAllActiveBubbles
+	     * @since 1.30
+	     * @instance
+	     * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
+	     * @description
+	     *  Get the list of Bubbles where the connected user can chat
+	     * @memberof Bubbles
+	     */
+	    getAllActiveBubbles(): Bubble[];
+	    /**
+	     * @public
+	     * @method getAllClosedBubbles
+	     * @since 1.30
+	     * @instance
+	     * @return {Bubble[]} An array of Bubbles that are closed for the connected user
+	     * @description
+	     *  Get the list of Bubbles where the connected user can only read messages
+	     * @memberof Bubbles
+	     */
+	    getAllClosedBubbles(): Bubble[];
+	    /**
+	     * @public
+	     * @method acceptInvitationToJoinBubble
+	     * @instance
+	     * @param {Bubble} bubble The Bubble to join
+	     * @description
+	     *  Accept an invitation to join a bubble
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
+	     * @category async
+	     */
+	    acceptInvitationToJoinBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method declineInvitationToJoinBubble
+	     * @instance
+	     * @param {Bubble} bubble The Bubble to decline
+	     * @description
+	     *  Decline an invitation to join a bubble
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
+	     * @category async
+	     */
+	    declineInvitationToJoinBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setBubbleCustomData
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @param {Object} customData Bubble's custom data area. key/value format. Maximum and size are server dependent
+	     * @description
+	     *  Modify all custom data at once in a bubble
+	     *  To erase all custom data, put {} in customData
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
+	     * @category async
+	     */
+	    setBubbleCustomData(bubble: any, customData: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method setBubbleVisibilityStatus
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
+	     * @description
+	     *  Set the Bubble's visibility status
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
+	     * @category async
+	     */
+	    setBubbleVisibilityStatus(bubble: any, status: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setBubbleTopic
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @param {string} topic Bubble's topic
+	     * @description
+	     *  Set the Bubble's topic
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
+	     * @category async
+	     */
+	    setBubbleTopic(bubble: any, topic: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setBubbleName
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @param {string} topic Bubble's name
+	     * @description
+	     *  Set the Bubble's name
+	     * @memberof Bubbles
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
+	     * @category async
+	     */
+	    setBubbleName(bubble: any, name: any): Promise<unknown>;
+	    randomString(length?: number): string;
+	    /**
+	     * @public
+	     * @method updateAvatarForBubble
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Update the bubble avatar (from given URL) <br/>
+	     *    The image will be automaticalle resized <br/>
+	     *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br/>
+	     *    Return a promise.
+	     * @param {string} urlAvatar  The avatarUrl
+	     * @param {Bubble} bubble  The bubble to update
+	     * @return {Bubble} A bubble object of null if not found
+	     */
+	    updateAvatarForBubble(urlAvatar: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method setAvatarBubble
+	     * @param bubble
+	     * @param roomAvatarPath
+	     */
+	    setAvatarBubble(bubble: any, roomAvatarPath: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteAvatarFromBubble
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Delete the bubble avatar <br/>
+
+	     *    Return a promise.
+	     * @param {Bubble} bubble  The bubble to update
+	     * @return {Bubble} A bubble object of null if not found
+	     */
+	    deleteAvatarFromBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method deleteAvatarBubble
+	     * @param bubbleId
+	     */
+	    deleteAvatarBubble(bubbleId: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @param avatarImg
+	     * @param maxWidth
+	     * @param maxHeight
+	     */
+	    resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @param image
+	     */
+	    getBinaryData(image: any): {
+	        type: any;
+	        data: Uint8Array;
+	    };
+	    /**
+	     * @public
+	     * @method updateCustomDataForBubble
+	     * @since 1.64
+	     * @instance
+	     * @description
+	     *    Update the customData of the bubble  <br/>
+	     *    Return a promise.
+	     * @param {Object} customData
+	     *    The customData to put to the bubble <br />
+	     *    Example: { "key1" : 123, "key2" : "a string" }
+	     * @param {Bubble} bubble   The bubble to update
+	     * @return {Promise<Bubble>} The updated Bubble
+	     */
+	    updateCustomDataForBubble(customData: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteCustomDataForBubble
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Delete the customData of the bubble  <br/>
+	     *    Return a promise.
+	     * @param {Bubble} bubble   The bubble to update
+	     * @return {Promise<Bubble>} The updated Bubble
+	     */
+	    deleteCustomDataForBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateDescriptionForBubble
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Update the description of the bubble  <br/>
+	     *    Return a promise.
+	     * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
+	     * @param {Bubble} bubble   The bubble to update
+	     * @return {Bubble} A bubble object of null if not found
+	     */
+	    updateDescriptionForBubble(bubble: any, strDescription: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _sendInitialBubblePresence
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble
+	     */
+	    _sendInitialBubblePresence(bubble: any): void;
+	    /**
+	     * @private
+	     * @method _onInvitationReceived
+	     * @instance
+	     * @param {Object} invitation contains informations about bubble and user's jid
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble
+	     */
+	    _onInvitationReceived(invitation: any): void;
+	    /**
+	     * @private
+	     * @method _onAffiliationChanged
+	     * @instance
+	     * @param {Object} affiliation contains information about bubble and user's jid
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when affilitation to a bubble changed
+	     */
+	    _onAffiliationChanged(affiliation: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method _onOwnAffiliationChanged
+	     * @instance
+	     * @param {Object} affiliation contains information about bubble and user's jid
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when the user affilitation to a bubble changed
+	     */
+	    _onOwnAffiliationChanged(affiliation: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method _onCustomDataChanged
+	     * @instance
+	     * @param {Object} data contains information about bubble and new custom data received
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when custom data have changed for a bubble
+	     */
+	    _onCustomDataChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onTopicChanged
+	     * @instance
+	     * @param {Object} data contains information about bubble new topic received
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when the topic has changed for a bubble
+	     */
+	    _onTopicChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onNameChanged
+	     * @instance
+	     * @param {Object} data contains information about bubble new name received
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when the name has changed for a bubble
+	     */
+	    _onNameChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onbubblepresencechanged
+	     * @instance
+	     * @param {Object} data contains information about bubble
+	     * @memberof Bubbles
+	     * @description
+	     *      Method called when the name has changed for a bubble
+	     */
+	    _onbubblepresencechanged(bubbleInfo: any): Promise<void>;
+	}
+	export { Bubbles as BubblesService };
+
+}
+declare module 'lib/common/models/fileDescriptor' {
+	export {}; class FileState {
+	    static DELETED: string;
+	    static UPLOADING: string;
+	    static UPLOADED: string;
+	    static NOT_UPLOADED: string;
+	    static DOWNLOADING: string;
+	    static UNKNOWN: string;
+	} class ThumbnailPlaceholder {
+	    icon: string;
+	    style: string;
+	    constructor(icon: string, style: string);
+	}
+	interface IThumbnail {
+	    availableThumbnail: boolean;
+	    md5sum: string;
+	    size: number;
+	    wantThumbnailDate: Date;
+	    isThumbnailAvailable(): boolean;
+	}
+	interface IFileDescriptor {
+	    id: string;
+	    url: string;
+	    ownerId: string;
+	    fileName: string;
+	    extension: string;
+	    typeMIME: string;
+	    size: number;
+	    registrationDate: Date;
+	    uploadedDate: Date;
+	    viewers: any[];
+	    state: FileState;
+	    fileToSend: any;
+	    previewBlob: any;
+	    chunkTotalNumber: number;
+	    chunkPerformed: number;
+	    chunkPerformedPercent: number;
+	    thumbnail: IThumbnail;
+	    thumbnailPlaceholder: ThumbnailPlaceholder;
+	    orientation: number;
+	    isThumbnailPossible(): boolean;
+	    isImage(): boolean;
+	    isUploaded(): boolean;
+	    isAlreadyFileViewer(viewerId: string): boolean;
+	    getDisplayName(): string;
+	    getDisplayNameTruncated(): String[];
+	    getExtension(): string;
+	} class FileDescriptor implements IFileDescriptor {
+	    id: string;
+	    url: string;
+	    ownerId: string;
+	    fileName: string;
+	    extension: string;
+	    typeMIME: string;
+	    size: number;
+	    registrationDate: Date;
+	    uploadedDate: Date;
+	    viewers: any[];
+	    dateToSort: Date;
+	    state: FileState;
+	    fileToSend: any;
+	    previewBlob: any;
+	    chunkTotalNumber: number;
+	    chunkPerformed: number;
+	    chunkPerformedPercent: number;
+	    thumbnail: IThumbnail;
+	    thumbnailPlaceholder: ThumbnailPlaceholder;
+	    orientation: number;
+	    /**
+	     * @this FileDescriptor
+	     */
+	    constructor(id: string, url: string, ownerId: string, fileName: string, extension: string, typeMIME: string, size: number, registrationDate: Date, uploadedDate: Date, dateToSort: Date, viewers: any, state: FileState, thumbnail: IThumbnail, orientation: number);
+	    isMicrosoftFile(): boolean;
+	    isThumbnailPossible(): boolean;
+	    isPDF(): boolean;
+	    isImage(): boolean;
+	    isAudioVideo(): boolean;
+	    isUploaded(): boolean;
+	    isAlreadyFileViewer(viewerId: string): boolean;
+	    getDisplayName(): string;
+	    getDisplayNameTruncated(): String[];
+	    getExtension(): string;
+	    private getThumbnailPlaceholderFromMimetype;
+	} function FileDescriptorFactory(): (id: any, url: any, ownerId: any, fileName: any, extension: any, typeMIME: any, size: any, registrationDate: any, uploadedDate: any, dateToSort: any, viewers: any, state: any, thumbnail: any, orientation: any) => FileDescriptor;
+	export { FileDescriptorFactory as fileDescriptorFactory, FileDescriptor };
+
+}
+declare module 'lib/services/FileServerService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger';
+	import { FileStorageService } from 'lib/services/FileStorageService'; class FileServer {
+	    eventEmitter: EventEmitter;
+	    logger: Logger;
+	    _capabilities: any;
+	    transferPromiseQueue: any;
+	    fileStorageService: FileStorageService;
+	    ONE_KILOBYTE: any;
+	    _xmpp: XMPPService;
+	    _rest: RESTService;
+	    ONE_MEGABYTE: any;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    get capabilities(): Promise<any>;
+	    start(_xmpp: XMPPService, _rest: RESTService, _fileStorageService: any): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    init(): Promise<unknown>;
+	    /**
+	     * Method retrieve data from server using range request mecanism (RFC7233)
+	     *
+	     * @private
+	     * @param {string} url [required] server url for request
+	     * @param {number} minRange [requied] minimum value of range
+	     * @param {number} maxRange [required] maximum value of range
+	     * @param {number} index [required] index of the part. Used to re-assemble the data
+	     * @returns {Object} structure containing the response data from server and the index
+	     *
+	     * @memberof FileServer
+	     */
+	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
+	    /**
+	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
+	     *
+	     * @param {string} url [required] server url for request
+	     * @param {string} mime [required] Mime type of the blob to be created
+	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
+	     * @param {string} fileName [optional] name of file to be downloaded
+	     * @returns {Buffer} Buffer created from data received from server
+	     *
+	     * @memberof FileServer
+	     */
+	    getBufferFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
+	    /**
+	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
+	     *
+	     * @param destFile
+	     * @param {string} url [required] server url for request
+	     * @param {string} mime [required] Mime type of the blob to be created
+	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
+	     * @param {string} fileName [optional] name of file to be downloaded
+	     * @param {string} uploadedDate [optional] date of the upload
+	     * @returns {Buffer} Buffer created from data received from server
+	     *
+	     * @memberof FileServer
+	     */
+	    getFileFromUrlWithOptimization(destFile: any, url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
+	    /***
+	     * @private
+	     * @param fileDescriptor
+	     * @param large
+	     */
+	    getBlobThumbnailFromFileDescriptor(fileDescriptor: any, large?: boolean): Promise<void>;
+	    /**
+	     * Method sends data file to server
+	     *
+	     * @private
+	     * @param {string} fileId [required] file descriptor ID of file to be sent
+	     * @param {File} file [required] file to be sent
+	     * @param {string} mime [required] mime type of file
+	     * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
+	     *
+	     * @memberof FileServer
+	     */
+	    _uploadAFile(fileId: any, filePath: any, mime: any): Promise<unknown>;
+	    /**
+	     * Method sends data to server using range request mecanism (RFC7233)
+	     *
+	     * @private
+	     * @param {string} fileId [required] file descriptor ID of file to be sent
+	     * @param {Blob} file [required] file to be sent
+	     * @param {number} initialSize [required] initial size of whole file to be sent before partition
+	     * @param {number} minRange [requied] minimum value of range
+	     * @param {number} maxRange [required] maximum value of range
+	     * @param {number} index [required] index of the part. Used to indicate the part number to the server
+	     * @returns {Promise<{}>} file descriptor data received as response from server or http error response
+	     *
+	     * @memberof FileServer
+	     */
+	    _sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
+	    /**
+	     * Upload File ByChunk progressCallback callback is displayed as part of the Requester class.
+	     * @callback uploadAFileByChunk~progressCallback
+	     * @param {FileDescriptor} fileDescriptor
+	     */
+	    /**
+	     * Method sends data to server using range request mecanism (RFC7233)
+	     *
+	     * @private
+	     * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
+	     * @param {File} file [required] filePath of the file to be sent
+	//     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
+	     * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
+	     *
+	     * @memberof FileServer
+	     */
+	    uploadAFileByChunk(fileDescriptor: any, filePath: any): Promise<any>;
+	    isTransferInProgress(): any;
+	    cancelAllTransfers(): void;
+	    /**
+	     * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
+	     *
+	     * @param {string} url [required] server url for request
+	     * @param {string} mime [required] Mime type of the blob to be created
+	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
+	     * @param {string} fileName [optional] name of file to be downloaded
+	     * @returns {Promise<Blob>} Blob created from data received from server
+	     *
+	     * @memberof FileServerService
+	     * !!!!!! OBSOLETE
+	     */
+	    getBlobFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
+	    /**
+	     * Method creates blob from a file retrieved from server
+	     *
+	     * @private
+	     * @param {string} url [required] server url for request
+	     * @param {string} mime [required] Mime type of the blob to be created
+	     * @param {number} fileSize [required] size of file to be retrieved
+	     * @param {string} fileName [required] name of file to be downloaded
+	     * @returns {ng.IPromise<Blob>} Blob created from data received from server
+	     *
+	     * @memberof FileServerService
+	     */
+	    getBlobFromUrl(url: any, mime: any, fileSize: any, fileName: any): Promise<unknown>;
+	    /**
+	    * Method retrieves user quota (capabilities) for user
+	    *
+	    * @returns {Capabilities} user quota for user
+	    *
+	    * @memberof FileServer
+	    */
+	    getServerCapabilities(): Promise<unknown>;
+	}
+	export { FileServer as FileServerService };
+
+}
+declare module 'lib/services/FileStorageService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger';
+	import { FileServerService } from 'lib/services/FileServerService';
+	import { ConversationsService } from 'lib/services/ConversationsService';
+	import { ContactsService } from 'lib/services/ContactsService'; class FileStorage {
+	    _rest: RESTService;
+	    _xmpp: XMPPService;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
+	    fileServerService: FileServerService;
+	    _conversations: ConversationsService;
+	    fileDescriptors: any;
+	    fileDescriptorsByDate: any;
+	    fileDescriptorsByName: any;
+	    fileDescriptorsBySize: any;
+	    receivedFileDescriptors: any;
+	    receivedFileDescriptorsByName: any;
+	    receivedFileDescriptorsByDate: any;
+	    receivedFileDescriptorsBySize: any;
+	    consumptionData: any;
+	    contactService: ContactsService;
+	    startDate: any;
+	    started: any;
+	    errorHelperService: any;
+	    helpersService: any;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    start(__xmpp: XMPPService, __rest: RESTService, __fileServerService: any, __conversations: any): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    init(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @since 1.47.1
+	     * @method
+	     * @instance
+	     * @description
+	     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation
+	     *    Return a promise
+	     * @return {Message} Return the message sent
+	     */
+	    _addFileToConversation(conversation: any, file: any, data: any): Promise<unknown>;
+	    /**************** API ***************/
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method uploadFileToConversation
+	     * @instance
+	     * @param {Conversation} conversation   The conversation where the message will be added
+	     * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+	     * @param {String} strMessage   An optional message to add with the file
+	     * @description
+	     *    Allow to add a file to an existing conversation (ie: conversation with a contact)
+	     *    Return the promise
+	     * @return {Message} Return the message sent
+	     */
+	    uploadFileToConversation(conversation: any, file: any, strMessage: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method uploadFileToBubble
+	     * @instance
+	     * @param {Bubble} bubble   The bubble where the message will be added
+	     * @param {File} file The file to add
+	     * @param {String} strMessage   An optional message to add with the file
+	     * @description
+	     *    Allow to add a file to an existing Bubble conversation
+	     *    Return a promise
+	     * @return {Message} Return the message sent
+	     */
+	    uploadFileToBubble(bubble: any, file: any, strMessage: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method downloadFile
+	     * @instance
+	     * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
+	     * @description
+	     *    Allow to download a file from the server)
+	     *    Return a promise
+	     * @return {} Object with : buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
+	     */
+	    downloadFile(fileDescriptor: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getUserQuotaConsumption
+	     * @instance
+	     * @description
+	     *    Get the current file storage quota and consumption for the connected user
+	     *    Return a promise
+	     * @return {Object} Return an object containing the user quota and consumption
+	     */
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method removeFile
+	     * @instance
+	     * @param {FileDescriptor} fileDescriptor   The description of the file to remove (short file descriptor)
+	     * @description
+	     *    Remove an uploaded file
+	     *    Return a promise
+	     * @return {Object} Return a SDK OK Object or a SDK error object depending the result
+	     */
+	    removeFile(fileDescriptor: any): Promise<unknown>;
+	    /**********************************************************/
+	    /**  Basic accessors to FileStorage's properties   **/
+	    /**********************************************************/
+	    getFileDescriptorById(id: any): any;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getFileDescriptorFromId
+	     * @instance
+	     * @param {String} id   The file id
+	     * @description
+	     *    Get the file descriptor the user own by it's id
+	     * @return {FileDescriptor} Return a file descriptors found or null if no file descriptor has been found
+	     */
+	    getFileDescriptorFromId(id: any): any;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getFilesReceivedInConversation
+	     * @instance
+	     * @param {Conversation} conversation   The conversation where to get the files
+	     * @description
+	     *    Get the list of all files received in a conversation with a contact
+	     *    Return a promise
+	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
+	     */
+	    getFilesReceivedInConversation(conversation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getFilesReceivedInBubble
+	     * @instance
+	     * @param {Bubble} bubble   The bubble where to get the files
+	     * @description
+	     *    Get the list of all files received in a bubble
+	     *    Return a promise
+	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
+	     */
+	    getFilesReceivedInBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @description
+	     * Method returns a file descriptor with full contact object in viewers'list by requesting server
+	     *
+	     * @param {string} fileId [required] Identifier of file descriptor
+	     * @return {Promise<FileDescriptor>} file descriptor
+	     *
+	     * @memberOf FileStorage
+	     */
+	    getCompleteFileDescriptorById(id: any): Promise<unknown>;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getDocuments(): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @return {FileDescriptor}
+	     * @memberof FileStorage
+	     */
+	    getReceivedDocuments(): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @param {boolean} received
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getDocumentsByName(received: any): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @param {boolean} received
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getDocumentsByDate(received: any): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @param {boolean} received
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getDocumentsBySize(received: any): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @param {string} dbId
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getReceivedFilesFromContact(dbId: any): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @param {string} dbId
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getSentFilesToContact(dbId: any): any;
+	    /**
+	     *
+	     * @public
+	     *
+	     * @param {string} bubbleId id of the bubble
+	     * @return {FileDescriptor[]}
+	     * @memberof FileStorage
+	     */
+	    getReceivedFilesForRoom(bubbleId: any): any;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @return {Object}
+	     * @memberof FileStorage
+	     */
+	    getConsumptionData(): any;
+	    /**********************************************************/
+	    /**  Methods requesting server                           **/
+	    /**********************************************************/
+	    /**
+	     * @private
+	     * @description
+	     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors)
+	     *
+	     * @param {string} name [required] name of file for which file descriptor has to be created
+	     * @param {string} extension [required] extension of file
+	     * @param {number} size [required] size of  file
+	     * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
+	     * @return {Promise<FileDescriptor>} file descriptor created by server or error
+	     *
+	     * @memberof FileStorage
+	     */
+	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @param {*} data
+	     * @return {FileDescriptor}
+	     * @memberof FileStorage
+	     */
+	    createFileDescriptorFromData(data: any): any;
+	    /**
+	     * @private
+	     * @description
+	     *
+	     * Method request deletion of a file descriptor on the server and removes it from local storage
+	     * @param {string} id [required] file descriptor id to be destroyed
+	     * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
+	     * @memberof FileStorage
+	     */
+	    deleteFileDescriptor(id: any): Promise<unknown>;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method request deletion of all files on the server and removes them from local storage
+	     * @return {Promise<{}>} ???
+	     * @memberof FileStorage
+	     */
+	    deleteAllFileDescriptor(): Promise<unknown>;
+	    /**
+	     * @public
+	     *
+	     * @description
+	     * Method retrieve full list of files belonging to user making the request
+	     *
+	     * @return {Promise<FileDescriptor[]>}
+	     *
+	     * @memberof FileStorage
+	     */
+	    retrieveFileDescriptorsListPerOwner(): Promise<unknown>;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method retrieve a list of [limit] files belonging to user making the request begining with offset
+	     *
+	     * @return {Promise<FileDescriptor[]>}
+	     *
+	     * @memberof FileStorage
+	     */
+	    retrieveFileDescriptorsListPerOwnerwithOffset(offset: any, limit: any): Promise<unknown>;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation)
+	     *
+	     * @param {string} userId [required] dbId of user making the request
+	     * @param {string} peerId [required] dbId of peer user in the conversation
+	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+	     *
+	     * @memberOf FileStorage
+	     */
+	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     *
+	     * @description
+	     * Method request for the list of files sent to a given peer (i.e. inside a given conversation)
+	     *
+	     * @param {string} peerId [required] id of peer user in the conversation
+	     * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
+	     *
+	     * @memberOf FileStorage
+	     */
+	    retrieveSentFiles(peerId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     *
+	     * @description
+	     * Method request for the list of files received in a room
+	     *
+	     * @param {string} bubbleId [required] Id of the room
+	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+	     *
+	     * @memberOf FileStorage
+	     */
+	    retrieveReceivedFilesForRoom(bubbleId: any): Promise<unknown>;
+	    /**
+	     *
+	     * @public
+	     *
+	     * @description
+	     * Method request for the list of files received by a user
+	     *
+	     * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
+	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+	     *
+	     * @memberOf FileStorage
+	     */
+	    retrieveReceivedFiles(viewerId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getFilesSentInConversation
+	     * @instance
+	     * @param {Conversation} conversation   The conversation where to get the files
+	     * @description
+	     *    Get the list of all files sent in a conversation with a contact
+	     *    Return a promise
+	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
+	     */
+	    getFilesSentInConversation(conversation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getFilesSentInBubble
+	     * @instance
+	     * @param {Bubble} bubble   The bubble where to get the files
+	     * @description
+	     *    Get the list of all files sent in a bubble
+	     *    Return a promise
+	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
+	     */
+	    getFilesSentInBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method
+	     * @instance
+	     * @description
+	     *    Get the current file storage quota and consumption for the connected user
+	     *    Return a promise
+	     * @return {Object} Return an object containing the user quota and consumption
+	     */
+	    getUserQuotaConsumption(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getAllFilesSent
+	     * @instance
+	     * @description
+	     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles.
+	     * @return {FileDescriptor[]} Return an array containing the list of FileDescriptor objects representing the files sent
+	     */
+	    getAllFilesSent(): any;
+	    /**
+	     * @public
+	     * @since 1.47.1
+	     * @method getAllFilesReceived
+	     * @instance
+	     * @description
+	     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles.
+	     * @return {FileDescriptor[]} Return an array containing a list of FileDescriptor objects representing the files received
+	     */
+	    getAllFilesReceived(): any;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method retrieve the data usage of a given user
+	     *
+	     * @return {Promise<{}>} : object data with the following properties:
+	     *                  - feature {string} : The feature key belonging to the user's profile
+	     *                  - maxValue {number} : The quota associated to this offer [octet]
+	     *                  - currentValue {number} : The user's current consumption [octet]
+	     *                  - unit {string} : The unit of this counters
+	     * @memberOf FileStorage
+	     */
+	    retrieveUserConsumption(): Promise<unknown>;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method deletes a viewer from the list of viewer of a given file
+	     *
+	     * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
+	     * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
+	     * @return {Promise<{}>}
+	     *
+	     * @memberof FileStorage
+	     */
+	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
+	    /**
+	     *
+	     * @private
+	     *
+	     * @description
+	     * Method adds a viewer to a given file on server if it is not already one
+	     *
+	     * @param {string} fileId [required] Identifier of file
+	     * @param {string} viewerId [required] Identifier of viewer to be added
+	     * @param {string} viewerType [required] type of viewer to be added (user or room)
+	     * @return {Promise<FileDescriptor>} file descriptor with newly added viewer
+	     *
+	     * @memberOf FileStorage
+	     */
+	    addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<unknown>;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method retrieve a specific file descriptor from server
+	     *
+	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
+	     * @return {Promise<FileDescriptor>} file descriptor retrieved
+	     *
+	     * @memberOf FileStorage
+	     */
+	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new)
+	     *
+	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
+	     * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
+	     *
+	     * @memberOf FileStorage
+	     */
+	    retrieveAndStoreOneFileDescriptor(fileId: any, forceRetrieve: any): Promise<any>;
+	    /**********************************************************/
+	    /**  Utilities                                           **/
+	    /**********************************************************/
+	    deleteFileDescriptorFromCache(id: any, forceDelete: any): void;
+	    orderDocuments(): void;
+	    orderReceivedDocuments(): void;
+	    orderDocumentsForRoom(documents: any): any[];
+	    replaceOrderedByFilter(resultArray: any, originalArray: any, filterFct: any, flag: any, sortFct: any): void;
+	    getName(file: any): {
+	        name: string;
+	        date: string;
+	    };
+	    getDate(file: any): any;
+	    getSize(file: any): {
+	        name: string;
+	        size: string;
+	    };
+	    sortByName(fileA: any, fileB: any): number;
+	    sortBySize(fileA: any, fileB: any): number;
+	    sortByDate(fileA: any, fileB: any): number;
+	    /**
+	     * @private
+	     *
+	     * @description
+	     * Method extract fileId part of URL
+	     *
+	     * @param {string} url
+	     * @return {string}
+	     *
+	     * @memberof FileStorage
+	     */
+	    extractFileIdFromUrl(url: any): any;
+	}
+	export { FileStorage as FileStorageService };
+
+}
+declare module 'lib/services/ConversationsService' {
+	/// <reference types="node" />
+	import { ContactsService } from 'lib/services/ContactsService';
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { ConversationEventHandler } from 'lib/connection/XMPPServiceHandler/conversationEventHandler';
+	import { ConversationHistoryHandler } from 'lib/connection/XMPPServiceHandler/conversationHistoryHandler';
+	import { BubblesService } from 'lib/services/BubblesService';
+	import { FileStorageService } from 'lib/services/FileStorageService';
+	import { FileServerService } from 'lib/services/FileServerService';
+	import { Logger } from 'lib/common/Logger';
+	import { EventEmitter } from 'events'; class Conversations {
+	    _xmpp: XMPPService;
+	    _rest: RESTService;
+	    _contacts: ContactsService;
+	    _fileStorageService: FileStorageService;
+	    _fileServerService: FileServerService;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
+	    pendingMessages: any;
+	    conversationEventHandler: ConversationEventHandler;
+	    conversationHandlerToken: any;
+	    conversationHistoryHandlerToken: any;
+	    conversations: any;
+	    conversationServiceEventHandler: any;
+	    _bubbles: any;
+	    activeConversation: any;
+	    inCallConversations: any;
+	    idleConversations: any;
+	    involvedContactIds: any;
+	    involvedRoomIds: any;
+	    waitingBotConversations: any;
+	    botServiceReady: any;
+	    conversationHistoryHandler: ConversationHistoryHandler;
+	    chatRenderer: any;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    private conversationsRetrievedFormat;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any, _conversationsRetrievedFormat: any);
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _bubbles: BubblesService, _fileStorageService: FileStorageService, _fileServerService: FileServerService): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    attachHandlers(): void;
+	    _onReceipt(receipt: any): void;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *    Allow to get the list of existing conversations from server (p2p and bubbles)
+	     * @return {Conversation[]} An array of Conversation object
+	     */
+	    getServerConversations(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *    Allow to create a conversations on server (p2p and bubbles)
+	     * @param {String} ID of the conversation (dbId field)
+	     * @return {Conversation} Created conversation object
+	     */
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *    Allow to delete a conversation on server (p2p and bubbles)
+	     * @param {String} conversationId of the conversation (id field)
+	     * @return {Promise}
+	     */
+	    deleteServerConversation(conversationId: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *    Allow to mute notification in a conversations (p2p and bubbles)
+	     *    When a conversation is muted/unmuted, all user's resources will receive the notification
+	     * @param {String} ID of the conversation (dbId field)
+	     * @param {Boolean} mute mutation state
+	     * @return {Promise}
+	     */
+	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method sendConversationByEmail
+	     * @instance
+	     * @description
+	     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles)
+	     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room,
+	     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days.
+	     * @param {String} ID of the conversation (dbId field)
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise<Conversation[]>}
+	     * @fulfil {Conversation[]} - Array of Conversation object
+	     * @category async
+	     */
+	    sendConversationByEmail(conversationDbId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method ackAllMessages
+	     * @instance
+	     * @description
+	     *    Mark all unread messages in the conversation as read.
+	     * @param {String} ID of the conversation (dbId field)
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise<Conversation[]>}
+	     * @fulfil {Conversation[]} - Array of Conversation object
+	     * @category async
+	     */
+	    ackAllMessages(conversationDbId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getHistoryPage
+	     * @instance
+	     * @description
+	     *    Retrieve the remote history of a specific conversation.
+	     * @param {Conversation} conversation Conversation to retrieve
+	     * @param {number} size Maximum number of element to retrieve
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise<Conversation[]>}
+	     * @fulfil {Conversation[]} - Array of Conversation object
+	     * @category async
+	     */
+	    getHistoryPage(conversation: any, size: any): any;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    getOrCreateOneToOneConversation(conversationId: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, muted?: any, creationDate?: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubbleConversation
+	     * @instance
+	     * @description
+	     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it)
+	     * @param {String} bubbleJid JID of the bubble (dbId field)
+	     * @param conversationDbId
+	     * @param lastModification
+	     * @param lastMessageText
+	     * @param missedIMCounter
+	     * @param noError
+	     * @param muted
+	     * @param creationDate
+	     * @param lastMessageSender
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise<Conversation>}
+	     * @fulfil {Conversation} - Conversation object or null if not found
+	     * @category async
+	     */
+	    getBubbleConversation(bubbleJid: any, conversationDbId: any, lastModification: any, lastMessageText: any, missedIMCounter: any, noError: any, muted: any, creationDate: any, lastMessageSender: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method sendIsTypingState
+	     * @instance Conversations
+	     * @memberof Conversations
+	     * @description
+	     *    Switch the "is typing" state in a conversation<br>
+	     * @param {Conversation} conversation The conversation recipient
+	     * @param {boolean} status The status, true for setting "is Typing", false to remove it
+	     * @return a promise with no success parameter
+	     */
+	    sendIsTypingState(conversation: any, status: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     * Get a pstn conference
+	     */
+	    getRoomConferences(conversation: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     * Update a pstn conference
+	     */
+	    updateRoomConferences(): void;
+	    /**
+	     * @public
+	     * @method closeConversation
+	     * @instance
+	     * @description
+	     *    Close a conversation <br/>
+	     *    This method returns a promise
+	     * @param {Conversation} conversation The conversation to close
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise}
+	     * @fulfil {} Return nothing in case success
+	     * @category async
+	     */
+	    closeConversation(conversation: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *    Remove locally a conversation <br/>
+	     *    This method returns a promise
+	     * @param {Conversation} conversation The conversation to remove
+	     */
+	    removeConversation(conversation: any): void;
+	    /*********************************************************/
+	    /**                   MESSAGES STUFF                    **/
+	    /*********************************************************/
+	    /**
+	     * @private
+	     * @method sendFSMessage
+	     * @instance
+	     * @description
+	     *   Send an file sharing message
+	     */
+	    sendFSMessage(conversation: any, file: any, data: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method sendExistingMessage
+	     * @memberof Conversations
+	     * @instance
+	     * @param {string} data The text message to send
+	     * @description
+	     *    Send a message to this conversation
+	     * @return {Message} The message sent
+	     */
+	    sendExistingFSMessage(conversation: any, message: any, fileDescriptor: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *   Send an existing file sharing message
+	     */
+	    sendEFSMessage(conversation: any, fileDescriptor: any, data: any): any;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *    Send a instant message to a conversation
+	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
+	     * @param {Conversation} conversation The conversation to clean
+	     * @param {String} data Test message to send
+	     */
+	    sendChatMessage(conversation: any, data: any, answeredMsg: any): any;
+	    /**
+	     * SEND CORRECTED MESSAGE
+	     */
+	    /**
+	     * @public
+	     * @method sendCorrectedChatMessage
+	     * @instance
+	     * @memberof Conversations
+	     * @description
+	     *    Send a corrected message to a conversation
+	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
+	     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend.
+	     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend.
+	     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.
+	     * @param conversation
+	     * @param data
+	     * @param origMsgId
+	     * @returns {Promise<String>} message the message new correction message sent. Throw an error if the send fails.
+	     */
+	    sendCorrectedChatMessage(conversation: any, data: any, origMsgId: any): Promise<any>;
+	    /**
+	     * @public
+	     * @since 1.58
+	     * @method deleteMessage
+	     * @instance
+	     * @memberof Conversations
+	     * @async
+	     * @description
+	     *    Delete a message by sending an empty string in a correctedMessage
+	     * @param {Conversation} conversation The conversation object
+	     * @param {String} messageId The id of the message to be deleted
+	     * @return {Message} - message object with updated replaceMsgs property
+	     */
+	    deleteMessage(conversation: any, messageId: any): Promise<any>;
+	    /**
+	     * @private
+	     * @description
+	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
+	     *      It allow to give back the status of the sending process.
+	     * @param conversation
+	     * @param message
+	     */
+	    storePendingMessage(conversation: any, message: any): void;
+	    /**
+	     * @private
+	     * @description
+	     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
+	     *      It allow to give back the status of the sending process.
+	     * @param message
+	     */
+	    removePendingMessage(message: any): void;
+	    /**
+	     * @public
+	     * @method removeAllMessages
+	     * @instance
+	     * @description
+	     *    Cleanup a conversation by removing all previous messages<br/>
+	     *    This method returns a promise
+	     * @param {Conversation} conversation The conversation to clean
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise}
+	     * @fulfil {} Return nothing in case success
+	     * @category async
+	     */
+	    removeAllMessages(conversation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method removeMessagesFromConversation
+	     * @instance
+	     * @description
+	     *    Remove a specific range of message in a conversation<br/>
+	     *    This method returns a promise
+	     * @param {Conversation} conversation The conversation to clean
+	     * @memberof Conversations
+	     * @async
+	     * @return {Promise}
+	     * @fulfil {} Return nothing in case success
+	     * @category async
+	     */
+	    removeMessagesFromConversation(conversation: any, date: any, number: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getConversationById
+	     * @instance
+	     * @memberof Conversations
+	     * @description
+	     *      Get a p2p conversation by id
+	     * @param {String} conversationId Conversation id of the conversation to clean
+	     * @return {Conversation} The conversation to retrieve
+	     */
+	    getConversationById(conversationId: any): any;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *      Get a conversation by db id
+	     * @param {String} dbId db id of the conversation to retrieve
+	     * @return {Conversation} The conversation to retrieve
+	     */
+	    getConversationByDbId(dbId: any): any;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *      Get a bubble conversation by bubble id
+	     * @param {String} bubbleId Bubble id of the conversation to retrieve
+	     * @return {Conversation} The conversation to retrieve
+	     */
+	    getConversationByBubbleId(bubbleId: any): Promise<any>;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     * @description
+	     *      Get a bubble conversation by bubble id
+	     * @param {String} bubbleJid Bubble jid of the conversation to retrieve
+	     * @return {Conversation} The conversation to retrieve
+	     */
+	    getConversationByBubbleJid(bubbleJid: any): any;
+	    /**
+	     * @public
+	     * @method getAllConversations
+	     * @instance
+	     * @memberof Conversations
+	     * @description
+	     *    Allow to get the list of existing conversations (p2p and bubbles)
+	     * @return {Conversation[]} An array of Conversation object
+	     */
+	    getAllConversations(): any[];
+	    /**
+	     * @private
+	     * @method
+	     * @memberof Conversations
+	     * @instance
+	     * @description
+	     *      Get all conversation
+	     * @return {Conversation[]} The conversation list to retrieve
+	     */
+	    getConversations(): any[];
+	    /**
+	     * @public
+	     * @method openConversationForContact
+	     * @instance
+	     * @memberof Conversations
+	     * @description
+	     *    Open a conversation to a contact <br/>
+	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
+	     *    This method returns a promise
+	     * @param {Contact} contact The contact involved in the conversation
+	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+	     */
+	    openConversationForContact(contact: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method openConversationForBubble
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    Open a conversation to a bubble <br/>
+	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
+	     *    This method returns a promise
+	     * @param {Bubble} bubble The bubble involved in this conversation
+	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+	     */
+	    openConversationForBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     */
+	    onRoomChangedEvent(__event: any, bubble: any, action: any): Promise<void>;
+	    /**
+	     * @private
+	     */
+	    onRoomHistoryChangedEvent(__event: any, room: any): void;
+	    /**
+	     * @private
+	     */
+	    onRoomAdminMessageEvent(__event: any, roomJid: any, userJid: any, type: any, msgId: any): void;
+	    /*********************************************************************/
+	    /** Remove the conversation history                                 **/
+	    /*********************************************************************/
+	    /**
+	     * @private
+	     *
+	     */
+	    reinit(): Promise<unknown>;
+	    /*********************************************************************/
+	    /** BOT SERVICE IS RUNNING, CREATE ALL BOT CONVERSATIONS            **/
+	    /*********************************************************************/
+	    unlockWaitingBotConversations(isBotServiceReady?: any): void;
+	}
+	export { Conversations as ConversationsService };
+
+}
+declare module 'lib/services/ImsService' {
+	/// <reference types="node" />
+	import { ConversationsService } from 'lib/services/ConversationsService';
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { Logger } from 'lib/common/Logger';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { BubblesService } from 'lib/services/BubblesService';
+	import { FileStorageService } from 'lib/services/FileStorageService'; class IMService {
+	    _xmpp: XMPPService;
+	    _conversations: ConversationsService;
+	    _logger: Logger;
+	    _eventEmitter: EventEmitter;
 	    pendingMessages: any;
 	    _bulles: any;
 	    private imOptions;
 	    _fileStorage: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: any, _logger: any, _imOptions: any, _startConfig: any);
-	    start(_xmpp: any, __conversations: any, __bubbles: any, _filestorage: any): Promise<unknown>;
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _imOptions: any, _startConfig: any);
+	    start(_xmpp: XMPPService, __conversations: ConversationsService, __bubbles: BubblesService, _filestorage: FileStorageService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
@@ -1209,130 +4127,6 @@ declare module 'lib/services/ImsService' {
 	export { IMService };
 
 }
-declare module 'lib/common/models/Settings' {
-	export {}; let RainbowPresence: {
-	    ONLINE: string;
-	    AWAY: string;
-	    INVISIBLE: string;
-	    DND: string;
-	}; class Settings {
-	    presence: any;
-	    displayNameOrderFirstNameFirst: any;
-	    activeAlarm: any;
-	    activeNotif: any;
-	    constructor();
-	}
-	export { Settings, RainbowPresence };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
-	import { XMPPService } from 'lib/connection/XMPPService';
-	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
-	    PRESENCE: any;
-	    onPresenceReceived: any;
-	    constructor(xmppService: XMPPService);
-	}
-	export { PresenceEventHandler };
-
-}
-declare module 'lib/services/PresenceService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService'; class PresenceService {
-	    _logger: any;
-	    _xmpp: XMPPService;
-	    _settings: any;
-	    presenceEventHandler: any;
-	    presenceHandlerToken: any;
-	    _eventEmitter: any;
-	    manualState: any;
-	    _currentPresence: any;
-	    RAINBOW_PRESENCE_ONLINE: any;
-	    RAINBOW_PRESENCE_DONOTDISTURB: any;
-	    RAINBOW_PRESENCE_AWAY: any;
-	    RAINBOW_PRESENCE_INVISIBLE: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_xmpp: any, _settings: any): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method sendInitialPresence
-	     * @instance
-	     * @description
-	     *  Send the initial presence (online)
-	     * @return {ErrorManager.Ok} A promise containing the result
-	     * @memberof PresenceService
-	     */
-	    sendInitialPresence(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method setPresenceTo
-	     * @instance
-	     * @description
-	     *    Allow to change the presence of the connected user <br/>
-	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
-	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-	     * @memberof PresenceService
-	     * @async
-	     * @return {Promise<ErrorManager>}
-	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
-	     */
-	    setPresenceTo(presence: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method getUserConnectedPresence
-	     * @instance
-	     * @memberof PresenceService
-	     * @description
-	     *      Get user presence status calculated from events.
-	     */
-	    getUserConnectedPresence(): any;
-	    /**
-	    * @private
-	    * @method _setUserPresenceStatus
-	    * @instance
-	    * @memberof PresenceService
-	    * @description
-	    *      Send user presence status and message to xmpp.
-	    */
-	    _setUserPresenceStatus(status: any, message?: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _sendPresenceFromConfiguration
-	     * @instance
-	     * @memberof PresenceService
-	     * @description
-	     *      Send user presence according to user settings presence.
-	     */
-	    _sendPresenceFromConfiguration(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _onUserSettingsChanged
-	     * @instance
-	     * @memberof PresenceService
-	     * @description
-	     *      Method called when receiving an update on user settings
-	     */
-	    _onUserSettingsChanged(): void;
-	    /**
-	     * @private
-	     * @method _onPresenceChanged
-	     * @instance
-	     * @memberof PresenceService
-	     * @description
-	     *      Method called when receiving an update on user presence
-	     */
-	    _onPresenceChanged(presence: any): void;
-	}
-	export { PresenceService };
-
-}
 declare module 'lib/connection/XMPPServiceHandler/channelEventHandler' {
 	export {}; const GenericHandler: any; class ChannelEventHandler extends GenericHandler {
 	    MESSAGE_CHAT: any;
@@ -1357,17 +4151,20 @@ declare module 'lib/connection/XMPPServiceHandler/channelEventHandler' {
 
 }
 declare module 'lib/services/ChannelsService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
 	export {};
 	import { Channel } from 'lib/common/models/Channel';
 	import { ChannelEventHandler } from 'lib/connection/XMPPServiceHandler/channelEventHandler';
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; class Channels {
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger'; class Channels {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
 	    _channels: any;
 	    _channelsList: any;
-	    _eventEmitter: any;
-	    _logger: any;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
 	    MAX_ITEMS: any;
 	    MAX_PAYLOAD_SIZE: any;
 	    PUBLIC_VISIBILITY: any;
@@ -1378,7 +4175,7 @@ declare module 'lib/services/ChannelsService' {
 	    invitationCounter: number;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
@@ -1418,7 +4215,7 @@ declare module 'lib/services/ChannelsService' {
 	        PUBLISHER: string;
 	        MEMBER: string;
 	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
 	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
@@ -2092,1156 +4889,6 @@ declare module 'lib/services/ChannelsService' {
 	export { Channels as ChannelsService };
 
 }
-declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
-	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    channelsService: any;
-	    eventEmitter: any;
-	    onManagementMessageReceived: any;
-	    onFavoriteManagementMessageReceived: any;
-	    onHeadlineMessageReceived: any;
-	    onReceiptMessageReceived: any;
-	    onErrorMessageReceived: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    constructor(xmppService: any, channelsService: any);
-	}
-	export { FavoriteEventHandler };
-
-}
-declare module 'lib/common/models/Favorite' {
-	export {};
-	export class Favorite {
-	    id: string;
-	    peerId: string;
-	    type: string;
-	    room: any;
-	    contact: any;
-	    conv: any;
-	    constructor(id: string, peerId: string, type: string);
-	}
-
-}
-declare module 'lib/services/FavoritesService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Favorite } from 'lib/common/models/Favorite'; class FavoritesService {
-	    _eventEmitter: any;
-	    private _logger;
-	    private started;
-	    private _initialized;
-	    private _xmpp;
-	    private _rest;
-	    private _favoriteEventHandler;
-	    private favoriteHandlerToken;
-	    private favorites;
-	    private xmppManagementHandler;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<void>;
-	    stop(): Promise<void>;
-	    init(): Promise<void>;
-	    private attachHandlers;
-	    reconnect(): Promise<void>;
-	    private getServerFavorites;
-	    private addServerFavorite;
-	    private removeServerFavorite;
-	    private toggleFavorite;
-	    private updateFavorites;
-	    private getFavorite;
-	    private createFavoriteObj;
-	    private onXmppEvent;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method fetchAllFavorites()
-	     * @instance
-	     * @description
-	     *   Fetch all the Favorites from the server in a form of an Array
-	     * @return {Conversation[]} An array of Favorite objects
-	     */
-	    fetchAllFavorites(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method createFavorite()
-	     * @instance
-	     * @description
-	     *   Add conversation/bubble/bot to Favorites Array
-	     * @param {String} id of the conversation/bubble
-	     * @param {String} type of Favorite (can be 'user' or 'bubble')
-	     * @return {Promise<Favorite>} A Favorite object
-	     */
-	    createFavorite(id: any, type: any): Promise<Favorite>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method deleteFavorite()
-	     * @instance
-	     * @description
-	     *   Delete conversation/bubble/bot from Favorites Array
-	     * @param {String} id of the Favorite item
-	     * @return {Favorite[]} A Favorite object
-	     */
-	    deleteFavorite(id: any): Promise<any>;
-	    onFavoriteCreated(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	    onFavoriteDeleted(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	}
-	export { FavoritesService };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
-	export {}; const GenericHandler: any; class InvitationEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    invitationService: any;
-	    eventEmitter: any;
-	    onManagementMessageReceived: any;
-	    onInvitationManagementMessageReceived: any;
-	    onHeadlineMessageReceived: any;
-	    onReceiptMessageReceived: any;
-	    onErrorMessageReceived: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    constructor(xmppService: any, invitationService: any);
-	}
-	export { InvitationEventHandler };
-
-}
-declare module 'lib/services/InvitationsService' {
-	/// <reference types="node" />
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import EventEmitter = NodeJS.EventEmitter;
-	import { InvitationEventHandler } from 'lib/connection/XMPPServiceHandler/invitationEventHandler';
-	import { Logger } from 'lib/common/Logger'; class InvitationsService {
-	    receivedInvitations: {};
-	    sentInvitations: {};
-	    acceptedInvitationsArray: any[];
-	    sentInvitationsArray: any[];
-	    receivedInvitationsArray: any[];
-	    listeners: any[];
-	    portalURL: string;
-	    contactConfigRef: any;
-	    acceptedInvitations: {};
-	    logger: Logger;
-	    _logger: any;
-	    private _xmpp;
-	    private _rest;
-	    private started;
-	    private _eventEmitter;
-	    invitationEventHandler: InvitationEventHandler;
-	    invitationHandlerToken: any;
-	    _contacts: any;
-	    stats: any;
-	    private readonly _startConfig;
-	    ready: boolean;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: any, _startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    });
-	    /************************************************************/
-	    /** LIFECYCLE STUFF                                        **/
-	    /************************************************************/
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: any, stats: any): Promise<void>;
-	    init(): Promise<void>;
-	    stop(): Promise<void>;
-	    /************************************************************/
-	    /** EVENT HANDLING STUFF                                   **/
-	    /************************************************************/
-	    attachHandlers(): void;
-	    onRosterChanged(): Promise<unknown>;
-	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
-	    handleReceivedInvitation(id: any, action: any): Promise<void>;
-	    handleSentInvitation(id: any, action: any): Promise<unknown>;
-	    updateReceivedInvitationsArray(): void;
-	    updateSentInvitationsArray(): void;
-	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PUBLIC METHODS                                         **/
-	    /************************************************************/
-	    /**
-	     * GET RECEIVED INVITATIONS
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    getReceivedInvitations(): any[];
-	    getAcceptedInvitations(): any[];
-	    /**
-	     * GET SENT INVITATIONS
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    getSentInvitations(): any[];
-	    getInvitationsNumberForCounter(): number;
-	    getAllInvitationsNumber: () => any;
-	    /**
-	     * GET INVITATION BY ID
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    getInvitation(invitationId: any): any;
-	    /**
-	     * SEND INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    joinContactInvitation(contact: any): Promise<unknown>;
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
-	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
-	    reSendInvitation(invitationId: any): Promise<unknown>;
-	    /**
-	     * SEND INVITATIONS PAR BULK
-	     * LIMITED TO 100 invitations
-	     */
-	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
-	    /**
-	     * ACCEPT INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * DECLINE INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PRIVATE METHODS                                        **/
-	    /************************************************************/
-	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
-	    sortInvitationArray(invitA: any, invitB: any): number;
-	    getAllReceivedInvitations(): Promise<unknown>;
-	    getAllSentInvitations(): Promise<unknown>;
-	}
-	export { InvitationsService };
-
-}
-declare module 'lib/services/ContactsService' {
-	import { InvitationsService } from 'lib/services/InvitationsService';
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Contact } from 'lib/common/models/Contact';
-	import { PresenceService } from 'lib/services/PresenceService'; class Contacts {
-	    avatarDomain: any;
-	    xmpp: any;
-	    contacts: any;
-	    eventEmitter: any;
-	    logger: any;
-	    rosterPresenceQueue: any;
-	    userContact: any;
-	    rest: RESTService;
-	    invitationsService: InvitationsService;
-	    presenceService: PresenceService;
-	    _logger: any;
-	    _xmpp: XMPPService;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _http: any, _logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _invitationsService: InvitationsService, _presenceService: PresenceService): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getDisplayName
-	     * @instance
-	     * @param {Contact} contact  The contact to get display name
-	     * @return {String} The contact first name and last name
-	     * @memberof Contacts
-	     * @description
-	     *      Get the display name of a contact
-	     */
-	    getDisplayName(contact: any): string;
-	    /**
-	     * @public
-	     * @method getRosters
-	     * @instance
-	     * @memberof Contacts
-	     * @description
-	     *      Get the list of contacts that are in the user's network (aka rosters)
-	     * @async
-	     * @return {Promise<Array>}
-	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
-	     */
-	    getRosters(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getAll
-	     * @instance
-	     * @return {Contact[]} the list of contacts
-	     * @memberof Contacts
-	     * @description
-	     *  Return the list of contacts that are in the network of the connected users (aka rosters)
-	     */
-	    getAll(): any;
-	    createEmptyContactContact(jid: any): Contact;
-	    getContact(jid: any, phoneNumber: any): any;
-	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
-	    createBasicContact(jid: any, phoneNumber?: any): Contact;
-	    /**
-	     * @public
-	     * @method getContactByJid
-	     * @instance
-	     * @param {string} jid The contact jid
-	     * @memberof Contacts
-	     * @description
-	     *  Get a contact by his JID by searching in the connected user contacts list (full information) and if not found by searching on the server too (limited set of information)
-	     * @async
-	     * @return {Promise<Contact, ErrorManager>}
-	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
-	     */
-	    getContactByJid(jid: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getContactById
-	     * @instance
-	     * @param {string} id The contact id
-	     * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
-	     * @memberof Contacts
-	     * @description
-	     *  Get a contact by his id
-	     * @async
-	     * @return {Promise<Contact, ErrorManager>}
-	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
-	     */
-	    getContactById(id: any, forceServerSearch: any): Promise<Contact>;
-	    /**
-	     * @public
-	     * @method getContactByLoginEmail
-	     * @instance
-	     * @param {string} loginEmail The contact loginEmail
-	     * @memberof Contacts
-	     * @description
-	     *  Get a contact by his loginEmail
-	     * @async
-	     * @return {Promise<Contact, ErrorManager>}
-	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
-	     */
-	    getContactByLoginEmail(loginEmail: any): Promise<Contact>;
-	    /**
-	     * @public
-	     * @method getAvatarByContactId
-	     * @instance
-	     * @param {string} id The contact id
-	     * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
-	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
-	     * @memberof Contacts
-	     * @description
-	     *  Get a contact avatar by his contact id
-	     * @return {String} Contact avatar URL or file
-	     */
-	    getAvatarByContactId(id: any, lastUpdate: any): string;
-	    isTelJid(jid: any): boolean;
-	    getImJid(jid: any): any;
-	    getRessourceFromJid(jid: any): string;
-	    isUserContactJid(jid: any): boolean;
-	    isUserContact(contact: Contact): boolean;
-	    /**
-	     * @public
-	     * @method getConnectedUser
-	     * @instance
-	     * @description
-	     *    Get the connected user information
-	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
-	     */
-	    getConnectedUser(): Contact;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method
-	     * @instance
-	     * @description
-	     *    Send an invitation to a Rainbow user for joining his network. <br>
-	     *    The user will receive an invitation that can be accepted or declined <br>
-	     *    In return, when accepted, he will be part of your network <br>
-	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
-	     * @param {Contact} contact The contact object to subscribe
-	     * @return {Object} A promise that contains the contact added or an object describing an error
-	     */
-	    addToNetwork(contact: Contact): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method addToContactsList
-	     * @instance
-	     * @memberof Contacts
-	     * @description
-	     *    Send an invitation to a Rainbow user for joining his network. <br>
-	     *    The user will receive an invitation that can be accepted or declined <br>
-	     *    In return, when accepted, he will be part of your network <br>
-	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
-	     * @param {Contact} contact The contact object to subscribe
-	     * @return {Object} A promise that contains the contact added or an object describing an error
-	     * @category async
-	     */
-	    addToContactsList(contact: Contact): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.64.0
-	     * @method getInvitationById
-	     * @instance
-	     * @description
-	     *    Get an invite by its id
-	     * @param {String} strInvitationId the id of the invite to retrieve
-	     * @return {Invitation} The invite if found
-	     */
-	    getInvitationById(strInvitationId: any): Promise<any>;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method
-	     * @instance
-	     * @description
-	     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
-	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method
-	     * @instance
-	     * @description
-	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once declined, the user will not be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to decline
-	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @typedef {Object} joinContactsResult
-	     * @property {String[]} success List of succeed joined users
-	     * @property {String[]} failed List of failed to joined users
-	     */
-	    /**
-	     * @public
-	     * @since 1.41
-	     * @beta
-	     * @method joinContacts
-	     * @instance
-	     * @memberof Contacts
-	     * @description
-	     *    As admin, add contacts to a user roster
-	     * @param {Contact} contact The contact object to subscribe
-	     * @param {String[]} contactIds List of contactId to add to the user roster
-	     * @async
-	     * @return {Promise<joinContactsResult, ErrorManager>}
-	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
-	     * @category async
-	     */
-	    joinContacts(contact: Contact, contactIds: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _onRosterPresenceChanged
-	     * @instance
-	     * @memberof Contacts
-	     * @param {Object} presence contains informations about contact changes
-	     * @memberof Contacts
-	     * @description
-	     *      Method called when the presence of a contact changed
-	     */
-	    _onRosterPresenceChanged(presence: any): void;
-	    /**
-	     * @private
-	     * @method _onContactInfoChanged
-	     * @instance
-	     * @param {string} jid modified roster contact Jid
-	     * @memberof Contacts
-	     * @description
-	     *     Method called when an roster user information are updated
-	     */
-	    _onContactInfoChanged(jid: any): void;
-	    /**
-	     * @private
-	     * @method _onUserInviteReceived
-	     * @instance
-	     * @param {Object} data contains the invitationId
-	     * @memberof Contacts
-	     * @description
-	     *      Method called when an user invite is received
-	     */
-	    /**
-	     * @private
-	     * @method _onUserInviteAccepted
-	     * @instance
-	     * @param {Object} data contains the invitationId
-	     * @memberof Contacts
-	     * @description
-	     *      Method called when an user invite is accepted
-	     */
-	    /**
-	     * @private
-	     * @method _onUserInviteCanceled
-	     * @instance
-	     * @param {Object} data contains the invitationId
-	     * @memberof Contacts
-	     * @description
-	     *      Method called when an user invite is canceled
-	     */
-	    /**
-	     * @private
-	     * @method _onRostersUpdate
-	     * @instance
-	     * @param {Object} contacts contains a contact list with updated elements
-	     * @memberof Contacts
-	     * @description
-	     *      Method called when the roster contacts is updated
-	     */
-	    _onRostersUpdate(contacts: any): void;
-	}
-	export { Contacts as ContactsService };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
-	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    conversationService: any;
-	    onChatMessageReceived: any;
-	    _onMessageReceived: any;
-	    eventEmitter: any;
-	    onRoomAdminMessageReceived: any;
-	    onFileMessageReceived: any;
-	    onWebRTCMessageReceived: any;
-	    onManagementMessageReceived: any;
-	    onRoomManagementMessageReceived: any;
-	    onUserSettingsManagementMessageReceived: any;
-	    onUserInviteManagementMessageReceived: any;
-	    onGroupManagementMessageReceived: any;
-	    onConversationManagementMessageReceived: any;
-	    onMuteManagementMessageReceived: any;
-	    onUnmuteManagementMessageReceived: any;
-	    onFileManagementMessageReceived: any;
-	    onThumbnailManagementMessageReceived: any;
-	    onReceiptMessageReceived: any;
-	    onErrorMessageReceived: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    onCloseMessageReceived: any;
-	    fileStorageService: any;
-	    fileServerService: any;
-	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any);
-	}
-	export { ConversationEventHandler };
-
-}
-declare module 'lib/common/models/Message' {
-	export {}; class Message {
-	    id: any;
-	    fromJid: any;
-	    side: any;
-	    resource: any;
-	    date: any;
-	    toJid: any;
-	    type: any;
-	    content: any;
-	    status: any;
-	    receiptStatus: any;
-	    lang: any;
-	    fileId: any;
-	    cc: any;
-	    cctype: any;
-	    isEvent: any;
-	    event: any;
-	    alternativeContent: any;
-	    isMarkdown: any;
-	    subject: any;
-	    oob: any;
-	    fromBubbleJid: any;
-	    fromBubbleUserJid: any;
-	    fileTransfer: any;
-	    /**
-	     * @public
-	     * @enum {number}
-	     * @readonly
-	     */
-	    static Type: any;
-	    /**
-	     * @public
-	     * @enum {number}
-	     * @readonly
-	     */
-	    static ReceiptStatus: any;
-	    /**
-	     * @public
-	     * @enum {string}
-	     * @readonly
-	     */
-	    static Side: any;
-	    /**
-	     * @private
-	     */
-	    static ReceiptStatusText: string[];
-	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, fileId?: any, isMarkdown?: any, subject?: any);
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static create(id: any, date: any, from: any, side: any, data: any, status: any, isMarkdown?: any, subject?: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createFileSharingMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileId: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createWebRTCMessage(id: any, date: any, from: any, side: any, data: any, status: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createFTMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileTransfer: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createRecordingAdminMessage(id: any, date: any, from: any, type: any, cmd: any): Message;
-	    /**
-	     * Method extract fileId part of URL
-	     *
-	     * @private
-	     * @param {string} url
-	     * @returns {string}
-	     *
-	     * @memberof Conversation
-	     */
-	    static extractFileIdFromUrl(url: any): any;
-	    updateBubble(data: any): this;
-	    /**
-	     * @function
-	     * @public
-	     * @name MessageFactory
-	     * @description
-	     * This class is used to create a message from data object
-	     */
-	    static MessageFactory(): (data: any) => Message;
-	}
-	export { Message };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/conversationHistoryHandler' {
-	import { XMPPService } from 'lib/connection/XMPPService';
-	export {}; const GenericHandler: any; class ConversationHistoryHandler extends GenericHandler {
-	    MESSAGE_MAM: any;
-	    FIN_MAM: any;
-	    conversationService: any;
-	    onMamMessageReceived: any;
-	    onHistoryMessageReceived: any;
-	    onWebrtcHistoryMessageReceived: any;
-	    constructor(xmppService: XMPPService, conversationService: any);
-	}
-	export { ConversationHistoryHandler };
-
-}
-declare module 'lib/common/models/FileViewer' {
-	export {}; class FileViewer {
-	    contactService: any;
-	    viewerId: any;
-	    type: any;
-	    contact: any;
-	    _avatarSrc: any;
-	    /**
-	     * @this FileViewer
-	     */
-	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
-	    readonly avatarSrc: any;
-	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
-	export { FileViewerElementFactory, FileViewer };
-
-}
-declare module 'lib/services/ConversationsService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { ConversationEventHandler } from 'lib/connection/XMPPServiceHandler/conversationEventHandler';
-	import { ConversationHistoryHandler } from 'lib/connection/XMPPServiceHandler/conversationHistoryHandler'; class Conversations {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _contacts: any;
-	    _bubles: any;
-	    _fileStorageService: any;
-	    _fileServerService: any;
-	    _eventEmitter: any;
-	    _logger: any;
-	    pendingMessages: any;
-	    conversationEventHandler: ConversationEventHandler;
-	    conversationHandlerToken: any;
-	    conversationHistoryHandlerToken: any;
-	    conversations: any;
-	    conversationServiceEventHandler: any;
-	    _bubbles: any;
-	    activeConversation: any;
-	    inCallConversations: any;
-	    idleConversations: any;
-	    involvedContactIds: any;
-	    involvedRoomIds: any;
-	    waitingBotConversations: any;
-	    botServiceReady: any;
-	    conversationHistoryHandler: ConversationHistoryHandler;
-	    chatRenderer: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: any, _bubbles: any, _fileStorageService: any, _fileServerService: any): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    attachHandlers(): void;
-	    _onReceipt(receipt: any): void;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *    Allow to get the list of existing conversations from server (p2p and bubbles)
-	     * @return {Conversation[]} An array of Conversation object
-	     */
-	    getServerConversations(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *    Allow to create a conversations on server (p2p and bubbles)
-	     * @param {String} ID of the conversation (dbId field)
-	     * @return {Conversation} Created conversation object
-	     */
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *    Allow to delete a conversation on server (p2p and bubbles)
-	     * @param {String} conversationId of the conversation (id field)
-	     * @return {Promise}
-	     */
-	    deleteServerConversation(conversationId: any): Promise<void>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *    Allow to mute notification in a conversations (p2p and bubbles)
-	     *    When a conversation is muted/unmuted, all user's resources will receive the notification
-	     * @param {String} ID of the conversation (dbId field)
-	     * @param {Boolean} mute mutation state
-	     * @return {Promise}
-	     */
-	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method sendConversationByEmail
-	     * @instance
-	     * @description
-	     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles)
-	     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room,
-	     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days.
-	     * @param {String} ID of the conversation (dbId field)
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise<Conversation[]>}
-	     * @fulfil {Conversation[]} - Array of Conversation object
-	     * @category async
-	     */
-	    sendConversationByEmail(conversationDbId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method ackAllMessages
-	     * @instance
-	     * @description
-	     *    Mark all unread messages in the conversation as read.
-	     * @param {String} ID of the conversation (dbId field)
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise<Conversation[]>}
-	     * @fulfil {Conversation[]} - Array of Conversation object
-	     * @category async
-	     */
-	    ackAllMessages(conversationDbId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getHistoryPage
-	     * @instance
-	     * @description
-	     *    Retrieve the remote history of a specific conversation.
-	     * @param {Conversation} conversation Conversation to retrieve
-	     * @param {number} size Maximum number of element to retrieve
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise<Conversation[]>}
-	     * @fulfil {Conversation[]} - Array of Conversation object
-	     * @category async
-	     */
-	    getHistoryPage(conversation: any, size: any): any;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    getOrCreateOneToOneConversation(conversationId: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, muted?: any, creationDate?: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getBubbleConversation
-	     * @instance
-	     * @description
-	     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it)
-	     * @param {String} bubbleJid JID of the bubble (dbId field)
-	     * @param conversationDbId
-	     * @param lastModification
-	     * @param lastMessageText
-	     * @param missedIMCounter
-	     * @param noError
-	     * @param muted
-	     * @param creationDate
-	     * @param lastMessageSender
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise<Conversation>}
-	     * @fulfil {Conversation} - Conversation object or null if not found
-	     * @category async
-	     */
-	    getBubbleConversation(bubbleJid: any, conversationDbId: any, lastModification: any, lastMessageText: any, missedIMCounter: any, noError: any, muted: any, creationDate: any, lastMessageSender: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method sendIsTypingState
-	     * @instance Conversations
-	     * @memberof Conversations
-	     * @description
-	     *    Switch the "is typing" state in a conversation<br>
-	     * @param {Conversation} conversation The conversation recipient
-	     * @param {boolean} status The status, true for setting "is Typing", false to remove it
-	     * @return a promise with no success parameter
-	     */
-	    sendIsTypingState(conversation: any, status: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     * Get a pstn conference
-	     */
-	    getRoomConferences(conversation: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     * Update a pstn conference
-	     */
-	    updateRoomConferences(): void;
-	    /**
-	     * @public
-	     * @method closeConversation
-	     * @instance
-	     * @description
-	     *    Close a conversation <br/>
-	     *    This method returns a promise
-	     * @param {Conversation} conversation The conversation to close
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise}
-	     * @fulfil {} Return nothing in case success
-	     * @category async
-	     */
-	    closeConversation(conversation: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *    Remove locally a conversation <br/>
-	     *    This method returns a promise
-	     * @param {Conversation} conversation The conversation to remove
-	     */
-	    removeConversation(conversation: any): void;
-	    /*********************************************************/
-	    /**                   MESSAGES STUFF                    **/
-	    /*********************************************************/
-	    /**
-	     * @private
-	     * @method sendFSMessage
-	     * @instance
-	     * @description
-	     *   Send an file sharing message
-	     */
-	    sendFSMessage(conversation: any, file: any, data: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method sendExistingMessage
-	     * @memberof Conversations
-	     * @instance
-	     * @param {string} data The text message to send
-	     * @description
-	     *    Send a message to this conversation
-	     * @return {Message} The message sent
-	     */
-	    sendExistingFSMessage(conversation: any, message: any, fileDescriptor: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *   Send an existing file sharing message
-	     */
-	    sendEFSMessage(conversation: any, fileDescriptor: any, data: any): any;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *    Send a instant message to a conversation
-	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
-	     * @param {Conversation} conversation The conversation to clean
-	     * @param {String} data Test message to send
-	     */
-	    sendChatMessage(conversation: any, data: any, answeredMsg: any): any;
-	    /**
-	     * SEND CORRECTED MESSAGE
-	     */
-	    /**
-	     * @public
-	     * @method sendCorrectedChatMessage
-	     * @instance
-	     * @memberof Conversations
-	     * @description
-	     *    Send a corrected message to a conversation
-	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
-	     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend.
-	     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend.
-	     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.
-	     * @param conversation
-	     * @param data
-	     * @param origMsgId
-	     * @returns {Promise<String>} message the message new correction message sent. Throw an error if the send fails.
-	     */
-	    sendCorrectedChatMessage(conversation: any, data: any, origMsgId: any): Promise<any>;
-	    /**
-	     * @public
-	     * @since 1.58
-	     * @method deleteMessage
-	     * @instance
-	     * @memberof Conversations
-	     * @async
-	     * @description
-	     *    Delete a message by sending an empty string in a correctedMessage
-	     * @param {Conversation} conversation The conversation object
-	     * @param {String} messageId The id of the message to be deleted
-	     * @return {Message} - message object with updated replaceMsgs property
-	     */
-	    deleteMessage(conversation: any, messageId: any): Promise<any>;
-	    /**
-	     * @private
-	     * @description
-	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-	     *      It allow to give back the status of the sending process.
-	     * @param conversation
-	     * @param message
-	     */
-	    storePendingMessage(conversation: any, message: any): void;
-	    /**
-	     * @private
-	     * @description
-	     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-	     *      It allow to give back the status of the sending process.
-	     * @param message
-	     */
-	    removePendingMessage(message: any): void;
-	    /**
-	     * @public
-	     * @method removeAllMessages
-	     * @instance
-	     * @description
-	     *    Cleanup a conversation by removing all previous messages<br/>
-	     *    This method returns a promise
-	     * @param {Conversation} conversation The conversation to clean
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise}
-	     * @fulfil {} Return nothing in case success
-	     * @category async
-	     */
-	    removeAllMessages(conversation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method removeMessagesFromConversation
-	     * @instance
-	     * @description
-	     *    Remove a specific range of message in a conversation<br/>
-	     *    This method returns a promise
-	     * @param {Conversation} conversation The conversation to clean
-	     * @memberof Conversations
-	     * @async
-	     * @return {Promise}
-	     * @fulfil {} Return nothing in case success
-	     * @category async
-	     */
-	    removeMessagesFromConversation(conversation: any, date: any, number: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getConversationById
-	     * @instance
-	     * @memberof Conversations
-	     * @description
-	     *      Get a p2p conversation by id
-	     * @param {String} conversationId Conversation id of the conversation to clean
-	     * @return {Conversation} The conversation to retrieve
-	     */
-	    getConversationById(conversationId: any): any;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *      Get a conversation by db id
-	     * @param {String} dbId db id of the conversation to retrieve
-	     * @return {Conversation} The conversation to retrieve
-	     */
-	    getConversationByDbId(dbId: any): any;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *      Get a bubble conversation by bubble id
-	     * @param {String} bubbleId Bubble id of the conversation to retrieve
-	     * @return {Conversation} The conversation to retrieve
-	     */
-	    getConversationByBubbleId(bubbleId: any): Promise<any>;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     * @description
-	     *      Get a bubble conversation by bubble id
-	     * @param {String} bubbleJid Bubble jid of the conversation to retrieve
-	     * @return {Conversation} The conversation to retrieve
-	     */
-	    getConversationByBubbleJid(bubbleJid: any): any;
-	    /**
-	     * @public
-	     * @method getAllConversations
-	     * @instance
-	     * @memberof Conversations
-	     * @description
-	     *    Allow to get the list of existing conversations (p2p and bubbles)
-	     * @return {Conversation[]} An array of Conversation object
-	     */
-	    getAllConversations(): any[];
-	    /**
-	     * @private
-	     * @method
-	     * @memberof Conversations
-	     * @instance
-	     * @description
-	     *      Get all conversation
-	     * @return {Conversation[]} The conversation list to retrieve
-	     */
-	    getConversations(): any[];
-	    /**
-	     * @public
-	     * @method openConversationForContact
-	     * @instance
-	     * @memberof Conversations
-	     * @description
-	     *    Open a conversation to a contact <br/>
-	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
-	     *    This method returns a promise
-	     * @param {Contact} contact The contact involved in the conversation
-	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
-	     */
-	    openConversationForContact(contact: any): Promise<unknown>;
-	    /**
-	     * @private
-	     */
-	    onRoomChangedEvent(__event: any, bubble: any, action: any): Promise<void>;
-	    /**
-	     * @private
-	     */
-	    onRoomHistoryChangedEvent(__event: any, room: any): void;
-	    /**
-	     * @private
-	     */
-	    onRoomAdminMessageEvent(__event: any, roomJid: any, userJid: any, type: any, msgId: any): void;
-	    /*********************************************************************/
-	    /** Remove the conversation history                                 **/
-	    /*********************************************************************/
-	    /**
-	     * @private
-	     *
-	     */
-	    reinit(): Promise<unknown>;
-	    /*********************************************************************/
-	    /** BOT SERVICE IS RUNNING, CREATE ALL BOT CONVERSATIONS            **/
-	    /*********************************************************************/
-	    unlockWaitingBotConversations(isBotServiceReady?: any): void;
-	}
-	export { Conversations as ConversationsService };
-
-}
 declare module 'lib/common/models/Offer' {
 	export {}; class Offer {
 	    id: any;
@@ -3280,9 +4927,11 @@ declare module 'lib/common/models/Offer' {
 }
 declare module 'lib/services/ProfilesService' {
 	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; const FeaturesEnum: {
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
 	    COMPANY_ADMIN_COUNT: string;
 	    COMPANY_LOGO_MODIFICATION: string;
 	    COMPANY_DOMAIN_NAME_MODIFICATION: string;
@@ -3326,9 +4975,8 @@ declare module 'lib/services/ProfilesService' {
 	}; class ProfilesService {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
-	    _eventEmitter: any;
-	    _logger: any;
-	    logger: any;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
 	    started: any;
 	    onUserUpdateNeeded: any;
 	    stats: any;
@@ -3339,11 +4987,11 @@ declare module 'lib/services/ProfilesService' {
 	    timer: NodeJS.Timeout;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
 	    /*********************************************************************/
 	    /** LIFECYCLE STUFF                                                 **/
 	    /*********************************************************************/
@@ -3554,15 +5202,23 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 
 }
 declare module 'lib/services/TelephonyService' {
+	/// <reference types="node" />
 	export {};
 	import { RESTService } from 'lib/connection/RESTService';
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { Call } from 'lib/common/models/Call'; class Telephony {
+	import { Call } from 'lib/common/models/Call';
+	import { ContactsService } from 'lib/services/ContactsService';
+	import { BubblesService } from 'lib/services/BubblesService';
+	import { ProfilesService } from 'lib/services/ProfilesService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger'; class Telephony {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
-	    _contacts: any;
-	    _eventEmitter: any;
-	    _logger: any;
+	    _contacts: ContactsService;
+	    _bubbles: BubblesService;
+	    _profiles: ProfilesService;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
 	    _calls: any;
 	    voiceMail: any;
 	    userJidTel: any;
@@ -3584,20 +5240,18 @@ declare module 'lib/services/TelephonyService' {
 	    telephonyHandlerToken: any;
 	    telephonyHistoryHandlerToken: any;
 	    startDate: any;
-	    _bubbles: any;
-	    _profiles: any;
 	    telephonyEventHandler: any;
 	    makingCall: any;
 	    starting: any;
 	    stats: any;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: any, logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: any, _bubbles: any, _profiles: any): Promise<unknown>;
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _bubbles: BubblesService, _profiles: ProfilesService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
 	    init(): Promise<unknown>;
@@ -3990,575 +5644,76 @@ declare module 'lib/services/TelephonyService' {
 	    private getCallFromCache;
 	    addOrUpdateCallToCache(call: any): Call;
 	    private removeCallFromCache;
+	    /**
+	     * @public
+	     * @method logon
+	     * @param {String} endpointTel The endpoint device phone number.
+	     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+	     * @param {String} password optionnel Password or authorization code.
+	     * @param {String} groupId optionnel CCD Agent's group number
+	     * @description
+	     *      This api allows an CCD Agent to logon into the CCD system.
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    logon(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method logoff
+	     * @param {String} endpointTel The endpoint device phone number.
+	     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+	     * @param {String} password optionnel Password or authorization code.
+	     * @param {String} groupId optionnel CCD Agent's group number
+	     * @description
+	     *      This api allows an CCD Agent logoff logon from the CCD system.
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method withdrawal
+	     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+	     * @param {String} groupId optionnel CCD Agent's group number
+	     * @param {String} status optionnel Used to deactivate the withdrawal state. Values: 'on', 'off'; 'on' is optional.
+	     * @description
+	     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method wrapup
+	     * @param {String} agentId CCD Agent identifier (agent device number).
+	     * @param {String} groupId CCD Agent's group number
+	     * @param {String} password optionnel Password or authorization code.
+	     * @param {String} status optionnel Used to deactivate the WrapUp state. Values: 'on', 'off'; 'on' is optional.
+	     * @description
+	     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'.
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
 	}
 	export { Telephony as TelephonyService };
 
 }
-declare module 'lib/common/models/Bubble' {
-	export {}; class Bubble {
-	    id: any;
-	    name: any;
-	    topic: any;
-	    jid: any;
-	    creator: any;
-	    history: any;
-	    users: any;
-	    creationDate: any;
-	    visibility: any;
-	    customData: any;
-	    isActive: any;
-	    conference: any;
-	    disableNotifications: boolean;
-	    lastAvatarUpdateDate: null;
-	    guestEmails: any[];
-	    confEndpoints: [];
-	    activeUsersCounter: number;
-	    static RoomUserStatus: {
-	        "INVITED": string;
-	        "ACCEPTED": string;
-	        "UNSUBSCRIBED": string;
-	        "REJECTED": string;
-	        "DELETED": string;
-	    };
-	    autoRegister: any;
-	    lastActivityDate: any;
-	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any);
-	    /**
-	     * Method helper to know if room is a meeting
-	     * @private
-	     */
-	    isMeetingBubble(): boolean;
-	    getStatusForUser(userId: any): any;
-	    updateBubble(data: any): this;
-	    /**
-	     * @function
-	     * @public
-	     * @name ChannelFactory
-	     * @description
-	     * This class is used to create a channel from data object
-	     */
-	    static BubbleFactory(): (data: any) => Bubble;
-	}
-	export { Bubble };
-
-}
-declare module 'lib/common/promiseQueue' {
-	export {}; class PromiseQueue {
-	    logger: any;
-	    queue: any;
-	    started: any;
-	    constructor(_logger: any);
-	    add(promise: any): void;
-	    execute(): void;
-	} let createPromiseQueue: (_logger: any) => PromiseQueue;
-	export { createPromiseQueue };
-
-}
-declare module 'lib/services/BubblesService' {
-	export {};
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Bubble } from 'lib/common/models/Bubble';
-	import { XMPPService } from 'lib/connection/XMPPService'; class Bubbles {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _bubbles: Bubble[];
-	    _eventEmitter: any;
-	    _logger: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method createBubble
-	     * @instance
-	     * @description
-	     *  Create a new bubble
-	     * @param {string} name  The name of the bubble to create
-	     * @param {string} description  The description of the bubble to create
-	     * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - Bubble object, else an ErrorManager object
-	     * @category async
-	     */
-	    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method isBubbleClosed
-	     * @instance
-	     * @param {Bubble} bubble  The bubble to check
-	     * @return {boolean} True if the bubble is closed
-	     * @memberof Bubbles
-	     * @description
-	     *  Check if the bubble is closed or not.
-	     */
-	    isBubbleClosed(bubble: any): boolean;
-	    /**
-	     * @public
-	     * @method
-	     * @instance
-	     * @description
-	     *    Delete all existing owned bubbles <br/>
-	     *    Return a promise
-	     * @return {Object} Nothing or an error object depending on the result
-	     */
-	    deleteAllBubbles(): void;
-	    /**
-	     * @public
-	     * @method deleteBubble
-	     * @instance
-	     * @param {Bubble} bubble  The bubble to delete
-	     * @memberof Bubbles
-	     * @description
-	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
-	     * @category async
-	     */
-	    deleteBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method closeAndDeleteBubble
-	     * @instance
-	     * @param {Bubble} bubble  The bubble to close + delete
-	     * @memberof Bubbles
-	     * @description
-	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
-	     * @category async
-	     */
-	    closeAndDeleteBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method closeBubble
-	     * @instance
-	     * @param {Bubble} bubble The Bubble to close
-	     * @memberof Bubbles
-	     * @description
-	     *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants.
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble closed, else an ErrorManager object
-	     * @category async
-	     */
-	    closeBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method archiveBubble
-	     * @instance
-	     * @param {Bubble} bubble  The bubble to archive
-	     * @memberof Bubbles
-	     * @description
-	     *  Archive  a bubble.
-	     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
-	     *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The operation result
-	     * @category async
-	     */
-	    archiveBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method leaveBubble
-	     * @instance
-	     * @param {Bubble} bubble  The bubble to leave
-	     * @memberof Bubbles
-	     * @description
-	     *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble.
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The operation result
-	     * @category async
-	     */
-	    leaveBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getStatusForConnectedUserInBubble
-	     * @instance
-	     * @param {Bubble} bubble           The bubble
-	     * @memberof Bubbles
-	     * @description
-	     *  Get the status of the connected user in a bubble
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     */
-	    getStatusForConnectedUserInBubble(bubble: any): any;
-	    /**
-	     * @public
-	     * @method inviteContactToBubble
-	     * @instance
-	     * @param {Contact} contact         The contact to invite
-	     * @param {Bubble} bubble           The bubble
-	     * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
-	     * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
-	     * @param {string} reason        The reason of the invitation (optional)
-	     * @memberof Bubbles
-	     * @description
-	     *  Invite a contact in a bubble
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the new invitation
-	     * @category async
-	     */
-	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method inviteContactsByEmailsToBubble
-	     * @instance
-	     * @param {Contact} contactsEmails         The contacts email tab to invite
-	     * @param {Bubble} bubble           The bubble
-	     * @memberof Bubbles
-	     * @description
-	     *  Invite a list of contacts by emails in a bubble
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the new invitation
-	     * @category async
-	     */
-	    inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
-	    joinConference(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method promoteContactInBubble
-	     * @instance
-	     * @param {Contact} contact         The contact to promote or downgraded
-	     * @param {Bubble} bubble           The bubble
-	     * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
-	     * @memberof Bubbles
-	     * @description
-	     *  Promote or not a contact in a bubble
-	     *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'.
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the modifications
-	     * @category async
-	     */
-	    promoteContactInBubble(contact: any, bubble: any, isModerator: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method changeBubbleOwner
-	     * @instance
-	     * @param {Contact} contact         The contact to set a new bubble owner
-	     * @param {Bubble} bubble           The bubble
-	     * @memberof Bubbles
-	     * @description
-	     *  Set a moderator contact as owner of a bubble
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the modifications
-	     * @category async
-	     */
-	    changeBubbleOwner(bubble: any, contact: any): Promise<unknown>;
-	    /**
-	    * @public
-	    * @method removeContactFromBubble
-	    * @instance
-	    * @param {Contact} contact The contact to remove
-	    * @param {Bubble} bubble   The destination bubble
-	    * @memberof Bubbles
-	    * @description
-	    *    Remove a contact from a bubble
-	    * @async
-	    * @return {Promise<Bubble, ErrorManager>}
-	    * @fulfil {Bubble} - The bubble object or an error object depending on the result
-	    * @category async
-	    */
-	    removeContactFromBubble(contact: any, bubble: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @description
-	     *      Internal method
-	     */
-	    getBubbles(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getAll
-	     * @instance
-	     * @return {Bubble[]} The list of existing bubbles
-	     * @memberof Bubbles
-	     * @description
-	     *  Return the list of existing bubbles
-	     */
-	    getAll(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllBubbles
-	     * @instance
-	     * @return {Bubble[]} The list of existing bubbles
-	     * @memberof Bubbles
-	     * @description
-	     *  Return the list of existing bubbles
-	     */
-	    getAllBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllOwnedBubbles
-	     * @instance
-	     * @memberof Bubbles
-	     * @description
-	     *    Get the list of bubbles created by the user <br/>
-	     * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
-	     */
-	    getAllOwnedBubbles(): Bubble[];
-	    private getBubbleFromCache;
-	    private addOrUpdateBubbleToCache;
-	    private removeBubbleFromCache;
-	    /**
-	     * @public
-	     * @method getBubbleById
-	     * @instance
-	     * @param {string} id the id of the bubble
-	     * @async
-	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @memberof Bubbles
-	     * @description
-	     *  Get a bubble by its ID in memory and if it is not found in server.
-	     */
-	    getBubbleById(id: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getBubbleByJid
-	     * @instance
-	     * @param {string} jid the JID of the bubble
-	     * @async
-	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @memberof Bubbles
-	     * @description
-	     *  Get a bubble by its JID in memory and if it is not found in server.
-	     */
-	    getBubbleByJid(jid: any): Promise<Bubble>;
-	    /**
-	     * @public
-	     * @method getAllPendingBubbles
-	     * @instance
-	     * @return {Bubble[]} An array of Bubbles not accepted or declined
-	     * @description
-	     *  Get the list of Bubbles that have a pending invitation not yet accepted of declined
-	     * @memberof Bubbles
-	     */
-	    getAllPendingBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllActiveBubbles
-	     * @since 1.30
-	     * @instance
-	     * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
-	     * @description
-	     *  Get the list of Bubbles where the connected user can chat
-	     * @memberof Bubbles
-	     */
-	    getAllActiveBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllClosedBubbles
-	     * @since 1.30
-	     * @instance
-	     * @return {Bubble[]} An array of Bubbles that are closed for the connected user
-	     * @description
-	     *  Get the list of Bubbles where the connected user can only read messages
-	     * @memberof Bubbles
-	     */
-	    getAllClosedBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method acceptInvitationToJoinBubble
-	     * @instance
-	     * @param {Bubble} bubble The Bubble to join
-	     * @description
-	     *  Accept an invitation to join a bubble
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
-	     * @category async
-	     */
-	    acceptInvitationToJoinBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method declineInvitationToJoinBubble
-	     * @instance
-	     * @param {Bubble} bubble The Bubble to decline
-	     * @description
-	     *  Decline an invitation to join a bubble
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
-	     * @category async
-	     */
-	    declineInvitationToJoinBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method setBubbleCustomData
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @param {Object} customData Bubble's custom data area. key/value format. Maximum and size are server dependent
-	     * @description
-	     *  Modify all custom data at once in a bubble
-	     *  To erase all custom data, put {} in customData
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
-	     * @category async
-	     */
-	    setBubbleCustomData(bubble: any, customData: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method setBubbleVisibilityStatus
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
-	     * @description
-	     *  Set the Bubble's visibility status
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
-	     * @category async
-	     */
-	    setBubbleVisibilityStatus(bubble: any, status: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method setBubbleTopic
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @param {string} topic Bubble's topic
-	     * @description
-	     *  Set the Bubble's topic
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
-	     * @category async
-	     */
-	    setBubbleTopic(bubble: any, topic: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method setBubbleName
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @param {string} topic Bubble's name
-	     * @description
-	     *  Set the Bubble's name
-	     * @memberof Bubbles
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
-	     * @category async
-	     */
-	    setBubbleName(bubble: any, name: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _sendInitialBubblePresence
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when receiving an invitation to join a bubble
-	     */
-	    _sendInitialBubblePresence(bubble: any): void;
-	    /**
-	     * @private
-	     * @method _onInvitationReceived
-	     * @instance
-	     * @param {Object} invitation contains informations about bubble and user's jid
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when receiving an invitation to join a bubble
-	     */
-	    _onInvitationReceived(invitation: any): void;
-	    /**
-	     * @private
-	     * @method _onAffiliationChanged
-	     * @instance
-	     * @param {Object} affiliation contains information about bubble and user's jid
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when affilitation to a bubble changed
-	     */
-	    _onAffiliationChanged(affiliation: any): void;
-	    /**
-	     * @private
-	     * @method _onOwnAffiliationChanged
-	     * @instance
-	     * @param {Object} affiliation contains information about bubble and user's jid
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when the user affilitation to a bubble changed
-	     */
-	    _onOwnAffiliationChanged(affiliation: any): void;
-	    /**
-	     * @private
-	     * @method _onCustomDataChanged
-	     * @instance
-	     * @param {Object} data contains information about bubble and new custom data received
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when custom data have changed for a bubble
-	     */
-	    _onCustomDataChanged(data: any): void;
-	    /**
-	     * @private
-	     * @method _onTopicChanged
-	     * @instance
-	     * @param {Object} data contains information about bubble new topic received
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when the topic has changed for a bubble
-	     */
-	    _onTopicChanged(data: any): void;
-	    /**
-	     * @private
-	     * @method _onNameChanged
-	     * @instance
-	     * @param {Object} data contains information about bubble new name received
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when the name has changed for a bubble
-	     */
-	    _onNameChanged(data: any): void;
-	    /**
-	     * @private
-	     * @method _onbubblepresencechanged
-	     * @instance
-	     * @param {Object} data contains information about bubble
-	     * @memberof Bubbles
-	     * @description
-	     *      Method called when the name has changed for a bubble
-	     */
-	    _onbubblepresencechanged(bubbleInfo: any): Promise<void>;
-	}
-	export { Bubbles as BubblesService };
-
-}
 declare module 'lib/services/GroupsService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; class Groups {
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger'; class Groups {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
 	    _groups: any;
-	    _eventEmitter: any;
-	    _logger: any;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
 	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -4739,20 +5894,23 @@ declare module 'lib/services/GroupsService' {
 
 }
 declare module 'lib/services/AdminService' {
+	/// <reference types="node" />
 	import { XMPPService } from 'lib/connection/XMPPService';
 	export {};
-	import { RESTService } from 'lib/connection/RESTService'; class Admin {
+	import { RESTService } from 'lib/connection/RESTService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger'; class Admin {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
-	    _eventEmitter: any;
-	    _logger: any;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
 	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -5138,800 +6296,6 @@ declare module 'lib/services/AdminService' {
 	export { Admin as AdminService };
 
 }
-declare module 'lib/services/SettingsService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; class Settings {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _eventEmitter: any;
-	    _logger: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method getUserSettings
-	     * @instance
-	     * @description
-	     *  Get current User Settings
-	     * @return {Promise<UserSettings>} A promise containing the result
-	     * @memberof Settings
-	     */
-	    getUserSettings(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method updateUserSettings
-	     * @instance
-	     * @description
-	     *  Update current User Settings
-	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
-	     * @memberof Settings
-	     */
-	    updateUserSettings(settings: any): Promise<unknown>;
-	}
-	export { Settings as SettingsService };
-
-}
-declare module 'lib/services/FileServerService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; class FileServer {
-	    eventEmitter: any;
-	    logger: any;
-	    _capabilities: any;
-	    transferPromiseQueue: any;
-	    fileStorageService: any;
-	    rest: any;
-	    ONE_KILOBYTE: any;
-	    xmpp: any;
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    ONE_MEGABYTE: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    readonly capabilities: Promise<any>;
-	    start(_xmpp: XMPPService, _rest: RESTService, _fileStorageService: any): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
-	    /**
-	     * Method retrieve data from server using range request mecanism (RFC7233)
-	     *
-	     * @private
-	     * @param {string} url [required] server url for request
-	     * @param {number} minRange [requied] minimum value of range
-	     * @param {number} maxRange [required] maximum value of range
-	     * @param {number} index [required] index of the part. Used to re-assemble the data
-	     * @returns {Object} structure containing the response data from server and the index
-	     *
-	     * @memberof FileServer
-	     */
-	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): any;
-	    /**
-	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
-	     *
-	     * @param {string} url [required] server url for request
-	     * @param {string} mime [required] Mime type of the blob to be created
-	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-	     * @param {string} fileName [optional] name of file to be downloaded
-	     * @returns {Buffer} Buffer created from data received from server
-	     *
-	     * @memberof FileServer
-	     */
-	    getBufferFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
-	    /**
-	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
-	     *
-	     * @param destFile
-	     * @param {string} url [required] server url for request
-	     * @param {string} mime [required] Mime type of the blob to be created
-	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-	     * @param {string} fileName [optional] name of file to be downloaded
-	     * @param {string} uploadedDate [optional] date of the upload
-	     * @returns {Buffer} Buffer created from data received from server
-	     *
-	     * @memberof FileServer
-	     */
-	    getFileFromUrlWithOptimization(destFile: any, url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
-	    /***
-	     * @private
-	     * @param fileDescriptor
-	     * @param large
-	     */
-	    getBlobThumbnailFromFileDescriptor(fileDescriptor: any, large?: boolean): Promise<void>;
-	    /**
-	     * Method sends data file to server
-	     *
-	     * @private
-	     * @param {string} fileId [required] file descriptor ID of file to be sent
-	     * @param {File} file [required] file to be sent
-	     * @param {string} mime [required] mime type of file
-	     * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
-	     *
-	     * @memberof FileServer
-	     */
-	    _uploadAFile(fileId: any, filePath: any, mime: any): Promise<unknown>;
-	    /**
-	     * Method sends data to server using range request mecanism (RFC7233)
-	     *
-	     * @private
-	     * @param {string} fileId [required] file descriptor ID of file to be sent
-	     * @param {Blob} file [required] file to be sent
-	     * @param {number} initialSize [required] initial size of whole file to be sent before partition
-	     * @param {number} minRange [requied] minimum value of range
-	     * @param {number} maxRange [required] maximum value of range
-	     * @param {number} index [required] index of the part. Used to indicate the part number to the server
-	     * @returns {Promise<{}>} file descriptor data received as response from server or http error response
-	     *
-	     * @memberof FileServer
-	     */
-	    _sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
-	    /**
-	     * Upload File ByChunk progressCallback callback is displayed as part of the Requester class.
-	     * @callback uploadAFileByChunk~progressCallback
-	     * @param {FileDescriptor} fileDescriptor
-	     */
-	    /**
-	     * Method sends data to server using range request mecanism (RFC7233)
-	     *
-	     * @private
-	     * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
-	     * @param {File} file [required] filePath of the file to be sent
-	//     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
-	     * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
-	     *
-	     * @memberof FileServer
-	     */
-	    uploadAFileByChunk(fileDescriptor: any, filePath: any): Promise<any>;
-	    isTransferInProgress(): any;
-	    cancelAllTransfers(): void;
-	    /**
-	     * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
-	     *
-	     * @param {string} url [required] server url for request
-	     * @param {string} mime [required] Mime type of the blob to be created
-	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-	     * @param {string} fileName [optional] name of file to be downloaded
-	     * @returns {Promise<Blob>} Blob created from data received from server
-	     *
-	     * @memberof FileServerService
-	     * !!!!!! OBSOLETE
-	     */
-	    getBlobFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
-	    /**
-	     * Method creates blob from a file retrieved from server
-	     *
-	     * @private
-	     * @param {string} url [required] server url for request
-	     * @param {string} mime [required] Mime type of the blob to be created
-	     * @param {number} fileSize [required] size of file to be retrieved
-	     * @param {string} fileName [required] name of file to be downloaded
-	     * @returns {ng.IPromise<Blob>} Blob created from data received from server
-	     *
-	     * @memberof FileServerService
-	     */
-	    getBlobFromUrl(url: any, mime: any, fileSize: any, fileName: any): Promise<unknown>;
-	    /**
-	    * Method retrieves user quota (capabilities) for user
-	    *
-	    * @returns {Capabilities} user quota for user
-	    *
-	    * @memberof FileServer
-	    */
-	    getServerCapabilities(): any;
-	}
-	export { FileServer as FileServerService };
-
-}
-declare module 'lib/common/models/fileDescriptor' {
-	export {}; class FileState {
-	    static DELETED: string;
-	    static UPLOADING: string;
-	    static UPLOADED: string;
-	    static NOT_UPLOADED: string;
-	    static DOWNLOADING: string;
-	    static UNKNOWN: string;
-	} class ThumbnailPlaceholder {
-	    icon: string;
-	    style: string;
-	    constructor(icon: string, style: string);
-	}
-	interface IThumbnail {
-	    availableThumbnail: boolean;
-	    md5sum: string;
-	    size: number;
-	    wantThumbnailDate: Date;
-	    isThumbnailAvailable(): boolean;
-	}
-	interface IFileDescriptor {
-	    id: string;
-	    url: string;
-	    ownerId: string;
-	    fileName: string;
-	    extension: string;
-	    typeMIME: string;
-	    size: number;
-	    registrationDate: Date;
-	    uploadedDate: Date;
-	    viewers: any[];
-	    state: FileState;
-	    fileToSend: any;
-	    previewBlob: any;
-	    chunkTotalNumber: number;
-	    chunkPerformed: number;
-	    chunkPerformedPercent: number;
-	    thumbnail: IThumbnail;
-	    thumbnailPlaceholder: ThumbnailPlaceholder;
-	    orientation: number;
-	    isThumbnailPossible(): boolean;
-	    isImage(): boolean;
-	    isUploaded(): boolean;
-	    isAlreadyFileViewer(viewerId: string): boolean;
-	    getDisplayName(): string;
-	    getDisplayNameTruncated(): String[];
-	    getExtension(): string;
-	} class FileDescriptor implements IFileDescriptor {
-	    id: string;
-	    url: string;
-	    ownerId: string;
-	    fileName: string;
-	    extension: string;
-	    typeMIME: string;
-	    size: number;
-	    registrationDate: Date;
-	    uploadedDate: Date;
-	    viewers: any[];
-	    dateToSort: Date;
-	    state: FileState;
-	    fileToSend: any;
-	    previewBlob: any;
-	    chunkTotalNumber: number;
-	    chunkPerformed: number;
-	    chunkPerformedPercent: number;
-	    thumbnail: IThumbnail;
-	    thumbnailPlaceholder: ThumbnailPlaceholder;
-	    orientation: number;
-	    /**
-	     * @this FileDescriptor
-	     */
-	    constructor(id: string, url: string, ownerId: string, fileName: string, extension: string, typeMIME: string, size: number, registrationDate: Date, uploadedDate: Date, dateToSort: Date, viewers: any, state: FileState, thumbnail: IThumbnail, orientation: number);
-	    isMicrosoftFile(): boolean;
-	    isThumbnailPossible(): boolean;
-	    isPDF(): boolean;
-	    isImage(): boolean;
-	    isAudioVideo(): boolean;
-	    isUploaded(): boolean;
-	    isAlreadyFileViewer(viewerId: string): boolean;
-	    getDisplayName(): string;
-	    getDisplayNameTruncated(): String[];
-	    getExtension(): string;
-	    private getThumbnailPlaceholderFromMimetype;
-	} function FileDescriptorFactory(): (id: any, url: any, ownerId: any, fileName: any, extension: any, typeMIME: any, size: any, registrationDate: any, uploadedDate: any, dateToSort: any, viewers: any, state: any, thumbnail: any, orientation: any) => FileDescriptor;
-	export { FileDescriptorFactory as fileDescriptorFactory, FileDescriptor };
-
-}
-declare module 'lib/services/FileStorageService' {
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; class FileStorage {
-	    eventEmitter: any;
-	    logger: any;
-	    fileServerService: any;
-	    _conversations: any;
-	    fileDescriptors: any;
-	    fileDescriptorsByDate: any;
-	    fileDescriptorsByName: any;
-	    fileDescriptorsBySize: any;
-	    receivedFileDescriptors: any;
-	    receivedFileDescriptorsByName: any;
-	    receivedFileDescriptorsByDate: any;
-	    receivedFileDescriptorsBySize: any;
-	    consumptionData: any;
-	    contactService: any;
-	    _rest: RESTService;
-	    _xmpp: any;
-	    startDate: any;
-	    started: any;
-	    _logger: any;
-	    errorHelperService: any;
-	    helpersService: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    readonly startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(__xmpp: XMPPService, __rest: RESTService, __fileServerService: any, __conversations: any): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @since 1.47.1
-	     * @method
-	     * @instance
-	     * @description
-	     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation
-	     *    Return a promise
-	     * @return {Message} Return the message sent
-	     */
-	    _addFileToConversation(conversation: any, file: any, data: any): Promise<unknown>;
-	    /**************** API ***************/
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method uploadFileToConversation
-	     * @instance
-	     * @param {Conversation} conversation   The conversation where the message will be added
-	     * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
-	     * @param {String} strMessage   An optional message to add with the file
-	     * @description
-	     *    Allow to add a file to an existing conversation (ie: conversation with a contact)
-	     *    Return the promise
-	     * @return {Message} Return the message sent
-	     */
-	    uploadFileToConversation(conversation: any, file: any, strMessage: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method uploadFileToBubble
-	     * @instance
-	     * @param {Bubble} bubble   The bubble where the message will be added
-	     * @param {File} file The file to add
-	     * @param {String} strMessage   An optional message to add with the file
-	     * @description
-	     *    Allow to add a file to an existing Bubble conversation
-	     *    Return a promise
-	     * @return {Message} Return the message sent
-	     */
-	    uploadFileToBubble(bubble: any, file: any, strMessage: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method downloadFile
-	     * @instance
-	     * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
-	     * @description
-	     *    Allow to download a file from the server)
-	     *    Return a promise
-	     * @return {} Object with : buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
-	     */
-	    downloadFile(fileDescriptor: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getUserQuotaConsumption
-	     * @instance
-	     * @description
-	     *    Get the current file storage quota and consumption for the connected user
-	     *    Return a promise
-	     * @return {Object} Return an object containing the user quota and consumption
-	     */
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method removeFile
-	     * @instance
-	     * @param {FileDescriptor} fileDescriptor   The description of the file to remove (short file descriptor)
-	     * @description
-	     *    Remove an uploaded file
-	     *    Return a promise
-	     * @return {Object} Return a SDK OK Object or a SDK error object depending the result
-	     */
-	    removeFile(fileDescriptor: any): Promise<unknown>;
-	    /**********************************************************/
-	    /**  Basic accessors to FileStorage's properties   **/
-	    /**********************************************************/
-	    getFileDescriptorById(id: any): any;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getFileDescriptorFromId
-	     * @instance
-	     * @param {String} id   The file id
-	     * @description
-	     *    Get the file descriptor the user own by it's id
-	     * @return {FileDescriptor} Return a file descriptors found or null if no file descriptor has been found
-	     */
-	    getFileDescriptorFromId(id: any): any;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getFilesReceivedInConversation
-	     * @instance
-	     * @param {Conversation} conversation   The conversation where to get the files
-	     * @description
-	     *    Get the list of all files received in a conversation with a contact
-	     *    Return a promise
-	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
-	     */
-	    getFilesReceivedInConversation(conversation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getFilesReceivedInBubble
-	     * @instance
-	     * @param {Bubble} bubble   The bubble where to get the files
-	     * @description
-	     *    Get the list of all files received in a bubble
-	     *    Return a promise
-	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
-	     */
-	    getFilesReceivedInBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @description
-	     * Method returns a file descriptor with full contact object in viewers'list by requesting server
-	     *
-	     * @param {string} fileId [required] Identifier of file descriptor
-	     * @return {Promise<FileDescriptor>} file descriptor
-	     *
-	     * @memberOf FileStorage
-	     */
-	    getCompleteFileDescriptorById(id: any): Promise<unknown>;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getDocuments(): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @return {FileDescriptor}
-	     * @memberof FileStorage
-	     */
-	    getReceivedDocuments(): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @param {boolean} received
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getDocumentsByName(received: any): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @param {boolean} received
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getDocumentsByDate(received: any): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @param {boolean} received
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getDocumentsBySize(received: any): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @param {string} dbId
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getReceivedFilesFromContact(dbId: any): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @param {string} dbId
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getSentFilesToContact(dbId: any): any;
-	    /**
-	     *
-	     * @public
-	     *
-	     * @param {string} bubbleId id of the bubble
-	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
-	     */
-	    getReceivedFilesForRoom(bubbleId: any): any;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @return {Object}
-	     * @memberof FileStorage
-	     */
-	    getConsumptionData(): any;
-	    /**********************************************************/
-	    /**  Methods requesting server                           **/
-	    /**********************************************************/
-	    /**
-	     * @private
-	     * @description
-	     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors)
-	     *
-	     * @param {string} name [required] name of file for which file descriptor has to be created
-	     * @param {string} extension [required] extension of file
-	     * @param {number} size [required] size of  file
-	     * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
-	     * @return {Promise<FileDescriptor>} file descriptor created by server or error
-	     *
-	     * @memberof FileStorage
-	     */
-	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @param {*} data
-	     * @return {FileDescriptor}
-	     * @memberof FileStorage
-	     */
-	    createFileDescriptorFromData(data: any): any;
-	    /**
-	     * @private
-	     * @description
-	     *
-	     * Method request deletion of a file descriptor on the server and removes it from local storage
-	     * @param {string} id [required] file descriptor id to be destroyed
-	     * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
-	     * @memberof FileStorage
-	     */
-	    deleteFileDescriptor(id: any): Promise<unknown>;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method request deletion of all files on the server and removes them from local storage
-	     * @return {Promise<{}>} ???
-	     * @memberof FileStorage
-	     */
-	    deleteAllFileDescriptor(): Promise<unknown>;
-	    /**
-	     * @public
-	     *
-	     * @description
-	     * Method retrieve full list of files belonging to user making the request
-	     *
-	     * @return {Promise<FileDescriptor[]>}
-	     *
-	     * @memberof FileStorage
-	     */
-	    retrieveFileDescriptorsListPerOwner(): Promise<unknown>;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method retrieve a list of [limit] files belonging to user making the request begining with offset
-	     *
-	     * @return {Promise<FileDescriptor[]>}
-	     *
-	     * @memberof FileStorage
-	     */
-	    retrieveFileDescriptorsListPerOwnerwithOffset(offset: any, limit: any): Promise<unknown>;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation)
-	     *
-	     * @param {string} userId [required] dbId of user making the request
-	     * @param {string} peerId [required] dbId of peer user in the conversation
-	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
-	     *
-	     * @memberOf FileStorage
-	     */
-	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     *
-	     * @description
-	     * Method request for the list of files sent to a given peer (i.e. inside a given conversation)
-	     *
-	     * @param {string} peerId [required] id of peer user in the conversation
-	     * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
-	     *
-	     * @memberOf FileStorage
-	     */
-	    retrieveSentFiles(peerId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     *
-	     * @description
-	     * Method request for the list of files received in a room
-	     *
-	     * @param {string} bubbleId [required] Id of the room
-	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
-	     *
-	     * @memberOf FileStorage
-	     */
-	    retrieveReceivedFilesForRoom(bubbleId: any): Promise<unknown>;
-	    /**
-	     *
-	     * @public
-	     *
-	     * @description
-	     * Method request for the list of files received by a user
-	     *
-	     * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
-	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
-	     *
-	     * @memberOf FileStorage
-	     */
-	    retrieveReceivedFiles(viewerId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getFilesSentInConversation
-	     * @instance
-	     * @param {Conversation} conversation   The conversation where to get the files
-	     * @description
-	     *    Get the list of all files sent in a conversation with a contact
-	     *    Return a promise
-	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
-	     */
-	    getFilesSentInConversation(conversation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getFilesSentInBubble
-	     * @instance
-	     * @param {Bubble} bubble   The bubble where to get the files
-	     * @description
-	     *    Get the list of all files sent in a bubble
-	     *    Return a promise
-	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
-	     */
-	    getFilesSentInBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method
-	     * @instance
-	     * @description
-	     *    Get the current file storage quota and consumption for the connected user
-	     *    Return a promise
-	     * @return {Object} Return an object containing the user quota and consumption
-	     */
-	    getUserQuotaConsumption(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getAllFilesSent
-	     * @instance
-	     * @description
-	     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles.
-	     * @return {FileDescriptor[]} Return an array containing the list of FileDescriptor objects representing the files sent
-	     */
-	    getAllFilesSent(): any;
-	    /**
-	     * @public
-	     * @since 1.47.1
-	     * @method getAllFilesReceived
-	     * @instance
-	     * @description
-	     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles.
-	     * @return {FileDescriptor[]} Return an array containing a list of FileDescriptor objects representing the files received
-	     */
-	    getAllFilesReceived(): any;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method retrieve the data usage of a given user
-	     *
-	     * @return {Promise<{}>} : object data with the following properties:
-	     *                  - feature {string} : The feature key belonging to the user's profile
-	     *                  - maxValue {number} : The quota associated to this offer [octet]
-	     *                  - currentValue {number} : The user's current consumption [octet]
-	     *                  - unit {string} : The unit of this counters
-	     * @memberOf FileStorage
-	     */
-	    retrieveUserConsumption(): Promise<unknown>;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method deletes a viewer from the list of viewer of a given file
-	     *
-	     * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
-	     * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
-	     * @return {Promise<{}>}
-	     *
-	     * @memberof FileStorage
-	     */
-	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
-	    /**
-	     *
-	     * @private
-	     *
-	     * @description
-	     * Method adds a viewer to a given file on server if it is not already one
-	     *
-	     * @param {string} fileId [required] Identifier of file
-	     * @param {string} viewerId [required] Identifier of viewer to be added
-	     * @param {string} viewerType [required] type of viewer to be added (user or room)
-	     * @return {Promise<FileDescriptor>} file descriptor with newly added viewer
-	     *
-	     * @memberOf FileStorage
-	     */
-	    addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<unknown>;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method retrieve a specific file descriptor from server
-	     *
-	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
-	     * @return {Promise<FileDescriptor>} file descriptor retrieved
-	     *
-	     * @memberOf FileStorage
-	     */
-	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new)
-	     *
-	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
-	     * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
-	     *
-	     * @memberOf FileStorage
-	     */
-	    retrieveAndStoreOneFileDescriptor(fileId: any, forceRetrieve: any): Promise<any>;
-	    /**********************************************************/
-	    /**  Utilities                                           **/
-	    /**********************************************************/
-	    deleteFileDescriptorFromCache(id: any, forceDelete: any): void;
-	    orderDocuments(): void;
-	    orderReceivedDocuments(): void;
-	    orderDocumentsForRoom(documents: any): any[];
-	    replaceOrderedByFilter(resultArray: any, originalArray: any, filterFct: any, flag: any, sortFct: any): void;
-	    getName(file: any): {
-	        name: string;
-	        date: string;
-	    };
-	    getDate(file: any): any;
-	    getSize(file: any): {
-	        name: string;
-	        size: string;
-	    };
-	    sortByName(fileA: any, fileB: any): number;
-	    sortBySize(fileA: any, fileB: any): number;
-	    sortByDate(fileA: any, fileB: any): number;
-	    /**
-	     * @private
-	     *
-	     * @description
-	     * Method extract fileId part of URL
-	     *
-	     * @param {string} url
-	     * @return {string}
-	     *
-	     * @memberof FileStorage
-	     */
-	    extractFileIdFromUrl(url: any): any;
-	}
-	export { FileStorage as FileStorageService };
-
-}
 declare module 'lib/common/StateManager' {
 	export {}; class StateManager {
 	    eventEmitter: any;
@@ -5941,15 +6305,15 @@ declare module 'lib/common/StateManager' {
 	    start(): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    transitTo(state: any, data?: any): Promise<unknown>;
-	    readonly STOPPED: string;
-	    readonly CONNECTED: string;
-	    readonly STARTED: string;
-	    readonly STARTING: string;
-	    readonly DISCONNECTED: string;
-	    readonly RECONNECTING: string;
-	    readonly READY: string;
-	    readonly FAILED: string;
-	    readonly ERROR: string;
+	    get STOPPED(): string;
+	    get CONNECTED(): string;
+	    get STARTED(): string;
+	    get STARTING(): string;
+	    get DISCONNECTED(): string;
+	    get RECONNECTING(): string;
+	    get READY(): string;
+	    get FAILED(): string;
+	    get ERROR(): string;
 	    isSTOPPED(): boolean;
 	    isCONNECTED(): boolean;
 	    isSTARTED(): boolean;
@@ -6006,10 +6370,16 @@ declare module 'lib/connection/XMPPServiceHandler/calllogEventHandler' {
 
 }
 declare module 'lib/services/CallLogService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService'; class CallLogService {
-	    _eventEmitter: any;
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger';
+	import { ContactsService } from 'lib/services/ContactsService';
+	import { ProfilesService } from 'lib/services/ProfilesService';
+	import { TelephonyService } from 'lib/services/TelephonyService'; class CallLogService {
+	    _eventEmitter: EventEmitter;
 	    private logger;
 	    private started;
 	    private _initialized;
@@ -6029,15 +6399,15 @@ declare module 'lib/services/CallLogService' {
 	    private _contacts;
 	    private _profiles;
 	    private _calllogEventHandler;
-	    _telephony: any;
+	    private _telephony;
 	    ready: boolean;
 	    private readonly _startConfig;
-	    readonly startConfig: {
+	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: any, logger: any, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: any, _profiles: any, _telephony: any): Promise<void>;
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _profiles: ProfilesService, _telephony: TelephonyService): Promise<void>;
 	    stop(): Promise<void>;
 	    init(): Promise<void>;
 	    attachHandlers(): void;
@@ -6160,8 +6530,8 @@ declare module 'lib/common/Events' {
 	    _evPublisher: EventEmitter;
 	    _core: Core;
 	    constructor(_logger: Logger, _filterCallback: Function);
-	    readonly iee: EventEmitter;
-	    readonly eee: EventEmitter;
+	    get iee(): EventEmitter;
+	    get eee(): EventEmitter;
 	    /**
 	     * @method on
 	     * @public
@@ -6219,17 +6589,17 @@ declare module 'lib/config/Options' {
 	    _servicesToStart: any;
 	    constructor(_options: any, _logger: any);
 	    parse(): void;
-	    readonly servicesToStart: any;
-	    readonly httpOptions: any;
-	    readonly xmppOptions: any;
-	    readonly proxyOptions: any;
-	    readonly imOptions: any;
-	    readonly applicationOptions: any;
-	    readonly hasCredentials: any;
-	    readonly hasApplication: any;
-	    readonly useXMPP: any;
-	    readonly useCLIMode: any;
-	    readonly credentials: any;
+	    get servicesToStart(): any;
+	    get httpOptions(): any;
+	    get xmppOptions(): any;
+	    get proxyOptions(): any;
+	    get imOptions(): any;
+	    get applicationOptions(): any;
+	    get hasCredentials(): any;
+	    get hasApplication(): any;
+	    get useXMPP(): any;
+	    get useCLIMode(): any;
+	    get credentials(): any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
 	    _getHTTPOptions(): any;
@@ -6247,6 +6617,7 @@ declare module 'lib/config/Options' {
 	        sendReadReceipt: any;
 	        messageMaxLength: number;
 	        sendMessageToConnectedUser: boolean;
+	        conversationsRetrievedFormat: string;
 	        storeMessages: boolean;
 	        copyMessage: boolean;
 	    };
@@ -6270,9 +6641,10 @@ declare module 'lib/ProxyImpl' {
 	    private _password;
 	    private _secureProtocol;
 	    constructor(config: any, _logger: any);
-	    readonly proxyURL: any;
-	    readonly isProxyConfigured: any;
-	    secureProtocol: string;
+	    get proxyURL(): any;
+	    get isProxyConfigured(): any;
+	    get secureProtocol(): string;
+	    set secureProtocol(value: string);
 	}
 	export { ProxyImpl };
 
@@ -6332,26 +6704,26 @@ declare module 'lib/Core' {
 	    _invitations: InvitationsService;
 	    _botsjid: any;
 	    constructor(options: any);
-	    start(useCLIMode: any): Promise<unknown>;
-	    signin(forceStopXMPP: any): Promise<unknown>;
+	    start(useCLIMode: any, token: any): Promise<unknown>;
+	    signin(forceStopXMPP: any, token: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    readonly settings: SettingsService;
-	    readonly presence: PresenceService;
-	    readonly im: IMService;
-	    readonly contacts: ContactsService;
-	    readonly conversations: ConversationsService;
-	    readonly channels: ChannelsService;
-	    readonly bubbles: BubblesService;
-	    readonly groups: GroupsService;
-	    readonly admin: AdminService;
-	    readonly fileServer: FileServerService;
-	    readonly fileStorage: FileStorageService;
-	    readonly events: Events;
-	    readonly rest: RESTService;
-	    readonly state: any;
-	    readonly version: any;
-	    readonly telephony: TelephonyService;
-	    readonly calllog: CallLogService;
+	    get settings(): SettingsService;
+	    get presence(): PresenceService;
+	    get im(): IMService;
+	    get contacts(): ContactsService;
+	    get conversations(): ConversationsService;
+	    get channels(): ChannelsService;
+	    get bubbles(): BubblesService;
+	    get groups(): GroupsService;
+	    get admin(): AdminService;
+	    get fileServer(): FileServerService;
+	    get fileStorage(): FileStorageService;
+	    get events(): Events;
+	    get rest(): RESTService;
+	    get state(): any;
+	    get version(): any;
+	    get telephony(): TelephonyService;
+	    get calllog(): CallLogService;
 	}
 	export { Core };
 
@@ -6430,6 +6802,7 @@ declare module 'lib/config/config' {
 	        sendReadReceipt: boolean;
 	        messageMaxLength: number;
 	        sendMessageToConnectedUser: boolean;
+	        conversationsRetrievedFormat: string;
 	        storeMessages: boolean;
 	        copyMessage: boolean;
 	    };

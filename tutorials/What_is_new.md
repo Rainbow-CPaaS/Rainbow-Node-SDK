@@ -6,6 +6,57 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+
+### SDK for Node.JS 1.65 - December 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
+-   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
+-   Fix fill of properties Contact.companyId and Contact.companyName.
+-   Forbid the sent over the XMPP socket if closed (XmppClient::socketClosed)
+-   Fix datas of channel when fetched.
+-   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
+-   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
+-   Move treatment of invitations events from Conversation/Contacts services to invitations service. 
+-   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
+-   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
+-   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/guides/CHANGELOGRSS.xml)
+-   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
+-   Typescript improvement.
+-   Add CDD methods in TelephonyService : logon, logoff, withdrawal, wrapup.
+-   Add the ability to login with a token to the Rainbow Node SDK (token parameter to SDK start method.).
+-   Fix MaxListenersExceededWarning issue about too much listener registred.
+-   Fix onFileManagementMessageReceived when a file created to store the filedescriptor in internal list
+-   Add event `evt_internal_bubbleavatarchanged` raised when a bubble is updated with a new avatar
+-   Add avatar property in Bubble class. This is the URL to download the avatar . Note that it can spot on an empty file if no avatar has been setted.
+-   Add BubblesService::promoteContactToModerator Promote a contact to moderator in a bubble
+-   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble 
+-   Add BubblesService::getAvatarFromBubble Get A Blob object with data about the avatar picture of the bubble.
+-   Add BubblesService::updateAvatarForBubble  Update the bubble avatar (from given URL). The image will be automaticalle resized.
+-   Add BubblesService::deleteAvatarFromBubble Delete the bubble avatar
+-   Add BubblesService::updateCustomDataForBubble Update the customData of the bubble
+-   Add BubblesService::deleteCustomDataForBubble Delete the customData of the bubble
+-   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
+-   Add BubblesService::openConversationForBubble Open a conversation to a bubble
+
 ### SDK for Node.JS 1.64 - November 2019
 
 ---

@@ -594,6 +594,22 @@ class ConversationEventHandler extends GenericHandler {
                             "name": node.attrs.name
                         });
                     }
+                    let lastAvatarUpdateDate = node.attrs.lastAvatarUpdateDate;
+                    let avatarElem = node.find("avatar");
+                    let avatarType = null;
+                    if (avatarElem.length > 0) {
+                        if (avatarElem.attr("action") === "delete") { avatarType = "delete"; }
+                        else { avatarType = "update"; }
+                    }
+                    if (lastAvatarUpdateDate || avatarType) {
+                        that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble avatar changed");
+                        that.eventEmitter.emit("evt_internal_bubbleavatarchanged", {"bubbleId": node.attrs.roomid});
+                        /*service.getServerRoom(room.dbId)
+                            .then(function(roomToUpdate) {
+                                roomToUpdate.updateAvatarInfo();
+                                $rootScope.$broadcast(service.ROOM_AVATAR_UPDATE_EVENT, room);
+                            }); // */
+                    }
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onRoomManagementMessageReceived) CATCH Error !!! ");
@@ -1049,6 +1065,8 @@ class ConversationEventHandler extends GenericHandler {
 
         };
     }
+
+
 }
 
 export {ConversationEventHandler};

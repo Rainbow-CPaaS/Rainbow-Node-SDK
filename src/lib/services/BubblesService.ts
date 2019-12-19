@@ -11,6 +11,9 @@ import {createPromiseQueue} from "../common/promiseQueue";
 import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {atob} from "atob";
+const Jimp = require('jimp');
+//import Jimp from "jimp";
 
 const LOG_ID = "BUBBLES/SVCE - ";
 
@@ -44,11 +47,12 @@ class Bubbles {
         start_up:boolean,
         optional:boolean
     };
+    private avatarDomain: string;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter,  _http : any, _logger : Logger, _startConfig) {
         this.ready = false;
         this._xmpp = null;
         this._rest = null;
@@ -56,6 +60,8 @@ class Bubbles {
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this._startConfig = _startConfig;
+
+        this.avatarDomain = _http.host.split(".").length === 2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port : _http.protocol + "://" + _http.host + ":" + _http.port;
 
         this._eventEmitter.on("evt_internal_invitationreceived", this._onInvitationReceived.bind(this));
         this._eventEmitter.on("evt_internal_affiliationchanged", this._onAffiliationChanged.bind(this));
@@ -793,6 +799,38 @@ getAllActiveBubbles
 
     /**
      * @public
+     * @method promoteContactToModerator
+     * @since 1.65
+     * @instance
+     * @description
+     *    Promote a contact to moderator in a bubble <br/>
+     *    Return a promise.
+     * @param {Contact} contact The contact to promote
+     * @param {Bubble} bubble   The destination bubble
+     * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
+     */
+    promoteContactToModerator(contact, bubble) {
+        return this.promoteContactInBubble(contact, bubble, true);
+    }
+
+    /**
+     * @public
+     * @method demoteContactFromModerator
+     * @since 1.65
+     * @instance
+     * @description
+     *    Demote a contact to user in a bubble <br/>
+     *    Return a promise.
+     * @param {Contact} contact The contact to promote
+     * @param {Bubble} bubble   The destination bubble
+     * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
+     */
+    demoteContactFromModerator (contact, bubble) {
+        return this.promoteContactInBubble(contact, bubble, false);
+    }
+
+    /**
+     * @public
      * @method changeBubbleOwner
      * @instance
      * @param {Contact} contact         The contact to set a new bubble owner
@@ -1052,7 +1090,8 @@ getAllActiveBubbles
     }
 
     private addOrUpdateBubbleToCache(bubble : any): Bubble {
-        let bubbleObj : Bubble = Bubble.BubbleFactory()(bubble);
+        let that = this;
+        let bubbleObj : Bubble = Bubble.BubbleFactory(that.avatarDomain)(bubble);
         let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
             return channelIter.id === bubble.id;
         });
@@ -1089,6 +1128,60 @@ getAllActiveBubbles
             }
         });
     }
+
+    /**
+     * @method getAvatarFromBubble
+     * @public
+     * @instance
+     * @param {Bubble} bubble   The destination bubble
+     * @async
+     * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
+     * @memberof Bubbles
+     * @description
+     *  Get A Blob object with data about the avatar picture of the bubble.
+     */
+    getAvatarFromBubble(bubble){
+            /*
+            Nom : 5da72aa7e6ca5a023da44eff
+            Dimensions : 512 × 512
+            Type MIME : image/jpeg
+             */
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("internal", LOG_ID + "(getBubbleById) bubble : ", bubble);
+
+            if (!bubble) {
+                that._logger.log("debug", LOG_ID + "(getAvatarFromBubble) bad or empty 'bubble' parameter.");
+                that._logger.log("internal", LOG_ID + "(getAvatarFromBubble) bad or empty 'bubble' parameter : ", bubble);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!bubble.avatar) {
+                that._logger.log("debug", LOG_ID + "(getAvatarFromBubble) bad or empty avatar of 'bubble' parameter.");
+                that._logger.log("debug", LOG_ID + "(getAvatarFromBubble) bad or empty avatar of 'bubble' parameter : ", bubble);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+                return that._rest.getBlobFromUrl(bubble.avatar).then((avatarBuffer : any) => {
+                    that._logger.log("internal", LOG_ID + "(getAvatarFromBubble) bubble from server : ", avatarBuffer);
+                    let blob = {buffer : avatarBuffer,
+                        type: "image/jpeg",
+                        fileSize: avatarBuffer.length,
+                        fileName: bubble.id
+                    }; // */
+
+                    /*let blob = new Blob([response.data],
+                        { type: mime }); // */
+
+                    that._logger.log("debug", LOG_ID + "getAvatarFromBubble success");
+                        resolve(blob);
+                }).catch((err)=>{
+                    return reject(err);
+                });
+        });
+
+    }
+
 
     /**
      * @public
@@ -1569,6 +1662,330 @@ getAllActiveBubbles
         });
     }
 
+    randomString (length : number = 10) {
+        let string = "";
+        let rnd;
+        const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        while (length > 0) {
+            rnd = Math.floor(Math.random() * chars.length);
+            string += chars.charAt(rnd);
+            length--;
+        }
+        return string;
+    };
+
+    /**
+     * @public
+     * @method updateAvatarForBubble
+     * @since 1.65
+     * @instance
+     * @description
+     *    Update the bubble avatar (from given URL) <br/>
+     *    The image will be automaticalle resized <br/>
+     *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br/>
+     *    Return a promise.
+     * @param {string} urlAvatar  The avatarUrl
+     * @param {Bubble} bubble  The bubble to update
+     * @return {Bubble} A bubble object of null if not found
+     */
+    updateAvatarForBubble(urlAvatar, bubble) {
+        return this.setAvatarBubble(bubble,urlAvatar);
+    }
+
+    /**
+     * @private
+     * @method setAvatarBubble
+     * @param bubble
+     * @param roomAvatarPath
+     */
+    setAvatarBubble (bubble, roomAvatarPath) {
+        let that = this;
+
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!roomAvatarPath) {
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter : ", roomAvatarPath);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise((resolve, reject) => {
+            that.resizeImage(roomAvatarPath, 512, 512).then(function (resizedImage) {
+                that._logger.log("debug", LOG_ID + "(setAvatarBubble) resizedImage : ", resizedImage);
+                let binaryData = that.getBinaryData(resizedImage);
+                that._rest.setAvatarRoom(bubble.id, binaryData).then(
+                    function success(result : any) {
+                        that._logger.log("debug", LOG_ID + "(setAvatarBubble) setAvatarRoom success : " + result);
+                        /*
+                        let url = that.avatarDomain;
+                        if ($rootScope.cdn) {
+                            url = $rootScope.cdnServer;
+                        }
+                        bubble.avatar = url + "/api/room-avatar/" + bubble.id + "?size=512&rand=" + that.randomString();
+                        // */
+                        resolve(bubble);
+                    },
+                    function failure(err) {
+                        that._logger.log("error", LOG_ID + "(setAvatarBubble) error.");
+                        that._logger.log("internalerror", LOG_ID + "(setAvatarBubble) error : ", err);
+                        return reject(err);
+                    });
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAvatarFromBubble
+     * @since 1.65
+     * @instance
+     * @description
+     *    Delete the bubble avatar <br/>
+
+     *    Return a promise.
+     * @param {Bubble} bubble  The bubble to update
+     * @return {Bubble} A bubble object of null if not found
+     */
+    deleteAvatarFromBubble(bubble) {
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return this.deleteAvatarBubble(bubble.id);
+    }
+
+    /**
+     * @private
+     * @method deleteAvatarBubble
+     * @param bubbleId
+     */
+    deleteAvatarBubble (bubbleId) {
+        let that = this;
+        if (!bubbleId) {
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise((resolve, reject) => {
+            that._rest.deleteAvatarRoom(bubbleId).then((res) => {
+                resolve (res);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+        /* return $q(function(resolve, reject) {
+            $http({
+                method: "DELETE",
+                url: service.portalURL + "rooms/" + roomId + "/avatar",
+                headers: authService.getRequestHeader()
+            }).then(function success() {
+                $log.info("[roomService] avatar room sucessfully deleted");
+                resolve();
+            }).catch(function(err) {
+                reject(err);
+            });
+        });
+        // */
+    };
+
+    /**
+     * @private
+     * @param avatarImg
+     * @param maxWidth
+     * @param maxHeight
+     */
+    resizeImage (avatarImg, maxWidth, maxHeight) {
+        let that = this;
+       return new Promise((resolve, reject)=> {
+           Jimp.read(avatarImg) // this can be url or local location
+               .then(image => {
+                   that._logger.log("debug", LOG_ID + "(resizeImage) image : ", image);
+                   image.resize(maxHeight, maxWidth) // jimp.AUTO automatically sets the width so that the image doesnot looks odd
+                       // @ts-ignore
+                       .getBase64(Jimp.AUTO, (err, res) => {
+                           that._logger.log("debug", LOG_ID + "(setAvatarBubble) getBase64 : ", res);
+                           /*
+                           const buf = new Buffer(
+                               res.replace(/^data:image\/\w+;base64,/, ""),
+                               "base64"
+                           );
+                           let data = {
+                               Body: buf,
+                               ContentEncoding: "base64",
+                               ContentType: "image/jpeg"
+                           };
+                           // */
+                           return resolve(res);
+                       });
+               })
+               .catch(err => {
+                   that._logger.log("error", LOG_ID + "(setAvatarBubble) Error : ", err);
+               });
+       });
+
+
+        /*
+        let defered = $q.defer();
+        let image = new Image();
+        image.src = avatarImg;
+
+        image.onload = function() {
+            let imageWidth = image.width;
+            let imageHeight = image.height;
+
+            if (imageWidth > imageHeight) {
+                if (imageWidth > maxWidth) {
+                    imageHeight *= maxWidth / imageWidth;
+                    imageWidth = maxWidth;
+                }
+            }
+            else {
+                if (imageHeight > maxHeight) {
+                    imageWidth *= maxHeight / imageHeight;
+                    imageHeight = maxHeight;
+                }
+            }
+
+            let canvas = document.createElement("canvas");
+            canvas.width = imageWidth;
+            canvas.height = imageHeight;
+            image.width = imageWidth;
+            image.height = imageHeight;
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+            let resizedImage = new Image();
+            resizedImage.src = canvas.toDataURL("image/png");
+            defered.resolve(resizedImage);
+        };
+        return defered.promise;
+        // */
+    }
+
+    /**
+     * @private
+     * @param image
+     */
+    getBinaryData (image) {
+        let typeIndex = image.indexOf("image/") + 6;
+        let binaryIndex = image.indexOf(";base64,");
+        let binaryData = image.slice(binaryIndex + 8);
+        let imageType = image.slice(typeIndex, binaryIndex);
+        let binary_string = atob(binaryData);
+        let len = binary_string.length;
+        let bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) { bytes[i] = binary_string.charCodeAt(i); }
+        return { type: imageType, data: bytes };
+    };
+
+    /**
+     * @public
+     * @method updateCustomDataForBubble
+     * @since 1.64
+     * @instance
+     * @description
+     *    Update the customData of the bubble  <br/>
+     *    Return a promise.
+     * @param {Object} customData
+     *    The customData to put to the bubble <br />
+     *    Example: { "key1" : 123, "key2" : "a string" }
+     * @param {Bubble} bubble   The bubble to update
+     * @return {Promise<Bubble>} The updated Bubble
+     */
+    async updateCustomDataForBubble(customData, bubble) {
+        this._logger.log("internalerror", LOG_ID + "(updateCustomDataForBubble) customData : ", customData);
+
+        return await this.setBubbleCustomData(bubble, customData).then((bubbleUpdated) => {
+            return bubbleUpdated
+        });
+       /*
+       let that = this;
+        // update bubble with internal copy to avoid user/moderator/owner side effects
+        let bubblefound : any = bubble && bubble.id ? await that.getBubbleById(bubble.id) : null;
+
+        if (!customData) {
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter : ", customData);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!bubblefound) {
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else {
+            return new Promise((resolve, reject) => {
+                bubblefound.customData = customData;
+                this._rest.ownerUpdateRoomCustomData(bubblefound).then(function (updatedCustomData) {
+                    bubblefound.customData = updatedCustomData;
+                        resolve(bubblefound);
+                    })
+                    .catch(function (err) {
+                        reject(err);
+                    });
+            });
+        }
+        // */
+    }
+
+    /**
+     * @public
+     * @method deleteCustomDataForBubble
+     * @since 1.65
+     * @instance
+     * @description
+     *    Delete the customData of the bubble  <br/>
+     *    Return a promise.
+     * @param {Bubble} bubble   The bubble to update
+     * @return {Promise<Bubble>} The updated Bubble
+     */
+    deleteCustomDataForBubble(bubble) {
+        return this.updateCustomDataForBubble("", bubble);
+    }
+
+    /**
+     * @public
+     * @method updateDescriptionForBubble
+     * @since 1.65
+     * @instance
+     * @description
+     *    Update the description of the bubble  <br/>
+     *    Return a promise.
+     * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
+     * @param {Bubble} bubble   The bubble to update
+     * @return {Bubble} A bubble object of null if not found
+     */
+    async updateDescriptionForBubble(bubble, strDescription) {
+        return this.setBubbleTopic(bubble, strDescription);
+        /*let that = this;
+        // update bubble with internal copy to avoid user/moderator/owner side effects
+        let bubblefound : any = bubble && bubble.id ? await that.getBubbleById(bubble.id) : null;
+
+        if (!strDescription) {
+            this._logger.log("warn", LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter");
+            this._logger.log("internalerror", LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter : ", strDescription);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!bubblefound) {
+            this._logger.log("warn", LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else {
+            return new Promise((resolve, reject) => {
+                bubblefound.desc = strDescription;
+                this._rest.ownerUpdateRoom(bubblefound).then(function (updatedCustomData) {
+                    resolve(updatedCustomData);
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+        } // */
+    }
+
     /**
      * @private
      * @method _sendInitialBubblePresence
@@ -1593,11 +2010,11 @@ getAllActiveBubbles
      */
     _onInvitationReceived(invitation) {
         let that = this;
-
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
         this._rest.getBubble(invitation.bubbleId).then( (bubbleUpdated : any) => {
-            that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated.name);
+            that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
+            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -1613,7 +2030,9 @@ getAllActiveBubbles
             } // */
 
             that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
-        });
+        }).catch((err) => {
+            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation);
+        });;
     }
 
     /**
@@ -1625,11 +2044,13 @@ getAllActiveBubbles
      * @description
      *      Method called when affilitation to a bubble changed
      */
-    _onAffiliationChanged(affiliation) {
+    async _onAffiliationChanged(affiliation) {
         let that = this;
+        that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) affiliation : ", affiliation);
 
-        this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
-            that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
+        await this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
+            that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble.");
+            that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble : ", bubbleUpdated, ", affiliation : ", affiliation);
 
             let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -1645,6 +2066,8 @@ getAllActiveBubbles
             } // */
 
             that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
+        }).catch((err) => {
+            that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation);
         });
     }
 
@@ -1657,13 +2080,13 @@ getAllActiveBubbles
      * @description
      *      Method called when the user affilitation to a bubble changed
      */
-    _onOwnAffiliationChanged(affiliation) {
+    async _onOwnAffiliationChanged(affiliation) {
         let that = this;
 
         that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) parameters : affiliation : ", affiliation);
 
         if (affiliation.status !== "deleted") {
-            this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
+            await this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
 
                 // Update the existing local bubble stored

@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.65.0] - 2019-12-xx
+## [1.65.0] - 2019-12-19
 -   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
 -   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
 -   Fix fill of properties Contact.companyId and Contact.companyName.
@@ -28,6 +28,18 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix MaxListenersExceededWarning issue about too much listener registred.
 -   Add a program using the SDK to post changelog in a channel. Should be used in jenkins job delivery.
 -   Fix onFileManagementMessageReceived when a file created to store the filedescriptor in internal list
+-   Add event `evt_internal_bubbleavatarchanged` raised when a bubble is updated with a new avatar
+-   Add avatar property in Bubble class. This is the URL to download the avatar . Note that it can spot on an empty file if no avatar has been setted.
+-   Add BubblesService::promoteContactToModerator Promote a contact to moderator in a bubble
+-   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble 
+-   Add BubblesService::getAvatarFromBubble Get A Blob object with data about the avatar picture of the bubble.
+-   Add BubblesService::updateAvatarForBubble  Update the bubble avatar (from given URL). The image will be automaticalle resized.
+-   Add BubblesService::deleteAvatarFromBubble Delete the bubble avatar
+-   Add private methods in BubblesService : randomString, setAvatarBubble, deleteAvatarBubble, resizeImage, getBinaryData
+-   Add BubblesService::updateCustomDataForBubble Update the customData of the bubble
+-   Add BubblesService::deleteCustomDataForBubble Delete the customData of the bubble
+-   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
+-   Add BubblesService::openConversationForBubble Open a conversation to a bubble
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.

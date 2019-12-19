@@ -64,6 +64,7 @@ Bubbles : Promise.Bubble, ErrorManager : removeContactFromBubble(Contact, Bubble
 Bubbles : Bubble[] : getAll()
 Bubbles : Bubble[] : getAllBubbles()
 Bubbles : Bubble[] : getAllOwnedBubbles()
+Bubbles : Promise.{} : getAvatarFromBubble(Bubble)
 Bubbles : Promise.Bubble : getBubbleById(string)
 Bubbles : Promise.Bubble : getBubbleByJid(string)
 Bubbles : Bubble[] : getAllPendingBubbles()
@@ -217,7 +218,11 @@ Telephony : Promise : forwardToDevice(String)
 Telephony : Promise : forwardToVoicemail()
 Telephony : Promise.Call : cancelForward()
 Telephony : Promise : sendDtmf(string, string)
-NodeSDK : void : start()
+Telephony : Promise : logon(String, String, String, String)
+Telephony : Promise : logoff(String, String, String, String)
+Telephony : Promise : withdrawal(String, String, String)
+Telephony : Promise : wrapup(String, String, String, String)
+NodeSDK : void : start(String)
 NodeSDK : void : stop()
 NodeSDK : Object : im
 NodeSDK : Object : channels
@@ -240,12 +245,14 @@ Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
 Events ::event : rainbow_onmessagereceived
+Events ::event : rainbow_onsendmessagefailed
 Events ::event : rainbow_oncontactpresencechanged
 Events ::event : rainbow_onpresencechanged
 Events ::event : rainbow_onbubbleaffiliationchanged
 Events ::event : rainbow_onbubbleinvitationreceived
 Events ::event : rainbow_onbubblecustomdatachanged
 Events ::event : rainbow_onbubbletopicchanged
+Events ::event : rainbow_onbubbleavatarchanged
 Events ::event : rainbow_onbubblenamechanged
 Events ::event : rainbow_ongroupcreated
 Events ::event : rainbow_ongroupdeleted

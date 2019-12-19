@@ -403,35 +403,71 @@ class InvitationsService {
 	/************************************************************/
 
 	/**
-	 * GET RECEIVED INVITATIONS
-	 * Used by SDK (public)
-	 * Warning when modifying this method
+	 * @public
+	 * @since 1.65
+	 * @method getReceivedInvitations
+	 * @instance
+	 * @description
+	 *    Get the invite received coming from Rainbow users
+	 * @return {Invitation[]} The list of invitations received
 	 */
 	getReceivedInvitations() {
 		let that = this;
 		return that.receivedInvitationsArray;
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method 	getAcceptedInvitations() {
+
+	 * @instance
+	 * @description
+	 *    Get the invites you accepted received from others Rainbow users
+	 * @return {Invitation[]} The list of invite sent
+	 */
 	getAcceptedInvitations() {
 		let that = this;
 		return that.acceptedInvitationsArray;
 	};
 
 	/**
-	 * GET SENT INVITATIONS
-	 * Used by SDK (public)
-	 * Warning when modifying this method
+	 * @public
+	 * @since 1.65
+	 * @method getSentInvitations
+	 * @instance
+	 * @description
+	 *    Get the invites sent to others Rainbow users
+	 * @return {Invitation[]} The list of invite sent
 	 */
 	getSentInvitations() {
 		let that = this;
 		return that.sentInvitationsArray;
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method getInvitationsNumberForCounter
+	 * @instance
+	 * @description
+	 *    Get the number of invitations received from others Rainbow users
+	 * @return {Invitation[]} The list of invite sent
+	 */
 	getInvitationsNumberForCounter() {
 		let that = this;
 		return that.receivedInvitationsArray.length;
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method getAllInvitationsNumber
+	 * @instance
+	 * @description
+	 *    Get the number of invitations sent/received to/from others Rainbow users
+	 * @return {Invitation[]} The list of invite sent
+	 */
 	getAllInvitationsNumber = function () {
 		let that = this;
 		return that.receivedInvitationsArray.length + that.sentInvitationsArray.length + that.acceptedInvitationsArray.length;
@@ -440,9 +476,14 @@ class InvitationsService {
 	// Getter method
 
 	/**
-	 * GET INVITATION BY ID
-	 * Used by SDK (public)
-	 * Warning when modifying this method
+	 * @public
+	 * @since 1.65
+	 * @method getInvitation
+	 * @instance
+	 * @description
+	 *    Get an invite by its id
+	 * @param {String} invitationId the id of the invite to retrieve
+	 * @return {Invitation} The invite if found
 	 */
 	getInvitation(invitationId) {
 		let that = this;
@@ -473,9 +514,16 @@ class InvitationsService {
 	// Sender methods
 
 	/**
-	 * SEND INVITATION
-	 * Used by SDK (public)
-	 * Warning when modifying this method
+	 * @public
+	 * @since 1.65
+	 * @method joinContactInvitation
+	 * @instance
+	 * @description
+	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	 *    Once accepted, the user will be part of your network. <br>
+	 *    Return a promise
+	 * @param {Contact} contact The invitation to accept
+	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	 */
 	joinContactInvitation(contact) {
 		let that = this;
@@ -496,6 +544,17 @@ class InvitationsService {
 		});
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method sendInvitationByEmail
+	 * @instance
+	 * @description
+	 *    Send an invitation email as UCaaS
+	 * @param {string} email The email
+	 * @param {string} [customMessage] The email text (optional)
+	 * @return {Object} A promise that contains the contact added or an object describing an error
+	 */
 	sendInvitationByEmail(email, lang, customMessage) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
@@ -513,6 +572,16 @@ class InvitationsService {
 		});
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method cancelOneSendInvitation
+	 * @instance
+	 * @param {Invitation} invitation The invitation to cancel
+	 * @description
+	 *    Cancel an invitation sent
+	 * @return {Object} The SDK Ok object or an error
+	 */
 	cancelOneSendInvitation(invitation) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
@@ -530,6 +599,16 @@ class InvitationsService {
 		});
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method reSendInvitation
+	 * @instance
+	 * @param {Number} invitationId The invitation to re send
+	 * @description
+	 *    Re send an invitation sent
+	 * @return {Object} The SDK Ok object or an error
+	 */
 	reSendInvitation(invitationId) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
@@ -547,8 +626,15 @@ class InvitationsService {
 	};
 
 	/**
-	 * SEND INVITATIONS PAR BULK
-	 * LIMITED TO 100 invitations
+	 * @public
+	 * @since 1.65
+	 * @method sendInvitationByEmail
+	 * @instance
+	 * @description
+	 *    Send invitations for a list of emails as UCaaS
+	 *    LIMITED TO 100 invitations
+	 * @param {Array} listOfMails The list of emails
+	 * @return {Object} A promise that the invite result or an object describing an error
 	 */
 	sendInvitationsParBulk(listOfMails) {
 		let that = this;
@@ -575,9 +661,16 @@ class InvitationsService {
 	// Invited methods
 
 	/**
-	 * ACCEPT INVITATION
-	 * Used by SDK (public)
-	 * Warning when modifying this method
+	 * @public
+	 * @since 1.65
+	 * @method acceptInvitation
+	 * @instance
+	 * @description
+	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	 *    Once accepted, the user will be part of your network. <br>
+	 *    Return a promise
+	 * @param {Invitation} invitation The invitation to accept
+	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	 */
 	acceptInvitation(invitation) {
 		let that = this;
@@ -611,9 +704,16 @@ class InvitationsService {
 	};
 
 	/**
-	 * DECLINE INVITATION
-	 * Used by SDK (public)
-	 * Warning when modifying this method
+	 * @public
+	 * @since 1.65
+	 * @method declineInvitation
+	 * @instance
+	 * @description
+	 *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	 *    Once declined, the user will not be part of your network. <br>
+	 *    Return a promise
+	 * @param {Invitation} invitation The invitation to decline
+	 * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
 	 */
 	declineInvitation(invitation) {
 		let that = this;
