@@ -12,16 +12,22 @@ const md = require("markdown").markdown;
 const fs = require("fs");
 const vm = require("vm");
 const path = require("path");
-const program = require("commander");
+//const program = require("commander");
 const YAML = require("yamljs");
-const process = require("process");
+//const process = require("process");
 const Mailjet = require("node-mailjet");
+
+const commander = require('commander');
+const program = new commander.Command();
 
 global.window = {};
 
 // Extract version
 let content = fs.readFileSync(path.join(__dirname, "../package.json"));
 let packageJSON = JSON.parse(content);
+
+program.version(packageJSON.version);
+
 let minVersion =
     packageJSON.version.indexOf("-dotnet") > -1
         ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2)
@@ -223,28 +229,41 @@ function sendMail(vars, mailjet) {
     // */
 }
 
+
 program
-    .command("notify")
-    .description("Generate and send changelog for a preproduction release")
-    .option(
+.command('notify')
+.description('Generate and send changelog for a preproduction release')
+.option(
         "-e, --environment [environment]",
         "Environment published: 'production' or 'preproduction' (default)",
         "preproduction"
     )
-    .option("-t, --test [email]", "Test the email by sending him to a test email")
-    .action((env, options) => {
+.option("-t, --test [email]", "Test the email by sending him to a test email")
+.action((env, options) => {
+
         let apiKey = process.env.MJ_APIKEY_PUBLIC;
         let apiSecret = process.env.MJ_APIKEY_PRIVATE;
 
         let mailjet = Mailjet.connect(apiKey, apiSecret);
 
         generateNunjucksVariables(env).then(vars => {
+            //console.log ("sendMail(vars, mailjet);");
             sendMail(vars, mailjet);
         });
     });
 
 program.parse(process.argv);
 
-if (!program.args.length) {
+let processargs = process.argv;
+
+if (!(processargs.length > 2)) {
     program.help();
 }
+
+/*
+let processargs = program.parse(process.argv).args;
+
+if (!processargs.length) {
+    program.help();
+}
+// */
