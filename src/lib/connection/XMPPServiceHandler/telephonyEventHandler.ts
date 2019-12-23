@@ -249,6 +249,7 @@ class TelephonyEventHandler extends GenericHandler {
                             break;
                         // */
                         default:
+                            that.logger.log("internal", LOG_ID + "(onMessageReceived) untreated actionElemName : ", actionElemName);
                             break;
                     }
                     // */
