@@ -65,6 +65,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onthumbnailcreated
  * @fires Events#rainbow_onchannelupdated
  * @fires Events#rainbow_onchannelusersubscription
+ * @fires Events#rainbow_onmediapropose
  * @fires Events#rainbow_oncalllogupdated
  * @fires Events#rainbow_oncalllogackupdated
  * @fires Events#rainbow_onfavoritecreated
@@ -633,6 +634,19 @@ class Events {
         });
 
         // ****************** CALLLOGS *********************
+
+        this._evReceiver.on("evt_internal_propose", function (data) {
+            /**
+             * @event Events#rainbow_onmediapropose
+             * @public
+             * @param { Object } infos about the proposed for media :
+             *  { Contact } infos about the contact who proposed for media
+             *  { media } infos about media for the proposed event.
+             * @description
+             *      Fired when received an event of propose for media.
+             */
+            that.publishEvent("mediapropose", data);
+        });
 
         this._evReceiver.on("evt_internal_calllogupdated", function (data) {
             /**

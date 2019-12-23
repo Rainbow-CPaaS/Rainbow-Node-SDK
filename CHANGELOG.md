@@ -40,6 +40,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add BubblesService::deleteCustomDataForBubble Delete the customData of the bubble
 -   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
 -   Add BubblesService::openConversationForBubble Open a conversation to a bubble
+-   Add `rainbow_onmediapropose` event when a WEBRTC `propose` event is received. It allows to know an incommingcall is arriving. 
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.
