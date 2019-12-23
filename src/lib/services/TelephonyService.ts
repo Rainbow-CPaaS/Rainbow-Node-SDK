@@ -13,6 +13,11 @@ import * as PubSub from "pubsub-js";
 import { XMPPUTils } from "../common/XMPPUtils";
 import {isStarted} from "../common/Utils";
 import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyEventHandler";
+import {ContactsService} from "./ContactsService";
+import {BubblesService} from "./BubblesService";
+import {ProfilesService} from "./ProfilesService";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -21,6 +26,7 @@ const LOG_ID = "TELEPHONY/SVCE - ";
 /**
  * @module
  * @name Telephony
+ * @version SDKVERSION
  * @public
  * @description
  *      This services manages PBX phone calls in a conversation. so it manages PBX calls between your PABX associated phone and a recipient's phone. If you don't have this service activated for your Rainbow user, all these methods will return an error when called. <br/><br>
@@ -35,9 +41,11 @@ const LOG_ID = "TELEPHONY/SVCE - ";
 class Telephony {
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
-	public _contacts: any;
-	public _eventEmitter: any;
-	public _logger: any;
+	public _contacts: ContactsService;
+    public _bubbles: BubblesService;
+    public _profiles: ProfilesService;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
 	public _calls: any;
 	public voiceMail: any;
 	public userJidTel: any;
@@ -59,8 +67,6 @@ class Telephony {
 	public telephonyHandlerToken: any;
 	public telephonyHistoryHandlerToken: any;
 	public startDate: any;
-	public _bubbles: any;
-	public _profiles: any;
 	public telephonyEventHandler: any;
 	public makingCall: any;
 	public starting: any;
@@ -74,7 +80,8 @@ class Telephony {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+        let that = this;
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -103,9 +110,14 @@ class Telephony {
         this.isNomadicEnabled = false;
         this.ready = false;
 
+        that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
+        that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
+
+//        that._eventEmitter.on("rainbow_onpbxagentstatusreceived", that.onPbxAgentStatusChange.bind(that));
+
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts, _bubbles, _profiles) {
+    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService) {
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
@@ -144,10 +156,14 @@ class Telephony {
 
                 delete that.telephonyEventHandler;
                 that.telephonyEventHandler = null;
-                that.telephonyHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that.telephonyHandlerToken) {
+                    that.telephonyHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
                 that.telephonyHandlerToken = [];
 
-                that.telephonyHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that.telephonyHistoryHandlerToken) {
+                    that.telephonyHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
                 that.telephonyHistoryHandlerToken = [];
 
                 this.ready = false;
@@ -197,11 +213,6 @@ class Telephony {
             // Store the user jid tel
             //that.userJidTel = authService.jidTel;
             that.userJidTel = that._rest.loggedInUser.jid_tel;
-
-            that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
-            that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
-
-//        that._eventEmitter.on("rainbow_onpbxagentstatusreceived", that.onPbxAgentStatusChange.bind(that));
 
             that.started = false;
             that._xmpp.getAgentStatus().then((data) => {
@@ -496,8 +507,7 @@ class Telephony {
             };
 
             // Call the promise
-            getParticipants()
-                .then(function(response) {
+            getParticipants().then(function(response : any) {
 
                     // Extract call status
                     let callStatus = Call.Status.ACTIVE;
@@ -765,6 +775,10 @@ class Telephony {
             return Promise.reject();
         }
 
+        if (!contact) {
+            contact = {};
+        }
+
         // Set makingCall flag
         that.makingCall = true;
 
@@ -805,26 +819,28 @@ class Telephony {
 
             let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
             that._rest.makeCall(contact, phoneInfo).then(
-                function success(response) {
+                function success(response : any) {
                     // Create the call object
                     let callInfos = {
                         status: Call.Status.DIALING,
-                        id: undefined,
+                        id: Call.getIdFromConnectionId(response.callId),
                         type: Call.Type.PHONE,
                         contact,
-                        deviceType: undefined
+                        deviceType: undefined,
+                        connectionId: response.callId
                     };
-                    let call = Call.CallFactory()(callInfos);
+                    //let call = Call.CallFactory()(callInfos);
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
-                    call.setConnectionId(response.callId);
+                    //call.setConnectionId(response.callId);
 
                     // Release makinCall flag
                     that.makingCall = false;
 
+                    let call = that.addOrUpdateCallToCache(callInfos);
+
                     // Indicate whether it is a call to own voicemail
                     call.setIsVm(phoneNumber === that.voicemailNumber);
 
-                    that.addOrUpdateCallToCache(call);
                     that._logger.log("internal", LOG_ID + "(makeSimpleCall) success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Send call update event
@@ -838,16 +854,31 @@ class Telephony {
                 async (response) => {
                     that._logger.log("internal", LOG_ID + "(makeSimpleCall) failed : ", response);
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
+
+                    let id = 0;
+                    if (contact && contact.id) {
+                        id = contact.id;
+                    } else {
+                        let min = Math.ceil(1);
+                        let max = Math.floor(9999);
+                        id = 9999 +  Math.floor(Math.random() * (max - min +1)) + min;
+                    }
                     let callInfos = {
                         status: Call.Status.ERROR,
-                        id: undefined,
+                        id: id + "",
                         type: Call.Type.PHONE,
                         contact,
-                        deviceType: undefined
+                        deviceType: undefined,
+                        connectionId: id + "#00",
+                        cause : "error"
                     };
-                    let call = Call.CallFactory()(callInfos);
-                    call.cause = "error";
-                    that._calls[call.contact.id] = call;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.cause = "error";
+                    //that._calls[call.contact.id] = call;
+                    //this._calls.push(call);
+                    let call = this.addOrUpdateCallToCache(callInfos);
+
+                    that._logger.log("error", LOG_ID + "(makeSimpleCall) that._calls.length : ", that._calls.length);
                     // call.autoClear = $interval(function () {
                     await that.clearCall(call);
                     //}, 5000, 1);
@@ -895,13 +926,28 @@ class Telephony {
 
             let phoneInfo = that.getPhoneInfo(contact, phoneNumber, correlatorData);
             that._rest.makeConsultationCall(callId, contact, phoneInfo).then(
-                function success(response) {
+                function success(response : any) {
                     // Create the call object
                     //let call = Call.create(Call.Status.DIALING, null, Call.Type.PHONE, contact, undefined);
-                    let callInfos = {status : Call.Status.DIALING, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
-                    let call = Call.CallFactory()(callInfos);
-                    call.setConnectionId(response.data.data.callId);
-                    that._calls[call.id] = call;
+                    let callInfos = {
+                        status : Call.Status.DIALING,
+                        id:"",
+                        type : Call.Type.PHONE,
+                        contact,
+                        deviceType : undefined,
+                    } ;
+                    if (response && response.data && response.data.data) {
+                        callInfos.id = Call.getIdFromConnectionId(response.data.data.callId);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(makeConsultationCall) makeConsultationCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                        callInfos.id = Call.getIdFromConnectionId(response.callId);
+                    }
+
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.setConnectionId(response.data.data.callId);
+                    //that._calls[call.id] = call;
+                    //this._calls.push(call);
+                    let call = that.addOrUpdateCallToCache(callInfos);
                     that._logger.log("internal", LOG_ID + "(makeConsultationCall) makeConsultationCall success : " + utils.anonymizePhoneNumber(phoneNumber) + " Call (" + call + ")");
 
                     // Release makinCall flag
@@ -920,10 +966,22 @@ class Telephony {
                 },
                 async function failure(response) {
                     //let call = Call.create(Call.Status.ERROR, null, Call.Type.PHONE, contact, undefined);
-                    let callInfos = {status : Call.Status.ERROR, id : undefined, type : Call.Type.PHONE, contact, deviceType : undefined} ;
-                    let call = Call.CallFactory()(callInfos);
-                    call.cause = "error";
-                    that._calls[call.contact.id] = call;
+                    let callInfos = {
+                        status : Call.Status.ERROR,
+                        id: contact.id + "",
+                        type : Call.Type.PHONE,
+                        contact,
+                        deviceType : undefined,
+                        connectionId: contact.id + "#00",
+                        cause : "error"
+                    } ;
+                    //let call = Call.CallFactory()(callInfos);
+                    //call.cause = "error";
+                    //that._calls[call.contact.id] = call;
+                    //this._calls.push(call);
+
+                    let call = that.addOrUpdateCallToCache(callInfos);
+
                     //call.autoClear = $interval(function () {
                     await that.clearCall(call);
                     //}, 5000, 1);
@@ -966,14 +1024,17 @@ class Telephony {
             }
             let myContact = null;
             that._contacts.getOrCreateContact(null, phoneNumber)
-                .then(function (contact) {
+                .then( (contact) => {
                     myContact = contact;
                     return that.makeCall(contact, phoneNumber, correlatorData);
                 })
-                .then(function (data) {
+                .then( (data) => {
+                    that._logger.log("internal", LOG_ID + "(makeCallByPhoneNumber) after makeCall resolve result : ", data);
                     resolve(data);
                 })
-                .catch(async (error) => {
+                .catch( (error) => {
+                    that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(makeCallByPhoneNumber) Error : ", error);
                     return reject(error);
                    /* let _errorMessage = "makeCallByPhoneNumber failure " + (error ? error.message : "");
                     that._logger.log("error", LOG_ID + "(makeCallByPhoneNumber) - Error." );
@@ -1216,7 +1277,7 @@ class Telephony {
             }
             else {
                that._rest.answerCall(call).then(
-                    function success(response) {
+                    function success(response : any) {
                         // Update call status
                         call.setConnectionId(response.callId);
                         call.setStatus(Call.Status.ACTIVE);
@@ -1285,10 +1346,16 @@ class Telephony {
                 headers: authService.getRequestHeader()
             }) // */
             that._rest.holdCall(call).then(
-                function success(response) {
-                    that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
+                function success(response : any) {
+                    that._logger.log("info", LOG_ID + "(holdCall) holdCall success.");
+                    that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + "), response : ", response);
                     // Update call status
-                    call.setConnectionId(response.data.data.callId);
+                    if (response && response.data && response.data.data) {
+                        call.setConnectionId(response.data.data.callId);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(holdCall) holdCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                        call.setConnectionId(response.callId);
+                    }
                     call.setStatus(Call.Status.HOLD);
 
                     /* TREATED BY EVENTS
@@ -1364,10 +1431,15 @@ class Telephony {
                     headers: authService.getRequestHeader()
                 })// */
                  that._rest.retrieveCall(call).then(
-                    function success(response) {
+                    function success(response : any) {
                         that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + ")");
                         // Update call status
-                        call.setConnectionId(response.data.data.callId);
+                        if (response && response.data && response.data.data) {
+                            call.setConnectionId(response.data.data.callId);
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(retrieveCall) retrieveCall response.data.data empty, can not find callId, get it directly in response : ", response);
+                            call.setConnectionId(response.callId);
+                        }
                         call.setStatus(Call.Status.ACTIVE);
 
                         /* TREATED BY EVENTS
@@ -2204,15 +2276,20 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         let callFound = null;
         that._logger.log("internal", LOG_ID + "(getCallFromCache) search id : ", callId);
         if (!callId) return callFound;
+        let iter = 0;
         if (that._calls) {
             let callFoundindex = that._calls.findIndex((call) => {
+                iter++;
                 if (!call) {
-                    this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
-                    this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
+                    // Warning : do not uncomment these line because when an error happens for a big number it is stored in that._calls at the indice of the called number
+                    // So the size of the tab is egal this big number. And then freeze the SDK when iter the tab.
+                    //this._logger.log("error", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache.");
+                    //this._logger.log("internalerror", LOG_ID + "(getCallFromCache) !!! A call is undefined in the cache : ", call);
                 } else {
                     return call.id === callId;
                 }
             });
+            that._logger.log("internal", LOG_ID + "(getCallFromCache) that._calls findIndex iter : ", iter);
             if (callFoundindex != -1) {
                 that._logger.log("internal", LOG_ID + "(getCallFromCache) call found : ", that._calls[callFoundindex], " with id : ", callId);
                 return that._calls[callFoundindex];
@@ -2263,6 +2340,174 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         });
     }
 
+
+    /**
+     * @public
+     * @method logon
+     * @param {String} endpointTel The endpoint device phone number.
+     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+     * @param {String} password optionnel Password or authorization code.
+     * @param {String} groupId optionnel CCD Agent's group number
+     * @description
+     *      This api allows an CCD Agent to logon into the CCD system.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    logon(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!endpointTel) {
+                that._logger.log("warn", LOG_ID + "(logon) bad or empty 'endpointTel' parameter");
+                that._logger.log("internalerror", LOG_ID + "(logon) bad or empty 'endpointTel' parameter", endpointTel);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.logon(endpointTel, agentId, password, groupId).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(logon) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(logon) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method logoff
+     * @param {String} endpointTel The endpoint device phone number.
+     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+     * @param {String} password optionnel Password or authorization code.
+     * @param {String} groupId optionnel CCD Agent's group number
+     * @description
+     *      This api allows an CCD Agent logoff logon from the CCD system.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    logoff(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!endpointTel) {
+                that._logger.log("warn", LOG_ID + "(logoff) bad or empty 'endpointTel' parameter");
+                that._logger.log("internalerror", LOG_ID + "(logoff) bad or empty 'endpointTel' parameter", endpointTel);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.logoff(endpointTel, agentId, password, groupId).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(logoff) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(logoff) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method withdrawal
+     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
+     * @param {String} groupId optionnel CCD Agent's group number
+     * @param {String} status optionnel Used to deactivate the withdrawal state. Values: 'on', 'off'; 'on' is optional.
+     * @description
+     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    withdrawal(agentId, groupId, status) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!agentId) {
+                that._logger.log("warn", LOG_ID + "(withdrawal) bad or empty 'agentId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(withdrawal) bad or empty 'agentId' parameter", agentId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            if (!groupId) {
+                that._logger.log("warn", LOG_ID + "(withdrawal) bad or empty 'groupId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(withdrawal) bad or empty 'groupId' parameter", groupId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.withdrawal(agentId, groupId, status).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(withdrawal) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(withdrawal) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method wrapup
+     * @param {String} agentId CCD Agent identifier (agent device number).
+     * @param {String} groupId CCD Agent's group number
+     * @param {String} password optionnel Password or authorization code.
+     * @param {String} status optionnel Used to deactivate the WrapUp state. Values: 'on', 'off'; 'on' is optional.
+     * @description
+     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'.
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    wrapup(agentId, groupId, password, status) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!agentId) {
+                that._logger.log("warn", LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(wrapup) bad or empty 'agentId' parameter", agentId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            if (!agentId) {
+                that._logger.log("warn", LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(wrapup) bad or empty 'agentId' parameter", agentId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            that._rest.wrapup(agentId, groupId, password, status).then(
+                    function success() {
+                        resolve();
+                    },
+                    function failure(response) {
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        that._logger.log("error", LOG_ID + "(wrapup) Error.");
+                        that._logger.log("internalerror", LOG_ID + "(wrapup) Error : ", error);
+                        return reject(error);
+                    });
+        });
+    }
+
+
+
+    /*
+        login(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return that.restTelephony.login(that.getRequestHeader(), endpointTel, agentId, password, groupId);
+    }
+
+    logoff(endpointTel, agentId, password, groupId) {
+        let that = this;
+        return that.restTelephony.logoff(that.getRequestHeader(), endpointTel, agentId, password, groupId);
+    }
+
+    withdrawal(agentId, groupId, status) {
+        let that = this;
+        return that.restTelephony.withdrawal(that.getRequestHeader(), agentId, groupId, status);
+    }
+
+    wrapup( agentId, password, groupId, status) {
+        let that = this;
+        return that.restTelephony.wrapup(that.getRequestHeader(), agentId, password, groupId, status);
+    }
+
+     */
 
 }
 

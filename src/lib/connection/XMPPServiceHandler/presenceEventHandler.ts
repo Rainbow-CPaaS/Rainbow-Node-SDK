@@ -33,9 +33,7 @@ class PresenceEventHandler extends GenericHandler {
                     let show = stanza.getChild("show") ? stanza.getChild("show").text() : "online";
                     let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
 
-                    that
-                        .eventEmitter
-                        .emit("evt_internal_presencechanged", {
+                    that.eventEmitter.emit("evt_internal_presencechanged", {
                             "fulljid": from,
                             "jid": xmppUtils.getBareJIDFromFullJID(from),
                             "resource": xmppUtils.getResourceFromFullJID(from),
@@ -94,9 +92,7 @@ class PresenceEventHandler extends GenericHandler {
                     });
 
                     // My presence (node or other resources) in the room changes
-                    that
-                        .eventEmitter
-                        .emit("evt_internal_onbubblepresencechanged", {
+                    that.eventEmitter.emit("evt_internal_onbubblepresencechanged", {
                             fulljid: from,
                             jid: xmppUtils.getBareJIDFromFullJID(from),
                             resource: xmppUtils.getResourceFromFullJID(from),

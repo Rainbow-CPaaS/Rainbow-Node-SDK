@@ -7,6 +7,15 @@ module.exports = function(grunt) {
 
     grunt.registerMultiTask('removedebugcode', 'Remove code from production code', function() {
 
+        const fs = require("fs");
+        const path = require("path");
+        // Extract version
+        let content = fs.readFileSync(path.join(__dirname, "../package.json"));
+        let packageJSON = JSON.parse(content);
+        //let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
+        let fullVersion = packageJSON.version;
+        //let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
+
         let multilineComment = /\/\*([\s\S]*?)\*\//g;
         let singleLineComment = /^\s*\t*(\/\/)[^\n\r]*[\n\r]/gm;
         //let debugcode = /^.*debug.*$/g;
@@ -20,6 +29,10 @@ module.exports = function(grunt) {
         replaceBy[0] = "/*";
         replaceCode[1] = /\/\/ end-dev-code \/\//g;
         replaceBy[1] = "// */";
+
+        replaceCode[2] = /\* @version SDKVERSION/g;
+        replaceBy[2] = "* @version " + fullVersion + " ";
+
 
 
         let countremovedcode = 0;

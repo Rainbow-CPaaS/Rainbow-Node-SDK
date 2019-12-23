@@ -15,13 +15,13 @@ const util = require('util');
 
 const xml = require("@xmpp/xml");
 
-const LOG_ID = "XMPP/HNDL/CHNL - ";
+const LOG_ID = "XMPP/HNDL/INVT - ";
 
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class ChannelEventHandler extends GenericHandler {
+class InvitationEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
     public MESSAGE_WEBRTC: any;
@@ -29,17 +29,17 @@ class ChannelEventHandler extends GenericHandler {
     public MESSAGE_ERROR: any;
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
-    public channelsService: any;
+    public invitationService: any;
     public eventEmitter: any;
     public onManagementMessageReceived: any;
-    public onChannelManagementMessageReceived: any;
+    public onInvitationManagementMessageReceived: any;
     public onHeadlineMessageReceived: any;
     public onReceiptMessageReceived: any;
     public onErrorMessageReceived: any;
     public findAttrs: any;
     public findChildren: any;
 
-    constructor(xmppService, channelsService) {
+    constructor(xmppService, invitationService) {
         super(xmppService);
 
         this.MESSAGE_CHAT = "jabber:client.message.chat";
@@ -50,7 +50,7 @@ class ChannelEventHandler extends GenericHandler {
         this.MESSAGE_HEADLINE = "jabber:client.message.headline";
         this.MESSAGE_CLOSE = "jabber:client.message.headline";
 
-        this.channelsService = channelsService;
+        this.invitationService = invitationService;
 
         let that = this;
 
@@ -64,9 +64,6 @@ class ChannelEventHandler extends GenericHandler {
                             // treated in conversationEventHandler
                             break;
                         case "usersettings":
-                            // treated in conversationEventHandler
-                            break;
-                        case "userinvite":
                             // treated in conversationEventHandler
                             break;
                         case "group":
@@ -88,8 +85,10 @@ class ChannelEventHandler extends GenericHandler {
                             // treated in conversationEventHandler
                             break;
                         case "channel-subscription":
-                        case "channel":
-                            that.onChannelManagementMessageReceived(node);
+                        // treated in channelEventHandler
+                        case "userinvite":
+                            // treated  also in conversationEventHandler
+                            that.onInvitationManagementMessageReceived(node);
                             break;
                         case "favorite":
                             // treated in favoriteEventHandler
@@ -105,7 +104,7 @@ class ChannelEventHandler extends GenericHandler {
             }
         };
 
-        this.onHeadlineMessageReceived = (msg, stanza) => {
+        /*this.onHeadlineMessageReceived = (msg, stanza) => {
             try {
                 that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza);
                 that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
@@ -192,110 +191,39 @@ class ChannelEventHandler extends GenericHandler {
                     }
                         break;
 
-                } // */
+                }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
                 that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
             }
-        };
+        };// */
 
-        this.onChannelManagementMessageReceived = (stanza) => {
-            that.logger.log("internal", LOG_ID + "(onChannelManagementMessageReceived) _entering_ : ", stanza);
+        this.onInvitationManagementMessageReceived = (stanza) => {
+            that.logger.log("internal", LOG_ID + "(onInvitationManagementMessageReceived) _entering_ : ", stanza);
 
             try {
-                if (stanza.attrs.xmlns === "jabber:iq:configuration") {
-                    let channelElem = stanza.find("channel");
-                    if (channelElem && channelElem.length > 0) {
+                let userInviteElem = stanza; //.find("userinvite");
+                if (userInviteElem && userInviteElem.attrs) {
+                    let id = userInviteElem.attrs.id;
+                    let type = userInviteElem.attrs.type;
+                    let action = userInviteElem.attrs.action;
+                    let status = userInviteElem.attrs.status;
 
-                        // Extract channel identifier
-                        let channelId = channelElem.attrs.channelid;
-
-                        // Handle cached channel info
-                        /*
-                        let channel: Channel = this.getChannelFromCache(channelId);
-                        if (channel) {
-                            let avatarElem = channelElem.find("avatar");
-                            let nameElem = channelElem.find("name");
-                            let topicElem = channelElem.find("topic");
-                            let categoryElem = channelElem.find("category");
-
-                            if (avatarElem && avatarElem.length > 0) {
-                                this.onAvatarChange(channelId, avatarElem);
-                            }
-                            if (nameElem && nameElem.length > 0) {
-                                channel.name = nameElem.text();
-                            }
-                            if (topicElem && topicElem.length > 0) {
-                                channel.topic = topicElem.text();
-                            }
-                            if (categoryElem && categoryElem.length > 0) {
-                                channel.category = categoryElem.text();
-                            }
-                        }
-                        // */
-
-                        // Handle channel action events
-                        let action = channelElem.attrs.action;
-                        that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - action : " + action + " event received on channel " + channelId);
-                        switch (action) {
-                            case 'add':
-                                that.eventEmitter.emit("evt_internal_addtochannel", {'id': channelId});
-                                // this.onAddToChannel(channelId);
-                                break;
-                            case 'update':
-                                that.eventEmitter.emit("evt_internal_updatetochannel", {'id': channelId});
-                                //this.onUpdateToChannel(channelId);
-                                break;
-                            case 'remove':
-                                that.eventEmitter.emit("evt_internal_removefromchannel", {'id': channelId});
-                                //this.onRemovedFromChannel(channelId);
-                                break;
-                            case 'subscribe':
-                                that.eventEmitter.emit("evt_internal_subscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
-                                //this.onSubscribeToChannel(channelId, channelElem.attrs.subscribers);
-                                break;
-                            case 'unsubscribe':
-                                that.eventEmitter.emit("evt_internal_unsubscribetochannel", {'id': channelId, 'subscribers' : channelElem.attrs.subscribers});
-                                //this.onUnsubscribeToChannel(channelId, channelElem.attrs.subscribers);
-                                break;
-                            case 'delete':
-                                //this.onDeleteChannel(channelId);
-                                that.eventEmitter.emit("evt_internal_deletechannel", {'id': channelId});
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    let channelSubscriptionElem = stanza.find("channel-subscription");
-                    if (channelSubscriptionElem && channelSubscriptionElem.length > 0) {
-                        // Extract information
-                        let channelId = channelSubscriptionElem.attrs.channelid;
-                        let action = channelSubscriptionElem.attrs.action;
-                        let userId = channelSubscriptionElem.attrs.id;
-                        let subscribers = channelSubscriptionElem.attrs.subscribers;
-                        that.logger.log("debug", LOG_ID + "(onChannelManagementMessageReceived) - subscription- action : ", action, " event received on channelId : ", channelId, ", userId : ", userId, ", subscribers : ", subscribers);
-
-                        switch (action) {
-                            case 'subscribe':
-
-                                that.eventEmitter.emit("evt_internal_usersubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt("0"+subscribers)});
-                                //this.onUserSubscribeEvent(channelId, userId);
-                                break;
-                            case 'unsubscribe':
-                                that.eventEmitter.emit("evt_internal_userunsubscribechannel", {'id': channelId, 'userId': userId, 'subscribers': Number.parseInt("0"+subscribers)});
-                                //this.onUserUnsubscribeEvent(channelId, userId);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    let invitation = {
+                        id,
+                        type,
+                        action,
+                        status
+                    };
+                    that.eventEmitter.emit("evt_internal_invitationsManagementUpdate", invitation);
+                    return true;
+                } else {
+                    that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty.");
+                    that.logger.log("internalerror", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty : ", stanza);
                 }
-                return true;
-            }
-            catch (err) {
-                that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- " );
-                that.logger.log("internalerror", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- : " + err.message);
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : " + err.message);
                 return true;
             }
         };
@@ -359,5 +287,5 @@ class ChannelEventHandler extends GenericHandler {
     }
 }
 
-export {ChannelEventHandler};
-module.exports.ChannelEventHandler = ChannelEventHandler;
+export {InvitationEventHandler};
+module.exports.InvitationEventHandler = InvitationEventHandler;

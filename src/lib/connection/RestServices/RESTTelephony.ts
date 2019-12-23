@@ -374,7 +374,98 @@ class RESTTelephony {
             });
         });
     }
-};
+
+    logon(requestHeader, endpointTel, agentId, password, groupId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let data = {
+                endpointTel,
+                agentId,
+                password,
+                groupId
+            };
+
+            that.http.post("/api/rainbow/telephony/v1.0/ccd/logon", requestHeader, data).then((json) => {
+                that.logger.log("info", LOG_ID + "(login) successfull");
+                that.logger.log("info", LOG_ID + "(login) REST conversation created");
+                that.logger.log("internal", LOG_ID + "(login) REST conversation created : ", json);
+                resolve(json.data);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(login) error");
+                that.logger.log("internalerror", LOG_ID, "(login) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    logoff(requestHeader, endpointTel, agentId, password, groupId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let data = {
+                endpointTel,
+                agentId,
+                password,
+                groupId
+            };
+
+            that.http.post("/api/rainbow/telephony/v1.0/ccd/logoff", requestHeader, data).then((json) => {
+                that.logger.log("info", LOG_ID + "(logoff) successfull");
+                that.logger.log("info", LOG_ID + "(logoff) REST conversation created");
+                that.logger.log("internal", LOG_ID + "(logoff) REST conversation created : ", json);
+                resolve(json.data);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(logoff) error");
+                that.logger.log("internalerror", LOG_ID, "(logoff) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    withdrawal(requestHeader, agentId, groupId, status) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let data = {
+                agentId,
+                groupId,
+                status
+            };
+
+            that.http.post("/api/rainbow/telephony/v1.0/ccd/withdrawal", requestHeader, data).then((json) => {
+                that.logger.log("info", LOG_ID + "(withdrawal) successfull");
+                that.logger.log("info", LOG_ID + "(withdrawal) REST conversation created");
+                that.logger.log("internal", LOG_ID + "(withdrawal) REST conversation created : ", json);
+                resolve(json.data);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(withdrawal) error");
+                that.logger.log("internalerror", LOG_ID, "(withdrawal) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    wrapup(requestHeader, agentId, groupId, password, status) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let data = {
+                agentId,
+                password,
+                groupId,
+                status
+            };
+
+            that.http.post("/api/rainbow/telephony/v1.0/ccd/wrapup", requestHeader, data).then((json) => {
+                that.logger.log("info", LOG_ID + "(wrapup) successfull");
+                that.logger.log("info", LOG_ID + "(wrapup) REST conversation created");
+                that.logger.log("internal", LOG_ID + "(wrapup) REST conversation created : ", json);
+                resolve(json.data);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(wrapup) error");
+                that.logger.log("internalerror", LOG_ID, "(wrapup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+}
 
 let restService = null;
 

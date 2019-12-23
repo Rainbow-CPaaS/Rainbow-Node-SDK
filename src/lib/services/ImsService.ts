@@ -1,4 +1,6 @@
 "use strict";
+import {ConversationsService} from "./ConversationsService";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -8,6 +10,10 @@ import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
 import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
+import {Logger} from "../common/Logger";
+import EventEmitter = NodeJS.EventEmitter;
+import {BubblesService} from "./BubblesService";
+import {FileStorageService} from "./FileStorageService";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -16,6 +22,8 @@ const LOG_ID = "IM/SVCE - ";
 /**
  * @class
  * @name IMService
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module manages Instant Messages. It allows to send messages to a user or a bubble.
  *      <br><br>
@@ -25,10 +33,10 @@ const LOG_ID = "IM/SVCE - ";
  *      - Mark a message as read <br>
  */
 class IMService {
-	public xmpp: XMPPService;
-	public _conversations: any;
-	public logger: any;
-	public _eventEmitter: any;
+	public _xmpp: XMPPService;
+	public _conversations: ConversationsService;
+	public _logger: Logger;
+	public _eventEmitter: EventEmitter;
 	public pendingMessages: any;
 	public _bulles: any;
     private imOptions: any;
@@ -42,11 +50,11 @@ class IMService {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _imOptions, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions, _startConfig) {
         this._startConfig = _startConfig;
-        this.xmpp = null;
+        this._xmpp = null;
         this._conversations = null;
-        this.logger = _logger;
+        this._logger = _logger;
         this._eventEmitter = _eventEmitter;
         this.pendingMessages = {};
         this.imOptions = _imOptions;
@@ -57,11 +65,11 @@ class IMService {
 
     }
 
-    start(_xmpp, __conversations, __bubbles, _filestorage) {
+    start(_xmpp : XMPPService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService) {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that.xmpp = _xmpp;
+                that._xmpp = _xmpp;
                 that._conversations = __conversations;
                 that._bulles = __bubbles;
                 that._fileStorage = _filestorage;
@@ -78,7 +86,7 @@ class IMService {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that.xmpp = null;
+                that._xmpp = null;
                 that.ready = false;
                 resolve();
 
@@ -143,7 +151,7 @@ class IMService {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
-        that.logger.log("internal", LOG_ID + "(getMessageFromConversationById) conversation : ", conversation, ", strMessageId : ", strMessageId);
+        that._logger.log("internal", LOG_ID + "(getMessageFromConversationById) conversation : ", conversation, ", strMessageId : ", strMessageId);
 
         let message = conversation.getMessageById(strMessageId);
 
@@ -188,12 +196,14 @@ class IMService {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is not a bubble conversation"});
         }
 
-        that.logger.log("internal", LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
+        that._logger.log("internal", LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
 
         let message =  conversation.getMessageById(strMessageId);
 
         if (message && message.oob && message.oob.url) {
-            message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1));
+            let fileDescriptorId = message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1);
+            that._logger.log("internal", LOG_ID + "(getMessageFromBubbleById) oob url defined so build shortFileDescriptor :", fileDescriptorId);
+            message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(fileDescriptorId);
         }
 
         return message;
@@ -224,14 +234,14 @@ class IMService {
     sendMessageToConversation(conversation, message, lang, content, subject) {
         let that = this;
         if (!conversation) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
-            this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
+            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         if (!message) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
-            this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
+            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
@@ -272,8 +282,8 @@ class IMService {
      */
     sendMessageToContact(message, contact, lang, content, subject) {
         if (!contact || !contact.jid_im) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
-            this.logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
+            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
         }
 
@@ -311,10 +321,10 @@ class IMService {
         return;
         /*if (this.pendingMessages[receipt.id]) {
             let messagePending = this.pendingMessages[receipt.id].message;
-            that.logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending message received from server, so remove from pending", messagePending);
+            that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending message received from server, so remove from pending", messagePending);
             this.removePendingMessage(messagePending);
         }
-        that.logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that.pendingMessages);
+        that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that.pendingMessages);
         // */
     }
 
@@ -343,8 +353,8 @@ class IMService {
             lang = "en";
         }
         if (!message) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
-            this.logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
+            this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
@@ -354,12 +364,12 @@ class IMService {
             messageSize += content.message.length;
         }
         if (messageSize > that.imOptions.messageMaxLength) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
+            this._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
+            this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -367,7 +377,7 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this.xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
 
         /*
         this.storePendingMessage(messageSent);
@@ -376,7 +386,7 @@ class IMService {
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
-        this.logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
+        this._logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
         // */
         return messageSent;
     }
@@ -408,15 +418,15 @@ class IMService {
         }
 
         if (!message) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
-            this.logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter : ", message);
+            this._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter.");
-            that.logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
+            that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         }
 
@@ -426,12 +436,12 @@ class IMService {
             messageSize += content.message.length;
         }
         if (messageSize > that.imOptions.messageMaxLength) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'jid' parameter", jid);
+            that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -439,7 +449,7 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this.xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg);
+        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg);
 
         /*
         this.storePendingMessage(messageSent);
@@ -448,7 +458,7 @@ class IMService {
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
-        this.logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
+        this._logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
         // */
         return messageSent;
     }
@@ -475,8 +485,8 @@ class IMService {
      */
     sendMessageToBubble(message, bubble, lang, content, subject) {
         if (!bubble || !bubble.jid) {
-            this.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
-            this.logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
+            this._logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
@@ -508,8 +518,8 @@ class IMService {
             lang = "en";
         }
         if (!message) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter.");
-            that.logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter : ", message);
+            that._logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
@@ -519,12 +529,12 @@ class IMService {
             messageSize += content.message.length;
         }
         if (messageSize > that.imOptions.messageMaxLength) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that.logger.log("debug", LOG_ID + "(sendMessageToBubble) bad or empty 'jid' parameter", jid);
+            that._logger.log("debug", LOG_ID + "(sendMessageToBubble) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -533,21 +543,21 @@ class IMService {
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
         let bubble = await that._bulles.getBubbleByJid(jid);
-        that.logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
+        that._logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
+            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
             return messageSent;
         } else {
             try {
-                that.logger.log("debug", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message.");
-                that.logger.log("internal", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that.xmpp.sendInitialBubblePresence(bubble.jid);
-                //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
+                that._logger.log("debug", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message.");
+                that._logger.log("internal", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
-                //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -581,14 +591,14 @@ class IMService {
             lang = "en";
         }
         if (!message) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
-            that.logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
+            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
-            that.logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
+            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         }
 
@@ -598,12 +608,12 @@ class IMService {
             messageSize += content.message.length;
         }
         if (messageSize > that.imOptions.messageMaxLength) {
-            that.logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter", jid);
+            that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -612,21 +622,21 @@ class IMService {
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
         let bubble = await that._bulles.getBubbleByJid(jid);
-        that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
+        that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
+            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
             return messageSent;
         } else {
             try {
-                that.logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
-                that.logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that.xmpp.sendInitialBubblePresence(bubble.jid);
-                //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
+                that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
+                that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
-                //that.logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that.xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -657,14 +667,14 @@ class IMService {
                 if (!bubble.jid) {
                     return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
                 } else {
-                    that.logger.log("internal",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
+                    that._logger.log("internal",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
 
-                    that._conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
+                    that._conversations.getBubbleConversation(bubble.jid, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(async function (conversation) {
                         if (!conversation) {
                             return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
                         else {
-                            await that.xmpp.sendIsTypingState(conversation, status) ;
+                            await that._xmpp.sendIsTypingState(conversation, status) ;
                             //conversationService.sendIsTypingState(conversation, status);
                             resolve();
                         }
@@ -701,7 +711,7 @@ class IMService {
                 if (!conversation) {
                     return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
-                    await that.xmpp.sendIsTypingState(conversation, status);
+                    await that._xmpp.sendIsTypingState(conversation, status);
                     resolve();
                 }
             }
@@ -724,16 +734,16 @@ class IMService {
      */
     markMessageAsRead(messageReceived) {
         if (!messageReceived) {
-            this.logger.log("warn", LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
+            this._logger.log("warn", LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
         }
 
         if (messageReceived.isEvent) {
-            this.logger.log("warn", LOG_ID + "(markMessageAsRead) No receipt for 'event' message");
+            this._logger.log("warn", LOG_ID + "(markMessageAsRead) No receipt for 'event' message");
             return ErrorManager.getErrorManager().OK;
         }
 
-        return this.xmpp.markMessageAsRead(messageReceived);
+        return this._xmpp.markMessageAsRead(messageReceived);
     }
 
     /**
@@ -752,11 +762,11 @@ class IMService {
         let that = this;
         return new Promise((resolve) => {
             that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
-                that.logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
+                that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
                 that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
                 resolve();
             });
-            that.xmpp.enableCarbon();
+            that._xmpp.enableCarbon();
         });
     }
 

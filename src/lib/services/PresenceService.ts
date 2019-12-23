@@ -1,4 +1,6 @@
 "use strict";
+import {Logger} from "../common/Logger";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -7,6 +9,8 @@ import {RainbowPresence} from "../common/models/Settings";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
 import {isStarted, logEntryExit} from "../common/Utils";
+import {SettingsService} from "./SettingsService";
+import EventEmitter = NodeJS.EventEmitter;
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -15,6 +19,8 @@ const LOG_ID = "PRES/SVCE - ";
 /**
  * @class
  * @name PresenceService
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module manages the presence of the connected user.
  *      <br><br>
@@ -22,12 +28,12 @@ const LOG_ID = "PRES/SVCE - ";
  *      - Change the connected user presence
  */
 class PresenceService {
-	public _logger: any;
+	public _logger: Logger;
 	public _xmpp: XMPPService;
-	public _settings: any;
+	public _settings: SettingsService;
 	public presenceEventHandler: any;
 	public presenceHandlerToken: any;
-	public _eventEmitter: any;
+	public _eventEmitter: EventEmitter;
 	public manualState: any;
 	public _currentPresence: any;
     RAINBOW_PRESENCE_ONLINE: any;
@@ -64,7 +70,7 @@ class PresenceService {
         this.ready = false;
     }
 
-    start(_xmpp, _settings) {
+    start(_xmpp, _settings : SettingsService) {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
@@ -143,8 +149,8 @@ class PresenceService {
      * @instance
      * @description
      *    Allow to change the presence of the connected user <br/>
-     *    Only the following values are authorized: 'dnd', 'away', 'xa' (invisible) or 'online'
-     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'xa' (invisible) or 'online'
+     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
      * @memberof PresenceService
      * @async
      * @return {Promise<ErrorManager>}
@@ -158,8 +164,10 @@ class PresenceService {
         return new Promise((resolve, reject) => {
             switch (presence) {
                 case "online":
-                    show = "online";
-                    status = "";
+                    //show = "online";
+                    //status = "";
+                    show = undefined;
+                    status = "mode=auto";
                     break;
                 case "away":
                     show = "xa";
@@ -190,6 +198,18 @@ class PresenceService {
 
             that._settings.updateUserSettings({ presence: presence});
         });
+    }
+
+    /**
+     * @private
+     * @method getUserConnectedPresence
+     * @instance
+     * @memberof PresenceService
+     * @description
+     *      Get user presence status calculated from events.
+     */
+    getUserConnectedPresence() {
+        return this._currentPresence;
     }
 
      /**
@@ -256,11 +276,8 @@ class PresenceService {
      */
     _sendPresenceFromConfiguration() {
         let that = this;
-
         return new Promise( (resolve) => {
-
-            that._settings.getUserSettings()
-                .then(function(settings) {
+            that._settings.getUserSettings().then(function(settings : any) {
                     let message = "";
                     let presence = settings.presence;
                     if (presence === "invisible") {
@@ -309,8 +326,9 @@ class PresenceService {
      */
     _onPresenceChanged(presence) {
         let that = this;
-
-        if ( presence.fulljid === that._xmpp.fullJid ) {
+        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) presence : ", presence, ", presence.fulljid : ", presence.fulljid, ", that._xmpp.jid", that._xmpp.jid);
+        if ( presence.jid === that._xmpp.jid ) {
+            that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", presence);
             that._currentPresence = presence;
         }
     }

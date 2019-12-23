@@ -3,12 +3,63 @@
 ---
 
 Here is the list of the changes and features provided by the **Rainbow-Node-SDK**
-
+Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.64.0] - 2019-10-xx
+## [1.65.0] - 2019-12-19
+-   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
+-   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
+-   Fix fill of properties Contact.companyId and Contact.companyName.
+-   Forbid the sent over the XMPP socket if closed (XmppClient::socketClosed)
+-   Update the use of types.
+-   Fix datas of channel when fetched.
+-   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
+-   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
+-   Move treatment of invitations events from Conversation/Contacts services to invitations service. 
+-   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
+-   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
+-   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/guides/CHANGELOGRSS.xml)
+-   Add automatic version of the SDK in jsdoc of service's classes.
+-   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
+-   Typescript improvement.
+-   Add CDD methods in TelephonyService : logon, logoff, withdrawal, wrapup.
+-   Add the ability to login with a token to the Rainbow Node SDK (token parameter to SDK start method.).
+-   Fix MaxListenersExceededWarning issue about too much listener registred.
+-   Add a program using the SDK to post changelog in a channel. Should be used in jenkins job delivery.
+-   Fix onFileManagementMessageReceived when a file created to store the filedescriptor in internal list
+-   Add event `evt_internal_bubbleavatarchanged` raised when a bubble is updated with a new avatar
+-   Add avatar property in Bubble class. This is the URL to download the avatar . Note that it can spot on an empty file if no avatar has been setted.
+-   Add BubblesService::promoteContactToModerator Promote a contact to moderator in a bubble
+-   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble 
+-   Add BubblesService::getAvatarFromBubble Get A Blob object with data about the avatar picture of the bubble.
+-   Add BubblesService::updateAvatarForBubble  Update the bubble avatar (from given URL). The image will be automaticalle resized.
+-   Add BubblesService::deleteAvatarFromBubble Delete the bubble avatar
+-   Add private methods in BubblesService : randomString, setAvatarBubble, deleteAvatarBubble, resizeImage, getBinaryData
+-   Add BubblesService::updateCustomDataForBubble Update the customData of the bubble
+-   Add BubblesService::deleteCustomDataForBubble Delete the customData of the bubble
+-   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
+-   Add BubblesService::openConversationForBubble Open a conversation to a bubble
+
+## [1.64.2] - 2019-11-26
+-   rebundle of the 1.64.0 version with the same content.
+
+## [1.64.0] - 2019-11-20
+-   Fix of the Presence::setPresenceTo to follow the server presence type.
+-   Doc update
+
+## [1.63.2] - 2019-11-14
+-   Fix comment for admin::createCompagny, Country is mandatory.
+-   Add method bubbles::inviteContactsByEmailsToBubble to Invite a list of contacts by emails in a bubble.
+-   Fix stop of the services if the SDK did not been started before.
+
+## [1.63.1] - 2019-11-06
 -   Add start duration in result of start.
 -   Use argumentsToStringReduced for internal dev logs and argumentsToStringFull for package built with grunt
+-   Fix to much logs in TelephonyService::getCallFromCache
+-   Fix TelephonyService Call instance creation on few methods.
+-   Fix data received from server in TelephonyService::holdCall,retrieveCall,makeConsultationCall
+-   Add a BubblesService::joinConference method to do some tests 
 
 ## [1.63.0] - 2019-10-31
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.

@@ -148,17 +148,16 @@ safeJsonParse(str) {
 
 
 
-get(url, headers, params): Promise<any> {
+get(url, headers : any = {}, params): Promise<any> {
 
         let that = this;
 
         return new Promise(function (resolve, reject) {
 
             try {
-                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g)) ;
-                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url);
-
                 headers["user-agent"] = USER_AGENT;
+                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g)) ;
+                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers);
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
@@ -318,15 +317,12 @@ get(url, headers, params): Promise<any> {
         });
     }
 
-    post(url, headers, data, contentType): Promise<any> {
+    post(url, headers : any = {}, data, contentType): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
-
-            that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, data);
-
             headers["user-agent"] = USER_AGENT;
             let body = data;
             if (contentType) {
@@ -339,6 +335,9 @@ get(url, headers, params): Promise<any> {
                     body = JSON.stringify(data);
                 }
             } // */
+
+            that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+
             Request({
                 method: 'POST',
                 preambleCRLF: true,
@@ -428,16 +427,16 @@ get(url, headers, params): Promise<any> {
         });
     }
 
-    put(url, headers, data, type): Promise<any> {
+    put(url, headers : any = {}, data, type): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(put) url : ", urlEncoded, data);
-
             headers["user-agent"] = USER_AGENT;
+            that.logger.log("internal", LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
+
             let body = data;
             if (type) {
                 //request.type(type);
@@ -537,7 +536,7 @@ get(url, headers, params): Promise<any> {
         });
     }
 
-    putBuffer(url, headers, buffer): Promise<any> {
+    putBuffer(url, headers : any = {}, buffer): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -573,7 +572,7 @@ get(url, headers, params): Promise<any> {
         });
     }
 
-    putStream(url, headers, stream): Promise<any> {
+    putStream(url, headers : any = {}, stream): Promise<any> {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -602,7 +601,7 @@ get(url, headers, params): Promise<any> {
         });
     }
 
-    delete(url, headers): Promise<any> {
+    delete(url, headers : any = {}): Promise<any> {
 
         let that = this;
 
@@ -610,7 +609,7 @@ get(url, headers, params): Promise<any> {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(delete) url : ", urlEncoded);
+            that.logger.log("internal", LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers);
 
             headers["user-agent"] = USER_AGENT;
 

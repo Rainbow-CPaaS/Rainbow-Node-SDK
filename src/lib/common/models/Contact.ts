@@ -664,6 +664,8 @@ class Contact {
         that.title = userData.title ? userData.title : "";
         that.jobTitle = userData.jobTitle ? userData.jobTitle : "";
         that.organisationId = userData.organisationId;
+        that.companyId = userData.companyId;
+        that.companyName = userData.companyName;
         that.siteId = userData.siteId;
         that.country = userData.country ? userData.country : "FRA";
         that.timezone = userData.timezone;

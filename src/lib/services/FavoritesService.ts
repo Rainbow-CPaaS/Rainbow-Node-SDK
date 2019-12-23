@@ -1,4 +1,6 @@
 "use strict";
+import {Logger} from "../common/Logger";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -9,6 +11,7 @@ import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEve
 import { Favorite } from '../common/models/Favorite';
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
+import EventEmitter = NodeJS.EventEmitter;
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -17,6 +20,8 @@ const LOG_ID = "FAVTE/SVCE - ";
 /**
 * @module
 * @name FavoritesService
+ * @version SDKVERSION
+ * @public
 * @description
 *      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots.
 *      The main methods and events proposed in that service allow to: <br>
@@ -24,14 +29,14 @@ const LOG_ID = "FAVTE/SVCE - ";
 *      - Retrieve all information linked to that Favorite, <br>
 */
 class FavoritesService {
-    public _eventEmitter: any;
-    private _logger: any;
+    public _eventEmitter: EventEmitter;
+    private _logger: Logger;
     private started: boolean;
     private _initialized: boolean;
     private _xmpp: XMPPService;
     private _rest: RESTService;
     private _favoriteEventHandler: FavoriteEventHandler;
-    private favoriteHandlerToken: any
+    private favoriteHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
     private favorites: any[] = [];
     private xmppManagementHandler: any;
@@ -44,7 +49,7 @@ class FavoritesService {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -99,7 +104,9 @@ class FavoritesService {
 
         delete that._favoriteEventHandler;
         that._favoriteEventHandler = null;
-        that.favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        if (that.favoriteHandlerToken) {
+            that.favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        }
         that.favoriteHandlerToken = [];
 
         /*this.$log.info('Stopping');

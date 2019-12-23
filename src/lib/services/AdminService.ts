@@ -7,6 +7,8 @@ export {};
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
 import {isStarted, logEntryExit} from "../common/Utils";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -15,6 +17,8 @@ const LOG_ID = "ADMIN/SVCE - ";
 /**
  * @class
  * @name Admin
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module handles the management of users. Using it, You will be able to create new users, to modify information of users and to delete them.<br>
  *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow.
@@ -30,8 +34,8 @@ const LOG_ID = "ADMIN/SVCE - ";
 class Admin {
     public _xmpp: XMPPService;
     public _rest: RESTService;
-    public _eventEmitter: any;
-    public _logger: any;
+    public _eventEmitter: EventEmitter;
+    public _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -41,7 +45,7 @@ class Admin {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -91,8 +95,8 @@ class Admin {
      * @description
      *      Create a company
      * @param {string} strName The name of the new company
-     * @param {string} country (optionnel) Company country (ISO 3166-1 alpha3 format, size 3 car)
-     * @param {string} state (optionnel)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
+     * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
+     * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
      * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}

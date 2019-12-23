@@ -1,6 +1,17 @@
 "use strict";
 export{};
 
+function  randomString(length = 10) {
+    let string = "";
+    let rnd;
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    while (length > 0) {
+        rnd = Math.floor(Math.random() * chars.length);
+        string += chars.charAt(rnd);
+        length--;
+    }
+    return string;
+}
 
     /**
  * @class
@@ -28,115 +39,126 @@ class Bubble {
         public guestEmails: any[];
         public confEndpoints: [];
         public activeUsersCounter: number;
+        public avatar: String;
 
-        public static RoomUserStatus = { "INVITED": "invited", "ACCEPTED": "accepted", "UNSUBSCRIBED": "unsubscribed", "REJECTED": "rejected", "DELETED": "deleted" };
+        public static RoomUserStatus = {
+            "INVITED": "invited",
+            "ACCEPTED": "accepted",
+            "UNSUBSCRIBED": "unsubscribed",
+            "REJECTED": "rejected",
+            "DELETED": "deleted"
+        };
         public autoRegister: any;
         public lastActivityDate: any;
 
-        constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications : boolean = false, _lastAvatarUpdateDate : any = null, _guestEmails : [] = [], _confEndpoints : [] = [], _activeUsersCounter : number = 0, _autoRegister : boolean = false , _lastActivityDate) {
+        constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
+                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "") {
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} id The ID of the Bubble
-         * @instance
-         */
-        this.id = _id;
+            /**
+             * @public
+             * @readonly
+             * @property {string} id The ID of the Bubble
+             * @instance
+             */
+            this.id = _id;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} name The name of the Bubble
-         * @instance
-         */
-        this.name = _name;
+            /**
+             * @public
+             * @readonly
+             * @property {string} name The name of the Bubble
+             * @instance
+             */
+            this.name = _name;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} topic The topic of the Bubble
-         * @instance
-         */
-        this.topic = _topic;
+            /**
+             * @public
+             * @readonly
+             * @property {string} topic The topic of the Bubble
+             * @instance
+             */
+            this.topic = _topic;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} jid The JID of the Bubble
-         * @instance
-         */
-        this.jid = _jid;
+            /**
+             * @public
+             * @readonly
+             * @property {string} jid The JID of the Bubble
+             * @instance
+             */
+            this.jid = _jid;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} creator The ID of the creator of the Bubble
-         * @instance
-         */
-        this.creator = _creator;
+            /**
+             * @public
+             * @readonly
+             * @property {string} creator The ID of the creator of the Bubble
+             * @instance
+             */
+            this.creator = _creator;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} history The type of history the bubble supports. Can be 'none' (no history) or 'full' (Full bubble history is accessible for newcomers)
-         * @instance
-         */
-        this.history = _history;
+            /**
+             * @public
+             * @readonly
+             * @property {string} history The type of history the bubble supports. Can be 'none' (no history) or 'full' (Full bubble history is accessible for newcomers)
+             * @instance
+             */
+            this.history = _history;
 
-        /**
-         * @public
-         * @readonly
-         * @property {Object[]} users The list of users of that Bubble with their status and privilege
-         * @instance
-         */
-        this.users = _users;
+            /**
+             * @public
+             * @readonly
+             * @property {Object[]} users The list of users of that Bubble with their status and privilege
+             * @instance
+             */
+            this.users = _users;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} creationDate The creation date of the Bubble
-         * @instance
-         */
-        this.creationDate = _creationDate;
+            /**
+             * @public
+             * @readonly
+             * @property {string} creationDate The creation date of the Bubble
+             * @instance
+             */
+            this.creationDate = _creationDate;
 
-        /**
-         * @public
-         * @readonly
-         * @property {string} visibility The visibility of the Bubble. Can be private (only visible for members) or public
-         * @instance
-         */
-        this.visibility = _visibility;
+            /**
+             * @public
+             * @readonly
+             * @property {string} visibility The visibility of the Bubble. Can be private (only visible for members) or public
+             * @instance
+             */
+            this.visibility = _visibility;
 
-        /**
-         * @public
-         * @readonly
-         * @property {Object} customData The custom data attached to that Bubble. List of pairs (key/value).
-         * @instance
-         */
-        this.customData = _customData;
+            /**
+             * @public
+             * @readonly
+             * @property {Object} customData The custom data attached to that Bubble. List of pairs (key/value).
+             * @instance
+             */
+            this.customData = _customData;
 
-        /**
-         *
-         * @type {boolean}
-         */
-        this.isActive = _isActive;
+            /**
+             *
+             * @type {boolean}
+             */
+            this.isActive = _isActive;
 
-        /**
+            /**
              * @private
              * @property {string} lastActivityDate The date of the last activity in this bubble
              * @readonly
-        */
-        this.lastActivityDate = _lastActivityDate;
+             */
+            this.lastActivityDate = _lastActivityDate;
 
-        this.conference = _conference
+            this.conference = _conference
 
-        this.disableNotifications = _disableNotifications;
-        this.lastAvatarUpdateDate = _lastAvatarUpdateDate;
-        this.guestEmails = _guestEmails;
-        this.confEndpoints = _confEndpoints;
-        this.activeUsersCounter = _activeUsersCounter;
+            this.disableNotifications = _disableNotifications;
+            this.lastAvatarUpdateDate = _lastAvatarUpdateDate;
+            this.guestEmails = _guestEmails;
+            this.confEndpoints = _confEndpoints;
+            this.activeUsersCounter = _activeUsersCounter;
 
+            /**
+             * @property {string} avatar This is the URL to download the avatar of the bubble. Note that it is an unavailable url if no avatar has been setted.
+             */
+            this.avatar = _avatarDomain + "/api/room-avatar/" + _id + "?size=512&rand=" + randomString();
             /**
              * @public
              * @readonly
@@ -156,46 +178,48 @@ class Bubble {
 
         }
 
-    /**
-     * Method helper to know if room is a meeting
-     * @private
-     */
-    isMeetingBubble() {
-        if (this.conference && this.conference.mediaType === "pstnAudio") {
-            return true;
-        }
-        return false;
-    }
-
-    getStatusForUser(userId) {
-        let that = this;
-        let user = that.users.find((user) => {
-            return  user.userId === userId ;
-        });
-        return user ? user.status : "none";
-    }
-
-    updateBubble (data) {
-        let that = this;
-        if (data) {
-
-            let bubbleproperties = Object.getOwnPropertyNames(that);
-            //console.log("updateBubble update Bubble with : ", data["id"]);
-            Object.getOwnPropertyNames(data).forEach(
-                (val, idx, array) => {
-                    //console.log(val + " -> " + data[val]);
-                    if (bubbleproperties.find((el) => { return val == el ;})) {
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                        that[val] = data[val];
-                    } else {
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
-                    }
-                });
+        /**
+         * Method helper to know if room is a meeting
+         * @private
+         */
+        isMeetingBubble() {
+            if (this.conference && this.conference.mediaType === "pstnAudio") {
+                return true;
+            }
+            return false;
         }
 
-        return this;
-    }
+        getStatusForUser(userId) {
+            let that = this;
+            let user = that.users.find((user) => {
+                return user.userId === userId;
+            });
+            return user ? user.status : "none";
+        }
+
+        updateBubble(data) {
+            let that = this;
+            if (data) {
+
+                let bubbleproperties = Object.getOwnPropertyNames(that);
+                //console.log("updateBubble update Bubble with : ", data["id"]);
+                Object.getOwnPropertyNames(data).forEach(
+                    (val, idx, array) => {
+                        //console.log(val + " -> " + data[val]);
+                        if (bubbleproperties.find((el) => {
+                            return val == el;
+                        })) {
+                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            that[val] = data[val];
+                        } else {
+                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
+                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
+                        }
+                    });
+            }
+
+            return this;
+        }
 
         /**
          * @function
@@ -204,7 +228,7 @@ class Bubble {
          * @description
          * This class is used to create a channel from data object
          */
-        public static BubbleFactory() {
+        public static BubbleFactory(avatarDomain) {
 //     constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [],
 //     _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any) {
             return (data: any): Bubble => {
@@ -228,14 +252,17 @@ class Bubble {
                     data.confEndpoints,
                     data.activeUsersCounter,
                     data.autoRegister,
-                    data.lastActivityDate
-            );
+                    data.lastActivityDate,
+                    avatarDomain
+                );
                 if (data) {
                     let bubbleproperties = Object.getOwnPropertyNames(bubble);
                     Object.getOwnPropertyNames(data).forEach(
                         (val, idx, array) => {
                             //console.log(val + " -> " + data[val]);
-                            if (!bubbleproperties.find((el) => { return val == el ;})) {
+                            if (!bubbleproperties.find((el) => {
+                                return val == el;
+                            })) {
                                 //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
                                 console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
                             }
@@ -245,7 +272,7 @@ class Bubble {
                 return bubble;
             };
         }
-}
+    }
 
 
 export {Bubble};

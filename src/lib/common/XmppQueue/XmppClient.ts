@@ -21,9 +21,11 @@ const _sasl = require('@xmpp/sasl');
 const _middleware = require('@xmpp/middleware');
 const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
+const xml = require("@xmpp/xml");
 
 const Element = require('ltx').Element;
 //import Element from "ltx";
+import {NameSpacesLabels} from "../../connection/XMPPService";
 
 let LOG_ID='XMPPCLIENT';
 
@@ -39,6 +41,8 @@ class XmppClient  {
 	public timeBetweenXmppRequests: any;
 	public username: any;
 	public password: any;
+    socketClosed: boolean = false;
+    storeMessages: any;
 
     constructor(...args) {
         //super(...args);
@@ -47,6 +51,7 @@ class XmppClient  {
         this.options = [...args];
         this.restartConnectEnabled = true;
         this.client = client(...args);
+
         this.iqGetEventWaiting = {};
 
         this.onIqErrorReceived = (msg, stanza) => {
@@ -100,10 +105,27 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests) {
-        this.logger = _logger;
-        this.xmppQueue = XmppQueue.getXmppQueue(_logger);
-        this.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
+    init(_logger, _timeBetweenXmppRequests, _storeMessages) {
+        let that = this;
+        that.logger = _logger;
+        that.xmppQueue = XmppQueue.getXmppQueue(_logger);
+        that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
+        that.storeMessages = _storeMessages;
+        that.on('open', () => {
+            that.logger.log("debug", LOG_ID + "(event) open");
+            that.socketClosed = false;
+        });
+        /*this.client.websocket.on('message', () => {
+            that.socketClosed = true;
+        }); // */
+        that.on('error', () => {
+            that.logger.log("debug", LOG_ID + "(event) error");
+            that.socketClosed = true;
+        });
+        that.on('close', () => { //client.websocket.
+            that.logger.log("debug", LOG_ID + "(event) close");
+            that.socketClosed = true;
+        });
     }
 
     send(...args) {
@@ -119,6 +141,31 @@ class XmppClient  {
                         that.logger.log("error", LOG_ID + "(send) stanza to send is empty");
                     } // */
 
+                    //that.logger.log("debug", LOG_ID + "(send) this.client.websocket : ", this.client.Socket);
+
+                    if (that.socketClosed) {
+                        that.logger.log("debug", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                        return Promise.reject("Error the socket is close, so do not send data on it.")
+                    }
+
+                    let stanza = args[0];
+                    if ( that.storeMessages == false && stanza && typeof stanza === "object" &&  stanza.name == "message") {
+                       // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
+                       // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
+                        //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
+                        // <no-copy xmlns="urn:xmpp:hints"/>
+                        //   <no-store xmlns="urn:xmpp:hints"/>
+                      /*  stanza.append(xml("no-copy", {
+                            "xmlns": NameSpacesLabels.HintsNameSpace
+                        }));
+                        // */
+
+                        stanza.append(xml("no-store", {
+                            "xmlns": NameSpacesLabels.HintsNameSpace
+                        }));
+                        // */
+                        //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
+                    }
 
                     return this.client.send(...args).then(() => {
                         resolve2();

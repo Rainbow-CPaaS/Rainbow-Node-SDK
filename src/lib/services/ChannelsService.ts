@@ -1,5 +1,7 @@
 "use strict";
 
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
@@ -11,6 +13,7 @@ import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
 import {isStarted, logEntryExit} from "../common/Utils";
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "CHANNELS/SVCE - ";
 
@@ -19,6 +22,8 @@ const LOG_ID = "CHANNELS/SVCE - ";
 /**
  * @class
  * @name Channels
+ * @version SDKVERSION
+ * @public
  * @description
  *      This service manages Channels. This service is in Beta.
  *      <br><br>
@@ -32,8 +37,8 @@ class Channels {
 	public _rest: RESTService;
 	public _channels: any;
 	public _channelsList: any;
-	public _eventEmitter: any;
-	public _logger: any;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
 	public MAX_ITEMS: any;
 	public MAX_PAYLOAD_SIZE: any;
 	public PUBLIC_VISIBILITY: any;
@@ -69,7 +74,7 @@ class Channels {
     };
 
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -117,6 +122,7 @@ class Channels {
     }
 
     stop() {
+        let that = this;
         return new Promise((resolve, reject) => {
             try {
                 this._xmpp = null;
@@ -124,6 +130,10 @@ class Channels {
                 this._channels = null;
                 this._channelsList = null;
 //                this._eventEmitter.removeListener("rainbow_onchannelmessagereceived", this._onChannelMessageReceived);
+                if (that.channelHandlerToken) {
+                    that.channelHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                }
+                that.channelHandlerToken = [];
                 this.ready = false;
                 resolve();
             } catch (err) {
@@ -2002,15 +2012,17 @@ class Channels {
         }
     }
 
-    private onUnsubscribeToChannel(channelInfo: {'id': string, 'subscribers' : string}): void {
+    private async onUnsubscribeToChannel(channelInfo: {'id': string, 'subscribers' : string}): Promise<void> {
         let that = this;
         let channelId: string = channelInfo.id;
         let subscribersInfo: string = channelInfo.subscribers;
         this._logger.log("internal", LOG_ID + "(onUnsubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
         let subscribers = Number.parseInt(subscribersInfo);
-        let channel = this.getChannelFromCache(channelId);
-        channel.subscribers_count = subscribers;
-        channel.subscribed = false;
+        let channel  : Channel = await this.fetchChannel(channelId);
+        if (channel) {
+            channel.subscribers_count = subscribers;
+            channel.subscribed = false;
+        }
 
         // Update messagesList
         //this.feedChannel.messages = [];
@@ -2031,21 +2043,25 @@ class Channels {
                 //this.$rootScope.$broadcast(this.CHANNEL_UPDATE_EVENT, this.LIST_EVENT_TYPE.DELETE, channelId);
     }
 
-    private onUserSubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
+    private async onUserSubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
         this._logger.log("internal", LOG_ID + "(onUserSubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
-        let channel: Channel = this.getChannelFromCache(info.id);
-        channel.subscribers_count = info.subscribers;
+        let channel : Channel = await this.fetchChannel(info.id);
+        if (channel) {
+            channel.subscribers_count = info.subscribers;
+        }
 
         that._eventEmitter.emit("evt_internal_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.SUBSCRIBE, channelId, userId);
     }
 
-    private onUserUnsubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
+    private async onUserUnsubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
         this._logger.log("internal", LOG_ID + "(onUserUnsubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
-        let channel: Channel = this.getChannelFromCache(info.id);
-        channel.subscribers_count = info.subscribers;
+        let channel : Channel = await this.fetchChannel(info.id);
+        if (channel) {
+            channel.subscribers_count = info.subscribers;
+        }
 
         that._eventEmitter.emit("evt_internal_channelusersubscription", {'id': info.id, 'userId': info.userId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
         //this.$rootScope.$broadcast(this.CHANNEL_USER_SUBSCRIPTION_EVENT, this.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId, userId);
@@ -2057,5 +2073,5 @@ class Channels {
 
 }
 
-module.exports.Channels = Channels;
-export {Channels};
+module.exports.ChannelsService = Channels;
+export {Channels as ChannelsService};

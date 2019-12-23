@@ -263,7 +263,10 @@ class Options {
         let optionsIM = {
             sendReadReceipt:config.im.sendReadReceipt,
             messageMaxLength : 1024,
-            sendMessageToConnectedUser: false
+            sendMessageToConnectedUser: false,
+            conversationsRetrievedFormat: "small",
+            storeMessages: false,
+            copyMessage: false
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -275,6 +278,9 @@ class Options {
 
         optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
         optionsIM.sendMessageToConnectedUser = this._options.im.sendMessageToConnectedUser ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
+        optionsIM.conversationsRetrievedFormat = this._options.im.conversationsRetrievedFormat ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
+        optionsIM.storeMessages = this._options.im.storeMessages ? this._options.im.storeMessages : config.im.storeMessages;
+        optionsIM.copyMessage = this._options.im.copyMessage ? this._options.im.copyMessage : config.im.copyMessage;
 
         return optionsIM;
     }

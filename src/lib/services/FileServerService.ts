@@ -1,4 +1,6 @@
 "use strict";
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -14,6 +16,8 @@ import {ErrorManager} from "../common/ErrorManager";
 //const Blob = require("blob");
 import * as streamBuffers from 'stream-buffers';
 import {isStarted} from "../common/Utils";
+import {Logger} from "../common/Logger";
+import {FileStorageService} from "./FileStorageService";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -26,19 +30,18 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
 /**
 * @module
 * @name FileStorage
+ * @version SDKVERSION
 * @public
 * @description
 *      This service manage files on server side
 */
 class FileServer {
-	public eventEmitter: any;
-	public logger: any;
+	public eventEmitter: EventEmitter;
+	public logger: Logger;
 	public _capabilities: any;
 	public transferPromiseQueue: any;
-	public fileStorageService: any;
-	public rest: any;
+	public fileStorageService: FileStorageService;
 	public ONE_KILOBYTE: any;
-	public xmpp: any;
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public ONE_MEGABYTE: any;
@@ -51,7 +54,7 @@ class FileServer {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this.eventEmitter = _eventEmitter;
         this.logger = _logger;
@@ -65,8 +68,8 @@ class FileServer {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!that._capabilities) {
-                if (that.rest) {
-                    that.rest.getServerCapabilities().then((capabilities) => {
+                if (that._rest) {
+                    that._rest.getServerCapabilities().then((capabilities) => {
                         that._capabilities = capabilities;
                         //that.transferPromiseQueue = new TransferPromiseQueue(that.logger);
                         resolve(this._capabilities);
@@ -86,8 +89,8 @@ class FileServer {
         let that = this;
         return new Promise(function (resolve, reject) {
             try {
-                that.xmpp = _xmpp;
-                that.rest = _rest;
+                that._xmpp = _xmpp;
+                that._rest = _rest;
                 that.fileStorageService = _fileStorageService;
 
                 that.ready = true;
@@ -136,7 +139,7 @@ class FileServer {
      * @memberof FileServer
      */
     getPartialDataFromServer(url, minRange, maxRange, index) {
-        return this.rest.getPartialDataFromServer(url, minRange, maxRange, index);
+        return this._rest.getPartialDataFromServer(url, minRange, maxRange, index);
     }
 
     /**
@@ -181,8 +184,7 @@ class FileServer {
 
                     for (let i = 0; repetition > 0; i++, repetition--, minRange += range, maxRange += range) {
                         promiseArray.push(
-                            this.getPartialDataFromServer(_url, minRange, maxRange, i)
-                            .then(response => {
+                            this.getPartialDataFromServer(_url, minRange, maxRange, i).then((response : any ) => {
                                 bufferArray[response.index] = response.data;
                                 return (response.data);
                             })
@@ -203,7 +205,7 @@ class FileServer {
                             }
                         );
                 } else {
-                    resolve(that.rest.getFileFromUrl(_url));
+                    resolve(that._rest.getFileFromUrl(_url));
                 }
             });
         });
@@ -258,7 +260,7 @@ class FileServer {
                     for (let i = 0; repetition > 0; i++, repetition--, minRange += range, maxRange += range) {
                         promiseArray.push(
                             this.getPartialDataFromServer(_url, minRange, maxRange, i)
-                            .then(response => {
+                            .then((response : any)=> {
 
                                 blobArray[response.index] = response.data;
                                 return (response.data);
@@ -280,7 +282,7 @@ class FileServer {
                             }
                         );
                 } else {
-                    resolve(that.rest.getFileFromUrl(_url));
+                    resolve(that._rest.getFileFromUrl(_url));
                 }
             });
         });
@@ -371,8 +373,7 @@ class FileServer {
 */
             //stream.pipe(myWritableStreamBuffer);
 //            stream.pipe(buffer)
-            that.rest.uploadAStream(fileId, stream)
-                .then(
+            that._rest.uploadAStream(fileId, stream).then(
                     (response) => {
                         //let fileDescResponse = response.data.data;
                         let newFileDescriptor = that.fileStorageService.getFileDescriptorById(fileId);
@@ -427,8 +428,8 @@ class FileServer {
     _sendPartialDataToServer(fileId, file, index) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.rest.sendPartialDataToServer(fileId, file, index).then(
-                (response) => {
+            that._rest.sendPartialDataToServer(fileId, file, index).then(
+                (response : any) => {
                     let filedescriptor = response.data;
                     that.logger.log("info", LOG_ID + "(_sendPartialDataToServer) sendPartialDataToServer success");
                     resolve(filedescriptor);
@@ -518,7 +519,7 @@ class FileServer {
 
             }
             /* let promisesCompletion = () => {
-                 this.rest.sendPartialFileCompletion(fileDescriptor.id)
+                 this._rest.sendPartialFileCompletion(fileDescriptor.id)
                      .then(
                          (response) => {
                              that.logger.log("info", LOG_ID + "(uploadAFileByChunk) success");
@@ -540,7 +541,7 @@ class FileServer {
              // */
 
             promiseQueue.add(() => {
-                return this.rest.sendPartialFileCompletion(fileDescriptor.id)
+                return this._rest.sendPartialFileCompletion(fileDescriptor.id)
                     .then(
                         (response) => {
                             that.logger.log("info", LOG_ID + "(uploadAFileByChunk) success");
@@ -688,7 +689,7 @@ class FileServer {
                 headers: this.authService.getRequestHeader(),
                 responseType: 'arraybuffer'
             }) // */
-            that.rest.getBlobFromUrl(url).then(
+            that._rest.getBlobFromUrl(url).then(
                 (response) => { // : ng.IHttpPromiseCallbackArg<IHttpUploadResult>
                     /* let blob = blobUtil.createBlob([response.data],
                         { type: mime }); // */
@@ -731,9 +732,9 @@ class FileServer {
 * @memberof FileServer
 */
     getServerCapabilities() {
-        return this.rest.getServerCapabilities();
+        return this._rest.getServerCapabilities();
     }
 }
 
-module.exports.FileServer = FileServer;
-export {FileServer};
+module.exports.FileServerService = FileServer;
+export {FileServer as FileServerService};

@@ -182,6 +182,7 @@ class Channel {
             }
         }
 
+        this.deleted = _deleted;
     }
 
     public isNotMember() { return (this.userRole = "none"); }
@@ -207,7 +208,7 @@ class Channel {
                 (val, idx, array) => {
                     //console.log(val + " -> " + data[val]);
                     if (channelproperties.find((el) => { return val == el ;})) {
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        //console.log("WARNING : One property of the parameter of updateChannel method is not present in the Bubble class : ", val, " -> ", data[val]);
                         that[val] = data[val];
                     } else {
                         //console.log("WARNING : One property of the parameter of updateChannel method is not present in the Channel class can not update Channel with : ", val, " -> ", data[val]);

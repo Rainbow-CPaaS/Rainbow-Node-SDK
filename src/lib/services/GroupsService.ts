@@ -1,10 +1,13 @@
 "use strict";
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted, logEntryExit} from "../common/Utils";
+import {Logger} from "../common/Logger";
 
 const LOG_ID = "GROUPS/SVCE - ";
 
@@ -13,6 +16,8 @@ const LOG_ID = "GROUPS/SVCE - ";
 /**
  * @class
  * @name Groups
+ * @version SDKVERSION
+ * @public
  * @description
  *		This service manages groups which allow to create his own lists of contacts.
  *		<br><br>
@@ -27,8 +32,8 @@ const LOG_ID = "GROUPS/SVCE - ";
 	public _xmpp: XMPPService;
 	public _rest: RESTService;
 	public _groups: any;
-	public _eventEmitter: any;
-	public _logger: any;
+	public _eventEmitter: EventEmitter;
+	public _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -38,7 +43,7 @@ const LOG_ID = "GROUPS/SVCE - ";
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;

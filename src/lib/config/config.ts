@@ -54,14 +54,25 @@ let conf =  {
     im: {
         sendReadReceipt: true,
         messageMaxLength: 1024,
-        sendMessageToConnectedUser: false
+        sendMessageToConnectedUser: false,
+        conversationsRetrievedFormat: "small",
+        storeMessages: false, /* https://xmpp.org/extensions/xep-0334.html#hints :
+         No store :
+            A message containing a <no-store/> hint should not be stored by a server either permanently (as above) or temporarily,
+            e.g. for later delivery to an offline client, or to users not currently present in a chatroom.
+         // */
+        copyMessage: true /* https://xmpp.org/extensions/xep-0334.html#hints :
+        No copies :
+            Messages with the <no-copy/> hint should not be copied to addresses other than the one to which it is addressed, for example through Message Carbons (XEP-0280) [3].
+            This hint MUST only be included on messages addressed to full JIDs and explicitly does not override the behaviour defined in XMPP IM [1] for handling messages to bare JIDs,
+            which may involve copying to multiple resources, or multiple occupants in a Multi-User Chat (XEP-0045) [6] room.
+        // */
     },
     mode:"xmpp",
     debug:true,
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
     servicesToStart : {
-
             presence: {
                 start_up:true,
                 optional:false
@@ -116,6 +127,10 @@ let conf =  {
                 optional:true
             }, //need services :  (that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
             favorites:  {
+                start_up:true,
+                optional:true
+            }, //need services :  (that._xmpp, that._rest);
+            invitation:  {
                 start_up:true,
                 optional:true
             }, //need services :  (that._xmpp, that._rest);

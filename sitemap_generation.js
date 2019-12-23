@@ -26,6 +26,8 @@ try {
 
     const index = yaml.safeLoad(fs.readFileSync("index.yml", "utf8"));
 
+    console.log("index : ", JSON.stringify(index));
+
     let sitemap = sm.createSitemap({
         hostname: (args.length && args[0])
             ? args[0]

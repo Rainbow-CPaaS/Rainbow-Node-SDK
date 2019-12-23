@@ -1,15 +1,21 @@
 "use strict";
+import {InvitationsService} from "./InvitationsService";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {XMPPUTils} from "../common/XMPPUtils";
 import {ErrorManager} from "../common/ErrorManager";
-import * as Contact from "../common/models/Contact";
+import {Contact, AdminType, NameUpdatePrio } from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
 import {isStarted, logEntryExit} from "../common/Utils";
+import {PresenceService} from "./PresenceService";
+import EventEmitter = NodeJS.EventEmitter;
+import {Logger} from "../common/Logger";
+import {HTTPService} from "../connection/HttpService";
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
@@ -18,6 +24,8 @@ const LOG_ID = "CONTACTS/SVCE - ";
 /**
  * @class
  * @name Contacts
+ * @version SDKVERSION
+ * @public
  * @description
  *       This module manages contacts. A contact is defined by a set of public information (name, firstname, avatar...) and a set of private information.<br>
  *       Using this module, you can get access to your network contacts or search for Rainbow contacts.
@@ -28,15 +36,16 @@ const LOG_ID = "CONTACTS/SVCE - ";
  */
 class Contacts {
 	public avatarDomain: any;
-	public xmpp: any;
+	public xmpp: XMPPService;
 	public contacts: any;
-	public eventEmitter: any;
-	public logger: any;
+	public eventEmitter: EventEmitter;
+	public logger: Logger;
 	public rosterPresenceQueue: any;
 	public userContact: any;
 	public rest: RESTService;
-	public _logger: any;
-	public _xmpp: XMPPService;
+	public invitationsService: InvitationsService;
+    public presenceService: PresenceService;
+	public _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -46,7 +55,7 @@ class Contacts {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _http, _logger, _startConfig) {
+    constructor(_eventEmitter: EventEmitter, _http : any, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length === 2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port : _http.protocol + "://" + _http.host + ":" + _http.port;
         this.xmpp = null;
@@ -54,18 +63,18 @@ class Contacts {
         this.eventEmitter = _eventEmitter;
         this.logger = _logger;
         this.rosterPresenceQueue = [];
-        this.userContact = new Contact.Contact();
+        this.userContact = new Contact();
         this.ready = false;
 
         this.eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
         this.eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onContactInfoChanged.bind(this));
-        this.eventEmitter.on("evt_internal_userinvitereceived", this._onUserInviteReceived.bind(this));
-        this.eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
-        this.eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
+        // this.eventEmitter.on("evt_internal_userinvitemngtreceived", this._onUserInviteReceived.bind(this));
+        // this.eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
+        // this.eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
         this.eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService) {
 
         let that = this;
 
@@ -73,11 +82,13 @@ class Contacts {
             try {
                 that.xmpp = _xmpp;
                 that.rest = _rest;
+                that.invitationsService = _invitationsService;
+                that.presenceService = _presenceService;
                 that.contacts = [];
 
                 // Create the user contact
                 that.logger.log("debug", LOG_ID + "(start) Create userContact (" + that.xmpp.jid + ")");
-                that.userContact = new Contact.Contact();
+                that.userContact = new Contact();
                 that.userContact.ask = null;
                 that.userContact.subscription = null;
 
@@ -144,7 +155,7 @@ class Contacts {
     init() {
         return new Promise((resolve, reject) => {
             let that = this;
-            let userInfo = that.getContactById(that.rest.account.id).then((contact) => {
+            let userInfo = that.getContactById(that.rest.account.id, true).then((contact : Contact) => {
                 //that.logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
                 that.userContact.updateFromUserData(contact);
             });
@@ -185,7 +196,7 @@ class Contacts {
 
                 listOfContacts.forEach( (contactData : any) => {
                     // Create the contact object
-                    let contact = new Contact.Contact();
+                    let contact = new Contact();
                     Object.assign(contact, contactData);
                     // that.logger.log("internal", LOG_ID + "(getRosters) before updateFromUserData ", contact);
                     contact.updateFromUserData(contactData);
@@ -239,7 +250,7 @@ class Contacts {
         let contactId = jid ? jid : phoneNumber;
         if (that.isUserContactJid(contactId)) {
             // Create the contact object
-            contact = new Contact.Contact();
+            contact = new Contact();
             // that.logger.log("internal", LOG_ID + "(getContact) before updateFromUserData ", contact);
             contact.updateFromUserData(that.rest.account);
         } else {
@@ -302,11 +313,12 @@ class Contacts {
         that.logger.log("debug", LOG_ID + "[contactService] CreateContact " + jid + " " /* TODO + anonymizePhoneNumber(phoneNumber) */);
 
         // Create the contact object
-        let contact = new Contact.Contact();
+        let contact = new Contact();
 
         // Handle case where we have no jid
         if (!jid) {
             contact.id = phoneNumber;
+            contact._id = phoneNumber;
             contact.initials = "?";
             contact.displayName = phoneNumber ? phoneNumber : "Unknown contact";
             contact.lastName = phoneNumber ? phoneNumber : "Unknown contact";
@@ -316,7 +328,7 @@ class Contacts {
             contact.loginEmail = "noEmail";
             contact.avatar = {}; // new Image();
             contact.avatar.src = "/resources/skins/rainbow/images/conversations/unknownContact.png";
-            contact.setNameUpdatePrio(Contact.NameUpdatePrio.NO_UPDATE_PRIO);//not yet updated
+            contact.setNameUpdatePrio(NameUpdatePrio.NO_UPDATE_PRIO);//not yet updated
             return contact;
         }
 
@@ -362,7 +374,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid) {
+    getContactByJid(jid) : Promise<Contact>{
 
         let that = this;
 
@@ -421,6 +433,7 @@ class Contacts {
      * @method getContactById
      * @instance
      * @param {string} id The contact id
+     * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
      * @memberof Contacts
      * @description
      *  Get a contact by his id
@@ -429,7 +442,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactById(id) {
+    getContactById(id, forceServerSearch) : Promise<Contact>{
         let that = this;
         return new Promise((resolve, reject) => {
              if (!id) {
@@ -439,7 +452,7 @@ class Contacts {
 
                 let contactFound = null;
 
-                if (that.contacts) {
+                if (that.contacts && !forceServerSearch) {
                     contactFound = that.contacts.find((contact) => {
                         return contact.id === id;
                     });
@@ -452,9 +465,9 @@ class Contacts {
                 else {
                     that.logger.log("debug", LOG_ID + "(getContactById) contact not found locally. Ask the server...");
                     that.rest.getContactInformationByID(id).then((_contactFromServer : any) => {
-                        let contact = null;
+                        let contact : Contact = null;
                         if (_contactFromServer) {
-                            //that.logger.log("info", LOG_ID + "(getContactById) contact found on the server", _contactFromServer);
+                            that.logger.log("internal", LOG_ID + "(getContactById) contact found on the server", _contactFromServer);
                             that.logger.log("info", LOG_ID + "(getContactById) contact found on the server");
                             let contactIndex = that.contacts.findIndex((value) => {
                                 return value.jid_im === _contactFromServer.jid_im;
@@ -496,7 +509,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    async getContactByLoginEmail(loginEmail) {
+    async getContactByLoginEmail(loginEmail)  : Promise <Contact>{
 
         let that = this;
 
@@ -508,7 +521,7 @@ class Contacts {
             }
             else {
 
-                let contactFound = null;
+                let contactFound : Contact = null;
 
                 if (that.contacts) {
                     contactFound = that.contacts.find((contact) => {
@@ -521,16 +534,20 @@ class Contacts {
                     resolve(contactFound);
                 } else {
                     that.logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
-                    that.rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: any) => {
+                    that.rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
-                            let contact = null;
+                            let contact : Contact = null;
                             that.logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found on server");
                             let _contactFromServer = contactsFromServeur[0];
                             if (_contactFromServer) {
-                                await that.getContactById(_contactFromServer.id).then((contactInformation : any) => {
+                                // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
+                                await that.getContactById(_contactFromServer.id, true).then((contactInformation : Contact) => {
                                     contact = contactInformation;
+                                    // Workaround because server does not return the email when not in same company, even if it has been found by email on server.
+                                    if (!contact.loginEmail) {
+                                        contact.loginEmail = loginEmail;
+                                    }
                                     that.logger.log("internal", LOG_ID + "(getContactByLoginEmail) full data contact : ", contact, ", found on server with loginEmail : ", loginEmail);
-
                                     /*let contactIndex = that.contacts.findIndex((value) => {
                                         return value.jid_im === contactInformation.jid_im;
                                     });
@@ -611,10 +628,10 @@ class Contacts {
         return (that.rest.account.jid_im === jid);
     }
 
-    isUserContact(contact) {
+    isUserContact(contact: Contact) {
         let that = this;
         if (!contact || !contact.jid) { return false; }
-        if (!that.rest.account) { return (contact.jid === that._xmpp.jid); }
+        if (!that.rest.account) { return (contact.jid === that.xmpp.jid); }
         return (that.rest.account.jid === contact.jid);
     }
 
@@ -627,17 +644,18 @@ class Contacts {
      *    Get the connected user information
      * @return {Contact} Return a Contact object representing the connected user information or null if not connected
      */
-    getConnectedUser() {
+    getConnectedUser() : Contact{
         let that = this;
         if (!that.rest.account) {
-            return ErrorManager.getErrorManager().ERROR;
+            return null;
         }
         // Create the contact object
-        let contact = new Contact.Contact();
+        let contact = new Contact();
 
         //that.logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
         contact.updateFromUserData(that.rest.account);
         contact.avatar = that.getAvatarByContactId(that.rest.account.id, that.rest.account.lastAvatarUpdateDate);
+        contact.status = that.presenceService.getUserConnectedPresence().status;
 
         return contact;
     }
@@ -655,7 +673,7 @@ class Contacts {
      * @param {Contact} contact The contact object to subscribe
      * @return {Object} A promise that contains the contact added or an object describing an error
      */
-    addToNetwork(contact) {
+    addToNetwork(contact: Contact) {
         return this.addToContactsList(contact);
     }
     /**
@@ -673,7 +691,7 @@ class Contacts {
      * @return {Object} A promise that contains the contact added or an object describing an error
      * @category async
      */
-    addToContactsList(contact) {
+    addToContactsList(contact : Contact) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -688,7 +706,7 @@ class Contacts {
                     that.rest.joinContactInvitation(contact).then((_contact : any) => {
                         if (_contact && _contact.status !== undefined) {
                             that.logger.log("info", LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
-                            that.getContactById(_contact.invitedUserId).then((invitedUser) => {
+                            that.getContactById(_contact.invitedUserId, false).then((invitedUser) => {
                                 resolve(invitedUser);
                             }).catch((err) => {
                                 return reject(err);
@@ -704,7 +722,27 @@ class Contacts {
         });
     }
 
+    /**
+     * @public
+     * @since 1.64.0
+     * @method getInvitationById
+     * @instance
+     * @description
+     *    Get an invite by its id
+     * @param {String} strInvitationId the id of the invite to retrieve
+     * @return {Invitation} The invite if found
+     */
+    async getInvitationById(strInvitationId) {
+        if (!strInvitationId) {
+            this.logger.log("warn", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
+            this.logger.log("internalerror", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter : ", strInvitationId);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += ", invitation not defined, can not getInvitationById";
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
 
+        return this.invitationsService.getInvitation(strInvitationId);
+    };
 
     /**
      * @public
@@ -712,7 +750,7 @@ class Contacts {
      * @method
      * @instance
      * @description
-     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
      *    Once accepted, the user will be part of your network. <br>
      *    Return a promise
      * @param {Invitation} invitation The invitation to accept
@@ -726,7 +764,8 @@ class Contacts {
             error.msg += ", invitation not defined, can not acceptInvitation";
             throw error;
         } else {
-            return that.rest.acceptInvitation(invitation);
+            return that.invitationsService.acceptInvitation(invitation);
+            //return that.rest.acceptInvitation(invitation);
         }
     };
 
@@ -750,7 +789,8 @@ class Contacts {
             error.msg += ", invitation not defined, can not declineInvitation";
             throw error;
         } else {
-            return that.rest.declineInvitation(invitation);
+            return that.invitationsService.declineInvitation(invitation);
+            //return that.rest.declineInvitation(invitation);
         }
 
     };
@@ -778,7 +818,7 @@ class Contacts {
      * @fulfil {joinContactsResult} - Join result or an error object depending on the result
      * @category async
      */
-    joinContacts( contact, contactIds ) {
+    joinContacts( contact:Contact , contactIds ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -1013,7 +1053,7 @@ class Contacts {
      * @description
      *      Method called when an user invite is received
      */
-    _onUserInviteReceived(data) {
+    /* _onUserInviteReceived(data) {
         let that = this;
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteReceived) enter.");
@@ -1029,7 +1069,7 @@ class Contacts {
             that.logger.log("warn", LOG_ID + "(_onUserInviteReceived) no invitation found.");
             that.logger.log("internalerror", LOG_ID + "(_onUserInviteReceived) no invitation found for : ", data);
         });
-    }
+    } // */
 
     /**
      * @private
@@ -1040,7 +1080,7 @@ class Contacts {
      * @description
      *      Method called when an user invite is accepted
      */
-    _onUserInviteAccepted(data) {
+    /* _onUserInviteAccepted(data) {
         let that = this;
 
         that.logger.log("debug", LOG_ID + "(_onUserInviteAccepted) enter");
@@ -1056,7 +1096,7 @@ class Contacts {
             that.logger.log("warn", LOG_ID + "(_onUserInviteAccepted) no invitation found.");
             that.logger.log("internalerror", LOG_ID + "(_onUserInviteAccepted) no invitation found for : " + data);
         });
-    }
+    } // */
 
     /**
      * @private
@@ -1067,24 +1107,18 @@ class Contacts {
      * @description
      *      Method called when an user invite is canceled
      */
-    _onUserInviteCanceled(data) {
+    /* _onUserInviteCanceled(data) {
         let that = this;
 
-        that
-            .logger
-            .log("debug", LOG_ID + "(_onUserInviteCanceled) enter");
+        that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) enter");
 
-        that
-            .rest
-            .getInvitationById(data.invitationId)
-            .then((invitation : any) => {
-                that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
-
-                that.eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
-            }, err => {
-                that.logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
-            });
-}
+        that.rest.getInvitationById(data.invitationId).then((invitation: any) => {
+            that.logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
+            that.eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
+        }, err => {
+            that.logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
+        });
+    } // */
 
     /**
      * @private
