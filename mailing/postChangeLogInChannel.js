@@ -145,7 +145,7 @@ rainbowSDK.start(undefined).then(async(result) => {
         //let fullVersion = packageJSON.version;
         //let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
 
-        let mychannels = await rainbowSDK.channels.findChannelsByName("RNodeSdkChangeLog");
+        let mychannels = await rainbowSDK.channels.findChannelsByName("Rainbow API Hub Information Channel");
         let mychannel = mychannels ? mychannels[0] : null;
         if (mychannel) {
             //for (let i = 0; i < 1; i++) {
@@ -195,8 +195,9 @@ rainbowSDK.start(undefined).then(async(result) => {
                     return false;
                 });
 
-               let html = md.renderJsonML(md.toHTMLTree(filteredTree));
+               let html = "<h1>Rainbow Node SDK - News</h1><hr />" + md.renderJsonML(md.toHTMLTree(filteredTree));
 
+                logger.log("debug", "html : ", html);
 
                 await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then((res) => {
                     logger.log("debug", "createItem - res : ", res);

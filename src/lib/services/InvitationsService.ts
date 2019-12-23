@@ -234,7 +234,7 @@ class InvitationsService {
 						//that._eventEmitter.emit("evt_internal_userinviteaccepted", invitation);
 						// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitingUserId); // evt_internal_userinviteaccepted
 						if (invitation.invitingUserId) {
-							that._contacts.getContactByDBId(invitation.invitingUserId, true).then(function (contact) {
+							that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
 								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 							});
 						}
@@ -294,7 +294,7 @@ class InvitationsService {
 								that._eventEmitter.emit("evt_internal_userinviteaccepted",  invitation);
 								// TODO : VBR $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitedUserId); // evt_internal_userinviteaccepted
 								if (invitation.invitedUserId) {
-									that._contacts.getContactByDBId(invitation.invitedUserId, true).then(function (contact) {
+									that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact) {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 									});
 								}
@@ -689,7 +689,7 @@ class InvitationsService {
 				function failure(err) {
 					//let error = errorHelperService.handleError(err);
 					if (err.errorDetailsCode && err.errorDetailsCode === 409605) {
-						that._contacts.getContactByDBId(invitation.invitingUserId, true)
+						that._contacts.getContactById(invitation.invitingUserId, true)
 							.then(function (contact) {
 								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 								reject(err);
@@ -745,7 +745,7 @@ class InvitationsService {
 	updateContactInvitationStatus(contactDBId, status, invitation) {
 		let that = this;
 		return new Promise(function (resolve) {
-			that._contacts.getContactByDBId(contactDBId).then(function (contact) {
+			that._contacts.getContactById(contactDBId).then(function (contact) {
 				switch (status) {
 					case "ask":
 						contact.status = "unknown";
@@ -762,7 +762,7 @@ class InvitationsService {
 						contact.invitation = null;
 						break;
 				}
-				contact.updateRichStatus();
+				// contact.updateRichStatus();
 				resolve();
 			});
 		});
