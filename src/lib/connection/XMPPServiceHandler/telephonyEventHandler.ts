@@ -146,6 +146,17 @@ class TelephonyEventHandler extends GenericHandler {
                     return true;
                 }
 
+                let from = stanza.attrs.from;
+                let to = stanza.attrs.to;
+
+                // Treat WEBRTC Events
+                let actionElmPropose = stanzaElem.getChild("propose");
+                if (actionElmPropose !== undefined) {
+                    this.onProposeMessageReceived(actionElmPropose, from);
+                    return true;
+                }
+
+                // Treat Telephony (3PCC) Events
                 let actionElm = stanzaElem.getChild("callservice");
                 if (actionElm === undefined) {
                     return true;
@@ -250,7 +261,6 @@ class TelephonyEventHandler extends GenericHandler {
                         // */
                         default:
                             that.logger.log("internal", LOG_ID + "(onMessageReceived) untreated actionElemName : ", actionElemName);
-                            break;
                     }
                     // */
                     return true;
@@ -269,6 +279,15 @@ class TelephonyEventHandler extends GenericHandler {
             return true;
         };
 
+        this.onProposeMessageReceived = async (node, from) => {
+            let that = this;
+            that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) node - ", node);
+            let descriptionElm = node.getChild("description");
+            let media = descriptionElm.attrs.media;
+
+            let contact = await that.contactService.getContactByJid(from);
+            that.eventEmitter.emit("evt_internal_propose", {contact, media });
+        };
 
         /*********************************************************************/
         /** INITIATED CALL STUFF                                           **/
