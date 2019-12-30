@@ -1,4 +1,7 @@
 "use strict";
+
+import { Contact } from "./Contact";
+
 export{};
 
 function  randomString(length = 10) {
@@ -50,6 +53,48 @@ class Bubble {
         };
         public autoRegister: any;
         public lastActivityDate: any;
+
+        /**
+         * @private
+         * @readonly
+         * @enum {number}
+         */
+        public static Type = {
+            "PRIVATE": 0,
+            "PUBLIC": 1
+        };
+
+        /**
+         * @public
+         * @readonly
+         * @enum {String}
+         */
+        public static Privilege = {
+            /** User level */
+            "USER": "user",
+            /** Moderator level */
+            "MODERATOR": "moderator",
+            /** Guest level */
+            "GUEST": "guest"
+        };
+
+        /**
+         * @public
+         * @readonly
+         * @enum {String}
+         */
+        public static History = {
+            /** Full bubble history is accessible for newcomers */
+            "ALL": "all",
+            /** No history is accessible for newcomers, only new messages posted */
+            "NONE": "none"
+        };
+
+        /**
+         * @description the creator (owner ) of the bubble.
+         */
+        public ownerContact: Contact;
+        public owner: boolean;
 
         constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                     _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "") {
@@ -176,6 +221,7 @@ class Bubble {
              */
             this.autoRegister = _autoRegister;
 
+            this.owner = false;
         }
 
         /**
@@ -197,7 +243,7 @@ class Bubble {
             return user ? user.status : "none";
         }
 
-        updateBubble(data) {
+        async updateBubble(data, contactsService) {
             let that = this;
             if (data) {
 
@@ -216,6 +262,10 @@ class Bubble {
                             console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
                         }
                     });
+                if (data.creator) {
+                    that.ownerContact = await contactsService.getContactById(data.creator, false);
+                    that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
+                }
             }
 
             return this;
@@ -228,7 +278,7 @@ class Bubble {
          * @description
          * This class is used to create a channel from data object
          */
-        public static BubbleFactory(avatarDomain) {
+        public static BubbleFactory(avatarDomain, contactsService) {
 //     constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [],
 //     _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any) {
             return (data: any): Bubble => {
@@ -267,6 +317,10 @@ class Bubble {
                                 console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
                             }
                         });
+                    if (data.creator) {
+                        bubble.ownerContact = contactsService.getContactById(data.creator, false);
+                        bubble.owner = (bubble.ownerContact.jid === contactsService.userContact.jid);
+                    }
                 }
 
                 return bubble;
@@ -276,4 +330,4 @@ class Bubble {
 
 
 export {Bubble};
-module.exports.Bubble = Bubble;
+module.exports = {Bubble};

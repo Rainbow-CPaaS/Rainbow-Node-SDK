@@ -34,6 +34,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onbubbleinvitationreceived
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
+ * @fires Events#rainbow_onbubbleprivilegechanged
  * @fires Events#rainbow_onbubbleavatarchanged
  * @fires Events#rainbow_onbubblenamechanged
  * @fires Events#rainbow_ongroupcreated
@@ -375,6 +376,18 @@ class Events {
              *      Fired when the topic of a bubble has changed
              */
             that.publishEvent("bubbletopicchanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleprivilegechanged", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleprivilegechanged
+             * @public
+             * @param { {Bubble, String} } bubble The bubble updated with the new privilege set
+             *          privilege The privilege updated (Can be moderator, user, owner)
+             * @description
+             *      Fired when the privilage of a bubble has changed
+             */
+            that.publishEvent("bubbleprivilegechanged", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubbleavatarchanged", function(bubble) {

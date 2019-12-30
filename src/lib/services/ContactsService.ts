@@ -72,6 +72,7 @@ class Contacts {
         // this.eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
         // this.eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
         this.eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
+
     }
 
     start(_xmpp : XMPPService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService) {

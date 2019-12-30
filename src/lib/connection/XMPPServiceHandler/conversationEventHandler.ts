@@ -584,6 +584,15 @@ class ConversationEventHandler extends GenericHandler {
                             "bubbleJid": node.attrs.roomjid,
                             "topic": node.attrs.topic
                         });
+                    }  // Topic changed
+                    if (node.attrs.privilege) {
+                        that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble privilege changed");
+                        that.eventEmitter.emit("evt_internal_privilegechanged", {
+                            "bubbleId": node.attrs.roomid,
+                            "bubbleJid": node.attrs.roomjid,
+                            "userjid": node.attrs.userjid,
+                            "privilege": node.attrs.privilege
+                        });
                     }
                     // Name changed
                     if (node.attrs.name) {

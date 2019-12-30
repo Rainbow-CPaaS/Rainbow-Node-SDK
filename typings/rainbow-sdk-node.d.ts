@@ -1938,6 +1938,7 @@ declare module 'lib/common/models/FileViewer' {
 
 }
 declare module 'lib/common/models/Bubble' {
+	import { Contact } from 'lib/common/models/Contact';
 	export {}; class Bubble {
 	    id: any;
 	    name: any;
@@ -1966,6 +1967,44 @@ declare module 'lib/common/models/Bubble' {
 	    };
 	    autoRegister: any;
 	    lastActivityDate: any;
+	    /**
+	     * @private
+	     * @readonly
+	     * @enum {number}
+	     */
+	    static Type: {
+	        "PRIVATE": number;
+	        "PUBLIC": number;
+	    };
+	    /**
+	     * @public
+	     * @readonly
+	     * @enum {String}
+	     */
+	    static Privilege: {
+	        /** User level */
+	        "USER": string;
+	        /** Moderator level */
+	        "MODERATOR": string;
+	        /** Guest level */
+	        "GUEST": string;
+	    };
+	    /**
+	     * @public
+	     * @readonly
+	     * @enum {String}
+	     */
+	    static History: {
+	        /** Full bubble history is accessible for newcomers */
+	        "ALL": string;
+	        /** No history is accessible for newcomers, only new messages posted */
+	        "NONE": string;
+	    };
+	    /**
+	     * @description the creator (owner ) of the bubble.
+	     */
+	    ownerContact: Contact;
+	    owner: boolean;
 	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _avatarDomain?: String);
 	    /**
 	     * Method helper to know if room is a meeting
@@ -1973,7 +2012,7 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    isMeetingBubble(): boolean;
 	    getStatusForUser(userId: any): any;
-	    updateBubble(data: any): this;
+	    updateBubble(data: any, contactsService: any): Promise<this>;
 	    /**
 	     * @function
 	     * @public
@@ -1981,7 +2020,7 @@ declare module 'lib/common/models/Bubble' {
 	     * @description
 	     * This class is used to create a channel from data object
 	     */
-	    static BubbleFactory(avatarDomain: any): (data: any) => Bubble;
+	    static BubbleFactory(avatarDomain: any, contactsService: any): (data: any) => Bubble;
 	}
 	export { Bubble };
 
@@ -2005,7 +2044,8 @@ declare module 'lib/services/BubblesService' {
 	import { RESTService } from 'lib/connection/RESTService';
 	import { Bubble } from 'lib/common/models/Bubble';
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { Logger } from 'lib/common/Logger'; class Bubbles {
+	import { Logger } from 'lib/common/Logger';
+	import { ContactsService } from 'lib/services/ContactsService'; class Bubbles {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
 	    _bubbles: Bubble[];
@@ -2014,12 +2054,13 @@ declare module 'lib/services/BubblesService' {
 	    ready: boolean;
 	    private readonly _startConfig;
 	    private avatarDomain;
+	    private _contacts;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
@@ -2300,6 +2341,18 @@ declare module 'lib/services/BubblesService' {
 	     *  Get A Blob object with data about the avatar picture of the bubble.
 	     */
 	    getAvatarFromBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method refreshMemberAndOrganizerLists
+	     * @instance
+	     * @param {Bubble} bubble the bubble to refresh
+	     * @async
+	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+	     * @memberof Bubbles
+	     * @description
+	     *  Refresh members and organizers of the bubble.
+	     */
+	    refreshMemberAndOrganizerLists(bubble: any): void;
 	    /**
 	     * @public
 	     * @method getBubbleById
@@ -2602,6 +2655,16 @@ declare module 'lib/services/BubblesService' {
 	     *      Method called when the topic has changed for a bubble
 	     */
 	    _onTopicChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onPrivilegeBubbleChanged
+	     * @instance
+	     * @param {Object} bubbleInfo modified bubble info
+	     * @memberof Bubbles
+	     * @description
+	     *     Method called when the owner of a bubble changed.
+	     */
+	    _onPrivilegeBubbleChanged(bubbleInfo: any): Promise<void>;
 	    /**
 	     * @private
 	     * @method _onNameChanged

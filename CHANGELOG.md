@@ -40,7 +40,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add BubblesService::deleteCustomDataForBubble Delete the customData of the bubble
 -   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
 -   Add BubblesService::openConversationForBubble Open a conversation to a bubble
--   Add `rainbow_onmediapropose` event raised when a WEBRTC `propose` event is received for a media. It allows to know an incommingcall is arriving. 
+-   Add `rainbow_onmediapropose` event raised when a WEBRTC `propose` event is received for a media. It allows to know an incommingcall is arriving.
+-   Add in Bubble the property `owner`, boolean saying the connected user is the owner or not of the Bubble. 
+-   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble. 
+-   Add event `rainbow_onbubbleprivilegechanged` raised when a privilege is changed on a Bubble.
+-   Add method BubblesService::refreshMemberAndOrganizerLists called when treating a Bubble to fill members and organizers of a Bubble 
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.

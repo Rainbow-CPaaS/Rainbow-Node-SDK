@@ -365,7 +365,7 @@ class Core {
                     }).then(() => {
                         return  that._contacts.start(that._xmpp, that._rest, that._invitations, that._presence ) ;
                     }).then(() => {
-                       return that._bubbles.start(that._xmpp, that._rest) ;
+                       return that._bubbles.start(that._xmpp, that._rest, that._contacts) ;
                     }).then(() => {
                         return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
                     }).then(() => {

@@ -12,6 +12,7 @@ import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {atob} from "atob";
+import {ContactsService} from "./ContactsService";
 const Jimp = require('jimp');
 //import Jimp from "jimp";
 
@@ -48,6 +49,8 @@ class Bubbles {
         optional:boolean
     };
     private avatarDomain: string;
+    private _contacts: ContactsService;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -70,10 +73,11 @@ class Bubbles {
         this._eventEmitter.on("evt_internal_topicchanged", this._onTopicChanged.bind(this));
         this._eventEmitter.on("evt_internal_namechanged", this._onNameChanged.bind(this));
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
+        this._eventEmitter.on("evt_internal_privilegechanged", this._onPrivilegeBubbleChanged.bind(this));
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -81,6 +85,7 @@ class Bubbles {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
                 that._bubbles = [];
+                that._contacts = _contacts;
 /*
                 that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
                 that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
@@ -810,6 +815,16 @@ getAllActiveBubbles
      * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
      */
     promoteContactToModerator(contact, bubble) {
+        let that = this;
+        if (!contact) {
+            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter");
+            that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter");
+            that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return this.promoteContactInBubble(contact, bubble, true);
     }
 
@@ -826,6 +841,16 @@ getAllActiveBubbles
      * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
      */
     demoteContactFromModerator (contact, bubble) {
+        let that = this;
+        if (!contact) {
+            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter");
+            that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter");
+            that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return this.promoteContactInBubble(contact, bubble, false);
     }
 
@@ -860,9 +885,10 @@ getAllActiveBubbles
         return new Promise((resolve, reject) => {
 
             that._rest.changeBubbleOwner(bubble.id, contact.id).then((bubbleData : any ) => {
-                that._logger.log("info", LOG_ID + "(changeBubbleOwner) owner set", bubbleData.owner);
+                bubbleData = that.addOrUpdateBubbleToCache(bubbleData);
+                that._logger.log("info", LOG_ID + "(changeBubbleOwner) owner setted : ", bubbleData.owner);
                 bubble.owner = bubbleData.owner;
-                resolve(bubble);
+                resolve(bubbleData);
             }).catch((err) => {
                 that._logger.log("error", LOG_ID + "(changeBubbleOwner) error");
                 that._logger.log("internalerror", LOG_ID + "(changeBubbleOwner) error : ", err);
@@ -1091,18 +1117,21 @@ getAllActiveBubbles
 
     private addOrUpdateBubbleToCache(bubble : any): Bubble {
         let that = this;
-        let bubbleObj : Bubble = Bubble.BubbleFactory(that.avatarDomain)(bubble);
+        let bubbleObj : Bubble = Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubble);
         let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
             return channelIter.id === bubble.id;
         });
         if (bubbleFoundindex != -1) {
             this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
-            this._bubbles[bubbleFoundindex].updateBubble(bubble);
+            //this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
+            this._bubbles[bubbleFoundindex].updateBubble(bubble, that._contacts);
             //this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
-            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
+            this.refreshMemberAndOrganizerLists(this._bubbles[bubbleFoundindex]);
+            //this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
             bubbleObj = this._bubbles[bubbleFoundindex];
         } else {
             this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) add in cache bubbleObj : ", bubbleObj);
+            this.refreshMemberAndOrganizerLists(bubbleObj);
             this._bubbles.push(bubbleObj);
         }
         //this.updateChannelsList();
@@ -1182,6 +1211,32 @@ getAllActiveBubbles
 
     }
 
+    /**
+     * @private
+     * @method refreshMemberAndOrganizerLists
+     * @instance
+     * @param {Bubble} bubble the bubble to refresh
+     * @async
+     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+     * @memberof Bubbles
+     * @description
+     *  Refresh members and organizers of the bubble.
+     */
+    refreshMemberAndOrganizerLists (bubble) {
+        //Clear both lists :
+        bubble.organizers = [];
+        bubble.members = [];
+
+        bubble.users.forEach(function (user) {
+            if (user.status === Bubble.RoomUserStatus.ACCEPTED || user.status === Bubble.RoomUserStatus.INVITED || user.contact.jid === bubble.ownerContact.jid) {
+                if (user.privilege === Bubble.Privilege.MODERATOR) {
+                    bubble.organizers.push(user);
+                } else {
+                    bubble.members.push(user);
+                }
+            }
+        });
+    };
 
     /**
      * @public
@@ -2209,6 +2264,32 @@ getAllActiveBubbles
             that._eventEmitter.emit("evt_internal_bubbletopicchanged", bubble);
         });
     }
+
+    /**
+     * @private
+     * @method _onPrivilegeBubbleChanged
+     * @instance
+     * @param {Object} bubbleInfo modified bubble info
+     * @memberof Bubbles
+     * @description
+     *     Method called when the owner of a bubble changed.
+     */
+    async _onPrivilegeBubbleChanged(bubbleInfo) {
+        /*
+        let that = this;
+        let ownerContact = await that.getContactById(bubbleInfo.creator, false);
+         */
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(_onPrivilegeBubbleChanged) privilege changed for bubbleInfo : ", bubbleInfo);
+
+        this._rest.getBubble(bubbleInfo.bubbleId).then( (bubbleUpdated : any) => {
+            that._logger.log("internal", LOG_ID + "(_onPrivilegeBubbleChanged) privilege changed for bubble : ", bubbleUpdated.name);
+
+            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            that._eventEmitter.emit("evt_internal_bubbleprivilegechanged", {bubble, "privilege" : bubbleInfo.privilege});
+        });
+    }
+
 
     /**
      * @private
