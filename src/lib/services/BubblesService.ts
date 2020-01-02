@@ -1223,12 +1223,19 @@ getAllActiveBubbles
      *  Refresh members and organizers of the bubble.
      */
     refreshMemberAndOrganizerLists (bubble) {
+        let that = this;
+        if (!bubble) {
+            that._logger.log("debug", LOG_ID + "(refreshMemberAndOrganizerLists) bad or empty 'bubble' parameter.");
+            that._logger.log("internal", LOG_ID + "(refreshMemberAndOrganizerLists) bad or empty 'bubble' parameter : ", bubble);
+            return ErrorManager.getErrorManager().BAD_REQUEST;
+        }
+
         //Clear both lists :
         bubble.organizers = [];
         bubble.members = [];
 
         bubble.users.forEach(function (user) {
-            if (user.status === Bubble.RoomUserStatus.ACCEPTED || user.status === Bubble.RoomUserStatus.INVITED || user.contact.jid === bubble.ownerContact.jid) {
+            if (user.status === Bubble.RoomUserStatus.ACCEPTED || user.status === Bubble.RoomUserStatus.INVITED || user.jid_im === bubble.ownerContact.jid) {
                 if (user.privilege === Bubble.Privilege.MODERATOR) {
                     bubble.organizers.push(user);
                 } else {
