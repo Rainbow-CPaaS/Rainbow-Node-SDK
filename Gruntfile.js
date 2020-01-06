@@ -100,7 +100,7 @@ module.exports = function(grunt) {
             src: [
                 "lib/services/AdminService.js",
                 "lib/services/BubblesService.js",
-                 "lib/services/CallLogService.js",
+                "lib/services/CallLogService.js",
                 "lib/services/ChannelsService.js",
                 "lib/services/ContactsService.js",
                 "lib/services/ConversationsService.js",
