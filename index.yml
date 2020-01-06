@@ -1,6 +1,6 @@
 ---
 - SDK FOR NODEJS GUIDES:
-  - Changelog RSS: 'ref:doc/sdk/node/guides/CHANGELOGRSS.xml'
+  - Changelog RSS: 'ref:doc/sdk/node/api/ChangeLogRSS.md'
   - Getting started: 'ref:doc/sdk/node/guides/Getting_Started.md'
   - What's new ?: 'ref:doc/sdk/node/guides/What_is_new.md'
   - Connecting to Rainbow: 'ref:doc/sdk/node/guides/Connecting_to_Rainbow.md'

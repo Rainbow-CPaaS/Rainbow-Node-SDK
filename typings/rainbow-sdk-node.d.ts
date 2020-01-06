@@ -2020,7 +2020,7 @@ declare module 'lib/common/models/Bubble' {
 	     * @description
 	     * This class is used to create a channel from data object
 	     */
-	    static BubbleFactory(avatarDomain: any, contactsService: any): (data: any) => Bubble;
+	    static BubbleFactory(avatarDomain: any, contactsService: any): (data: any) => Promise<Bubble>;
 	}
 	export { Bubble };
 
@@ -2352,7 +2352,7 @@ declare module 'lib/services/BubblesService' {
 	     * @description
 	     *  Refresh members and organizers of the bubble.
 	     */
-	    refreshMemberAndOrganizerLists(bubble: any): void;
+	    refreshMemberAndOrganizerLists(bubble: any): any;
 	    /**
 	     * @public
 	     * @method getBubbleById
@@ -3488,11 +3488,12 @@ declare module 'lib/services/ConversationsService' {
 	    ready: boolean;
 	    private readonly _startConfig;
 	    private conversationsRetrievedFormat;
+	    private nbMaxConversations;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any, _conversationsRetrievedFormat: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any, _conversationsRetrievedFormat: any, _nbMaxConversations: any);
 	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _bubbles: BubblesService, _fileStorageService: FileStorageService, _fileServerService: FileServerService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
@@ -3515,6 +3516,8 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {String} ID of the conversation (dbId field)
 	     * @return {Conversation} Created conversation object
 	     */
+	    removeOlderConversations(conversations?: []): Promise<unknown>;
+	    sortFunction(aa: any, bb: any): number;
 	    /**
 	     * @private
 	     * @method
@@ -3524,7 +3527,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {String} conversationId of the conversation (id field)
 	     * @return {Promise}
 	     */
-	    deleteServerConversation(conversationId: any): Promise<void>;
+	    deleteServerConversation(conversationId: any): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
@@ -6683,6 +6686,7 @@ declare module 'lib/config/Options' {
 	        conversationsRetrievedFormat: string;
 	        storeMessages: boolean;
 	        copyMessage: boolean;
+	        nbMaxConversations: number;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -6867,7 +6871,7 @@ declare module 'lib/config/config' {
 	        sendMessageToConnectedUser: boolean;
 	        conversationsRetrievedFormat: string;
 	        storeMessages: boolean;
-	        copyMessage: boolean;
+	        nbMaxConversations: number;
 	    };
 	    mode: string;
 	    debug: boolean;

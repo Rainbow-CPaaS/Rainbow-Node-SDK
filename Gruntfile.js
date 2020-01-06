@@ -77,7 +77,7 @@ module.exports = function(grunt) {
             },
             files: [
                 {
-                    src: "CHANGELOG.md", dest:"build/CHANGELOGRSS.xml"
+                    src: "CHANGELOG.md", dest:"build/ChangeLogRSS.md"
                 }
                 /* ,
                 {

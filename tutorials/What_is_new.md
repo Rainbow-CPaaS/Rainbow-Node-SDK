@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 Some of the key highlights include:
 
 
-### SDK for Node.JS 1.65 - December 2019
+### SDK for Node.JS 1.65 - January 2019
 
 ---
 
@@ -38,7 +38,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
--   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/guides/CHANGELOGRSS.xml)
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS)
 -   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
 -   Typescript improvement.
 -   Add CDD methods in TelephonyService : logon, logoff, withdrawal, wrapup.
