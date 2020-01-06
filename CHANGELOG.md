@@ -45,6 +45,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble. 
 -   Add event `rainbow_onbubbleprivilegechanged` raised when a privilege is changed on a Bubble.
 -   Add method BubblesService::refreshMemberAndOrganizerLists called when treating a Bubble to fill members and organizers of a Bubble 
+-   Add the documentation for the CallLogService.
+-   Add a parameter `nbMaxConversations` to the initialization of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`. 
+-   Put async/await in treatment of  `BubblesService::addOrUpdateBubbleToCache`
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.

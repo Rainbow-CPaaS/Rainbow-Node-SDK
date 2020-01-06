@@ -281,7 +281,7 @@ class Bubble {
         public static BubbleFactory(avatarDomain, contactsService) {
 //     constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [],
 //     _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any) {
-            return (data: any): Bubble => {
+            return async (data: any): Promise<Bubble> => {
 
                 let bubble = new Bubble(
                     data.id,
@@ -318,8 +318,20 @@ class Bubble {
                             }
                         });
                     if (data.creator) {
-                        bubble.ownerContact = contactsService.getContactById(data.creator, false);
-                        bubble.owner = (bubble.ownerContact.jid === contactsService.userContact.jid);
+                        await contactsService.getContactById(data.creator, false).then((result) => {
+                            console.log("(BubbleFactory) getContactById : ", result);
+                            bubble.ownerContact = result;
+                            if (bubble.ownerContact) {
+                                if (bubble.ownerContact.jid === contactsService.userContact.jid) {
+                                    bubble.owner = true;
+                                } else {
+                                    console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
+                                    bubble.owner = false;
+                                }
+                            } else {
+                                console.log("(BubbleFactory) ownerContact empty.");
+                            }
+                        });
                     }
                 }
 

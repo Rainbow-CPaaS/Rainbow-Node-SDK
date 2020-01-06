@@ -1115,9 +1115,9 @@ getAllActiveBubbles
         return bubbleFound ;
     }
 
-    private addOrUpdateBubbleToCache(bubble : any): Bubble {
+    private async addOrUpdateBubbleToCache(bubble : any): Promise<Bubble> {
         let that = this;
-        let bubbleObj : Bubble = Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubble);
+        let bubbleObj : Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubble);
         let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
             return channelIter.id === bubble.id;
         });
@@ -1274,11 +1274,11 @@ getAllActiveBubbles
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound.jid);
             } else {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not found in memory, search in server id : ", id);
-                return that._rest.getBubble(id).then((bubbleFromServer) => {
+                return that._rest.getBubble(id).then(async (bubbleFromServer) => {
                     that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
                         //let bubble = Object.assign(new Bubble(), bubbleFromServer);
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
@@ -1332,11 +1332,11 @@ getAllActiveBubbles
                 that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubbleFound in memory : ", bubbleFound.jid);
             } else {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
-                return that._rest.getBubbleByJid(jid).then((bubbleFromServer) => {
+                return that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
                     that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
                         //let bubble = Object.assign(new Bubble(), bubbleFromServer);
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
@@ -2148,13 +2148,13 @@ getAllActiveBubbles
         that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) parameters : affiliation : ", affiliation);
 
         if (affiliation.status !== "deleted") {
-            await this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
+            await this._rest.getBubble(affiliation.bubbleId).then(async (bubbleUpdated : any) => {
                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
 
                 // Update the existing local bubble stored
                 let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                 if (foundIndex > -1) {
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                     //bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
                     //that._bubbles[foundIndex] = bubbleUpdated;
                     if (affiliation.status === "accepted") {
@@ -2170,7 +2170,7 @@ getAllActiveBubbles
                     }
                 }
                 else {
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
                     /*bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
                     that._bubbles.push(bubbleUpdated); // */
