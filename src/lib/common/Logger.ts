@@ -232,12 +232,21 @@ class Logger {
             try {
                 if (level === "internal" || level === "internalerror") {
                     if (logInternals === true) {
-                        level = (level === "internal") ? "debug" : "error";
+                        //level = (level === "internal") ? "debug" : "error";
                         let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
 
                         // dev-code //
-                        datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
-                        that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                        if ( level === "internal") {
+                            level = "debug";
+                            datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
+                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                        }
+                        else
+                            if (level === "internalerror") {
+                                level = "error";
+                                datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
+                                that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                            }
                         // end-dev-code //
                     }
                 } else {
@@ -386,12 +395,12 @@ class Logger {
     argumentsToStringFull (v) {
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
-        /*for(let k in args){
+        for(let k in args){
             if (typeof args[k] === "object"){
                 // args[k] = JSON.stringify(args[k]);
                 args[k] = util.inspect(args[k], false, null, true);
             }
-        } //*/
+        } // */
         let str = args.join(" ");
         return str;
     }

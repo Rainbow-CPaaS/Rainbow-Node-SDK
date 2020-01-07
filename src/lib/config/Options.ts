@@ -267,7 +267,8 @@ class Options {
             conversationsRetrievedFormat: "small",
             storeMessages: false,
             copyMessage: false,
-            nbMaxConversations: 15
+            nbMaxConversations: 15,
+            rateLimitPerHour: 100
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -283,6 +284,7 @@ class Options {
         optionsIM.storeMessages = this._options.im.storeMessages ? this._options.im.storeMessages : config.im.storeMessages;
         optionsIM.copyMessage = this._options.im.copyMessage ? this._options.im.copyMessage : config.im.copyMessage;
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
+        optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
 
         return optionsIM;
     }

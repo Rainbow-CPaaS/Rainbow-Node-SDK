@@ -54,7 +54,8 @@ let options = {
         "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
         "storeMessages": false,
-        "nbMaxConversations": 15
+        "nbMaxConversations": 15,
+        "rateLimitPerHour": 100
     },
 
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.

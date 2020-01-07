@@ -128,6 +128,7 @@ class XMPPService {
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
     private copyMessage: boolean;
+    private rateLimitPerHour: number;
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -148,6 +149,7 @@ class XMPPService {
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
+        this.rateLimitPerHour = _im.rateLimitPerHour;
         this.useXMPP = true;
         this.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
         this.isReconnecting = false;
@@ -208,7 +210,7 @@ class XMPPService {
             }); //"domain": domain,
 // */
 
-            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages);
+            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour);
 
             //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
             this.reconnect = this.xmppClient.reconnect;

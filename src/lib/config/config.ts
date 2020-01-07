@@ -67,7 +67,8 @@ let conf =  {
             This hint MUST only be included on messages addressed to full JIDs and explicitly does not override the behaviour defined in XMPP IM [1] for handling messages to bare JIDs,
             which may involve copying to multiple resources, or multiple occupants in a Multi-User Chat (XEP-0045) [6] room.
         // */
-        nbMaxConversations: 15
+        nbMaxConversations: 15,
+        rateLimitPerHour: 100
     },
     mode:"xmpp",
     debug:true,

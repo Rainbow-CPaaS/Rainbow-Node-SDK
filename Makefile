@@ -15,4 +15,4 @@ doc:
 	cp index.yml doc/sdk/node && \
 	cp sitemap.xml doc/sdk/node
 
-#	cp build/*.xml doc/sdk/node/guides 
+#	cp build/*.xml doc/sdk/node/guides
