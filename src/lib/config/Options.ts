@@ -268,7 +268,7 @@ class Options {
             storeMessages: false,
             copyMessage: false,
             nbMaxConversations: 15,
-            rateLimitPerHour: 100
+            rateLimitPerHour: 1000
         };
 
         if (!("sendReadReceipt" in this._options.im)) {

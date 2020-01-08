@@ -56,7 +56,7 @@ class XmppClient  {
         this.restartConnectEnabled = true;
         this.client = client(...args);
         this.nbMessagesSentThisHour = 0;
-        this.timeBetweenReset = 1000 * 20/* * 60 * 60*/ ;
+        this.timeBetweenReset = 1000 * 60 * 60 ; // */ 
 
         this.iqGetEventWaiting = {};
 
@@ -189,9 +189,12 @@ class XmppClient  {
 
                     // test the rate-limit
                     if (this.nbMessagesSentThisHour > that.rateLimitPerHour) {
-                        let timeToWaitBeforeNextMessageAvabilityMs = that.timeBetweenReset - new Date().getTime() - that.lastTimeReset.getTime();
+                        let timeWhenRateLimitPerHourHappens = new Date().getTime();
+                        let timeToWaitBeforeNextMessageAvabilityMs = that.timeBetweenReset - (timeWhenRateLimitPerHourHappens - that.lastTimeReset.getTime());
                         let error = {
                             "errorCode": -1,
+                            "timeWhenRateLimitPerHourHappens": timeWhenRateLimitPerHourHappens,
+                            "nbMessagesSentThisHour" : this.nbMessagesSentThisHour,
                             "rateLimitPerHour": that.rateLimitPerHour,
                             "timeToWaitBeforeNextMessageAvabilityMs": timeToWaitBeforeNextMessageAvabilityMs,
                             "label": "error number of sent messages is over the rate limit.",
@@ -242,9 +245,14 @@ class XmppClient  {
         }).catch(async(err) => {
             that.logger.log("debug", LOG_ID + "(send) catch an error during sending! ", err);
 
+            // if the error is the exceed of maximum message by a time laps then do not reconnecte
+            if (err && err.errorCode === -1 ) {
+                //return Promise.resolve();
+                throw  err;
+                //return ;
+            }
 
             that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
-
             await that.restartConnect().then((res) => {
                 that.logger.log("debug", LOG_ID + "(send) restartConnect result : ", res);
             }).catch((errr) => {
