@@ -48,7 +48,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add the documentation for the CallLogService.
 -   Add a parameter `nbMaxConversations` to the initialization of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`. 
 -   Put async/await in treatment of  `BubblesService::addOrUpdateBubbleToCache`
--   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour
+-   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour. Default value is 1000.
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.

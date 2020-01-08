@@ -19,7 +19,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Breaking Changes**
 
--   Add a parameter `nbMaxConversations` to the initialization SDK of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`. 
+-   Add a parameter `nbMaxConversations` to the initialization SDK of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+-   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour. Default value is 1000. 
 
 **API Changes**
 
