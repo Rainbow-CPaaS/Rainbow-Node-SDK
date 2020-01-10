@@ -319,7 +319,7 @@ class Bubble {
                         });
                     if (data.creator) {
                         await contactsService.getContactById(data.creator, false).then((result) => {
-                            console.log("(BubbleFactory) getContactById : ", result);
+                            //console.log("(BubbleFactory) getContactById : ", result);
                             bubble.ownerContact = result;
                             if (bubble.ownerContact) {
                                 if (bubble.ownerContact.jid === contactsService.userContact.jid) {
