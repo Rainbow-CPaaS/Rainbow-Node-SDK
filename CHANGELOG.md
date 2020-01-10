@@ -9,6 +9,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.66.0] - 2020-01-XX
 -   Add.
 
+## [1.65.2] - 2020-01-10
+-   remove an unwanted log
+
+## [1.65.1] - 2020-01-09
+-   remove an unwanted log
+
 ## [1.65.0] - 2020-01-08
 -   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
 -   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
