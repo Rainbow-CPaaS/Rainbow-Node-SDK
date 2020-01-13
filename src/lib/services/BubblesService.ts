@@ -400,12 +400,12 @@ class Bubbles {
                     that._logger.log("info", LOG_ID + "(closeBubble) all users have been unsubscribed from bubble. Bubble is closed");
 
                     that.removeContactFromBubble({id: that._rest.userId}, bubble).then(() => {
-                        that._rest.getBubble(bubble.id).then(function (bubbleUpdated: any) {
+                        that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
 
                             //
 
                             // Update the existing local bubble stored
-                            let bubbleReturned = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubbleReturned = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
@@ -606,9 +606,9 @@ class Bubbles {
                 that._logger.log("info", LOG_ID + "(inviteContactToBubble) invitation successfully sent");
 
                 return that._rest.getBubble(bubble.id);
-            }).then(function(bubbleReUpdated : any) {
+            }).then(async (bubbleReUpdated : any) => {
 
-                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
 
                 /*
                 // Update the existing local bubble stored
@@ -663,8 +663,8 @@ class Bubbles {
             return that._rest.inviteContactsByEmailsToBubble(contactsEmails, bubble.id).then(function () {
                 that._logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) invitation successfully sent");
                 return that._rest.getBubble(bubble.id);
-            }).then(function (bubbleReUpdated: any) {
-                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+            }).then(async (bubbleReUpdated: any) => {
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
                 resolve(bubble);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(inviteContactsByEmailsToBubble) error");
@@ -780,10 +780,10 @@ getAllActiveBubbles
                 that._logger.log("info", LOG_ID + "(promoteContactInBubble) user privilege successfully sent");
 
                 return that._rest.getBubble(bubble.id);
-            }).then(function(bubbleReUpdated : any) {
+            }).then(async (bubbleReUpdated : any) => {
 
                 // Update the existing local bubble stored
-                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
                 /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
                 if ( foundIndex > -1) {
                     bubbleReUpdated = Object.assign(that._bubbles[foundIndex], bubbleReUpdated);
@@ -884,8 +884,8 @@ getAllActiveBubbles
 
         return new Promise((resolve, reject) => {
 
-            that._rest.changeBubbleOwner(bubble.id, contact.id).then((bubbleData : any ) => {
-                bubbleData = that.addOrUpdateBubbleToCache(bubbleData);
+            that._rest.changeBubbleOwner(bubble.id, contact.id).then(async (bubbleData : any ) => {
+                bubbleData = await that.addOrUpdateBubbleToCache(bubbleData);
                 that._logger.log("info", LOG_ID + "(changeBubbleOwner) owner setted : ", bubbleData.owner);
                 bubble.owner = bubbleData.owner;
                 resolve(bubbleData);
@@ -946,9 +946,9 @@ getAllActiveBubbles
                     that._rest.removeInvitationOfContactToBubble(contact.id, bubble.id).then(function() {
                         that._logger.log("info", LOG_ID + "(removeContactFromBubble) removed successfully");
 
-                        that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                        that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
                             // Update the existing local bubble stored
-                            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
@@ -970,10 +970,10 @@ getAllActiveBubbles
                     that._rest.unsubscribeContactFromBubble(contact.id, bubble.id).then(function() {
                         that._logger.log("debug", LOG_ID + "(removeContactFromBubble) removed successfully");
 
-                        that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                        that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
 
                             // Update the existing local bubble stored
-                            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
@@ -1016,8 +1016,8 @@ getAllActiveBubbles
 
                 //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
                 that._bubbles = [];
-                listOfBubbles.map( (bubble) => {
-                    that.addOrUpdateBubbleToCache(bubble);
+                listOfBubbles.map(async (bubble) => {
+                    await that.addOrUpdateBubbleToCache(bubble);
                 });
                 that._logger.log("info", LOG_ID + "(getBubbles) get successfully");
                 let prom = [];
@@ -1283,7 +1283,7 @@ getAllActiveBubbles
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                            that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            await that._xmpp.sendInitialBubblePresence(bubble.jid);
                         } else {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
@@ -1341,7 +1341,7 @@ getAllActiveBubbles
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) send initial presence to room : ", bubble.jid);
-                            that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            await that._xmpp.sendInitialBubblePresence(bubble.jid);
                         } else {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
@@ -1457,9 +1457,9 @@ getAllActiveBubbles
             that._rest.acceptInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
                 that._logger.log("info", LOG_ID + "(acceptInvitationToJoinBubble) invitation accepted", invitationStatus);
 
-                that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
                     // Update the existing local bubble stored
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                     /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                     if ( foundIndex > -1) {
                         bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1508,9 +1508,9 @@ getAllActiveBubbles
             that._rest.declineInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
                 that._logger.log("info", LOG_ID + "(declineInvitationToJoinBubble) invitation declined : ", invitationStatus);
 
-                that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
                     // Update the existing local bubble stored
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                     /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                     if ( foundIndex > -1) {
                         bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1582,11 +1582,11 @@ getAllActiveBubbles
                 } catch (err) {
                     this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.");
                     this._logger.log("internal", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.", err);
-                    that._rest.getBubble(bubble.id).then((bubbleUpdated: any) => {
+                    that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
 
                         that._logger.log("internal", LOG_ID + "(setBubbleCustomData) Custom data in bubble retrieved from server : ", bubbleUpdated.name + " | " + bubbleUpdated.customData);
 
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
                         /*// Update the existing local bubble stored
                         let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2074,11 +2074,11 @@ getAllActiveBubbles
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
-        this._rest.getBubble(invitation.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
             that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Store the new bubble
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2110,11 +2110,11 @@ getAllActiveBubbles
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) affiliation : ", affiliation);
 
-        await this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
+        await this._rest.getBubble(affiliation.bubbleId).then( async (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble.");
             that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble : ", bubbleUpdated, ", affiliation : ", affiliation);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2220,11 +2220,11 @@ getAllActiveBubbles
     _onCustomDataChanged(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated : any) => {
 
             that._logger.log("internal", LOG_ID + "(_onCustomDataChanged) Custom data changed for bubble : ", bubbleUpdated.name + " | " + data.customData);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2253,10 +2253,10 @@ getAllActiveBubbles
     _onTopicChanged(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("internal", LOG_ID + "(_onTopicChanged) Topic changed for bubble : ", bubbleUpdated.name + " | " + data.topic);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
@@ -2289,10 +2289,10 @@ getAllActiveBubbles
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onPrivilegeBubbleChanged) privilege changed for bubbleInfo : ", bubbleInfo);
 
-        this._rest.getBubble(bubbleInfo.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(bubbleInfo.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("internal", LOG_ID + "(_onPrivilegeBubbleChanged) privilege changed for bubble : ", bubbleUpdated.name);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
             that._eventEmitter.emit("evt_internal_bubbleprivilegechanged", {bubble, "privilege" : bubbleInfo.privilege});
         });
     }
@@ -2310,10 +2310,10 @@ getAllActiveBubbles
     _onNameChanged(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("internal", LOG_ID + "(_onNameChanged) Name changed for bubble : ", bubbleUpdated.name + " | " + data.name);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
