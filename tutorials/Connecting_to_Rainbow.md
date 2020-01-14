@@ -49,13 +49,13 @@ let options = {
     },
     // IM options
     "im": {
-        "sendReadReceipt": true,
-        "messageMaxLength": 1024,
-        "sendMessageToConnectedUser": false,
-        "conversationsRetrievedFormat": "small",
-        "storeMessages": false,
-        "nbMaxConversations": 15,
-        "rateLimitPerHour": 100
+        "sendReadReceipt": true, // If it is setted to true (default value), the 'read' receipt is sent automatically to the sender when the message is received so that the sender knows that the message as been read.
+        "messageMaxLength": 1024, // the maximum size of IM messages sent. Note that this value must be under 1024.
+        "sendMessageToConnectedUser": false, // When it is setted to false it forbid to send message to the connected user. This avoid a bot to auto send messages.
+        "conversationsRetrievedFormat": "small", // It allows to set the quantity of datas retrieved when SDK get conversations from server. Value can be "small" of "full"
+        "storeMessages": false, // Define a server side behaviour with the messages sent. When true, the messages are stored, else messages are only available on the fly. They can not be retrieved later.
+        "nbMaxConversations": 15, // parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are removed from XMPP server. They are not destroyed. The can be activated again with a send to the conversation again.
+        "rateLimitPerHour": 1000 // Set the maximum count of stanza messages of type `message` sent during one hour. The counter is started at startup, and reseted every hour. 
     },
 
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
