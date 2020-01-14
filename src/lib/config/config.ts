@@ -68,7 +68,7 @@ let conf =  {
             which may involve copying to multiple resources, or multiple occupants in a Multi-User Chat (XEP-0045) [6] room.
         // */
         nbMaxConversations: 15,
-        rateLimitPerHour: 100
+        rateLimitPerHour: 1000
     },
     mode:"xmpp",
     debug:true,
