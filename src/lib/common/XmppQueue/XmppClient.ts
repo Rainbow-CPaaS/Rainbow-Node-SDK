@@ -56,7 +56,7 @@ class XmppClient  {
         this.restartConnectEnabled = true;
         this.client = client(...args);
         this.nbMessagesSentThisHour = 0;
-        this.timeBetweenReset = 1000 * 60 * 60 ; // */ 
+        this.timeBetweenReset = 1000 * 60 * 60 ; // */
 
         this.iqGetEventWaiting = {};
 
@@ -408,6 +408,11 @@ Element.prototype.find = function (name) { // Warning do not put an Array functi
 // Shortcut to getText
 Element.prototype.text = function () {
     return this.getText();
+};
+
+// Shortcut to attrs
+Element.prototype.attr = function (attrName) {
+    return this.attrs[attrName];
 };
 
 module.exports.getXmppClient = getXmppClient;
