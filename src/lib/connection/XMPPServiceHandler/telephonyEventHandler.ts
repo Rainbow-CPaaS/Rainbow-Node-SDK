@@ -295,7 +295,7 @@ class TelephonyEventHandler extends GenericHandler {
         this.onInitiatedEvent = function (initiatedElem) {
             that.logger.log("internal", LOG_ID + "(onInitiatedEvent) _entering_ : ", initiatedElem);
             return that.getCall(initiatedElem)
-                .then(function (call) {
+                .then(function (call : Call) {
                     try {
                         /*if (call.status === Call.Status.QUEUED_INCOMING) {
                             return Promise.resolve();
@@ -692,6 +692,14 @@ class TelephonyEventHandler extends GenericHandler {
                 let deviceType = transferElem.find("deviceType");
                 return that.getOrCreateCall(newConnectionId, jid, deviceType, phoneNumber)
                     .then(function (newCall) {
+                        let globalCallId = transferElem.attr("globalCallId");
+                        if (globalCallId) {
+                            newCall.setGlobalCallId(globalCallId);
+                        }
+                        let correlatorData = transferElem.attr("globalCallId");
+                        if (correlatorData) {
+                            newCall.correlatorData = correlatorData;
+                        }
                         if (deviceState && deviceState === "LCI_ALERTING") {
                             newCall.setStatus(Call.Status.RINGING_INCOMING);
                         }
@@ -1144,6 +1152,8 @@ class TelephonyEventHandler extends GenericHandler {
             let cause = elem.attr("cause");
             let deviceState = elem.attr("deviceState");
             let type = elem.attr("type");
+            let globalCallId = elem.attr("globalCallId");
+            let correlatorData = elem.attr("correlatorData");
 
             if (!connectionId) {
                 connectionId = elem.getAttr("heldCallId");
@@ -1158,6 +1168,8 @@ class TelephonyEventHandler extends GenericHandler {
                 cause? : string,
                 deviceState? : string,
                 type? : string,
+                globalCallId?: string,
+                correlatorData?: string
             } = {};
             if (connectionId != null) {
                 updatedinformations.connectionId = connectionId;
@@ -1181,6 +1193,13 @@ class TelephonyEventHandler extends GenericHandler {
                 updatedinformations.cause = type;
             }
 
+            if (globalCallId != null) {
+                updatedinformations.globalCallId = globalCallId;
+            }
+
+            if (correlatorData != null) {
+                updatedinformations.correlatorData = correlatorData;
+            }
 
             callObj.updateCall(updatedinformations);
             // */

@@ -34,6 +34,8 @@ class Call {
     static Type: { PHONE: { value: string; key: number }; WEBRTC: { value: string; key: number } };
     public jid: undefined;
     public phoneNumber: undefined;
+    public globalCallId;
+    public correlatorData;
 
     // Static factories
     static create (status, id, type, contact, deviceType) {
@@ -203,6 +205,20 @@ class Call {
          * @readonly
          */
         this.phoneNumber = undefined;
+
+        /**
+         * @public
+         * @property {String} globalCallId a global id when the call go thrue PBX Node.
+         * @readonly
+         */
+        this.globalCallId = undefined;
+
+        /**
+         * @public
+         * @property {String} correlatorData Data about a call.
+         * @readonly
+         */
+        this.correlatorData = undefined;
     }
 
     getCause() {
@@ -266,6 +282,14 @@ class Call {
         this.participants.forEach(function (participant) {
             that.avatars.push(participant.avatar.src);
         });
+    }
+
+    getGlobalCallId(): undefined {
+        return this.globalCallId;
+    }
+
+    setGlobalCallId(value: undefined) {
+        this.globalCallId = value;
     }
 
     getCurrentCalled  () {
@@ -335,7 +359,7 @@ class Call {
                     if (callproperties.find((el) => { return val == el ;})) {
                         that[val] = data[val];
                     } else {
-                        console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ");
+                        console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ", val);
                     }
                 });
         }
