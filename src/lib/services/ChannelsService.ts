@@ -749,7 +749,7 @@ class Channels {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        if (type && ["basic, markdown, html, data"].indexOf(type) === -1) {
+        if (type && ["basic", "markdown", "html", "data"].indexOf(type) === -1) {
             this._logger.log("warn", LOG_ID + "(createItem) bad or empty 'type' parameter ", type, " \"Parameter 'type' could be 'basic', 'markdown', 'html' or 'data'\"");
             return Promise.reject(ErrorManager);
         }
