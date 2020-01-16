@@ -29,10 +29,10 @@ Once started, you can have access to your account information using the property
 ```js
 
 ...
-nodeSDK.events.on("rainbow_onready", () => {
+rainbowSDK.events.on("rainbow_onready", () => {
     
     // Get your account information
-    let account = nodeSDK.connectedUser;
+    let account = rainbowSDK.connectedUser;
     
     // Do something with your information
     ...    
@@ -127,10 +127,10 @@ The fixed list of contacts of the connected user can be retrieved using the API 
 
 ```js
 
-nodeSDK.events.on("rainbow_onready", () => {
+rainbowSDK.events.on("rainbow_onready", () => {
 
     // Get your network's list of contacts
-    let contacts = nodeSDK.contacts.getAll();
+    let contacts = rainbowSDK.contacts.getAll();
     
     // Do something with this list
     ...
@@ -249,7 +249,7 @@ Each time the availability of a contact changes (in fact, each time the availabi
 
 ```js
 
-nodeSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
+rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
     // Do something when the availability changes for this contact
     ...
 });
@@ -269,7 +269,7 @@ Use the API `getContactById()` like in the following:
 
 ```js
 
-nodeSDK.contacts.getContactById("570e12832d768e9b52a8b7ea").then((contact) => {
+rainbowSDK.contacts.getContactById("570e12832d768e9b52a8b7ea").then((contact) => {
     if(contact) {
         // Do something with the contact found
         ...
@@ -298,7 +298,7 @@ Use the API `getContactByJid()` to find a user by his `jid`:
 
 ```js
 
-nodeSDK.contacts.getContactByJid("d29f69b505074c83a8aadc555f99a713@sandbox-all-in-one-prod-1.opentouch.cloud").then((contact) => {
+rainbowSDK.contacts.getContactByJid("d29f69b505074c83a8aadc555f99a713@sandbox-all-in-one-prod-1.opentouch.cloud").then((contact) => {
     if(contact) {
         // Do something with the contact found
         ...
@@ -329,7 +329,7 @@ Use the API `getContactByLoginEmail()` like in the following:
 
 ```js
 
-nodeSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
+rainbowSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) => {
     if(contact) {
         // Do something with the contacts found
         ...

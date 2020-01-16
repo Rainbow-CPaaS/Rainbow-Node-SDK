@@ -41,7 +41,7 @@ let userPassword = "********";
 let userFirstname = "John";
 let userLastname = "Doe";
 
-nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname).then((user) => {
+rainbowSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname).then((user) => {
     // Do something when the user has been created and added to that company
     ...
 }).catch((err) => {
@@ -63,7 +63,7 @@ let userFirstname = "John";
 let userLastname = "Doe";
 let companyId = "5978e048f8abe8ad97357f06"; // The target company
 
-nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, companyId,"FR", false, null).then((user) => {
+rainbowSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, companyId,"FR", false, null).then((user) => {
     // Do something when the user has been created and added to that company
     ...
 }).catch((err) => {
@@ -95,7 +95,7 @@ let userLastname = "Dupont";
 let companyId = null;
 let language = "fr-FR";
 
-nodeSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, null, language, false, null).then((user) => {
+rainbowSDK.admin.createUserInCompany(userEmailAccount, userPassword, userFirstname, userLastname, null, language, false, null).then((user) => {
     // Do something when the user has been created and added to that company
     ...
 }).catch((err) => {
@@ -148,7 +148,7 @@ let guestLastname = "Dupont";
 let language = "en-US";
 let ttl = 86400 // active for a day
 
-nodeSDK.admin.createGuestUser(guestFirstname, guestLastname, language, ttl).then((guest) => {
+rainbowSDK.admin.createGuestUser(guestFirstname, guestLastname, language, ttl).then((guest) => {
     // Do something when the guest has been created and added to that company
     ...
 }).catch((err) => {
@@ -173,7 +173,7 @@ You can create anonymous guest by calling the API `createAnonymousGuestUser()` l
 
 let ttl = 86400 // active for a day
 
-nodeSDK.admin.createAnonymousGuestUser(ttl).then((guest) => {
+rainbowSDK.admin.createAnonymousGuestUser(ttl).then((guest) => {
     // Do something when the anonymous guest has been created and added to that company
     ...
 }).catch((err) => {
@@ -234,7 +234,7 @@ Sending an invitation to join a company in Rainbow can be done by calling the AP
 let userEmailAccount = "joe.smith@myCompany.com";
 let companyId = "5978e048f8abe8ad97357f06";
 
-nodeSDK.admin.inviteUserInCompany(userEmailAccount, companyId).then((inviteSent) => {
+rainbowSDK.admin.inviteUserInCompany(userEmailAccount, companyId).then((inviteSent) => {
     // Do something with the invite sent
     ...
 }).catch((err) => {
@@ -259,7 +259,7 @@ let userEmailAccount = "paul.durand@myCompany.com";
 let companyId = "5978e048f8abe8ad97357f06";
 let language = "fr-FR;
 
-nodeSDK.admin.inviteUserInCompany(userEmailAccount, companyId, language).then((inviteSent) => {
+rainbowSDK.admin.inviteUserInCompany(userEmailAccount, companyId, language).then((inviteSent) => {
     // Do something with the invite sent
     ...
 }).catch((err) => {
@@ -285,7 +285,7 @@ let companyId = "5978e048f8abe8ad97357f06";
 let language = "en-US;
 let customMessage = "Dear Mark, hope you will like it!, Franck";
 
-nodeSDK.admin.inviteUserInCompany(userEmailAccount, companyId, language, customMessage).then((inviteSent) => {
+rainbowSDK.admin.inviteUserInCompany(userEmailAccount, companyId, language, customMessage).then((inviteSent) => {
     // Do something with the invite sent
     ...
 }).catch((err) => {
@@ -312,7 +312,7 @@ The password of a user or a Guest can be changed by calling the API `changePassw
 let userId = "5978e1a3f8abe8ad97357f09";
 let newPassword = "************";
 
-nodeSDK.admin.changePasswordForUser(userId, newPassword).then((user) => {
+rainbowSDK.admin.changePasswordForUser(userId, newPassword).then((user) => {
     // Do something when the password has been changed
     ...
 }).catch((err) => {
@@ -342,7 +342,7 @@ let objData = {
     "jobTitle": "Software developer"
 };
 
-nodeSDK.admin.updateInformationForUser(objData, userId).then((user) => {
+rainbowSDK.admin.updateInformationForUser(objData, userId).then((user) => {
     // Do something when the information has been changed
     ...
 }).catch((err) => {
@@ -365,7 +365,7 @@ let objData = {
     "timezone": "America/New_York"  // IANA tz database based on Area/Location
 };
 
-nodeSDK.admin.updateInformationForUser(objData, userId).then((user) => {
+rainbowSDK.admin.updateInformationForUser(objData, userId).then((user) => {
     // Do something when the information has been changed
     ...
 }).catch((err) => {
@@ -399,7 +399,7 @@ let objData = {
     ]
 };
 
-nodeSDK.admin.updateInformationForUser(objData, userId).then((user) => {
+rainbowSDK.admin.updateInformationForUser(objData, userId).then((user) => {
     // Do something when the information has been changed
     ...
 }).catch((err) => {
@@ -419,7 +419,7 @@ Users and Guests can be deleted by calling the API `deleteUser()` like in that c
 
 let userId = "5978e1a3f8abe8ad97357f09";
 
-nodeSDK.admin.deleteUser(userId).then((user) => {
+rainbowSDK.admin.deleteUser(userId).then((user) => {
     // Do something when the user has been deleted
     ...
 }).catch((err) => {

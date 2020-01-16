@@ -533,7 +533,7 @@ When a request to join a bubble is received from someone, you can accept it by c
 ...
 rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
     // Accept this invitation
-    nodeSDK.bubbles.acceptInvitationToJoinBubble(bubble).then(function(updatedBubble) => {
+    rainbowSDK.bubbles.acceptInvitationToJoinBubble(bubble).then(function(updatedBubble) => {
         // Do something once the invitation has been accepted
         ...
     }).catch((err) => {
@@ -559,7 +559,7 @@ You can decline a request to join a bubble by calling the API `declineInvitation
 ...
 rainbowSDK.events.on('rainbow_onbubbleinvitationreceived', function(bubble) {
     // Accept this invitation
-    nodeSDK.bubbles.declineInvitationToJoinBubble(jsonMessage).then(function(updatedBubble) => {
+    rainbowSDK.bubbles.declineInvitationToJoinBubble(jsonMessage).then(function(updatedBubble) => {
         // Do something once the invitation has been declined
         ...
     }).catch((err) => {
@@ -580,7 +580,7 @@ At anytime, you can get the list of pending invitations by calling the API `getA
 ```js
 
 ...
-    let pendingBubbles = nodeSDK.bubbles.getAllPendingBubbles();
+    let pendingBubbles = rainbowSDK.bubbles.getAllPendingBubbles();
     // Do something with this list
     ...
 });
