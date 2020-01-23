@@ -1212,6 +1212,46 @@ class RESTService {
         });
     };
 
+    /**
+     * Method retrieveWebConferences
+     * @public
+     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
+     * @memberof WebConferenceService
+     */
+    retrieveWebConferences(mediaType: string = this.MEDIATYPE.WEBRTC): Promise<any> {
+        let that = this;
+        that.logger.log("info", LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
+        return new Promise((resolve, reject) => {
+            let urlQueryParameters = "?format=full&userId=" + that.userId;
+
+            if (mediaType) {
+                urlQueryParameters += "&mediaType=" + mediaType;
+            }
+
+            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences" + urlQueryParameters, that.getRequestHeader(), undefined)
+            /* this.$http({
+                method: "GET",
+                url: this.confProvPortalURL + "conferences" + urlQueryParameters,
+                headers: this.authService.getRequestHeader()
+            }) // */
+                // Handle success response
+                .then((response) => {
+                        let conferencesProvisionData = response;
+                        that.logger.log("info", LOG_ID + "(WebConferenceService) retrieveWebConferences successfully");
+                        that.logger.log("internal", LOG_ID + "(WebConferenceService) retrieveWebConferences successfully : ", conferencesProvisionData);
+                        resolve(conferencesProvisionData.data);
+                    },
+                    (response) => {
+                        let msg = response.data ? response.data.errorDetails : response.data;
+                        let errorMessage = "retrieveWebConferences failure: " + msg;
+                        that.logger.log("error", LOG_ID + "(WebConferenceService) error : " + errorMessage);
+                        reject(new Error(errorMessage));
+                    });
+        });
+    };
+
+
     /*
     ownerUpdateRoomCustomData (roomData) {
         let that = this;

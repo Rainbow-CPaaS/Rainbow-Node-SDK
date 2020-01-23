@@ -227,7 +227,7 @@ class Core {
             self._rest.applicationToken = token;
         });
 
-        self._eventEmitter.iee.on("rainbow_onxmpperror", async (err) => {
+        self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop le SDK : ", err);
             await self._stateManager.transitTo(self._stateManager.ERROR, err);
             await self.stop().then(function(result) {
@@ -365,7 +365,7 @@ class Core {
                     }).then(() => {
                         return  that._contacts.start(that._xmpp, that._rest, that._invitations, that._presence ) ;
                     }).then(() => {
-                       return that._bubbles.start(that._xmpp, that._rest, that._contacts) ;
+                       return that._bubbles.start(that._xmpp, that._rest, that._contacts, that._profiles) ;
                     }).then(() => {
                         return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
                     }).then(() => {

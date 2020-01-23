@@ -13,6 +13,7 @@ import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {atob} from "atob";
 import {ContactsService} from "./ContactsService";
+import {ProfilesService} from "./ProfilesService";
 const Jimp = require('jimp');
 //import Jimp from "jimp";
 
@@ -50,6 +51,7 @@ class Bubbles {
     };
     private avatarDomain: string;
     private _contacts: ContactsService;
+    private _profileService: any;
 
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
@@ -77,7 +79,7 @@ class Bubbles {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService) {
+    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -86,6 +88,7 @@ class Bubbles {
                 that._rest = _rest;
                 that._bubbles = [];
                 that._contacts = _contacts;
+                that._profileService = _profileService;
 /*
                 that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
                 that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
@@ -677,7 +680,7 @@ class Bubbles {
     joinConference( bubble) {
         let that = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(async function(resolve, reject) {
             that._logger.log("internal", LOG_ID + "(joinConference) arguments : ", ...arguments);
 
              if (!bubble || !bubble.id) {
@@ -710,8 +713,29 @@ getAllActiveBubbles
                 return;
             } // */
 
-             that._rest.joinConference(bubble.id, "moderator").then(function(joinResult : any) {
+            if (!bubble || !bubble.confEndpoints) {
+                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter");
+                that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter : ", bubble);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
 
+            let mediaType = bubble.mediaType;
+            if (!that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED) && mediaType !== that._rest.MEDIATYPE.WEBRTCSHARINGONLY) {
+                that._logger.log("warn", LOG_ID + "(WebConferenceService) retrieveWebConferences - user is not allowed");
+                reject(new Error("notAllowed"));
+                return;
+            }
+
+            let endpoint = await that._rest.retrieveWebConferences(mediaType);
+            let confEndPoints = null;
+                confEndPoints = endpoint;
+            let confEndPointId = null;
+            if (confEndPoints.length === 1 && confEndPoints[0].mediaType === that._rest.MEDIATYPE.WEBRTC) {
+                confEndPointId = confEndPoints[0].id;
+            }
+
+             that._rest.joinConference(confEndPointId, "moderator").then(function(joinResult : any) {
                 resolve(joinResult);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(joinConference) error");

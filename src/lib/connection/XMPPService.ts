@@ -902,19 +902,31 @@ class XMPPService {
                 }
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " |", util.inspect(err.condition || err));
                 that.stopIdleTimer();
-                if (that.reconnect) {
-                    if (err.condition === "system-shutdown" && err.condition != "conflict" ) {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait 10 seconds before try to reconnect");
-                        await setTimeoutPromised(3000);
-                        if (!that.isReconnecting) {
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                            await that.reconnect.reconnect();
-                        } else {
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
-                        }
-                    } else {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
-                        that.eventEmitter.emit("rainbow_onxmpperror", err);
+                if (that.reconnect && err) {
+                    switch (err.condition) {
+                        // Conditions which need a reconnection
+                        case "connection-timeout":
+                        case "system-shutdown":
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait 10 seconds before try to reconnect");
+                            await setTimeoutPromised(3000);
+                            if (!that.isReconnecting) {
+                                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
+                                await that.reconnect.reconnect();
+                            } else {
+                                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
+                            }
+                            break;
+                        // Conditions which need to only raise an event to inform up layer.
+                        case "invalid-from":
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
+                            break;
+                        // Conditions which are fatal errors and then need to stop the SDK.
+                        case "conflict":
+                        default:
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
+                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                            break;
                     }
                 } else {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
@@ -936,7 +948,7 @@ class XMPPService {
             this.xmppClient.on(DISCONNECT_EVENT, async () => {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |", {'reconnect': that.reconnect});
                 that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
-                let waitime = 3 + Math.floor(Math.random() * Math.floor(15));
+                let waitime = 11 + Math.floor(Math.random() * Math.floor(15));
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
                 await setTimeoutPromised(waitime);
                 if (that.reconnect) {

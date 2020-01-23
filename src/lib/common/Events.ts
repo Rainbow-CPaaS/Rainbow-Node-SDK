@@ -705,6 +705,17 @@ class Events {
             that.publishEvent("favoritedeleted", data);
         });
 
+        this._evReceiver.on("evt_internal_xmpperror", function (data) {
+            /**
+             * @event Events#rainbow_onxmpperror
+             * @public
+             * @param { Object } error xmpp received.
+             * @description
+             *      Fired when an XMPP Error events happens.
+             */
+            that.publishEvent("xmpperror", data);
+        });
+
     }
 
     get iee() {

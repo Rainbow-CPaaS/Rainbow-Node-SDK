@@ -325,7 +325,7 @@ class Bubble {
                                 if (bubble.ownerContact.jid === contactsService.userContact.jid) {
                                     bubble.owner = true;
                                 } else {
-                                    console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
+                                    // console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
                                     bubble.owner = false;
                                 }
                             } else {
