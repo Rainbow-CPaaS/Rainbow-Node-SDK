@@ -280,6 +280,7 @@ Events ::event : rainbow_oncalllogupdated
 Events ::event : rainbow_oncalllogackupdated
 Events ::event : rainbow_onfavoritecreated
 Events ::event : rainbow_onfavoritedeleted
+Events ::event : rainbow_onxmpperror
 Events : Object : on(string, function)
 Events : Object : once(string, function)
 Events ::event : rainbow_onstarted
@@ -297,7 +298,6 @@ Bubble : string : topic
 Bubble : string : jid
 Bubble : string : creator
 Bubble : string : history
-Bubble : Object[] : users
 Bubble : string : creationDate
 Bubble : string : visibility
 Bubble : Object : customData
@@ -325,6 +325,8 @@ Call : String : deviceState
 Call : String : cause
 Call : String : jid
 Call : String : phoneNumber
+Call : String : globalCallId
+Call : String : correlatorData
 Call : Object : Status
 Call : Object : Type
 Call : Object : Media

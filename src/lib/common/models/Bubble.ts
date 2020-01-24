@@ -189,7 +189,7 @@ class Bubble {
                 this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
                 // dev-code //
                 console.log("users ordered in bubble (" + this.id + ") : ", this.users);
-                // end-dev-code//
+                // end-dev-code //
             } else {
                 this.users = _users;
             }
@@ -289,7 +289,7 @@ class Bubble {
                 this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
                 // dev-code //
                 // console.log("users ordered in bubble (" + this.id + ") : ", this.users);
-                // end-dev-code//
+                // end-dev-code //
             } else {
                 this.users = _users;
             }

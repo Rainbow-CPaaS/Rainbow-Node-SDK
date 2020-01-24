@@ -166,6 +166,8 @@ declare module 'lib/common/models/Call' {
 	    };
 	    jid: undefined;
 	    phoneNumber: undefined;
+	    globalCallId: any;
+	    correlatorData: any;
 	    static create(status: any, id: any, type: any, contact: any, deviceType: any): Call;
 	    /**
 	     * @this Call
@@ -185,6 +187,8 @@ declare module 'lib/common/models/Call' {
 	    setIsVm(isVM: any): void;
 	    setContact(contact: any): void;
 	    setParticipants(participants: any): void;
+	    getGlobalCallId(): undefined;
+	    setGlobalCallId(value: undefined): void;
 	    getCurrentCalled(): any;
 	    setCurrentCalled(currentCalled: any): void;
 	    setCurrentCalledContactNumber(number: any): void;
@@ -422,6 +426,7 @@ declare module 'lib/connection/XMPPService' {
 	    private shouldSendMessageToConnectedUser;
 	    private storeMessages;
 	    private copyMessage;
+	    private rateLimitPerHour;
 	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
 	    start(withXMPP: any): Promise<unknown>;
 	    signin(account: any, headers: any): Promise<unknown>;
@@ -739,6 +744,14 @@ declare module 'lib/connection/RESTService' {
 	    inviteUser(email: any, companyId: any, language: any, message: any): Promise<unknown>;
 	    setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
 	    deleteAvatarRoom(roomId: any): Promise<unknown>;
+	    /**
+	     * Method retrieveWebConferences
+	     * @public
+	     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+	     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
+	     * @memberof WebConferenceService
+	     */
+	    retrieveWebConferences(mediaType?: string): Promise<any>;
 	    createUser(email: any, password: any, firstname: any, lastname: any, companyId: any, language: any, isAdmin: any, roles: any): Promise<unknown>;
 	    createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<unknown>;
 	    changePassword(password: any, userId: any): Promise<unknown>;
@@ -2012,6 +2025,7 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    isMeetingBubble(): boolean;
 	    getStatusForUser(userId: any): any;
+	    setUsers(_users: any): void;
 	    updateBubble(data: any, contactsService: any): Promise<this>;
 	    /**
 	     * @function
@@ -2037,6 +2051,194 @@ declare module 'lib/common/promiseQueue' {
 	export { createPromiseQueue };
 
 }
+declare module 'lib/common/models/Offer' {
+	export {}; class Offer {
+	    id: any;
+	    name: any;
+	    description: any;
+	    offerReference: any;
+	    profileId: any;
+	    canBeSold: any;
+	    businessModel: any;
+	    isPrepaid: any;
+	    prepaidDuration: any;
+	    isDefault: any;
+	    isExclusive: any;
+	    logo: any;
+	    isEnterprise: any;
+	    isBusiness: any;
+	    isEssential: any;
+	    constructor(id: any, name: any, description: any, offerReference: any, profileId: any, canBeSold: any, businessModel: any, isDefault: any, isExclusive: any, isPrepaid: any, prepaidDuration: any);
+	    static isExclusive(offer: any): boolean;
+	} class OfferManager {
+	    constructor();
+	    offerComparator(offer1: any, offer2: any): 0 | 1 | -1;
+	    isExclusive(offer: any): any;
+	    isOptional(offer: any): boolean;
+	    isEssential(offer: any): any;
+	    isNotEssential(offer: any): boolean;
+	    isModelByNbUser(offer: any): boolean;
+	    isPrepaid(offer: any): any;
+	    isNotPrepaid(offer: any): boolean;
+	    createOfferFromData(data: any): Offer;
+	    createOfferFromSubscriptionData(subscription: any): Offer;
+	    createOfferFromProfileData(profile: any): Offer;
+	} let offerManager: OfferManager;
+	export { Offer, offerManager };
+
+}
+declare module 'lib/services/ProfilesService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { RESTService } from 'lib/connection/RESTService';
+	import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
+	    COMPANY_ADMIN_COUNT: string;
+	    COMPANY_LOGO_MODIFICATION: string;
+	    COMPANY_DOMAIN_NAME_MODIFICATION: string;
+	    COMPANY_DETAILS_MODIFICATION: string;
+	    WEBRTC_FOR_MOBILE: string;
+	    BUBBLE_PARTICIPANT_COUNT: string;
+	    TELEPHONY_BASIC_CALL: string;
+	    TELEPHONY_SECOND_CALL: string;
+	    TELEPHONY_TRANSFER_CALL: string;
+	    TELEPHONY_CONFERENCE_CALL: string;
+	    TELEPHONY_DEFLECT_CALL: string;
+	    TELEPHONY_PHONE_BOOK: string;
+	    TELEPHONY_VOICE_MAIL: string;
+	    TELEPHONY_CALL_FORWARD: string;
+	    TELEPHONY_NOMADIC: string;
+	    CONFERENCE_PARTICIPANT_COUNT: string;
+	    CONFERENCE_PARTICIPANT_ALLOWED: string;
+	    WEBRTC_CONFERENCE_ALLOWED: string;
+	    WEBRTC_CONFERENCE_PARTICIPANT_COUNT: string;
+	    WEBRTC_PARTICIPANT_ALLOWED: string;
+	    CONFERENCE_ALLOWED: string;
+	    CONFERENCE_DIAL_OUT: string;
+	    CONFERENCE_RECORDING: string;
+	    MSO365_CALENDAR_PRESENCE: string;
+	    MSO365_DIRECTORY_SEARCH: string;
+	    MS_OUTLOOK_PLUGIN: string;
+	    MS_SKYPE_PLUGIN: string;
+	    FILE_SHARING_QUOTA_GB: string;
+	    GOOGLE_CALENDAR_PRESENCE: string;
+	    WEBRTC_P2P_RECORDING: string;
+	    BUBBLE_PROMOTE_MEMBER: string;
+	    BUBBLE_GUESTS_ALLOWED: string;
+	    TELEPHONY_WEBRTC_GATEWAY: string;
+	    TELEPHONY_WEBRTC_PSTN_CALLING: string;
+	    ANALYTICS_DASHBOARD_EC: string;
+	    ANALYTICS_DASHBOARD_BP: string;
+	    TELEPHONY_CALL_SUBJECT: string;
+	    CHANNEL_CREATE: string;
+	    CHANNEL_CREATE_ADMIN_ROLE_BYPASS: string;
+	    CHANNEL_ACTIVATED: string;
+	}; class ProfilesService {
+	    _xmpp: XMPPService;
+	    _rest: RESTService;
+	    _eventEmitter: EventEmitter;
+	    _logger: Logger;
+	    started: any;
+	    onUserUpdateNeeded: any;
+	    stats: any;
+	    features: any;
+	    profiles: any;
+	    mainOffers: any;
+	    startDate: any;
+	    timer: NodeJS.Timeout;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    /*********************************************************************/
+	    /** LIFECYCLE STUFF                                                 **/
+	    /*********************************************************************/
+	    start(_xmpp: XMPPService, _rest: RESTService, stats: any): void;
+	    stop(): Promise<void>;
+	    restart(): void;
+	    init(): Promise<unknown>;
+	    /*********************************************************************/
+	    /** PROFILE API STUFF                                          **/
+	    /*********************************************************************/
+	    getServerProfile(): Promise<[unknown, unknown]>;
+	    getServerProfiles(): Promise<unknown>;
+	    getServerProfilesFeatures(): Promise<unknown>;
+	    /*********************************************************************/
+	    /** USER DATA API STUFF                                             **/
+	    /*********************************************************************/
+	    /**
+	     * APIs for GUI components
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    isFeatureEnabled(featureUniqueRef: any): any;
+	    getFeatureLimitMax(featureUniqueRef: any): any;
+	    getFeatureLimitMin(featureUniqueRef: any): any;
+	    /**
+	     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
+	     */
+	    getMyProfileOffer(): any;
+	    getMyProfileName(): any;
+	    /**
+	     * APIs for GUI components
+	     * Used by SDK (public)
+	     */
+	    getMyProfiles(): any[];
+	    /**
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    getMyProfileFeatures(): {};
+	    getFeaturesEnum(): {
+	        COMPANY_ADMIN_COUNT: string;
+	        COMPANY_LOGO_MODIFICATION: string;
+	        COMPANY_DOMAIN_NAME_MODIFICATION: string;
+	        COMPANY_DETAILS_MODIFICATION: string;
+	        WEBRTC_FOR_MOBILE: string;
+	        BUBBLE_PARTICIPANT_COUNT: string;
+	        TELEPHONY_BASIC_CALL: string;
+	        TELEPHONY_SECOND_CALL: string;
+	        TELEPHONY_TRANSFER_CALL: string;
+	        TELEPHONY_CONFERENCE_CALL: string;
+	        TELEPHONY_DEFLECT_CALL: string;
+	        TELEPHONY_PHONE_BOOK: string;
+	        TELEPHONY_VOICE_MAIL: string;
+	        TELEPHONY_CALL_FORWARD: string;
+	        TELEPHONY_NOMADIC: string;
+	        CONFERENCE_PARTICIPANT_COUNT: string;
+	        CONFERENCE_PARTICIPANT_ALLOWED: string;
+	        WEBRTC_CONFERENCE_ALLOWED: string;
+	        WEBRTC_CONFERENCE_PARTICIPANT_COUNT: string;
+	        WEBRTC_PARTICIPANT_ALLOWED: string;
+	        CONFERENCE_ALLOWED: string;
+	        CONFERENCE_DIAL_OUT: string;
+	        CONFERENCE_RECORDING: string;
+	        MSO365_CALENDAR_PRESENCE: string;
+	        MSO365_DIRECTORY_SEARCH: string;
+	        MS_OUTLOOK_PLUGIN: string;
+	        MS_SKYPE_PLUGIN: string;
+	        FILE_SHARING_QUOTA_GB: string;
+	        GOOGLE_CALENDAR_PRESENCE: string;
+	        WEBRTC_P2P_RECORDING: string;
+	        BUBBLE_PROMOTE_MEMBER: string;
+	        BUBBLE_GUESTS_ALLOWED: string;
+	        TELEPHONY_WEBRTC_GATEWAY: string;
+	        TELEPHONY_WEBRTC_PSTN_CALLING: string;
+	        ANALYTICS_DASHBOARD_EC: string;
+	        ANALYTICS_DASHBOARD_BP: string;
+	        TELEPHONY_CALL_SUBJECT: string;
+	        CHANNEL_CREATE: string;
+	        CHANNEL_CREATE_ADMIN_ROLE_BYPASS: string;
+	        CHANNEL_ACTIVATED: string;
+	    };
+	}
+	export { ProfilesService, FeaturesEnum };
+
+}
 declare module 'lib/services/BubblesService' {
 	/// <reference types="node" />
 	import EventEmitter = NodeJS.EventEmitter;
@@ -2045,7 +2247,8 @@ declare module 'lib/services/BubblesService' {
 	import { Bubble } from 'lib/common/models/Bubble';
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { Logger } from 'lib/common/Logger';
-	import { ContactsService } from 'lib/services/ContactsService'; class Bubbles {
+	import { ContactsService } from 'lib/services/ContactsService';
+	import { ProfilesService } from 'lib/services/ProfilesService'; class Bubbles {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
 	    _bubbles: Bubble[];
@@ -2055,12 +2258,13 @@ declare module 'lib/services/BubblesService' {
 	    private readonly _startConfig;
 	    private avatarDomain;
 	    private _contacts;
+	    private _profileService;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService): Promise<unknown>;
+	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _profileService: ProfilesService): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
@@ -4955,194 +5159,6 @@ declare module 'lib/services/ChannelsService' {
 	export { Channels as ChannelsService };
 
 }
-declare module 'lib/common/models/Offer' {
-	export {}; class Offer {
-	    id: any;
-	    name: any;
-	    description: any;
-	    offerReference: any;
-	    profileId: any;
-	    canBeSold: any;
-	    businessModel: any;
-	    isPrepaid: any;
-	    prepaidDuration: any;
-	    isDefault: any;
-	    isExclusive: any;
-	    logo: any;
-	    isEnterprise: any;
-	    isBusiness: any;
-	    isEssential: any;
-	    constructor(id: any, name: any, description: any, offerReference: any, profileId: any, canBeSold: any, businessModel: any, isDefault: any, isExclusive: any, isPrepaid: any, prepaidDuration: any);
-	    static isExclusive(offer: any): boolean;
-	} class OfferManager {
-	    constructor();
-	    offerComparator(offer1: any, offer2: any): 0 | 1 | -1;
-	    isExclusive(offer: any): any;
-	    isOptional(offer: any): boolean;
-	    isEssential(offer: any): any;
-	    isNotEssential(offer: any): boolean;
-	    isModelByNbUser(offer: any): boolean;
-	    isPrepaid(offer: any): any;
-	    isNotPrepaid(offer: any): boolean;
-	    createOfferFromData(data: any): Offer;
-	    createOfferFromSubscriptionData(subscription: any): Offer;
-	    createOfferFromProfileData(profile: any): Offer;
-	} let offerManager: OfferManager;
-	export { Offer, offerManager };
-
-}
-declare module 'lib/services/ProfilesService' {
-	/// <reference types="node" />
-	import EventEmitter = NodeJS.EventEmitter;
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
-	    COMPANY_ADMIN_COUNT: string;
-	    COMPANY_LOGO_MODIFICATION: string;
-	    COMPANY_DOMAIN_NAME_MODIFICATION: string;
-	    COMPANY_DETAILS_MODIFICATION: string;
-	    WEBRTC_FOR_MOBILE: string;
-	    BUBBLE_PARTICIPANT_COUNT: string;
-	    TELEPHONY_BASIC_CALL: string;
-	    TELEPHONY_SECOND_CALL: string;
-	    TELEPHONY_TRANSFER_CALL: string;
-	    TELEPHONY_CONFERENCE_CALL: string;
-	    TELEPHONY_DEFLECT_CALL: string;
-	    TELEPHONY_PHONE_BOOK: string;
-	    TELEPHONY_VOICE_MAIL: string;
-	    TELEPHONY_CALL_FORWARD: string;
-	    TELEPHONY_NOMADIC: string;
-	    CONFERENCE_PARTICIPANT_COUNT: string;
-	    CONFERENCE_PARTICIPANT_ALLOWED: string;
-	    WEBRTC_CONFERENCE_ALLOWED: string;
-	    WEBRTC_CONFERENCE_PARTICIPANT_COUNT: string;
-	    WEBRTC_PARTICIPANT_ALLOWED: string;
-	    CONFERENCE_ALLOWED: string;
-	    CONFERENCE_DIAL_OUT: string;
-	    CONFERENCE_RECORDING: string;
-	    MSO365_CALENDAR_PRESENCE: string;
-	    MSO365_DIRECTORY_SEARCH: string;
-	    MS_OUTLOOK_PLUGIN: string;
-	    MS_SKYPE_PLUGIN: string;
-	    FILE_SHARING_QUOTA_GB: string;
-	    GOOGLE_CALENDAR_PRESENCE: string;
-	    WEBRTC_P2P_RECORDING: string;
-	    BUBBLE_PROMOTE_MEMBER: string;
-	    BUBBLE_GUESTS_ALLOWED: string;
-	    TELEPHONY_WEBRTC_GATEWAY: string;
-	    TELEPHONY_WEBRTC_PSTN_CALLING: string;
-	    ANALYTICS_DASHBOARD_EC: string;
-	    ANALYTICS_DASHBOARD_BP: string;
-	    TELEPHONY_CALL_SUBJECT: string;
-	    CHANNEL_CREATE: string;
-	    CHANNEL_CREATE_ADMIN_ROLE_BYPASS: string;
-	    CHANNEL_ACTIVATED: string;
-	}; class ProfilesService {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
-	    started: any;
-	    onUserUpdateNeeded: any;
-	    stats: any;
-	    features: any;
-	    profiles: any;
-	    mainOffers: any;
-	    startDate: any;
-	    timer: NodeJS.Timeout;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
-	    /*********************************************************************/
-	    /** LIFECYCLE STUFF                                                 **/
-	    /*********************************************************************/
-	    start(_xmpp: XMPPService, _rest: RESTService, stats: any): void;
-	    stop(): Promise<void>;
-	    restart(): void;
-	    init(): Promise<unknown>;
-	    /*********************************************************************/
-	    /** PROFILE API STUFF                                          **/
-	    /*********************************************************************/
-	    getServerProfile(): Promise<[unknown, unknown]>;
-	    getServerProfiles(): Promise<unknown>;
-	    getServerProfilesFeatures(): Promise<unknown>;
-	    /*********************************************************************/
-	    /** USER DATA API STUFF                                             **/
-	    /*********************************************************************/
-	    /**
-	     * APIs for GUI components
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    isFeatureEnabled(featureUniqueRef: any): any;
-	    getFeatureLimitMax(featureUniqueRef: any): any;
-	    getFeatureLimitMin(featureUniqueRef: any): any;
-	    /**
-	     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
-	     */
-	    getMyProfileOffer(): any;
-	    getMyProfileName(): any;
-	    /**
-	     * APIs for GUI components
-	     * Used by SDK (public)
-	     */
-	    getMyProfiles(): any[];
-	    /**
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    getMyProfileFeatures(): {};
-	    getFeaturesEnum(): {
-	        COMPANY_ADMIN_COUNT: string;
-	        COMPANY_LOGO_MODIFICATION: string;
-	        COMPANY_DOMAIN_NAME_MODIFICATION: string;
-	        COMPANY_DETAILS_MODIFICATION: string;
-	        WEBRTC_FOR_MOBILE: string;
-	        BUBBLE_PARTICIPANT_COUNT: string;
-	        TELEPHONY_BASIC_CALL: string;
-	        TELEPHONY_SECOND_CALL: string;
-	        TELEPHONY_TRANSFER_CALL: string;
-	        TELEPHONY_CONFERENCE_CALL: string;
-	        TELEPHONY_DEFLECT_CALL: string;
-	        TELEPHONY_PHONE_BOOK: string;
-	        TELEPHONY_VOICE_MAIL: string;
-	        TELEPHONY_CALL_FORWARD: string;
-	        TELEPHONY_NOMADIC: string;
-	        CONFERENCE_PARTICIPANT_COUNT: string;
-	        CONFERENCE_PARTICIPANT_ALLOWED: string;
-	        WEBRTC_CONFERENCE_ALLOWED: string;
-	        WEBRTC_CONFERENCE_PARTICIPANT_COUNT: string;
-	        WEBRTC_PARTICIPANT_ALLOWED: string;
-	        CONFERENCE_ALLOWED: string;
-	        CONFERENCE_DIAL_OUT: string;
-	        CONFERENCE_RECORDING: string;
-	        MSO365_CALENDAR_PRESENCE: string;
-	        MSO365_DIRECTORY_SEARCH: string;
-	        MS_OUTLOOK_PLUGIN: string;
-	        MS_SKYPE_PLUGIN: string;
-	        FILE_SHARING_QUOTA_GB: string;
-	        GOOGLE_CALENDAR_PRESENCE: string;
-	        WEBRTC_P2P_RECORDING: string;
-	        BUBBLE_PROMOTE_MEMBER: string;
-	        BUBBLE_GUESTS_ALLOWED: string;
-	        TELEPHONY_WEBRTC_GATEWAY: string;
-	        TELEPHONY_WEBRTC_PSTN_CALLING: string;
-	        ANALYTICS_DASHBOARD_EC: string;
-	        ANALYTICS_DASHBOARD_BP: string;
-	        TELEPHONY_CALL_SUBJECT: string;
-	        CHANNEL_CREATE: string;
-	        CHANNEL_CREATE_ADMIN_ROLE_BYPASS: string;
-	        CHANNEL_ACTIVATED: string;
-	    };
-	}
-	export { ProfilesService, FeaturesEnum };
-
-}
 declare module 'lib/common/models/VoiceMail' {
 	export {}; const createVoiceMail: (profilesService: any) => VoiceMail; class VoiceMail {
 	    VMFlag: any;
@@ -6687,6 +6703,7 @@ declare module 'lib/config/Options' {
 	        storeMessages: boolean;
 	        copyMessage: boolean;
 	        nbMaxConversations: number;
+	        rateLimitPerHour: number;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -6872,6 +6889,7 @@ declare module 'lib/config/config' {
 	        conversationsRetrievedFormat: string;
 	        storeMessages: boolean;
 	        nbMaxConversations: number;
+	        rateLimitPerHour: number;
 	    };
 	    mode: string;
 	    debug: boolean;
