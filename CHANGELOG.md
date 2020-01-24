@@ -13,7 +13,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
     * Errors which need a reconnection 
     * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue. 
     * Errors which are fatal errors and then need to stop the SDK. => Already existing events `rainbow_onerror` + `rainbow_onstop`.
--   work done on private method BubblesServices::joinConference (Not finish, so not available). 
+-   Work done on private method BubblesServices::joinConference (Not finish, so not available).
+-   Update Bubble::users property ordered by additionDate.
+-   Fix ordered calllogs (`orderByNameCallLogsBruts`, `orderByDateCallLogsBruts`).
 
 ## [1.65.2] - 2020-01-10
 -   remove an unwanted log

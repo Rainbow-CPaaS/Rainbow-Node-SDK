@@ -100,7 +100,7 @@ CallLog.sortByContact = function (callLogA, callLogB) {
 
                 if (res === 0 && callLogB.date && callLogA.date) {
                     //order by date
-                    res = callLogB.date - callLogA.date;
+                    res = CallLog.sortByDate(callLogA.date, callLogB.date);
                 }
             }
         }
@@ -112,12 +112,29 @@ CallLog.sortByContact = function (callLogA, callLogB) {
 };
 
 CallLog.sortByDate = function (callLogA, callLogB) {
-    let res = 1;
+
+    let res = 0;
+    if (callLogA && callLogB) {
+        if (callLogA <  callLogB) {
+            res = -1;
+        }
+        if (callLogA >  callLogB) {
+            res = 1;
+        }
+    }
+
+    // dev-code //
+    //res = 1;
+    // end-dev-code //
+
+    return res;
+
+/*    let res = 1;
     if (callLogA && callLogB) {
         res = callLogB.value - callLogA.value;
     }
 
-    return res;
+    return res; // */
 };
 
 CallLog.Type = {

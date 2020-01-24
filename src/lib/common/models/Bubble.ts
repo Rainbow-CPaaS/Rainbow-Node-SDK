@@ -1,6 +1,7 @@
 "use strict";
 
 import { Contact } from "./Contact";
+import {orderByFilter} from "../Utils";
 
 export{};
 
@@ -16,7 +17,37 @@ function  randomString(length = 10) {
     return string;
 }
 
-    /**
+function getUserAdditionDate(user) {
+    if (user && user.additionDate) {
+        try {
+            return new Date(user.additionDate).getTime();
+        } catch(err){
+            console.error("Error while getUserAdditionDate!!!");
+        }
+    }
+
+    return 0;
+}
+
+function sortUsersByDate (userADate, userBDate) {
+    let res = 0;
+    if (userADate && userBDate) {
+        if (userADate <  userBDate) {
+            res = -1;
+        }
+        if (userADate >  userBDate) {
+            res = 1;
+        }
+    }
+
+    // dev-code //
+    //res = 1;
+    // end-dev-code //
+
+    return res;
+}
+
+/**
  * @class
  * @name Bubble
  * @description
@@ -153,7 +184,16 @@ class Bubble {
              * @property {Object[]} users The list of users of that Bubble with their status and privilege
              * @instance
              */
-            this.users = _users;
+            if (_users) {
+                // need to order the users by date
+                this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
+                // dev-code //
+                console.log("users ordered in bubble (" + this.id + ") : ", this.users);
+                // end-dev-code//
+            } else {
+                this.users = _users;
+            }
+
 
             /**
              * @public
@@ -243,6 +283,18 @@ class Bubble {
             return user ? user.status : "none";
         }
 
+        setUsers(_users) {
+            if (_users) {
+                // need to order the users by date
+                this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
+                // dev-code //
+                // console.log("users ordered in bubble (" + this.id + ") : ", this.users);
+                // end-dev-code//
+            } else {
+                this.users = _users;
+            }
+        }
+
         async updateBubble(data, contactsService) {
             let that = this;
             if (data) {
@@ -255,8 +307,17 @@ class Bubble {
                         if (bubbleproperties.find((el) => {
                             return val == el;
                         })) {
-                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                            that[val] = data[val];
+                            // dev-code //
+                            // console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            // end-dev-code //
+                            if (val === "users") {
+                                // dev-code //
+                                // console.log("update users in bubble : ", data[val]);
+                                // end-dev-code //
+                                that.setUsers(data[val]);
+                            } else {
+                                that[val] = data[val];
+                            }
                         } else {
                             //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
                             console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
