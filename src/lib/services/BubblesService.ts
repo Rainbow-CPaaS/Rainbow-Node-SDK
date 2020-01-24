@@ -511,7 +511,6 @@ class Bubbles {
                 that._logger.log("info", LOG_ID + "(leaveBubble) leave successfull");
                 that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                 resolve(json);
-
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(leaveBubble) error.");
                 that._logger.log("internalerror", LOG_ID + "(leaveBubble) error : ", err);

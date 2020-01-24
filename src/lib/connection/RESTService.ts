@@ -1054,7 +1054,7 @@ class RESTService {
             switch (bubbleStatus) {
                 case "unsubscribed":
                     that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader()).then(function(json) {
-                        that.logger.log("info", LOG_ID + "(leaveBubble) successfull");
+                        that.logger.log("info", LOG_ID + "(leaveBubble) delete successfull");
                         that.logger.log("internal", LOG_ID + "(leaveBubble) REST leave bubble", json.data);
                         resolve(json.data);
                     }).catch(function(err) {
@@ -1065,7 +1065,7 @@ class RESTService {
                     break;
                 default:
                     that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), { "status": "unsubscribed" }, undefined).then(function(json) {
-                        that.logger.log("info", LOG_ID + "(leaveBubble) successfull");
+                        that.logger.log("info", LOG_ID + "(leaveBubble) unsubscribed successfull");
                         that.logger.log("internal", LOG_ID + "(leaveBubble) REST invitation accepted", json.data);
                         resolve(json.data);
                     }).catch(function(err) {
