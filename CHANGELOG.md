@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.66.1] - 2020-01-29
--   Fix when the SDK is already stopped when stop method is called, then return a succeed.
+-   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)
 -   Add BubblesService::getUsersFromBubble to get the actives users of a bubble.
 -   Fix the parameter type sent by events `rainbow_onbubbledeleted` and `rainbow_onbubbleownaffiliationchanged`. It is now `Bubble` insteadOf `Promise<Bubble>`.
 
