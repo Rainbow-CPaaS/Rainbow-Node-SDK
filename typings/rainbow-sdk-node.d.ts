@@ -732,6 +732,7 @@ declare module 'lib/connection/RESTService' {
 	    setBubbleCustomData(bubbleId: any, customData: any): Promise<unknown>;
 	    inviteContactToBubble(contactId: any, bubbleId: any, asModerator: any, withInvitation: any, reason: any): Promise<unknown>;
 	    inviteContactsByEmailsToBubble(contactsEmails: any, bubbleId: any): Promise<unknown>;
+	    getRoomUsers(bubbleId: any, options?: any): Promise<unknown>;
 	    promoteContactInBubble(contactId: any, bubbleId: any, asModerator: any): Promise<unknown>;
 	    changeBubbleOwner(bubbleId: any, contactId: any): Promise<unknown>;
 	    archiveBubble(bubbleId: any): Promise<unknown>;
@@ -1971,6 +1972,8 @@ declare module 'lib/common/models/Bubble' {
 	    confEndpoints: [];
 	    activeUsersCounter: number;
 	    avatar: String;
+	    organizers: Array<any>;
+	    members: Array<any>;
 	    static RoomUserStatus: {
 	        "INVITED": string;
 	        "ACCEPTED": string;
@@ -2377,15 +2380,37 @@ declare module 'lib/services/BubblesService' {
 	    leaveBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method getStatusForConnectedUserInBubble
+	     * @method getUsersFromBubble
 	     * @instance
 	     * @param {Bubble} bubble           The bubble
+	     * @param {Object} options          The criterias to select the users to retrieve
+	     * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate)
+	     * - small: userId loginEmail displayName jid_im
+	     * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName
+	     * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType
+	     * sortField : Sort items list based on the given field
+	     * privilege : Allows to filter users list on the privilege type provided in this option.
+	     * limit : Allow to specify the number of items to retrieve.
+	     * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	     * sortOrder : Specify order when sorting items list. Available values -1, 1 (default)
 	     * @memberof Bubbles
 	     * @description
-	     *  Get the status of the connected user in a bubble
+	     *  Get a list of users in a bubble filtered by criterias.
 	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
+	     * @return {Promise<Array, ErrorManager>}
 	     */
+	    getUsersFromBubble(bubble: any, options?: Object): Promise<unknown>;
+	    /**
+	    * @public
+	    * @method getStatusForConnectedUserInBubble
+	    * @instance
+	    * @param {Bubble} bubble           The bubble
+	    * @memberof Bubbles
+	    * @description
+	    *  Get the status of the connected user in a bubble
+	    * @async
+	    * @return {Promise<Bubble, ErrorManager>}
+	    */
 	    getStatusForConnectedUserInBubble(bubble: any): any;
 	    /**
 	     * @public

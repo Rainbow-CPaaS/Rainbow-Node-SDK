@@ -276,8 +276,8 @@ class Bubbles {
                 return;
             }
 
-            that._rest.deleteBubble(bubble.id).then(function (resultDelete) {
-                //let bubbleRemoved = that.removeBubbleFromCache(updatedBubble.id);
+            that._rest.deleteBubble(bubble.id).then((resultDelete) => {
+                //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
                 /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                     return el.id === updatedBubble.id;
                 }), 1); // */
@@ -318,8 +318,8 @@ class Bubbles {
             }
 
             that.closeBubble(bubble).then((updatedBubble: any) => {
-                that._rest.deleteBubble(updatedBubble.id).then(function() {
-                    //let bubbleRemoved = that.removeBubbleFromCache(updatedBubble.id);
+                that._rest.deleteBubble(updatedBubble.id).then(() => {
+                    //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
                     /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                         return el.id === updatedBubble.id;
                     }), 1); // */
@@ -519,7 +519,66 @@ class Bubbles {
         });
     }
 
+
     /**
+     * @public
+     * @method getUsersFromBubble
+     * @instance
+     * @param {Bubble} bubble           The bubble
+     * @param {Object} options          The criterias to select the users to retrieve
+     * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate)
+     * - small: userId loginEmail displayName jid_im
+     * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName
+     * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType
+     * sortField : Sort items list based on the given field
+     * privilege : Allows to filter users list on the privilege type provided in this option.
+     * limit : Allow to specify the number of items to retrieve.
+     * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+     * sortOrder : Specify order when sorting items list. Available values -1, 1 (default)
+     * @memberof Bubbles
+     * @description
+     *  Get a list of users in a bubble filtered by criterias.
+     * @async
+     * @return {Promise<Array, ErrorManager>}
+     */
+    getUsersFromBubble(bubble, options : Object = {}) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+
+            /*let filterToApply = "format=medium";
+            if (options.format) {
+                filterToApply = "format=" + options.format;
+            }
+
+            if (options.page > 0) {
+                filterToApply += "&offset=";
+                if (options.page > 1) {
+                    filterToApply += (options.limit * (options.page - 1));
+                } else {
+                    filterToApply += 0;
+                }
+            }
+
+            filterToApply += "&limit=" + Math.min(options.limit, 1000);
+
+            if (options.type) {
+                filterToApply += "&types=" + options.type;
+            }
+
+            // */
+
+            that._rest.getRoomUsers(bubble.id, options).then(function(json) {
+                that._logger.log("info", LOG_ID + "(getRoomUsers) retrieve successfull");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log("error", LOG_ID + "(getRoomUsers) error.");
+                that._logger.log("internalerror", LOG_ID + "(getRoomUsers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+     /**
      * @public
      * @method getStatusForConnectedUserInBubble
      * @instance
@@ -996,7 +1055,8 @@ getAllActiveBubbles
                         that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
 
                             // Update the existing local bubble stored
-                            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubbleProm = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubble = await bubbleProm;
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
@@ -2137,7 +2197,8 @@ getAllActiveBubbles
             that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble.");
             that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble : ", bubbleUpdated, ", affiliation : ", affiliation);
 
-            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubbleProm = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await bubbleProm;
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2218,7 +2279,7 @@ getAllActiveBubbles
              //*/
 
             if (bubbleToRemoved != -1 ) {
-                let bubbleRemoved = that.removeBubbleFromCache(affiliation.bubbleId);
+                let bubbleRemoved = await that.removeBubbleFromCache(affiliation.bubbleId);
                 that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleRemoved);
                 that._eventEmitter.emit("evt_internal_bubbledeleted", bubbleRemoved);
             } else {

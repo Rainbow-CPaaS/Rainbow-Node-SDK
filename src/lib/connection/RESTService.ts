@@ -996,6 +996,46 @@ class RESTService {
         });
     }
 
+    // Get all users from bubble
+    getRoomUsers(bubbleId, options: any = {}) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+
+            let filterToApply = "format=medium";
+            if (options.format) {
+                filterToApply = "format=" + options.format;
+            }
+
+            if (!options.limit) options.limit = 100;
+
+            if (options.page > 0) {
+                filterToApply += "&offset=";
+                if (options.page > 1) {
+                    filterToApply += (options.limit * (options.page - 1));
+                }
+                else {
+                    filterToApply += 0;
+                }
+            }
+
+            filterToApply += "&limit=" + Math.min(options.limit, 1000);
+
+            if (options.type) {
+                filterToApply += "&types=" + options.type;
+            }
+
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users?" + filterToApply, that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getUsersChannel) successfull");
+                that.logger.log("internal", LOG_ID + "(getUsersChannel) received ", json.total, " users in bubble");
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getUsersChannel) error");
+                that.logger.log("internalerror", LOG_ID, "(getUsersChannel) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     promoteContactInBubble(contactId, bubbleId, asModerator) {
         let that = this;
         return new Promise(function(resolve, reject) {

@@ -74,8 +74,11 @@ class Bubble {
         public confEndpoints: [];
         public activeUsersCounter: number;
         public avatar: String;
+        public organizers: Array<any>;
+        public members: Array<any>;
 
-        public static RoomUserStatus = {
+
+    public static RoomUserStatus = {
             "INVITED": "invited",
             "ACCEPTED": "accepted",
             "UNSUBSCRIBED": "unsubscribed",
@@ -181,7 +184,7 @@ class Bubble {
             /**
              * @public
              * @readonly
-             * @property {Object[]} users The list of users of that Bubble with their status and privilege
+             * @property {Object[]} users The list of users of that Bubble with their status and privilege. Note : Only 100 users are return by the server. So if there are more than this limit, you have to retrieve them with the method BubblesService::getUsersFromBubble
              * @instance
              */
             if (_users) {
@@ -193,6 +196,21 @@ class Bubble {
             } else {
                 this.users = _users;
             }
+
+            /**
+             * @public
+             * @readonly
+             * @property {string} organizers of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
+             * @instance
+             */
+            this.organizers = [];
+            /**
+             * @public
+             * @readonly
+             * @property {string} members of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
+             * @instance
+             */
+            this.members = [];
 
 
             /**

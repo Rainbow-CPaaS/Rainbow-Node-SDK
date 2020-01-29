@@ -55,6 +55,7 @@ Bubbles : Promise.Bubble, ErrorManager : closeAndDeleteBubble(Bubble)
 Bubbles : Promise.Bubble, ErrorManager : closeBubble(Bubble)
 Bubbles : Promise.Bubble, ErrorManager : archiveBubble(Bubble)
 Bubbles : Promise.Bubble, ErrorManager : leaveBubble(Bubble)
+Bubbles : Promise.Array, ErrorManager : getUsersFromBubble(Bubble, Object)
 Bubbles : Promise.Bubble, ErrorManager : getStatusForConnectedUserInBubble(Bubble)
 Bubbles : Promise.Bubble, ErrorManager : inviteContactToBubble(Contact, Bubble, boolean, boolean, string)
 Bubbles : Promise.Bubble, ErrorManager : inviteContactsByEmailsToBubble(Contact, Bubble)
@@ -298,6 +299,8 @@ Bubble : string : topic
 Bubble : string : jid
 Bubble : string : creator
 Bubble : string : history
+Bubble : string : organizers
+Bubble : string : members
 Bubble : string : creationDate
 Bubble : string : visibility
 Bubble : Object : customData
