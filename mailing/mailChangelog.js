@@ -147,6 +147,8 @@ function generateNunjucksVariables(config) {
 
 function sendMail(vars, mailjet) {
     let to = [];
+    let cc = [];
+
     let devSubject = "";
     if (vars.devmode) {
         to.push({
@@ -159,7 +161,7 @@ function sendMail(vars, mailjet) {
             Email: vars.to.email,
             Name: vars.to.name
         });
-        to.push({
+        cc.push({
             Email: vars.cc.email,
             Name: vars.cc.name
         });
@@ -185,7 +187,7 @@ function sendMail(vars, mailjet) {
         return "<h2><u>" + product.title + "</u></h2>" + product.notes + "<br>";
     })].join("")); // */
 
-    const request = mailjet.post("send", { version: "v3.1" }).request({
+    let messageToSend = {
         Messages: [
             {
                 From: {
@@ -193,15 +195,16 @@ function sendMail(vars, mailjet) {
                     Name: vars.from.name
                 },
                 To: to,
+                Cc:cc,
                 Subject: devSubject + vars.subject + currentVersion + " delivered to " + vars.environment,
                 TextPart: "Hi all, component " + vars.component + " has been delivered to " + vars.environment,
                 HTMLPart: [
                     "<p>Hi all,</p>",
                     "<p>Component <b>" +
-                        vars.component +
-                        "</b> as been delivered to <b>" +
-                        vars.environment +
-                        "</b></p>",
+                    vars.component +
+                    "</b> as been delivered to <b>" +
+                    vars.environment +
+                    "</b></p>",
                     "<p>Here is the complete changelog for version <b>" + minVersion + "</b>",
                     vars.products.map(product => {
                         return "<h2><u>" + product.title + "</u></h2>" + product.notes + "<br>";
@@ -212,7 +215,11 @@ function sendMail(vars, mailjet) {
                 ].join("")
             }
         ]
-    });
+    };
+
+    console.log("messageToSend.Messages[0].To : ", messageToSend.Messages[0].To);
+//return;
+    const request = mailjet.post("send", { version: "v3.1" }).request(messageToSend);
 
     request
         .then(result => {
