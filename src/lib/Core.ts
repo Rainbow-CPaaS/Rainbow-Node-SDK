@@ -444,6 +444,10 @@ class Core {
 
         return new Promise(function (resolve, reject) {
 
+            if (that._stateManager.isSTOPPED()) {
+                return resolve ("core already stopped !");
+            }
+
             that.logger.log("debug", LOG_ID + "(stop) stop all modules");
 
             that._rest.stop().then(() => {
