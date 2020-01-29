@@ -26,7 +26,18 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   Add.
+-   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)
+-   Add BubblesService::getUsersFromBubble to get the actives users of a bubble.
+-   Fix the parameter type sent by events `rainbow_onbubbledeleted` and `rainbow_onbubbleownaffiliationchanged`. It is now `Bubble` insteadOf `Promise<Bubble>`.
+-   Add correlatorData et GlobaleCallId properties in Call type of phone calls : RQRAINB-2773, RQRAINB-2784, RQRAINB-2784, RQRAINB-2789, RQRAINB-2793, RQRAINB-2793, RQRAINB-2799
+-   Fix method ChannelsService::createItem when parameter "type" is setted.
+-   Split Xmmpp error event treatment in 3 possibilities:
+    * Errors which need a reconnection 
+    * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue. 
+    * Errors which are fatal errors and then need to stop the SDK. => Already existing events `rainbow_onerror` + `rainbow_onstop`.
+-   Work done on private method BubblesServices::joinConference (Not finish, so not available).
+-   Update Bubble::users property ordered by additionDate.
+-   Fix ordered calllogs (`orderByNameCallLogsBruts`, `orderByDateCallLogsBruts`).
 
 ### SDK for Node.JS 1.65 - January 2019
 
