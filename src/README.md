@@ -16,4 +16,4 @@ Here is the howto TypeScript in **Rainbow-Node-SDK**
 *Note: Some GUI automatically compil typescript (ex: WebStorm, Visual Studio Code)*
 
 # Sample folder
-* The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SD, so you can find in it some help. 
+* The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help. 
