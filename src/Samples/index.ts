@@ -612,8 +612,15 @@ function testChannelImage() {
         logger.log("debug", "retrieveFileDescriptorsListPerOwner - result : ", result);
         if (result) {
             let now = new Date().getTime();
+            let msg = " <h1>Rainbow Node SDK - Sample</h1><hr /><h2>[1.66.1] - 2020-01-29</h2>\n" +
+                "\n" +
+                "<ul><li>Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn&#39;t unable to restart after connection issue)</li><li>Add BubblesService::getUsersFromBubble to get the actives users of a bubble.</li><li>Fix the parameter type sent by events <code>rainbow_onbubbledeleted</code> and <code>rainbow_onbubbleownaffiliationchanged</code>. It is now <code>Bubble</code> insteadOf <code>Promise&lt;Bubble&gt;</code>.</li></ul>\n" +
+                "\n" +
+                "<h2>[1.66.0] - 2020-01-28</h2>\n" +
+                "\n" +
+                "<ul><li>" + now + "</li><li>Add correlatorData et GlobaleCallId </li><li>Fix method ChannelsService::createItem when parameter &quot;type&quot; is setted.</li><li>Split Xmmpp error event treatment in 3 possibilities:<ul><li>Errors which need a reconnection </li><li>Errors which need to only raise an event to inform up layer. =&gt; Add an event <code>rainbow_onxmpperror</code> to inform about issue. </li><li>Errors which are fatal errors and then need to stop the SDK. =&gt; Already existing events <code>rainbow_onerror</code> + <code>rainbow_onstop</code>.</li></ul></li><li>Work done on private method BubblesServices::joinConference (Not finish, so not available).</li><li>Update Bubble::users property ordered by additionDate.</li><li>Fix ordered calllogs (<code>orderByNameCallLogsBruts</code>, <code>orderByDateCallLogsBruts</code>).</li></ul>\n";
             let tabImages = [{ "id": result[0].id }];
-            rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
+            rainbowSDK.channels.createItem(mychannel, msg, "title", null, tabImages).then((res) => {
                 logger.log("debug", "createItem - res : ", res);
             });
         }
