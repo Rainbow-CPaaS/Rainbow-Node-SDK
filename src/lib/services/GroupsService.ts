@@ -14,7 +14,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Groups
  * @version SDKVERSION
  * @public

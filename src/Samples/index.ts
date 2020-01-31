@@ -778,6 +778,23 @@ function testUploadFileToConversationByPath() {
     });
     //});
 }
+
+function testuploadFileToStorage() {
+    let that = this;
+    // let conversation = null;
+    let file = null;
+    //let strMessage = {message: "message for the file"};
+    let strMessage = "message for the file";
+    file = "c:\\temp\\IMG_20131005_173918XXXXXXXXXXX.jpg";
+    logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
+    // Share the file
+    return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
+        logger.log("debug", "MAIN - uploadFileToStorage - result : ", result);
+    }).catch((errr) => {
+        logger.log("error", "MAIN - uploadFileToStorage - error : ", errr);
+    });
+}
+
 function testRetrieveOneFileDescriptor() {
     logger.log("debug", "Main - testRetrieveOneFileDescriptor - file - ");
     let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId("5cab49e3827d70023481c17a");

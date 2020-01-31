@@ -19,7 +19,7 @@ module.exports = function(grunt) {
             { src: "lib/services/FavoritesService.js", dest: "build/favorites.md" },
             { src: "lib/services/FileStorageService.js", dest: "build/filestorage.md" },
             { src: "lib/services/ImsService.js", dest: "build/im.md" },
-            { src: "lib/services/InvitationsService.js", dest: "build/invitation.md" },
+            { src: "lib/services/InvitationsService.js", dest: "build/invitations.md" },
             { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
             { src: "lib/services/GroupsService.js", dest: "build/groups.md" },
             { src: "lib/services/TelephonyService.js", dest: "build/telephony.md" },

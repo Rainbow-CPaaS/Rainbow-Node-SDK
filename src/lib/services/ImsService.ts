@@ -20,7 +20,7 @@ const LOG_ID = "IM/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name IMService
  * @version SDKVERSION
  * @public

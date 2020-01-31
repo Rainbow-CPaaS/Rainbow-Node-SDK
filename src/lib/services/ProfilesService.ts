@@ -88,7 +88,7 @@ const FeaturesEnum = {
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name ProfilesService
  * @version SDKVERSION
  * @private

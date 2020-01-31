@@ -1,11 +1,165 @@
+declare var __awaiter: any;
+declare const Bubble_1: any;
+declare const RainbowSDK: any;
+declare const Utils: any;
+declare const fs: any;
+declare const fileapi: any;
+declare const util: any;
+declare const inquirer: any;
+declare const jwt: any;
+declare let options: {
+    "rainbow": {
+        "host": string;
+    };
+    "credentials": {
+        "login": string;
+        "password": string;
+    };
+    "application": {
+        "appID": string;
+        "appSecret": string;
+    };
+    "logs": {
+        "enableConsoleLogs": boolean;
+        "enableFileLogs": boolean;
+        "color": boolean;
+        "level": string;
+        "customLabel": string;
+        "system-dev": {
+            "internals": boolean;
+            "http": boolean;
+        };
+        "file": {
+            "path": string;
+            "customFileName": string;
+            "zippedArchive": boolean;
+        };
+    };
+    "im": {
+        "sendReadReceipt": boolean;
+        "messageMaxLength": number;
+        "sendMessageToConnectedUser": boolean;
+        "conversationsRetrievedFormat": string;
+        "storeMessages": boolean;
+        "copyMessage": boolean;
+        "nbMaxConversations": number;
+        "rateLimitPerHour": number;
+    };
+    "servicesToStart": {
+        "bubbles": {
+            "start_up": boolean;
+        };
+        "telephony": {
+            "start_up": boolean;
+        };
+        "channels": {
+            "start_up": boolean;
+        };
+        "admin": {
+            "start_up": boolean;
+        };
+        "fileServer": {
+            "start_up": boolean;
+        };
+        "fileStorage": {
+            start_up: boolean;
+        };
+        "calllog": {
+            "start_up": boolean;
+        };
+        "favorites": {
+            "start_up": boolean;
+        };
+        "webrtc": {
+            "start_up": boolean;
+            "optional": boolean;
+        };
+    };
+};
+declare let rainbowSDK: any;
+declare let logger: any;
+declare let calls: any[];
+declare let mycalllogs: {
+    "callLogs": any;
+    "simplifiedCallLogs": any;
+};
+declare function saveCall(call: any): void;
+declare let countStop: number;
+declare function testgetContactByLoginEmail_UnknownUser(): void;
+declare function testgetContactByLoginEmail_NotInRoster(): void;
+declare function testremoveAllMessages(): any;
+declare function testsendMessageToConversation(): void;
+declare function testsendMessageToConversation_html(): any;
+declare function testSendMessageToJid(): any;
+declare function testsendCorrectedChatMessage(): any;
+declare function testsendCorrectedChatMessageForBubble(): any;
+declare function testsendCorrectedChatMessageForBubbleInExistingConversation(): any;
+declare function testSendMultipleMessages(): any;
+declare function testReconnection(): void;
+declare function testChannelImage(): void;
+declare function testPublishChannel(): void;
+declare function testcreateChannel(): any;
+declare function testChannelDeleteMessage(): void;
+declare function downloadFile(): void;
+declare function testUploadFileToConversation(): void;
+declare function testUploadFileToConversationByPath(): void;
+declare function testuploadFileToStorage(): any;
+declare function testRetrieveOneFileDescriptor(): void;
+declare function testChannelupdateChannelDescription(): void;
+declare function testCreateBubbles(): void;
+declare function testCreate50BubblesAndArchiveThem(): Promise<void>;
+declare function testCreateBubblesAndInviteContactsByEmails(): void;
+declare function testCreateBubblesAndJoinConference(): void;
+declare function testgetContactByLoginEmail(): void;
+/**
+ * need to be administrator of the company. Here vincent02 is ok.
+ */
+declare function testgetContactInfos(): void;
+/**
+ * need to be administrator of the company. Here vincent02 is ok.
+ */
+declare function testupdateContactInfos(): void;
+declare function getLastMessageOfConversation(contact: any): void;
+declare function getConversationHistory(conversation: any): void;
+declare function PrintTheLastMessage(conversation: any): void;
+declare function testBubblesArchived(): void;
+declare function testSetBubbleCustomData(): any;
+declare function testDeletebubble(): any;
+declare function testDeleteOneCallLog(): void;
+declare function testDeleteAllCallLogs(): void;
+declare function testDeleteCallLogsForContact(): any;
+declare function testmarkCallLogAsRead(): void;
+declare function testmarkAllCallsLogsAsRead(): void;
+declare function testDeleteServerConversation(): any;
+declare function testUploadFileToBubble(): any;
+declare function test_refreshMemberAndOrganizerLists(): void;
+declare function testGetUsersFromBubble(): any;
+declare function testjoinContacts_AddContactToRoster(): any;
+declare function testsendSubscription(): any;
+declare function testaddToContactsList(): any;
+declare function testupdateChannelAvatar(): any;
+declare function testgetServerFavorites(): any;
+declare function testgetAllUsers(): any;
+declare function testmakeCallByPhoneNumber(): any;
+declare function testmakeCallByPhoneNumberAndHoldCallRetrieveCall(): any;
+declare function testSendMessageToJidOfMySelf(): any;
+declare function testupdateAvatarForBubble(): void;
+declare function testgetAvatarFromBubble(): Promise<void>;
+declare function testmakeCallByPhoneNumberProd(): any;
+declare function testcreateGuestUserError(): Promise<void>;
+declare function commandLineInteraction(): void;
+declare let token: any;
 declare module 'lib/common/Utils' {
 	 let makeId: (n: any) => string; let createPassword: (size: any) => string; let isAdmin: (roles: any) => boolean; class Deferred {
 	    resolve: any;
 	    reject: any;
 	    promise: any;
 	    constructor();
-	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let setTimeoutPromised: (time: any) => Promise<unknown>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any;
-	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit };
+	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let setTimeoutPromised: (time: any) => Promise<unknown>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
+	    type: any;
+	    data: Uint8Array;
+	};
+	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData };
 
 }
 declare module 'lib/common/models/Channel' {
@@ -1164,8 +1318,7 @@ declare module 'lib/services/InvitationsService' {
 	    /**
 	     * @public
 	     * @since 1.65
-	     * @method 	getAcceptedInvitations() {
-
+	     * @method 	getAcceptedInvitations
 	     * @instance
 	     * @description
 	     *    Get the invites you accepted received from others Rainbow users
@@ -1301,9 +1454,21 @@ declare module 'lib/services/InvitationsService' {
 	    /************************************************************/
 	    /** PRIVATE METHODS                                        **/
 	    /************************************************************/
+	    /**
+	     * @private
+	     */
 	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
+	    /**
+	     * @private
+	     */
 	    sortInvitationArray(invitA: any, invitB: any): number;
+	    /**
+	     * @private
+	     */
 	    getAllReceivedInvitations(): Promise<unknown>;
+	    /**
+	     * @private
+	     */
 	    getAllSentInvitations(): Promise<unknown>;
 	}
 	export { InvitationsService };
@@ -2770,21 +2935,6 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    deleteAvatarBubble(bubbleId: any): Promise<unknown>;
 	    /**
-	     * @private
-	     * @param avatarImg
-	     * @param maxWidth
-	     * @param maxHeight
-	     */
-	    resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @param image
-	     */
-	    getBinaryData(image: any): {
-	        type: any;
-	        data: Uint8Array;
-	    };
-	    /**
 	     * @public
 	     * @method updateCustomDataForBubble
 	     * @since 1.64
@@ -3242,6 +3392,16 @@ declare module 'lib/services/FileStorageService' {
 	     * @return {Message} Return the message sent
 	     */
 	    uploadFileToBubble(bubble: any, file: any, strMessage: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.67.0
+	     * @method uploadFileToStorage
+	     * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+	     * @instance
+	     * @description
+	     *   Send a file in user storage
+	     */
+	    uploadFileToStorage(file: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.47.1

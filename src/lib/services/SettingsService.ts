@@ -14,7 +14,7 @@ const LOG_ID = "SETT/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @private
  * @name Settings
  * @version SDKVERSION

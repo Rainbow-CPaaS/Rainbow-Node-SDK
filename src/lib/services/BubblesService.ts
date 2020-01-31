@@ -8,7 +8,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
 import {createPromiseQueue} from "../common/promiseQueue";
-import {logEntryExit, until} from "../common/Utils";
+import {logEntryExit, until, resizeImage, getBinaryData} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {atob} from "atob";
@@ -22,7 +22,7 @@ const LOG_ID = "BUBBLES/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Bubbles
  * @version SDKVERSION
  * @public
@@ -1859,9 +1859,9 @@ getAllActiveBubbles
         }
 
         return new Promise((resolve, reject) => {
-            that.resizeImage(roomAvatarPath, 512, 512).then(function (resizedImage) {
+            resizeImage(roomAvatarPath, 512, 512).then(function (resizedImage) {
                 that._logger.log("debug", LOG_ID + "(setAvatarBubble) resizedImage : ", resizedImage);
-                let binaryData = that.getBinaryData(resizedImage);
+                let binaryData = getBinaryData(resizedImage);
                 that._rest.setAvatarRoom(bubble.id, binaryData).then(
                     function success(result : any) {
                         that._logger.log("debug", LOG_ID + "(setAvatarBubble) setAvatarRoom success : " + result);
@@ -1938,96 +1938,6 @@ getAllActiveBubbles
             });
         });
         // */
-    };
-
-    /**
-     * @private
-     * @param avatarImg
-     * @param maxWidth
-     * @param maxHeight
-     */
-    resizeImage (avatarImg, maxWidth, maxHeight) {
-        let that = this;
-       return new Promise((resolve, reject)=> {
-           Jimp.read(avatarImg) // this can be url or local location
-               .then(image => {
-                   that._logger.log("debug", LOG_ID + "(resizeImage) image : ", image);
-                   image.resize(maxHeight, maxWidth) // jimp.AUTO automatically sets the width so that the image doesnot looks odd
-                       // @ts-ignore
-                       .getBase64(Jimp.AUTO, (err, res) => {
-                           that._logger.log("debug", LOG_ID + "(setAvatarBubble) getBase64 : ", res);
-                           /*
-                           const buf = new Buffer(
-                               res.replace(/^data:image\/\w+;base64,/, ""),
-                               "base64"
-                           );
-                           let data = {
-                               Body: buf,
-                               ContentEncoding: "base64",
-                               ContentType: "image/jpeg"
-                           };
-                           // */
-                           return resolve(res);
-                       });
-               })
-               .catch(err => {
-                   that._logger.log("error", LOG_ID + "(setAvatarBubble) Error : ", err);
-               });
-       });
-
-
-        /*
-        let defered = $q.defer();
-        let image = new Image();
-        image.src = avatarImg;
-
-        image.onload = function() {
-            let imageWidth = image.width;
-            let imageHeight = image.height;
-
-            if (imageWidth > imageHeight) {
-                if (imageWidth > maxWidth) {
-                    imageHeight *= maxWidth / imageWidth;
-                    imageWidth = maxWidth;
-                }
-            }
-            else {
-                if (imageHeight > maxHeight) {
-                    imageWidth *= maxHeight / imageHeight;
-                    imageHeight = maxHeight;
-                }
-            }
-
-            let canvas = document.createElement("canvas");
-            canvas.width = imageWidth;
-            canvas.height = imageHeight;
-            image.width = imageWidth;
-            image.height = imageHeight;
-            let ctx = canvas.getContext("2d");
-            ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
-
-            let resizedImage = new Image();
-            resizedImage.src = canvas.toDataURL("image/png");
-            defered.resolve(resizedImage);
-        };
-        return defered.promise;
-        // */
-    }
-
-    /**
-     * @private
-     * @param image
-     */
-    getBinaryData (image) {
-        let typeIndex = image.indexOf("image/") + 6;
-        let binaryIndex = image.indexOf(";base64,");
-        let binaryData = image.slice(binaryIndex + 8);
-        let imageType = image.slice(typeIndex, binaryIndex);
-        let binary_string = atob(binaryData);
-        let len = binary_string.length;
-        let bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) { bytes[i] = binary_string.charCodeAt(i); }
-        return { type: imageType, data: bytes };
     };
 
     /**

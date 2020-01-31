@@ -17,7 +17,7 @@ const LOG_ID = "PRES/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name PresenceService
  * @version SDKVERSION
  * @public

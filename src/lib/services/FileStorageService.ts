@@ -11,7 +11,7 @@ import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
-import {logEntryExit, orderByFilter} from "../common/Utils";
+import {getBinaryData, logEntryExit, orderByFilter, resizeImage} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileServerService} from "./FileServerService";
@@ -360,6 +360,129 @@ class FileStorage {
         });
     };
 
+    /**
+     * @public
+     * @since 1.67.0
+     * @method uploadFileToStorage
+     * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+     * @instance
+     * @description
+     *   Send a file in user storage
+     */
+    uploadFileToStorage( file) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("info", LOG_ID + "sendFSMessage");
+
+            // Allow to pass a file path (for test purpose)
+            if ( typeof (file) === "string") {
+                try {
+                    let fileObj = new fileapi.File({
+
+                            //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                            "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
+                            //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+
+                            //            buffer: Node.Buffer,          // use this Buffer instead of reading file
+                            //            stream: Node.ReadStream,      // use this ReadStream instead of reading file
+                            //            name: "SomeAwesomeFile.txt",  // optional when using `path`
+                            // must be supplied when using `Node.Buffer` or `Node.ReadStream`
+                            //            type: "text/plain",           // generated based on the extension of `name` or `path`
+
+                            "jsdom": true,                  // be DoM-like and immediately get `size` and `lastModifiedDate`
+                            // [default: false]
+                            "async": false                  // use `fs.stat` instead of `fs.statSync` for getting
+                            // the `jsdom` info
+                            // [default: false]
+                            //   lastModifiedDate: fileStat.mtime.toISOString()
+                            //   size: fileStat.size || Buffer.length
+                        }
+                    );
+
+                    that._logger.log("internal", LOG_ID + "(uploadFileToStorage) file path : ", file, " give fileObj :", fileObj);
+
+                    file = fileObj;
+                } catch (err) {
+                    that._logger.log("error", LOG_ID + "(uploadFileToStorage) Catch Error !!! Error.");
+                    that._logger.log("internalerror", LOG_ID + "(uploadFileToStorage) Catch Error !!! Error : ", err);
+                    return reject(err);
+                }
+            }
+
+            // Add message in messages array
+            let fileExtension = file.name.split(".").pop();
+            let fileMimeType = file.type;
+            let viewers = [];
+            let currentFileDescriptor;
+
+
+            that.createFileDescriptor(file.name, fileExtension, file.size, viewers).then(async function (fileDescriptor: any) {
+                currentFileDescriptor = fileDescriptor;
+                fileDescriptor.fileToSend = file;
+                if (fileDescriptor.isImage()) {
+                    // let URLObj = $window.URL || $window.webkitURL;
+                    // fileDescriptor.previewBlob = URLObj.createObjectURL(file);
+                    await resizeImage(file.path, 512, 512).then(function (resizedImage) {
+                        that._logger.log("debug", LOG_ID + "(uploadFileToStorage) resizedImage : ", resizedImage);
+                        file.preview = getBinaryData(resizedImage);
+                    });
+
+                    if (file.preview) {
+                        fileDescriptor.previewBlob = file.preview;
+                    }
+                }
+
+                // Upload file
+                fileDescriptor.state = "uploading";
+
+                return that.fileServerService.uploadAFileByChunk(fileDescriptor, file.path )
+                    .then(function successCallback(fileDesc) {
+                            that._logger.log("debug", LOG_ID + "uploadFileToStorage uploadAFileByChunk success");
+                            return Promise.resolve(fileDesc);
+                        },
+                        function errorCallback(error) {
+                            that._logger.log("error", LOG_ID + "uploadFileToStorage uploadAFileByChunk error.");
+                            that._logger.log("internalerror", LOG_ID + "uploadFileToStorage uploadAFileByChunk error : ", error);
+
+                            //do we need to delete the file descriptor from the server if error ??
+                            that.deleteFileDescriptor(currentFileDescriptor.id);
+
+                            // .then(function() {
+                            // currentFileDescriptor.state = "uploadError";
+                            currentFileDescriptor.state = "uploadError";
+
+                            //message.receiptStatus = Message.ReceiptStatus.ERROR;
+                            //message.fileErrorMsg = msgKey;
+                            //that.updateMessage(message);
+
+                            return Promise.reject(error);
+                        });
+            })
+                .then(function successCallback(fileDescriptorResult) {
+                        fileDescriptorResult.state = "uploaded";
+                        fileDescriptorResult.chunkPerformed = 0;
+                        fileDescriptorResult.chunkTotalNumber = 0;
+                        resolve(fileDescriptorResult);
+                    },
+                    function errorCallback(error) {
+                        that._logger.log("error", LOG_ID + "uploadFileToStorage createFileDescriptor error.");
+                        that._logger.log("internalerror", LOG_ID + "uploadFileToStorage createFileDescriptor error : ", error);
+                        return reject(error);
+                    });
+
+
+            //};
+
+
+            /*
+            todo: VBR What is this pendingMessages list coming from WebSDK ? Is it necessary for node SDK ?
+            this.pendingMessages[message.id] = {
+                conversation: conversation,
+                message: message
+            };
+            // */
+        });
+    }
     /**
      * @public
      * @since 1.47.1

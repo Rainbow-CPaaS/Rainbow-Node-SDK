@@ -162,6 +162,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
             fs.readFile(item.path, "utf8", async(err, data) => {
                 if (err) {
+                    logger.log("error", "Can not read the CHANGELOG file : ", err);
                     reject(err);
                     return;
                 }

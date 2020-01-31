@@ -22,7 +22,7 @@ const LOG_ID = "CONTACTS/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Contacts
  * @version SDKVERSION
  * @public

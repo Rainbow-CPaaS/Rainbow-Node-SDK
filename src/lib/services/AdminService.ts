@@ -15,7 +15,7 @@ const LOG_ID = "ADMIN/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Admin
  * @version SDKVERSION
  * @public

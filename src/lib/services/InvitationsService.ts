@@ -18,7 +18,7 @@ import {ContactsService} from "./ContactsService";
 const LOG_ID = "INVITATION/SVCE - ";
 
 /**
- * @class
+ * @module
  * @name InvitationsService
  * @version SDKVERSION
  * @public
@@ -419,8 +419,7 @@ class InvitationsService {
 	/**
 	 * @public
 	 * @since 1.65
-	 * @method 	getAcceptedInvitations() {
-
+	 * @method 	getAcceptedInvitations
 	 * @instance
 	 * @description
 	 *    Get the invites you accepted received from others Rainbow users
@@ -742,6 +741,9 @@ class InvitationsService {
 	/** PRIVATE METHODS                                        **/
 
 	/************************************************************/
+	/**
+	 * @private
+	 */
 	updateContactInvitationStatus(contactDBId, status, invitation) {
 		let that = this;
 		return new Promise(function (resolve) {
@@ -768,12 +770,18 @@ class InvitationsService {
 		});
 	};
 
+	/**
+	 * @private
+	 */
 	sortInvitationArray(invitA, invitB) {
 		let invitBlastNotificationDate : any = new Date(invitB.lastNotificationDate);
 		let invitAlastNotificationDate : any = new Date(invitA.lastNotificationDate);
 		return  invitBlastNotificationDate - invitAlastNotificationDate ;
 	};
 
+	/**
+	 * @private
+	 */
 	getAllReceivedInvitations() {
 		let that = this;
 		return new Promise(function (resolve, reject) {
@@ -806,6 +814,9 @@ class InvitationsService {
 		});
 	};
 
+	/**
+	 * @private
+	 */
 	getAllSentInvitations() {
 		let that = this;
 		return new Promise(function (resolve, reject) {

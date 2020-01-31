@@ -4,6 +4,8 @@
 
 const config = require ("../config/config");
 import * as core from "./../../../index";
+import {atob} from "atob";
+const Jimp = require('jimp');
 
 let makeId = (n) => {
   let text = "";
@@ -299,6 +301,97 @@ function logEntryExit(LOG_ID) : any{
     }
 }
 
+/**
+ * @private
+ * @param avatarImg
+ * @param maxWidth
+ * @param maxHeight
+ */
+function resizeImage (avatarImg, maxWidth, maxHeight) {
+    let that = this;
+    //let logger = this.logger ? this.logger : this._logger ? this._logger : {};
+    return new Promise((resolve, reject)=> {
+        Jimp.read(avatarImg) // this can be url or local location
+            .then(image => {
+                // logger.log("debug", "(resizeImage) image : ", image);
+                image.resize(maxHeight, maxWidth) // jimp.AUTO automatically sets the width so that the image doesnot looks odd
+                    // @ts-ignore
+                    .getBase64(Jimp.AUTO, (err, res) => {
+                        // logger.log("debug", "(setAvatarBubble) getBase64 : ", res);
+                        /*
+                        const buf = new Buffer(
+                            res.replace(/^data:image\/\w+;base64,/, ""),
+                            "base64"
+                        );
+                        let data = {
+                            Body: buf,
+                            ContentEncoding: "base64",
+                            ContentType: "image/jpeg"
+                        };
+                        // */
+                        return resolve(res);
+                    });
+            })
+            .catch(err => {
+                console.log("error", "(setAvatarBubble) Error : ", err);
+            });
+    });
+
+
+    /*
+    let defered = $q.defer();
+    let image = new Image();
+    image.src = avatarImg;
+
+    image.onload = function() {
+        let imageWidth = image.width;
+        let imageHeight = image.height;
+
+        if (imageWidth > imageHeight) {
+            if (imageWidth > maxWidth) {
+                imageHeight *= maxWidth / imageWidth;
+                imageWidth = maxWidth;
+            }
+        }
+        else {
+            if (imageHeight > maxHeight) {
+                imageWidth *= maxHeight / imageHeight;
+                imageHeight = maxHeight;
+            }
+        }
+
+        let canvas = document.createElement("canvas");
+        canvas.width = imageWidth;
+        canvas.height = imageHeight;
+        image.width = imageWidth;
+        image.height = imageHeight;
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        let resizedImage = new Image();
+        resizedImage.src = canvas.toDataURL("image/png");
+        defered.resolve(resizedImage);
+    };
+    return defered.promise;
+    // */
+}
+
+/**
+ * @private
+ * @param image
+ */
+function getBinaryData (image) {
+    let typeIndex = image.indexOf("image/") + 6;
+    let binaryIndex = image.indexOf(";base64,");
+    let binaryData = image.slice(binaryIndex + 8);
+    let imageType = image.slice(typeIndex, binaryIndex);
+    let binary_string = atob(binaryData);
+    let len = binary_string.length;
+    let bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) { bytes[i] = binary_string.charCodeAt(i); }
+    return { type: imageType, data: bytes };
+}
+
 export {
     makeId,
     createPassword,
@@ -311,5 +404,7 @@ export {
     orderByFilter,
     isStart_upService,
     isStarted,
-    logEntryExit
+    logEntryExit,
+    resizeImage,
+    getBinaryData
     };

@@ -20,7 +20,7 @@ const LOG_ID = "CHANNELS/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Channels
  * @version SDKVERSION
  * @public

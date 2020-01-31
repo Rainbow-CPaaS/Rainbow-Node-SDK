@@ -29,7 +29,7 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Conversations
  * @version SDKVERSION
  * @public
