@@ -1208,6 +1208,38 @@ class Conversations {
     }
 
     /**
+     *
+     * @public
+     * @since 1.67.0
+     * @method deleteAllMessageInOneToOneConversation
+     * @instance
+     * @memberof Conversations
+     * @async
+     * @description
+     *   DELETE ALL MESSAGES IN ONE2ONE CONVERSATION
+     * @param {Conversation} conversation The conversation object
+     * @return {Message} - message object with updated replaceMsgs property
+     */
+    deleteAllMessageInOneToOneConversation (conversation) {
+        let that = this;
+        if (!conversation) {
+            this._logger.log("error", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter : ", conversation);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        let conversationObj = that.getConversationById(conversation.id);
+
+        if (conversationObj.type !== Conversation.Type.ONE_TO_ONE) {
+            this._logger.log("error", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter : ", conversationObj);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that._xmpp.deleteAllMessageInOneToOneConversation(conversationObj.id);
+    }
+
+    /**
      * @private
      * @description
      *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.

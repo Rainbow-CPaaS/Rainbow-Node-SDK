@@ -87,7 +87,8 @@ const NameSpacesLabels = {
     "HintsNameSpace" : "urn:xmpp:hints",
     "OobNameSpace" : "jabber:x:oob",
     "Monitoring1NameSpace" : "urn:xmpp:pbxagent:monitoring:1",
-    "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1"
+    "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1",
+    "MamNameSpace" : "urn:xmpp:mam:1"
 
 };
 
@@ -1920,6 +1921,59 @@ class XMPPService {
             }
         }
         return await Promise.all(promSend);
+    }
+
+    async deleteAllMessageInOneToOneConversation(conversationId) {
+        let that = this;
+        /*
+        <iq id="3b718ea6-5dae-4e29-b54c-b843156df93d" type="set" xmlns="jabber:client">
+  <delete queryid="dd008366-ad0f-4197-a61c-0c34fbc0e75a" xmlns="urn:xmpp:mam:1">
+    <x type="submit" xmlns="jabber:x:data">
+      <field type="hidden" var="FORM_TYPE">
+        <value>urn:xmpp:mam:1
+        </value>
+      </field>
+      <field var="with">
+        <value>7ebaaacfa0634f46a903bcdd83ae793b@openrainbow.net
+        </value>
+      </field>
+    </x>
+    <set xmlns="http://jabber.org/protocol/rsm"/>
+  </delete>
+</iq>
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let message = xml("iq", {
+            //"from": that.jid_im,
+            //"to": that.jid_im,
+            "type": "set",
+            "id": uniqMessageId
+        });
+
+        let rsmDelete = xml("delete", {xmlns: NameSpacesLabels.MamNameSpace, queryid: uniqId});
+        let rsmx = xml("x",{xmlns: NameSpacesLabels.DataNameSpace, type: "submit"});
+        let rsmField1 = xml("field",{var: "FORM_TYPE", type: "hidden"});
+        let rsmvalue1 = xml("value",{}, NameSpacesLabels.MamNameSpace);
+        let rsmField2 = xml("field",{var: "with"});
+        let rsmvalue2 = xml("value",{}, conversationId);
+        let rsmset = xml("set", {xmlns:NameSpacesLabels.RsmNameSpace});
+        rsmField1.append(rsmvalue1, undefined);
+        rsmField2.append(rsmvalue2, undefined);
+        rsmx.append(rsmField1,  undefined);
+        rsmx.append(rsmField2,  undefined);
+        rsmDelete.append(rsmx,  undefined);
+        rsmDelete.append(rsmset,  undefined);
+        let msg = message.append(rsmDelete, undefined);
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+        //xmppService.sendIQ(msg);
     }
 
     getErrorMessage (data, actionLabel) {

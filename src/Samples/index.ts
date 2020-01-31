@@ -1227,6 +1227,25 @@ function testDeleteServerConversation() {
         }
     });
 }
+
+function testdeleteAllMessageInOneToOneConversation() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+        if (conversation && conversation.id) {
+            let result = yield rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - result : ", result);
+            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - conversation : ", conversation);
+        }
+        else {
+            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation conversation empty or no id defined - conversation : ", conversation);
+        }
+    });
+}
+
 function testUploadFileToBubble() {
     let file = null;
     let strMessage = "message for the file";
