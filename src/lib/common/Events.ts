@@ -206,6 +206,7 @@ class Events {
         this._evReceiver.on("evt_internal_conversationdeleted", function(conversation) {
 
             /**
+             * @public
              * @event Events#rainbow_onconversationremoved
              * @param { Object } conversation The conversation object
              * @param { String } conversation.conversationId Conversation identifier
@@ -218,6 +219,7 @@ class Events {
         this._evReceiver.on("evt_internal_conversationupdated", function(conversation) {
 
             /**
+             * @public
              * @event Events#rainbow_onconversationchanged
              * @param { Conversation } conversation The conversation
              * @description
@@ -229,6 +231,7 @@ class Events {
         this._evReceiver.on("evt_internal_allmessagedremovedfromconversationreceived", function(conversation) {
 
             /**
+             * @public
              * @event Events#rainbow_onallmessagedremovedfromconversationreceived
              * @param { Conversation } conversation The conversation where the messages as all been removed.
              * @description
@@ -240,6 +243,7 @@ class Events {
         this._evReceiver.on("evt_internal_chatstate", function(chatstate) {
 
             /**
+             * @public
              * @event Events#rainbow_onchatstate
              * @param { Object } chatstate The chatstate
              * @description
@@ -251,6 +255,7 @@ class Events {
         this._evReceiver.on("evt_internal_contactinformationchanged", function(contact) {
 
             /**
+             * @public
              * @event Events#rainbow_oncontactinformationchanged
              * @param { Contact } contact The contact
              * @description
@@ -261,8 +266,8 @@ class Events {
 
         this._evReceiver.on("evt_internal_userinvitereceived", function(invitation) {
             /**
+             * @public
              * @event Events#rainbow_onuserinvitereceived
-             * @private
              * @param { Invitation } invitation The invitation received
              * @description
              *      Fired when an user invitation is received
@@ -273,7 +278,7 @@ class Events {
         this._evReceiver.on("evt_internal_userinviteaccepted", function(invitation) {
             /**
              * @event Events#rainbow_onuserinviteaccepted
-             * @private
+             * @public
              * @param { Invitation } invitation The invitation accepted
              * @description
              *      Fired when an user invitation is accepted
@@ -283,8 +288,8 @@ class Events {
 
         this._evReceiver.on("evt_internal_userinvitecanceled", function(invitation) {
             /**
+             * @public
              * @event Events#rainbow_onuserinvitecanceled
-             * @private
              * @param { Invitation } invitation The invitation canceled
              * @description
              *      Fired when an user invitation is canceled
@@ -305,6 +310,7 @@ class Events {
 
         this._evReceiver.on("evt_internal_bubblepresencechanged", function(bubble) {
             /**
+             * @public
              * @event Events#rainbow_onbubblepresencechanged
              * @param { Bubble } bubble The bubble updated
              * @description
@@ -315,6 +321,7 @@ class Events {
 
         this._evReceiver.on("evt_internal_ownaffiliationdetailschanged", function(bubble) {
             /**
+             * @public
              * @event Events#rainbow_onbubbleownaffiliationchanged
              * @param { Bubble } bubble The bubble updated
              * @description
@@ -325,6 +332,7 @@ class Events {
 
         this._evReceiver.on("evt_internal_bubbledeleted", function(bubble) {
             /**
+             * @public
              * @event Events#rainbow_onbubbledeleted
              * @param { Bubble } bubble The bubble deleted
              * @description
