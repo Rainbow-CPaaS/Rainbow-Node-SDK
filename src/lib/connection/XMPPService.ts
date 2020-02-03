@@ -88,8 +88,8 @@ const NameSpacesLabels = {
     "OobNameSpace" : "jabber:x:oob",
     "Monitoring1NameSpace" : "urn:xmpp:pbxagent:monitoring:1",
     "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1",
-    "MamNameSpace" : "urn:xmpp:mam:1"
-
+    "MamNameSpace" : "urn:xmpp:mam:1",
+    "AttentionNS" : "urn:xmpp:attention:0"
 };
 
 @logEntryExit(LOG_ID)
@@ -904,12 +904,17 @@ class XMPPService {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " |", util.inspect(err.condition || err));
                 that.stopIdleTimer();
                 if (that.reconnect && err) {
+                    // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
                     switch (err.condition) {
                         // Conditions which need a reconnection
+                        case "remote-connection-failed":
+                        case "reset":
+                        case "resource-constraint":
                         case "connection-timeout":
                         case "system-shutdown":
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait 10 seconds before try to reconnect");
-                            await setTimeoutPromised(3000);
+                            let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
+                            await setTimeoutPromised(waitime);
                             if (!that.isReconnecting) {
                                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
                                 await that.reconnect.reconnect();
@@ -918,12 +923,31 @@ class XMPPService {
                             }
                             break;
                         // Conditions which need to only raise an event to inform up layer.
+                        case "bad-format":
+                        case "bad-namespace-prefix":
+                        case "host-gone":
+                        case "host-unknown":
+                        case "improper-addressing":
+                        case "internal-server-error":
                         case "invalid-from":
+                        case "invalid-namespace":
+                        case "invalid-xml":
+                        case "not-authorized":
+                        case "not-well-formed":
+                        case "policy-violation":
+                        case "restricted-xml":
+                        case "undefined-condition":
+                        case "unsupported-encoding":
+                        case "unsupported-feature":
+                        case "unsupported-stanza-type":
                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
                             that.eventEmitter.emit("evt_internal_xmpperror", err);
                             break;
                         // Conditions which are fatal errors and then need to stop the SDK.
+                        case "see-other-host":
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : condition : ", err.condition, " is not supported the SDK");
                         case "conflict":
+                        case "unsupported-version":
                         default:
                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
                             that.eventEmitter.emit("evt_internal_xmppfatalerror", err);

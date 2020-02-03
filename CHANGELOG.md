@@ -10,7 +10,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix typo error in Gruntfile.js file for the generated documentation of the invitations service. And fix documentation.
 -   Move the methods BubblesService::resizeImage and BubblesService::getBinaryData to module Utils.ts
 -   Add method FileStorageService::uploadFileToStorage to Send a file in user storage.
--	RQRAINB-2870 Add ConversationsService::deleteAllMessageInOneToOneConversation method to delete all messages in ONE2ONE conversation 
+-	RQRAINB-2870 Add ConversationsService::deleteAllMessageInOneToOneConversation method to delete all messages in ONE2ONE conversation
+-   RQRAINB-2984 Treat the XMPP Errors conditions provided by the XMPP RFC : https://xmpp.org/rfcs/rfc6120.html#streams-error 
 
 ## [1.66.1] - 2020-01-29
 -   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)
