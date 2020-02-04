@@ -129,9 +129,10 @@ class Bubble {
          */
         public ownerContact: Contact;
         public owner: boolean;
+        public autoAcceptInvitation: boolean;
 
         constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "") {
+                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "", autoAcceptInvitation: boolean = false) {
 
             /**
              * @public
@@ -280,6 +281,11 @@ class Bubble {
             this.autoRegister = _autoRegister;
 
             this.owner = false;
+
+            /**
+             * @description auto acceptation of the bubble.
+             */
+            this.autoAcceptInvitation = autoAcceptInvitation;
         }
 
         /**
@@ -353,9 +359,9 @@ class Bubble {
         /**
          * @function
          * @public
-         * @name ChannelFactory
+         * @name BubbleFactory
          * @description
-         * This class is used to create a channel from data object
+         * This class is used to create a bubble from data object
          */
         public static BubbleFactory(avatarDomain, contactsService) {
 //     constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [],
@@ -382,6 +388,7 @@ class Bubble {
                     data.activeUsersCounter,
                     data.autoRegister,
                     data.lastActivityDate,
+                    data.autoAcceptInvitation,
                     avatarDomain
                 );
                 if (data) {

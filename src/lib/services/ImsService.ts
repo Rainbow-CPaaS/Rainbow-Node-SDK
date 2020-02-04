@@ -249,10 +249,7 @@ class IMService {
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
-        let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this
-                .sendMessageToJid(message, conversation.id, lang, content, subject) :
-            this
-                .sendMessageToBubbleJid(message, conversation.id, lang, content, subject);
+        let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
         return msgSent.then((messageSent) => {
             this._conversations.storePendingMessage(conversation, messageSent);
             //conversation.messages.push(messageSent);
@@ -477,20 +474,21 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
+     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    sendMessageToBubble(message, bubble, lang, content, subject) {
+    sendMessageToBubble(message, bubble, lang, content, subject, mentions) {
         if (!bubble || !bubble.jid) {
             this._logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
-        return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject);
+        return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject, mentions);
     }
 
     /**
@@ -506,20 +504,21 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
+     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToBubbleJid(message, jid, lang, content, subject) {
+    async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions) {
         let that = this;
         if (!lang) {
             lang = "en";
         }
         if (!message) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter.");
-            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'message' parameter : ", message);
+            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
@@ -529,12 +528,12 @@ class IMService {
             messageSize += content.message.length;
         }
         if (messageSize > that.imOptions.messageMaxLength) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that._logger.log("debug", LOG_ID + "(sendMessageToBubble) bad or empty 'jid' parameter", jid);
+            that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -543,21 +542,21 @@ class IMService {
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
         let bubble = await that._bulles.getBubbleByJid(jid);
-        that._logger.log("internal", LOG_ID + "(sendMessageToBubble) getBubbleByJid ", bubble);
+        that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
-            return messageSent;
+            let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions);
+            return messageSent1;
         } else {
             try {
-                that._logger.log("debug", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message.");
-                that._logger.log("internal", LOG_ID + "(sendMessageToBubble) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
+                that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that._xmpp.sendInitialBubblePresence(bubble.jid);
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined);
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -567,7 +566,7 @@ class IMService {
 
     /**
      * @public
-     * @method sendMessageToBubbleJid
+     * @method sendMessageToBubbleJidAnswer
      * @instance
      * @description
      *  Send a message to a bubble identified by its JID
@@ -579,13 +578,14 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
+     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg) {
+    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions) {
         let that = this;
         if (!lang) {
             lang = "en";
@@ -624,19 +624,19 @@ class IMService {
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
+            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions);
             return messageSent;
         } else {
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that._xmpp.sendInitialBubblePresence(bubble.jid);
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) sendInitialBubblePresence succeed ");
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubble) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg);
+                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});

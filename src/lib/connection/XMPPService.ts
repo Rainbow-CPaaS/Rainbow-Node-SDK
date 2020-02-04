@@ -1343,7 +1343,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg) {
+    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention) {
         let that = this;
         if (that.useXMPP) {
 
@@ -1379,7 +1379,7 @@ class XMPPService {
             let answeredMsgId = null;
             let answeredMsgDate = null;
             if ( answeredMsg ) {
-                stanza.append(xml("answeredMsg", { "stamp": answeredMsg.date.getTime() }, answeredMsg.id));
+                stanza.append(xml("answeredMsg", { "stamp": answeredMsg.date.getTime() }, answeredMsg.id), undefined);
                 answeredMsgId = answeredMsg.id;
                 answeredMsgDate = answeredMsg.date;
                 that.logger.log("internal", LOG_ID + "(sendChatMessageToBubble) answeredMsg : ", stanza);
@@ -1391,6 +1391,20 @@ class XMPPService {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
                 }, content.message));
+            }
+
+            if (attention) {
+                if (Array.isArray(attention) && attention.length > 0) {
+                    let mentions = xml("mention", {"xmlns": NameSpacesLabels.AttentionNS}, undefined);
+                    attention.forEach(function (jidMentioned) {
+                        mentions.append(xml("jid", {}, jidMentioned), undefined);
+                    });
+                    stanza.append(mentions, undefined);
+                } else if (typeof attention === 'string' || attention instanceof String) {
+                    let mentions = xml("mention", {"xmlns": NameSpacesLabels.AttentionNS}, undefined);
+                    mentions.append(xml("jid", {}, attention), undefined);
+                    stanza.append(mentions, undefined);
+                }
             }
 
             that.logger.log("internal", LOG_ID + "(sendChatMessageToBubble) send - 'message'", stanza.toString());

@@ -6,6 +6,8 @@
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
+import {setTimeoutPromised} from "../lib/common/Utils";
+
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function(resolve, reject) {
@@ -817,8 +819,8 @@ function testCreateBubbles() {
     let physician = {
         "name": "",
         "contact": null,
-//        "loginEmail": "vincent02@vbe.test.openrainbow.net",
-        "loginEmail": "vincent.berder@al-enterprise.com",
+        "loginEmail": "vincent02@vbe.test.openrainbow.net",
+//        "loginEmail": "vincent.berder@al-enterprise.com",
         "appointmentRoom": "testBot"
     };
 
@@ -847,7 +849,8 @@ function testCreateBubbles() {
                         }).length === 1 ) {
                             let utcMsg = new Date().getTime();
                             let message = "message de test in " + utcMsg;
-                            await rainbowSDK.im.sendMessageToBubbleJid(message, bubbleAffiliated.jid, "en", { "type": "text/markdown", "message": message }, "subject");
+                            await setTimeoutPromised(2000);
+                            await rainbowSDK.im.sendMessageToBubbleJid(message, bubbleAffiliated.jid, "en", { "type": "text/markdown", "message": message }, "subject", undefined);
                         }
                     });
 
@@ -934,6 +937,36 @@ function testCreateBubblesAndInviteContactsByEmails() {
             }, "subject");
         });
     });
+    //    let utc = new Date().toJSON().replace(/-/g, '/');
+}
+
+async function testsendMessageToBubbleJid_WithMention() {
+    let loginEmail = "vincent02@vbe.test.openrainbow.net";
+    let appointmentRoom = "testBot";
+    //let botappointment = "vincent01@vbe.test.openrainbow.net";
+    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+        if (contact) {
+            logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: getContactByLoginEmail contact : ", contact);
+            let utc = new Date().toJSON().replace(/-/g, "/");
+            await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact , appointmentRoom + utc, true).then(async (bubble) => {
+                logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: createBubble request ok", bubble);
+                rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
+                    let message = "message de test" + " @" + contact.name.value + " ";
+                    let mentions = [];
+
+                    mentions.push(contact.jid);
+
+                    await setTimeoutPromised(2000);
+                    //mentions
+                    await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", contact.jid);
+                    /*await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                        "type": "text/markdown",
+                        "message": message + " @" + contact.name.value
+                    }, "subject", mentions); // */
+                });
+            });
+        }
+    }); // */
     //    let utc = new Date().toJSON().replace(/-/g, '/');
 }
 

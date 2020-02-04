@@ -85,6 +85,7 @@ class ConversationEventHandler extends GenericHandler {
                 let messageType = stanza.attrs.type;
                 let timestamp = new Date();
                 let replaceMessageId = null;
+                let attention = false;
 
                 let fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
                 let resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
@@ -361,6 +362,9 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "updated_call_log":
                             break;
+                        case "attention":
+                            attention = true;
+                            break;
                         default:
                             that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
                             that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), stanza);
@@ -407,8 +411,8 @@ class ConversationEventHandler extends GenericHandler {
                         "fromBubbleUserJid": null,
                         "event": null,
                         "eventJid": null,
-                        "originalMessageReplaced": null
-
+                        "originalMessageReplaced": null,
+                        "attention" : undefined
                     };
 
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {
@@ -420,6 +424,9 @@ class ConversationEventHandler extends GenericHandler {
                             data.event = event;
                             data.eventJid = eventJid;
                             data.isEvent = true;
+                        }
+                        if (attention) {
+                            data.attention = attention;
                         }
                     }
 
