@@ -15,6 +15,7 @@ import {Invitation} from "../common/models/Invitation";
 import {Contact} from "../common/models/Contact";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
+import {error} from "winston";
 
 let packageVersion = require("../../package.json");
 

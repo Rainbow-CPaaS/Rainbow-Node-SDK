@@ -23,6 +23,7 @@ import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {Contact} from "../common/models/Contact";
 import {rejects} from "assert";
+import {error} from "winston";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -220,6 +221,10 @@ class Conversations {
 
             await that._rest.getServerConversations(that.conversationsRetrievedFormat).then(async (conversations : []) => {
                 await that.removeOlderConversations(conversations);
+            }).catch((error) => {
+                that._logger.log("warn", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                that._logger.log("internalerror", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                // The remove of old conversations is not mandatory, so lets continue the treatment.
             });
 
             that._rest.getServerConversations(that.conversationsRetrievedFormat).then((conversations : []) => {

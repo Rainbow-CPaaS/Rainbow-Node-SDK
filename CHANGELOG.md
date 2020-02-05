@@ -15,6 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -	Add Bubble::autoAcceptationInvitation property
 -	Add property Message::attention Boolean to indicate if the current logged user is mentioned in the message.
 -   RQRAINB-2868 Add parameter mention to API ImsService::sendMessageToBubble ImsService::sendMessageToBubbleJid ImsService::sendMessageToBubbleJidAnswer which contains an array list of JID of contacts to mention or a string containing a single JID of one contact. 
+-	Fix the treatment of error while method getServerConversations failed to retrieve conversations for removeOlderConversations.
 
 ## [1.66.1] - 2020-01-29
 -   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)

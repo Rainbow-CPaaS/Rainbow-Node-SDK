@@ -339,6 +339,7 @@ class Core {
         let that = this;
 
         this.logger.log("debug", LOG_ID + "(start) _entering_");
+        this.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
 
         return new Promise(function (resolve, reject) {
 
