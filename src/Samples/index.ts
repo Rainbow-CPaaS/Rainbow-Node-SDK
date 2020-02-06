@@ -614,6 +614,14 @@ function testReconnection() {
         }); // */
     });
 }
+
+async function testdeleteAllGroups() {
+    let thingAttribute = this;
+    logger.log("debug", "testdeleteAllGroups before delete");
+    await rainbowSDK.groups.deleteAllGroups();
+    logger.log("debug", "testdeleteAllGroups after delete");
+}
+
 function testChannelImage() {
     let mychannels = rainbowSDK.channels.getAllOwnedChannel();
     let mychannel = mychannels ? mychannels[0] : null;

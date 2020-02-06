@@ -51,11 +51,11 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
-        this._eventEmitter.on("evt_internal_groupcreated", this._onGroupCreated.bind(this));
-        this._eventEmitter.on("evt_internal_groupdeleted", this._onGroupDeleted.bind(this));
-        this._eventEmitter.on("evt_internal_groupupdated", this._onGroupUpdated.bind(this));
-        this._eventEmitter.on("evt_internal_useraddedingroup", this._onUserAddedInGroup.bind(this));
-        this._eventEmitter.on("evt_internal_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
+        this._eventEmitter.on("evt_internal_hdle_groupcreated", this._onGroupCreated.bind(this));
+        this._eventEmitter.on("evt_internal_hdle_groupdeleted", this._onGroupDeleted.bind(this));
+        this._eventEmitter.on("evt_internal_hdle_groupupdated", this._onGroupUpdated.bind(this));
+        this._eventEmitter.on("evt_internal_hdle_useraddedingroup", this._onUserAddedInGroup.bind(this));
+        this._eventEmitter.on("evt_internal_hdle_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
         this.ready = false;
     }
 
@@ -193,7 +193,50 @@ const LOG_ID = "GROUPS/SVCE - ";
          });
      }
 
-	/**
+    /**
+     * @public
+     * @method deleteAllGroups
+     * @instance
+     * @description
+     *    Delete all existing owned groups <br/>
+     *    Return a promise
+     * @return {Object} Nothing or an error object depending on the result
+     */
+    deleteAllGroups() {
+         let that = this;
+
+        return new Promise((resolve, reject) => {
+            const promiseQueue = [];
+
+            const groups = that.getAll();
+
+            if (!Array.isArray(groups) || (groups && groups.length === 0)) {
+                return resolve({
+                    code: 0,
+                    label: 'OK'
+                });
+            }
+
+            groups.forEach(group => {
+                promiseQueue.push(that.deleteGroup(group).catch (()=> {}));
+            });
+
+            Promise.all(promiseQueue)
+                .then(() => {
+                    that._logger.log("info", LOG_ID + "[deleteAllGroups] :: All groups deleted successfully");
+                    return resolve({
+                        code: 0,
+                        label: 'OK'
+                    });
+                })
+                .catch(err => {
+                    that._logger.log("error", LOG_ID + "[deleteAllGroups] :: Error when deleting all groups");
+                    return reject(err);
+                });
+        });
+    }
+
+    /**
      * @public
      * @method updateGroupName
      * @instance
@@ -270,7 +313,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 Promise.all(promises).then(groups => {
                     that._groups = groups;
                     that._logger.log("info", LOG_ID + "(getGroups) get successfully");
-                    resolve();
+                    resolve(that._groups);
                 }, err => {
                     return reject(err);
                 });
@@ -311,7 +354,10 @@ const LOG_ID = "GROUPS/SVCE - ";
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              }
-            let contactIndex = group.users.findIndex(user => user.id === contact.id);
+
+             that._logger.log("internal", LOG_ID + "(addUserInGroup) contact : ", contact, ", group : ", group);
+
+             let contactIndex = group.users.findIndex(user => user.id === contact.id);
             if (contactIndex === -1) {
                 that._rest.addUserInGroup(contact.id, group.id).then((groupUpdated : any) => {
 
@@ -362,6 +408,8 @@ const LOG_ID = "GROUPS/SVCE - ";
                  reject(ErrorManager.getErrorManager().BAD_REQUEST);
                  return;
              }
+
+             that._logger.log("internal", LOG_ID + "(removeUserFromGroup) contact : ", contact, ", group : ", group);
 
             let contactIndex = group.users.findIndex(user => user.id == contact.id);
             if (contactIndex > -1) {
@@ -456,7 +504,7 @@ const LOG_ID = "GROUPS/SVCE - ";
     _onGroupCreated(data) {
         let that = this;
 
-        this._rest.getGroup(data.groupId).then((groupCreated : any )=> {
+        this._rest.getGroup(data.id).then((groupCreated : any )=> {
             //that._logger.log("internal", LOG_ID + "(_onGroupCreated) Group created : ", groupCreated.name);
 
             let foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupCreated.id);

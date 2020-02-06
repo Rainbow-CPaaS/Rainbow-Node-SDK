@@ -698,26 +698,26 @@ class ConversationEventHandler extends GenericHandler {
 
                     if (action === "create" && scope === "group") {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) group created");
-                        that.eventEmitter.emit("evt_internal_groupcreated", {"groupId": node.attrs.id});
+                        that.eventEmitter.emit("evt_internal_hdle_groupcreated", {"groupId": node.attrs.id});
                     } else if (action === "create" && scope === "user" && node.attrs.userId) {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) user added in group");
-                        that.eventEmitter.emit("evt_internal_useraddedingroup", {
+                        that.eventEmitter.emit("evt_internal_hdle_useraddedingroup", {
                                 "groupId": node.attrs.id,
                                 "userId": node.attrs.userId
                             });
                     } else if (action === "delete" && scope === "group") {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) group deleted");
-                        that.eventEmitter.emit("evt_internal_groupdeleted", {"groupId": node.attrs.id});
+                        that.eventEmitter.emit("evt_internal_hdle_groupdeleted", {"groupId": node.attrs.id});
                     } else if (action === "delete" && scope === "user" && node.attrs.userId) {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) user removed from group");
-                        that.eventEmitter.emit("evt_internal_userremovedfromgroup", {
+                        that.eventEmitter.emit("evt_internal_hdle_userremovedfromgroup", {
                                 "groupId": node.attrs.id,
                                 "userId": node.attrs.userId
                             });
                     } else if (action === "update" && scope === "group") {
                         if (node.attrs.name || node.attrs.comment || node.attrs.isFavorite) {
                             that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) group updated");
-                            that.eventEmitter.emit("evt_internal_groupupdated", {"groupId": node.attrs.id});
+                            that.eventEmitter.emit("evt_internal_hdle_groupupdated", {"groupId": node.attrs.id});
                         }
                     }
                 }
