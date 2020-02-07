@@ -16,8 +16,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add property Message::attention Boolean to indicate if the current logged user is mentioned in the message.
 -   RQRAINB-2868 Add parameter mention to API ImsService::sendMessageToBubble ImsService::sendMessageToBubbleJid ImsService::sendMessageToBubbleJidAnswer which contains an array list of JID of contacts to mention or a string containing a single JID of one contact. 
 -   Fix the treatment of error while method getServerConversations failed to retrieve conversations for removeOlderConversations.
--   Add GroupsServices::deleteAllGroups API to delete all existing owned groups.
--   Fix errors in groups events
+-   RQRAINB-3024 Add GroupsServices::deleteAllGroups API to delete all existing owned groups.
+-   RQRAINB-3024 Fix errors in groups events
+-   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com. 
+-   RQRAINB-3023 Add method HttpService::getUrl to retrieve a specified url. The url can be any one while HttpService::get method only accept path on rainbow platform. 
+-   RQRAINB-3023 Add method RESTService::getRainbowNodeSdkPackagePublishedInfos to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com. 
 
 ## [1.66.1] - 2020-01-29
 -   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)

@@ -30,6 +30,8 @@ import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
 import {ErrorManager} from "./common/ErrorManager";
 
+import {lt} from "semver";
+
 const packageVersion = require("../package.json");
 
 let _signin;
@@ -111,7 +113,31 @@ class Core {
         self._retrieveInformation = (useCLIMode) => {
             let that = self;
             that.logger.log("debug", LOG_ID + "(_retrieveInformation) useCLIMode : ", useCLIMode);
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
+
+                await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
+                   // self.logger.log("internal", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
+                    infos.results.forEach( (packagePublished: any) => {
+                        if (packagePublished.package.name === packageVersion.name) {
+                            //if (packagePublished.package.version !== packageVersion.version) {
+                            if (lt(packageVersion.version, packagePublished.package.version)) {
+                                self.logger.log("error", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
+                                    "*******************************************************\n\n", self.logger.colors.red.underline("WARNING : "), self.logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.") , "\n\n*******************************************************");
+                                let error = {
+                                    "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
+                                    "currentPackage": packageVersion.version,
+                                    "latestPublishedPackage": packagePublished.package.version
+                                };
+                                self._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
+
+                                //self.events.publish("rainbowversionwarning", error);
+                            }
+                        }
+                    });
+                }).catch((error)=> {
+                    self.logger.log("error", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                   // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                });
 
                 if (useCLIMode) {
                     resolve();

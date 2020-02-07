@@ -99,6 +99,7 @@
     "request": "^2.88.0",
     "rss": "^1.2.2",
     "sasl-digest-md5": "^0.1.0",
+    "semver": "^7.1.2",
     "stream-buffers": "^3.0.2",
     "strip-ansi": "^6.0.0",
     "strophe": "^1.2.4",

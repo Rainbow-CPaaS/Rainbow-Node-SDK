@@ -2516,6 +2516,25 @@ class RESTService {
         return that.restTelephony.wrapup(that.getRequestHeader(), agentId, groupId, password, status);
     }
 
+    getRainbowNodeSdkPackagePublishedInfos() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let headers = {
+                "Accept": "application/json"
+            };
+
+            that.http.getUrl("https://api.npms.io/v2/search?q=rainbow-node-sdk", headers, undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) successfull");
+                that.logger.log("internal", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) received ", json);
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error");
+                that.logger.log("internalerror", LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     ////////
     // Conversations
     getServerConversations(format:String = "small") {

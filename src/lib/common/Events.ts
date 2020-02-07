@@ -14,6 +14,7 @@ const LOG_ID = "EVENTS - ";
  * @description
  *      This module fires every events that come from Rainbow.<br/>
  *      To receive them, you need to subscribe individually to each of the following events<br/>
+ * @fires Events#rainbow_onrainbowversionwarning
  * @fires Events#rainbow_onmessageserverreceiptreceived
  * @fires Events#rainbow_onmessagereceiptreceived
  * @fires Events#rainbow_onmessagereceiptreadreceived
@@ -170,6 +171,19 @@ class Events {
              *      Fired when a chat message with no-store attribut sent has failed.
              */
             that.publishEvent("sendmessagefailed", message);
+        });
+  this._evReceiver.on("evt_internal_onrainbowversionwarning", function(data) {
+            /**
+             * @event Events#rainbow_onrainbowversionwarning
+             * @public
+             * @param { Object } data The warning object about the curent SDK version which is not the latest one provided on npmjs.com.
+             * @param { string } data.label The label warning.
+             * @param { string } data.currentPackage The curent SDK version used.
+             * @param { string } data.latestPublishedPackage The latest one provided on npmjs.com.
+             * @description
+             *      Fired when a chat message with no-store attribut sent has failed.
+             */
+            that.publishEvent("rainbowversionwarning", data);
         });
 
         this._evReceiver.on("evt_internal_onrosterpresencechanged", function(contact) {
