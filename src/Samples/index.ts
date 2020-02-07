@@ -7,6 +7,7 @@
  *
  */
 import {setTimeoutPromised} from "../lib/common/Utils";
+import set = Reflect.set;
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -616,17 +617,32 @@ function testReconnection() {
 }
 
 async function testdeleteAllGroups() {
-    let thingAttribute = this;
-    logger.log("debug", "testdeleteAllGroups before delete");
+    let that = this;
+    logger.log("debug", "MAIN - testdeleteAllGroups before delete");
     await rainbowSDK.groups.deleteAllGroups();
-    logger.log("debug", "testdeleteAllGroups after delete");
+    logger.log("debug", "MAIN - testdeleteAllGroups after delete");
+}
+
+async function testsetGroupAsFavorite() {
+    let that = this;
+    //logger.log("debug", "testsetGroupAsFavorite before delete");
+    let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
+    logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
+    let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
+    logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
+    await setTimeoutPromised(1500);
+    let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
+    logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
+    await setTimeoutPromised(1500);
+    let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
+    logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
 }
 
 function testChannelImage() {
     let mychannels = rainbowSDK.channels.getAllOwnedChannel();
     let mychannel = mychannels ? mychannels[0] : null;
     rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((result) => {
-        logger.log("debug", "retrieveFileDescriptorsListPerOwner - result : ", result);
+        logger.log("debug", "MAIN - retrieveFileDescriptorsListPerOwner - result : ", result);
         if (result) {
             let now = new Date().getTime();
             let msg = " <h1>Rainbow Node SDK - Sample</h1><hr /><h2>[1.66.1] - 2020-01-29</h2>\n" +
@@ -638,7 +654,7 @@ function testChannelImage() {
                 "<ul><li>" + now + "</li><li>Add correlatorData et GlobaleCallId </li><li>Fix method ChannelsService::createItem when parameter &quot;type&quot; is setted.</li><li>Split Xmmpp error event treatment in 3 possibilities:<ul><li>Errors which need a reconnection </li><li>Errors which need to only raise an event to inform up layer. =&gt; Add an event <code>rainbow_onxmpperror</code> to inform about issue. </li><li>Errors which are fatal errors and then need to stop the SDK. =&gt; Already existing events <code>rainbow_onerror</code> + <code>rainbow_onstop</code>.</li></ul></li><li>Work done on private method BubblesServices::joinConference (Not finish, so not available).</li><li>Update Bubble::users property ordered by additionDate.</li><li>Fix ordered calllogs (<code>orderByNameCallLogsBruts</code>, <code>orderByDateCallLogsBruts</code>).</li></ul>\n";
             let tabImages = [{ "id": result[0].id }];
             rainbowSDK.channels.createItem(mychannel, msg, "title", null, tabImages).then((res) => {
-                logger.log("debug", "createItem - res : ", res);
+                logger.log("debug", "MAIN - createItem - res : ", res);
             });
         }
     });
@@ -650,12 +666,12 @@ function testPublishChannel() {
         for (let i = 0; i < 1; i++) {
             let now = new Date().getTime();
             rainbowSDK.channels.createItem(mychannel, "-- message : " + i + " : " + now, "title", null, null).then((res) => {
-                logger.log("debug", "createItem - res : ", res);
+                logger.log("debug", "MAIN - createItem - res : ", res);
             });
         }
     }
     else {
-        logger.log("debug", "createItem - getAllOwnedChannel mychannel is empty, so can not publish.");
+        logger.log("debug", "MAIN - createItem - getAllOwnedChannel mychannel is empty, so can not publish.");
     }
 }
 function testcreateChannel() {
@@ -669,9 +685,9 @@ function testcreateChannel() {
         let channelCreated = yield rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test");
         logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
         let channelMembersAdded = yield rainbowSDK.channels.addMembersToChannel(channelCreated, [{ "id": contact.id }]);
-        logger.log("debug", "testcreateChannel - channelMembersAdded : ", channelMembersAdded);
+        logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
         let channelinfo = yield rainbowSDK.channels.fetchChannel(channelCreated.id);
-        logger.log("debug", "testcreateChannel - channelinfo : ", channelinfo);
+        logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
         /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
             logger.log("debug", "createItem - res : ", res);
         }); // */
@@ -681,13 +697,13 @@ function testChannelDeleteMessage() {
     let mychannels = rainbowSDK.channels.getAllOwnedChannel();
     let mychannel = mychannels ? mychannels[0] : null;
     rainbowSDK.channels.getMessagesFromChannel(mychannel).then((result) => {
-        logger.log("debug", "getMessagesFromChannel - result : ", result);
+        logger.log("debug", "MAIN - getMessagesFromChannel - result : ", result);
         if (result && result.length > 0) {
             let now = new Date().getTime();
             let idToDelete = result.length - 1;
-            logger.log("debug", "getMessagesFromChannel - idToDelete : ", idToDelete);
+            logger.log("debug", "MAIN - getMessagesFromChannel - idToDelete : ", idToDelete);
             rainbowSDK.channels.deleteMessageFromChannel(mychannel.id, result[idToDelete].id).then((result) => {
-                logger.log("debug", "deleteMessageFromChannel - result : ", result);
+                logger.log("debug", "MAIN - deleteMessageFromChannel - result : ", result);
             });
             /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, null).then((res) => {
                 logger.log("debug", "createItem - res : ", res);

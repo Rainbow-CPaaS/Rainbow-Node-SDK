@@ -684,6 +684,32 @@ class RESTService {
         });
     }
 
+    setFavoriteGroup(group, favorite) {
+        /*
+        Request URL: https://vberder.openrainbow.org/api/rainbow/enduser/v1.0/users/5bbdc3ae2cf496c07dd8912f/groups/5e3d39e1cbc6187d74aee06c
+Request Method: PUT
+{name: "GroupTest", comment: "descgroup", isFavorite: true}
+         */
+        let that = this;
+        //  let data = { "name": group.name, "comment": group.comment, "isFavorite": group.isFavorite }
+        let data = {
+            isFavorite: favorite
+        };
+        let groupId = group.id;
+
+        return new Promise(function(resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function(json) {
+                 that.logger.log("info", LOG_ID + "(setFavoriteGroup) successfull");
+                 that.logger.log("internal", LOG_ID + "(setFavoriteGroup) REST set group favorite information : ", json.data);
+                 resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(setFavoriteGroup) error");
+                that.logger.log("internalerror", LOG_ID, "(setFavoriteGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     createGroup(name, comment, isFavorite) {
         let that = this;
         return new Promise(function(resolve, reject) {
