@@ -1,4 +1,6 @@
 "use strict";
+import construct = Reflect.construct;
+
 export {};
 
 import {ErrorManager} from "./ErrorManager";
@@ -7,6 +9,79 @@ import {Core} from "../Core";
 import {Logger} from "./Logger";
 
 const LOG_ID = "EVENTS - ";
+let EventEmitterClass = EventEmitter;
+// dev-code //
+/**
+ * @class
+ * @name Emitter
+ * @private
+ * @description
+ * EventEmitter class extended to log the event names and parameters.
+ */
+class Emitter extends EventEmitter {
+    public _logger: Logger;
+
+    constructor( _logger : Logger) {
+        super();
+        let that = this;
+
+        this._logger = _logger;
+    }
+
+    emit(type, ...args): boolean {
+        let that = this;
+        try {
+        that._logger.log("internal", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        } catch (e) {
+            that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
+        }
+
+        return super.emit(type, ...args)
+    }
+
+    on(event: string | symbol, listener: (...args: any[]) => void): this {
+//        let event;
+        let params = [];
+        let that = this;
+  //      [event, ...params] = args;
+        let listenerWithLog = (...args: any[]) => {
+            try {
+                if (args.length === 0) {
+                    that._logger.log("internal", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
+                }
+                let iter = 0;
+                [...params] = args;
+                params.forEach((dataIter) => {
+                    //console.log("EVENT dataIter : ", dataIter);
+                    //that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", dataIter);
+                    let data = that._logger.argumentsToString(["", dataIter]);
+                    //console.log("EVENT data : ", data);
+                    that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.eventsEmitter(event), " data : ", that._logger.colors.data(data));
+
+                });
+            } catch (e) {
+                that._logger.log("error", LOG_ID + "EventEmitter(on) Catch Error !!! error : ", e);
+            }
+
+            return listener(...args);
+        };
+        super.on(event, listenerWithLog);
+        return this;
+    }
+}
+// end-dev-code //
+
+// dev-code //
+/*
+// The comment is removed at grunt build so the default EventEmitter is used when delivered.
+// end-dev-code //
+class Emitter extends EventEmitterClass{
+    constructor(props) {
+        super();
+    }
+}
+// */
+
 
 /**
  * @class
@@ -86,9 +161,21 @@ class Events {
         this._logger = _logger;
         this._filterCallback = _filterCallback;
 
-        this._evReceiver = new EventEmitter();
+        this._evReceiver = new Emitter(this._logger);
 
         this._evPublisher = new EventEmitter();
+
+        this._evReceiver.on('evt_internal_on*', function(...args: any[]) {
+            let event;
+            let params;
+            let that = this;
+            [event, ...params] = args;
+
+            let eventName = this.event;
+
+            that._logger.log("internal", LOG_ID + "(evt_internal_on*) receive event " + that._logger.colors.events(eventName.toString()));
+            //console.log(this.event, value1, value2);
+        });
 
         this._evReceiver.on("evt_internal_onreceipt", function(receipt) {
             if (_filterCallback && _filterCallback(receipt.fromJid)) {
@@ -740,11 +827,11 @@ class Events {
 
     }
 
-    get iee() {
+    get iee(): EventEmitter {
         return this._evReceiver;
     }
 
-    get eee() {
+    get eee(): EventEmitter {
         return this._evPublisher;
     }
 
@@ -759,7 +846,7 @@ class Events {
      * @description
      *      Subscribe to an event
      */
-    on(event, callback) {
+    on(event, callback): EventEmitter {
         return this._evPublisher.on(event, callback);
     }
 
@@ -774,11 +861,11 @@ class Events {
      * @description
      *      Subscribe to an event only one time (fired only the first time)
      */
-    once(event: string, callback :  (...args: any[]) => void) {
+    once(event: string, callback :  (...args: any[]) => void): EventEmitter {
         return this._evPublisher.once(event, callback);
     }
 
-    publish(event: string, data : any) {
+    publish(event: string, data : any): void {
 
         let info = data || ErrorManager.getErrorManager().OK;
 
@@ -869,7 +956,7 @@ class Events {
      * @description
      *      Add "rainbow_on" prefix to event name, print it human readable, and raises it.
      */
-    publishEvent(...args: any[]) {
+    publishEvent(...args: any[]): void {
         let event;
         let params;
         let that = this;
@@ -891,7 +978,7 @@ class Events {
         this._evPublisher.emit(eventName, ...params);
     }
 
-    setCore(_core : Core) {
+    setCore(_core : Core): void {
         this._core = _core;
     }
 

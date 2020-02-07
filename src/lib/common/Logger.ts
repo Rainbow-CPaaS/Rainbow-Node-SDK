@@ -52,7 +52,8 @@ class Logger {
             warn: 'yellow',
             debug: 'blue',
             error: 'red',
-            events: [ 'magenta', 'underline', 'italic']
+            events: [ 'magenta', 'underline', 'italic'],
+            eventsEmitter: [ 'cyan', 'underline', 'italic']
         });
 
         let welcome = () => {

@@ -1,154 +1,3 @@
-declare var __awaiter: any;
-declare const Bubble_1: any;
-declare const RainbowSDK: any;
-declare const Utils: any;
-declare const fs: any;
-declare const fileapi: any;
-declare const util: any;
-declare const inquirer: any;
-declare const jwt: any;
-declare let options: {
-    "rainbow": {
-        "host": string;
-    };
-    "credentials": {
-        "login": string;
-        "password": string;
-    };
-    "application": {
-        "appID": string;
-        "appSecret": string;
-    };
-    "logs": {
-        "enableConsoleLogs": boolean;
-        "enableFileLogs": boolean;
-        "color": boolean;
-        "level": string;
-        "customLabel": string;
-        "system-dev": {
-            "internals": boolean;
-            "http": boolean;
-        };
-        "file": {
-            "path": string;
-            "customFileName": string;
-            "zippedArchive": boolean;
-        };
-    };
-    "im": {
-        "sendReadReceipt": boolean;
-        "messageMaxLength": number;
-        "sendMessageToConnectedUser": boolean;
-        "conversationsRetrievedFormat": string;
-        "storeMessages": boolean;
-        "copyMessage": boolean;
-        "nbMaxConversations": number;
-        "rateLimitPerHour": number;
-    };
-    "servicesToStart": {
-        "bubbles": {
-            "start_up": boolean;
-        };
-        "telephony": {
-            "start_up": boolean;
-        };
-        "channels": {
-            "start_up": boolean;
-        };
-        "admin": {
-            "start_up": boolean;
-        };
-        "fileServer": {
-            "start_up": boolean;
-        };
-        "fileStorage": {
-            start_up: boolean;
-        };
-        "calllog": {
-            "start_up": boolean;
-        };
-        "favorites": {
-            "start_up": boolean;
-        };
-        "webrtc": {
-            "start_up": boolean;
-            "optional": boolean;
-        };
-    };
-};
-declare let rainbowSDK: any;
-declare let logger: any;
-declare let calls: any[];
-declare let mycalllogs: {
-    "callLogs": any;
-    "simplifiedCallLogs": any;
-};
-declare function saveCall(call: any): void;
-declare let countStop: number;
-declare function testgetContactByLoginEmail_UnknownUser(): void;
-declare function testgetContactByLoginEmail_NotInRoster(): void;
-declare function testremoveAllMessages(): any;
-declare function testsendMessageToConversation(): void;
-declare function testsendMessageToConversation_html(): any;
-declare function testSendMessageToJid(): any;
-declare function testsendCorrectedChatMessage(): any;
-declare function testsendCorrectedChatMessageForBubble(): any;
-declare function testsendCorrectedChatMessageForBubbleInExistingConversation(): any;
-declare function testSendMultipleMessages(): any;
-declare function testReconnection(): void;
-declare function testChannelImage(): void;
-declare function testPublishChannel(): void;
-declare function testcreateChannel(): any;
-declare function testChannelDeleteMessage(): void;
-declare function downloadFile(): void;
-declare function testUploadFileToConversation(): void;
-declare function testUploadFileToConversationByPath(): void;
-declare function testuploadFileToStorage(): any;
-declare function testRetrieveOneFileDescriptor(): void;
-declare function testChannelupdateChannelDescription(): void;
-declare function testCreateBubbles(): void;
-declare function testCreate50BubblesAndArchiveThem(): Promise<void>;
-declare function testCreateBubblesAndInviteContactsByEmails(): void;
-declare function testCreateBubblesAndJoinConference(): void;
-declare function testgetContactByLoginEmail(): void;
-/**
- * need to be administrator of the company. Here vincent02 is ok.
- */
-declare function testgetContactInfos(): void;
-/**
- * need to be administrator of the company. Here vincent02 is ok.
- */
-declare function testupdateContactInfos(): void;
-declare function getLastMessageOfConversation(contact: any): void;
-declare function getConversationHistory(conversation: any): void;
-declare function PrintTheLastMessage(conversation: any): void;
-declare function testBubblesArchived(): void;
-declare function testSetBubbleCustomData(): any;
-declare function testDeletebubble(): any;
-declare function testDeleteOneCallLog(): void;
-declare function testDeleteAllCallLogs(): void;
-declare function testDeleteCallLogsForContact(): any;
-declare function testmarkCallLogAsRead(): void;
-declare function testmarkAllCallsLogsAsRead(): void;
-declare function testDeleteServerConversation(): any;
-declare function testUploadFileToBubble(): any;
-declare function test_refreshMemberAndOrganizerLists(): void;
-declare function testGetUsersFromBubble(): any;
-declare function testjoinContacts_AddContactToRoster(): any;
-declare function testsendSubscription(): any;
-declare function testaddToContactsList(): any;
-declare function testupdateChannelAvatar(): any;
-declare function testgetServerFavorites(): any;
-declare function testgetAllUsers(): any;
-declare function testmakeCallByPhoneNumber(): any;
-declare function testmakeCallByPhoneNumberAndHoldCallRetrieveCall(): any;
-declare function testSendMessageToJidOfMySelf(): any;
-declare function testupdateAvatarForBubble(): void;
-declare function testgetAvatarFromBubble(): Promise<void>;
-declare function testmakeCallByPhoneNumberProd(): any;
-declare function testcreateGuestUserError(): Promise<void>;
-declare function commandLineInteraction(): void;
-declare let token: any;
 declare module 'lib/common/Utils' {
 	 let makeId: (n: any) => string; let createPassword: (size: any) => string; let isAdmin: (roles: any) => boolean; class Deferred {
 	    resolve: any;
@@ -160,6 +9,10 @@ declare module 'lib/common/Utils' {
 	    data: Uint8Array;
 	};
 	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData };
+
+}
+declare module 'Samples/index' {
+	export {};
 
 }
 declare module 'lib/common/models/Channel' {
@@ -492,6 +345,7 @@ declare module 'lib/common/XMPPUtils' {
 	    static getXMPPUtils(): XMPPUTils;
 	    generateRandomID(): string;
 	    getUniqueMessageId(): string;
+	    getUniqueId(suffix: any): string;
 	    generateRandomFullJidForNode(jid: any, generatedRandomId: any): string;
 	    getBareJIDFromFullJID(fullJid: any): any;
 	    getRoomJIDFromFullJID(fullJid: any): any;
@@ -544,6 +398,8 @@ declare module 'lib/connection/XMPPService' {
 	    "OobNameSpace": string;
 	    "Monitoring1NameSpace": string;
 	    "CallService1NameSpace": string;
+	    "MamNameSpace": string;
+	    "AttentionNS": string;
 	}; class XMPPService {
 	    serverURL: any;
 	    host: any;
@@ -590,7 +446,7 @@ declare module 'lib/connection/XMPPService' {
 	    setPresence(show: any, status: any): any;
 	    enableCarbon(): Promise<unknown>;
 	    sendChatMessage(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any): Promise<unknown>;
-	    sendChatMessageToBubble(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any): Promise<unknown>;
+	    sendChatMessageToBubble(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, attention: any): Promise<unknown>;
 	    sendCorrectedChatMessage(conversation: any, originalMessage: any, data: any, origMsgId: any, lang: any): Promise<string>;
 	    markMessageAsRead(message: any): Promise<unknown>;
 	    sendChatExistingFSMessage(message: any, jid: any, lang: any, fileDescriptor: any): Promise<unknown>;
@@ -616,6 +472,7 @@ declare module 'lib/connection/XMPPService' {
 	    deleteAllCallLogs(): Promise<any>;
 	    markCallLogAsRead(id: any): Promise<any>;
 	    markAllCallsLogsAsRead(callLogs: any): Promise<any[]>;
+	    deleteAllMessageInOneToOneConversation(conversationId: any): Promise<any>;
 	    getErrorMessage(data: any, actionLabel: any): string;
 	    getTelephonyState(secondary: any): Promise<unknown>;
 	    sendPing(): void;
@@ -646,6 +503,7 @@ declare module 'lib/connection/HttpService' {
 	        errorCode: number;
 	        errorDetails: string;
 	    }): void;
+	    getUrl(url: any, headers: any, params: any): Promise<any>;
 	    get(url: any, headers: any, params: any): Promise<any>;
 	    post(url: any, headers: any, data: any, contentType: any): Promise<any>;
 	    put(url: any, headers: any, data: any, type: any): Promise<any>;
@@ -870,6 +728,7 @@ declare module 'lib/connection/RESTService' {
 	    getInvitationById(invitationId: any): Promise<unknown>;
 	    getGroups(): Promise<unknown>;
 	    getGroup(groupId: any): Promise<unknown>;
+	    setFavoriteGroup(group: any, favorite: any): Promise<unknown>;
 	    createGroup(name: any, comment: any, isFavorite: any): Promise<unknown>;
 	    deleteGroup(groupId: any): Promise<unknown>;
 	    updateGroupName(groupId: any, name: any): Promise<unknown>;
@@ -984,6 +843,7 @@ declare module 'lib/connection/RESTService' {
 	    logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
 	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
 	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
+	    getRainbowNodeSdkPackagePublishedInfos(): Promise<unknown>;
 	    getServerConversations(format?: String): Promise<unknown>;
 	    createServerConversation(conversation: any): Promise<unknown>;
 	    deleteServerConversation(conversationId: any): Promise<unknown>;
@@ -2021,7 +1881,8 @@ declare module 'lib/common/models/Message' {
 	     * @private
 	     */
 	    static ReceiptStatusText: string[];
-	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, fileId?: any, isMarkdown?: any, subject?: any);
+	    attention: boolean;
+	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, fileId?: any, isMarkdown?: any, subject?: any, attention1?: boolean);
 	    /**
 	     * @private
 	     * @method
@@ -2186,7 +2047,8 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    ownerContact: Contact;
 	    owner: boolean;
-	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _avatarDomain?: String);
+	    autoAcceptInvitation: boolean;
+	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _avatarDomain?: String, autoAcceptInvitation?: boolean);
 	    /**
 	     * Method helper to know if room is a meeting
 	     * @private
@@ -2198,9 +2060,9 @@ declare module 'lib/common/models/Bubble' {
 	    /**
 	     * @function
 	     * @public
-	     * @name ChannelFactory
+	     * @name BubbleFactory
 	     * @description
-	     * This class is used to create a channel from data object
+	     * This class is used to create a bubble from data object
 	     */
 	    static BubbleFactory(avatarDomain: any, contactsService: any): (data: any) => Promise<Bubble>;
 	}
@@ -4131,6 +3993,20 @@ declare module 'lib/services/ConversationsService' {
 	     */
 	    deleteMessage(conversation: any, messageId: any): Promise<any>;
 	    /**
+	     *
+	     * @public
+	     * @since 1.67.0
+	     * @method deleteAllMessageInOneToOneConversation
+	     * @instance
+	     * @memberof Conversations
+	     * @async
+	     * @description
+	     *   DELETE ALL MESSAGES IN ONE2ONE CONVERSATION
+	     * @param {Conversation} conversation The conversation object
+	     * @return {Message} - message object with updated replaceMsgs property
+	     */
+	    deleteAllMessageInOneToOneConversation(conversation: any): Promise<any>;
+	    /**
 	     * @private
 	     * @description
 	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
@@ -4477,13 +4353,14 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
+	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
 	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubble(message: any, bubble: any, lang: any, content: any, subject: any): Promise<unknown>;
+	    sendMessageToBubble(message: any, bubble: any, lang: any, content: any, subject: any, mentions: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubbleJid
@@ -4497,16 +4374,17 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
+	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
 	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any): Promise<unknown>;
+	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions: any): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method sendMessageToBubbleJid
+	     * @method sendMessageToBubbleJidAnswer
 	     * @instance
 	     * @description
 	     *  Send a message to a bubble identified by its JID
@@ -4518,13 +4396,14 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {String} [answeredMsg] The message answered
+	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
 	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubbleJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any): Promise<unknown>;
+	    sendMessageToBubbleJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, mentions: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method
@@ -6015,6 +5894,16 @@ declare module 'lib/services/GroupsService' {
 	    deleteGroup(group: any): Promise<unknown>;
 	    /**
 	     * @public
+	     * @method deleteAllGroups
+	     * @instance
+	     * @description
+	     *    Delete all existing owned groups <br/>
+	     *    Return a promise
+	     * @return {Object} Nothing or an error object depending on the result
+	     */
+	    deleteAllGroups(): Promise<unknown>;
+	    /**
+	     * @public
 	     * @method updateGroupName
 	     * @instance
 	     * @param {Group} group The group to update
@@ -6036,18 +5925,34 @@ declare module 'lib/services/GroupsService' {
 	    getGroups(): Promise<unknown>;
 	    /**
 	    * @public
-	    * @method addUserInGroup
+	    * @method setGroupAsFavorite
+	    * @since 1.67.0
 	    * @instance
-	    * @param {Contact} contact The user to add in group
 	    * @param {Group} group The group
 	    * @memberof Groups
 	    * @description
-	    * 		Add a contact in a group
+	    * 		Set a group as a favorite one of the curent loggued in user.
 	    * @async
 	    * @return {Promise<Group, ErrorManager>}
-	    * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
+	    * @fulfil {Group} - Updated group or an error object depending on the result
 	    * @category async
 	    */
+	    setGroupAsFavorite(group: any): Promise<unknown>;
+	    unsetGroupAsFavorite(group: any): void;
+	    /**
+	     * @public
+	     * @method addUserInGroup
+	     * @instance
+	     * @param {Contact} contact The user to add in group
+	     * @param {Group} group The group
+	     * @memberof Groups
+	     * @description
+	     * 		Add a contact in a group
+	     * @async
+	     * @return {Promise<Group, ErrorManager>}
+	     * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
+	     * @category async
+	     */
 	    addUserInGroup(contact: any, group: any): Promise<unknown>;
 	    /**
 	    * @public

@@ -160,6 +160,7 @@ Conversations : Promise : closeConversation(Conversation)
 Conversations : Message : sendExistingMessage(string)
 Conversations : Promise.String : sendCorrectedChatMessage(, , )
 Conversations : Message : deleteMessage(Conversation, String)
+Conversations : Message : deleteAllMessageInOneToOneConversation(Conversation)
 Conversations : Promise : removeAllMessages(Conversation)
 Conversations : Promise : removeMessagesFromConversation(Conversation)
 Conversations : Conversation : getConversationById(String)
@@ -190,7 +191,9 @@ FileStorage : FileDescriptor[] : getAllFilesSent()
 FileStorage : FileDescriptor[] : getAllFilesReceived()
 Groups : Promise.Group, ErrorManager : createGroup(string, string, boolean)
 Groups : Promise.Group, ErrorManager : deleteGroup(Group)
+Groups : Object : deleteAllGroups()
 Groups : Promise.Group, ErrorManager : updateGroupName(Group, string)
+Groups : Promise.Group, ErrorManager : setGroupAsFavorite(Group)
 Groups : Promise.Group, ErrorManager : addUserInGroup(Contact, Group)
 Groups : Promise.Group, ErrorManager : removeUserFromGroup(Contact, Group)
 Groups : Array : getAll()
@@ -204,9 +207,9 @@ IMService : Promise.Message, ErrorManager : sendMessageToConversation(Conversati
 IMService : Promise.Message, ErrorManager : sendMessageToContact(String, Contact, String, Object, String, String, String)
 IMService : Promise.Message, ErrorManager : sendMessageToJid(String, String, String, Object, String, String, String)
 IMService : Promise.Message, ErrorManager : sendMessageToJidAnswer(String, String, String, Object, String, String, String, String)
-IMService : Promise.Message, ErrorManager : sendMessageToBubble(String, Bubble, String, Object, String, String, String)
-IMService : Promise.Message, ErrorManager : sendMessageToBubbleJid(String, String, String, Object, String, String, String)
-IMService : Promise.Message, ErrorManager : sendMessageToBubbleJid(String, String, String, Object, String, String, String, String)
+IMService : Promise.Message, ErrorManager : sendMessageToBubble(String, Bubble, String, Object, String, String, String, array)
+IMService : Promise.Message, ErrorManager : sendMessageToBubbleJid(String, String, String, Object, String, String, String, array)
+IMService : Promise.Message, ErrorManager : sendMessageToBubbleJidAnswer(String, String, String, Object, String, String, String, String, array)
 IMService : Object : sendIsTypingStateInBubble(Bubble, boolean)
 IMService : void : sendIsTypingStateInConversation(Conversation, boolean)
 IMService : Promise : markMessageAsRead(Message)
@@ -277,6 +280,7 @@ Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
 Events ::event : rainbow_onmessagereceived
 Events ::event : rainbow_onsendmessagefailed
+Events ::event : rainbow_onrainbowversionwarning
 Events ::event : rainbow_oncontactpresencechanged
 Events ::event : rainbow_onpresencechanged
 Events ::event : rainbow_onconversationremoved
@@ -497,6 +501,7 @@ Message : string : subject
 Message : Object : oob
 Message : string : fromBubbleJid
 Message : string : fromBubbleUserJid
+Message : object : attention
 Message : number : Type
 Message : number : ReceiptStatus
 Message : string : Side
