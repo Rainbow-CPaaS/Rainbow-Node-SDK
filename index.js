@@ -169,7 +169,9 @@ class NodeSDK {
      *       "messageMaxLength": 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.<br>
      *       "sendMessageToConnectedUser": false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.<br>
      *       "conversationsRetrievedFormat": "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`<br>
-     *       "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoir to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
      *   },<br>
      *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -204,6 +206,16 @@ class NodeSDK {
      * }<br>
      */
     constructor(options) {
+        /*
+             *       @ deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+     *       "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")
+     *                          DataStoreType.NoStore Same behaviour as previously `storeMessages=false` Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
+     *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+     *                          DataStoreType.StoreTwinSide The messages are fully stored.
+
+         */
         /* process.on("uncaughtException", (err) => {
             console.error(err);
         });

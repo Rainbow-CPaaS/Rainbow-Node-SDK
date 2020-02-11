@@ -8,6 +8,7 @@
  */
 import {setTimeoutPromised} from "../lib/common/Utils";
 import set = Reflect.set;
+import {DataStoreType} from "../lib/config/config";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -97,10 +98,11 @@ let options = {
         "messageMaxLength": 1024,
         "sendMessageToConnectedUser": true,
         "conversationsRetrievedFormat": "small",
-        "storeMessages": false,
+        "storeMessages": true,
         "copyMessage": true,
         "nbMaxConversations": 15,
-        "rateLimitPerHour": 1000
+        "rateLimitPerHour": 1000,
+        "messagesDataStore": DataStoreType.NoStore
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -416,6 +418,36 @@ function testremoveAllMessages() {
         logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
     });
 }
+
+function testsendMessageToContact() {
+    return __awaiter(this, void 0, void 0, function* () {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendMessageToContact - wait for message to be in conversation : ", msgSent);
+            yield Utils.until(() => {
+                return conversation.getMessageById(msgSent.id) !== undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+        }
+        // let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
+        // logger.log("debug", "MAIN - testsendMessageToContact - conversation with messages removed : ", conversationWithMessagesRemoved);
+    });
+}
+
 function testsendMessageToConversation() {
     let that = this;
     // let conversation = null;
@@ -980,7 +1012,7 @@ async function testsendMessageToBubbleJid_WithMention() {
 
                     mentions.push(contact.jid);
 
-                    await setTimeoutPromised(2000);
+                    await setTimeoutPromised(20000);
                     //mentions
                     await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", contact.jid);
                     /*await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {

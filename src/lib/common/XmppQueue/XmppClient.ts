@@ -1,4 +1,6 @@
 'use strict';
+import {DataStoreType} from "../../config/config";
+
 export {};
 
 /*
@@ -26,6 +28,7 @@ const xml = require("@xmpp/xml");
 const Element = require('ltx').Element;
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
+import {SIGBREAK} from "constants";
 
 let LOG_ID='XMPPCLIENT';
 
@@ -47,6 +50,7 @@ class XmppClient  {
     private nbMessagesSentThisHour: number;
     lastTimeReset: Date;
     timeBetweenReset: number;
+    messagesDataStore: DataStoreType;
 
     constructor(...args) {
         //super(...args);
@@ -111,13 +115,14 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour) {
+    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore) {
         let that = this;
         that.logger = _logger;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
+        that.messagesDataStore = _messagesDataStore;
         that.lastTimeReset = new Date ();
 
         that.on('open', () => {
@@ -169,7 +174,30 @@ class XmppClient  {
                     }
 
                     let stanza = args[0];
+                    /*
+                    if (that.messagesDataStore) {
+                        switch (that.messagesDataStore) {
+                            case DataStoreType.NoStore: {
+                                that.storeMessages = false;
+                            }
+                            break;
+                            case DataStoreType.NoStoreBotSide: {
+                                that.storeMessages = true;
+                            }
+                            break;
+                            case DataStoreType.StoreTwinSide: {
+                                that.storeMessages = true;
+                            }
+                            break;
+                            default: {
+                                that.storeMessages = true;
+                            }
+                            break;
+                        }
+                    } // */
+
                     if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
+                   // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                         // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
                         // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
                         //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
@@ -180,7 +208,9 @@ class XmppClient  {
                           }));
                           // */
 
-                        stanza.append(xml("no-store", {
+                        //let nostoreTag="no-store";
+                        let nostoreTag="no-permanent-store";
+                        stanza.append(xml(nostoreTag, {
                             "xmlns": NameSpacesLabels.HintsNameSpace
                         }));
                         // */

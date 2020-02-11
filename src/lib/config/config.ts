@@ -1,3 +1,18 @@
+/**
+ * @enum
+ * @name DataStoreType
+ * @description
+ *  used in SDK parameter "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")
+ *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
+ *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+ *                          DataStoreType.StoreTwinSide The messages are fully stored.
+ */
+enum DataStoreType {
+  NoStore = "nostore",
+  NoStoreBotSide = "nostorebotside",
+  StoreTwinSide = "storetwinside"
+}
+
 let conf =  {
     sandbox: {
         http: {
@@ -67,8 +82,11 @@ let conf =  {
             This hint MUST only be included on messages addressed to full JIDs and explicitly does not override the behaviour defined in XMPP IM [1] for handling messages to bare JIDs,
             which may involve copying to multiple resources, or multiple occupants in a Multi-User Chat (XEP-0045) [6] room.
         // */
+        copyMessage: false,
         nbMaxConversations: 15,
-        rateLimitPerHour: 1000
+        rateLimitPerHour: 1000,
+        messagesDataStore: DataStoreType.NoStoreBotSide,
+
     },
     mode:"xmpp",
     debug:true,
@@ -144,5 +162,6 @@ let conf =  {
 
 };
 
-module.exports = conf;
-export {conf};
+module.exports.config = conf;
+module.exports.DataStoreType = DataStoreType;
+export {conf as config, DataStoreType};

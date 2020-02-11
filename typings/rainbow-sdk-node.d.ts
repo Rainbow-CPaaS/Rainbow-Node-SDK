@@ -11,6 +11,149 @@ declare module 'lib/common/Utils' {
 	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData };
 
 }
+declare module 'lib/config/config' {
+	 enum DataStoreType {
+	    NoStore = "nostore",
+	    NoStoreBotSide = "nostorebotside",
+	    StoreTwinSide = "storetwinside"
+	} let conf: {
+	    sandbox: {
+	        http: {
+	            host: string;
+	            port: string;
+	            protocol: string;
+	        };
+	        xmpp: {
+	            host: string;
+	            port: string;
+	            protocol: string;
+	            timeBetweenXmppRequests: string;
+	        };
+	    };
+	    official: {
+	        http: {
+	            host: string;
+	            port: string;
+	            protocol: string;
+	        };
+	        xmpp: {
+	            host: string;
+	            port: string;
+	            protocol: string;
+	            timeBetweenXmppRequests: string;
+	        };
+	    };
+	    any: {
+	        http: {
+	            host: string;
+	            port: string;
+	            protocol: string;
+	        };
+	        xmpp: {
+	            host: string;
+	            port: string;
+	            protocol: string;
+	            timeBetweenXmppRequests: string;
+	        };
+	    };
+	    logs: {
+	        path: string;
+	        level: string;
+	        color: boolean;
+	        enableConsoleLog: boolean;
+	        "system-dev": {
+	            internals: boolean;
+	            http: boolean;
+	        };
+	        zippedArchive: boolean;
+	        maxSize: string;
+	        maxFiles: any;
+	    };
+	    im: {
+	        sendReadReceipt: boolean;
+	        messageMaxLength: number;
+	        sendMessageToConnectedUser: boolean;
+	        conversationsRetrievedFormat: string;
+	        storeMessages: boolean;
+	        copyMessage: boolean;
+	        nbMaxConversations: number;
+	        rateLimitPerHour: number;
+	        messagesDataStore: DataStoreType;
+	    };
+	    mode: string;
+	    debug: boolean;
+	    permitSearchFromPhoneBook: boolean;
+	    displayOrder: string;
+	    servicesToStart: {
+	        presence: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        contacts: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        conversations: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        im: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        profiles: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        groups: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        bubbles: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        telephony: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        channels: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        admin: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        fileServer: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        fileStorage: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        calllog: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        favorites: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        invitation: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	        settings: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
+	    };
+	};
+	export { conf as config, DataStoreType };
+
+}
 declare module 'Samples/index' {
 	export {};
 
@@ -399,6 +542,7 @@ declare module 'lib/connection/XMPPService' {
 	    "Monitoring1NameSpace": string;
 	    "CallService1NameSpace": string;
 	    "MamNameSpace": string;
+	    "MamNameSpaceTmp": string;
 	    "AttentionNS": string;
 	}; class XMPPService {
 	    serverURL: any;
@@ -437,6 +581,7 @@ declare module 'lib/connection/XMPPService' {
 	    private storeMessages;
 	    private copyMessage;
 	    private rateLimitPerHour;
+	    private messagesDataStore;
 	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
 	    start(withXMPP: any): Promise<unknown>;
 	    signin(account: any, headers: any): Promise<unknown>;
@@ -5938,7 +6083,21 @@ declare module 'lib/services/GroupsService' {
 	    * @category async
 	    */
 	    setGroupAsFavorite(group: any): Promise<unknown>;
-	    unsetGroupAsFavorite(group: any): void;
+	    /**
+	     * @public
+	     * @method unsetGroupAsFavorite
+	     * @since 1.67.0
+	     * @instance
+	     * @param {Group} group The group
+	     * @memberof Groups
+	     * @description
+	     * 		Remove the favorite state of a group of the curent loggued in user.
+	     * @async
+	     * @return {Promise<Group, ErrorManager>}
+	     * @fulfil {Group} - Updated group or an error object depending on the result
+	     * @category async
+	     */
+	    unsetGroupAsFavorite(group: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method addUserInGroup
@@ -6020,7 +6179,7 @@ declare module 'lib/services/GroupsService' {
 	     * @description
 	     *		Method called when a group is created
 	     */
-	    _onGroupCreated(data: any): void;
+	    _onGroupCreated(data: any): Promise<void>;
 	    /**
 	     * @private
 	     * @method _onGroupDeleted
@@ -6030,7 +6189,7 @@ declare module 'lib/services/GroupsService' {
 	     * @description
 	     *		Method called when a group is deleted
 	     */
-	    _onGroupDeleted(data: any): void;
+	    _onGroupDeleted(data: any): Promise<void>;
 	    /**
 	     * @private
 	     * @method _onGroupUpdated
@@ -6040,7 +6199,7 @@ declare module 'lib/services/GroupsService' {
 	     * @description
 	     *		Method called when a group is updated (name, comment, isFavorite)
 	     */
-	    _onGroupUpdated(data: any): void;
+	    _onGroupUpdated(data: any): Promise<void>;
 	    /**
 	     * @private
 	     * @method _onUserAddedInGroup
@@ -6050,7 +6209,7 @@ declare module 'lib/services/GroupsService' {
 	     * @description
 	     *		Method called when a user is added to a group
 	     */
-	    _onUserAddedInGroup(data: any): void;
+	    _onUserAddedInGroup(data: any): Promise<void>;
 	    /**
 	     * @private
 	     * @method _onUserRemovedFromGroup
@@ -6060,7 +6219,7 @@ declare module 'lib/services/GroupsService' {
 	     * @description
 	     *		Method called when a user is removed from a group
 	     */
-	    _onUserRemovedFromGroup(data: any): void;
+	    _onUserRemovedFromGroup(data: any): Promise<void>;
 	}
 	export { Groups as GroupsService };
 
@@ -6746,7 +6905,8 @@ declare module 'lib/common/Events' {
 
 }
 declare module 'lib/config/Options' {
-	export {}; class Options {
+	export {};
+	import { DataStoreType } from 'lib/config/config'; class Options {
 	    _logger: any;
 	    _options: any;
 	    _hasCredentials: any;
@@ -6774,9 +6934,18 @@ declare module 'lib/config/Options' {
 	    get credentials(): any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
-	    _getHTTPOptions(): any;
-	    _getXMPPOptions(): any;
-	    _getModeOption(): any;
+	    _getHTTPOptions(): {
+	        host: string;
+	        port: string;
+	        protocol: string;
+	    };
+	    _getXMPPOptions(): {
+	        host: string;
+	        port: string;
+	        protocol: string;
+	        timeBetweenXmppRequests: string;
+	    };
+	    _getModeOption(): string;
 	    _getProxyOptions(): {
 	        protocol: string;
 	        host: string;
@@ -6786,7 +6955,7 @@ declare module 'lib/config/Options' {
 	        secureProtocol: any;
 	    };
 	    _getIMOptions(): {
-	        sendReadReceipt: any;
+	        sendReadReceipt: boolean;
 	        messageMaxLength: number;
 	        sendMessageToConnectedUser: boolean;
 	        conversationsRetrievedFormat: string;
@@ -6794,6 +6963,7 @@ declare module 'lib/config/Options' {
 	        copyMessage: boolean;
 	        nbMaxConversations: number;
 	        rateLimitPerHour: number;
+	        messagesDataStore: DataStoreType;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -6916,143 +7086,6 @@ declare module 'lib/common/XmppQueue/XmppQueue' {
 }
 declare module 'lib/common/models/CallLog' {
 	export {};
-
-}
-declare module 'lib/config/config' {
-	 let conf: {
-	    sandbox: {
-	        http: {
-	            host: string;
-	            port: string;
-	            protocol: string;
-	        };
-	        xmpp: {
-	            host: string;
-	            port: string;
-	            protocol: string;
-	            timeBetweenXmppRequests: string;
-	        };
-	    };
-	    official: {
-	        http: {
-	            host: string;
-	            port: string;
-	            protocol: string;
-	        };
-	        xmpp: {
-	            host: string;
-	            port: string;
-	            protocol: string;
-	            timeBetweenXmppRequests: string;
-	        };
-	    };
-	    any: {
-	        http: {
-	            host: string;
-	            port: string;
-	            protocol: string;
-	        };
-	        xmpp: {
-	            host: string;
-	            port: string;
-	            protocol: string;
-	            timeBetweenXmppRequests: string;
-	        };
-	    };
-	    logs: {
-	        path: string;
-	        level: string;
-	        color: boolean;
-	        enableConsoleLog: boolean;
-	        "system-dev": {
-	            internals: boolean;
-	            http: boolean;
-	        };
-	        zippedArchive: boolean;
-	        maxSize: string;
-	        maxFiles: any;
-	    };
-	    im: {
-	        sendReadReceipt: boolean;
-	        messageMaxLength: number;
-	        sendMessageToConnectedUser: boolean;
-	        conversationsRetrievedFormat: string;
-	        storeMessages: boolean;
-	        nbMaxConversations: number;
-	        rateLimitPerHour: number;
-	    };
-	    mode: string;
-	    debug: boolean;
-	    permitSearchFromPhoneBook: boolean;
-	    displayOrder: string;
-	    servicesToStart: {
-	        presence: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        contacts: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        conversations: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        im: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        profiles: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        groups: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        bubbles: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        telephony: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        channels: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        admin: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        fileServer: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        fileStorage: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        calllog: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        favorites: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        invitation: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	        settings: {
-	            start_up: boolean;
-	            optional: boolean;
-	        };
-	    };
-	};
-	export { conf };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/genericHandler' {

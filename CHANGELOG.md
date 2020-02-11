@@ -24,6 +24,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   RQRAINB-3023 Add method HttpService::getUrl to retrieve a specified url. The url can be any one while HttpService::get method only accept path on rainbow platform. 
 -   RQRAINB-3023 Add method RESTService::getRainbowNodeSdkPackagePublishedInfos to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com.
 -   Add Events::Emitter class extending EventEmitter to log the events names and parameters.
+-   Update the "no-store" XMPP field in sent messages to "no-permanent-store" (if SDK option `storeMessages=false`). This allow temporary save of messages until first delivery to contacts. 
 
 ## [1.66.1] - 2020-01-29
 -   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)

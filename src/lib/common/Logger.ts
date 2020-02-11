@@ -9,7 +9,8 @@ const colors = require("colors/safe");
 const util = require("util");
 const stripAnsi = require('strip-ansi');
 
-let defaultConfig = require("../config/config");
+//let defaultConfig = require("../config/config");
+import {config as defaultConfig} from "../config/config";
 
 const LOG_ID = "LOGS - ";
 
@@ -76,7 +77,7 @@ class Logger {
         let logDir = logs.path;
         let logLevel = logs.level;
         let logColor = logs.color;
-        let logHttp = logs.http;
+        let logHttp = logs["system-dev"].http;
         let logInternals = logs["system-dev"].internals;
         let logFormat = myFormat;
         let zippedArchive = logs.zippedArchive;

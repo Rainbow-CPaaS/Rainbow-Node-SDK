@@ -1,7 +1,8 @@
 "use strict";
 export {};
 
-const config = require("./config");
+//const config = require("./config");
+import {config, DataStoreType} from "./config";
 
 const LOG_ID = "OPTIONS - ";
 
@@ -268,7 +269,8 @@ class Options {
             storeMessages: false,
             copyMessage: false,
             nbMaxConversations: 15,
-            rateLimitPerHour: 1000
+            rateLimitPerHour: 1000,
+            messagesDataStore: DataStoreType.NoStoreBotSide
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -285,6 +287,7 @@ class Options {
         optionsIM.copyMessage = this._options.im.copyMessage ? this._options.im.copyMessage : config.im.copyMessage;
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
+        optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
 
         return optionsIM;
     }

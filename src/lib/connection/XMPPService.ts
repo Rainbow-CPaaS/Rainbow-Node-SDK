@@ -1,10 +1,14 @@
 "use strict";
 
 import * as util from "util";
-import {logEntryExit, makeId} from "../common/Utils";
-import {setTimeoutPromised} from "../common/Utils";
+import {logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
+import {DataStoreType} from "../config/config";
+import {XMPPUTils} from "../common/XMPPUtils";
+
+import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
+
 const packageVersion = require("../../package");
 const url = require('url');
 
@@ -36,9 +40,6 @@ let backoff = require("backoff");
 
 const HttpsProxyAgent = require("https-proxy-agent");
 
-import {XMPPUTils} from "../common/XMPPUtils";
-
-import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 // import {URL} from "url";
 
 const LOG_ID = "XMPP - ";
@@ -89,6 +90,7 @@ const NameSpacesLabels = {
     "Monitoring1NameSpace" : "urn:xmpp:pbxagent:monitoring:1",
     "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1",
     "MamNameSpace" : "urn:xmpp:mam:1",
+    "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
     "AttentionNS" : "urn:xmpp:attention:0"
 };
 
@@ -130,6 +132,7 @@ class XMPPService {
     private storeMessages: boolean;
     private copyMessage: boolean;
     private rateLimitPerHour: number;
+    private messagesDataStore: DataStoreType;
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -151,6 +154,7 @@ class XMPPService {
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
         this.rateLimitPerHour = _im.rateLimitPerHour;
+        this.messagesDataStore = _im.messagesDataStore;
         this.useXMPP = true;
         this.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
         this.isReconnecting = false;
@@ -211,7 +215,7 @@ class XMPPService {
             }); //"domain": domain,
 // */
 
-            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour);
+            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore);
 
             //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
             this.reconnect = this.xmppClient.reconnect;
@@ -1035,8 +1039,9 @@ class XMPPService {
                     id='info1'>
                         <query xmlns='http://jabber.org/protocol/disco#info'/>
                         </iq> // */
+
                 /*
-                Iq to discover the services provided by rainbow xmpp server
+                // Iq to discover the services provided by rainbow xmpp server
                 let stanza = xml("iq", {
                     //to: that.jid_im + "/" + that.fullJid,
                     "type": "get",
@@ -1044,10 +1049,50 @@ class XMPPService {
                     "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("query", {"xmlns": "http://jabber.org/protocol/disco#info"}));
 
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ disco", stanza.root().toString());
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ discover : ", stanza.root().toString());
                 return that.xmppClient.send(stanza);
                 // */
 
+//                if (that.messagesDataStore === DataStoreType.NoStoreBotSide) {
+                    /*<iq type='set' id='juliet2'>
+                    <prefs xmlns='urn:xmpp:mam:tmp' default='roster'>
+                        <always>
+                            <jid>romeo@montague.lit</jid>
+                    </always>
+                    <never>
+                    <jid>montague@montague.lit</jid>
+                    </never>
+                    </prefs>
+                    </iq> // */
+                    // Iq to discover the services provided by rainbow xmpp server
+//                     let stanzaPrefs = xml("iq", {
+//                             //to: that.jid_im + "/" + that.fullJid,
+//                             "id": that.xmppUtils.getUniqueMessageId(),
+//                             "type": "set"
+//                         },
+//                         xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace , "default": 'always' },
+//                         //xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
+//                             /* xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
+//                               xml("never", {},
+//                                xml("jid", {}, that.jid_im)
+//                                )
+//                                )
+//                                //*/
+//
+//                               xml("auto", {"save" : false}, undefined)
+//                             , undefined)
+//                             // */
+// /*
+//                             undefined
+//                         )
+//                         , undefined
+//                         // */
+//                     );
+
+//                    that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ prefs : ", stanzaPrefs.root().toString());
+//                    return that.xmppClient.send(stanzaPrefs);
+//                }
+                // */
             }) // */
             /*
             this.xmppClient.start().then((jid) => {
@@ -1290,7 +1335,8 @@ class XMPPService {
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
             let stanza = xml("message", {
-                // "from": this.fullJid,
+                //"from": this.fullJid,
+                //"from": this.jid_im,
                 "to": jid,
                 "xmlns": NameSpacesLabels.ClientNameSpace,
                 "type": TYPE_CHAT,

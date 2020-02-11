@@ -10,14 +10,9 @@ import {Logger} from "./Logger";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
-// dev-code //
-/**
- * @class
- * @name Emitter
- * @private
- * @description
- * EventEmitter class extended to log the event names and parameters.
- */
+
+ // dev-code //
+ // @ class  Emitter EventEmitter class extended to log the event names and parameters.
 class Emitter extends EventEmitter {
     public _logger: Logger;
 
@@ -40,10 +35,8 @@ class Emitter extends EventEmitter {
     }
 
     on(event: string | symbol, listener: (...args: any[]) => void): this {
-//        let event;
         let params = [];
         let that = this;
-  //      [event, ...params] = args;
         let listenerWithLog = (...args: any[]) => {
             try {
                 if (args.length === 0) {
@@ -72,9 +65,13 @@ class Emitter extends EventEmitter {
 // end-dev-code //
 
 // dev-code //
+
 /*
+
 // The comment is removed at grunt build so the default EventEmitter is used when delivered.
+
 // end-dev-code //
+
 class Emitter extends EventEmitterClass{
     constructor(props) {
         super();
@@ -165,6 +162,7 @@ class Events {
 
         this._evPublisher = new EventEmitter();
 
+        /*
         this._evReceiver.on('evt_internal_on*', function(...args: any[]) {
             let event;
             let params;
@@ -176,6 +174,7 @@ class Events {
             that._logger.log("internal", LOG_ID + "(evt_internal_on*) receive event " + that._logger.colors.events(eventName.toString()));
             //console.log(this.event, value1, value2);
         });
+         */
 
         this._evReceiver.on("evt_internal_onreceipt", function(receipt) {
             if (_filterCallback && _filterCallback(receipt.fromJid)) {
