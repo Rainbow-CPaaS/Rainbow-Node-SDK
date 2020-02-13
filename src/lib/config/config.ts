@@ -25,6 +25,10 @@ let conf =  {
             port: "443",
             protocol: "wss",
             timeBetweenXmppRequests: "20"
+        },
+        s2s: {
+            hostCallback: "nrock",
+            locallistenningport: "4000"
         }
     },
     official: {
@@ -38,6 +42,10 @@ let conf =  {
             port: "443",
             protocol: "wss",
             timeBetweenXmppRequests: "20"
+        },
+        s2s: {
+            hostCallback: "nrock",
+            locallistenningport: "4000"
         }
     },
     any: {
@@ -51,6 +59,10 @@ let conf =  {
             port: "443",
             protocol: "wss",
             timeBetweenXmppRequests: "20"
+        },
+        s2s: {
+            hostCallback: "nrock",
+            locallistenningport: "4000"
         }
     },
     logs: {

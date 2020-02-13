@@ -60,6 +60,7 @@ class RESTService {
 	public getDefaultHeader: any;
 	public applicationToken: string;
     public getPostHeader: any;
+    public connectionS2SInfo: any;
 
     constructor(_credentials, _application, _isOfficialRainbow, evtEmitter : EventEmitter, _logger : Logger) {
         let that = this;
@@ -235,6 +236,10 @@ class RESTService {
                 return reject(err);
             });
         });
+    }
+
+    setconnectionS2SInfo(_connectionS2SInfo){
+        this.connectionS2SInfo = _connectionS2SInfo;
     }
 
     askTokenOnBehalf(loginEmail, password) {
@@ -2970,6 +2975,143 @@ Request Method: PUT
             that.attemptToReconnect(that.reconnectDelay);
         });
     }
+
+    // ************* S2S **************************
+
+    listConnectionsS2S(){
+        let that = this;
+        //that.logger.log("internal", LOG_ID + "(listConnectionsS2S) S2S");
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/ucs/v1.0/connections", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(listConnectionsS2S) successfull");
+                that.logger.log("internal", LOG_ID + "(listConnectionsS2S) received : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(listConnectionsS2S) error");
+                that.logger.log("internalerror", LOG_ID, "(listConnectionsS2S) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    sendS2SPresence ( obj ) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "Set S2S presence : ", obj);
+        return new Promise(function(resolve, reject) {
+            that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/presences" , that.getRequestHeader(), { presence: { show:"", status: ""}}, undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(sendPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(sendPresence) REST conversation updated", json.data);
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(sendPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(sendPresence) error : ", err);
+                return  reject(err);
+            });
+        });
+
+        /*return axios.put(`/api/rainbow/ucs/v1.0/connections/${connectionInfo.id}/presences`, { presence: { show:"", status: ""}} ) //, {connection: { /*resource: "s2s_machin",*/ /* callback_url: "https://e894efad.ngrok.io" }})
+            .then( response => {
+                console.log( "it worked" );
+                console.log( response.data )
+                console.log( response.config)
+                console.log( "STATUS = ", response.status)
+                return response.data
+            } )
+            // */
+    }
+
+   deleteConnectionsS2S ( connexions ) {
+       let that = this;
+       that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S");
+       that.logger.log("info", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
+       const requests = [];
+       connexions.forEach(cnx => requests.push(
+           that.http.delete("/api/rainbow/ucs/v1.0/connections/" + cnx.id, that.getRequestHeader()).then(function (json) {
+               that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) successfull");
+               that.logger.log("internal", LOG_ID + "(deleteConnectionsS2S) REST result : ", json.data);
+               return json.data;
+           }).catch(function (err) {
+               that.logger.log("error", LOG_ID, "(deleteConnectionsS2S) error");
+               that.logger.log("internalerror", LOG_ID, "(deleteConnectionsS2S) error : ", err);
+               return err;
+           })
+       )
+       );
+       return Promise.all(connexions)
+           .then(response => {
+               that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) all successfull");
+               //console.log("it worked");
+               //console.log( response.data )
+               //connectionInfo = response.data.data
+               //process.exit()
+               return response
+           })
+   }
+
+   loginS2S (callback_url) {
+       let that = this;
+       let data = {connection: { /*resource: "s2s_machin",*/  callback_url }};
+       that.logger.log("debug", LOG_ID + "(loginS2S)  will login  S2S.");
+       that.logger.log("internal", LOG_ID + "(loginS2S) will login S2S : ", data);
+       return new Promise(function (resolve, reject) {
+           that.http.post("/api/rainbow/ucs/v1.0/connections", that.getRequestHeader(), data, undefined).then((json) => {
+               that.logger.log("info", LOG_ID + "(loginS2S) successfull");
+               that.logger.log("internal", LOG_ID + "(loginS2S) REST loginS2S successfull : ", json);
+               that.connectionS2SInfo = json;
+               resolve(json);
+           }).catch((err) => {
+               that.logger.log("error", LOG_ID, "(loginS2S) error");
+               that.logger.log("internalerror", LOG_ID, "(loginS2S) error : ", err);
+               return reject(err);
+           });
+       });
+/*
+       console.log( "will do login S2S")
+       return axios.post(`/api/rainbow/ucs/v1.0/connections`, {connection: { /*resource: "s2s_machin",*/  /* callback_url }})
+            .then( response => {
+                console.log( "it worked" );
+                console.log( response.data )
+                connectionInfo = response.data.data
+                return response.data
+            } )
+// */
+    }
+
+
+    infoS2S (s2sConnectionId) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
+        that.logger.log("internal", LOG_ID + "(infoS2S) will get info S2S");
+        return new Promise(function(resolve, reject) {
+                that.http.get("/api/rainbow/ucs/v1.0/connections/" + s2sConnectionId, that.getRequestHeader(), undefined ).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(infoS2S) successfull");
+                    that.logger.log("internal", LOG_ID + "(infoS2S) REST info S2S received : ", json);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(infoS2S) error");
+                    that.logger.log("internalerror", LOG_ID, "(infoS2S) error : ", err);
+                    return reject(err);
+                });
+        });
+
+        /*console.log( "will do infoS2S", obj );
+
+        return axios.get(`/api/rainbow/ucs/v1.0/connections/`+connectionInfo.id ) //, {connection: { /*resource: "s2s_machin",*/ /*  callback_url: "https://e894efad.ngrok.io" }})
+            .then( response => {
+                console.log( "it worked" );
+                //console.log( response.data )
+                return response.data
+            } )
+            // */
+    }
+
+    async setS2SConnection(connectionId){
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(setS2SConnection)  will get info S2S and save the session infos.");
+        that.logger.log("internal", LOG_ID + "(setS2SConnection) will get info S2S and save the session infos.");
+        return that.connectionS2SInfo = await that.infoS2S(connectionId);
+    }
+
 }
 
 export {RESTService};

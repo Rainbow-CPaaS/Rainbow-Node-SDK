@@ -1,7 +1,7 @@
 "use strict";
 
 import * as util from "util";
-import {logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
+import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
 import {DataStoreType} from "../config/config";
@@ -95,6 +95,7 @@ const NameSpacesLabels = {
 };
 
 @logEntryExit(LOG_ID)
+@isStarted(["start", "stop"])
 class XMPPService {
 	public serverURL: any;
 	public host: any;
@@ -133,6 +134,14 @@ class XMPPService {
     private copyMessage: boolean;
     private rateLimitPerHour: number;
     private messagesDataStore: DataStoreType;
+    public ready: boolean = false;
+    private readonly _startConfig: {
+        start_up: boolean,
+        optional: boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -163,6 +172,11 @@ class XMPPService {
         this.pingTimer = null;
         this.forceClose = false;
         this.applicationId = _application.appID;
+
+        this._startConfig =  {
+            start_up: true,
+            optional: false
+        };
 
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -1125,6 +1139,7 @@ class XMPPService {
                 }
                 that.isReconnecting = false;
                 that.useXMPP = withXMPP;
+                that.ready = that.useXMPP; // Put not ready state when the XMPP is disabled in SDK config options, then methods become unavailable with @isStarted decorator.
                 resolve();
             } catch (err) {
                 return reject(err);
@@ -1823,40 +1838,45 @@ class XMPPService {
     getAgentStatus() {
         let that = this;
         return new Promise((resolve, reject) => {
-            let stanza = xml("iq", {
-                type: "get",
-                to: that.jid_tel + "/phone",
-                xmlns: NameSpacesLabels.ClientNameSpace,
-                "id": that.xmppUtils.getUniqueMessageId()
-            }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
+            if (this.useXMPP) {
+                let stanza = xml("iq", {
+                    type: "get",
+                    to: that.jid_tel + "/phone",
+                    xmlns: NameSpacesLabels.ClientNameSpace,
+                    "id": that.xmppUtils.getUniqueMessageId()
+                }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
 
-            this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
-            this.xmppClient.sendIq(stanza).then((data) => {
-                let pbxagentstatus = {
-                    "phoneapi": "",
-                    "xmppagent": "",
-                    "version": ""
-                };
-                let agentStatus = {"phoneApi": "", "xmppAgent": "", "agentVersion": ""};
 
-                let subchildren = data.children[0].children;
-                subchildren.forEach((item) => {
-                    if (typeof item === "object") {
-                        let itemName = item.getName();
-                        if (itemName) {
-                            pbxagentstatus[itemName] = item.text();
+                this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
+                this.xmppClient.sendIq(stanza).then((data) => {
+                    let pbxagentstatus = {
+                        "phoneapi": "",
+                        "xmppagent": "",
+                        "version": ""
+                    };
+                    let agentStatus = {"phoneApi": "", "xmppAgent": "", "agentVersion": ""};
+
+                    let subchildren = data.children[0].children;
+                    subchildren.forEach((item) => {
+                        if (typeof item === "object") {
+                            let itemName = item.getName();
+                            if (itemName) {
+                                pbxagentstatus[itemName] = item.text();
+                            }
                         }
-                    }
-                });
+                    });
 
-                if (pbxagentstatus.version) {
-                    let phoneApi = pbxagentstatus.phoneapi;
-                    let xmppAgent = pbxagentstatus.xmppagent;
-                    let agentVersion = pbxagentstatus.version;
-                    agentStatus = {"phoneApi": phoneApi, "xmppAgent": xmppAgent, "agentVersion": agentVersion};
-                }
-                resolve(agentStatus);
-            });
+                    if (pbxagentstatus.version) {
+                        let phoneApi = pbxagentstatus.phoneapi;
+                        let xmppAgent = pbxagentstatus.xmppagent;
+                        let agentVersion = pbxagentstatus.version;
+                        agentStatus = {"phoneApi": phoneApi, "xmppAgent": xmppAgent, "agentVersion": agentVersion};
+                    }
+                    resolve(agentStatus);
+                });
+            } else {
+                resolve({});
+            }
         });
     }
 
@@ -1949,17 +1969,21 @@ class XMPPService {
         let that = this;
         // Get the user contact
         //let userContact = contactService.userContact;
+        if (this.useXMPP) {
+            let message = xml("iq", {
+                "from": that.jid_im,
+                "to": that.jid_im,
+                "type": "set",
+                "id": that.xmppUtils.getUniqueMessageId()
+            });
 
-        let message = xml("iq", {
-            "from": that.jid_im,
-            "to": that.jid_im,
-            "type": "set",
-            "id": that.xmppUtils.getUniqueMessageId()
-        });
-
-        let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace}));
-        return await this.xmppClient.sendIq(msg);
-        //xmppService.sendIQ(msg);
+            let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace}));
+            return await this.xmppClient.sendIq(msg);
+            //xmppService.sendIQ(msg);
+        } else {
+            this.logger.log("warn", LOG_ID + "(deleteAllCallLogs) No XMPP connection...");
+            return Promise.resolve();
+        }
     }
 
     async markCallLogAsRead(id) {

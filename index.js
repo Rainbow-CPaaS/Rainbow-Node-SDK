@@ -263,7 +263,7 @@ class NodeSDK {
         let that = this;
         that.startTime = new Date();
         return new Promise(function(resolve, reject) {
-            return that._core.start(undefined, token).then(function() {
+            return that._core.start( token).then(function() {
                 return that._core.signin(false, token);
             }).then(function(result) {
                 let startDuration = Math.round(new Date() - that.startTime);

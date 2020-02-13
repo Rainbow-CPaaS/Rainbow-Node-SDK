@@ -18,6 +18,7 @@ import {BubblesService} from "./BubblesService";
 import {ProfilesService} from "./ProfilesService";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
+import {error} from "winston";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -215,10 +216,15 @@ class Telephony {
             that.userJidTel = that._rest.loggedInUser.jid_tel;
 
             that.started = false;
-            that._xmpp.getAgentStatus().then((data) => {
-                that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
+            try {
+                that._xmpp.getAgentStatus().then((data) => {
+                    that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
+                    resolve();
+                });
+            } catch (err) {
+                that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
                 resolve();
-            });
+            }
         });
     }
 

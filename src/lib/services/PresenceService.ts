@@ -11,6 +11,7 @@ import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEve
 import {isStarted, logEntryExit} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import EventEmitter = NodeJS.EventEmitter;
+import {types} from "util";
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -45,6 +46,10 @@ class PresenceService {
         start_up:boolean,
         optional:boolean
     };
+    _s2s: any;
+    options: any;
+    useXMPP: any;
+    useS2S: any;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -54,6 +59,7 @@ class PresenceService {
         this._startConfig = _startConfig;
 
         that._xmpp = null;
+        that._s2s = null;
         that._eventEmitter = _eventEmitter;
         that._logger = _logger;
 
@@ -70,12 +76,16 @@ class PresenceService {
         this.ready = false;
     }
 
-    start(_xmpp, _settings : SettingsService) {
+    start(_options, _xmpp, _settings : SettingsService, _s2s) {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
+                that.options = _options;
                 that._xmpp = _xmpp;
+                that._s2s = _s2s;
                 that._settings = _settings;
+                that.useXMPP = that.options.useXMPP;
+                that.useS2S = that.options.useS2S;
 
                 that.presenceEventHandler = new PresenceEventHandler(that._xmpp);
                 that.presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that.presenceEventHandler.PRESENCE, that.presenceEventHandler.onPresenceReceived);
@@ -222,46 +232,52 @@ class PresenceService {
      */
     _setUserPresenceStatus( status, message?) {
          let that = this;
-         return new Promise((resolve, reject) => {
-             if (status === "online") {
-                 that.manualState = false;
-                 that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                     that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                     that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                     resolve();
-                 });
-                 that._xmpp.setPresence(null, status);
-             } else {
-                 that.manualState = true;
-                 if (status === "away") {
+         return new Promise(async (resolve, reject) => {
+
+             if (that.useXMPP) {
+                 if (status === "online") {
+                     that.manualState = false;
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                          that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve(ErrorManager.getErrorManager().OK);
+                         resolve();
                      });
-                     that._xmpp.setPresence("away", message);
-                 } else if (status === "dnd") {
-                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve(ErrorManager.getErrorManager().OK);
-                     });
-                     that._xmpp.setPresence("dnd", message);
-                 } else if (status === "xa") {
-                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve(ErrorManager.getErrorManager().OK);
-                     });
-                     that._xmpp.setPresence("xa", message);
+                     that._xmpp.setPresence(null, status);
                  } else {
-                     let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                     return reject(error);
+                     that.manualState = true;
+                     if (status === "away") {
+                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                             resolve(ErrorManager.getErrorManager().OK);
+                         });
+                         that._xmpp.setPresence("away", message);
+                     } else if (status === "dnd") {
+                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                             resolve(ErrorManager.getErrorManager().OK);
+                         });
+                         that._xmpp.setPresence("dnd", message);
+                     } else if (status === "xa") {
+                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                             resolve(ErrorManager.getErrorManager().OK);
+                         });
+                         that._xmpp.setPresence("xa", message);
+                     } else {
+                         let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                         return reject(error);
+                     }
                  }
+             }
+             if (that.useS2S) {
+                 resolve (await that._s2s.sendS2SPresence({}));
              }
          });
      }
