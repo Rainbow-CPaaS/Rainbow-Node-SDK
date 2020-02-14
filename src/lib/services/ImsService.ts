@@ -98,7 +98,6 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
      * @method
      * @instance
@@ -129,7 +128,6 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
      * @method
      * @instance
@@ -164,7 +162,6 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
      * @method
      * @instance
@@ -211,7 +208,6 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
      * @method
      * @instance

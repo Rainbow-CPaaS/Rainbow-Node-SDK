@@ -1342,6 +1342,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getReceivedInvitations
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the invite received coming from Rainbow users
@@ -1352,6 +1353,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method 	getAcceptedInvitations
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the invites you accepted received from others Rainbow users
@@ -1362,6 +1364,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getSentInvitations
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the invites sent to others Rainbow users
@@ -1372,6 +1375,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getInvitationsNumberForCounter
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the number of invitations received from others Rainbow users
@@ -1382,6 +1386,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getAllInvitationsNumber
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the number of invitations sent/received to/from others Rainbow users
@@ -1392,6 +1397,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getInvitation
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get an invite by its id
@@ -1403,6 +1409,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method joinContactInvitation
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
@@ -1416,6 +1423,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method sendInvitationByEmail
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Send an invitation email as UCaaS
@@ -1428,6 +1436,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method cancelOneSendInvitation
+	     * @memberof InvitationsService
 	     * @instance
 	     * @param {Invitation} invitation The invitation to cancel
 	     * @description
@@ -1439,6 +1448,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method reSendInvitation
+	     * @memberof InvitationsService
 	     * @instance
 	     * @param {Number} invitationId The invitation to re send
 	     * @description
@@ -1449,6 +1459,7 @@ declare module 'lib/services/InvitationsService' {
 	    /**
 	     * @public
 	     * @since 1.65
+	     * @memberof InvitationsService
 	     * @method sendInvitationByEmail
 	     * @instance
 	     * @description
@@ -1462,6 +1473,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method acceptInvitation
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
@@ -1475,6 +1487,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method declineInvitation
+	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
@@ -4373,7 +4386,6 @@ declare module 'lib/services/ImsService' {
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
-	     * @beta
 	     * @since 1.39
 	     * @method
 	     * @instance
@@ -4391,7 +4403,6 @@ declare module 'lib/services/ImsService' {
 	    getMessagesFromConversation(conversation: any, intNbMessage: any): any;
 	    /**
 	     * @public
-	     * @beta
 	     * @since 1.39
 	     * @method
 	     * @instance
@@ -4405,7 +4416,6 @@ declare module 'lib/services/ImsService' {
 	    getMessageFromConversationById(conversation: any, strMessageId: any): Promise<any>;
 	    /**
 	     * @public
-	     * @beta
 	     * @since 1.39
 	     * @method
 	     * @instance
@@ -4419,7 +4429,6 @@ declare module 'lib/services/ImsService' {
 	    getMessageFromBubbleById(bubble: any, strMessageId: any): Promise<any>;
 	    /**
 	     * @public
-	     * @beta
 	     * @since 1.39
 	     * @method
 	     * @instance
@@ -6024,7 +6033,7 @@ declare module 'lib/services/GroupsService' {
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
-	import { Logger } from 'lib/common/Logger'; class Groups {
+	import { Logger } from 'lib/common/Logger'; class GroupsService {
 	    _xmpp: XMPPService;
 	    _rest: RESTService;
 	    _groups: any;
@@ -6046,11 +6055,11 @@ declare module 'lib/services/GroupsService' {
 	    * @param {string} name The name of the group to create
 	    * @param {string} comment The comment of the group to create
 	    * @param {boolean} isFavorite If true, the group is flagged as favorite
-	    * @memberof Groups
+	    * @memberof GroupsService
 	    * @description
 	    *      Create a new group
 	    * @async
-	    * @return {Promise<Group, ErrorManager>}
+	    * @return {Promise<Object, ErrorManager>}
 	    * @fulfil {Group} - Created group object or an error object depending on the result
 	    * @category async
 	    */
@@ -6059,12 +6068,12 @@ declare module 'lib/services/GroupsService' {
 	    * @public
 	    * @method deleteGroup
 	    * @instance
-	    * @param {Group} group The group to delete
-	    * @memberof Groups
+	    * @param {Object} group The group to delete
+	    * @memberof GroupsService
 	    * @description
 	    * 		Delete an owned group
 	    * @async
-	    * @return {Promise<Group, ErrorManager>}
+	    * @return {Promise<Object, ErrorManager>}
 	    * @fulfil {Group} - Deleted group object or an error object depending on the result
 	    * @category async
 	    */
@@ -6073,6 +6082,7 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method deleteAllGroups
 	     * @instance
+	     * @memberof GroupsService
 	     * @description
 	     *    Delete all existing owned groups <br/>
 	     *    Return a promise
@@ -6083,13 +6093,13 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method updateGroupName
 	     * @instance
-	     * @param {Group} group The group to update
+	     * @param {Object} group The group to update
 	     * @param {string} name The new name of the group
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     * 		Update the name of a group
 	     * @async
-	     * @return {Promise<Group, ErrorManager>}
+	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Updated group object or an error object depending on the result
 	     * @category async
 	     */
@@ -6105,12 +6115,12 @@ declare module 'lib/services/GroupsService' {
 	    * @method setGroupAsFavorite
 	    * @since 1.67.0
 	    * @instance
-	    * @param {Group} group The group
-	    * @memberof Groups
+	    * @param {Object} group The group
+	    * @memberof GroupsService
 	    * @description
 	    * 		Set a group as a favorite one of the curent loggued in user.
 	    * @async
-	    * @return {Promise<Group, ErrorManager>}
+	    * @return {Promise<Object, ErrorManager>}
 	    * @fulfil {Group} - Updated group or an error object depending on the result
 	    * @category async
 	    */
@@ -6120,12 +6130,12 @@ declare module 'lib/services/GroupsService' {
 	     * @method unsetGroupAsFavorite
 	     * @since 1.67.0
 	     * @instance
-	     * @param {Group} group The group
-	     * @memberof Groups
+	     * @param {Object} group The group
+	     * @memberof GroupsService
 	     * @description
 	     * 		Remove the favorite state of a group of the curent loggued in user.
 	     * @async
-	     * @return {Promise<Group, ErrorManager>}
+	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Updated group or an error object depending on the result
 	     * @category async
 	     */
@@ -6135,12 +6145,12 @@ declare module 'lib/services/GroupsService' {
 	     * @method addUserInGroup
 	     * @instance
 	     * @param {Contact} contact The user to add in group
-	     * @param {Group} group The group
-	     * @memberof Groups
+	     * @param {Object} group The group
+	     * @memberof GroupsService
 	     * @description
 	     * 		Add a contact in a group
 	     * @async
-	     * @return {Promise<Group, ErrorManager>}
+	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
 	     * @category async
 	     */
@@ -6150,12 +6160,12 @@ declare module 'lib/services/GroupsService' {
 	    * @method removeUserFromGroup
 	    * @instance
 	    * @param {Contact} contact The user to remove from the group
-	    * @param {Group} group The destination group
-	    * @memberof Groups
+	    * @param {Object} group The destination group
+	    * @memberof GroupsService
 	    * @description
 	    *		Remove a contact from a group
 	    * @async
-	    * @return {Promise<Group, ErrorManager>}
+	    * @return {Promise<Object, ErrorManager>}
 	    * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
 	    * @category async
 	    */
@@ -6165,7 +6175,7 @@ declare module 'lib/services/GroupsService' {
 	     * @method getAll
 	     * @instance
 	     * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *  Return the list of existing groups
 	     */
@@ -6175,7 +6185,7 @@ declare module 'lib/services/GroupsService' {
 	     * @method getFavoriteGroups
 	     * @instance
 	     * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *  Return the list of favorite groups
 	     */
@@ -6185,8 +6195,8 @@ declare module 'lib/services/GroupsService' {
 	     * @method getGroupById
 	     * @instance
 	     * @param {String} group Id of the group to found
-	     * @return {Group} The group found if exist or undefined
-	     * @memberof Groups
+	     * @return {Object} The group found if exist or undefined
+	     * @memberof GroupsService
 	     * @description
 	     *  Return a group by its id
 	     */
@@ -6196,8 +6206,8 @@ declare module 'lib/services/GroupsService' {
 	     * @method getGroupByName
 	     * @instance
 	     * @param {String} name Name of the group to found
-	     * @return {Group} The group found if exist or undefined
-	     * @memberof Groups
+	     * @return {Object} The group found if exist or undefined
+	     * @memberof GroupsService
 	     * @description
 	     *  Return a group by its id
 	     */
@@ -6207,7 +6217,7 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onGroupCreated
 	     * @instance
 	     * @param {Object} data Contains the groupId of the created group
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a group is created
 	     */
@@ -6217,7 +6227,7 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onGroupDeleted
 	     * @instance
 	     * @param {Object} data Contains the groupId of the deleted group
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a group is deleted
 	     */
@@ -6227,7 +6237,7 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onGroupUpdated
 	     * @instance
 	     * @param {Object} data Contains the groupId of the updated group
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a group is updated (name, comment, isFavorite)
 	     */
@@ -6237,7 +6247,7 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onUserAddedInGroup
 	     * @instance
 	     * @param {Object} data Contains the groupId and the userId
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a user is added to a group
 	     */
@@ -6247,13 +6257,13 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onUserRemovedFromGroup
 	     * @instance
 	     * @param {Object} data Contains the groupId and the userId
-	     * @memberof Groups
+	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a user is removed from a group
 	     */
 	    _onUserRemovedFromGroup(data: any): Promise<void>;
 	}
-	export { Groups as GroupsService };
+	export { GroupsService as GroupsService };
 
 }
 declare module 'lib/services/AdminService' {

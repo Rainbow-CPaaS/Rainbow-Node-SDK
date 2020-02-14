@@ -121,7 +121,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @description
      *      Create a new group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Created group object or an error object depending on the result
      * @category async
      */
@@ -156,12 +156,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method deleteGroup
      * @instance
-     * @param {Group} group The group to delete
+     * @param {Object} group The group to delete
      * @memberof GroupsService
      * @description
      * 		Delete an owned group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Deleted group object or an error object depending on the result
      * @category async
      */
@@ -241,13 +241,13 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method updateGroupName
      * @instance
-     * @param {Group} group The group to update
+     * @param {Object} group The group to update
      * @param {string} name The new name of the group
      * @memberof GroupsService
      * @description
      * 		Update the name of a group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
@@ -332,12 +332,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method setGroupAsFavorite
      * @since 1.67.0
      * @instance
-     * @param {Group} group The group
+     * @param {Object} group The group
      * @memberof GroupsService
      * @description
      * 		Set a group as a favorite one of the curent loggued in user.
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
@@ -368,12 +368,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method unsetGroupAsFavorite
      * @since 1.67.0
      * @instance
-     * @param {Group} group The group
+     * @param {Object} group The group
      * @memberof GroupsService
      * @description
      * 		Remove the favorite state of a group of the curent loggued in user.
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
@@ -404,12 +404,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method addUserInGroup
      * @instance
      * @param {Contact} contact The user to add in group
-     * @param {Group} group The group
+     * @param {Object} group The group
      * @memberof GroupsService
      * @description
      * 		Add a contact in a group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
      * @category async
      */
@@ -456,12 +456,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method removeUserFromGroup
      * @instance
      * @param {Contact} contact The user to remove from the group
-     * @param {Group} group The destination group
+     * @param {Object} group The destination group
      * @memberof GroupsService
      * @description
      *		Remove a contact from a group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
      * @category async
      */
@@ -534,7 +534,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getGroupById
      * @instance
      * @param {String} group Id of the group to found
-     * @return {Group} The group found if exist or undefined
+     * @return {Object} The group found if exist or undefined
      * @memberof GroupsService
      * @description
      *  Return a group by its id
@@ -550,7 +550,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getGroupByName
      * @instance
      * @param {String} name Name of the group to found
-     * @return {Group} The group found if exist or undefined
+     * @return {Object} The group found if exist or undefined
      * @memberof GroupsService
      * @description
      *  Return a group by its id
