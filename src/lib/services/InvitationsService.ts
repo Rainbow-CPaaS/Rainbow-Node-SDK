@@ -406,6 +406,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method getReceivedInvitations
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Get the invite received coming from Rainbow users
@@ -420,6 +421,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method 	getAcceptedInvitations
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Get the invites you accepted received from others Rainbow users
@@ -434,6 +436,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method getSentInvitations
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Get the invites sent to others Rainbow users
@@ -448,6 +451,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method getInvitationsNumberForCounter
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Get the number of invitations received from others Rainbow users
@@ -462,6 +466,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method getAllInvitationsNumber
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Get the number of invitations sent/received to/from others Rainbow users
@@ -478,6 +483,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method getInvitation
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Get an invite by its id
@@ -516,6 +522,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method joinContactInvitation
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
@@ -547,6 +554,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method sendInvitationByEmail
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Send an invitation email as UCaaS
@@ -575,6 +583,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method cancelOneSendInvitation
+	 * @memberof InvitationsService
 	 * @instance
 	 * @param {Invitation} invitation The invitation to cancel
 	 * @description
@@ -602,6 +611,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method reSendInvitation
+	 * @memberof InvitationsService
 	 * @instance
 	 * @param {Number} invitationId The invitation to re send
 	 * @description
@@ -627,6 +637,7 @@ class InvitationsService {
 	/**
 	 * @public
 	 * @since 1.65
+	 * @memberof InvitationsService
 	 * @method sendInvitationByEmail
 	 * @instance
 	 * @description
@@ -663,6 +674,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method acceptInvitation
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
@@ -706,6 +718,7 @@ class InvitationsService {
 	 * @public
 	 * @since 1.65
 	 * @method declineInvitation
+	 * @memberof InvitationsService
 	 * @instance
 	 * @description
 	 *    Decline an invitation from an other Rainbow user to mutually join the network <br>

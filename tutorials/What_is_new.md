@@ -6,6 +6,46 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.67 - February 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   RQRAINB-2868 Add property `Message::attention` Boolean to indicate if the current logged user is mentioned in the message.
+-   RQRAINB-2868 Add parameter mention to API `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` which contains an array list of JID of contacts to mention or a string containing a single JID of one contact. 
+
+**Others Changes**
+
+-   Fix typo error in Gruntfile.js file for the generated documentation of the invitations service. And fix documentation.
+-   Add method `FileStorageService::uploadFileToStorage` to Send a file in user storage.
+-   RQRAINB-2870 Add `ConversationsService::deleteAllMessageInOneToOneConversation` method to delete all messages in ONE2ONE conversation.
+-   RQRAINB-2984 Treat the XMPP Errors conditions provided by the XMPP RFC : https://xmpp.org/rfcs/rfc6120.html#streams-error .
+-   Add `Bubble::autoAcceptationInvitation` property received from server.
+-   Fix the treatment of error while method `getServerConversations` failed to retrieve conversations for `removeOlderConversations`.
+-   RQRAINB-3024 Add `GroupsServices::deleteAllGroups` API to delete all existing owned groups.
+-   RQRAINB-3024 Add `GroupsServices::setGroupAsFavorite` API to Set a group as a favorite one of the curent loggued in user. 
+-   RQRAINB-3024 Add `GroupsServices::unsetGroupAsFavorite` API to remove the favorite state of a group of the curent loggued in user.
+-   RQRAINB-3024 Fix errors in groups events.
+-   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com. 
+-   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform. 
+-   RQRAINB-3023 Add method `RESTService::getRainbowNodeSdkPackagePublishedInfos` to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com.
+-   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com. 
+-   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
+-   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
+-   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
+-   Changelog is removed from https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS.
+
 ### SDK for Node.JS 1.66 - January 2019
 
 ---

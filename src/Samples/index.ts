@@ -52,11 +52,11 @@ let options = {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
         //mode: "s2s"
-        mode: "xmpp"
+        "mode": "xmpp"
     },
-    s2s: {
-        hostCallback: "http://3d260881.ngrok.io",
-        locallistenningport: "4000"
+    "s2s": {
+        "hostCallback": "http://3d260881.ngrok.io",
+        "locallistenningport": "4000"
     },
     "credentials": {
         "login": "",  // The Rainbow email account to use
@@ -98,7 +98,7 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
-    testOutdatedVersion: false,
+    "testOutdatedVersion": false,
     // IM options
     "im": {
         "sendReadReceipt": true,
