@@ -14,8 +14,9 @@ declare module 'lib/common/Utils' {
 declare module 'lib/config/config' {
 	 enum DataStoreType {
 	    NoStore = "nostore",
-	    NoStoreBotSide = "nostorebotside",
-	    StoreTwinSide = "storetwinside"
+	    NoPermanentStore = "no-permanent-store",
+	    StoreTwinSide = "storetwinside",
+	    UsestoreMessagesField = "OldstoreMessagesUsed"
 	} let conf: {
 	    sandbox: {
 	        http: {
@@ -28,6 +29,10 @@ declare module 'lib/config/config' {
 	            port: string;
 	            protocol: string;
 	            timeBetweenXmppRequests: string;
+	        };
+	        s2s: {
+	            hostCallback: string;
+	            locallistenningport: string;
 	        };
 	    };
 	    official: {
@@ -42,6 +47,10 @@ declare module 'lib/config/config' {
 	            protocol: string;
 	            timeBetweenXmppRequests: string;
 	        };
+	        s2s: {
+	            hostCallback: string;
+	            locallistenningport: string;
+	        };
 	    };
 	    any: {
 	        http: {
@@ -54,6 +63,10 @@ declare module 'lib/config/config' {
 	            port: string;
 	            protocol: string;
 	            timeBetweenXmppRequests: string;
+	        };
+	        s2s: {
+	            hostCallback: string;
+	            locallistenningport: string;
 	        };
 	    };
 	    logs: {
@@ -84,6 +97,7 @@ declare module 'lib/config/config' {
 	    debug: boolean;
 	    permitSearchFromPhoneBook: boolean;
 	    displayOrder: string;
+	    testOutdatedVersion: boolean;
 	    servicesToStart: {
 	        presence: {
 	            start_up: boolean;
@@ -582,6 +596,12 @@ declare module 'lib/connection/XMPPService' {
 	    private copyMessage;
 	    private rateLimitPerHour;
 	    private messagesDataStore;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
 	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
 	    start(withXMPP: any): Promise<unknown>;
 	    signin(account: any, headers: any): Promise<unknown>;
@@ -834,12 +854,14 @@ declare module 'lib/connection/RESTService' {
 	    getDefaultHeader: any;
 	    applicationToken: string;
 	    getPostHeader: any;
+	    connectionS2SInfo: any;
 	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: EventEmitter, _logger: Logger);
 	    get userId(): any;
 	    get loggedInUser(): any;
 	    start(http: any): Promise<void>;
 	    stop(): Promise<unknown>;
 	    signin(token: any): Promise<unknown>;
+	    setconnectionS2SInfo(_connectionS2SInfo: any): void;
 	    askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
 	    signout(): Promise<unknown>;
 	    startTokenSurvey(): void;
@@ -1019,6 +1041,12 @@ declare module 'lib/connection/RESTService' {
 	    get_attempt_succeeded_callback(resolve?: any): any;
 	    get_attempt_failed_callback(reject?: any): any;
 	    reconnect(): Promise<unknown>;
+	    listConnectionsS2S(): Promise<unknown>;
+	    sendS2SPresence(obj: any): Promise<unknown>;
+	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    loginS2S(callback_url: any): Promise<unknown>;
+	    infoS2S(s2sConnectionId: any): Promise<unknown>;
+	    setS2SConnection(connectionId: any): Promise<unknown>;
 	}
 	export { RESTService };
 
@@ -1570,12 +1598,16 @@ declare module 'lib/services/PresenceService' {
 	    RAINBOW_PRESENCE_INVISIBLE: any;
 	    ready: boolean;
 	    private readonly _startConfig;
+	    _s2s: any;
+	    options: any;
+	    useXMPP: any;
+	    useS2S: any;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_xmpp: any, _settings: SettingsService): Promise<unknown>;
+	    start(_options: any, _xmpp: any, _settings: SettingsService, _s2s: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @private
@@ -6913,25 +6945,33 @@ declare module 'lib/config/Options' {
 	    _hasApplication: any;
 	    _httpOptions: any;
 	    _xmppOptions: any;
+	    _s2sOptions: any;
 	    _proxyoptions: any;
 	    _imOptions: any;
 	    _applicationOptions: any;
 	    _withXMPP: any;
+	    _withS2S: any;
 	    _CLIMode: any;
 	    _servicesToStart: any;
+	    private _testOutdatedVersion;
 	    constructor(_options: any, _logger: any);
 	    parse(): void;
+	    get testOutdatedVersion(): boolean;
+	    set testOutdatedVersion(value: boolean);
 	    get servicesToStart(): any;
 	    get httpOptions(): any;
 	    get xmppOptions(): any;
+	    get s2sOptions(): any;
 	    get proxyOptions(): any;
 	    get imOptions(): any;
 	    get applicationOptions(): any;
 	    get hasCredentials(): any;
 	    get hasApplication(): any;
 	    get useXMPP(): any;
+	    get useS2S(): any;
 	    get useCLIMode(): any;
 	    get credentials(): any;
+	    _gettestOutdatedVersion(): any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
 	    _getHTTPOptions(): {
@@ -6944,6 +6984,10 @@ declare module 'lib/config/Options' {
 	        port: string;
 	        protocol: string;
 	        timeBetweenXmppRequests: string;
+	    };
+	    _getS2SOptions(): {
+	        hostCallback: string;
+	        locallistenningport: string;
 	    };
 	    _getModeOption(): string;
 	    _getProxyOptions(): {
@@ -6993,6 +7037,56 @@ declare module 'lib/ProxyImpl' {
 	export { ProxyImpl };
 
 }
+declare module 'lib/connection/S2S/S2SServiceEventHandler' {
+	export {}; class S2SServiceEventHandler {
+	    private logger;
+	    private eventEmitter;
+	    private rest;
+	    constructor(_rest: any, _im: any, _application: any, _eventEmitter: any, _logger: any);
+	    handleS2SEvent(event: any): void;
+	}
+	export { S2SServiceEventHandler };
+
+}
+declare module 'lib/connection/S2S/S2SService' {
+	import { RESTService } from 'lib/connection/RESTService'; class S2SService {
+	    serverURL: any;
+	    host: any;
+	    eventEmitter: any;
+	    version: any;
+	    jid_im: any;
+	    jid_tel: any;
+	    jid_password: any;
+	    fullJid: any;
+	    jid: any;
+	    userId: any;
+	    private logger;
+	    private proxy;
+	    private xmppUtils;
+	    private generatedRandomId;
+	    private hash;
+	    useS2S: any;
+	    _rest: RESTService;
+	    hostCallback: any;
+	    private app;
+	    private locallistenningport;
+	    private s2sEventHandler;
+	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
+	    start(withS2S: any, rest: any): Promise<unknown>;
+	    signin(account: any, headers: any): Promise<unknown>;
+	    stop(forceStop: any): Promise<unknown>;
+	    listConnectionsS2S(): Promise<unknown>;
+	    sendS2SPresence(obj: any): Promise<unknown>;
+	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    deleteAllConnectionsS2S(): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    loginS2S(callback_url: any): Promise<any>;
+	    infoS2S(s2sConnectionId: any): Promise<unknown>;
+	    /** S2S EVENTS */
+	    onS2SReady(event: any): Promise<void>;
+	}
+	export { S2SService };
+
+}
 declare module 'lib/Core' {
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
@@ -7016,7 +7110,8 @@ declare module 'lib/Core' {
 	import { FavoritesService } from 'lib/services/FavoritesService';
 	import { InvitationsService } from 'lib/services/InvitationsService';
 	import { Events } from 'lib/common/Events';
-	import { ProxyImpl } from 'lib/ProxyImpl'; class Core {
+	import { ProxyImpl } from 'lib/ProxyImpl';
+	import { S2SService } from 'lib/connection/S2S/S2SService'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
 	    onTokenRenewed: any;
@@ -7047,8 +7142,9 @@ declare module 'lib/Core' {
 	    _favorites: FavoritesService;
 	    _invitations: InvitationsService;
 	    _botsjid: any;
+	    _s2s: S2SService;
 	    constructor(options: any);
-	    start(useCLIMode: any, token: any): Promise<unknown>;
+	    start(token: any): Promise<unknown>;
 	    signin(forceStopXMPP: any, token: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    get settings(): SettingsService;
