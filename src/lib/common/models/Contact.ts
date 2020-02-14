@@ -3,7 +3,8 @@ export {};
 
 
 const MD5 = require("md5");
-const config = require("../../config/config");
+import {config, DataStoreType} from "../../config/config";
+//const config = require("../../config/config");
 
 /*************************************************************/
 /* STATIC ENUM                                               */

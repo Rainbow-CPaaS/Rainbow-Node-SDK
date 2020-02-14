@@ -19,7 +19,8 @@ const PromiseQueue = require("../../common/promiseQueue");
 
 const orderByFilter = require("../../common/Utils").orderByFilter;
 
-const config = require("../../config/config");
+//const config = require("../../config/config");
+import {config, DataStoreType} from "../../config/config";
 
 const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 

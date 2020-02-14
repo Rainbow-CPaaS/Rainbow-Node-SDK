@@ -88,14 +88,15 @@ class S2SService {
 
         return new Promise(function (resolve, reject) {
             try {
+                that.useS2S = withS2S;
+                that._rest = rest;
                 if (withS2S) {
                     that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
                     //that.logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) S2S connection blocked by configuration");
+                    return resolve();
                 }
-                that.useS2S = withS2S;
-                that._rest = rest;
                 that.app.use(express.json());
                 that.app.listen(that.locallistenningport, function () {
                     that.logger.log("internal", LOG_ID + "Server is running on " + that.locallistenningport + " port");

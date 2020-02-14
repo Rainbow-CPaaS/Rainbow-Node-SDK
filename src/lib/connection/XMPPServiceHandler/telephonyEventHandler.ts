@@ -18,7 +18,8 @@ const xml = require("@xmpp/xml");
 const PromiseQueue = require("../../common/promiseQueue");
 
 
-const config = require("../../config/config");
+//const config = require("../../config/config");
+import {config, DataStoreType} from "../../config/config";
 
 const LOG_ID = "XMPP/HNDL/TEL - ";
 
