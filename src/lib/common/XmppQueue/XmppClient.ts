@@ -1,5 +1,7 @@
 'use strict';
 import {DataStoreType} from "../../config/config";
+//import Element from "ltx";
+import {NameSpacesLabels} from "../../connection/XMPPService";
 
 export {};
 
@@ -26,9 +28,6 @@ const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
 
 const Element = require('ltx').Element;
-//import Element from "ltx";
-import {NameSpacesLabels} from "../../connection/XMPPService";
-import {SIGBREAK} from "constants";
 
 let LOG_ID='XMPPCLIENT';
 
@@ -125,6 +124,33 @@ class XmppClient  {
         that.messagesDataStore = _messagesDataStore;
         that.lastTimeReset = new Date ();
 
+        if (that.messagesDataStore) {
+            switch (that.messagesDataStore) {
+                case DataStoreType.NoStore: {
+                    that.storeMessages = false;
+                }
+                    break;
+                case DataStoreType.NoPermanentStore: {
+                    that.storeMessages = false;
+                }
+                    break;
+                case DataStoreType.StoreTwinSide: {
+                    that.storeMessages = true;
+                }
+                    break;
+                case DataStoreType.UsestoreMessagesField: {
+                    that.messagesDataStore = DataStoreType.NoStore;
+                }
+                    break;
+                default: {
+                    that.messagesDataStore = DataStoreType.NoPermanentStore;
+                }
+                    break;
+            }
+        } else {
+            that.messagesDataStore = DataStoreType.NoPermanentStore;
+        }
+
         that.on('open', () => {
             that.logger.log("debug", LOG_ID + "(event) open");
             that.socketClosed = false;
@@ -174,27 +200,6 @@ class XmppClient  {
                     }
 
                     let stanza = args[0];
-                    /*
-                    if (that.messagesDataStore) {
-                        switch (that.messagesDataStore) {
-                            case DataStoreType.NoStore: {
-                                that.storeMessages = false;
-                            }
-                            break;
-                            case DataStoreType.NoStoreBotSide: {
-                                that.storeMessages = true;
-                            }
-                            break;
-                            case DataStoreType.StoreTwinSide: {
-                                that.storeMessages = true;
-                            }
-                            break;
-                            default: {
-                                that.storeMessages = true;
-                            }
-                            break;
-                        }
-                    } // */
 
                     if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                    // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
@@ -209,7 +214,7 @@ class XmppClient  {
                           // */
 
                         //let nostoreTag="no-store";
-                        let nostoreTag="no-permanent-store";
+                        let nostoreTag=that.messagesDataStore;
                         stanza.append(xml(nostoreTag, {
                             "xmlns": NameSpacesLabels.HintsNameSpace
                         }));

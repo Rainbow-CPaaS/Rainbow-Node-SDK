@@ -2,16 +2,22 @@
  * @enum
  * @name DataStoreType
  * @description
- *  used in SDK parameter "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")
+ *  used in SDK parameter "messagesDataStore": DataStoreType.NoStore, Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)
  *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
- *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+ *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).
  *                          DataStoreType.StoreTwinSide The messages are fully stored.
+ *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  */
 enum DataStoreType {
   NoStore = "nostore",
-  NoStoreBotSide = "nostorebotside",
-  StoreTwinSide = "storetwinside"
+  NoPermanentStore = "no-permanent-store",
+  StoreTwinSide = "storetwinside",
+  UsestoreMessagesField = "OldstoreMessagesUsed"
 }
+
+// Desactivated option because it is a preference one, so it impacted every ressources.
+// DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+// NoStoreBotSide = "nostorebotside",
 
 let conf =  {
     sandbox: {
@@ -97,13 +103,14 @@ let conf =  {
         copyMessage: false,
         nbMaxConversations: 15,
         rateLimitPerHour: 1000,
-        messagesDataStore: DataStoreType.NoStoreBotSide,
+        messagesDataStore: DataStoreType.UsestoreMessagesField,
 
     },
     mode:"xmpp",
     debug:true,
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
+    testOutdatedVersion: true,
     servicesToStart : {
             presence: {
                 start_up:true,

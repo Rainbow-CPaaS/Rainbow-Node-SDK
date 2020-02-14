@@ -163,15 +163,21 @@ class NodeSDK {
      *           "zippedArchive": false Can activate a zip of file. It needs CPU process, so avoid it.<br>
      *       }<br>
      *   },<br>
+     *       testOutdatedVersion: true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
      *   // IM options<br>
      *   "im": {<br>
      *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
      *       "messageMaxLength": 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.<br>
      *       "sendMessageToConnectedUser": false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.<br>
      *       "conversationsRetrievedFormat": "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`<br>
-     *       "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
-     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
-     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+     *       @deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.<br>
+     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.<br>
+     *       "messagesDataStore": Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
+     *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
+     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
+     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.<br>
      *   },<br>
      *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>

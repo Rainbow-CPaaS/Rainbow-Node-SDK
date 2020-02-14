@@ -21,6 +21,7 @@ class Options {
 	public _withS2S: any;
 	public _CLIMode: any;
 	public _servicesToStart: any;
+	private _testOutdatedVersion: boolean;
 
     constructor(_options, _logger) {
         this._logger = _logger;
@@ -30,7 +31,7 @@ class Options {
         this._withXMPP = true;
         this._withS2S = false;
         this._CLIMode = true;
-
+        this._testOutdatedVersion = true;
     }
 
     parse() {
@@ -77,6 +78,15 @@ class Options {
         this._withS2S = mode === "s2s";
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
+        this._testOutdatedVersion = this._gettestOutdatedVersion();
+    }
+
+    get testOutdatedVersion(): boolean {
+        return this._testOutdatedVersion;
+    }
+
+    set testOutdatedVersion(value: boolean) {
+        this._testOutdatedVersion = value;
     }
 
     get servicesToStart () {
@@ -129,6 +139,15 @@ class Options {
 
     get credentials() {
         return this._options.credentials;
+    }
+
+    _gettestOutdatedVersion() {
+        if ( this._options["testOutdatedVersion"] !== undefined ) {
+            return this._options.testOutdatedVersion;
+        } else {
+            return config.testOutdatedVersion;
+        }
+
     }
 
     _getservicesToStart() {
@@ -311,7 +330,7 @@ class Options {
             copyMessage: false,
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
-            messagesDataStore: DataStoreType.NoStoreBotSide
+            messagesDataStore: DataStoreType.UsestoreMessagesField
         };
 
         if (!("sendReadReceipt" in this._options.im)) {

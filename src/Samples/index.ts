@@ -51,8 +51,8 @@ let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-        mode: "s2s"
-        //mode: "xmpp"
+        //mode: "s2s"
+        mode: "xmpp"
     },
     s2s: {
         hostCallback: "http://3d260881.ngrok.io",
@@ -98,17 +98,18 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
+    testOutdatedVersion: false,
     // IM options
     "im": {
         "sendReadReceipt": true,
         "messageMaxLength": 1024,
         "sendMessageToConnectedUser": true,
         "conversationsRetrievedFormat": "small",
-        "storeMessages": true,
+        "storeMessages": false,
         "copyMessage": true,
         "nbMaxConversations": 15,
         "rateLimitPerHour": 1000,
-        "messagesDataStore": DataStoreType.NoStore
+        "messagesDataStore": DataStoreType.NoPermanentStore
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
