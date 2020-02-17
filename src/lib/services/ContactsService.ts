@@ -170,7 +170,6 @@ class Contacts {
      * @instance
      * @param {Contact} contact  The contact to get display name
      * @return {String} The contact first name and last name
-     * @memberof Contacts
      * @description
      *      Get the display name of a contact
      */
@@ -182,7 +181,6 @@ class Contacts {
      * @public
      * @method getRosters
      * @instance
-     * @memberof Contacts
      * @description
      *      Get the list of contacts that are in the user's network (aka rosters)
      * @async
@@ -224,7 +222,6 @@ class Contacts {
      * @method getAll
      * @instance
      * @return {Contact[]} the list of contacts
-     * @memberof Contacts
      * @description
      *  Return the list of contacts that are in the network of the connected users (aka rosters)
      */
@@ -367,7 +364,6 @@ class Contacts {
      * @method getContactByJid
      * @instance
      * @param {string} jid The contact jid
-     * @memberof Contacts
      * @description
      *  Get a contact by his JID by searching in the connected user contacts list (full information) and if not found by searching on the server too (limited set of information)
      * @async
@@ -435,7 +431,6 @@ class Contacts {
      * @instance
      * @param {string} id The contact id
      * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
-     * @memberof Contacts
      * @description
      *  Get a contact by his id
      * @async
@@ -502,7 +497,6 @@ class Contacts {
      * @method getContactByLoginEmail
      * @instance
      * @param {string} loginEmail The contact loginEmail
-     * @memberof Contacts
      * @description
      *  Get a contact by his loginEmail
      * @async
@@ -587,7 +581,6 @@ class Contacts {
      * @param {string} id The contact id
      * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
      *      if missing or null in case where no avatar available a local module file is provided instead of URL
-     * @memberof Contacts
      * @description
      *  Get a contact avatar by his contact id
      * @return {String} Contact avatar URL or file
@@ -682,7 +675,6 @@ class Contacts {
      * @since 1.17
      * @method addToContactsList
      * @instance
-     * @memberof Contacts
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
@@ -809,7 +801,6 @@ class Contacts {
      * @beta
      * @method joinContacts
      * @instance
-     * @memberof Contacts
      * @description
      *    As admin, add contacts to a user roster
      * @param {Contact} contact The contact object to subscribe
@@ -860,9 +851,7 @@ class Contacts {
      * @private
      * @method _onRosterPresenceChanged
      * @instance
-     * @memberof Contacts
      * @param {Object} presence contains informations about contact changes
-     * @memberof Contacts
      * @description
      *      Method called when the presence of a contact changed
      */
@@ -1005,7 +994,6 @@ class Contacts {
      * @method _onContactInfoChanged
      * @instance
      * @param {string} jid modified roster contact Jid
-     * @memberof Contacts
      * @description
      *     Method called when an roster user information are updated
      */
@@ -1050,7 +1038,6 @@ class Contacts {
      * @method _onUserInviteReceived
      * @instance
      * @param {Object} data contains the invitationId
-     * @memberof Contacts
      * @description
      *      Method called when an user invite is received
      */
@@ -1074,7 +1061,6 @@ class Contacts {
      * @method _onUserInviteAccepted
      * @instance
      * @param {Object} data contains the invitationId
-     * @memberof Contacts
      * @description
      *      Method called when an user invite is accepted
      */
@@ -1097,7 +1083,6 @@ class Contacts {
      * @method _onUserInviteCanceled
      * @instance
      * @param {Object} data contains the invitationId
-     * @memberof Contacts
      * @description
      *      Method called when an user invite is canceled
      */
@@ -1119,7 +1104,6 @@ class Contacts {
      * @method _onRostersUpdate
      * @instance
      * @param {Object} contacts contains a contact list with updated elements
-     * @memberof Contacts
      * @description
      *      Method called when the roster contacts is updated
      */

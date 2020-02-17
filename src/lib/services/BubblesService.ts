@@ -139,7 +139,6 @@ class Bubbles {
      * @param {string} name  The name of the bubble to create
      * @param {string} description  The description of the bubble to create
      * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - Bubble object, else an ErrorManager object
@@ -205,7 +204,6 @@ class Bubbles {
      * @instance
      * @param {Bubble} bubble  The bubble to check
      * @return {boolean} True if the bubble is closed
-     * @memberof Bubbles
      * @description
      *  Check if the bubble is closed or not.
      */
@@ -256,7 +254,6 @@ class Bubbles {
      * @method deleteBubble
      * @instance
      * @param {Bubble} bubble  The bubble to delete
-     * @memberof Bubbles
      * @description
      *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
      * @async
@@ -298,7 +295,6 @@ class Bubbles {
      * @method closeAndDeleteBubble
      * @instance
      * @param {Bubble} bubble  The bubble to close + delete
-     * @memberof Bubbles
      * @description
      *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
      * @async
@@ -343,7 +339,6 @@ class Bubbles {
      * @method closeBubble
      * @instance
      * @param {Bubble} bubble The Bubble to close
-     * @memberof Bubbles
      * @description
      *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants.
      * @async
@@ -434,7 +429,6 @@ class Bubbles {
      * @method archiveBubble
      * @instance
      * @param {Bubble} bubble  The bubble to archive
-     * @memberof Bubbles
      * @description
      *  Archive  a bubble.
      *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
@@ -474,7 +468,6 @@ class Bubbles {
      * @method leaveBubble
      * @instance
      * @param {Bubble} bubble  The bubble to leave
-     * @memberof Bubbles
      * @description
      *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble.
      * @async
@@ -535,7 +528,6 @@ class Bubbles {
      * limit : Allow to specify the number of items to retrieve.
      * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
      * sortOrder : Specify order when sorting items list. Available values -1, 1 (default)
-     * @memberof Bubbles
      * @description
      *  Get a list of users in a bubble filtered by criterias.
      * @async
@@ -583,7 +575,6 @@ class Bubbles {
      * @method getStatusForConnectedUserInBubble
      * @instance
      * @param {Bubble} bubble           The bubble
-     * @memberof Bubbles
      * @description
      *  Get the status of the connected user in a bubble
      * @async
@@ -612,7 +603,6 @@ class Bubbles {
      * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
      * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
      * @param {string} reason        The reason of the invitation (optional)
-     * @memberof Bubbles
      * @description
      *  Invite a contact in a bubble
      * @async
@@ -696,7 +686,6 @@ class Bubbles {
      * @instance
      * @param {Contact} contactsEmails         The contacts email tab to invite
      * @param {Bubble} bubble           The bubble
-     * @memberof Bubbles
      * @description
      *  Invite a list of contacts by emails in a bubble
      * @async
@@ -809,7 +798,6 @@ getAllActiveBubbles
      * @param {Contact} contact         The contact to promote or downgraded
      * @param {Bubble} bubble           The bubble
      * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
-     * @memberof Bubbles
      * @description
      *  Promote or not a contact in a bubble
      *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'.
@@ -942,7 +930,6 @@ getAllActiveBubbles
      * @instance
      * @param {Contact} contact         The contact to set a new bubble owner
      * @param {Bubble} bubble           The bubble
-     * @memberof Bubbles
      * @description
      *  Set a moderator contact as owner of a bubble
      * @async
@@ -985,7 +972,6 @@ getAllActiveBubbles
      * @instance
      * @param {Contact} contact The contact to remove
      * @param {Bubble} bubble   The destination bubble
-     * @memberof Bubbles
      * @description
      *    Remove a contact from a bubble
      * @async
@@ -1140,7 +1126,6 @@ getAllActiveBubbles
      * @method getAll
      * @instance
      * @return {Bubble[]} The list of existing bubbles
-     * @memberof Bubbles
      * @description
      *  Return the list of existing bubbles
      */
@@ -1153,7 +1138,6 @@ getAllActiveBubbles
      * @method getAllBubbles
      * @instance
      * @return {Bubble[]} The list of existing bubbles
-     * @memberof Bubbles
      * @description
      *  Return the list of existing bubbles
      */
@@ -1165,7 +1149,6 @@ getAllActiveBubbles
      * @public
      * @method getAllOwnedBubbles
      * @instance
-     * @memberof Bubbles
      * @description
      *    Get the list of bubbles created by the user <br/>
      * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
@@ -1248,7 +1231,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble   The destination bubble
      * @async
      * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
-     * @memberof Bubbles
      * @description
      *  Get A Blob object with data about the avatar picture of the bubble.
      */
@@ -1301,7 +1283,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble the bubble to refresh
      * @async
      * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-     * @memberof Bubbles
      * @description
      *  Refresh members and organizers of the bubble.
      */
@@ -1335,7 +1316,6 @@ getAllActiveBubbles
      * @param {string} id the id of the bubble
      * @async
      * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-     * @memberof Bubbles
      * @description
      *  Get a bubble by its ID in memory and if it is not found in server.
      */
@@ -1392,7 +1372,6 @@ getAllActiveBubbles
      * @param {string} jid the JID of the bubble
      * @async
      * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-     * @memberof Bubbles
      * @description
      *  Get a bubble by its JID in memory and if it is not found in server.
      */
@@ -1448,7 +1427,6 @@ getAllActiveBubbles
      * @return {Bubble[]} An array of Bubbles not accepted or declined
      * @description
      *  Get the list of Bubbles that have a pending invitation not yet accepted of declined
-     * @memberof Bubbles
      */
     getAllPendingBubbles() {
 
@@ -1472,7 +1450,6 @@ getAllActiveBubbles
      * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
      * @description
      *  Get the list of Bubbles where the connected user can chat
-     * @memberof Bubbles
      */
     getAllActiveBubbles() {
         let that = this;
@@ -1496,7 +1473,6 @@ getAllActiveBubbles
      * @return {Bubble[]} An array of Bubbles that are closed for the connected user
      * @description
      *  Get the list of Bubbles where the connected user can only read messages
-     * @memberof Bubbles
      */
     getAllClosedBubbles() {
         let that = this;
@@ -1519,7 +1495,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble The Bubble to join
      * @description
      *  Accept an invitation to join a bubble
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -1570,7 +1545,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble The Bubble to decline
      * @description
      *  Decline an invitation to join a bubble
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -1623,7 +1597,6 @@ getAllActiveBubbles
      * @description
      *  Modify all custom data at once in a bubble
      *  To erase all custom data, put {} in customData
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
@@ -1700,7 +1673,6 @@ getAllActiveBubbles
      * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
      * @description
      *  Set the Bubble's visibility status
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -1776,7 +1748,6 @@ getAllActiveBubbles
      * @param {string} topic Bubble's name
      * @description
      *  Set the Bubble's name
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -2046,7 +2017,6 @@ getAllActiveBubbles
      * @method _sendInitialBubblePresence
      * @instance
      * @param {Bubble} bubble The Bubble
-     * @memberof Bubbles
      * @description
      *      Method called when receiving an invitation to join a bubble
      */
@@ -2059,7 +2029,6 @@ getAllActiveBubbles
      * @method _onInvitationReceived
      * @instance
      * @param {Object} invitation contains informations about bubble and user's jid
-     * @memberof Bubbles
      * @description
      *      Method called when receiving an invitation to join a bubble
      */
@@ -2095,7 +2064,6 @@ getAllActiveBubbles
      * @method _onAffiliationChanged
      * @instance
      * @param {Object} affiliation contains information about bubble and user's jid
-     * @memberof Bubbles
      * @description
      *      Method called when affilitation to a bubble changed
      */
@@ -2132,7 +2100,6 @@ getAllActiveBubbles
      * @method _onOwnAffiliationChanged
      * @instance
      * @param {Object} affiliation contains information about bubble and user's jid
-     * @memberof Bubbles
      * @description
      *      Method called when the user affilitation to a bubble changed
      */
@@ -2207,7 +2174,6 @@ getAllActiveBubbles
      * @method _onCustomDataChanged
      * @instance
      * @param {Object} data contains information about bubble and new custom data received
-     * @memberof Bubbles
      * @description
      *      Method called when custom data have changed for a bubble
      */
@@ -2240,7 +2206,6 @@ getAllActiveBubbles
      * @method _onTopicChanged
      * @instance
      * @param {Object} data contains information about bubble new topic received
-     * @memberof Bubbles
      * @description
      *      Method called when the topic has changed for a bubble
      */
@@ -2271,7 +2236,6 @@ getAllActiveBubbles
      * @method _onPrivilegeBubbleChanged
      * @instance
      * @param {Object} bubbleInfo modified bubble info
-     * @memberof Bubbles
      * @description
      *     Method called when the owner of a bubble changed.
      */
@@ -2297,7 +2261,6 @@ getAllActiveBubbles
      * @method _onNameChanged
      * @instance
      * @param {Object} data contains information about bubble new name received
-     * @memberof Bubbles
      * @description
      *      Method called when the name has changed for a bubble
      */
@@ -2328,8 +2291,7 @@ getAllActiveBubbles
      * @private
      * @method _onbubblepresencechanged
      * @instance
-     * @param {Object} data contains information about bubble
-     * @memberof Bubbles
+     * @param {Object} bubbleInfo contains information about bubble
      * @description
      *      Method called when the name has changed for a bubble
      */

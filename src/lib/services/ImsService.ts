@@ -106,7 +106,6 @@ class IMService {
      *    Calling several times this method will load older message from the history (pagination) <br/>
      * @param {Conversation} conversation The conversation
      * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
-     * @memberof IMService
      * @async
      * @return {Promise<Conversation, ErrorManager>}
      * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
@@ -135,7 +134,6 @@ class IMService {
      *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
      * @param {Conversation} conversation The conversation where to search for the message
      * @param {String} strMessageId The message id
-     * @memberof IMService
      * @return {Message} The message if found or null
      */
     async getMessageFromConversationById(conversation, strMessageId) {
@@ -169,7 +167,6 @@ class IMService {
      *    Retrieve a specific message in a bubble using its id <br/>
      * @param {Bubble} bubble The bubble where to search for the message
      * @param {String} strMessageId The message id
-     * @memberof IMService
      * @return {Message} The message if found or null
      */
     async getMessageFromBubbleById(bubble, strMessageId) {
@@ -221,7 +218,6 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -267,7 +263,6 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -334,7 +329,6 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -398,7 +392,6 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -471,7 +464,6 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -501,7 +493,6 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -575,7 +566,6 @@ class IMService {
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -722,7 +712,6 @@ class IMService {
      * @description
      *  Send a 'read' receipt to the recipient
      * @param {Message} messageReceived The message received to mark as read
-     * @memberof IMService
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -748,7 +737,6 @@ class IMService {
      * @instance
      * @description
      *      Enable message carbon XEP-0280
-     * @memberof IMService
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result

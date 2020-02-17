@@ -238,7 +238,6 @@ class Telephony {
      * @private
      * @method onTelPresenceChange
      * @instance
-     * @memberof TelephonyService
      * @description
      *      Method called when receiving an update on user presence
      */
@@ -318,7 +317,6 @@ class Telephony {
      * @private
      * @method onCallUpdated
      * @instance
-     * @memberof TelephonyService
      * @description
      *      Method called when receiving an update on a call
      */

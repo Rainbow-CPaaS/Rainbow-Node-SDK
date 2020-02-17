@@ -728,7 +728,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of file descriptor
      * @return {Promise<FileDescriptor>} file descriptor
      *
-     * @memberOf FileStorage
      */
     getCompleteFileDescriptorById(id) {
         let that = this;
@@ -783,7 +782,6 @@ class FileStorage {
      * @private
      *
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocuments() {
         return this.fileDescriptors;
@@ -794,7 +792,6 @@ class FileStorage {
      * @private
      *
      * @return {FileDescriptor}
-     * @memberof FileStorage
      */
     getReceivedDocuments() {
         return this.receivedFileDescriptors;
@@ -806,7 +803,6 @@ class FileStorage {
      *
      * @param {boolean} received
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocumentsByName(received) {
         return received ? this.receivedFileDescriptorsByName : this.fileDescriptorsByName;
@@ -818,7 +814,6 @@ class FileStorage {
      *
      * @param {boolean} received
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocumentsByDate(received) {
         return received ? this.receivedFileDescriptorsByDate : this.fileDescriptorsByDate;
@@ -830,7 +825,6 @@ class FileStorage {
      *
      * @param {boolean} received
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocumentsBySize(received) {
         return received ? this.receivedFileDescriptorsBySize : this.fileDescriptorsBySize;
@@ -842,7 +836,6 @@ class FileStorage {
      *
      * @param {string} dbId
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getReceivedFilesFromContact(dbId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
@@ -858,7 +851,6 @@ class FileStorage {
      *
      * @param {string} dbId
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getSentFilesToContact(dbId) {
         let files = this.fileDescriptorsByDate.filter((file) => {
@@ -879,7 +871,6 @@ class FileStorage {
      *
      * @param {string} bubbleId id of the bubble
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getReceivedFilesForRoom(bubbleId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
@@ -899,7 +890,6 @@ class FileStorage {
      * @private
      *
      * @return {Object}
-     * @memberof FileStorage
      */
     getConsumptionData() {
         return this.consumptionData;
@@ -920,7 +910,6 @@ class FileStorage {
      * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
      * @return {Promise<FileDescriptor>} file descriptor created by server or error
      *
-     * @memberof FileStorage
      */
     createFileDescriptor(name, extension, size, viewers) {
         let that = this;
@@ -954,7 +943,6 @@ class FileStorage {
      *
      * @param {*} data
      * @return {FileDescriptor}
-     * @memberof FileStorage
      */
     createFileDescriptorFromData(data) : any{
         let that = this;
@@ -992,7 +980,6 @@ class FileStorage {
      * Method request deletion of a file descriptor on the server and removes it from local storage
      * @param {string} id [required] file descriptor id to be destroyed
      * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
-     * @memberof FileStorage
      */
     deleteFileDescriptor(id) {
         let that = this;
@@ -1017,7 +1004,6 @@ class FileStorage {
      * @description
      * Method request deletion of all files on the server and removes them from local storage
      * @return {Promise<{}>} ???
-     * @memberof FileStorage
      */
     deleteAllFileDescriptor() {
         let that = this;
@@ -1053,7 +1039,6 @@ class FileStorage {
      *
      * @return {Promise<FileDescriptor[]>}
      *
-     * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwner() {
         let that = this;
@@ -1124,7 +1109,6 @@ class FileStorage {
      *
      * @return {Promise<FileDescriptor[]>}
      *
-     * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit) {
         return this._rest.retrieveFileDescriptors("full", limit, offset, undefined);
@@ -1141,7 +1125,6 @@ class FileStorage {
      * @param {string} peerId [required] dbId of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveFilesReceivedFromPeer(userId, peerId) {
         let that = this;
@@ -1177,7 +1160,6 @@ class FileStorage {
      * @param {string} peerId [required] id of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveSentFiles(peerId) {
         let that = this;
@@ -1213,7 +1195,6 @@ class FileStorage {
      * @param {string} bubbleId [required] Id of the room
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveReceivedFilesForRoom(bubbleId) {
         let that = this;
@@ -1256,7 +1237,6 @@ class FileStorage {
      * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveReceivedFiles(viewerId) {
         let that = this;
@@ -1438,7 +1418,6 @@ class FileStorage {
      *                  - maxValue {number} : The quota associated to this offer [octet]
      *                  - currentValue {number} : The user's current consumption [octet]
      *                  - unit {string} : The unit of this counters
-     * @memberOf FileStorage
      */
     retrieveUserConsumption() {
         let that = this;
@@ -1468,7 +1447,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
      * @return {Promise<{}>}
      *
-     * @memberof FileStorage
      */
     deleteFileViewer(viewerId, fileId) {
         let that = this;
@@ -1514,7 +1492,6 @@ class FileStorage {
      * @param {string} viewerType [required] type of viewer to be added (user or room)
      * @return {Promise<FileDescriptor>} file descriptor with newly added viewer
      *
-     * @memberOf FileStorage
      */
     addFileViewer(fileId, viewerId, viewerType) {
         let that = this;
@@ -1570,7 +1547,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved
      *
-     * @memberOf FileStorage
      */
     retrieveOneFileDescriptor(fileId) {
         let that = this;
@@ -1599,7 +1575,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
      *
-     * @memberOf FileStorage
      */
     retrieveAndStoreOneFileDescriptor(fileId, forceRetrieve) {
         let that = this;
@@ -1802,7 +1777,6 @@ class FileStorage {
      * @param {string} url
      * @return {string}
      *
-     * @memberof FileStorage
      */
     extractFileIdFromUrl(url) {
         let parts = url.split("/");

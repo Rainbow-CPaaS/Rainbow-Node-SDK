@@ -167,7 +167,6 @@ class Channels {
      * @param {string} name  The name of the channel to create (max-length=255)
      * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
-     * @memberof Channels
      * @description
      *  Create a new public channel with a visibility limited to my company
      */
@@ -184,7 +183,6 @@ class Channels {
      * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
      * @param {String} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
-     * @memberof Channels
      * @description
      *  Create a new public channel with a visibility limited to my company
      */
@@ -221,7 +219,6 @@ class Channels {
      * @param {string} name  The name of the channel to create (max-length=255)
      * @param {string} [description]  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
-     * @memberof Channels
      * @description
      *  Create a new private channel
      */
@@ -238,7 +235,6 @@ class Channels {
      * @param {string} [description]  The description of the channel to create (max-length=255)
      * @param {String} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
-     * @memberof Channels
      * @description
      *  Create a new closed channel
      */
@@ -272,7 +268,6 @@ class Channels {
      * @async
      * @param {Channel} channel  The channel to delete
      * @return {Promise<CHannel>} Promise object represents The channel deleted
-     * @memberof Channels
      * @description
      *  Delete a owned channel
      */
@@ -318,7 +313,6 @@ class Channels {
      * @return {Promise<Channel[]>} Channels found
      * @description
      *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
-     * @memberof Channels
      */
     findChannelsByName(name : string) : Promise<[Channel]> {
 
@@ -340,7 +334,6 @@ class Channels {
      * @return {Promise<Channel[]>} Channels found
      * @description
      *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
-     * @memberof Channels
      */
     findChannelsByTopic(topic : string) : Promise<[Channel]> {
 
@@ -356,7 +349,6 @@ class Channels {
     /**
      * @private
      * @method findChannels
-     * @memberof Channels
      */
     private _findChannels(name : string, topic : string) : Promise<[Channel]> {
         //hack
@@ -409,7 +401,6 @@ class Channels {
      * @return {Promise<Channel>} The channel found
      * @description
      * Find a channel by its id (locally if exists or by sending a request to Rainbow)
-     * @memberof Channels
      */
     getChannelById(id, force?) : Promise <Channel> {
         return this.fetchChannel(id,  force);
@@ -425,7 +416,6 @@ class Channels {
      * @return {Promise<Channel>} The channel found
      * @description
      * Find a channel by its id (locally if exists or by sending a request to Rainbow)
-     * @memberof Channels
      */
     async fetchChannel(id, force?) : Promise<Channel>{
         return new Promise(async (resolve, reject) => {
@@ -609,7 +599,6 @@ class Channels {
      * @method getAllChannels
      * @instance
      * @return {Channel[]} An array of channels (owned and subscribed)
-     * @memberof Channels
      * @description
      *  Return the list of channels (owned and subscribed)
      */
@@ -625,7 +614,6 @@ class Channels {
      * [#3] Will be deleted in future version
      * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
      * @return {Channel[]} An array of channels (owned only)
-     * @memberof Channels
      * @description
      *  Return the list of owned channels only
      */
@@ -638,7 +626,6 @@ class Channels {
      * @method getAllOwnedChannels
      * @instance
      * @return {Channel[]} An array of channels (owned only)
-     * @memberof Channels
      * @description
      *  Return the list of owned channels only
      */
@@ -656,7 +643,6 @@ class Channels {
      * [#3] Will be deleted in future version
      * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
      * @return {Channel[]} An array of channels (subscribed only)
-     * @memberof Channels
      * @description
      *  Return the list of subscribed channels only
      */
@@ -669,7 +655,6 @@ class Channels {
      * @method getAllSubscribedChannels
      * @instance
      * @return {Channel[]} An array of channels (subscribed only)
-     * @memberof Channels
      * @description
      *  Return the list of subscribed channels only
      */
@@ -685,7 +670,6 @@ class Channels {
      * @method getAllPendingChannels
      * @instance
      * @return {Channel[]} An array of channels (invited only)
-     * @memberof Channels
      * @description
      *  Return the list of invited channels only
      */
@@ -709,7 +693,6 @@ class Channels {
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel
-     * @memberof Channels
      */
     publishMessageToChannel(channel, message, title, url, imagesIds, type) : Promise<{}> {
         return this.createItem(channel, message, title, url, imagesIds, type);
@@ -729,7 +712,6 @@ class Channels {
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel
-     * @memberof Channels
      */
     createItem(channel, message, title, url, imagesIds, type) : Promise <{}> {
         if (!channel || !channel.id) {
@@ -779,7 +761,6 @@ class Channels {
      * @return {Promise<Channel>} The channel updated with the new subscription
      * @description
      *  Subscribe to a public channel
-     * @memberof Channels
      */
     subscribeToChannel(channel : Channel) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -872,7 +853,6 @@ class Channels {
      * @return {Promise<String>} The status of the unsubscribe.
      * @description
      *  Unsubscribe from a public channel
-     * @memberof Channels
      */
     unsubscribeFromChannel(channel : Channel) : Promise<String> {
         if (!channel || !channel.id) {
@@ -904,7 +884,6 @@ class Channels {
      * @return {Promise<Channel>} Updated channel
      * @description
      *  TODO
-     * @memberof Channels
      */
     updateChannelTopic (channel, description) : Promise <Channel> {
         return this.updateChannelDescription(channel, description);
@@ -920,7 +899,6 @@ class Channels {
      * @return {Promise<Channel>} Updated channel
      * @description
      *  TODO
-     * @memberof Channels
      */
     updateChannelDescription(channel, description) : Promise <Channel> {
         if (!channel || !channel.id) {
@@ -1269,7 +1247,6 @@ class Channels {
      * @return {Promise<Users[]>} An array of users who belong to this channel
      * @description
      *  Get a pagined list of users who belongs to a channel
-     * @memberof Channels
      */
     getUsersFromChannel(channel, options) {
         return this.fetchChannelUsers(channel, options);
@@ -1289,7 +1266,6 @@ class Channels {
      * @return {Promise<Users[]>} An array of users who belong to this channel
      * @description
      *  Get a pagined list of users who belongs to a channel
-     * @memberof Channels
      */
     public fetchChannelUsers(channel, options) : Promise<Array<{}>> {
         if (!channel || !channel.id) {
@@ -1348,7 +1324,6 @@ class Channels {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Remove all users from a channel
-     * @memberof Channels
      */
     removeAllUsersFromChannel(channel) {
         return this.deleteAllUsersFromChannel(channel);
@@ -1362,7 +1337,6 @@ class Channels {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Remove all users from a channel
-     * @memberof Channels
      */
     public deleteAllUsersFromChannel(channel) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -1405,7 +1379,6 @@ class Channels {
      * @return {Promise<Channel>} Update Channel Users status
      * @description
      *  TODO
-     * @memberof Channels
      */
     public updateChannelUsers(channel, users) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -1451,7 +1424,6 @@ class Channels {
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Add a list of owners to the channel
-     * @memberof Channels
      */
     public addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
         if (!channel || !channel.id) {
@@ -1486,7 +1458,6 @@ class Channels {
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Add a list of publishers to the channel
-     * @memberof Channels
      */
     public addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
         if (!channel || !channel.id ) {
@@ -1521,7 +1492,6 @@ class Channels {
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Add a list of members to the channel
-     * @memberof Channels
      */
     public async addMembersToChannel(channel, members) : Promise<Channel> {
         //this._logger.log("internal", LOG_ID + "(addMembersToChannel) this._channels : ", this._channels);
@@ -1568,7 +1538,6 @@ class Channels {
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Remove a list of users from a channel
-     * @memberof Channels
      */
     removeUsersFromChannel1(channel, users) {
         return this.deleteUsersFromChannel(channel, users);
@@ -1583,7 +1552,6 @@ class Channels {
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Remove a list of users from a channel
-     * @memberof Channels
      */
     public deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -1620,7 +1588,6 @@ class Channels {
      * @return {Promise<Object[]>} The list of messages received
      * @description
      *  Retrieve the last messages from a channel
-     * @memberof Channels
      */
     getMessagesFromChannel (channel) {
         return this.fetchChannelItems(channel);
@@ -1635,7 +1602,6 @@ class Channels {
      * @return {Promise<Object[]>} The list of messages received
      * @description
      *  Retrieve the last messages from a channel
-     * @memberof Channels
      */
     public fetchChannelItems (channel : Channel) : Promise<Array<any>>{
         if (!channel || !channel.id) {
@@ -1695,7 +1661,6 @@ class Channels {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Delete a message from a channel
-     * @memberof Channels
      */
     deleteMessageFromChannel(channelId, messageId) {
         return this.deleteItemFromChannel(channelId, messageId);
@@ -1711,7 +1676,6 @@ class Channels {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Delete a message from a channel
-     * @memberof Channels
      */
     public deleteItemFromChannel (channelId, itemId) : Promise<Channel> {
         if (!channelId ) {

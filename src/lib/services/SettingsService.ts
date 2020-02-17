@@ -89,7 +89,6 @@ class Settings {
      * @description
      *  Get current User Settings
      * @return {Promise<UserSettings>} A promise containing the result
-     * @memberof Settings
      */
     getUserSettings() {
         let that = this;
@@ -113,7 +112,6 @@ class Settings {
      * @description
      *  Update current User Settings
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
-     * @memberof Settings
      */
     updateUserSettings(settings) {
         let that = this;

@@ -137,7 +137,6 @@ class PresenceService {
      * @description
      *  Send the initial presence (online)
      * @return {ErrorManager.Ok} A promise containing the result
-     * @memberof PresenceService
      */
     sendInitialPresence() {
 
@@ -161,7 +160,6 @@ class PresenceService {
      *    Allow to change the presence of the connected user <br/>
      *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
      * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-     * @memberof PresenceService
      * @async
      * @return {Promise<ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -211,10 +209,9 @@ class PresenceService {
     }
 
     /**
-     * @private
+     * @public
      * @method getUserConnectedPresence
      * @instance
-     * @memberof PresenceService
      * @description
      *      Get user presence status calculated from events.
      */
@@ -226,7 +223,6 @@ class PresenceService {
      * @private
      * @method _setUserPresenceStatus
      * @instance
-     * @memberof PresenceService
      * @description
      *      Send user presence status and message to xmpp.
      */
@@ -286,7 +282,6 @@ class PresenceService {
      * @private
      * @method _sendPresenceFromConfiguration
      * @instance
-     * @memberof PresenceService
      * @description
      *      Send user presence according to user settings presence.
      */
@@ -323,7 +318,6 @@ class PresenceService {
      * @private
      * @method _onUserSettingsChanged
      * @instance
-     * @memberof PresenceService
      * @description
      *      Method called when receiving an update on user settings
      */
@@ -336,7 +330,6 @@ class PresenceService {
      * @private
      * @method _onPresenceChanged
      * @instance
-     * @memberof PresenceService
      * @description
      *      Method called when receiving an update on user presence
      */

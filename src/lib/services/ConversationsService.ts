@@ -476,7 +476,6 @@ class Conversations {
      *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room,
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days.
      * @param {String} ID of the conversation (dbId field)
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -493,7 +492,6 @@ class Conversations {
      * @description
      *    Mark all unread messages in the conversation as read.
      * @param {String} ID of the conversation (dbId field)
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -512,7 +510,6 @@ class Conversations {
      *    Retrieve the remote history of a specific conversation.
      * @param {Conversation} conversation Conversation to retrieve
      * @param {number} size Maximum number of element to retrieve
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -643,7 +640,6 @@ class Conversations {
      * @param muted
      * @param creationDate
      * @param lastMessageSender
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation>}
      * @fulfil {Conversation} - Conversation object or null if not found
@@ -750,7 +746,6 @@ class Conversations {
      * @public
      * @method sendIsTypingState
      * @instance Conversations
-     * @memberof Conversations
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
@@ -841,7 +836,6 @@ class Conversations {
      *    Close a conversation <br/>
      *    This method returns a promise
      * @param {Conversation} conversation The conversation to close
-     * @memberof Conversations
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
@@ -1045,7 +1039,6 @@ class Conversations {
     /**
      * @public
      * @method sendExistingMessage
-     * @memberof Conversations
      * @instance
      * @param {string} data The text message to send
      * @description
@@ -1109,7 +1102,6 @@ class Conversations {
      * @public
      * @method sendCorrectedChatMessage
      * @instance
-     * @memberof Conversations
      * @description
      *    Send a corrected message to a conversation
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
@@ -1184,7 +1176,6 @@ class Conversations {
      * @since 1.58
      * @method deleteMessage
      * @instance
-     * @memberof Conversations
      * @async
      * @description
      *    Delete a message by sending an empty string in a correctedMessage
@@ -1218,7 +1209,6 @@ class Conversations {
      * @since 1.67.0
      * @method deleteAllMessageInOneToOneConversation
      * @instance
-     * @memberof Conversations
      * @async
      * @description
      *   DELETE ALL MESSAGES IN ONE2ONE CONVERSATION
@@ -1278,7 +1268,6 @@ class Conversations {
      *    Cleanup a conversation by removing all previous messages<br/>
      *    This method returns a promise
      * @param {Conversation} conversation The conversation to clean
-     * @memberof Conversations
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
@@ -1339,7 +1328,6 @@ class Conversations {
      *    Remove a specific range of message in a conversation<br/>
      *    This method returns a promise
      * @param {Conversation} conversation The conversation to clean
-     * @memberof Conversations
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
@@ -1376,7 +1364,6 @@ class Conversations {
      * @public
      * @method getConversationById
      * @instance
-     * @memberof Conversations
      * @description
      *      Get a p2p conversation by id
      * @param {String} conversationId Conversation id of the conversation to clean
@@ -1457,7 +1444,6 @@ class Conversations {
      * @public
      * @method getAllConversations
      * @instance
-     * @memberof Conversations
      * @description
      *    Allow to get the list of existing conversations (p2p and bubbles)
      * @return {Conversation[]} An array of Conversation object
@@ -1470,7 +1456,6 @@ class Conversations {
     /**
      * @private
      * @method
-     * @memberof Conversations
      * @instance
      * @description
      *      Get all conversation
@@ -1490,7 +1475,6 @@ class Conversations {
      * @public
      * @method openConversationForContact
      * @instance
-     * @memberof Conversations
      * @description
      *    Open a conversation to a contact <br/>
      *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>

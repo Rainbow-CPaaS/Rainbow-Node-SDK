@@ -136,7 +136,6 @@ class FileServer {
      * @param {number} index [required] index of the part. Used to re-assemble the data
      * @returns {Object} structure containing the response data from server and the index
      *
-     * @memberof FileServer
      */
     getPartialDataFromServer(url, minRange, maxRange, index) {
         return this._rest.getPartialDataFromServer(url, minRange, maxRange, index);
@@ -151,7 +150,6 @@ class FileServer {
      * @param {string} fileName [optional] name of file to be downloaded
      * @returns {Buffer} Buffer created from data received from server
      *
-     * @memberof FileServer
      */
     getBufferFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate) {
         let that = this;
@@ -222,7 +220,6 @@ class FileServer {
      * @param {string} uploadedDate [optional] date of the upload
      * @returns {Buffer} Buffer created from data received from server
      *
-     * @memberof FileServer
      */
     getFileFromUrlWithOptimization(destFile, url, mime, fileSize, fileName, uploadedDate) {
         let that = this;
@@ -353,7 +350,6 @@ class FileServer {
      * @param {string} mime [required] mime type of file
      * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
      *
-     * @memberof FileServer
      */
     _uploadAFile(fileId, filePath, mime) {
         let that = this;
@@ -423,7 +419,6 @@ class FileServer {
      * @param {number} index [required] index of the part. Used to indicate the part number to the server
      * @returns {Promise<{}>} file descriptor data received as response from server or http error response
      *
-     * @memberof FileServer
      */
     _sendPartialDataToServer(fileId, file, index) {
         let that = this;
@@ -458,7 +453,6 @@ class FileServer {
 //     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
      * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
      *
-     * @memberof FileServer
      */
     async uploadAFileByChunk(fileDescriptor, filePath /*, progressCallback */) {
         let that = this;
@@ -587,7 +581,6 @@ class FileServer {
      * @param {string} fileName [optional] name of file to be downloaded
      * @returns {Promise<Blob>} Blob created from data received from server
      *
-     * @memberof FileServerService
      * !!!!!! OBSOLETE
      */
     async getBlobFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate ) {
@@ -675,7 +668,6 @@ class FileServer {
      * @param {string} fileName [required] name of file to be downloaded
      * @returns {ng.IPromise<Blob>} Blob created from data received from server
      *
-     * @memberof FileServerService
      */
      getBlobFromUrl(url, mime, fileSize, fileName) {
          let that = this;
@@ -729,7 +721,6 @@ class FileServer {
 *
 * @returns {Capabilities} user quota for user
 *
-* @memberof FileServer
 */
     getServerCapabilities() {
         return this._rest.getServerCapabilities();
