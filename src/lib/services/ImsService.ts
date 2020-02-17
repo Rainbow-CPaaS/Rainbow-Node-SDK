@@ -99,7 +99,7 @@ class IMService {
     /**
      * @public
      * @since 1.39
-     * @method
+     * @method getMessagesFromConversation
      * @instance
      * @description
      *    <b>(beta)</b> Retrieve the list of messages from a conversation <br/>
@@ -129,7 +129,7 @@ class IMService {
     /**
      * @public
      * @since 1.39
-     * @method
+     * @method getMessageFromConversationById
      * @instance
      * @description
      *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
@@ -163,7 +163,7 @@ class IMService {
     /**
      * @public
      * @since 1.39
-     * @method
+     * @method getMessageFromBubbleById
      * @instance
      * @description
      *    Retrieve a specific message in a bubble using its id <br/>
@@ -209,7 +209,7 @@ class IMService {
     /**
      * @public
      * @since 1.39
-     * @method
+     * @method sendMessageToConversation
      * @instance
      * @description
      *    <b>(beta)</b> Send a instant message to a conversation<br>
@@ -642,7 +642,7 @@ class IMService {
 
     /**
      * @public
-     * @method
+     * @method sendIsTypingStateInBubble
      * @instance IMService
      * @description
      *    Switch the "is typing" state in a bubble/room<br>
@@ -685,7 +685,7 @@ class IMService {
 
     /**
      * @public
-     * @method
+     * @method sendIsTypingStateInConversation
      * @instance IMService
      * @description
      *    Switch the "is typing" state in a conversation<br>
