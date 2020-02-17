@@ -1342,7 +1342,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getReceivedInvitations
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the invite received coming from Rainbow users
@@ -1353,7 +1352,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method 	getAcceptedInvitations
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the invites you accepted received from others Rainbow users
@@ -1364,7 +1362,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getSentInvitations
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the invites sent to others Rainbow users
@@ -1375,7 +1372,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getInvitationsNumberForCounter
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the number of invitations received from others Rainbow users
@@ -1386,7 +1382,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getAllInvitationsNumber
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get the number of invitations sent/received to/from others Rainbow users
@@ -1397,7 +1392,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method getInvitation
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Get an invite by its id
@@ -1409,7 +1403,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method joinContactInvitation
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
@@ -1423,7 +1416,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method sendInvitationByEmail
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Send an invitation email as UCaaS
@@ -1436,7 +1428,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method cancelOneSendInvitation
-	     * @memberof InvitationsService
 	     * @instance
 	     * @param {Invitation} invitation The invitation to cancel
 	     * @description
@@ -1448,7 +1439,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method reSendInvitation
-	     * @memberof InvitationsService
 	     * @instance
 	     * @param {Number} invitationId The invitation to re send
 	     * @description
@@ -1459,7 +1449,6 @@ declare module 'lib/services/InvitationsService' {
 	    /**
 	     * @public
 	     * @since 1.65
-	     * @memberof InvitationsService
 	     * @method sendInvitationByEmail
 	     * @instance
 	     * @description
@@ -1473,7 +1462,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method acceptInvitation
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
@@ -1487,7 +1475,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @public
 	     * @since 1.65
 	     * @method declineInvitation
-	     * @memberof InvitationsService
 	     * @instance
 	     * @description
 	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
@@ -1573,7 +1560,6 @@ declare module 'lib/services/SettingsService' {
 	     * @description
 	     *  Get current User Settings
 	     * @return {Promise<UserSettings>} A promise containing the result
-	     * @memberof Settings
 	     */
 	    getUserSettings(): Promise<unknown>;
 	    /**
@@ -1583,7 +1569,6 @@ declare module 'lib/services/SettingsService' {
 	     * @description
 	     *  Update current User Settings
 	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
-	     * @memberof Settings
 	     */
 	    updateUserSettings(settings: any): Promise<unknown>;
 	}
@@ -1629,7 +1614,6 @@ declare module 'lib/services/PresenceService' {
 	     * @description
 	     *  Send the initial presence (online)
 	     * @return {ErrorManager.Ok} A promise containing the result
-	     * @memberof PresenceService
 	     */
 	    sendInitialPresence(): Promise<unknown>;
 	    /**
@@ -1640,7 +1624,6 @@ declare module 'lib/services/PresenceService' {
 	     *    Allow to change the presence of the connected user <br/>
 	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
 	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-	     * @memberof PresenceService
 	     * @async
 	     * @return {Promise<ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -1648,10 +1631,9 @@ declare module 'lib/services/PresenceService' {
 	     */
 	    setPresenceTo(presence: any): Promise<unknown>;
 	    /**
-	     * @private
+	     * @public
 	     * @method getUserConnectedPresence
 	     * @instance
-	     * @memberof PresenceService
 	     * @description
 	     *      Get user presence status calculated from events.
 	     */
@@ -1660,7 +1642,6 @@ declare module 'lib/services/PresenceService' {
 	    * @private
 	    * @method _setUserPresenceStatus
 	    * @instance
-	    * @memberof PresenceService
 	    * @description
 	    *      Send user presence status and message to xmpp.
 	    */
@@ -1669,7 +1650,6 @@ declare module 'lib/services/PresenceService' {
 	     * @private
 	     * @method _sendPresenceFromConfiguration
 	     * @instance
-	     * @memberof PresenceService
 	     * @description
 	     *      Send user presence according to user settings presence.
 	     */
@@ -1678,7 +1658,6 @@ declare module 'lib/services/PresenceService' {
 	     * @private
 	     * @method _onUserSettingsChanged
 	     * @instance
-	     * @memberof PresenceService
 	     * @description
 	     *      Method called when receiving an update on user settings
 	     */
@@ -1687,7 +1666,6 @@ declare module 'lib/services/PresenceService' {
 	     * @private
 	     * @method _onPresenceChanged
 	     * @instance
-	     * @memberof PresenceService
 	     * @description
 	     *      Method called when receiving an update on user presence
 	     */
@@ -1733,7 +1711,6 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Contact} contact  The contact to get display name
 	     * @return {String} The contact first name and last name
-	     * @memberof Contacts
 	     * @description
 	     *      Get the display name of a contact
 	     */
@@ -1742,7 +1719,6 @@ declare module 'lib/services/ContactsService' {
 	     * @public
 	     * @method getRosters
 	     * @instance
-	     * @memberof Contacts
 	     * @description
 	     *      Get the list of contacts that are in the user's network (aka rosters)
 	     * @async
@@ -1756,7 +1732,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method getAll
 	     * @instance
 	     * @return {Contact[]} the list of contacts
-	     * @memberof Contacts
 	     * @description
 	     *  Return the list of contacts that are in the network of the connected users (aka rosters)
 	     */
@@ -1770,7 +1745,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method getContactByJid
 	     * @instance
 	     * @param {string} jid The contact jid
-	     * @memberof Contacts
 	     * @description
 	     *  Get a contact by his JID by searching in the connected user contacts list (full information) and if not found by searching on the server too (limited set of information)
 	     * @async
@@ -1785,7 +1759,6 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {string} id The contact id
 	     * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
-	     * @memberof Contacts
 	     * @description
 	     *  Get a contact by his id
 	     * @async
@@ -1799,7 +1772,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method getContactByLoginEmail
 	     * @instance
 	     * @param {string} loginEmail The contact loginEmail
-	     * @memberof Contacts
 	     * @description
 	     *  Get a contact by his loginEmail
 	     * @async
@@ -1815,7 +1787,6 @@ declare module 'lib/services/ContactsService' {
 	     * @param {string} id The contact id
 	     * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
 	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
-	     * @memberof Contacts
 	     * @description
 	     *  Get a contact avatar by his contact id
 	     * @return {String} Contact avatar URL or file
@@ -1854,7 +1825,6 @@ declare module 'lib/services/ContactsService' {
 	     * @since 1.17
 	     * @method addToContactsList
 	     * @instance
-	     * @memberof Contacts
 	     * @description
 	     *    Send an invitation to a Rainbow user for joining his network. <br>
 	     *    The user will receive an invitation that can be accepted or declined <br>
@@ -1913,7 +1883,6 @@ declare module 'lib/services/ContactsService' {
 	     * @beta
 	     * @method joinContacts
 	     * @instance
-	     * @memberof Contacts
 	     * @description
 	     *    As admin, add contacts to a user roster
 	     * @param {Contact} contact The contact object to subscribe
@@ -1928,9 +1897,7 @@ declare module 'lib/services/ContactsService' {
 	     * @private
 	     * @method _onRosterPresenceChanged
 	     * @instance
-	     * @memberof Contacts
 	     * @param {Object} presence contains informations about contact changes
-	     * @memberof Contacts
 	     * @description
 	     *      Method called when the presence of a contact changed
 	     */
@@ -1940,7 +1907,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method _onContactInfoChanged
 	     * @instance
 	     * @param {string} jid modified roster contact Jid
-	     * @memberof Contacts
 	     * @description
 	     *     Method called when an roster user information are updated
 	     */
@@ -1950,7 +1916,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method _onUserInviteReceived
 	     * @instance
 	     * @param {Object} data contains the invitationId
-	     * @memberof Contacts
 	     * @description
 	     *      Method called when an user invite is received
 	     */
@@ -1959,7 +1924,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method _onUserInviteAccepted
 	     * @instance
 	     * @param {Object} data contains the invitationId
-	     * @memberof Contacts
 	     * @description
 	     *      Method called when an user invite is accepted
 	     */
@@ -1968,7 +1932,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method _onUserInviteCanceled
 	     * @instance
 	     * @param {Object} data contains the invitationId
-	     * @memberof Contacts
 	     * @description
 	     *      Method called when an user invite is canceled
 	     */
@@ -1977,7 +1940,6 @@ declare module 'lib/services/ContactsService' {
 	     * @method _onRostersUpdate
 	     * @instance
 	     * @param {Object} contacts contains a contact list with updated elements
-	     * @memberof Contacts
 	     * @description
 	     *      Method called when the roster contacts is updated
 	     */
@@ -2495,7 +2457,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} name  The name of the bubble to create
 	     * @param {string} description  The description of the bubble to create
 	     * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
-	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - Bubble object, else an ErrorManager object
@@ -2508,7 +2469,6 @@ declare module 'lib/services/BubblesService' {
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to check
 	     * @return {boolean} True if the bubble is closed
-	     * @memberof Bubbles
 	     * @description
 	     *  Check if the bubble is closed or not.
 	     */
@@ -2528,7 +2488,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method deleteBubble
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to delete
-	     * @memberof Bubbles
 	     * @description
 	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
 	     * @async
@@ -2542,7 +2501,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method closeAndDeleteBubble
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to close + delete
-	     * @memberof Bubbles
 	     * @description
 	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
 	     * @async
@@ -2556,7 +2514,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method closeBubble
 	     * @instance
 	     * @param {Bubble} bubble The Bubble to close
-	     * @memberof Bubbles
 	     * @description
 	     *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants.
 	     * @async
@@ -2570,7 +2527,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method archiveBubble
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to archive
-	     * @memberof Bubbles
 	     * @description
 	     *  Archive  a bubble.
 	     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
@@ -2586,7 +2542,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method leaveBubble
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to leave
-	     * @memberof Bubbles
 	     * @description
 	     *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble.
 	     * @async
@@ -2610,7 +2565,6 @@ declare module 'lib/services/BubblesService' {
 	     * limit : Allow to specify the number of items to retrieve.
 	     * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
 	     * sortOrder : Specify order when sorting items list. Available values -1, 1 (default)
-	     * @memberof Bubbles
 	     * @description
 	     *  Get a list of users in a bubble filtered by criterias.
 	     * @async
@@ -2622,7 +2576,6 @@ declare module 'lib/services/BubblesService' {
 	    * @method getStatusForConnectedUserInBubble
 	    * @instance
 	    * @param {Bubble} bubble           The bubble
-	    * @memberof Bubbles
 	    * @description
 	    *  Get the status of the connected user in a bubble
 	    * @async
@@ -2638,7 +2591,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
 	     * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
 	     * @param {string} reason        The reason of the invitation (optional)
-	     * @memberof Bubbles
 	     * @description
 	     *  Invite a contact in a bubble
 	     * @async
@@ -2653,7 +2605,6 @@ declare module 'lib/services/BubblesService' {
 	     * @instance
 	     * @param {Contact} contactsEmails         The contacts email tab to invite
 	     * @param {Bubble} bubble           The bubble
-	     * @memberof Bubbles
 	     * @description
 	     *  Invite a list of contacts by emails in a bubble
 	     * @async
@@ -2670,7 +2621,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {Contact} contact         The contact to promote or downgraded
 	     * @param {Bubble} bubble           The bubble
 	     * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
-	     * @memberof Bubbles
 	     * @description
 	     *  Promote or not a contact in a bubble
 	     *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'.
@@ -2712,7 +2662,6 @@ declare module 'lib/services/BubblesService' {
 	     * @instance
 	     * @param {Contact} contact         The contact to set a new bubble owner
 	     * @param {Bubble} bubble           The bubble
-	     * @memberof Bubbles
 	     * @description
 	     *  Set a moderator contact as owner of a bubble
 	     * @async
@@ -2727,7 +2676,6 @@ declare module 'lib/services/BubblesService' {
 	    * @instance
 	    * @param {Contact} contact The contact to remove
 	    * @param {Bubble} bubble   The destination bubble
-	    * @memberof Bubbles
 	    * @description
 	    *    Remove a contact from a bubble
 	    * @async
@@ -2747,7 +2695,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method getAll
 	     * @instance
 	     * @return {Bubble[]} The list of existing bubbles
-	     * @memberof Bubbles
 	     * @description
 	     *  Return the list of existing bubbles
 	     */
@@ -2757,7 +2704,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method getAllBubbles
 	     * @instance
 	     * @return {Bubble[]} The list of existing bubbles
-	     * @memberof Bubbles
 	     * @description
 	     *  Return the list of existing bubbles
 	     */
@@ -2766,7 +2712,6 @@ declare module 'lib/services/BubblesService' {
 	     * @public
 	     * @method getAllOwnedBubbles
 	     * @instance
-	     * @memberof Bubbles
 	     * @description
 	     *    Get the list of bubbles created by the user <br/>
 	     * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
@@ -2782,7 +2727,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {Bubble} bubble   The destination bubble
 	     * @async
 	     * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
-	     * @memberof Bubbles
 	     * @description
 	     *  Get A Blob object with data about the avatar picture of the bubble.
 	     */
@@ -2794,7 +2738,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {Bubble} bubble the bubble to refresh
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @memberof Bubbles
 	     * @description
 	     *  Refresh members and organizers of the bubble.
 	     */
@@ -2806,7 +2749,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} id the id of the bubble
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @memberof Bubbles
 	     * @description
 	     *  Get a bubble by its ID in memory and if it is not found in server.
 	     */
@@ -2818,7 +2760,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} jid the JID of the bubble
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @memberof Bubbles
 	     * @description
 	     *  Get a bubble by its JID in memory and if it is not found in server.
 	     */
@@ -2830,7 +2771,6 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Bubble[]} An array of Bubbles not accepted or declined
 	     * @description
 	     *  Get the list of Bubbles that have a pending invitation not yet accepted of declined
-	     * @memberof Bubbles
 	     */
 	    getAllPendingBubbles(): Bubble[];
 	    /**
@@ -2841,7 +2781,6 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
 	     * @description
 	     *  Get the list of Bubbles where the connected user can chat
-	     * @memberof Bubbles
 	     */
 	    getAllActiveBubbles(): Bubble[];
 	    /**
@@ -2852,7 +2791,6 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Bubble[]} An array of Bubbles that are closed for the connected user
 	     * @description
 	     *  Get the list of Bubbles where the connected user can only read messages
-	     * @memberof Bubbles
 	     */
 	    getAllClosedBubbles(): Bubble[];
 	    /**
@@ -2862,7 +2800,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {Bubble} bubble The Bubble to join
 	     * @description
 	     *  Accept an invitation to join a bubble
-	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -2876,7 +2813,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {Bubble} bubble The Bubble to decline
 	     * @description
 	     *  Decline an invitation to join a bubble
-	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -2892,7 +2828,6 @@ declare module 'lib/services/BubblesService' {
 	     * @description
 	     *  Modify all custom data at once in a bubble
 	     *  To erase all custom data, put {} in customData
-	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
@@ -2907,7 +2842,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
 	     * @description
 	     *  Set the Bubble's visibility status
-	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -2937,7 +2871,6 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} topic Bubble's name
 	     * @description
 	     *  Set the Bubble's name
-	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -3031,7 +2964,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _sendInitialBubblePresence
 	     * @instance
 	     * @param {Bubble} bubble The Bubble
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when receiving an invitation to join a bubble
 	     */
@@ -3041,7 +2973,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onInvitationReceived
 	     * @instance
 	     * @param {Object} invitation contains informations about bubble and user's jid
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when receiving an invitation to join a bubble
 	     */
@@ -3051,7 +2982,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onAffiliationChanged
 	     * @instance
 	     * @param {Object} affiliation contains information about bubble and user's jid
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when affilitation to a bubble changed
 	     */
@@ -3061,7 +2991,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onOwnAffiliationChanged
 	     * @instance
 	     * @param {Object} affiliation contains information about bubble and user's jid
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when the user affilitation to a bubble changed
 	     */
@@ -3071,7 +3000,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onCustomDataChanged
 	     * @instance
 	     * @param {Object} data contains information about bubble and new custom data received
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when custom data have changed for a bubble
 	     */
@@ -3081,7 +3009,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onTopicChanged
 	     * @instance
 	     * @param {Object} data contains information about bubble new topic received
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when the topic has changed for a bubble
 	     */
@@ -3091,7 +3018,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onPrivilegeBubbleChanged
 	     * @instance
 	     * @param {Object} bubbleInfo modified bubble info
-	     * @memberof Bubbles
 	     * @description
 	     *     Method called when the owner of a bubble changed.
 	     */
@@ -3101,7 +3027,6 @@ declare module 'lib/services/BubblesService' {
 	     * @method _onNameChanged
 	     * @instance
 	     * @param {Object} data contains information about bubble new name received
-	     * @memberof Bubbles
 	     * @description
 	     *      Method called when the name has changed for a bubble
 	     */
@@ -3110,8 +3035,7 @@ declare module 'lib/services/BubblesService' {
 	     * @private
 	     * @method _onbubblepresencechanged
 	     * @instance
-	     * @param {Object} data contains information about bubble
-	     * @memberof Bubbles
+	     * @param {Object} bubbleInfo contains information about bubble
 	     * @description
 	     *      Method called when the name has changed for a bubble
 	     */
@@ -3245,7 +3169,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {number} index [required] index of the part. Used to re-assemble the data
 	     * @returns {Object} structure containing the response data from server and the index
 	     *
-	     * @memberof FileServer
 	     */
 	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
 	    /**
@@ -3257,7 +3180,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} fileName [optional] name of file to be downloaded
 	     * @returns {Buffer} Buffer created from data received from server
 	     *
-	     * @memberof FileServer
 	     */
 	    getBufferFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
 	    /**
@@ -3271,7 +3193,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} uploadedDate [optional] date of the upload
 	     * @returns {Buffer} Buffer created from data received from server
 	     *
-	     * @memberof FileServer
 	     */
 	    getFileFromUrlWithOptimization(destFile: any, url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
 	    /***
@@ -3289,7 +3210,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} mime [required] mime type of file
 	     * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
 	     *
-	     * @memberof FileServer
 	     */
 	    _uploadAFile(fileId: any, filePath: any, mime: any): Promise<unknown>;
 	    /**
@@ -3304,7 +3224,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {number} index [required] index of the part. Used to indicate the part number to the server
 	     * @returns {Promise<{}>} file descriptor data received as response from server or http error response
 	     *
-	     * @memberof FileServer
 	     */
 	    _sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
 	    /**
@@ -3321,7 +3240,6 @@ declare module 'lib/services/FileServerService' {
 	//     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
 	     * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
 	     *
-	     * @memberof FileServer
 	     */
 	    uploadAFileByChunk(fileDescriptor: any, filePath: any): Promise<any>;
 	    isTransferInProgress(): any;
@@ -3335,7 +3253,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} fileName [optional] name of file to be downloaded
 	     * @returns {Promise<Blob>} Blob created from data received from server
 	     *
-	     * @memberof FileServerService
 	     * !!!!!! OBSOLETE
 	     */
 	    getBlobFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
@@ -3349,7 +3266,6 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} fileName [required] name of file to be downloaded
 	     * @returns {ng.IPromise<Blob>} Blob created from data received from server
 	     *
-	     * @memberof FileServerService
 	     */
 	    getBlobFromUrl(url: any, mime: any, fileSize: any, fileName: any): Promise<unknown>;
 	    /**
@@ -3357,7 +3273,6 @@ declare module 'lib/services/FileServerService' {
 	    *
 	    * @returns {Capabilities} user quota for user
 	    *
-	    * @memberof FileServer
 	    */
 	    getServerCapabilities(): Promise<unknown>;
 	}
@@ -3535,7 +3450,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} fileId [required] Identifier of file descriptor
 	     * @return {Promise<FileDescriptor>} file descriptor
 	     *
-	     * @memberOf FileStorage
 	     */
 	    getCompleteFileDescriptorById(id: any): Promise<unknown>;
 	    /**
@@ -3543,7 +3457,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     *
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getDocuments(): any;
 	    /**
@@ -3551,7 +3464,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     *
 	     * @return {FileDescriptor}
-	     * @memberof FileStorage
 	     */
 	    getReceivedDocuments(): any;
 	    /**
@@ -3560,7 +3472,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {boolean} received
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getDocumentsByName(received: any): any;
 	    /**
@@ -3569,7 +3480,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {boolean} received
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getDocumentsByDate(received: any): any;
 	    /**
@@ -3578,7 +3488,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {boolean} received
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getDocumentsBySize(received: any): any;
 	    /**
@@ -3587,7 +3496,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {string} dbId
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getReceivedFilesFromContact(dbId: any): any;
 	    /**
@@ -3596,7 +3504,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {string} dbId
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getSentFilesToContact(dbId: any): any;
 	    /**
@@ -3605,7 +3512,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {string} bubbleId id of the bubble
 	     * @return {FileDescriptor[]}
-	     * @memberof FileStorage
 	     */
 	    getReceivedFilesForRoom(bubbleId: any): any;
 	    /**
@@ -3613,7 +3519,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     *
 	     * @return {Object}
-	     * @memberof FileStorage
 	     */
 	    getConsumptionData(): any;
 	    /**********************************************************/
@@ -3630,7 +3535,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
 	     * @return {Promise<FileDescriptor>} file descriptor created by server or error
 	     *
-	     * @memberof FileStorage
 	     */
 	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
 	    /**
@@ -3639,7 +3543,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @param {*} data
 	     * @return {FileDescriptor}
-	     * @memberof FileStorage
 	     */
 	    createFileDescriptorFromData(data: any): any;
 	    /**
@@ -3649,7 +3552,6 @@ declare module 'lib/services/FileStorageService' {
 	     * Method request deletion of a file descriptor on the server and removes it from local storage
 	     * @param {string} id [required] file descriptor id to be destroyed
 	     * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
-	     * @memberof FileStorage
 	     */
 	    deleteFileDescriptor(id: any): Promise<unknown>;
 	    /**
@@ -3658,7 +3560,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @description
 	     * Method request deletion of all files on the server and removes them from local storage
 	     * @return {Promise<{}>} ???
-	     * @memberof FileStorage
 	     */
 	    deleteAllFileDescriptor(): Promise<unknown>;
 	    /**
@@ -3669,7 +3570,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @return {Promise<FileDescriptor[]>}
 	     *
-	     * @memberof FileStorage
 	     */
 	    retrieveFileDescriptorsListPerOwner(): Promise<unknown>;
 	    /**
@@ -3680,7 +3580,6 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @return {Promise<FileDescriptor[]>}
 	     *
-	     * @memberof FileStorage
 	     */
 	    retrieveFileDescriptorsListPerOwnerwithOffset(offset: any, limit: any): Promise<unknown>;
 	    /**
@@ -3693,7 +3592,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} peerId [required] dbId of peer user in the conversation
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
 	     *
-	     * @memberOf FileStorage
 	     */
 	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
 	    /**
@@ -3705,7 +3603,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} peerId [required] id of peer user in the conversation
 	     * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
 	     *
-	     * @memberOf FileStorage
 	     */
 	    retrieveSentFiles(peerId: any): Promise<unknown>;
 	    /**
@@ -3717,7 +3614,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} bubbleId [required] Id of the room
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
 	     *
-	     * @memberOf FileStorage
 	     */
 	    retrieveReceivedFilesForRoom(bubbleId: any): Promise<unknown>;
 	    /**
@@ -3730,7 +3626,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
 	     *
-	     * @memberOf FileStorage
 	     */
 	    retrieveReceivedFiles(viewerId: any): Promise<unknown>;
 	    /**
@@ -3799,7 +3694,6 @@ declare module 'lib/services/FileStorageService' {
 	     *                  - maxValue {number} : The quota associated to this offer [octet]
 	     *                  - currentValue {number} : The user's current consumption [octet]
 	     *                  - unit {string} : The unit of this counters
-	     * @memberOf FileStorage
 	     */
 	    retrieveUserConsumption(): Promise<unknown>;
 	    /**
@@ -3812,7 +3706,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
 	     * @return {Promise<{}>}
 	     *
-	     * @memberof FileStorage
 	     */
 	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
 	    /**
@@ -3827,7 +3720,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} viewerType [required] type of viewer to be added (user or room)
 	     * @return {Promise<FileDescriptor>} file descriptor with newly added viewer
 	     *
-	     * @memberOf FileStorage
 	     */
 	    addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<unknown>;
 	    /**
@@ -3839,7 +3731,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
 	     * @return {Promise<FileDescriptor>} file descriptor retrieved
 	     *
-	     * @memberOf FileStorage
 	     */
 	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
 	    /**
@@ -3851,7 +3742,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
 	     * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
 	     *
-	     * @memberOf FileStorage
 	     */
 	    retrieveAndStoreOneFileDescriptor(fileId: any, forceRetrieve: any): Promise<any>;
 	    /**********************************************************/
@@ -3883,7 +3773,6 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} url
 	     * @return {string}
 	     *
-	     * @memberof FileStorage
 	     */
 	    extractFileIdFromUrl(url: any): any;
 	}
@@ -3990,7 +3879,6 @@ declare module 'lib/services/ConversationsService' {
 	     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room,
 	     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days.
 	     * @param {String} ID of the conversation (dbId field)
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise<Conversation[]>}
 	     * @fulfil {Conversation[]} - Array of Conversation object
@@ -4004,7 +3892,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @description
 	     *    Mark all unread messages in the conversation as read.
 	     * @param {String} ID of the conversation (dbId field)
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise<Conversation[]>}
 	     * @fulfil {Conversation[]} - Array of Conversation object
@@ -4019,7 +3906,6 @@ declare module 'lib/services/ConversationsService' {
 	     *    Retrieve the remote history of a specific conversation.
 	     * @param {Conversation} conversation Conversation to retrieve
 	     * @param {number} size Maximum number of element to retrieve
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise<Conversation[]>}
 	     * @fulfil {Conversation[]} - Array of Conversation object
@@ -4047,7 +3933,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @param muted
 	     * @param creationDate
 	     * @param lastMessageSender
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise<Conversation>}
 	     * @fulfil {Conversation} - Conversation object or null if not found
@@ -4058,7 +3943,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method sendIsTypingState
 	     * @instance Conversations
-	     * @memberof Conversations
 	     * @description
 	     *    Switch the "is typing" state in a conversation<br>
 	     * @param {Conversation} conversation The conversation recipient
@@ -4090,7 +3974,6 @@ declare module 'lib/services/ConversationsService' {
 	     *    Close a conversation <br/>
 	     *    This method returns a promise
 	     * @param {Conversation} conversation The conversation to close
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise}
 	     * @fulfil {} Return nothing in case success
@@ -4121,7 +4004,6 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method sendExistingMessage
-	     * @memberof Conversations
 	     * @instance
 	     * @param {string} data The text message to send
 	     * @description
@@ -4155,7 +4037,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method sendCorrectedChatMessage
 	     * @instance
-	     * @memberof Conversations
 	     * @description
 	     *    Send a corrected message to a conversation
 	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
@@ -4173,7 +4054,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @since 1.58
 	     * @method deleteMessage
 	     * @instance
-	     * @memberof Conversations
 	     * @async
 	     * @description
 	     *    Delete a message by sending an empty string in a correctedMessage
@@ -4188,7 +4068,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @since 1.67.0
 	     * @method deleteAllMessageInOneToOneConversation
 	     * @instance
-	     * @memberof Conversations
 	     * @async
 	     * @description
 	     *   DELETE ALL MESSAGES IN ONE2ONE CONVERSATION
@@ -4221,7 +4100,6 @@ declare module 'lib/services/ConversationsService' {
 	     *    Cleanup a conversation by removing all previous messages<br/>
 	     *    This method returns a promise
 	     * @param {Conversation} conversation The conversation to clean
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise}
 	     * @fulfil {} Return nothing in case success
@@ -4236,7 +4114,6 @@ declare module 'lib/services/ConversationsService' {
 	     *    Remove a specific range of message in a conversation<br/>
 	     *    This method returns a promise
 	     * @param {Conversation} conversation The conversation to clean
-	     * @memberof Conversations
 	     * @async
 	     * @return {Promise}
 	     * @fulfil {} Return nothing in case success
@@ -4247,7 +4124,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method getConversationById
 	     * @instance
-	     * @memberof Conversations
 	     * @description
 	     *      Get a p2p conversation by id
 	     * @param {String} conversationId Conversation id of the conversation to clean
@@ -4288,7 +4164,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method getAllConversations
 	     * @instance
-	     * @memberof Conversations
 	     * @description
 	     *    Allow to get the list of existing conversations (p2p and bubbles)
 	     * @return {Conversation[]} An array of Conversation object
@@ -4297,7 +4172,6 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @private
 	     * @method
-	     * @memberof Conversations
 	     * @instance
 	     * @description
 	     *      Get all conversation
@@ -4308,7 +4182,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method openConversationForContact
 	     * @instance
-	     * @memberof Conversations
 	     * @description
 	     *    Open a conversation to a contact <br/>
 	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
@@ -4394,7 +4267,6 @@ declare module 'lib/services/ImsService' {
 	     *    Calling several times this method will load older message from the history (pagination) <br/>
 	     * @param {Conversation} conversation The conversation
 	     * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Conversation, ErrorManager>}
 	     * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
@@ -4410,7 +4282,6 @@ declare module 'lib/services/ImsService' {
 	     *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
 	     * @param {Conversation} conversation The conversation where to search for the message
 	     * @param {String} strMessageId The message id
-	     * @memberof IMService
 	     * @return {Message} The message if found or null
 	     */
 	    getMessageFromConversationById(conversation: any, strMessageId: any): Promise<any>;
@@ -4423,7 +4294,6 @@ declare module 'lib/services/ImsService' {
 	     *    Retrieve a specific message in a bubble using its id <br/>
 	     * @param {Bubble} bubble The bubble where to search for the message
 	     * @param {String} strMessageId The message id
-	     * @memberof IMService
 	     * @return {Message} The message if found or null
 	     */
 	    getMessageFromBubbleById(bubble: any, strMessageId: any): Promise<any>;
@@ -4442,7 +4312,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -4462,7 +4331,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -4498,7 +4366,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -4519,7 +4386,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {String} [answeredMsg] The message answered
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -4540,7 +4406,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -4561,7 +4426,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -4583,7 +4447,6 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [subject] The message subject
 	     * @param {String} [answeredMsg] The message answered
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -4619,7 +4482,6 @@ declare module 'lib/services/ImsService' {
 	     * @description
 	     *  Send a 'read' receipt to the recipient
 	     * @param {Message} messageReceived The message received to mark as read
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise}
 	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -4636,7 +4498,6 @@ declare module 'lib/services/ImsService' {
 	     * @instance
 	     * @description
 	     *      Enable message carbon XEP-0280
-	     * @memberof IMService
 	     * @async
 	     * @return {Promise}
 	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -4747,7 +4608,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
 	     * @return {Promise<Channel>} New Channel
-	     * @memberof Channels
 	     * @description
 	     *  Create a new public channel with a visibility limited to my company
 	     */
@@ -4761,7 +4621,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
 	     * @param {String} [category=""] The category of the channel
 	     * @return {Promise<Channel>} New Channel
-	     * @memberof Channels
 	     * @description
 	     *  Create a new public channel with a visibility limited to my company
 	     */
@@ -4777,7 +4636,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [description]  The description of the channel to create (max-length=255)
 	     * @return {Promise<Channel>} New Channel
-	     * @memberof Channels
 	     * @description
 	     *  Create a new private channel
 	     */
@@ -4791,7 +4649,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {string} [description]  The description of the channel to create (max-length=255)
 	     * @param {String} [category=""] The category of the channel
 	     * @return {Promise<Channel>} New Channel
-	     * @memberof Channels
 	     * @description
 	     *  Create a new closed channel
 	     */
@@ -4803,7 +4660,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @async
 	     * @param {Channel} channel  The channel to delete
 	     * @return {Promise<CHannel>} Promise object represents The channel deleted
-	     * @memberof Channels
 	     * @description
 	     *  Delete a owned channel
 	     */
@@ -4817,7 +4673,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel[]>} Channels found
 	     * @description
 	     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
-	     * @memberof Channels
 	     */
 	    findChannelsByName(name: string): Promise<[Channel]>;
 	    /**
@@ -4829,13 +4684,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel[]>} Channels found
 	     * @description
 	     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
-	     * @memberof Channels
 	     */
 	    findChannelsByTopic(topic: string): Promise<[Channel]>;
 	    /**
 	     * @private
 	     * @method findChannels
-	     * @memberof Channels
 	     */
 	    private _findChannels;
 	    /**
@@ -4851,7 +4704,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel found
 	     * @description
 	     * Find a channel by its id (locally if exists or by sending a request to Rainbow)
-	     * @memberof Channels
 	     */
 	    getChannelById(id: any, force?: any): Promise<Channel>;
 	    /**
@@ -4864,7 +4716,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel found
 	     * @description
 	     * Find a channel by its id (locally if exists or by sending a request to Rainbow)
-	     * @memberof Channels
 	     */
 	    fetchChannel(id: any, force?: any): Promise<Channel>;
 	    /**
@@ -4917,7 +4768,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @method getAllChannels
 	     * @instance
 	     * @return {Channel[]} An array of channels (owned and subscribed)
-	     * @memberof Channels
 	     * @description
 	     *  Return the list of channels (owned and subscribed)
 	     */
@@ -4930,7 +4780,6 @@ declare module 'lib/services/ChannelsService' {
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
 	     * @return {Channel[]} An array of channels (owned only)
-	     * @memberof Channels
 	     * @description
 	     *  Return the list of owned channels only
 	     */
@@ -4940,7 +4789,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @method getAllOwnedChannels
 	     * @instance
 	     * @return {Channel[]} An array of channels (owned only)
-	     * @memberof Channels
 	     * @description
 	     *  Return the list of owned channels only
 	     */
@@ -4953,7 +4801,6 @@ declare module 'lib/services/ChannelsService' {
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
 	     * @return {Channel[]} An array of channels (subscribed only)
-	     * @memberof Channels
 	     * @description
 	     *  Return the list of subscribed channels only
 	     */
@@ -4963,7 +4810,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @method getAllSubscribedChannels
 	     * @instance
 	     * @return {Channel[]} An array of channels (subscribed only)
-	     * @memberof Channels
 	     * @description
 	     *  Return the list of subscribed channels only
 	     */
@@ -4973,7 +4819,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @method getAllPendingChannels
 	     * @instance
 	     * @return {Channel[]} An array of channels (invited only)
-	     * @memberof Channels
 	     * @description
 	     *  Return the list of invited channels only
 	     */
@@ -4992,7 +4837,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
 	     * @description
 	     *  Publish to a channel
-	     * @memberof Channels
 	     */
 	    publishMessageToChannel(channel: any, message: any, title: any, url: any, imagesIds: any, type: any): Promise<{}>;
 	    /**
@@ -5009,7 +4853,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
 	     * @description
 	     *  Publish to a channel
-	     * @memberof Channels
 	     */
 	    createItem(channel: any, message: any, title: any, url: any, imagesIds: any, type: any): Promise<{}>;
 	    /**
@@ -5021,7 +4864,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel updated with the new subscription
 	     * @description
 	     *  Subscribe to a public channel
-	     * @memberof Channels
 	     */
 	    subscribeToChannel(channel: Channel): Promise<Channel>;
 	    /**
@@ -5045,7 +4887,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<String>} The status of the unsubscribe.
 	     * @description
 	     *  Unsubscribe from a public channel
-	     * @memberof Channels
 	     */
 	    unsubscribeFromChannel(channel: Channel): Promise<String>;
 	    /**
@@ -5058,7 +4899,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} Updated channel
 	     * @description
 	     *  TODO
-	     * @memberof Channels
 	     */
 	    updateChannelTopic(channel: any, description: any): Promise<Channel>;
 	    /**
@@ -5071,7 +4911,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} Updated channel
 	     * @description
 	     *  TODO
-	     * @memberof Channels
 	     */
 	    updateChannelDescription(channel: any, description: any): Promise<Channel>;
 	    /**
@@ -5186,7 +5025,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Users[]>} An array of users who belong to this channel
 	     * @description
 	     *  Get a pagined list of users who belongs to a channel
-	     * @memberof Channels
 	     */
 	    getUsersFromChannel(channel: any, options: any): Promise<{}[]>;
 	    /**
@@ -5203,7 +5041,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Users[]>} An array of users who belong to this channel
 	     * @description
 	     *  Get a pagined list of users who belongs to a channel
-	     * @memberof Channels
 	     */
 	    fetchChannelUsers(channel: any, options: any): Promise<Array<{}>>;
 	    /**
@@ -5218,7 +5055,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Remove all users from a channel
-	     * @memberof Channels
 	     */
 	    removeAllUsersFromChannel(channel: any): Promise<Channel>;
 	    /**
@@ -5230,7 +5066,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Remove all users from a channel
-	     * @memberof Channels
 	     */
 	    deleteAllUsersFromChannel(channel: any): Promise<Channel>;
 	    /**
@@ -5243,7 +5078,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} Update Channel Users status
 	     * @description
 	     *  TODO
-	     * @memberof Channels
 	     */
 	    updateChannelUsers(channel: any, users: any): Promise<Channel>;
 	    /**
@@ -5256,7 +5090,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Add a list of owners to the channel
-	     * @memberof Channels
 	     */
 	    addOwnersToChannel(channel: Channel, owners: any): Promise<Channel>;
 	    /**
@@ -5269,7 +5102,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Add a list of publishers to the channel
-	     * @memberof Channels
 	     */
 	    addPublishersToChannel(channel: Channel, publishers: any): Promise<Channel>;
 	    /**
@@ -5282,7 +5114,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Add a list of members to the channel
-	     * @memberof Channels
 	     */
 	    addMembersToChannel(channel: any, members: any): Promise<Channel>;
 	    /**
@@ -5298,7 +5129,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Remove a list of users from a channel
-	     * @memberof Channels
 	     */
 	    removeUsersFromChannel1(channel: any, users: any): Promise<Channel>;
 	    /**
@@ -5311,7 +5141,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Remove a list of users from a channel
-	     * @memberof Channels
 	     */
 	    deleteUsersFromChannel(channel: Channel, users: any): Promise<Channel>;
 	    /**
@@ -5326,7 +5155,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Object[]>} The list of messages received
 	     * @description
 	     *  Retrieve the last messages from a channel
-	     * @memberof Channels
 	     */
 	    getMessagesFromChannel(channel: any): Promise<any[]>;
 	    /**
@@ -5338,7 +5166,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Object[]>} The list of messages received
 	     * @description
 	     *  Retrieve the last messages from a channel
-	     * @memberof Channels
 	     */
 	    fetchChannelItems(channel: Channel): Promise<Array<any>>;
 	    /**
@@ -5354,7 +5181,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Delete a message from a channel
-	     * @memberof Channels
 	     */
 	    deleteMessageFromChannel(channelId: any, messageId: any): Promise<Channel>;
 	    /**
@@ -5367,7 +5193,6 @@ declare module 'lib/services/ChannelsService' {
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Delete a message from a channel
-	     * @memberof Channels
 	     */
 	    deleteItemFromChannel(channelId: any, itemId: any): Promise<Channel>;
 	    _onChannelMessageReceived(message: any): void;
@@ -5591,7 +5416,6 @@ declare module 'lib/services/TelephonyService' {
 	     * @private
 	     * @method onTelPresenceChange
 	     * @instance
-	     * @memberof TelephonyService
 	     * @description
 	     *      Method called when receiving an update on user presence
 	     */
@@ -5600,7 +5424,6 @@ declare module 'lib/services/TelephonyService' {
 	     * @private
 	     * @method onCallUpdated
 	     * @instance
-	     * @memberof TelephonyService
 	     * @description
 	     *      Method called when receiving an update on a call
 	     */
@@ -6055,7 +5878,6 @@ declare module 'lib/services/GroupsService' {
 	    * @param {string} name The name of the group to create
 	    * @param {string} comment The comment of the group to create
 	    * @param {boolean} isFavorite If true, the group is flagged as favorite
-	    * @memberof GroupsService
 	    * @description
 	    *      Create a new group
 	    * @async
@@ -6069,7 +5891,6 @@ declare module 'lib/services/GroupsService' {
 	    * @method deleteGroup
 	    * @instance
 	    * @param {Object} group The group to delete
-	    * @memberof GroupsService
 	    * @description
 	    * 		Delete an owned group
 	    * @async
@@ -6082,7 +5903,6 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method deleteAllGroups
 	     * @instance
-	     * @memberof GroupsService
 	     * @description
 	     *    Delete all existing owned groups <br/>
 	     *    Return a promise
@@ -6095,7 +5915,6 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {Object} group The group to update
 	     * @param {string} name The new name of the group
-	     * @memberof GroupsService
 	     * @description
 	     * 		Update the name of a group
 	     * @async
@@ -6116,7 +5935,6 @@ declare module 'lib/services/GroupsService' {
 	    * @since 1.67.0
 	    * @instance
 	    * @param {Object} group The group
-	    * @memberof GroupsService
 	    * @description
 	    * 		Set a group as a favorite one of the curent loggued in user.
 	    * @async
@@ -6131,7 +5949,6 @@ declare module 'lib/services/GroupsService' {
 	     * @since 1.67.0
 	     * @instance
 	     * @param {Object} group The group
-	     * @memberof GroupsService
 	     * @description
 	     * 		Remove the favorite state of a group of the curent loggued in user.
 	     * @async
@@ -6146,7 +5963,6 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {Contact} contact The user to add in group
 	     * @param {Object} group The group
-	     * @memberof GroupsService
 	     * @description
 	     * 		Add a contact in a group
 	     * @async
@@ -6161,7 +5977,6 @@ declare module 'lib/services/GroupsService' {
 	    * @instance
 	    * @param {Contact} contact The user to remove from the group
 	    * @param {Object} group The destination group
-	    * @memberof GroupsService
 	    * @description
 	    *		Remove a contact from a group
 	    * @async
@@ -6175,7 +5990,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method getAll
 	     * @instance
 	     * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-	     * @memberof GroupsService
 	     * @description
 	     *  Return the list of existing groups
 	     */
@@ -6185,7 +5999,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method getFavoriteGroups
 	     * @instance
 	     * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-	     * @memberof GroupsService
 	     * @description
 	     *  Return the list of favorite groups
 	     */
@@ -6196,7 +6009,6 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {String} group Id of the group to found
 	     * @return {Object} The group found if exist or undefined
-	     * @memberof GroupsService
 	     * @description
 	     *  Return a group by its id
 	     */
@@ -6207,7 +6019,6 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {String} name Name of the group to found
 	     * @return {Object} The group found if exist or undefined
-	     * @memberof GroupsService
 	     * @description
 	     *  Return a group by its id
 	     */
@@ -6217,7 +6028,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onGroupCreated
 	     * @instance
 	     * @param {Object} data Contains the groupId of the created group
-	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a group is created
 	     */
@@ -6227,7 +6037,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onGroupDeleted
 	     * @instance
 	     * @param {Object} data Contains the groupId of the deleted group
-	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a group is deleted
 	     */
@@ -6237,7 +6046,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onGroupUpdated
 	     * @instance
 	     * @param {Object} data Contains the groupId of the updated group
-	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a group is updated (name, comment, isFavorite)
 	     */
@@ -6247,7 +6055,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onUserAddedInGroup
 	     * @instance
 	     * @param {Object} data Contains the groupId and the userId
-	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a user is added to a group
 	     */
@@ -6257,7 +6064,6 @@ declare module 'lib/services/GroupsService' {
 	     * @method _onUserRemovedFromGroup
 	     * @instance
 	     * @param {Object} data Contains the groupId and the userId
-	     * @memberof GroupsService
 	     * @description
 	     *		Method called when a user is removed from a group
 	     */
@@ -6295,7 +6101,6 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} strName The name of the new company
 	     * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
 	     * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created Company or an error object depending on the result
@@ -6326,7 +6131,6 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
 	     * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
 	     * @param {Array<string>} [roles] The roles the created user.
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Contact, ErrorManager>}
 	     * @fulfil {Contact} - Created contact in company or an error object depending on the result
@@ -6343,7 +6147,6 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} lastname  The user lastname
 	     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
 	     * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created guest user in company or an error object depending on the result
@@ -6359,7 +6162,6 @@ declare module 'lib/services/AdminService' {
 	     *      Create a new anonymous guest user in the same company as the requester admin
 	     *      Anonymous guest user is user without name and firstname
 	     * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created anonymous guest user in company or an error object depending on the result
@@ -6376,7 +6178,6 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} companyId     The id of the company where the user will be invited in
 	     * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
 	     * @param {string} [message=""] A custom message to send
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created invitation or an error object depending on the result
@@ -6391,7 +6192,6 @@ declare module 'lib/services/AdminService' {
 	     *      Change a password for a user
 	     * @param {string} password The new password
 	     * @param {string} userId The id of the user
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Updated user or an error object depending on the result
@@ -6406,7 +6206,6 @@ declare module 'lib/services/AdminService' {
 	     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails`
 	     * @param {Object} objData An object (key: value) containing the data to change with their new value
 	     * @param {string} userId The id of the user
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Updated user or an error object depending on the result
@@ -6420,7 +6219,6 @@ declare module 'lib/services/AdminService' {
 	     * @description
 	     *      Delete an existing user
 	     * @param {string} userId The id of the user
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Deleted user or an error object depending on the result
@@ -6433,7 +6231,6 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @description
 	     *      Get all companies for a given admin
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
@@ -6459,7 +6256,6 @@ declare module 'lib/services/AdminService' {
 	     *      This allow to not use the secret key on client side
 	     * @param {string} loginEmail The user login email
 	     * @param {string} password The user password
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, Error>}
 	     * @fulfil {Object} - Json object containing the user data, application data and token
@@ -6472,7 +6268,6 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @description
 	     *      Get all users for a given admin
-	     * @memberof Admin
 	     * @async
 	     * @param {string} format Allows to retrieve more or less user details in response.
 	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
@@ -6493,7 +6288,6 @@ declare module 'lib/services/AdminService' {
 	     * @description
 	     *      Get informations about a user
 	     * @param {string} userId The id of the user
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing informations or an error object depending on the result
@@ -6658,7 +6452,6 @@ declare module 'lib/services/AdminService' {
 	     * {String{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
 	     * {String{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
 	     *
-	     * @memberof Admin
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing informations or an error object depending on the result
