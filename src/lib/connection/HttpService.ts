@@ -180,10 +180,12 @@ safeJsonParse(str) {
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                         let json = {};
-                                        if (response.body) {
+                                        if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                             json = JSON.parse(response.body);
+                                            resolve(json);
+                                        } else {
+                                            resolve(response.body);
                                         }
-                                        resolve(json);
                                     } else {
                                         return reject({
                                             code: -1,
@@ -274,10 +276,12 @@ get(url, headers : any = {}, params): Promise<any> {
                                     if (response.statusCode >= 200 && response.statusCode <= 206) {
                                         if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                             let json = {};
-                                            if (response.body) {
+                                            if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                                 json = JSON.parse(response.body);
+                                                resolve(json);
+                                            } else {
+                                                resolve(response.body);
                                             }
-                                            resolve(json);
                                         } else {
                                             return reject({
                                                 code: -1,
@@ -441,10 +445,12 @@ get(url, headers : any = {}, params): Promise<any> {
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
-                                    if (response.body) {
+                                    if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                         json = JSON.parse(response.body);
+                                        resolve(json);
+                                    } else {
+                                        resolve(response.body);
                                     }
-                                    resolve(json);
                                 } else {
                                     return reject({
                                         code: -1,
@@ -549,10 +555,12 @@ get(url, headers : any = {}, params): Promise<any> {
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                         let json = {};
-                                        if (response.body) {
+                                        if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                             json = JSON.parse(response.body);
+                                            resolve(json);
+                                        } else {
+                                            resolve(response.body);
                                         }
-                                        resolve(json);
                                     } else {
                                         return reject({
                                             code: -1,

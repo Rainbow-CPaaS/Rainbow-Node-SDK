@@ -28,6 +28,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
 -   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
 -   Changelog is removed from https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS.
+-   Fix the retrieve of `csv` file in HttpService. => Fix failure of command in rainbow Cli `rbw masspro template user` .
 
 ## [1.66.1] - 2020-01-29
 -   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)
