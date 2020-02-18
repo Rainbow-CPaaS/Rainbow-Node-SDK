@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as mimetypes from "mime-types";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "CHANNELS/SVCE - ";
 
@@ -33,19 +34,23 @@ const LOG_ID = "CHANNELS/SVCE - ";
  *      - Manage users in a channel <br>
  */
 class Channels {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _channels: any;
-	public _channelsList: any;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _channels: any;
+    private _channelsList: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
 	public MAX_ITEMS: any;
 	public MAX_PAYLOAD_SIZE: any;
 	public PUBLIC_VISIBILITY: any;
     public PRIVATE_VISIBILITY: any;
     public CLOSED_VISIBILITY: any;
-    public channelEventHandler: ChannelEventHandler;
-    public channelHandlerToken: any;
+    private channelEventHandler: ChannelEventHandler;
+    private channelHandlerToken: any;
     public invitationCounter: number = 0;
     public ready: boolean = false;
     private readonly _startConfig: {
@@ -78,6 +83,10 @@ class Channels {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._channels = null;
         this._channelsList = null;
         this._eventEmitter = _eventEmitter;
@@ -101,12 +110,16 @@ class Channels {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
         let that = this;
         return new Promise((resolve, reject) => {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
                 that._channels = [];
                 that._channelsList = [];
                 that.attachHandlers();

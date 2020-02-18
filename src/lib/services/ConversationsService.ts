@@ -24,6 +24,7 @@ import {EventEmitter} from "events";
 import {Contact} from "../common/models/Contact";
 import {rejects} from "assert";
 import {error} from "winston";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -45,20 +46,24 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
  *
  *   */
 class Conversations {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _contacts: ContactsService;
-	public _fileStorageService: FileStorageService;
-	public _fileServerService: FileServerService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
-	public pendingMessages: any;
-	public conversationEventHandler: ConversationEventHandler;
-	public conversationHandlerToken: any;
-	public conversationHistoryHandlerToken: any;
-	public conversations: any;
-	public conversationServiceEventHandler: any;
-	public _bubbles: any;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _contacts: ContactsService;
+    private _fileStorageService: FileStorageService;
+    private _fileServerService: FileServerService;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
+    private pendingMessages: any;
+    private _conversationEventHandler: ConversationEventHandler;
+    private _conversationHandlerToken: any;
+    private _conversationHistoryHandlerToken: any;
+    public conversations: any;
+    private _conversationServiceEventHandler: any;
+    private _bubbles: any;
 	public activeConversation: any;
 	public inCallConversations: any;
 	public idleConversations: any;
@@ -66,8 +71,8 @@ class Conversations {
 	public involvedRoomIds: any;
 	public waitingBotConversations: any;
 	public botServiceReady: any;
-	public conversationHistoryHandler: ConversationHistoryHandler;
-	public chatRenderer: any;
+    private _conversationHistoryHandler: ConversationHistoryHandler;
+    private chatRenderer: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -83,15 +88,19 @@ class Conversations {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._contacts = null;
         this._fileStorageService = null;
         this._fileServerService = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.pendingMessages = {};
-        this.conversationEventHandler = null;
-        this.conversationHandlerToken = [];
-        this.conversationHistoryHandlerToken = [];
+        this._conversationEventHandler = null;
+        this._conversationHandlerToken = [];
+        this._conversationHistoryHandlerToken = [];
         this.conversationsRetrievedFormat = _conversationsRetrievedFormat;
         this.nbMaxConversations = _nbMaxConversations;
 
@@ -102,14 +111,18 @@ class Conversations {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService) {
+    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService) {
         let that = this;
-        that.conversationHandlerToken = [];
-        that.conversationHistoryHandlerToken= [];
+        that._conversationHandlerToken = [];
+        that._conversationHistoryHandlerToken= [];
         return new Promise((resolve, reject) => {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
                 that._contacts = _contacts;
                 that._bubbles = _bubbles;
                 that._fileStorageService = _fileStorageService;
@@ -148,17 +161,17 @@ class Conversations {
                 that._xmpp = null;
                 that._rest = null;
 
-                delete that.conversationEventHandler;
-                that.conversationEventHandler = null;
-                if (that.conversationHandlerToken) {
-                    that.conversationHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                delete that._conversationEventHandler;
+                that._conversationEventHandler = null;
+                if (that._conversationHandlerToken) {
+                    that._conversationHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 }
-                that.conversationHandlerToken = [];
+                that._conversationHandlerToken = [];
 
-                if (that.conversationHistoryHandlerToken) {
-                    that.conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that._conversationHistoryHandlerToken) {
+                    that._conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 }
-                that.conversationHistoryHandlerToken = [];
+                that._conversationHistoryHandlerToken = [];
 
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
                 this.ready = false;
@@ -172,20 +185,20 @@ class Conversations {
 
     attachHandlers() {
         let that = this;
-        that.conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
-        that.conversationHandlerToken = [
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_MANAGEMENT, that.conversationEventHandler.onManagementMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_ERROR, that.conversationEventHandler.onErrorMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
+        that._conversationHandlerToken = [
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_GROUPCHAT, that._conversationEventHandler.onChatMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_WEBRTC, that._conversationEventHandler.onWebRTCMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_MANAGEMENT, that._conversationEventHandler.onManagementMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_ERROR, that._conversationEventHandler.onErrorMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CLOSE, that._conversationEventHandler.onCloseMessageReceived)
         ];
 
-        that.conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, this);
-        that.conversationHistoryHandlerToken = [
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationHistoryHandler.MESSAGE_MAM, that.conversationHistoryHandler.onMamMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationHistoryHandler.FIN_MAM, that.conversationHistoryHandler.onMamMessageReceived)
+        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, this);
+        that._conversationHistoryHandlerToken = [
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived)
         ];
     }
 
@@ -1598,7 +1611,7 @@ class Conversations {
             if (conversation.bubble && conversation.bubble.isMeetingBubble()) {
                 return;
             }
-            this.conversationServiceEventHandler.onRoomAdminMessageReceived(conversation, contact, type, msgId);
+            this._conversationServiceEventHandler.onRoomAdminMessageReceived(conversation, contact, type, msgId);
         }
     }
 

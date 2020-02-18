@@ -38,6 +38,8 @@ class S2SService {
     private app: any;
     private locallistenningport: string;
     private s2sEventHandler: S2SServiceEventHandler;
+    _contacts: any;
+    options: any;
 
     constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
@@ -55,6 +57,7 @@ class S2SService {
 //        this.xmppClient = null;
         this.logger = _logger;
         this.proxy = _proxy;
+        this.useS2S = false;
         /*
         this.shouldSendReadReceipt = _im.sendReadReceipt;
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
@@ -76,22 +79,26 @@ class S2SService {
         this.generatedRandomId = this.xmppUtils.generateRandomID();
 
         this.hash = makeId(8);
-        this.s2sEventHandler = new S2SServiceEventHandler(this._rest,  _im, _application, _eventEmitter, _logger);
+        this.s2sEventHandler = new S2SServiceEventHandler(this._rest,  _im, _application, _eventEmitter, _logger, _s2s.hostCallback);
         this.eventEmitter.on("evt_internal_ons2sready", this.onS2SReady.bind(this));
 
         this.app = express();
-        this.logger.log("internal", LOG_ID + "(S2SService) ", this.logger.colors.yellow("S2SService contructor : "), this);
+        this.logger.log("internal", LOG_ID + "(S2SService) ", this.logger.colors.yellow("S2SService contructor."));
     }
 
-    start(withS2S, rest) {
+    start(_options, rest, _contacts) {
         let that = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(async (resolve, reject) => {
             try {
-                that.useS2S = withS2S;
+                that.options = _options;
+                that.useS2S = that.options.useS2S;
                 that._rest = rest;
-                if (withS2S) {
-                    that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
+                that._contacts = _contacts;
+
+                await that.s2sEventHandler.start(that._contacts);
+                if (that.useS2S) {
+                    that.logger.log("debug", LOG_ID + "(start) S2S hostCallback used : ", that.hostCallback, ", on locallistenningport : ", that.locallistenningport);
                     //that.logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) S2S connection blocked by configuration");
@@ -99,7 +106,7 @@ class S2SService {
                 }
                 that.app.use(express.json());
                 that.app.listen(that.locallistenningport, function () {
-                    that.logger.log("internal", LOG_ID + "Server is running on " + that.locallistenningport + " port");
+                    that.logger.log("debug", LOG_ID + "Server is running on " + that.locallistenningport + " port");
                 });
 
                /* that.app.post( "/message", (req, res ) => {
@@ -145,11 +152,13 @@ class S2SService {
             that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
             await that.deleteAllConnectionsS2S();
 
+            this.s2sEventHandler.setAccount(account);
+
             resolve(await that.loginS2S(that.hostCallback));
         });
     }
 
-    stop(forceStop) {
+    stop(forceStop: boolean = false) {
         let that = this;
         return new Promise(function (resolve) {
             that.jid_im = "";
@@ -157,7 +166,11 @@ class S2SService {
             that.jid_password = "";
             that.fullJid = "";
             that.userId = "";
-            resolve(that.deleteAllConnectionsS2S());
+            if (that.useS2S || forceStop) {
+                resolve(that.deleteAllConnectionsS2S());
+            } else {
+                resolve();
+            }
         });
     }
 

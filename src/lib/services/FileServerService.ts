@@ -18,6 +18,7 @@ import * as streamBuffers from 'stream-buffers';
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileStorageService} from "./FileStorageService";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -36,14 +37,18 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
 *      This service manage files on server side
 */
 class FileServer {
-	public eventEmitter: EventEmitter;
-	public logger: Logger;
-	public _capabilities: any;
-	public transferPromiseQueue: any;
-	public fileStorageService: FileStorageService;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
+    private _capabilities: any;
+    private transferPromiseQueue: any;
+    private _fileStorageService: FileStorageService;
 	public ONE_KILOBYTE: any;
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
 	public ONE_MEGABYTE: any;
     public ready: boolean = false;
     private readonly _startConfig: {
@@ -56,11 +61,17 @@ class FileServer {
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
-        this.eventEmitter = _eventEmitter;
-        this.logger = _logger;
+        this._eventEmitter = _eventEmitter;
+        this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
+        this._logger = _logger;
         this._capabilities = null;
         this.transferPromiseQueue = null;
-        this.fileStorageService = null;
+        this._fileStorageService = null;
         this.ready = false;
     }
 
@@ -71,7 +82,7 @@ class FileServer {
                 if (that._rest) {
                     that._rest.getServerCapabilities().then((capabilities) => {
                         that._capabilities = capabilities;
-                        //that.transferPromiseQueue = new TransferPromiseQueue(that.logger);
+                        //that.transferPromiseQueue = new TransferPromiseQueue(that._logger);
                         resolve(this._capabilities);
                     }).catch(() => {
                         return reject();
@@ -85,13 +96,16 @@ class FileServer {
         });
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _fileStorageService) {
+    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _fileStorageService) {
         let that = this;
         return new Promise(function (resolve, reject) {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
-                that.fileStorageService = _fileStorageService;
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;                that._fileStorageService = _fileStorageService;
 
                 that.ready = true;
                 resolve();
@@ -193,12 +207,12 @@ class FileServer {
                         .then(
                             () => {
                                 let buffer = Buffer.concat(bufferArray);
-                                that.logger.log("info", LOG_ID + "[FileServer] getBufferFromUrlWithOptimization success");
+                                that._logger.log("info", LOG_ID + "[FileServer] getBufferFromUrlWithOptimization success");
                                 resolve(buffer);
                             },
                             (error) => {
-                                that.logger.log("error", LOG_ID + "[FileServer] Error." );
-                                that.logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
+                                that._logger.log("error", LOG_ID + "[FileServer] Error." );
+                                that._logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
                                 return reject(error);
                             }
                         );
@@ -269,12 +283,12 @@ class FileServer {
                         .then(
                             () => {
                                 let buffer = Buffer.concat(blobArray);
-                                that.logger.log("info", LOG_ID + "[FileServer] getBufferFromUrlWithOptimization success");
+                                that._logger.log("info", LOG_ID + "[FileServer] getBufferFromUrlWithOptimization success");
                                 resolve(buffer);
                             },
                             (error) => {
-                                that.logger.log("error", LOG_ID + "[FileServer] Error.");
-                                that.logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
+                                that._logger.log("error", LOG_ID + "[FileServer] Error.");
+                                that._logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
                                 return reject(error);
                             }
                         );
@@ -354,7 +368,7 @@ class FileServer {
     _uploadAFile(fileId, filePath, mime) {
         let that = this;
         return new Promise((resolve, reject) => {
-            let fileDescriptor = that.fileStorageService.getFileDescriptorById(fileId);
+            let fileDescriptor = that._fileStorageService.getFileDescriptorById(fileId);
             if (fileDescriptor) {
                 fileDescriptor.state = "uploading";
             }
@@ -372,11 +386,11 @@ class FileServer {
             that._rest.uploadAStream(fileId, stream).then(
                     (response) => {
                         //let fileDescResponse = response.data.data;
-                        let newFileDescriptor = that.fileStorageService.getFileDescriptorById(fileId);
+                        let newFileDescriptor = that._fileStorageService.getFileDescriptorById(fileId);
                         if (newFileDescriptor) {
                             newFileDescriptor.state = "uploaded";
                         }
-                        that.logger.log("info", LOG_ID + "(UploadAFile) success");
+                        that._logger.log("info", LOG_ID + "(UploadAFile) success");
                         // this.$rootScope.$broadcast("ON_FILE_TRANSFER_EVENT", {
                         //     result: "success",
                         //     type: "upload",
@@ -386,7 +400,7 @@ class FileServer {
                         //     filename: file.name,
                         //     filesize: file.size
                         // });
-                        // this.fileStorageService.orderDocuments();
+                        // this._fileStorageService.orderDocuments();
                         resolve(newFileDescriptor);
                     }).catch(
                     (errorResponse) => {
@@ -400,8 +414,8 @@ class FileServer {
                         //     filename: file.name,
                         //     filesize: file.size
                         // });
-                        that.logger.log("error", LOG_ID + "(UploadAFile) error." );
-                        that.logger.log("internalerror", LOG_ID + "(UploadAFile) error : ", errorResponse);
+                        that._logger.log("error", LOG_ID + "(UploadAFile) error." );
+                        that._logger.log("internalerror", LOG_ID + "(UploadAFile) error : ", errorResponse);
                         return reject(errorResponse);
                     });
         });
@@ -426,13 +440,13 @@ class FileServer {
             that._rest.sendPartialDataToServer(fileId, file, index).then(
                 (response : any) => {
                     let filedescriptor = response.data;
-                    that.logger.log("info", LOG_ID + "(_sendPartialDataToServer) sendPartialDataToServer success");
+                    that._logger.log("info", LOG_ID + "(_sendPartialDataToServer) sendPartialDataToServer success");
                     resolve(filedescriptor);
                 },
                 (errorResponse) => {
                     //let error = this.errorHelperService.handleError(errorResponse);
-                    that.logger.log("error", LOG_ID + "(_sendPartialDataToServer) Error." );
-                    that.logger.log("internalerror", LOG_ID + "(_sendPartialDataToServer) Error : ", errorResponse);
+                    that._logger.log("error", LOG_ID + "(_sendPartialDataToServer) Error." );
+                    that._logger.log("internalerror", LOG_ID + "(_sendPartialDataToServer) Error : ", errorResponse);
                     return reject(errorResponse);
                 });
         });
@@ -457,7 +471,7 @@ class FileServer {
     async uploadAFileByChunk(fileDescriptor, filePath /*, progressCallback */) {
         let that = this;
 
-        let promiseQueue = createPromiseQueue(that.logger);
+        let promiseQueue = createPromiseQueue(that._logger);
 
         let fileStats = fs.statSync(filePath);
 
@@ -466,7 +480,7 @@ class FileServer {
         if (range < fileStats.size) {
             if (fileStats.size >= 100 * range) {
                 range = (fileStats.size / 100) + this.ONE_KILOBYTE;
-                that.logger.log("debug", LOG_ID + "(uploadAFileByChunk) changing chunk size: " + range);
+                that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) changing chunk size: " + range);
             }
             let deferred = new Deferred();
             fileDescriptor.chunkTotalNumber = Math.ceil(fileStats.size / range);
@@ -488,8 +502,8 @@ class FileServer {
 
                     })
                     .catch((error) => {
-                        that.logger.log("error", LOG_ID + "(uploadAFileByChunk) error on chunk upload.");
-                        that.logger.log("internalerror", LOG_ID + "(uploadAFileByChunk) error on chunk upload : ", error);
+                        that._logger.log("error", LOG_ID + "(uploadAFileByChunk) error on chunk upload.");
+                        that._logger.log("internalerror", LOG_ID + "(uploadAFileByChunk) error on chunk upload : ", error);
                         return promiseDeferred.reject(error);
                     });
                 return promiseDeferred.promise;
@@ -501,7 +515,7 @@ class FileServer {
                 let sizeToRead = max - minRange;
                 let buf = new Buffer(sizeToRead);
 
-                that.logger.log("debug", LOG_ID + "(uploadAFileByChunk) sizeToRead=", sizeToRead, ", minRange : ", minRange, ", max : ", max, ", buff.byteLength : ", buf.byteLength);
+                that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) sizeToRead=", sizeToRead, ", minRange : ", minRange, ", max : ", max, ", buff.byteLength : ", buf.byteLength);
 
                 let promiseDeferred = new Deferred();
                 //promiseArray.push(promiseDeferred.promise);
@@ -516,7 +530,7 @@ class FileServer {
                  this._rest.sendPartialFileCompletion(fileDescriptor.id)
                      .then(
                          (response) => {
-                             that.logger.log("info", LOG_ID + "(uploadAFileByChunk) success");
+                             that._logger.log("info", LOG_ID + "(uploadAFileByChunk) success");
                              fileDescriptor.state = "uploaded";
                              fileDescriptor.chunkPerformed = 0;
                              fileDescriptor.chunkTotalNumber = 0;
@@ -538,7 +552,7 @@ class FileServer {
                 return this._rest.sendPartialFileCompletion(fileDescriptor.id)
                     .then(
                         (response) => {
-                            that.logger.log("info", LOG_ID + "(uploadAFileByChunk) success");
+                            that._logger.log("info", LOG_ID + "(uploadAFileByChunk) success");
                             fileDescriptor.state = "uploaded";
                             fileDescriptor.chunkPerformed = 0;
                             fileDescriptor.chunkTotalNumber = 0;
@@ -558,7 +572,7 @@ class FileServer {
         return that._uploadAFile(fileDescriptor.id, filePath, fileDescriptor.typeMIME)
             .then(
                 (response) => {
-                    that.logger.log("info", LOG_ID + "(uploadAFileByChunk) uploadAFile success");
+                    that._logger.log("info", LOG_ID + "(uploadAFileByChunk) uploadAFile success");
                     // progressCallback(fileDescriptor);
                     return Promise.resolve(fileDescriptor);
                 });
@@ -611,7 +625,7 @@ class FileServer {
                 let maxRange = range - 1;
                 let repetition = Math.ceil(fileSize / range);
                 let blobArray = new Array(repetition);
-                that.logger.log("info", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + repetition + " chunks to be downloaded");
+                that._logger.log("info", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + repetition + " chunks to be downloaded");
 
                 let promiseArray = [];
 
@@ -631,22 +645,22 @@ class FileServer {
                             /* NEED TO BE CORREDTED TO BE USED IN NODE RAINBOW SDK
                              let blob = new Blob(blobArray,
                                 { type: mime });
-                            that.logger.log("info", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization success");
+                            that._logger.log("info", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization success");
 
                             resolve(blob);
                             */
                         },
                         (errorResponse) => {
                             let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse.message;
-                            that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error.");
-                            that.logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
+                            that._logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error.");
+                            that._logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
                             return  reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
 
                             let errorDataObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(errorResponse.data)));
                             let translatedErrorMessage = that.errorHelperService.getLocalizedError(errorDataObj.errorDetailsCode);
-                            that.logger.log("info", LOG_ID + "[FileServerService] " + translatedErrorMessage ? translatedErrorMessage : error.message);
+                            that._logger.log("info", LOG_ID + "[FileServerService] " + translatedErrorMessage ? translatedErrorMessage : error.message);
                             */
 
                             //reject(errorMessage);
@@ -671,8 +685,8 @@ class FileServer {
      */
      getBlobFromUrl(url, mime, fileSize, fileName) {
          let that = this;
-        that.logger.log("info", LOG_ID + "[FileServerService] >getBlobFromUrl" );
-        that.logger.log("internal", LOG_ID + "[FileServerService] >getBlobFromUrl : " + url);
+        that._logger.log("info", LOG_ID + "[FileServerService] >getBlobFromUrl" );
+        that._logger.log("internal", LOG_ID + "[FileServerService] >getBlobFromUrl : " + url);
 
         return new Promise((resolve, reject) => {
             /*this.$http({
@@ -695,13 +709,13 @@ class FileServer {
                     /*let blob = new Blob([response.data],
                         { type: mime }); // */
 
-                    that.logger.log("debug", LOG_ID + "[FileServerService] getBlobFromUrl success");
+                    that._logger.log("debug", LOG_ID + "[FileServerService] getBlobFromUrl success");
                     resolve(blob);
                 },
                 (errorResponse) => {
                     let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse;
-                    that.logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error." );
-                    that.logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
+                    that._logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error." );
+                    that._logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
                     let err = ErrorManager.getErrorManager().ERROR;
                     err.msg = errorMessage;
                     return reject(err);

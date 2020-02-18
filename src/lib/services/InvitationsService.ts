@@ -14,6 +14,7 @@ import {Invitation} from "../common/models/Invitation";
 import * as moment from 'moment';
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -34,19 +35,23 @@ class InvitationsService {
 	acceptedInvitationsArray: any[];
 	sentInvitationsArray: any[];
 	receivedInvitationsArray: any[];
-	listeners: any[];
-	portalURL: string;
-	contactConfigRef: any;
+	private _listeners: any[];
+	private _portalURL: string;
+	private _contactConfigRef: any;
 	acceptedInvitations: {};
 	private _logger: Logger;
 	private _xmpp: XMPPService;
 	private _rest: RESTService;
+	private _options: any;
+	private _s2s: S2SService;
+	private _useXMPP: any;
+	private _useS2S: any;
 	private started: boolean = false;
 	private _eventEmitter: EventEmitter;
-	public invitationEventHandler: InvitationEventHandler;
-	public invitationHandlerToken: any;
-	public _contacts: any;
-	stats: any;
+	private _invitationEventHandler: InvitationEventHandler;
+	private _invitationHandlerToken: any;
+	private _contacts: any;
+	private stats: any;
 	private readonly _startConfig: {
 		start_up:boolean,
 		optional:boolean
@@ -61,12 +66,16 @@ class InvitationsService {
 		this._startConfig = _startConfig;
 		this._xmpp = null;
 		this._rest = null;
+		this._s2s = null;
+		this._options = {};
+		this._useXMPP = false;
+		this._useS2S = false;
 		this._eventEmitter = _eventEmitter;
 		this._logger = _logger;
 		this.started = false;
 
 		//update the sentInvitations list when new invitation is accepted
-		// DONE : VBR that.listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
+		// DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
 		this._eventEmitter.on("evt_internal_onrosters", that.onRosterChanged.bind(this));
 		this._eventEmitter.on("evt_internal_invitationsManagementUpdate", that.onInvitationsManagementUpdate.bind(this));
 	}
@@ -75,7 +84,7 @@ class InvitationsService {
 	/** LIFECYCLE STUFF                                        **/
 
 	/************************************************************/
-	async start(_xmpp: XMPPService, _rest: RESTService, _contacts : ContactsService, stats) {
+	async start(_options, _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, stats) {
 		let that = this;
 		that._logger.log("info", LOG_ID + "");
 		that._logger.log("info", LOG_ID + "[InvitationService] === STARTING ===");
@@ -83,6 +92,10 @@ class InvitationsService {
 
 		that._xmpp = _xmpp;
 		that._rest = _rest;
+		that._options = _options;
+		that._s2s = _s2s;
+		that._useXMPP = that._options.useXMPP;
+		that._useS2S = that._options.useS2S;
 		that._contacts = _contacts;
 
 		let startDate: any = new Date();
@@ -94,9 +107,9 @@ class InvitationsService {
 		that.acceptedInvitationsArray = [];
 		that.sentInvitationsArray = [];
 		that.receivedInvitationsArray = [];
-		that.listeners = [];
+		that._listeners = [];
 
-		//that.portalURL = config.restServerUrl + "/api/rainbow/enduser/v1.0/users/";
+		//that._portalURL = config.restServerUrl + "/api/rainbow/enduser/v1.0/users/";
 
 		that.attachHandlers();
 
@@ -121,10 +134,10 @@ class InvitationsService {
 		that._logger.log("info", LOG_ID + "");
 		that._logger.log("info", LOG_ID + "[InvitationService] === STOPPING ===");
 
-		// Remove listeners
+		// Remove _listeners
 		let listener;
-		if (that.listeners) {
-			while ((listener = that.listeners.pop())) {
+		if (that._listeners) {
+			while ((listener = that._listeners.pop())) {
 				listener();
 			}
 		}
@@ -143,21 +156,21 @@ class InvitationsService {
 		let that = this;
 		that._logger.log("info", LOG_ID + "[InvitationService] attachHandlers");
 		/* TODO : VBR
-		if (that.contactConfigRef) {
-			that._xmpp.connection.deleteHandler(that.contactConfigRef);
-			that.contactConfigRef = null;
+		if (that._contactConfigRef) {
+			that._xmpp.connection.deleteHandler(that._contactConfigRef);
+			that._contactConfigRef = null;
 		}
 		// */
-		//that.contactConfigRef = that._xmpp.connection.addHandler(that.onInvitationsUpdate, null, "message", "management");
+		//that._contactConfigRef = that._xmpp.connection.addHandler(that.onInvitationsUpdate, null, "message", "management");
 
-		that.invitationEventHandler = new InvitationEventHandler(that._xmpp, that);
-		that.invitationHandlerToken = [
+		that._invitationEventHandler = new InvitationEventHandler(that._xmpp, that);
+		that._invitationHandlerToken = [
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
-			PubSub.subscribe(that._xmpp.hash + "." + that.invitationEventHandler.MESSAGE_MANAGEMENT, that.invitationEventHandler.onManagementMessageReceived),
-			PubSub.subscribe(that._xmpp.hash + "." + that.invitationEventHandler.MESSAGE_ERROR, that.invitationEventHandler.onErrorMessageReceived),
-			//PubSub.subscribe( that._xmpp.hash + "." + that.invitationEventHandler.MESSAGE_HEADLINE, that.invitationEventHandler.onHeadlineMessageReceived),
+			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_MANAGEMENT, that._invitationEventHandler.onManagementMessageReceived),
+			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_ERROR, that._invitationEventHandler.onErrorMessageReceived),
+			//PubSub.subscribe( that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_HEADLINE, that._invitationEventHandler.onHeadlineMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
 		];
 	};

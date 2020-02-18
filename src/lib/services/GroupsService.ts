@@ -8,6 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "GROUPS/SVCE - ";
 
@@ -29,11 +30,15 @@ const LOG_ID = "GROUPS/SVCE - ";
  *		- Remove a contact from a group
  */
  class GroupsService {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _groups: any;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _groups: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -47,6 +52,10 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._groups = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
@@ -59,13 +68,17 @@ const LOG_ID = "GROUPS/SVCE - ";
         this.ready = false;
     }
 
-     start(_xmpp : XMPPService, _rest : RESTService) {
+     start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
          let that = this;
          return new Promise(function(resolve, reject) {
              try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
-                that._groups = [];
+                 that._options = _options;
+                 that._s2s = _s2s;
+                 that._useXMPP = that._options.useXMPP;
+                 that._useS2S = that._options.useS2S;
+                 that._groups = [];
 /*
                  that._eventEmitter.removeListener("evt_internal_groupcreated", that._onGroupCreated);
                  that._eventEmitter.removeListener("evt_internal_groupdeleted", that._onGroupDeleted);

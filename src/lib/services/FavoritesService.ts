@@ -12,6 +12,7 @@ import { Favorite } from '../common/models/Favorite';
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
 import EventEmitter = NodeJS.EventEmitter;
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -29,17 +30,21 @@ const LOG_ID = "FAVTE/SVCE - ";
 *      - Retrieve all information linked to that Favorite, <br>
 */
 class FavoritesService {
-    public _eventEmitter: EventEmitter;
+    private _eventEmitter: EventEmitter;
     private _logger: Logger;
     private started: boolean;
     private _initialized: boolean;
     private _xmpp: XMPPService;
     private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
     private _favoriteEventHandler: FavoriteEventHandler;
-    private favoriteHandlerToken: any;
+    private _favoriteHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
     private favorites: any[] = [];
-    private xmppManagementHandler: any;
+    private _xmppManagementHandler: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -57,6 +62,12 @@ class FavoritesService {
         this._startConfig = _startConfig;
         //let that = this;
         this._eventEmitter = _eventEmitter;
+        this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._logger = logger;
 
         this.started = false;
@@ -68,12 +79,15 @@ class FavoritesService {
     }
 
 
-    public async start(_xmpp : XMPPService, _rest : RESTService) {
+    public async start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;
-
-        this.favoriteHandlerToken = [];
+        that._options = _options;
+        that._s2s = _s2s;
+        that._useXMPP = that._options.useXMPP;
+        that._useS2S = that._options.useS2S;
+        this._favoriteHandlerToken = [];
 
         that._logger.log("info", LOG_ID + " ");
         that._logger.log("info", LOG_ID + "[start] === STARTING ===");
@@ -104,15 +118,15 @@ class FavoritesService {
 
         delete that._favoriteEventHandler;
         that._favoriteEventHandler = null;
-        if (that.favoriteHandlerToken) {
-            that.favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+        if (that._favoriteHandlerToken) {
+            that._favoriteHandlerToken.forEach((token) => PubSub.unsubscribe(token));
         }
-        that.favoriteHandlerToken = [];
+        that._favoriteHandlerToken = [];
 
         /*this.$log.info('Stopping');
-        if (this.xmppManagementHandler) {
-            this.xmppService.deleteHandler(this.xmppManagementHandler);
-            this.xmppManagementHandler = null;
+        if (this._xmppManagementHandler) {
+            this.xmppService.deleteHandler(this._xmppManagementHandler);
+            this._xmppManagementHandler = null;
         }
         this.$log.info('Stopped');
 
@@ -152,14 +166,14 @@ class FavoritesService {
         that._logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
 
         that._favoriteEventHandler = new FavoriteEventHandler(that._xmpp, that);
-        that.favoriteHandlerToken = [
+        that._favoriteHandlerToken = [
             PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived)
         ];
 
         /*
-        if (this.xmppManagementHandler) { this.xmppService.deleteHandler(this.xmppManagementHandler); }
-        this.xmppManagementHandler = this.xmppService.addHandler((stanza) => { this.onXmppEvent(stanza); return true; }, null, "message", "management");
+        if (this._xmppManagementHandler) { this.xmppService.deleteHandler(this._xmppManagementHandler); }
+        this._xmppManagementHandler = this.xmppService.addHandler((stanza) => { this.onXmppEvent(stanza); return true; }, null, "message", "management");
 
          */
 

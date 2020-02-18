@@ -9,6 +9,7 @@ import  {RESTService} from "../connection/RESTService";
 import {isStarted, logEntryExit} from "../common/Utils";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -32,15 +33,20 @@ const LOG_ID = "ADMIN/SVCE - ";
  *      - Create a guest user
  */
 class Admin {
-    public _xmpp: XMPPService;
-    public _rest: RESTService;
-    public _eventEmitter: EventEmitter;
-    public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
     };
+    private _options: any;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _s2s: S2SService;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -49,12 +55,16 @@ class Admin {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.ready = false;
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
         let that = this;
 
 
@@ -62,6 +72,12 @@ class Admin {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
+
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+
                 that.ready = true;
                 resolve();
             } catch (err) {

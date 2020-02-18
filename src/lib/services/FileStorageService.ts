@@ -17,6 +17,7 @@ import {Logger} from "../common/Logger";
 import {FileServerService} from "./FileServerService";
 import {ConversationsService} from "./ConversationsService";
 import {ContactsService} from "./ContactsService";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -38,12 +39,16 @@ const LOG_ID = "FileStorage/SVCE - ";
  *      - Get the connected user quota and consumption
  */
 class FileStorage {
-    public _rest: RESTService;
-    public _xmpp: XMPPService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
-	public fileServerService: FileServerService;
-	public _conversations: ConversationsService;
+    private _rest: RESTService;
+    private _xmpp: XMPPService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP : any;
+    private _useS2S: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
+    private _fileServerService: FileServerService;
+    private _conversations: ConversationsService;
 	public fileDescriptors: any;
 	public fileDescriptorsByDate: any;
 	public fileDescriptorsByName: any;
@@ -53,11 +58,11 @@ class FileStorage {
 	public receivedFileDescriptorsByDate: any;
 	public receivedFileDescriptorsBySize: any;
 	public consumptionData: any;
-	public contactService: ContactsService;
-	public startDate: any;
+    private _contactService: ContactsService;
+    private startDate: any;
 	public started: any;
-	public errorHelperService: any;
-	public helpersService: any;
+    private _errorHelperService: any;
+    private _helpersService: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -70,9 +75,15 @@ class FileStorage {
     constructor(_eventEmitter, _logger, _startConfig) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
+        this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._logger = _logger;
 
-        this.fileServerService = null;
+        this._fileServerService = null;
         this._conversations = null;
 
         this.fileDescriptors = [];
@@ -87,7 +98,7 @@ class FileStorage {
         this.ready = false;
     }
 
-    start(__xmpp : XMPPService, __rest : RESTService, __fileServerService, __conversations) {
+    start(_options, __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -95,7 +106,11 @@ class FileStorage {
 
                 that._xmpp = __xmpp;
                 that._rest = __rest;
-                that.fileServerService = __fileServerService;
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+                that._fileServerService = __fileServerService;
                 that._conversations = __conversations;
                 that.startDate = Date.now();
                 that.started = false;
@@ -136,7 +151,7 @@ class FileStorage {
             // No blocking service
             that.retrieveFileDescriptorsListPerOwner()
                 .then(() => {
-                    return that.retrieveReceivedFiles(that._rest.userId /*contactService.userContact.dbId*/);
+                    return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/);
                 })
                 .then(() => {
                     that.orderDocuments();
@@ -435,7 +450,7 @@ class FileStorage {
                 // Upload file
                 fileDescriptor.state = "uploading";
 
-                return that.fileServerService.uploadAFileByChunk(fileDescriptor, file.path )
+                return that._fileServerService.uploadAFileByChunk(fileDescriptor, file.path )
                     .then(function successCallback(fileDesc) {
                             that._logger.log("debug", LOG_ID + "uploadFileToStorage uploadAFileByChunk success");
                             return Promise.resolve(fileDesc);
@@ -520,7 +535,7 @@ class FileStorage {
                     "filename": fileDescriptor.filename || fileDescriptor.fileName
                 };
 
-                that.fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob) {
+                that._fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob) {
                     that._logger.log("debug", LOG_ID + "[getFile    ] ::  file downloaded");
                     resolve(blob);
                 }).catch(function(err) {
@@ -668,7 +683,7 @@ class FileStorage {
                 }); // */
             } else {
                 that._logger.log("debug", LOG_ID + "[getFilesRcv] ::  get files received in conversation " + conversation.id + "...");
-                that.retrieveFilesReceivedFromPeer(/* contactService.userContact.dbId */ that._rest.userId, conversation.contact.id).then(function(files: any) {
+                that.retrieveFilesReceivedFromPeer(/* _contactService.userContact.dbId */ that._rest.userId, conversation.contact.id).then(function(files: any) {
                     that._logger.log("debug", LOG_ID + "[getFilesRcv] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
@@ -746,7 +761,7 @@ class FileStorage {
                 for (let viewer of fileDescriptor.viewers) {
                     if (viewer.type === "user") {
                         promiseArray.push(
-                            that.contactService.getContactById(viewer.viewerId, true).then((contact) => {
+                            that._contactService.getContactById(viewer.viewerId, true).then((contact) => {
                                 viewer.contact = contact;
                                 return (viewer);
                             })
@@ -875,7 +890,7 @@ class FileStorage {
     getReceivedFilesForRoom(bubbleId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
             for (let i = 0; i < file.viewers.length; i++) {
-                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this.contactService.userContact.dbId) {
+                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.dbId) {
                     return true;
                 }
             }
@@ -928,7 +943,7 @@ class FileStorage {
                     resolve(fileDescriptor);
                 })
                 .catch((errorResponse) => {
-                    //const error = that.errorHelperService.handleError(errorResponse, "createFileDescriptor");
+                    //const error = that._errorHelperService.handleError(errorResponse, "createFileDescriptor");
                     that._logger.log("error", LOG_ID + "(createFileDescriptor) Error." );
                     that._logger.log("internalerror", LOG_ID + "(createFileDescriptor) Error : " + errorResponse);
                     return reject(errorResponse);
@@ -950,7 +965,7 @@ class FileStorage {
             let viewers = [];
             if (data.viewers) {
                 for (let viewerData of data.viewers) {
-                    viewers.push(fileViewerElementFactory(viewerData.viewerId, viewerData.type, viewerData.contact, that.contactService));
+                    viewers.push(fileViewerElementFactory(viewerData.viewerId, viewerData.type, viewerData.contact, that._contactService));
                 }
             }
             let url = data.url;
@@ -992,7 +1007,7 @@ class FileStorage {
                     resolve(null);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "deleteFileDescriptor");
+                    //let error = that._errorHelperService.handleError(errorResponse, "deleteFileDescriptor");
                     return reject(errorResponse);
                 });
         });
@@ -1025,7 +1040,7 @@ class FileStorage {
                     resolve();
                 })
                 .catch((errorResponse) => {
-                    ///let error = that.errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
+                    ///let error = that._errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
                     return reject(errorResponse);
                 });
         });
@@ -1093,7 +1108,7 @@ class FileStorage {
                         });
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveFileDescriptorsListPerOwner");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveFileDescriptorsListPerOwner");
                     that._logger.log("error", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1143,7 +1158,7 @@ class FileStorage {
                     resolve(receivedFileDescriptors);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveFilesReceivedFromPeer");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveFilesReceivedFromPeer");
                     that._logger.log("error", LOG_ID + "(retrieveFilesReceivedFromPeer) Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveFilesReceivedFromPeer) Error : ", errorResponse);
                     return reject(errorResponse);
@@ -1178,7 +1193,7 @@ class FileStorage {
                     resolve(sentFilesDescriptors);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveSentFiles");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveSentFiles");
                     that._logger.log("error", LOG_ID + "(retrieveSentFiles Error" );
                     that._logger.log("internalerror", LOG_ID + "(retrieveSentFiles Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1219,7 +1234,7 @@ class FileStorage {
                     resolve(result);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveReceivedFilesForRoom");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveReceivedFilesForRoom");
                     that._logger.log("error", LOG_ID + "(retrieveReceivedFilesForRoom) - retrieveReceivedFilesForRoomOrViewer Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveReceivedFilesForRoom) - retrieveReceivedFilesForRoomOrViewer Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1267,7 +1282,7 @@ class FileStorage {
                     resolve(that.receivedFileDescriptors);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveReceivedFiles");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveReceivedFiles");
                     that._logger.log("error", LOG_ID + "(retrieveReceivedFiles) Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveReceivedFiles) Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1429,7 +1444,7 @@ class FileStorage {
                     resolve(that.consumptionData);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveUserConsumption");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveUserConsumption");
                     that._logger.log("error", LOG_ID + "(retrieveUserConsumption) error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveUserConsumption) error : " + errorResponse);
                     return reject(errorResponse);
@@ -1471,7 +1486,7 @@ class FileStorage {
                     resolve();
                 },
                 (errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "deleteFileViewer");
+                    //let error = that._errorHelperService.handleError(errorResponse, "deleteFileViewer");
                     that._logger.log("error", LOG_ID + "(deleteFileViewer) error." );
                     that._logger.log("intenralerror", LOG_ID + "(deleteFileViewer) error : " + errorResponse);
                     return reject(errorResponse);
@@ -1512,7 +1527,7 @@ class FileStorage {
                         }])[0]; // */
                         let viewerAdded = fileViewerElementFactory(response.data.viewerId, response.data.type, undefined,  undefined);
                         if (viewerAdded.type === "user") {
-                            that.contactService.getContactById(viewerId, true)
+                            that._contactService.getContactById(viewerId, true)
                                 .then((contact) => {
                                     viewerAdded.contact = contact;
                                     fd.viewers.push(viewerAdded);
@@ -1530,7 +1545,7 @@ class FileStorage {
                     }
                 },
                 (errorResponse) => {
-                    const error = that.errorHelperService.handleError(errorResponse, "addFileViewer");
+                    const error = that._errorHelperService.handleError(errorResponse, "addFileViewer");
                     that._logger.log("error", LOG_ID + "(addFileViewer) error." );
                     that._logger.log("internalerror", LOG_ID + "(addFileViewer) error : ", errorResponse);
                     return reject(error);
@@ -1558,7 +1573,7 @@ class FileStorage {
                     resolve(fileDescriptor);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "getOneFileDescriptor");
+                    //let error = that._errorHelperService.handleError(errorResponse, "getOneFileDescriptor");
                     that._logger.log("error", LOG_ID + "(retrieveOneFileDescriptor) " + errorResponse);
                     that._logger.log("internalerror", LOG_ID + "(retrieveOneFileDescriptor) Error : ", errorResponse);
                     return reject(errorResponse);

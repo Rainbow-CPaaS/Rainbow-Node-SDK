@@ -14,6 +14,7 @@ import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
 import {TelephonyService} from "./TelephonyService";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "CALLLOG/SVCE - ";
 
@@ -56,7 +57,7 @@ function CallLogsBean() : ICallLogsBean {
 *      - Mark calls as read / unread <br/>
 */
  class CallLogService {
-    public _eventEmitter: EventEmitter;
+    private _eventEmitter: EventEmitter;
     private logger: Logger;
     private started: boolean;
     private _initialized: boolean;
@@ -86,6 +87,10 @@ function CallLogsBean() : ICallLogsBean {
     private _profiles: ProfilesService;
     private _calllogEventHandler: CallLogEventHandler;
     private _telephony: TelephonyService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up: boolean,
@@ -106,6 +111,12 @@ function CallLogsBean() : ICallLogsBean {
         //let that = this;
         this._eventEmitter = _eventEmitter;
         this.logger = logger;
+        this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
 
         this.started = false;
         this._initialized = false;
@@ -141,14 +152,17 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_xmpp: XMPPService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService) {
+    async start(_options, _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService) {
         let that = this;
         that._xmpp = _xmpp;
         that._rest = _rest;
         that._contacts = _contacts;
         that._profiles = _profiles;
         that._telephony = _telephony;
-
+        that._options = _options;
+        that._s2s = _s2s;
+        that._useXMPP = that._options.useXMPP;
+        that._useS2S = that._options.useS2S;
 
         this.calllogHandlerToken = [];
 

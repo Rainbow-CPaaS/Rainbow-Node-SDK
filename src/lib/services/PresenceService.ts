@@ -12,6 +12,8 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
+import {RESTService} from "../connection/RESTService";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -29,14 +31,14 @@ const LOG_ID = "PRES/SVCE - ";
  *      - Change the connected user presence
  */
 class PresenceService {
-	public _logger: Logger;
-	public _xmpp: XMPPService;
-	public _settings: SettingsService;
-	public presenceEventHandler: any;
-	public presenceHandlerToken: any;
-	public _eventEmitter: EventEmitter;
-	public manualState: any;
-	public _currentPresence: any;
+    private _logger: Logger;
+    private _xmpp: XMPPService;
+    private _settings: SettingsService;
+    private _presenceEventHandler: any;
+    private _presenceHandlerToken: any;
+    private _eventEmitter: EventEmitter;
+    private manualState: any;
+    private _currentPresence: any;
     RAINBOW_PRESENCE_ONLINE: any;
     RAINBOW_PRESENCE_DONOTDISTURB: any;
     RAINBOW_PRESENCE_AWAY: any;
@@ -46,10 +48,11 @@ class PresenceService {
         start_up:boolean,
         optional:boolean
     };
-    _s2s: any;
-    options: any;
-    useXMPP: any;
-    useS2S: any;
+    private _s2s: any;
+    private _options: any;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _rest: RESTService;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -58,8 +61,12 @@ class PresenceService {
         let that = this;
         this._startConfig = _startConfig;
 
-        that._xmpp = null;
+        this._xmpp = null;
+        this._rest = null;
         that._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         that._eventEmitter = _eventEmitter;
         that._logger = _logger;
 
@@ -76,19 +83,20 @@ class PresenceService {
         this.ready = false;
     }
 
-    start(_options, _xmpp, _settings : SettingsService, _s2s) {
+    start(_options, _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService ) {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that.options = _options;
+                that._options = _options;
                 that._xmpp = _xmpp;
+                that._rest = _rest;
                 that._s2s = _s2s;
                 that._settings = _settings;
-                that.useXMPP = that.options.useXMPP;
-                that.useS2S = that.options.useS2S;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
 
-                that.presenceEventHandler = new PresenceEventHandler(that._xmpp);
-                that.presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that.presenceEventHandler.PRESENCE, that.presenceEventHandler.onPresenceReceived);
+                that._presenceEventHandler = new PresenceEventHandler(that._xmpp);
+                that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived);
 
 /*
                 that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
@@ -112,9 +120,9 @@ class PresenceService {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                delete that.presenceEventHandler;
-                that.presenceEventHandler = null;
-                PubSub.unsubscribe(that.presenceHandlerToken);
+                delete that._presenceEventHandler;
+                that._presenceEventHandler = null;
+                PubSub.unsubscribe(that._presenceHandlerToken);
 
                 that._xmpp = null;
 /*
@@ -230,7 +238,7 @@ class PresenceService {
          let that = this;
          return new Promise(async (resolve, reject) => {
 
-             if (that.useXMPP) {
+             if (that._useXMPP) {
                  if (status === "online") {
                      that.manualState = false;
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
@@ -272,7 +280,7 @@ class PresenceService {
                      }
                  }
              }
-             if (that.useS2S) {
+             if (that._useS2S) {
                  resolve (await that._s2s.sendS2SPresence({}));
              }
          });

@@ -14,6 +14,8 @@ import {Logger} from "../common/Logger";
 import EventEmitter = NodeJS.EventEmitter;
 import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
+import {S2SService} from "../connection/S2S/S2SService";
+import {RESTService} from "../connection/RESTService";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -33,19 +35,24 @@ const LOG_ID = "IM/SVCE - ";
  *      - Mark a message as read <br>
  */
 class IMService {
-	public _xmpp: XMPPService;
-	public _conversations: ConversationsService;
-	public _logger: Logger;
-	public _eventEmitter: EventEmitter;
-	public pendingMessages: any;
-	public _bulles: any;
-    private imOptions: any;
-    public _fileStorage: any;
+    private _xmpp: XMPPService;
+    private _conversations: ConversationsService;
+    private _logger: Logger;
+    private _eventEmitter: EventEmitter;
+    private _pendingMessages: any;
+    private _bulles: any;
+    private _imOptions: any;
+    private _fileStorage: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
     };
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -53,11 +60,16 @@ class IMService {
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._conversations = null;
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
-        this.pendingMessages = {};
-        this.imOptions = _imOptions;
+        this._pendingMessages = {};
+        this._imOptions = _imOptions;
 
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
         this.ready = false;
@@ -65,11 +77,16 @@ class IMService {
 
     }
 
-    start(_xmpp : XMPPService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService) {
+    start(_options, _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService) {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
                 that._xmpp = _xmpp;
+                that._rest = _rest;
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
                 that._conversations = __conversations;
                 that._bulles = __bubbles;
                 that._fileStorage = _filestorage;
@@ -237,8 +254,8 @@ class IMService {
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
-        if (message.length > that.imOptions.messageMaxLength) {
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+        if (message.length > that._imOptions.messageMaxLength) {
+            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
@@ -287,7 +304,7 @@ class IMService {
      * @param message
      */
     /*storePendingMessage(message) {
-        this.pendingMessages[message.id] = {
+        this._pendingMessages[message.id] = {
 //            conversation: conversation,
             message: message
         };
@@ -301,18 +318,18 @@ class IMService {
      * @param message
      */
     /* removePendingMessage(message) {
-        delete this.pendingMessages[message.id];
+        delete this._pendingMessages[message.id];
     } // */
 
     _onmessageReceipt(receipt) {
         let that = this;
         return;
-        /*if (this.pendingMessages[receipt.id]) {
-            let messagePending = this.pendingMessages[receipt.id].message;
+        /*if (this._pendingMessages[receipt.id]) {
+            let messagePending = this._pendingMessages[receipt.id].message;
             that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending message received from server, so remove from pending", messagePending);
             this.removePendingMessage(messagePending);
         }
-        that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that.pendingMessages);
+        that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that._pendingMessages);
         // */
     }
 
@@ -350,9 +367,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -369,7 +386,7 @@ class IMService {
         /*
         this.storePendingMessage(messageSent);
         await utils.until(() => {
-               return this.pendingMessages[messageSent.id] === undefined;
+               return this._pendingMessages[messageSent.id] === undefined;
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
@@ -421,9 +438,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -440,7 +457,7 @@ class IMService {
         /*
         this.storePendingMessage(messageSent);
         await utils.until(() => {
-               return this.pendingMessages[messageSent.id] === undefined;
+               return this._pendingMessages[messageSent.id] === undefined;
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
@@ -514,9 +531,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -593,9 +610,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {

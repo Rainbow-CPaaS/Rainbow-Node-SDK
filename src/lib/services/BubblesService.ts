@@ -14,6 +14,7 @@ import {Logger} from "../common/Logger";
 import {atob} from "atob";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
+import {S2SService} from "../connection/S2S/S2SService";
 const Jimp = require('jimp');
 //import Jimp from "jimp";
 
@@ -39,11 +40,11 @@ const LOG_ID = "BUBBLES/SVCE - ";
  *      - Change the custom data attached to a bubble
  */
 class Bubbles {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _bubbles: Bubble[];
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _bubbles: Bubble[];
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean;
     private readonly _startConfig: {
         start_up:boolean,
@@ -52,6 +53,10 @@ class Bubbles {
     private avatarDomain: string;
     private _contacts: ContactsService;
     private _profileService: any;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
 
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
@@ -61,6 +66,10 @@ class Bubbles {
         this.ready = false;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._bubbles = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
@@ -79,7 +88,7 @@ class Bubbles {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService) {
+    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -89,14 +98,19 @@ class Bubbles {
                 that._bubbles = [];
                 that._contacts = _contacts;
                 that._profileService = _profileService;
-/*
-                that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
-                that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
-                that._eventEmitter.on("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
-                that._eventEmitter.on("evt_internal_customdatachanged", that._onCustomDataChanged.bind(that));
-                that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
-                that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
-*/
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+
+                /*
+                                that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
+                                that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_customdatachanged", that._onCustomDataChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
+                */
                 that.ready = true;
                 resolve();
             }
@@ -538,23 +552,23 @@ class Bubbles {
         return new Promise(function(resolve, reject) {
 
             /*let filterToApply = "format=medium";
-            if (options.format) {
-                filterToApply = "format=" + options.format;
+            if (_options.format) {
+                filterToApply = "format=" + _options.format;
             }
 
-            if (options.page > 0) {
+            if (_options.page > 0) {
                 filterToApply += "&offset=";
-                if (options.page > 1) {
-                    filterToApply += (options.limit * (options.page - 1));
+                if (_options.page > 1) {
+                    filterToApply += (_options.limit * (_options.page - 1));
                 } else {
                     filterToApply += 0;
                 }
             }
 
-            filterToApply += "&limit=" + Math.min(options.limit, 1000);
+            filterToApply += "&limit=" + Math.min(_options.limit, 1000);
 
-            if (options.type) {
-                filterToApply += "&types=" + options.type;
+            if (_options.type) {
+                filterToApply += "&types=" + _options.type;
             }
 
             // */

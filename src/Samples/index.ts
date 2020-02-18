@@ -51,11 +51,11 @@ let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-        //mode: "s2s"
+     //   "mode": "s2s"
         "mode": "xmpp"
     },
     "s2s": {
-        "hostCallback": "http://3d260881.ngrok.io",
+        "hostCallback": "http://9730378a.ngrok.io",
         "locallistenningport": "4000"
     },
     "credentials": {

@@ -19,6 +19,7 @@ import {ProfilesService} from "./ProfilesService";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
+import {S2SService} from "../connection/S2S/S2SService";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -40,38 +41,42 @@ const LOG_ID = "TELEPHONY/SVCE - ";
  *
  */
 class Telephony {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _contacts: ContactsService;
-    public _bubbles: BubblesService;
-    public _profiles: ProfilesService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
-	public _calls: any;
-	public voiceMail: any;
-	public userJidTel: any;
-	public started: any;
-	public agentStatus: any;
-	public voicemailNumber: any;
-	public pbxId: any;
-	public forwardObject: any;
-	public nomadicObject: any;
-	public nomadicAnswerNotTakedIntoAccount: any;
-	public isBasicCallAllowed: any;
-	public isSecondCallAllowed: any;
-	public isTransferAllowed: any;
-	public isConferenceAllowed: any;
-	public isVMDeflectCallAllowed: any;
-	public voiceMailFeatureEnabled: any;
-	public isForwardEnabled: any;
-	public isNomadicEnabled: any;
-	public telephonyHandlerToken: any;
-	public telephonyHistoryHandlerToken: any;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _contacts: ContactsService;
+    private _bubbles: BubblesService;
+    private _profiles: ProfilesService;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
+    private _calls: any;
+    private voiceMail: any;
+    private userJidTel: any;
+    private started: any;
+    private agentStatus: any;
+    private voicemailNumber: any;
+    private pbxId: any;
+    private forwardObject: any;
+    private nomadicObject: any;
+    private nomadicAnswerNotTakedIntoAccount: any;
+    private isBasicCallAllowed: any;
+    private isSecondCallAllowed: any;
+    private isTransferAllowed: any;
+    private isConferenceAllowed: any;
+    private isVMDeflectCallAllowed: any;
+    private voiceMailFeatureEnabled: any;
+    private isForwardEnabled: any;
+    private isNomadicEnabled: any;
+    private telephonyHandlerToken: any;
+    private telephonyHistoryHandlerToken: any;
 	public startDate: any;
-	public telephonyEventHandler: any;
-	public makingCall: any;
-	public starting: any;
-	public stats: any;
+    private _telephonyEventHandler: any;
+    private makingCall: any;
+    private starting: any;
+    private stats: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -86,6 +91,10 @@ class Telephony {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._contacts = null;
         this._eventEmitter = _eventEmitter;
         this._logger = logger;
@@ -118,7 +127,7 @@ class Telephony {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService) {
+    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService) {
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
@@ -129,6 +138,10 @@ class Telephony {
             try {
                 that._xmpp = _xmpp;
                 that._rest = _rest;
+                that._options = _options;
+                that._s2s = _s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
                 that._contacts = _contacts;
                 that._bubbles = _bubbles;
                 that._profiles = _profiles;
@@ -155,8 +168,8 @@ class Telephony {
                 that._xmpp = null;
                 that._rest = null;
 
-                delete that.telephonyEventHandler;
-                that.telephonyEventHandler = null;
+                delete that._telephonyEventHandler;
+                that._telephonyEventHandler = null;
                 if (that.telephonyHandlerToken) {
                     that.telephonyHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 }
@@ -177,10 +190,10 @@ class Telephony {
 
     attachHandlers() {
         let that = this;
-        that.telephonyEventHandler = new TelephonyEventHandler(that._xmpp, that, that._contacts, that._profiles);
+        that._telephonyEventHandler = new TelephonyEventHandler(that._xmpp, that, that._contacts, that._profiles);
         that.telephonyHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that.telephonyEventHandler.MESSAGE, that.telephonyEventHandler.onMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.telephonyEventHandler.IQ_RESULT, that.telephonyEventHandler.onIqResultReceived )
+            PubSub.subscribe(that._xmpp.hash + "." + that._telephonyEventHandler.MESSAGE, that._telephonyEventHandler.onMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._telephonyEventHandler.IQ_RESULT, that._telephonyEventHandler.onIqResultReceived )
         ];
     }
 
