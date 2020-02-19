@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.67.1] - 2020-02-19
+-   Fix login issue when Rainbow CLI use SDK.
+
 ## [1.67.0] - 2020-02-19
 -   Fix typo error in Gruntfile.js file for the generated documentation of the invitations service. And fix documentation.
 -   Move the methods `BubblesService::resizeImage` and `BubblesService::getBinaryData` to module Utils.ts .

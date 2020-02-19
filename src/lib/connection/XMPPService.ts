@@ -1189,7 +1189,6 @@ class XMPPService {
         let that = this;
         return new Promise(function (resolve) {
             try {
-                that.stopIdleTimer();
                 that.jid_im = "";
                 that.jid_tel = "";
                 that.jid_password = "";
@@ -1197,6 +1196,7 @@ class XMPPService {
                 that.userId = "";
                 that.initialPresence = true;
                 if (that.useXMPP && forceStop) {
+                    that.stopIdleTimer();
 
                     delete that.IQEventHandler;
                     that.IQEventHandler = null;

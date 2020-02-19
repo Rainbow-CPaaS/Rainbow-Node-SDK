@@ -134,6 +134,21 @@ class Core {
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
                         reject(err);
                     });
+                } else {
+                    that._rest.signin(token).then((_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        resolve(json);
+                    });
                 }
             });
         };
@@ -194,7 +209,8 @@ class Core {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve();
                         }).then(() => {
-                            return that.im.enableCarbon();
+                            //return that.im.enableCarbon();
+                            return Promise.resolve();
                         }).then(() => {
                             return that._rest.getBots();
                         }).then((bots : any) => {
