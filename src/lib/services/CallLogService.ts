@@ -15,6 +15,7 @@ import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
 import {TelephonyService} from "./TelephonyService";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "CALLLOG/SVCE - ";
 
@@ -152,15 +153,15 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_options, _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService) {
+    async start(_options, _core : Core) { //  _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService
         let that = this;
-        that._xmpp = _xmpp;
-        that._rest = _rest;
-        that._contacts = _contacts;
-        that._profiles = _profiles;
-        that._telephony = _telephony;
+        that._xmpp = _core._xmpp;
+        that._rest = _core._rest;
+        that._contacts = _core.contacts;
+        that._profiles = _core.profiles;
+        that._telephony = _core.telephony;
         that._options = _options;
-        that._s2s = _s2s;
+        that._s2s = _core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
 
@@ -226,8 +227,9 @@ function CallLogsBean() : ICallLogsBean {
                     that.logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
                     that.started = true;
                 })
-                .catch(() => {
+                .catch((error) => {
                     that.logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
+                    that.logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
                 });
         });
 
@@ -265,7 +267,12 @@ function CallLogsBean() : ICallLogsBean {
         let that = this;
 
         that.logger.log("info", LOG_ID + "(getCallLogHistoryPage)");
-        return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
+        if (that._useXMPP) {
+            return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
+        }
+        if (that._useS2S) {
+            return Promise.resolve();
+        }
     }
 
     /*********************************************************/
@@ -320,6 +327,7 @@ function CallLogsBean() : ICallLogsBean {
 
         that.calllogs.callLogs.forEach(function (callLog) {
             if (!callLog.read && callLog.state === "missed" && callLog.direction === "incoming") {
+                that.logger.log("info", LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
                 num++;
             }
         });
@@ -408,6 +416,7 @@ function CallLogsBean() : ICallLogsBean {
         let that = this;
 
         that.logger.log("info", LOG_ID + "(markAllCallsLogsAsRead) ");
+        that.logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
         await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
 

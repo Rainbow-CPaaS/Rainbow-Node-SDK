@@ -15,6 +15,8 @@ import {atob} from "atob";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
+import {PresenceService} from "./PresenceService";
 const Jimp = require('jimp');
 //import Jimp from "jimp";
 
@@ -52,9 +54,10 @@ class Bubbles {
     };
     private avatarDomain: string;
     private _contacts: ContactsService;
-    private _profileService: any;
+    private _profileService: ProfilesService;
     private _options: any;
     private _s2s: S2SService;
+    private _presence: PresenceService;
     private _useXMPP: any;
     private _useS2S: any;
 
@@ -88,18 +91,19 @@ class Bubbles {
 
     }
 
-    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
 
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._bubbles = [];
-                that._contacts = _contacts;
-                that._profileService = _profileService;
+                that._contacts = _core.contacts;
+                that._profileService = _core.profiles;
+                that._presence = _core.presence;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 
@@ -192,7 +196,7 @@ class Bubbles {
                     resolve(bubble);
                 }); // */
 
-                that._xmpp.sendInitialBubblePresence(bubble.jid).then(async () => {
+                that._presence.sendInitialBubblePresence(bubble).then(async () => {
                     // Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
                     await until(() => {
                         return (that._bubbles.find((bubbleIter : any) => {
@@ -1111,7 +1115,7 @@ getAllActiveBubbles
                         if (user.userId === that._rest.userId && user.status === "accepted") {
                             if (bubble.isActive) {
                                 that._logger.log("debug", LOG_ID + "(getBubbles) send initial presence to room : ", bubble.jid);
-                                prom.push(that._xmpp.sendInitialBubblePresence(bubble.jid));
+                                prom.push(that._presence.sendInitialBubblePresence(bubble));
                             } else {
                                 that._logger.log("debug", LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to room : ", bubble.jid);
                             }
@@ -1333,7 +1337,7 @@ getAllActiveBubbles
      * @description
      *  Get a bubble by its ID in memory and if it is not found in server.
      */
-    getBubbleById(id) {
+    getBubbleById(id) : Promise<Bubble>{
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
@@ -1360,7 +1364,7 @@ getAllActiveBubbles
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                            await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            await that._presence.sendInitialBubblePresence(bubble);
                         } else {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
@@ -1417,7 +1421,7 @@ getAllActiveBubbles
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) send initial presence to room : ", bubble.jid);
-                            await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            await that._presence.sendInitialBubblePresence(bubble);
                         } else {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
@@ -2028,18 +2032,6 @@ getAllActiveBubbles
 
     /**
      * @private
-     * @method _sendInitialBubblePresence
-     * @instance
-     * @param {Bubble} bubble The Bubble
-     * @description
-     *      Method called when receiving an invitation to join a bubble
-     */
-    _sendInitialBubblePresence(bubble) {
-        this._xmpp.sendInitialBubblePresence(bubble.jid);
-    }
-
-    /**
-     * @private
      * @method _onInvitationReceived
      * @instance
      * @param {Object} invitation contains informations about bubble and user's jid
@@ -2123,44 +2115,46 @@ getAllActiveBubbles
         that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) parameters : affiliation : ", affiliation);
 
         if (affiliation.status !== "deleted") {
-            await this._rest.getBubble(affiliation.bubbleId).then(async (bubbleUpdated : any) => {
-                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
+            if (affiliation.status === "available") {
+                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) available state received. Nothing to do.");
+            } else {
+                await this._rest.getBubble(affiliation.bubbleId).then(async (bubbleUpdated: any) => {
+                    that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
 
-                // Update the existing local bubble stored
-                let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
-                if (foundIndex > -1) {
-                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
-                    //bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
-                    //that._bubbles[foundIndex] = bubbleUpdated;
-                    if (affiliation.status === "accepted") {
+                    // Update the existing local bubble stored
+                    let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                    if (foundIndex > -1) {
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+                        //bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
+                        //that._bubbles[foundIndex] = bubbleUpdated;
+                        if (affiliation.status === "accepted") {
+                            if (bubble.isActive) {
+                                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
+                                that._presence.sendInitialBubblePresence(bubble);
+                            } else {
+                                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
+                            }
+                        } else if (affiliation.status === "unsubscribed") {
+                            that._xmpp.sendUnavailableBubblePresence(bubble.jid);
+                        }
+                    } else {
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                        /*bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
+                        that._bubbles.push(bubbleUpdated); // */
+                        // New bubble, send initial presence
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                            that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            that._presence.sendInitialBubblePresence(bubble);
                         } else {
                             that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
-                    }
-                    else if (affiliation.status === "unsubscribed") {
-                        that._xmpp.sendUnavailableBubblePresence(bubble.jid);
-                    }
-                }
-                else {
-                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
-                    /*bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
-                    that._bubbles.push(bubbleUpdated); // */
-                    // New bubble, send initial presence
-                    if (bubble.isActive) {
-                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                        that._xmpp.sendInitialBubblePresence(bubble.jid);
-                    } else {
-                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                     }
 
-                }
-
-                that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleUpdated);
-            });
+                    that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleUpdated);
+                });
+            }
         } else {
 
             // remove it
@@ -2321,7 +2315,7 @@ getAllActiveBubbles
         if (bubbleInMemory) {
             that._logger.log("internal", LOG_ID + "(_onbubblepresencechanged) bubble found in memory : ", bubbleInMemory.jid);
             if (bubbleInfo.statusCode === "resumed") {
-                that._xmpp.sendInitialBubblePresence(bubbleInfo.jid).then(()=> {
+                that._presence.sendInitialBubblePresence(bubbleInfo).then(()=> {
                     bubbleInMemory.isActive = true;
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 });

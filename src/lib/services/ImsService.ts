@@ -16,6 +16,8 @@ import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "../connection/S2S/S2SService";
 import {RESTService} from "../connection/RESTService";
+import {Core} from "../Core";
+import {PresenceService} from "./PresenceService";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -49,6 +51,7 @@ class IMService {
         optional:boolean
     };
     private _rest: RESTService;
+    private _presence: PresenceService;
     private _options: any;
     private _s2s: S2SService;
     private _useXMPP: any;
@@ -77,19 +80,20 @@ class IMService {
 
     }
 
-    start(_options, _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._conversations = __conversations;
-                that._bulles = __bubbles;
-                that._fileStorage = _filestorage;
+                that._conversations = _core.conversations;
+                that._bulles = _core.bubbles;
+                that._fileStorage = _core.fileStorage;
+                that._presence = _core.presence;
                 that.ready = true;
                 resolve();
 
@@ -240,31 +244,75 @@ class IMService {
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    sendMessageToConversation(conversation, message, lang, content, subject) {
+    async sendMessageToConversation(conversation, message, lang, content, subject) {
         let that = this;
         if (!conversation) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         if (!message) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
         if (message.length > that._imOptions.messageMaxLength) {
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
-        let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
+        let msgSent : any = undefined; //Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: " sent message failed."}));
+        if (this._useXMPP) {
+            msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
+        }
+        if ((this._useS2S)) {
+            /*
+{
+  "message": {
+    "subject": "Greeting",
+    "lang": "en",
+    "contents": [
+      {
+        "type": "text/markdown",
+        "data": "## Hello Bob"
+      }
+    ],
+    "body": "Hello world"
+  }
+}
+             */
+            let msg = {
+                "message": {
+                    "subject": subject,
+                    "lang": lang,
+                    "contents":
+                    content,
+                    // [
+                    // {
+                    //     "type": "text/markdown",
+                    //     "data": "## Hello Bob"
+                    // }
+                    // ],
+                    "body": message
+                }
+            };
+
+            if (!conversation.dbId) {
+                conversation = await this._conversations.createServerConversation(conversation);
+                this._logger.log("internal", LOG_ID + "(sendMessageToConversation) conversation : ", conversation);
+            }
+
+            msgSent = this._s2s.sendMessageInConversation(conversation.dbId, msg);
+        }
+
         return msgSent.then((messageSent) => {
             this._conversations.storePendingMessage(conversation, messageSent);
             //conversation.messages.push(messageSent);
             //this.conversations.getServerConversations();
             return messageSent;
         });
+
     }
 
     /**
@@ -381,7 +429,11 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        let messageSent : any = Promise.reject();
+
+        if (this._useXMPP) {
+             messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        }
 
         /*
         this.storePendingMessage(messageSent);
@@ -554,7 +606,7 @@ class IMService {
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                await that._presence.sendInitialBubblePresence(bubble.jid);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
                 await until(() => {
                     return bubble.isActive === true;
@@ -762,12 +814,19 @@ class IMService {
     enableCarbon() {
         let that = this;
         return new Promise((resolve) => {
-            that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
-                that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
-                that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
+            if (this._useXMPP) {
+                that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
+                    that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
+                    that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
+                    resolve();
+                });
+                that._xmpp.enableCarbon();
+            } else
+            if (this._useS2S){
                 resolve();
-            });
-            that._xmpp.enableCarbon();
+            } else {
+                resolve();
+            }
         });
     }
 

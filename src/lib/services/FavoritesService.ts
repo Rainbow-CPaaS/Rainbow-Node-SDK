@@ -13,6 +13,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
 import EventEmitter = NodeJS.EventEmitter;
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -79,12 +80,12 @@ class FavoritesService {
     }
 
 
-    public async start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
+    public async start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
-        that._xmpp = _xmpp;
-        that._rest = _rest;
+        that._xmpp = _core._xmpp;
+        that._rest = _core._rest;
         that._options = _options;
-        that._s2s = _s2s;
+        that._s2s = _core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
         this._favoriteHandlerToken = [];

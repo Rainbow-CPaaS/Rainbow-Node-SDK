@@ -51,11 +51,11 @@ let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-     //   "mode": "s2s"
-        "mode": "xmpp"
+        "mode": "s2s"
+       // "mode": "xmpp"
     },
     "s2s": {
-        "hostCallback": "http://9730378a.ngrok.io",
+        "hostCallback": "http://70a0ee9d.ngrok.io",
         "locallistenningport": "4000"
     },
     "credentials": {
@@ -1556,7 +1556,7 @@ async function  testgetAvatarFromBubble() {
 
 function testmakeCallByPhoneNumberProd() {
     return __awaiter(this, void 0, void 0, function* () {
-        rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", undefined).then((data1) => {
+        rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", "My_correlatorData").then((data1) => {
             //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
             logger.log("debug", "MAIN - [makeCallByPhoneNumber] after makecall : ", data1);
             Utils.setTimeoutPromised(1000).then(() => {

@@ -17,6 +17,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {HTTPService} from "../connection/HttpService";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
@@ -85,19 +86,20 @@ class Contacts {
 
     }
 
-    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService) {
+    start(_options,_core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService
 
         let that = this;
 
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
-                that._useS2S = that._options.useS2S;                that._invitationsService = _invitationsService;
-                that._presenceService = _presenceService;
+                that._useS2S = that._options.useS2S;
+                that._invitationsService = _core.invitations;
+                that._presenceService = _core.presence;
                 that._contacts = [];
 
                 // Create the user contact

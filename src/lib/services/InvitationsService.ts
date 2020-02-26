@@ -15,6 +15,7 @@ import * as moment from 'moment';
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -84,19 +85,19 @@ class InvitationsService {
 	/** LIFECYCLE STUFF                                        **/
 
 	/************************************************************/
-	async start(_options, _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, stats) {
+	async start(_options, _core : Core, stats) { // , _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, stats
 		let that = this;
 		that._logger.log("info", LOG_ID + "");
 		that._logger.log("info", LOG_ID + "[InvitationService] === STARTING ===");
 		that.stats = stats ? stats : [];
 
-		that._xmpp = _xmpp;
-		that._rest = _rest;
+		that._xmpp = _core._xmpp;
+		that._rest = _core._rest;
 		that._options = _options;
-		that._s2s = _s2s;
+		that._s2s = _core._s2s;
 		that._useXMPP = that._options.useXMPP;
 		that._useS2S = that._options.useS2S;
-		that._contacts = _contacts;
+		that._contacts = _core.contacts;
 
 		let startDate: any = new Date();
 		// Private invitation storage

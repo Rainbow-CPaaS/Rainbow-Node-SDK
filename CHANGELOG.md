@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.68.0] - 2020-03-XX
+-   Add isFavorite in Conversation.
+-   Move bubbles._sendInitialBubblePresence to presence.sendInitialBubblePresence.
+-   change start methods prototype of services to replace each services in parameters to only one param the Core object.
+-   Add methods in RESTService :: sendS2SMessageInConversation, getS2SServerConversation, joinS2SRoom. 
+-   Add methods in S2SService :: sendMessageInConversation, joinRoom.
+-   Add events treatment S2SServiceEventHandler :: ParseChatStateCallback, ParseReceitpCallback, ParseAllReceitpCallback, ParseConversationCallback, ParseMessageCallback, 
+ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseAlldeletedCallback, ParseErrorCallback.
+-   Add  method in ConversationsService::getS2SServerConversation to get a conversation from id on S2S API Server.
+-   Raise event on message when the content is empty (because message can have a subject filled without body)  in conversationEventHandler.
+-   raise an event when receive a conversation unknown by sdk deleted in conversationEventHandler.
+-   Update ImsService::sendMessageToConversation api to send the message in S2S mode.
+
 ## [1.67.1] - 2020-02-19
 -   Fix login issue when Rainbow CLI use SDK.
 

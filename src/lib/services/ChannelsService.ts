@@ -15,6 +15,7 @@ import * as mimetypes from "mime-types";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "CHANNELS/SVCE - ";
 
@@ -110,14 +111,14 @@ class Channels {
 
     }
 
-    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
+    start(_options,_core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that._channels = [];
@@ -611,9 +612,9 @@ class Channels {
      * @public
      * @method getAllChannels
      * @instance
-     * @return {Channel[]} An array of channels (owned and subscribed)
+     * @return {Channel[]} An array of channels (owned, invited, subscribed)
      * @description
-     *  Return the list of channels (owned and subscribed)
+     *  Return the list of channels (owned, invited, subscribed)
      */
     getAllChannels() : [Channel] {
         return this._channels;

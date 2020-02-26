@@ -2635,7 +2635,7 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation created", json.data);
+                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation sent by email.", json.data);
                 resolve(json.data);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
@@ -2650,7 +2650,7 @@ Request Method: PUT
         return new Promise(function(resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), undefined, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(ackAllMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST conversation updated : ", json.data);
+                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST ack all messages updated : ", json.data);
                 resolve(json.data);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(ackAllMessages) error");
@@ -2722,12 +2722,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             let params = {email: email, lang: lang, customMessage: customMessage};
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation created : ", json);
+                that.logger.log("info", LOG_ID + "(sendInvitationByEmail) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationByEmail) REST invitation created : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
-                that.logger.log("internalerror", LOG_ID, "(sendConversationByEmail) error : ", err);
+                that.logger.log("error", LOG_ID, "(sendInvitationByEmail) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationByEmail) error : ", err);
                 return reject(err);
             });
         });
@@ -2738,7 +2738,7 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(cancelOneSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST conversation created : ", json);
+                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST cancel one send invitation created : ", json);
                 resolve(json);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(cancelOneSendInvitation) error");
@@ -2753,7 +2753,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST conversation created : ", json);
+                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST reSend invitation created : ", json);
                 resolve(json);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(reSendInvitation) error");
@@ -2771,7 +2771,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST conversation created : ", json);
+                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST invitations sent : ", json);
                 resolve(json);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
@@ -2996,15 +2996,22 @@ Request Method: PUT
 
     sendS2SPresence ( obj ) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "Set S2S presence : ", obj);
+        that.logger.log("internal", LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
         return new Promise(function(resolve, reject) {
+
+            if (!that.connectionS2SInfo || !that.connectionS2SInfo.id) {
+                that.logger.log("error", LOG_ID, "(sendS2SPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error connectionS2SInfo.id is not defined.");
+                return  reject({code:-1, label:"connectionS2SInfo.id is not defined!!!"});
+            }
+
             that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/presences" , that.getRequestHeader(), { presence: { show:"", status: ""}}, undefined).then(function(json) {
-                that.logger.log("info", LOG_ID + "(sendPresence) successfull");
-                that.logger.log("internal", LOG_ID + "(sendPresence) REST conversation updated", json.data);
+                that.logger.log("info", LOG_ID + "(sendS2SPresence) successfull.");
+                that.logger.log("internal", LOG_ID + "(sendS2SPresence) REST presence updated", json.data);
                 resolve(json.data);
             }).catch(function(err) {
-                that.logger.log("error", LOG_ID, "(sendPresence) error");
-                that.logger.log("internalerror", LOG_ID, "(sendPresence) error : ", err);
+                that.logger.log("error", LOG_ID, "(sendS2SPresence) error.");
+                that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error : ", err);
                 return  reject(err);
             });
         });
@@ -3112,6 +3119,67 @@ Request Method: PUT
         return that.connectionS2SInfo = await that.infoS2S(connectionId);
     }
 
+    sendS2SMessageInConversation(conversationId, msg) {
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!msg) {
+                that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) failed");
+                that.logger.log("info", LOG_ID + "(sendS2SMessageInConversation) No msg provided");
+                resolve(null);
+            }
+            else {
+                that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages", that.getRequestHeader(), msg, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) successfull");
+                    that.logger.log("internal", LOG_ID + "(sendS2SMessageInConversation) REST contact received ", json.data);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(sendS2SMessageInConversation) error");
+                    that.logger.log("internalerror", LOG_ID, "(sendS2SMessageInConversation) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
+    getS2SServerConversation(conversationId) {
+        let that = this;
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId, that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getServerConversation) successfull");
+                that.logger.log("internal", LOG_ID + "(getServerConversation) received " + JSON.stringify(json) + " conversations");
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getServerConversation) error");
+                that.logger.log("internalerror", LOG_ID, "(getServerConversation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    joinS2SRoom (roomid){
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/rooms/{roomId}/join
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!roomid) {
+                that.logger.log("debug", LOG_ID + "(joinRoom) failed");
+                that.logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
+                reject({code:-1, label:"roomid is not defined!!!"});
+            }
+            else {
+                that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), {}, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(joinRoom) successfull");
+                    that.logger.log("internal", LOG_ID + "(joinRoom) REST bubble presence received ", json.data);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(joinRoom) error");
+                    that.logger.log("internalerror", LOG_ID, "(joinRoom) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
 }
 
 export {RESTService};

@@ -167,7 +167,7 @@ class ProfilesService {
     /*********************************************************************/
     /** LIFECYCLE STUFF                                                 **/
     /*********************************************************************/
-    start (_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, stats) {
+    start (_options, _core, stats) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
 
         //that._logger.log("debug", LOG_ID + "(start) ");
@@ -175,10 +175,10 @@ class ProfilesService {
 
         that.stats = stats ? stats : [];
 
-        that._xmpp = _xmpp;
-        that._rest = _rest;
+        that._xmpp = _core._xmpp;
+        that._rest = _core._rest;
         that._options = _options;
-        that._s2s = _s2s;
+        that._s2s = _core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
         that.features = {};

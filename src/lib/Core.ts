@@ -487,39 +487,39 @@ class Core {
                     }).then(() => {
                         return that._xmpp.start(that.options.useXMPP);
                     }).then(() => {
-                        return that._s2s.start(that.options, that._rest, that._contacts);
+                        return that._s2s.start(that.options, that);
                     }).then(() => {
-                        return that._settings.start(that.options, that._xmpp, that._s2s, that._rest);
+                        return that._settings.start(that.options, that);
                     }).then(() => {
-                        return that._presence.start(that.options,that._xmpp, that._s2s, that._rest, that._settings) ;
+                        return that._presence.start(that.options,that) ;
                     }).then(() => {
-                        return  that._contacts.start(that.options, that._xmpp, that._s2s, that._rest, that._invitations, that._presence ) ;
+                        return  that._contacts.start(that.options, that ) ;
                     }).then(() => {
-                       return that._bubbles.start(that.options, that._xmpp, that._s2s, that._rest, that._contacts, that._profiles) ;
+                       return that._bubbles.start(that.options, that) ;
                     }).then(() => {
-                        return that._conversations.start(that.options, that._xmpp, that._s2s, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
+                        return that._conversations.start(that.options, that) ;
                     }).then(() => {
-                        return that._profiles.start(that.options, that._xmpp, that._s2s, that._rest, []) ;
+                        return that._profiles.start(that.options, that, []) ;
                     }).then(() => {
-                        return that._telephony.start(that.options, that._xmpp, that._s2s, that._rest, that._contacts, that._bubbles, that._profiles) ;
+                        return that._telephony.start(that.options, that) ;
                     }).then(() => {
-                        return that._im.start(that.options, that._xmpp, that._s2s, that._rest, that._conversations, that._bubbles, that._fileStorage) ;
+                        return that._im.start(that.options, that) ;
                     }).then(() => {
-                        return that._channels.start(that.options, that._xmpp, that._s2s, that._rest) ;
+                        return that._channels.start(that.options, that) ;
                     }).then(() => {
-                        return that._groups.start(that.options, that._xmpp, that._s2s, that._rest) ;
+                        return that._groups.start(that.options, that) ;
                     }).then(() => {
-                        return that._admin.start(that.options,that._xmpp, that._s2s, that._rest) ;
+                        return that._admin.start(that.options,that) ;
                     }).then(() => {
-                        return that._fileServer.start(that.options, that._xmpp, that._s2s, that._rest, that._fileStorage) ;
+                        return that._fileServer.start(that.options, that) ;
                     }).then(() => {
-                        return that._fileStorage.start(that.options, that._xmpp, that._s2s, that._rest, that._fileServer, that._conversations) ;
+                        return that._fileStorage.start(that.options, that) ;
                     }).then(() => {
-                        return that._calllog.start(that.options, that._xmpp, that._s2s, that._rest, that._contacts, that._profiles, that._telephony) ;
+                        return that._calllog.start(that.options, that) ;
                     }).then(() => {
-                        return that._favorites.start(that.options, that._xmpp, that._s2s, that._rest) ;
+                        return that._favorites.start(that.options, that) ;
                     }).then(() => {
-                        return that._invitations.start(that.options, that._xmpp, that._s2s, that._rest, that._contacts, []) ;
+                        return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -638,8 +638,16 @@ class Core {
         return this._presence;
     }
 
+    get profiles() {
+        return this._profiles;
+    }
+
     get im() {
         return this._im;
+    }
+
+    get invitations() {
+        return this._invitations;
     }
 
     get contacts() {

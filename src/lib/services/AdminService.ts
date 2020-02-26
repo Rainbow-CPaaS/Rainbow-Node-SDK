@@ -64,17 +64,17 @@ class Admin {
         this.ready = false;
     }
 
-    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService) {
+    start(_options, _core) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
 
 
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
 
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 

@@ -697,7 +697,7 @@ class TelephonyEventHandler extends GenericHandler {
                         if (globalCallId) {
                             newCall.setGlobalCallId(globalCallId);
                         }
-                        let correlatorData = transferElem.attr("globalCallId");
+                        let correlatorData = transferElem.attr("correlatorData");
                         if (correlatorData) {
                             newCall.correlatorData = correlatorData;
                         }

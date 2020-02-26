@@ -17,9 +17,9 @@ const LOG_ID = "S2S - ";
 
 @logEntryExit(LOG_ID)
 class S2SService {
-    public serverURL: any;
-    public host: any;
-    public eventEmitter: any;
+    private  serverURL: any;
+    private  host: any;
+    private  eventEmitter: any;
     public version: any;
     public jid_im: any;
     public jid_tel: any;
@@ -32,14 +32,15 @@ class S2SService {
     private xmppUtils: XMPPUTils;
     private generatedRandomId: string;
     private hash: string;
-    useS2S: any;
-    _rest: RESTService;
-    hostCallback: any;
+    private useS2S: any;
+    private _rest: RESTService;
+    private hostCallback: any;
     private app: any;
     private locallistenningport: string;
     private s2sEventHandler: S2SServiceEventHandler;
-    _contacts: any;
-    options: any;
+    private _contacts: any;
+    private options: any;
+    private _conversations: any;
 
     constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
@@ -86,17 +87,18 @@ class S2SService {
         this.logger.log("internal", LOG_ID + "(S2SService) ", this.logger.colors.yellow("S2SService contructor."));
     }
 
-    start(_options, rest, _contacts) {
+    start(_options, _core) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
             try {
                 that.options = _options;
                 that.useS2S = that.options.useS2S;
-                that._rest = rest;
-                that._contacts = _contacts;
+                that._rest = _core._rest;
+                that._contacts = _core._contacts;
+                that._conversations = _core._conversations;
 
-                await that.s2sEventHandler.start(that._contacts);
+                await that.s2sEventHandler.start(_core);
                 if (that.useS2S) {
                     that.logger.log("debug", LOG_ID + "(start) S2S hostCallback used : ", that.hostCallback, ", on locallistenningport : ", that.locallistenningport);
                     //that.logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
@@ -270,6 +272,32 @@ class S2SService {
         that.logger.log("internal", LOG_ID + "(onS2SReady) S2S READY ENVENT: ", event );
         await this._rest.setS2SConnection(event.id);
     }
+
+    /** S2S methods */
+    sendMessageInConversation(conversationId, msg) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(sendMessageInConversation) will send msg S2S : ", msg, " in conv id : ", conversationId);
+        return that._rest.sendS2SMessageInConversation(conversationId, msg).then( response => {
+                that.logger.log("debug", LOG_ID + "(sendMessageInConversation) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(sendMessageInConversation) S2S response : ", response );
+                return response;
+            } );
+    }
+
+    joinRoom(bubbleId) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);
+        return that._rest.joinS2SRoom(bubbleId).then( response => {
+                that.logger.log("debug", LOG_ID + "(joinRoom) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(joinRoom) S2S response : ", response );
+                return response;
+            } );
+    }
+
 }
 
 

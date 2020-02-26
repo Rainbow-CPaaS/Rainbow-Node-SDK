@@ -18,6 +18,7 @@ import {FileServerService} from "./FileServerService";
 import {ConversationsService} from "./ConversationsService";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -98,20 +99,20 @@ class FileStorage {
         this.ready = false;
     }
 
-    start(_options, __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations) {
+    start(_options, _core : Core) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
         let that = this;
 
         return new Promise((resolve, reject) => {
             try {
 
-                that._xmpp = __xmpp;
-                that._rest = __rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._fileServerService = __fileServerService;
-                that._conversations = __conversations;
+                that._fileServerService = _core.fileServer;
+                that._conversations = _core.conversations;
                 that.startDate = Date.now();
                 that.started = false;
                 that.fileDescriptors = [];

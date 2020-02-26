@@ -14,6 +14,9 @@ import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
 import {RESTService} from "../connection/RESTService";
 import {S2SService} from "../connection/S2S/S2SService";
+import {rejects} from "assert";
+import {Core} from "../Core";
+import {BubblesService} from "./BubblesService";
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -48,11 +51,13 @@ class PresenceService {
         start_up:boolean,
         optional:boolean
     };
-    private _s2s: any;
+    private _s2s: S2SService;
     private _options: any;
     private _useXMPP: any;
     private _useS2S: any;
     private _rest: RESTService;
+    private _bubbles: BubblesService;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -83,17 +88,19 @@ class PresenceService {
         this.ready = false;
     }
 
-    start(_options, _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService ) {
+    start(_options, _core : Core ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
                 that._options = _options;
-                that._xmpp = _xmpp;
-                that._rest = _rest;
-                that._s2s = _s2s;
-                that._settings = _settings;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                that._s2s = _core._s2s;
+                that._settings = _core.settings;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
+                that._bubbles = _core.bubbles;
+
 
                 that._presenceEventHandler = new PresenceEventHandler(that._xmpp);
                 that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived);
@@ -281,7 +288,7 @@ class PresenceService {
                  }
              }
              if (that._useS2S) {
-                 resolve (await that._s2s.sendS2SPresence({}));
+                 resolve (that._s2s.sendS2SPresence({}));
              }
          });
      }
@@ -295,7 +302,7 @@ class PresenceService {
      */
     _sendPresenceFromConfiguration() {
         let that = this;
-        return new Promise( (resolve) => {
+        return new Promise( (resolve, reject) => {
             that._settings.getUserSettings().then(function(settings : any) {
                     let message = "";
                     let presence = settings.presence;
@@ -309,16 +316,44 @@ class PresenceService {
                     that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are " + presence + " || message : " + message);
                     if (that._currentPresence && (that._currentPresence.show !== presence || (that._currentPresence.show === "xa" && that._currentPresence.status !== message))) {
                         that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from " + that._currentPresence.show + " to " + presence + " (" + message + ")");
-                        that._setUserPresenceStatus(presence, message).then(() => { resolve(); });
+                        that._setUserPresenceStatus(presence, message).then(() => { resolve(); }).catch((err) => { reject(err); });
                     } else {
                         resolve();
                     }
                 })
-                .catch(function() {
+                .catch(function(error) {
                     that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
-                    that._setUserPresenceStatus("online").then(() => { resolve(); }).catch(() => { resolve(); });
+                    that._setUserPresenceStatus("online").then(() => { resolve(); }).catch(() => { reject(error); });
                 });
 
+        });
+    }
+
+    /**
+     * @private
+     * @method sendInitialBubblePresence
+     * @instance
+     * @param {Bubble} bubble The Bubble
+     * @description
+     *      Method called when receiving an invitation to join a bubble
+     */
+    sendInitialBubblePresence(bubble) {
+        let that = this;
+        return new Promise(async function(resolve, reject) {
+            if (!bubble || !bubble.jid) {
+                that._logger.log("debug", LOG_ID + "(joinRoom) failed");
+                that._logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
+                reject({code:-1, label:"roomid is not defined!!!"});
+            }
+            else {
+                if (that._useXMPP) {
+                    resolve(that._xmpp.sendInitialBubblePresence(bubble.jid));
+                }
+                if (that._useS2S) {
+                    let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
+                    resolve(that._s2s.joinRoom(bubbleInfos.id));
+                }
+            }
         });
     }
 

@@ -5,6 +5,7 @@ export {};
 
 
 import {XMPPUTils} from "../../common/XMPPUtils";
+import {ConversationsService} from "../../services/ConversationsService";
 
 const GenericHandler = require("./genericHandler");
 import {Conversation} from "../../common/models/Conversation";
@@ -29,7 +30,7 @@ class ConversationEventHandler extends GenericHandler {
     public MESSAGE_ERROR: any;
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
-    public conversationService: any;
+    public conversationService: ConversationsService;
     public onChatMessageReceived: any;
     public _onMessageReceived: any;
     public eventEmitter: any;
@@ -380,10 +381,10 @@ class ConversationEventHandler extends GenericHandler {
                     resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(fromBubbleUserJid);
                 }
 
-                if (!hasATextMessage) {
+                /*if (!hasATextMessage) {
                     that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it!");
                     return;
-                }
+                } // */
 
                 if ((messageType === TYPE_GROUPCHAT && fromBubbleUserJid !== that.fullJid) || (messageType === TYPE_CHAT && fromJid !== that.fullJid)) {
                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - chat message received");
@@ -731,19 +732,21 @@ class ConversationEventHandler extends GenericHandler {
             try {
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
-                    let conversation = this.conversationService.getConversationById(node.attrs.id);
+                    let conversationId = node.attrs.id;
+                    let conversation = this.conversationService.getConversationById(conversationId);
                     let action = node.attrs.action;
-                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) (" + action + " conversation)");
+                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + "");
+                    that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
 
                     if (conversation) {
                         switch (action) {
                             case "create":
 //                                conversation.dbId = node.getAttribute("id");
-                                conversation.dbId = node.attrs.id;
+                                conversation.dbId = conversationId;
                                 conversation.lastModification = new Date(node.find("lastMessageDate").text());
                                 conversation.missedCounter = parseInt(node.find("unreadMessageNumber").text(), 10) || 0;
                                 conversation.isFavorite = (node.find("isFavorite").text() === "true");
-                                this.conversationService.orderConversations();
+                                //this.conversationService.orderConversations();
                                 //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                                 // Send conversations update event
                                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
@@ -753,7 +756,7 @@ class ConversationEventHandler extends GenericHandler {
                                 break;
                             case "update":
                                 conversation.isFavorite = (node.find("isFavorite").text() === "true");
-                                this.conversationService.orderConversations();
+                                //this.conversationService.orderConversations();
                                 // Send conversations update event
                                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                 //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
@@ -762,6 +765,7 @@ class ConversationEventHandler extends GenericHandler {
                                 break;
                         }
                     } else {
+                        that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache action : ", action);
                         if (action === "create") {
                             let convId = node.find("peer").text();
                             let peerId = node.find("peerId").text();
@@ -789,8 +793,7 @@ class ConversationEventHandler extends GenericHandler {
                                 return;
                             }
 
-                            conversationGetter
-                                .then(function (conv) {
+                            conversationGetter.then(function (conv) {
                                     that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
                                     conv.dbId = convDbId;
                                     conv.lastModification = lastModification ? new Date(lastModification) : undefined;
@@ -804,6 +807,14 @@ class ConversationEventHandler extends GenericHandler {
                                     that.eventEmitter.emit("evt_internal_conversationupdated", conv);
                                     //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
                                 });
+                        }
+
+                        if (action === "delete") {
+                            that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache deleted : ", conversationId);
+                            let conversationUnknown = new Conversation(conversationId);
+                            if (conversationUnknown) {
+                                that.conversationService.removeConversation(conversationUnknown);
+                            }
                         }
                     }
 
@@ -825,18 +836,6 @@ class ConversationEventHandler extends GenericHandler {
                             conversation.muted = mute;
                         }
                     }
-
-                    /*let action = node.attrs.action;
-
-                    if (action === "delete") {
-                        that
-                            .logger
-                            .log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation deleted");
-                        let conversation = that.conversationService.getConversationById(node.attrs.id);
-                        if (conversation) {
-                            that.conversationService.removeConversation(conversation);
-                        }
-                    } // */
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! ");

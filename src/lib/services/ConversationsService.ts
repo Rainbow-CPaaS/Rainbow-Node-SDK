@@ -25,6 +25,8 @@ import {Contact} from "../common/models/Contact";
 import {rejects} from "assert";
 import {error} from "winston";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
+import {PresenceService} from "./PresenceService";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -52,9 +54,10 @@ class Conversations {
     private _s2s: S2SService;
     private _useXMPP: any;
     private _useS2S: any;
-    private _contacts: ContactsService;
+    _contacts: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
+    private _presence: PresenceService;
     private _eventEmitter: EventEmitter;
     private _logger: Logger;
     private pendingMessages: any;
@@ -111,22 +114,23 @@ class Conversations {
 
     }
 
-    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService
         let that = this;
         that._conversationHandlerToken = [];
         that._conversationHistoryHandlerToken= [];
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._contacts = _contacts;
-                that._bubbles = _bubbles;
-                that._fileStorageService = _fileStorageService;
-                that._fileServerService = _fileServerService;
+                that._contacts = _core.contacts;
+                that._bubbles = _core.bubbles;
+                that._fileStorageService = _core.fileStorage;
+                that._fileServerService = _core.fileServer;
+                that._presence = _core.presence;
 
                 that.activeConversation = null;
                 that.conversations = [];
@@ -295,10 +299,9 @@ class Conversations {
      * @instance
      * @description
      *    Allow to create a conversations on server (p2p and bubbles)
-     * @param {String} ID of the conversation (dbId field)
+     * @param {String} conversation of the conversation (dbId field)
      * @return {Conversation} Created conversation object
      */
-    /*
     createServerConversation(conversation) {
         let that = this;
         // Ignore already stored existing conversation
@@ -339,25 +342,20 @@ class Conversations {
             let avatarRoom = conversation.bubble.avatar;
         }
 
-        return this._rest.createServerConversation( data )
-        .then((result : any)=> {
-            that
-            ._logger
-            .log("info", LOG_ID + "createServerConversation success: " + conversation.id);
+        return this._rest.createServerConversation( data ).then((result : any)=> {
+            that._logger.log("info", LOG_ID + "createServerConversation success: " + conversation.id);
                 conversation.dbId = result.id;
                 conversation.lastModification = result.lastMessageDate ? new Date(result.lastMessageDate) : undefined;
                 conversation.creationDate = result.creationDate ? new Date(result.creationDate) : new Date();
                 conversation.missedCounter = parseInt(result.unreadMessageNumber, 10);
-                if (avatarRoom) {
+               /* if (avatarRoom) {
                     conversation.bubble.avatar = avatarRoom;
-                }
+                } */
                 // TODO ? that.orderConversations();
                 return Promise.resolve(conversation);
         }).catch( (err) => {
             let errorMessage = "createServerConversation failure: " + err.errorDetails;
-            that
-            ._logger
-            .log("error", LOG_ID + "" + errorMessage);
+            that._logger.log("error", LOG_ID + "" + errorMessage);
                 return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
         });
     } // */
@@ -593,7 +591,7 @@ class Conversations {
      * @method
      * @instance
      */
-    async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) {
+    async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) : Promise<Conversation>{
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -658,7 +656,7 @@ class Conversations {
      * @fulfil {Conversation} - Conversation object or null if not found
      * @category async
      */
-    getBubbleConversation(bubbleJid, conversationDbId, lastModification, lastMessageText, missedIMCounter, noError, muted, creationDate, lastMessageSender) {
+    getBubbleConversation(bubbleJid, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, noError?, muted?, creationDate?, lastMessageSender?) : Promise<any> {
         let that = this;
 
         that._logger.log("internal", LOG_ID + "getBubbleConversation bubbleJib : ", bubbleJid);
@@ -722,7 +720,7 @@ class Conversations {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                                 if (bubble) {
-                                    that._bubbles._sendInitialBubblePresence(bubble);
+                                    that._presence.sendInitialBubblePresence(bubble);
                                 }
                                 // Send conversations update event
                                 that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
@@ -1495,7 +1493,7 @@ class Conversations {
      * @param {Contact} contact The contact involved in the conversation
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
-    openConversationForContact (contact) {
+    openConversationForContact (contact): Promise<Conversation> {
         let that = this;
         return new Promise(function (resolve, __reject) {
 
@@ -1509,8 +1507,7 @@ class Conversations {
                 that._logger.log("internal", LOG_ID + " :: Try to create of get a conversation with " + contact.lastName + " " + contact.firstName);
 
 
-                that.getOrCreateOneToOneConversation(contact.jid)
-                    .then(function (conversation: any) {
+                that.getOrCreateOneToOneConversation(contact.jid).then(function (conversation: any) {
                         that._logger.log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
                         resolve(conversation);
                     }).catch(function (result) {
@@ -1552,6 +1549,57 @@ class Conversations {
                     resolve(conversation)
                 }).catch(function (result) {
                     that._logger.log("internal", LOG_ID + "(openConversationForBubble) Error : ", result);
+                    __reject(result);
+                });
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method getS2SServerConversation
+     * @since 1.65
+     * @instance
+     * @description
+     *    get a conversation from id on S2S API Server.<br/>
+     *    This method returns a promise
+     * @param {string} conversationId The id of the conversation to find.
+     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+     */
+    getS2SServerConversation(conversationId) {
+        let that = this;
+        return new Promise(function (resolve, __reject) {
+
+            if (!conversationId) {
+                return __reject({
+                    code: ErrorManager.getErrorManager().BAD_REQUEST,
+                    label: "Parameter 'conversationId' is missing or null"
+                });
+            } else {
+                that._logger.log("info", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation for bubble.");
+                that._logger.log("internal", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation with bubble : ", conversationId);
+
+                that.getS2SServerConversation(conversationId).then(function (conversationInfos) {
+                    that._logger.log("internal", LOG_ID + "(getS2SServerConversation), Conversation retrieved or created, conversation : ", conversationInfos);
+                    /*that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
+
+                    let conversation = Conversation.createBubbleConversation(bubble);
+                    conversation.dbId = conversationId;
+                    conversation.lastModification = undefined;
+                    conversation.lastMessageText = undefined;
+                    conversation.muted = false;
+                    conversation.creationDate = new Date();
+                    conversation.preload = false;
+                    conversation.lastMessageSender = undefined;
+                    conversation.missedCounter = 0;
+                    that.conversations[conversation.id] = conversation;
+                    resolve(conversation)
+
+                     */
+
+                    resolve(conversationInfos)
+                }).catch(function (result) {
+                    that._logger.log("internal", LOG_ID + "(getS2SServerConversation) Error : ", result);
                     __reject(result);
                 });
             }

@@ -20,6 +20,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -127,24 +128,24 @@ class Telephony {
 
     }
 
-    start(_options, _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
-        this.voiceMail = VoiceMail.createVoiceMail(_profiles);
+        this.voiceMail = VoiceMail.createVoiceMail(_core._profiles);
         that.startDate = new Date();
 
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._options = _options;
-                that._s2s = _s2s;
+                that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._contacts = _contacts;
-                that._bubbles = _bubbles;
-                that._profiles = _profiles;
+                that._contacts = _core.contacts;
+                that._bubbles = _core.bubbles;
+                that._profiles = _core.profiles;
 
 
                 that.attachHandlers();
