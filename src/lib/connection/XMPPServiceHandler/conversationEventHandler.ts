@@ -413,7 +413,8 @@ class ConversationEventHandler extends GenericHandler {
                         "event": null,
                         "eventJid": null,
                         "originalMessageReplaced": null,
-                        "attention" : undefined
+                        "attention" : undefined,
+                        subject
                     };
 
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {

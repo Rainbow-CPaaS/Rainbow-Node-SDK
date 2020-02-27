@@ -1,7 +1,9 @@
 "use strict";
 
+const DataStoreType = require("./lib/config/config").DataStoreType;
+
 const Core = require("./lib/Core").Core;
-const ErrorManager = require("./lib/common/ErrorManager").ErrorManager ;
+const ErrorManager = require("./lib/common/ErrorManager").ErrorManager;
 const utils = require( "./lib/common/Utils");
 
 /**
@@ -626,7 +628,9 @@ class NodeSDK {
         return this._core._invitations;
     }
 
-
+    get DataStoreType() {
+        return DataStoreType;
+    }
 
 }
 

@@ -14,7 +14,6 @@ import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
 import {RESTService} from "../connection/RESTService";
 import {S2SService} from "../connection/S2S/S2SService";
-import {rejects} from "assert";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 
