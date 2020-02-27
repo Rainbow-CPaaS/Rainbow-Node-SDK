@@ -218,6 +218,7 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "subject":
                             subject = node.getText();
+                            hasATextMessage = (!(!subject || subject === ''));
                             break;
                         case "event":
                             event = node.attrs.name;
@@ -234,13 +235,14 @@ class ConversationEventHandler extends GenericHandler {
                                 lang = "en";
                             }
                             that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - lang", lang);
-                            hasATextMessage = true;
+                            hasATextMessage = (!(!content || content === ''));
                             break;
                         case "content":
                             alternativeContent.push({
                                 "message": node.getText(),
                                 "type": node.getAttr("type")
                             });
+                            hasATextMessage = true;
                             break;
                         case "request":
                             that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - asked for receipt");
@@ -381,11 +383,6 @@ class ConversationEventHandler extends GenericHandler {
                     resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(fromBubbleUserJid);
                 }
 
-                /*if (!hasATextMessage) {
-                    that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it!");
-                    return;
-                } // */
-
                 if ((messageType === TYPE_GROUPCHAT && fromBubbleUserJid !== that.fullJid) || (messageType === TYPE_CHAT && fromJid !== that.fullJid)) {
                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - chat message received");
 
@@ -448,6 +445,12 @@ class ConversationEventHandler extends GenericHandler {
                         data.originalMessageReplaced.replacedByMessage = data;
                     }
 
+                    if (!hasATextMessage) {
+                        that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
+                        return;
+                    } else {
+                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data,", hasATextMessage : ", hasATextMessage);
+                    }
 
                     this._onMessageReceived(conversationId, data);
                 } else {
