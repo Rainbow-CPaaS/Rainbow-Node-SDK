@@ -9,7 +9,7 @@
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  */
 enum DataStoreType {
-  NoStore = "nostore",
+  NoStore = "no-store",
   NoPermanentStore = "no-permanent-store",
   StoreTwinSide = "storetwinside",
   UsestoreMessagesField = "OldstoreMessagesUsed"

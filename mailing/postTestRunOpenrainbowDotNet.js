@@ -1,5 +1,7 @@
 "use strict";
 
+const DataStoreType = require("../lib/config/config").DataStoreType;
+
 const md = require("markdown").markdown;
 const fs = require("fs");
 const path = require("path");
@@ -33,7 +35,7 @@ let options = {
         }, // */
     // Logs options
     "logs": {
-        "enableConsoleLogs": false,
+        "enableConsoleLogs": true,
         "enableFileLogs": false,
         "color": true,
         "level": "debug",
@@ -58,7 +60,8 @@ let options = {
         "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
         "storeMessages": false,
-        "copyMessage": true
+        "copyMessage": true,
+        "messagesDataStore": DataStoreType.NoPermanentStore
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -96,7 +99,8 @@ let options = {
     } // */
 };
 
-
+let action = "start";
+let bullName = "Bulle_NodeSDK";
 process.argv.forEach((val, index) => {
     //console.log(`${index}: ${val}`);
     if (`${val}`.startsWith("login=") ) {
@@ -113,6 +117,12 @@ process.argv.forEach((val, index) => {
     }
     if (`${val}`.startsWith("appSecret=") ) {
         options.application.appSecret = `${val}`.substring(10);
+    }
+    if (`${val}`.startsWith("action=") ) {
+        action = `${val}`.substring(7);
+    }
+    if (`${val}`.startsWith("bullName=") ) {
+        bullName = `${val}`.substring(9);
     }
 });
 
@@ -139,80 +149,44 @@ rainbowSDK.start(undefined).then(async(result) => {
     try {
         // Do something when the SDK is started
         logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
-        let content = fs.readFileSync(path.join(__dirname, "../package.json"));
-        let packageJSON = JSON.parse(content);
-        let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
+        //let content = fs.readFileSync(path.join(__dirname, "../package.json"));
+        //let packageJSON = JSON.parse(content);
+        //let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
         //let fullVersion = packageJSON.version;
         //let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
 
-        let mychannels = await rainbowSDK.channels.findChannelsByName("Rainbow API Hub Information Channel");
-        let mychannel = mychannels ? mychannels[0] : null;
-        if (mychannel) {
-            //for (let i = 0; i < 1; i++) {
-            //let now = new Date().getTime();
+        let allBubbles = await rainbowSDK.bubbles.getAllBubbles(); // "5e56968c6f18201dde44fa7c"
+        let bubble = allBubbles ? allBubbles.filter((bull) => { return bull.name === bullName; }) : null;
+        let content = {
+            message: "*`--" + action.toUpperCase() + "--` AfterBuild **Node SDK TESTs***  \n-----------------",
+            type: "text/markdown"
+        };
+        if (bubble) {
+            logger.log("debug", "MAIN - bubble : ", bubble, ", action : ", action); //logger.colors.green(JSON.stringify(result)));
+            switch (action) {
+                case "start":
+                    /*let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                        "\n" +
+                        "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
 
-            let product = {};
-
-            let item = {
-                "title": "Rainbow Node SDK ChangeLog : " + minVersion,
-                "path": "./CHANGELOG.md"
-            };
-
-            product.title = item.title;
-
-            fs.readFile(item.path, "utf8", async(err, data) => {
-                if (err) {
-                    logger.log("error", "Can not read the CHANGELOG file : ", err);
-                    reject(err);
-                    return;
-                }
-                let tree = md.parse(data.toString());
-
-                let version = null;
-                let filteredTree = tree.filter((markdownElt, index) => {
-                    if (index === 0) {
-                        return true;
-                    }
-                    if (item[0] === "hr") {
-                        return false;
-                    }
-
-                    if (markdownElt[0] === "header" && markdownElt[1].level === 2) {
-                        // A version
-                        version = markdownElt[2][2];
-                        if (version.startsWith(minVersion)) {
-                            return true;
-                        } else {
-                            version = null;
-                        }
-                    }
-
-                    if (markdownElt[0] === "bulletlist") {
-                        if (version) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
-
-               let html = "<h1>Rainbow Node SDK - News</h1><hr />" + md.renderJsonML(md.toHTMLTree(filteredTree));
-
-                logger.log("debug", "html : ", html);
-
-                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then((res) => {
-                    logger.log("debug", "createItem - res : ", res);
-                });
-
-            });
-
-            //}
+                     */
+                    logger.log("debug", "MAIN - send start to bubble"); //logger.colors.green(JSON.stringify(result)));
+                    await rainbowSDK.im.sendMessageToBubble("Start", bubble[0], "en", content, "Start AfterBuild Node SDK TESTs", undefined);
+                break;
+                case "stop":
+                    logger.log("debug", "MAIN - send stop to bubble"); //logger.colors.green(JSON.stringify(result)));
+                    await rainbowSDK.im.sendMessageToBubble("Stop", bubble[0], "en", content, "Stop AfterBuild Node SDK TESTs", undefined);
+                break;
+                default:
+                    logger.log("debug", "MAIN - unknown action : ", action); //logger.colors.green(JSON.stringify(result)));
+                    break;
+            }
         } else {
-            logger.log("warn", "createItem - mychannel is empty, so can not publish.");
+            logger.log("warn", "bubble is empty, so can not publish.");
         }
 
     } catch (err){
-        logger.log("error", "CATCH Error so can not publish CHANGELOG in channel : ", err);
+        logger.log("error", "!!! CATCH Error so can not publish message in bubble : ", err);
     }
 
     rainbowSDK.stop().then(() => {

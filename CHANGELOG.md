@@ -18,6 +18,8 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Raise event on message when the content is empty (because message can have a subject filled without body)  in conversationEventHandler.
 -   raise an event when receive a conversation unknown by sdk deleted in conversationEventHandler.
 -   Update ImsService::sendMessageToConversation api to send the message in S2S mode.
+-   Add postTestRunOpenrainbowDotNet script to post a message in a bubble when the tests for afterbuild start/stop
+-   Fix "no-store" value in DataStoreType type
 
 ## [1.67.1] - 2020-02-19
 -   Fix login issue when Rainbow CLI use SDK.
