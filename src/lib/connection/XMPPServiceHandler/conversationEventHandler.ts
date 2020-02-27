@@ -321,6 +321,8 @@ class ConversationEventHandler extends GenericHandler {
                         }
                         case "no-store":
                             break;
+                        case "no-permanent-store":
+                            break;
                         case "store":
                             break;
                         case "replace": {
