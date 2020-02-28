@@ -445,13 +445,14 @@ class ConversationEventHandler extends GenericHandler {
                             data.originalMessageReplaced.id = replaceMessageId;
                         }
                         data.originalMessageReplaced.replacedByMessage = data;
-                    }
-
-                    if (!hasATextMessage) {
-                        that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
-                        return;
                     } else {
-                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data,", hasATextMessage : ", hasATextMessage);
+                        if (!hasATextMessage) {
+                            that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
+                            return;
+                        }
+                        else {
+                            that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data, ", hasATextMessage : ", hasATextMessage);
+                        }
                     }
 
                     this._onMessageReceived(conversationId, data);
