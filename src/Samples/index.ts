@@ -9,6 +9,7 @@
 import {setTimeoutPromised} from "../lib/common/Utils";
 import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
+import {url} from "inspector";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -46,16 +47,25 @@ const jwt =  require("jwt-decode");
     output: process.stdout
 }); // */
 
+const ngrok = require('ngrok');
+let urlS2S;
+
+(async function() {
+    console.log("MAIN - ngrock.");
+    urlS2S = await ngrok.connect(4000);
+    console.log("MAIN - ngrock, urlS2S : ", urlS2S);
+
 // Define your configuration
 let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-      // "mode": "s2s"
-        "mode": "xmpp"
+       "mode": "s2s"
+      //  "mode": "xmpp"
     },
     "s2s": {
-        "hostCallback": "http://70a0ee9d.ngrok.io",
+        "hostCallback": urlS2S,
+        //"hostCallback": "http://70a0ee9d.ngrok.io",
         "locallistenningport": "4000"
     },
     "credentials": {
@@ -2005,3 +2015,5 @@ rainbowSDK.start(token).then(async(result) => {
 }).catch((err) => {
     console.log("MAIN - Error during starting : " + util.inspect(err));
 }); // */
+
+})();
