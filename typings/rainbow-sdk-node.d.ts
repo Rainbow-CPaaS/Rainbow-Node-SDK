@@ -13,7 +13,7 @@ declare module 'lib/common/Utils' {
 }
 declare module 'lib/config/config' {
 	 enum DataStoreType {
-	    NoStore = "nostore",
+	    NoStore = "no-store",
 	    NoPermanentStore = "no-permanent-store",
 	    StoreTwinSide = "storetwinside",
 	    UsestoreMessagesField = "OldstoreMessagesUsed"
@@ -427,6 +427,7 @@ declare module 'lib/common/models/Conversation' {
 	    private static randomBase;
 	    private static messageId;
 	    preload: boolean;
+	    isFavorite: boolean;
 	    constructor(conversationId: any);
 	    /**
 	     * @private
@@ -510,6 +511,7 @@ declare module 'lib/common/XMPPUtils' {
 	    findChild(element: any, nodeNameToFind: any): any;
 	    isFromMobile(fullJid: any): boolean;
 	    isFromNode(fullJid: any): boolean;
+	    isFromS2S(fullJid: any): boolean;
 	    isFromTelJid(fullJid: any): boolean;
 	    getResourceFromFullJID(fullJid: any): any;
 	}
@@ -1047,6 +1049,9 @@ declare module 'lib/connection/RESTService' {
 	    loginS2S(callback_url: any): Promise<unknown>;
 	    infoS2S(s2sConnectionId: any): Promise<unknown>;
 	    setS2SConnection(connectionId: any): Promise<unknown>;
+	    sendS2SMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
+	    getS2SServerConversation(conversationId: any): Promise<unknown>;
+	    joinS2SRoom(roomid: any): Promise<unknown>;
 	}
 	export { RESTService };
 
@@ -1173,91 +1178,6 @@ declare module 'lib/common/ErrorManager' {
 	export { ErrorManager, code };
 
 }
-declare module 'lib/services/FavoritesService' {
-	/// <reference types="node" />
-	import { Logger } from 'lib/common/Logger';
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Favorite } from 'lib/common/models/Favorite';
-	import EventEmitter = NodeJS.EventEmitter; class FavoritesService {
-	    _eventEmitter: EventEmitter;
-	    private _logger;
-	    private started;
-	    private _initialized;
-	    private _xmpp;
-	    private _rest;
-	    private _favoriteEventHandler;
-	    private favoriteHandlerToken;
-	    private favorites;
-	    private xmppManagementHandler;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<void>;
-	    stop(): Promise<void>;
-	    init(): Promise<void>;
-	    private attachHandlers;
-	    reconnect(): Promise<void>;
-	    private getServerFavorites;
-	    private addServerFavorite;
-	    private removeServerFavorite;
-	    private toggleFavorite;
-	    private updateFavorites;
-	    private getFavorite;
-	    private createFavoriteObj;
-	    private onXmppEvent;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method fetchAllFavorites()
-	     * @instance
-	     * @description
-	     *   Fetch all the Favorites from the server in a form of an Array
-	     * @return {Conversation[]} An array of Favorite objects
-	     */
-	    fetchAllFavorites(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method createFavorite()
-	     * @instance
-	     * @description
-	     *   Add conversation/bubble/bot to Favorites Array
-	     * @param {String} id of the conversation/bubble
-	     * @param {String} type of Favorite (can be 'user' or 'bubble')
-	     * @return {Promise<Favorite>} A Favorite object
-	     */
-	    createFavorite(id: any, type: any): Promise<Favorite>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method deleteFavorite()
-	     * @instance
-	     * @description
-	     *   Delete conversation/bubble/bot from Favorites Array
-	     * @param {String} id of the Favorite item
-	     * @return {Favorite[]} A Favorite object
-	     */
-	    deleteFavorite(id: any): Promise<any>;
-	    onFavoriteCreated(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	    onFavoriteDeleted(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	}
-	export { FavoritesService };
-
-}
 declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
 	export {}; const GenericHandler: any; class InvitationEventHandler extends GenericHandler {
 	    MESSAGE_CHAT: any;
@@ -1279,854 +1199,6 @@ declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
 	    constructor(xmppService: any, invitationService: any);
 	}
 	export { InvitationEventHandler };
-
-}
-declare module 'lib/services/InvitationsService' {
-	/// <reference types="node" />
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import EventEmitter = NodeJS.EventEmitter;
-	import { InvitationEventHandler } from 'lib/connection/XMPPServiceHandler/invitationEventHandler';
-	import { Logger } from 'lib/common/Logger';
-	import { ContactsService } from 'lib/services/ContactsService'; class InvitationsService {
-	    receivedInvitations: {};
-	    sentInvitations: {};
-	    acceptedInvitationsArray: any[];
-	    sentInvitationsArray: any[];
-	    receivedInvitationsArray: any[];
-	    listeners: any[];
-	    portalURL: string;
-	    contactConfigRef: any;
-	    acceptedInvitations: {};
-	    private _logger;
-	    private _xmpp;
-	    private _rest;
-	    private started;
-	    private _eventEmitter;
-	    invitationEventHandler: InvitationEventHandler;
-	    invitationHandlerToken: any;
-	    _contacts: any;
-	    stats: any;
-	    private readonly _startConfig;
-	    ready: boolean;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    });
-	    /************************************************************/
-	    /** LIFECYCLE STUFF                                        **/
-	    /************************************************************/
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, stats: any): Promise<void>;
-	    init(): Promise<void>;
-	    stop(): Promise<void>;
-	    /************************************************************/
-	    /** EVENT HANDLING STUFF                                   **/
-	    /************************************************************/
-	    attachHandlers(): void;
-	    onRosterChanged(): Promise<unknown>;
-	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
-	    handleReceivedInvitation(id: any, action: any): Promise<void>;
-	    handleSentInvitation(id: any, action: any): Promise<unknown>;
-	    updateReceivedInvitationsArray(): void;
-	    updateSentInvitationsArray(): void;
-	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PUBLIC METHODS                                         **/
-	    /************************************************************/
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getReceivedInvitations
-	     * @instance
-	     * @description
-	     *    Get the invite received coming from Rainbow users
-	     * @return {Invitation[]} The list of invitations received
-	     */
-	    getReceivedInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method 	getAcceptedInvitations
-	     * @instance
-	     * @description
-	     *    Get the invites you accepted received from others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getAcceptedInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getSentInvitations
-	     * @instance
-	     * @description
-	     *    Get the invites sent to others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getSentInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getInvitationsNumberForCounter
-	     * @instance
-	     * @description
-	     *    Get the number of invitations received from others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getInvitationsNumberForCounter(): number;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getAllInvitationsNumber
-	     * @instance
-	     * @description
-	     *    Get the number of invitations sent/received to/from others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getAllInvitationsNumber: () => any;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getInvitation
-	     * @instance
-	     * @description
-	     *    Get an invite by its id
-	     * @param {String} invitationId the id of the invite to retrieve
-	     * @return {Invitation} The invite if found
-	     */
-	    getInvitation(invitationId: any): any;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method joinContactInvitation
-	     * @instance
-	     * @description
-	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise
-	     * @param {Contact} contact The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
-	     */
-	    joinContactInvitation(contact: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method sendInvitationByEmail
-	     * @instance
-	     * @description
-	     *    Send an invitation email as UCaaS
-	     * @param {string} email The email
-	     * @param {string} [customMessage] The email text (optional)
-	     * @return {Object} A promise that contains the contact added or an object describing an error
-	     */
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method cancelOneSendInvitation
-	     * @instance
-	     * @param {Invitation} invitation The invitation to cancel
-	     * @description
-	     *    Cancel an invitation sent
-	     * @return {Object} The SDK Ok object or an error
-	     */
-	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method reSendInvitation
-	     * @instance
-	     * @param {Number} invitationId The invitation to re send
-	     * @description
-	     *    Re send an invitation sent
-	     * @return {Object} The SDK Ok object or an error
-	     */
-	    reSendInvitation(invitationId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method sendInvitationByEmail
-	     * @instance
-	     * @description
-	     *    Send invitations for a list of emails as UCaaS
-	     *    LIMITED TO 100 invitations
-	     * @param {Array} listOfMails The list of emails
-	     * @return {Object} A promise that the invite result or an object describing an error
-	     */
-	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method acceptInvitation
-	     * @instance
-	     * @description
-	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
-	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method declineInvitation
-	     * @instance
-	     * @description
-	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once declined, the user will not be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to decline
-	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PRIVATE METHODS                                        **/
-	    /************************************************************/
-	    /**
-	     * @private
-	     */
-	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
-	    /**
-	     * @private
-	     */
-	    sortInvitationArray(invitA: any, invitB: any): number;
-	    /**
-	     * @private
-	     */
-	    getAllReceivedInvitations(): Promise<unknown>;
-	    /**
-	     * @private
-	     */
-	    getAllSentInvitations(): Promise<unknown>;
-	}
-	export { InvitationsService };
-
-}
-declare module 'lib/common/models/Settings' {
-	export {}; let RainbowPresence: {
-	    ONLINE: string;
-	    AWAY: string;
-	    INVISIBLE: string;
-	    DND: string;
-	}; class Settings {
-	    presence: any;
-	    displayNameOrderFirstNameFirst: any;
-	    activeAlarm: any;
-	    activeNotif: any;
-	    constructor();
-	}
-	export { Settings, RainbowPresence };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
-	import { XMPPService } from 'lib/connection/XMPPService';
-	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
-	    PRESENCE: any;
-	    onPresenceReceived: any;
-	    constructor(xmppService: XMPPService);
-	}
-	export { PresenceEventHandler };
-
-}
-declare module 'lib/services/SettingsService' {
-	/// <reference types="node" />
-	import EventEmitter = NodeJS.EventEmitter;
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Logger } from 'lib/common/Logger'; class Settings {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method getUserSettings
-	     * @instance
-	     * @description
-	     *  Get current User Settings
-	     * @return {Promise<UserSettings>} A promise containing the result
-	     */
-	    getUserSettings(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method updateUserSettings
-	     * @instance
-	     * @description
-	     *  Update current User Settings
-	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
-	     */
-	    updateUserSettings(settings: any): Promise<unknown>;
-	}
-	export { Settings as SettingsService };
-
-}
-declare module 'lib/services/PresenceService' {
-	/// <reference types="node" />
-	import { Logger } from 'lib/common/Logger';
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { SettingsService } from 'lib/services/SettingsService';
-	import EventEmitter = NodeJS.EventEmitter; class PresenceService {
-	    _logger: Logger;
-	    _xmpp: XMPPService;
-	    _settings: SettingsService;
-	    presenceEventHandler: any;
-	    presenceHandlerToken: any;
-	    _eventEmitter: EventEmitter;
-	    manualState: any;
-	    _currentPresence: any;
-	    RAINBOW_PRESENCE_ONLINE: any;
-	    RAINBOW_PRESENCE_DONOTDISTURB: any;
-	    RAINBOW_PRESENCE_AWAY: any;
-	    RAINBOW_PRESENCE_INVISIBLE: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    _s2s: any;
-	    options: any;
-	    useXMPP: any;
-	    useS2S: any;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_options: any, _xmpp: any, _settings: SettingsService, _s2s: any): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method sendInitialPresence
-	     * @instance
-	     * @description
-	     *  Send the initial presence (online)
-	     * @return {ErrorManager.Ok} A promise containing the result
-	     */
-	    sendInitialPresence(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method setPresenceTo
-	     * @instance
-	     * @description
-	     *    Allow to change the presence of the connected user <br/>
-	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
-	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-	     * @async
-	     * @return {Promise<ErrorManager>}
-	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
-	     */
-	    setPresenceTo(presence: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getUserConnectedPresence
-	     * @instance
-	     * @description
-	     *      Get user presence status calculated from events.
-	     */
-	    getUserConnectedPresence(): any;
-	    /**
-	    * @private
-	    * @method _setUserPresenceStatus
-	    * @instance
-	    * @description
-	    *      Send user presence status and message to xmpp.
-	    */
-	    _setUserPresenceStatus(status: any, message?: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _sendPresenceFromConfiguration
-	     * @instance
-	     * @description
-	     *      Send user presence according to user settings presence.
-	     */
-	    _sendPresenceFromConfiguration(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _onUserSettingsChanged
-	     * @instance
-	     * @description
-	     *      Method called when receiving an update on user settings
-	     */
-	    _onUserSettingsChanged(): void;
-	    /**
-	     * @private
-	     * @method _onPresenceChanged
-	     * @instance
-	     * @description
-	     *      Method called when receiving an update on user presence
-	     */
-	    _onPresenceChanged(presence: any): void;
-	}
-	export { PresenceService };
-
-}
-declare module 'lib/services/ContactsService' {
-	/// <reference types="node" />
-	import { InvitationsService } from 'lib/services/InvitationsService';
-	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Contact } from 'lib/common/models/Contact';
-	import { PresenceService } from 'lib/services/PresenceService';
-	import EventEmitter = NodeJS.EventEmitter;
-	import { Logger } from 'lib/common/Logger'; class Contacts {
-	    avatarDomain: any;
-	    xmpp: XMPPService;
-	    contacts: any;
-	    eventEmitter: EventEmitter;
-	    logger: Logger;
-	    rosterPresenceQueue: any;
-	    userContact: any;
-	    rest: RESTService;
-	    invitationsService: InvitationsService;
-	    presenceService: PresenceService;
-	    _logger: Logger;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _invitationsService: InvitationsService, _presenceService: PresenceService): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getDisplayName
-	     * @instance
-	     * @param {Contact} contact  The contact to get display name
-	     * @return {String} The contact first name and last name
-	     * @description
-	     *      Get the display name of a contact
-	     */
-	    getDisplayName(contact: any): string;
-	    /**
-	     * @public
-	     * @method getRosters
-	     * @instance
-	     * @description
-	     *      Get the list of contacts that are in the user's network (aka rosters)
-	     * @async
-	     * @return {Promise<Array>}
-	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
-	     */
-	    getRosters(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getAll
-	     * @instance
-	     * @return {Contact[]} the list of contacts
-	     * @description
-	     *  Return the list of contacts that are in the network of the connected users (aka rosters)
-	     */
-	    getAll(): any;
-	    createEmptyContactContact(jid: any): Contact;
-	    getContact(jid: any, phoneNumber: any): any;
-	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
-	    createBasicContact(jid: any, phoneNumber?: any): Contact;
-	    /**
-	     * @public
-	     * @method getContactByJid
-	     * @instance
-	     * @param {string} jid The contact jid
-	     * @description
-	     *  Get a contact by his JID by searching in the connected user contacts list (full information) and if not found by searching on the server too (limited set of information)
-	     * @async
-	     * @return {Promise<Contact, ErrorManager>}
-	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
-	     */
-	    getContactByJid(jid: any): Promise<Contact>;
-	    /**
-	     * @public
-	     * @method getContactById
-	     * @instance
-	     * @param {string} id The contact id
-	     * @param {boolean} forceServerSearch Boolean to force the search of the contacts informations on the server.
-	     * @description
-	     *  Get a contact by his id
-	     * @async
-	     * @return {Promise<Contact, ErrorManager>}
-	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
-	     */
-	    getContactById(id: any, forceServerSearch: any): Promise<Contact>;
-	    /**
-	     * @public
-	     * @method getContactByLoginEmail
-	     * @instance
-	     * @param {string} loginEmail The contact loginEmail
-	     * @description
-	     *  Get a contact by his loginEmail
-	     * @async
-	     * @return {Promise<Contact, ErrorManager>}
-	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
-	     */
-	    getContactByLoginEmail(loginEmail: any): Promise<Contact>;
-	    /**
-	     * @public
-	     * @method getAvatarByContactId
-	     * @instance
-	     * @param {string} id The contact id
-	     * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
-	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
-	     * @description
-	     *  Get a contact avatar by his contact id
-	     * @return {String} Contact avatar URL or file
-	     */
-	    getAvatarByContactId(id: any, lastUpdate: any): string;
-	    isTelJid(jid: any): boolean;
-	    getImJid(jid: any): any;
-	    getRessourceFromJid(jid: any): string;
-	    isUserContactJid(jid: any): boolean;
-	    isUserContact(contact: Contact): boolean;
-	    /**
-	     * @public
-	     * @method getConnectedUser
-	     * @instance
-	     * @description
-	     *    Get the connected user information
-	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
-	     */
-	    getConnectedUser(): Contact;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method
-	     * @instance
-	     * @description
-	     *    Send an invitation to a Rainbow user for joining his network. <br>
-	     *    The user will receive an invitation that can be accepted or declined <br>
-	     *    In return, when accepted, he will be part of your network <br>
-	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
-	     * @param {Contact} contact The contact object to subscribe
-	     * @return {Object} A promise that contains the contact added or an object describing an error
-	     */
-	    addToNetwork(contact: Contact): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method addToContactsList
-	     * @instance
-	     * @description
-	     *    Send an invitation to a Rainbow user for joining his network. <br>
-	     *    The user will receive an invitation that can be accepted or declined <br>
-	     *    In return, when accepted, he will be part of your network <br>
-	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
-	     * @param {Contact} contact The contact object to subscribe
-	     * @return {Object} A promise that contains the contact added or an object describing an error
-	     * @category async
-	     */
-	    addToContactsList(contact: Contact): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.64.0
-	     * @method getInvitationById
-	     * @instance
-	     * @description
-	     *    Get an invite by its id
-	     * @param {String} strInvitationId the id of the invite to retrieve
-	     * @return {Invitation} The invite if found
-	     */
-	    getInvitationById(strInvitationId: any): Promise<any>;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method
-	     * @instance
-	     * @description
-	     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
-	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.17
-	     * @method
-	     * @instance
-	     * @description
-	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once declined, the user will not be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to decline
-	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @typedef {Object} joinContactsResult
-	     * @property {String[]} success List of succeed joined users
-	     * @property {String[]} failed List of failed to joined users
-	     */
-	    /**
-	     * @public
-	     * @since 1.41
-	     * @beta
-	     * @method joinContacts
-	     * @instance
-	     * @description
-	     *    As admin, add contacts to a user roster
-	     * @param {Contact} contact The contact object to subscribe
-	     * @param {String[]} contactIds List of contactId to add to the user roster
-	     * @async
-	     * @return {Promise<joinContactsResult, ErrorManager>}
-	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
-	     * @category async
-	     */
-	    joinContacts(contact: Contact, contactIds: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _onRosterPresenceChanged
-	     * @instance
-	     * @param {Object} presence contains informations about contact changes
-	     * @description
-	     *      Method called when the presence of a contact changed
-	     */
-	    _onRosterPresenceChanged(presence: any): void;
-	    /**
-	     * @private
-	     * @method _onContactInfoChanged
-	     * @instance
-	     * @param {string} jid modified roster contact Jid
-	     * @description
-	     *     Method called when an roster user information are updated
-	     */
-	    _onContactInfoChanged(jid: any): void;
-	    /**
-	     * @private
-	     * @method _onUserInviteReceived
-	     * @instance
-	     * @param {Object} data contains the invitationId
-	     * @description
-	     *      Method called when an user invite is received
-	     */
-	    /**
-	     * @private
-	     * @method _onUserInviteAccepted
-	     * @instance
-	     * @param {Object} data contains the invitationId
-	     * @description
-	     *      Method called when an user invite is accepted
-	     */
-	    /**
-	     * @private
-	     * @method _onUserInviteCanceled
-	     * @instance
-	     * @param {Object} data contains the invitationId
-	     * @description
-	     *      Method called when an user invite is canceled
-	     */
-	    /**
-	     * @private
-	     * @method _onRostersUpdate
-	     * @instance
-	     * @param {Object} contacts contains a contact list with updated elements
-	     * @description
-	     *      Method called when the roster contacts is updated
-	     */
-	    _onRostersUpdate(contacts: any): void;
-	}
-	export { Contacts as ContactsService };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
-	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    conversationService: any;
-	    onChatMessageReceived: any;
-	    _onMessageReceived: any;
-	    eventEmitter: any;
-	    onRoomAdminMessageReceived: any;
-	    onFileMessageReceived: any;
-	    onWebRTCMessageReceived: any;
-	    onManagementMessageReceived: any;
-	    onRoomManagementMessageReceived: any;
-	    onUserSettingsManagementMessageReceived: any;
-	    onUserInviteManagementMessageReceived: any;
-	    onGroupManagementMessageReceived: any;
-	    onConversationManagementMessageReceived: any;
-	    onMuteManagementMessageReceived: any;
-	    onUnmuteManagementMessageReceived: any;
-	    onFileManagementMessageReceived: any;
-	    onThumbnailManagementMessageReceived: any;
-	    onReceiptMessageReceived: any;
-	    onErrorMessageReceived: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    onCloseMessageReceived: any;
-	    fileStorageService: any;
-	    fileServerService: any;
-	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any);
-	}
-	export { ConversationEventHandler };
-
-}
-declare module 'lib/common/models/Message' {
-	export {}; class Message {
-	    id: any;
-	    fromJid: any;
-	    side: any;
-	    resource: any;
-	    date: any;
-	    toJid: any;
-	    type: any;
-	    content: any;
-	    status: any;
-	    receiptStatus: any;
-	    lang: any;
-	    fileId: any;
-	    cc: any;
-	    cctype: any;
-	    isEvent: any;
-	    event: any;
-	    alternativeContent: any;
-	    isMarkdown: any;
-	    subject: any;
-	    oob: any;
-	    fromBubbleJid: any;
-	    fromBubbleUserJid: any;
-	    fileTransfer: any;
-	    /**
-	     * @public
-	     * @enum {number}
-	     * @readonly
-	     */
-	    static Type: any;
-	    /**
-	     * @public
-	     * @enum {number}
-	     * @readonly
-	     */
-	    static ReceiptStatus: any;
-	    /**
-	     * @public
-	     * @enum {string}
-	     * @readonly
-	     */
-	    static Side: any;
-	    /**
-	     * @private
-	     */
-	    static ReceiptStatusText: string[];
-	    attention: boolean;
-	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, fileId?: any, isMarkdown?: any, subject?: any, attention1?: boolean);
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static create(id: any, date: any, from: any, side: any, data: any, status: any, isMarkdown?: any, subject?: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createFileSharingMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileId: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createWebRTCMessage(id: any, date: any, from: any, side: any, data: any, status: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createFTMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileTransfer: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createRecordingAdminMessage(id: any, date: any, from: any, type: any, cmd: any): Message;
-	    /**
-	     * Method extract fileId part of URL
-	     *
-	     * @private
-	     * @param {string} url
-	     * @returns {string}
-	     *
-	     * @memberof Conversation
-	     */
-	    static extractFileIdFromUrl(url: any): any;
-	    updateBubble(data: any): this;
-	    /**
-	     * @function
-	     * @public
-	     * @name MessageFactory
-	     * @description
-	     * This class is used to create a message from data object
-	     */
-	    static MessageFactory(): (data: any) => Message;
-	}
-	export { Message };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/conversationHistoryHandler' {
-	import { XMPPService } from 'lib/connection/XMPPService';
-	export {}; const GenericHandler: any; class ConversationHistoryHandler extends GenericHandler {
-	    MESSAGE_MAM: any;
-	    FIN_MAM: any;
-	    conversationService: any;
-	    onMamMessageReceived: any;
-	    onHistoryMessageReceived: any;
-	    onWebrtcHistoryMessageReceived: any;
-	    constructor(xmppService: XMPPService, conversationService: any);
-	}
-	export { ConversationHistoryHandler };
-
-}
-declare module 'lib/common/Emoji' {
-	export {}; function shortnameToUnicode(str: any): any;
-	export { shortnameToUnicode };
-
-}
-declare module 'lib/common/models/FileViewer' {
-	export {}; class FileViewer {
-	    contactService: any;
-	    viewerId: any;
-	    type: any;
-	    contact: any;
-	    _avatarSrc: any;
-	    /**
-	     * @this FileViewer
-	     */
-	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
-	    get avatarSrc(): any;
-	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
-	export { FileViewerElementFactory, FileViewer };
 
 }
 declare module 'lib/common/models/Bubble' {
@@ -2273,8 +1345,6 @@ declare module 'lib/services/ProfilesService' {
 	/// <reference types="node" />
 	import EventEmitter = NodeJS.EventEmitter;
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
 	import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
 	    COMPANY_ADMIN_COUNT: string;
 	    COMPANY_LOGO_MODIFICATION: string;
@@ -2317,18 +1387,22 @@ declare module 'lib/services/ProfilesService' {
 	    CHANNEL_CREATE_ADMIN_ROLE_BYPASS: string;
 	    CHANNEL_ACTIVATED: string;
 	}; class ProfilesService {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _eventEmitter;
+	    private _logger;
 	    started: any;
-	    onUserUpdateNeeded: any;
-	    stats: any;
+	    private onUserUpdateNeeded;
+	    private stats;
 	    features: any;
 	    profiles: any;
 	    mainOffers: any;
-	    startDate: any;
-	    timer: NodeJS.Timeout;
+	    private startDate;
+	    private timer;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -2339,7 +1413,7 @@ declare module 'lib/services/ProfilesService' {
 	    /*********************************************************************/
 	    /** LIFECYCLE STUFF                                                 **/
 	    /*********************************************************************/
-	    start(_xmpp: XMPPService, _rest: RESTService, stats: any): void;
+	    start(_options: any, _core: any, stats: any): void;
 	    stop(): Promise<void>;
 	    restart(): void;
 	    init(): Promise<unknown>;
@@ -2421,32 +1495,211 @@ declare module 'lib/services/ProfilesService' {
 	export { ProfilesService, FeaturesEnum };
 
 }
+declare module 'lib/common/models/Settings' {
+	export {}; let RainbowPresence: {
+	    ONLINE: string;
+	    AWAY: string;
+	    INVISIBLE: string;
+	    DND: string;
+	}; class Settings {
+	    presence: any;
+	    displayNameOrderFirstNameFirst: any;
+	    activeAlarm: any;
+	    activeNotif: any;
+	    constructor();
+	}
+	export { Settings, RainbowPresence };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService';
+	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
+	    PRESENCE: any;
+	    onPresenceReceived: any;
+	    constructor(xmppService: XMPPService);
+	}
+	export { PresenceEventHandler };
+
+}
+declare module 'lib/services/SettingsService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class Settings {
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _eventEmitter;
+	    private _logger;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getUserSettings
+	     * @instance
+	     * @description
+	     *  Get current User Settings
+	     * @return {Promise<UserSettings>} A promise containing the result
+	     */
+	    getUserSettings(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method updateUserSettings
+	     * @instance
+	     * @description
+	     *  Update current User Settings
+	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
+	     */
+	    updateUserSettings(settings: any): Promise<unknown>;
+	}
+	export { Settings as SettingsService };
+
+}
+declare module 'lib/services/PresenceService' {
+	export {};
+	import { Core } from 'lib/Core'; class PresenceService {
+	    private _logger;
+	    private _xmpp;
+	    private _settings;
+	    private _presenceEventHandler;
+	    private _presenceHandlerToken;
+	    private _eventEmitter;
+	    private manualState;
+	    private _currentPresence;
+	    RAINBOW_PRESENCE_ONLINE: any;
+	    RAINBOW_PRESENCE_DONOTDISTURB: any;
+	    RAINBOW_PRESENCE_AWAY: any;
+	    RAINBOW_PRESENCE_INVISIBLE: any;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    private _s2s;
+	    private _options;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _rest;
+	    private _bubbles;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method sendInitialPresence
+	     * @instance
+	     * @description
+	     *  Send the initial presence (online)
+	     * @return {ErrorManager.Ok} A promise containing the result
+	     */
+	    sendInitialPresence(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setPresenceTo
+	     * @instance
+	     * @description
+	     *    Allow to change the presence of the connected user <br/>
+	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+	     * @async
+	     * @return {Promise<ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+	     * @category async
+	     */
+	    setPresenceTo(presence: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getUserConnectedPresence
+	     * @instance
+	     * @description
+	     *      Get user presence status calculated from events.
+	     */
+	    getUserConnectedPresence(): any;
+	    /**
+	    * @private
+	    * @method _setUserPresenceStatus
+	    * @instance
+	    * @description
+	    *      Send user presence status and message to xmpp.
+	    */
+	    _setUserPresenceStatus(status: any, message?: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _sendPresenceFromConfiguration
+	     * @instance
+	     * @description
+	     *      Send user presence according to user settings presence.
+	     */
+	    _sendPresenceFromConfiguration(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method sendInitialBubblePresence
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble
+	     */
+	    sendInitialBubblePresence(bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _onUserSettingsChanged
+	     * @instance
+	     * @description
+	     *      Method called when receiving an update on user settings
+	     */
+	    _onUserSettingsChanged(): void;
+	    /**
+	     * @private
+	     * @method _onPresenceChanged
+	     * @instance
+	     * @description
+	     *      Method called when receiving an update on user presence
+	     */
+	    _onPresenceChanged(presence: any): void;
+	}
+	export { PresenceService };
+
+}
 declare module 'lib/services/BubblesService' {
 	/// <reference types="node" />
 	import EventEmitter = NodeJS.EventEmitter;
 	export {};
-	import { RESTService } from 'lib/connection/RESTService';
 	import { Bubble } from 'lib/common/models/Bubble';
-	import { XMPPService } from 'lib/connection/XMPPService';
 	import { Logger } from 'lib/common/Logger';
-	import { ContactsService } from 'lib/services/ContactsService';
-	import { ProfilesService } from 'lib/services/ProfilesService'; class Bubbles {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _bubbles: Bubble[];
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
+	import { Core } from 'lib/Core'; class Bubbles {
+	    private _xmpp;
+	    private _rest;
+	    private _bubbles;
+	    private _eventEmitter;
+	    private _logger;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    private avatarDomain;
 	    private _contacts;
 	    private _profileService;
+	    private _options;
+	    private _s2s;
+	    private _presence;
+	    private _useXMPP;
+	    private _useS2S;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _profileService: ProfilesService): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
@@ -2752,7 +2005,7 @@ declare module 'lib/services/BubblesService' {
 	     * @description
 	     *  Get a bubble by its ID in memory and if it is not found in server.
 	     */
-	    getBubbleById(id: any): Promise<unknown>;
+	    getBubbleById(id: any): Promise<Bubble>;
 	    /**
 	     * @public
 	     * @method getBubbleByJid
@@ -2961,15 +2214,6 @@ declare module 'lib/services/BubblesService' {
 	    updateDescriptionForBubble(bubble: any, strDescription: any): Promise<unknown>;
 	    /**
 	     * @private
-	     * @method _sendInitialBubblePresence
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @description
-	     *      Method called when receiving an invitation to join a bubble
-	     */
-	    _sendInitialBubblePresence(bubble: any): void;
-	    /**
-	     * @private
 	     * @method _onInvitationReceived
 	     * @instance
 	     * @param {Object} invitation contains informations about bubble and user's jid
@@ -3042,6 +2286,859 @@ declare module 'lib/services/BubblesService' {
 	    _onbubblepresencechanged(bubbleInfo: any): Promise<void>;
 	}
 	export { Bubbles as BubblesService };
+
+}
+declare module 'lib/connection/S2S/S2SServiceEventHandler' {
+	export {};
+	import { Core } from 'lib/Core'; class S2SServiceEventHandler {
+	    private _logger;
+	    private _eventEmitter;
+	    private _rest;
+	    private callbackAbsolutePath;
+	    private _contacts;
+	    private _bulles;
+	    private jid_im;
+	    private jid_password;
+	    private userId;
+	    private fullJid;
+	    private jid_tel;
+	    private jid;
+	    private xmppUtils;
+	    private _conversations;
+	    constructor(_rest: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _hostCallback: any);
+	    setAccount(account: any): void;
+	    handleS2SEvent(event: any): boolean | Promise<boolean>;
+	    ParseConnectionCallback(event: any): boolean;
+	    ParsePresenceCallback(event: any): Promise<boolean>;
+	    ParseChatStateCallback(content: any): Promise<boolean>;
+	    ParseReceitpCallback(content: any): boolean;
+	    ParseAllReceitpCallback(content: any): boolean;
+	    ParseConversationCallback(content: any): Promise<boolean>;
+	    ParseMessageCallback(content: any): Promise<boolean>;
+	    ParseRoomInviteCallback(content: any): Promise<boolean>;
+	    ParseRoomMemberCallback(content: any): Promise<boolean>;
+	    ParseRoomStateCallback(content: any): Promise<boolean>;
+	    ParseAlldeletedCallback(content: any): Promise<boolean>;
+	    ParseErrorCallback(content: any): Promise<boolean>;
+	    start(_core: Core): Promise<unknown>;
+	}
+	export { S2SServiceEventHandler };
+
+}
+declare module 'lib/connection/S2S/S2SService' {
+	 class S2SService {
+	    private serverURL;
+	    private host;
+	    private eventEmitter;
+	    version: any;
+	    jid_im: any;
+	    jid_tel: any;
+	    jid_password: any;
+	    fullJid: any;
+	    jid: any;
+	    userId: any;
+	    private logger;
+	    private proxy;
+	    private xmppUtils;
+	    private generatedRandomId;
+	    private hash;
+	    private useS2S;
+	    private _rest;
+	    private hostCallback;
+	    private app;
+	    private locallistenningport;
+	    private s2sEventHandler;
+	    private _contacts;
+	    private options;
+	    private _conversations;
+	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
+	    start(_options: any, _core: any): Promise<unknown>;
+	    signin(account: any, headers: any): Promise<unknown>;
+	    stop(forceStop?: boolean): Promise<unknown>;
+	    listConnectionsS2S(): Promise<unknown>;
+	    sendS2SPresence(obj: any): Promise<unknown>;
+	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    deleteAllConnectionsS2S(): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    loginS2S(callback_url: any): Promise<any>;
+	    infoS2S(s2sConnectionId: any): Promise<unknown>;
+	    /** S2S EVENTS */
+	    onS2SReady(event: any): Promise<void>;
+	    /** S2S methods */
+	    sendMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
+	    joinRoom(bubbleId: any): Promise<unknown>;
+	}
+	export { S2SService };
+
+}
+declare module 'lib/services/FavoritesService' {
+	/// <reference types="node" />
+	import { Logger } from 'lib/common/Logger';
+	export {};
+	import { Favorite } from 'lib/common/models/Favorite';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Core } from 'lib/Core'; class FavoritesService {
+	    private _eventEmitter;
+	    private _logger;
+	    private started;
+	    private _initialized;
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _favoriteEventHandler;
+	    private _favoriteHandlerToken;
+	    private favorites;
+	    private _xmppManagementHandler;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<void>;
+	    stop(): Promise<void>;
+	    init(): Promise<void>;
+	    private attachHandlers;
+	    reconnect(): Promise<void>;
+	    private getServerFavorites;
+	    private addServerFavorite;
+	    private removeServerFavorite;
+	    private toggleFavorite;
+	    private updateFavorites;
+	    private getFavorite;
+	    private createFavoriteObj;
+	    private onXmppEvent;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method fetchAllFavorites()
+	     * @instance
+	     * @description
+	     *   Fetch all the Favorites from the server in a form of an Array
+	     * @return {Conversation[]} An array of Favorite objects
+	     */
+	    fetchAllFavorites(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method createFavorite()
+	     * @instance
+	     * @description
+	     *   Add conversation/bubble/bot to Favorites Array
+	     * @param {String} id of the conversation/bubble
+	     * @param {String} type of Favorite (can be 'user' or 'bubble')
+	     * @return {Promise<Favorite>} A Favorite object
+	     */
+	    createFavorite(id: any, type: any): Promise<Favorite>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method deleteFavorite()
+	     * @instance
+	     * @description
+	     *   Delete conversation/bubble/bot from Favorites Array
+	     * @param {String} id of the Favorite item
+	     * @return {Favorite[]} A Favorite object
+	     */
+	    deleteFavorite(id: any): Promise<any>;
+	    onFavoriteCreated(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	    onFavoriteDeleted(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	}
+	export { FavoritesService };
+
+}
+declare module 'lib/services/InvitationsService' {
+	/// <reference types="node" />
+	export {};
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class InvitationsService {
+	    receivedInvitations: {};
+	    sentInvitations: {};
+	    acceptedInvitationsArray: any[];
+	    sentInvitationsArray: any[];
+	    receivedInvitationsArray: any[];
+	    private _listeners;
+	    private _portalURL;
+	    private _contactConfigRef;
+	    acceptedInvitations: {};
+	    private _logger;
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private started;
+	    private _eventEmitter;
+	    private _invitationEventHandler;
+	    private _invitationHandlerToken;
+	    private _contacts;
+	    private stats;
+	    private readonly _startConfig;
+	    ready: boolean;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
+	    /************************************************************/
+	    /** LIFECYCLE STUFF                                        **/
+	    /************************************************************/
+	    start(_options: any, _core: Core, stats: any): Promise<void>;
+	    init(): Promise<void>;
+	    stop(): Promise<void>;
+	    /************************************************************/
+	    /** EVENT HANDLING STUFF                                   **/
+	    /************************************************************/
+	    attachHandlers(): void;
+	    onRosterChanged(): Promise<unknown>;
+	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
+	    handleReceivedInvitation(id: any, action: any): Promise<void>;
+	    handleSentInvitation(id: any, action: any): Promise<unknown>;
+	    updateReceivedInvitationsArray(): void;
+	    updateSentInvitationsArray(): void;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PUBLIC METHODS                                         **/
+	    /************************************************************/
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getReceivedInvitations
+	     * @instance
+	     * @description
+	     *    Get the invite received coming from Rainbow users
+	     * @return {Invitation[]} The list of invitations received
+	     */
+	    getReceivedInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method 	getAcceptedInvitations
+	     * @instance
+	     * @description
+	     *    Get the invites you accepted received from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getAcceptedInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getSentInvitations
+	     * @instance
+	     * @description
+	     *    Get the invites sent to others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getSentInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getInvitationsNumberForCounter
+	     * @instance
+	     * @description
+	     *    Get the number of invitations received from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getInvitationsNumberForCounter(): number;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getAllInvitationsNumber
+	     * @instance
+	     * @description
+	     *    Get the number of invitations sent/received to/from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getAllInvitationsNumber: () => any;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getInvitation
+	     * @instance
+	     * @description
+	     *    Get an invite by its id
+	     * @param {String} invitationId the id of the invite to retrieve
+	     * @return {Invitation} The invite if found
+	     */
+	    getInvitation(invitationId: any): any;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method joinContactInvitation
+	     * @instance
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Contact} contact The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    joinContactInvitation(contact: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method sendInvitationByEmail
+	     * @instance
+	     * @description
+	     *    Send an invitation email as UCaaS
+	     * @param {string} email The email
+	     * @param {string} [customMessage] The email text (optional)
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     */
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method cancelOneSendInvitation
+	     * @instance
+	     * @param {Invitation} invitation The invitation to cancel
+	     * @description
+	     *    Cancel an invitation sent
+	     * @return {Object} The SDK Ok object or an error
+	     */
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method reSendInvitation
+	     * @instance
+	     * @param {Number} invitationId The invitation to re send
+	     * @description
+	     *    Re send an invitation sent
+	     * @return {Object} The SDK Ok object or an error
+	     */
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method sendInvitationByEmail
+	     * @instance
+	     * @description
+	     *    Send invitations for a list of emails as UCaaS
+	     *    LIMITED TO 100 invitations
+	     * @param {Array} listOfMails The list of emails
+	     * @return {Object} A promise that the invite result or an object describing an error
+	     */
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method acceptInvitation
+	     * @instance
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method declineInvitation
+	     * @instance
+	     * @description
+	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once declined, the user will not be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to decline
+	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PRIVATE METHODS                                        **/
+	    /************************************************************/
+	    /**
+	     * @private
+	     */
+	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
+	    /**
+	     * @private
+	     */
+	    sortInvitationArray(invitA: any, invitB: any): number;
+	    /**
+	     * @private
+	     */
+	    getAllReceivedInvitations(): Promise<unknown>;
+	    /**
+	     * @private
+	     */
+	    getAllSentInvitations(): Promise<unknown>;
+	}
+	export { InvitationsService };
+
+}
+declare module 'lib/services/ContactsService' {
+	/// <reference types="node" />
+	export {};
+	import { Contact } from 'lib/common/models/Contact';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class Contacts {
+	    private avatarDomain;
+	    private _xmpp;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _contacts;
+	    private _eventEmitter;
+	    private _rosterPresenceQueue;
+	    userContact: any;
+	    private _rest;
+	    private _invitationsService;
+	    private _presenceService;
+	    private _logger;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    init(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getDisplayName
+	     * @instance
+	     * @param {Contact} contact  The contact to get display name
+	     * @return {String} The contact first name and last name
+	     * @description
+	     *      Get the display name of a contact
+	     */
+	    getDisplayName(contact: any): string;
+	    /**
+	     * @public
+	     * @method getRosters
+	     * @instance
+	     * @description
+	     *      Get the list of _contacts that are in the user's network (aka rosters)
+	     * @async
+	     * @return {Promise<Array>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+	     * @category async
+	     */
+	    getRosters(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAll
+	     * @instance
+	     * @return {Contact[]} the list of _contacts
+	     * @description
+	     *  Return the list of _contacts that are in the network of the connected users (aka rosters)
+	     */
+	    getAll(): any;
+	    createEmptyContactContact(jid: any): Contact;
+	    getContact(jid: any, phoneNumber: any): any;
+	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
+	    createBasicContact(jid: any, phoneNumber?: any): Contact;
+	    /**
+	     * @public
+	     * @method getContactByJid
+	     * @instance
+	     * @param {string} jid The contact jid
+	     * @description
+	     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information)
+	     * @async
+	     * @return {Promise<Contact, ErrorManager>}
+	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
+	     * @category async
+	     */
+	    getContactByJid(jid: any): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getContactById
+	     * @instance
+	     * @param {string} id The contact id
+	     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
+	     * @description
+	     *  Get a contact by his id
+	     * @async
+	     * @return {Promise<Contact, ErrorManager>}
+	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
+	     * @category async
+	     */
+	    getContactById(id: any, forceServerSearch: any): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getContactByLoginEmail
+	     * @instance
+	     * @param {string} loginEmail The contact loginEmail
+	     * @description
+	     *  Get a contact by his loginEmail
+	     * @async
+	     * @return {Promise<Contact, ErrorManager>}
+	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
+	     * @category async
+	     */
+	    getContactByLoginEmail(loginEmail: any): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getAvatarByContactId
+	     * @instance
+	     * @param {string} id The contact id
+	     * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
+	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
+	     * @description
+	     *  Get a contact avatar by his contact id
+	     * @return {String} Contact avatar URL or file
+	     */
+	    getAvatarByContactId(id: any, lastUpdate: any): string;
+	    isTelJid(jid: any): boolean;
+	    getImJid(jid: any): any;
+	    getRessourceFromJid(jid: any): string;
+	    isUserContactJid(jid: any): boolean;
+	    isUserContact(contact: Contact): boolean;
+	    /**
+	     * @public
+	     * @method getConnectedUser
+	     * @instance
+	     * @description
+	     *    Get the connected user information
+	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+	     */
+	    getConnectedUser(): Contact;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method
+	     * @instance
+	     * @description
+	     *    Send an invitation to a Rainbow user for joining his network. <br>
+	     *    The user will receive an invitation that can be accepted or declined <br>
+	     *    In return, when accepted, he will be part of your network <br>
+	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+	     * @param {Contact} contact The contact object to subscribe
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     */
+	    addToNetwork(contact: Contact): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method addToContactsList
+	     * @instance
+	     * @description
+	     *    Send an invitation to a Rainbow user for joining his network. <br>
+	     *    The user will receive an invitation that can be accepted or declined <br>
+	     *    In return, when accepted, he will be part of your network <br>
+	     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+	     * @param {Contact} contact The contact object to subscribe
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     * @category async
+	     */
+	    addToContactsList(contact: Contact): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.64.0
+	     * @method getInvitationById
+	     * @instance
+	     * @description
+	     *    Get an invite by its id
+	     * @param {String} strInvitationId the id of the invite to retrieve
+	     * @return {Invitation} The invite if found
+	     */
+	    getInvitationById(strInvitationId: any): Promise<any>;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method
+	     * @instance
+	     * @description
+	     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.17
+	     * @method
+	     * @instance
+	     * @description
+	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once declined, the user will not be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to decline
+	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @typedef {Object} joinContactsResult
+	     * @property {String[]} success List of succeed joined users
+	     * @property {String[]} failed List of failed to joined users
+	     */
+	    /**
+	     * @public
+	     * @since 1.41
+	     * @beta
+	     * @method joinContacts
+	     * @instance
+	     * @description
+	     *    As admin, add _contacts to a user roster
+	     * @param {Contact} contact The contact object to subscribe
+	     * @param {String[]} contactIds List of contactId to add to the user roster
+	     * @async
+	     * @return {Promise<joinContactsResult, ErrorManager>}
+	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
+	     * @category async
+	     */
+	    joinContacts(contact: Contact, contactIds: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method _onRosterPresenceChanged
+	     * @instance
+	     * @param {Object} presence contains informations about contact changes
+	     * @description
+	     *      Method called when the presence of a contact changed
+	     */
+	    _onRosterPresenceChanged(presence: any): void;
+	    /**
+	     * @private
+	     * @method _onContactInfoChanged
+	     * @instance
+	     * @param {string} jid modified roster contact Jid
+	     * @description
+	     *     Method called when an roster user information are updated
+	     */
+	    _onContactInfoChanged(jid: any): void;
+	    /**
+	     * @private
+	     * @method _onUserInviteReceived
+	     * @instance
+	     * @param {Object} data contains the invitationId
+	     * @description
+	     *      Method called when an user invite is received
+	     */
+	    /**
+	     * @private
+	     * @method _onUserInviteAccepted
+	     * @instance
+	     * @param {Object} data contains the invitationId
+	     * @description
+	     *      Method called when an user invite is accepted
+	     */
+	    /**
+	     * @private
+	     * @method _onUserInviteCanceled
+	     * @instance
+	     * @param {Object} data contains the invitationId
+	     * @description
+	     *      Method called when an user invite is canceled
+	     */
+	    /**
+	     * @private
+	     * @method _onRostersUpdate
+	     * @instance
+	     * @param {Object} _contacts contains a contact list with updated elements
+	     * @description
+	     *      Method called when the roster _contacts is updated
+	     */
+	    _onRostersUpdate(contacts: any): void;
+	}
+	export { Contacts as ContactsService };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
+	export {};
+	import { ConversationsService } from 'lib/services/ConversationsService'; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    conversationService: ConversationsService;
+	    onChatMessageReceived: any;
+	    _onMessageReceived: any;
+	    eventEmitter: any;
+	    onRoomAdminMessageReceived: any;
+	    onFileMessageReceived: any;
+	    onWebRTCMessageReceived: any;
+	    onManagementMessageReceived: any;
+	    onRoomManagementMessageReceived: any;
+	    onUserSettingsManagementMessageReceived: any;
+	    onUserInviteManagementMessageReceived: any;
+	    onGroupManagementMessageReceived: any;
+	    onConversationManagementMessageReceived: any;
+	    onMuteManagementMessageReceived: any;
+	    onUnmuteManagementMessageReceived: any;
+	    onFileManagementMessageReceived: any;
+	    onThumbnailManagementMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    onCloseMessageReceived: any;
+	    fileStorageService: any;
+	    fileServerService: any;
+	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any);
+	}
+	export { ConversationEventHandler };
+
+}
+declare module 'lib/common/models/Message' {
+	export {}; class Message {
+	    id: any;
+	    fromJid: any;
+	    side: any;
+	    resource: any;
+	    date: any;
+	    toJid: any;
+	    type: any;
+	    content: any;
+	    status: any;
+	    receiptStatus: any;
+	    lang: any;
+	    fileId: any;
+	    cc: any;
+	    cctype: any;
+	    isEvent: any;
+	    event: any;
+	    alternativeContent: any;
+	    isMarkdown: any;
+	    subject: any;
+	    oob: any;
+	    fromBubbleJid: any;
+	    fromBubbleUserJid: any;
+	    fileTransfer: any;
+	    /**
+	     * @public
+	     * @enum {number}
+	     * @readonly
+	     */
+	    static Type: any;
+	    /**
+	     * @public
+	     * @enum {number}
+	     * @readonly
+	     */
+	    static ReceiptStatus: any;
+	    /**
+	     * @public
+	     * @enum {string}
+	     * @readonly
+	     */
+	    static Side: any;
+	    /**
+	     * @private
+	     */
+	    static ReceiptStatusText: string[];
+	    attention: boolean;
+	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, fileId?: any, isMarkdown?: any, subject?: any, attention1?: boolean);
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static create(id: any, date: any, from: any, side: any, data: any, status: any, isMarkdown?: any, subject?: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createFileSharingMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileId: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createWebRTCMessage(id: any, date: any, from: any, side: any, data: any, status: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createFTMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileTransfer: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createRecordingAdminMessage(id: any, date: any, from: any, type: any, cmd: any): Message;
+	    /**
+	     * Method extract fileId part of URL
+	     *
+	     * @private
+	     * @param {string} url
+	     * @returns {string}
+	     *
+	     * @memberof Conversation
+	     */
+	    static extractFileIdFromUrl(url: any): any;
+	    updateBubble(data: any): this;
+	    /**
+	     * @function
+	     * @public
+	     * @name MessageFactory
+	     * @description
+	     * This class is used to create a message from data object
+	     */
+	    static MessageFactory(): (data: any) => Message;
+	}
+	export { Message };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/conversationHistoryHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService';
+	export {}; const GenericHandler: any; class ConversationHistoryHandler extends GenericHandler {
+	    MESSAGE_MAM: any;
+	    FIN_MAM: any;
+	    conversationService: any;
+	    onMamMessageReceived: any;
+	    onHistoryMessageReceived: any;
+	    onWebrtcHistoryMessageReceived: any;
+	    constructor(xmppService: XMPPService, conversationService: any);
+	}
+	export { ConversationHistoryHandler };
+
+}
+declare module 'lib/common/Emoji' {
+	export {}; function shortnameToUnicode(str: any): any;
+	export { shortnameToUnicode };
+
+}
+declare module 'lib/common/models/FileViewer' {
+	export {}; class FileViewer {
+	    contactService: any;
+	    viewerId: any;
+	    type: any;
+	    contact: any;
+	    _avatarSrc: any;
+	    /**
+	     * @this FileViewer
+	     */
+	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
+	    get avatarSrc(): any;
+	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
+	export { FileViewerElementFactory, FileViewer };
 
 }
 declare module 'lib/common/models/fileDescriptor' {
@@ -3135,18 +3232,20 @@ declare module 'lib/services/FileServerService' {
 	/// <reference types="node" />
 	import EventEmitter = NodeJS.EventEmitter;
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
 	import { Logger } from 'lib/common/Logger';
-	import { FileStorageService } from 'lib/services/FileStorageService'; class FileServer {
-	    eventEmitter: EventEmitter;
-	    logger: Logger;
-	    _capabilities: any;
-	    transferPromiseQueue: any;
-	    fileStorageService: FileStorageService;
+	import { Core } from 'lib/Core'; class FileServer {
+	    private _eventEmitter;
+	    private _logger;
+	    private _capabilities;
+	    private transferPromiseQueue;
+	    private _fileStorageService;
 	    ONE_KILOBYTE: any;
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
 	    ONE_MEGABYTE: any;
 	    ready: boolean;
 	    private readonly _startConfig;
@@ -3156,7 +3255,7 @@ declare module 'lib/services/FileServerService' {
 	    };
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
 	    get capabilities(): Promise<any>;
-	    start(_xmpp: XMPPService, _rest: RESTService, _fileStorageService: any): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
 	    /**
@@ -3280,21 +3379,18 @@ declare module 'lib/services/FileServerService' {
 
 }
 declare module 'lib/services/FileStorageService' {
-	/// <reference types="node" />
-	import EventEmitter = NodeJS.EventEmitter;
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Logger } from 'lib/common/Logger';
-	import { FileServerService } from 'lib/services/FileServerService';
-	import { ConversationsService } from 'lib/services/ConversationsService';
-	import { ContactsService } from 'lib/services/ContactsService'; class FileStorage {
-	    _rest: RESTService;
-	    _xmpp: XMPPService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
-	    fileServerService: FileServerService;
-	    _conversations: ConversationsService;
+	import { Core } from 'lib/Core'; class FileStorage {
+	    private _rest;
+	    private _xmpp;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _eventEmitter;
+	    private _logger;
+	    private _fileServerService;
+	    private _conversations;
 	    fileDescriptors: any;
 	    fileDescriptorsByDate: any;
 	    fileDescriptorsByName: any;
@@ -3304,11 +3400,11 @@ declare module 'lib/services/FileStorageService' {
 	    receivedFileDescriptorsByDate: any;
 	    receivedFileDescriptorsBySize: any;
 	    consumptionData: any;
-	    contactService: ContactsService;
-	    startDate: any;
+	    private _contactService;
+	    private startDate;
 	    started: any;
-	    errorHelperService: any;
-	    helpersService: any;
+	    private _errorHelperService;
+	    private _helpersService;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -3316,7 +3412,7 @@ declare module 'lib/services/FileStorageService' {
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(__xmpp: XMPPService, __rest: RESTService, __fileServerService: any, __conversations: any): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
 	    /**
@@ -3783,29 +3879,29 @@ declare module 'lib/services/ConversationsService' {
 	/// <reference types="node" />
 	import { ContactsService } from 'lib/services/ContactsService';
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { ConversationEventHandler } from 'lib/connection/XMPPServiceHandler/conversationEventHandler';
-	import { ConversationHistoryHandler } from 'lib/connection/XMPPServiceHandler/conversationHistoryHandler';
-	import { BubblesService } from 'lib/services/BubblesService';
-	import { FileStorageService } from 'lib/services/FileStorageService';
-	import { FileServerService } from 'lib/services/FileServerService';
+	import { Conversation } from 'lib/common/models/Conversation';
 	import { Logger } from 'lib/common/Logger';
-	import { EventEmitter } from 'events'; class Conversations {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
+	import { EventEmitter } from 'events';
+	import { Core } from 'lib/Core'; class Conversations {
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
 	    _contacts: ContactsService;
-	    _fileStorageService: FileStorageService;
-	    _fileServerService: FileServerService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
-	    pendingMessages: any;
-	    conversationEventHandler: ConversationEventHandler;
-	    conversationHandlerToken: any;
-	    conversationHistoryHandlerToken: any;
+	    private _fileStorageService;
+	    private _fileServerService;
+	    private _presence;
+	    private _eventEmitter;
+	    private _logger;
+	    private pendingMessages;
+	    private _conversationEventHandler;
+	    private _conversationHandlerToken;
+	    private _conversationHistoryHandlerToken;
 	    conversations: any;
-	    conversationServiceEventHandler: any;
-	    _bubbles: any;
+	    private _conversationServiceEventHandler;
+	    private _bubbles;
 	    activeConversation: any;
 	    inCallConversations: any;
 	    idleConversations: any;
@@ -3813,8 +3909,8 @@ declare module 'lib/services/ConversationsService' {
 	    involvedRoomIds: any;
 	    waitingBotConversations: any;
 	    botServiceReady: any;
-	    conversationHistoryHandler: ConversationHistoryHandler;
-	    chatRenderer: any;
+	    private _conversationHistoryHandler;
+	    private chatRenderer;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    private conversationsRetrievedFormat;
@@ -3824,7 +3920,7 @@ declare module 'lib/services/ConversationsService' {
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any, _conversationsRetrievedFormat: any, _nbMaxConversations: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _bubbles: BubblesService, _fileStorageService: FileStorageService, _fileServerService: FileServerService): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
 	    _onReceipt(receipt: any): void;
@@ -3843,9 +3939,10 @@ declare module 'lib/services/ConversationsService' {
 	     * @instance
 	     * @description
 	     *    Allow to create a conversations on server (p2p and bubbles)
-	     * @param {String} ID of the conversation (dbId field)
+	     * @param {String} conversation of the conversation (dbId field)
 	     * @return {Conversation} Created conversation object
 	     */
+	    createServerConversation(conversation: any): Promise<any>;
 	    removeOlderConversations(conversations?: []): Promise<unknown>;
 	    sortFunction(aa: any, bb: any): number;
 	    /**
@@ -3917,7 +4014,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @method
 	     * @instance
 	     */
-	    getOrCreateOneToOneConversation(conversationId: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, muted?: any, creationDate?: any): Promise<unknown>;
+	    getOrCreateOneToOneConversation(conversationId: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, muted?: any, creationDate?: any): Promise<Conversation>;
 	    /**
 	     * @public
 	     * @method getBubbleConversation
@@ -3938,7 +4035,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @fulfil {Conversation} - Conversation object or null if not found
 	     * @category async
 	     */
-	    getBubbleConversation(bubbleJid: any, conversationDbId: any, lastModification: any, lastMessageText: any, missedIMCounter: any, noError: any, muted: any, creationDate: any, lastMessageSender: any): Promise<unknown>;
+	    getBubbleConversation(bubbleJid: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, noError?: any, muted?: any, creationDate?: any, lastMessageSender?: any): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendIsTypingState
@@ -4189,7 +4286,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {Contact} contact The contact involved in the conversation
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
-	    openConversationForContact(contact: any): Promise<unknown>;
+	    openConversationForContact(contact: any): Promise<Conversation>;
 	    /**
 	     * @public
 	     * @method openConversationForBubble
@@ -4203,6 +4300,18 @@ declare module 'lib/services/ConversationsService' {
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
 	    openConversationForBubble(bubble: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getS2SServerConversation
+	     * @since 1.65
+	     * @instance
+	     * @description
+	     *    get a conversation from id on S2S API Server.<br/>
+	     *    This method returns a promise
+	     * @param {string} conversationId The id of the conversation to find.
+	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+	     */
+	    getS2SServerConversation(conversationId: any): Promise<unknown>;
 	    /**
 	     * @private
 	     */
@@ -4233,29 +4342,32 @@ declare module 'lib/services/ConversationsService' {
 }
 declare module 'lib/services/ImsService' {
 	/// <reference types="node" />
-	import { ConversationsService } from 'lib/services/ConversationsService';
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
 	import { Logger } from 'lib/common/Logger';
 	import EventEmitter = NodeJS.EventEmitter;
-	import { BubblesService } from 'lib/services/BubblesService';
-	import { FileStorageService } from 'lib/services/FileStorageService'; class IMService {
-	    _xmpp: XMPPService;
-	    _conversations: ConversationsService;
-	    _logger: Logger;
-	    _eventEmitter: EventEmitter;
-	    pendingMessages: any;
-	    _bulles: any;
-	    private imOptions;
-	    _fileStorage: any;
+	import { Core } from 'lib/Core'; class IMService {
+	    private _xmpp;
+	    private _conversations;
+	    private _logger;
+	    private _eventEmitter;
+	    private _pendingMessages;
+	    private _bulles;
+	    private _imOptions;
+	    private _fileStorage;
 	    ready: boolean;
 	    private readonly _startConfig;
+	    private _rest;
+	    private _presence;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _imOptions: any, _startConfig: any);
-	    start(_xmpp: XMPPService, __conversations: ConversationsService, __bubbles: BubblesService, _filestorage: FileStorageService): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
@@ -4317,7 +4429,7 @@ declare module 'lib/services/ImsService' {
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToConversation(conversation: any, message: any, lang: any, content: any, subject: any): Promise<unknown>;
+	    sendMessageToConversation(conversation: any, message: any, lang: any, content: any, subject: any): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendMessageToContact
@@ -4336,7 +4448,7 @@ declare module 'lib/services/ImsService' {
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToContact(message: any, contact: any, lang: any, content: any, subject: any): Promise<unknown>;
+	    sendMessageToContact(message: any, contact: any, lang: any, content: any, subject: any): Promise<any>;
 	    /**
 	     * @private
 	     * @description
@@ -4371,7 +4483,7 @@ declare module 'lib/services/ImsService' {
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToJid(message: any, jid: any, lang: any, content: any, subject: any): Promise<unknown>;
+	    sendMessageToJid(message: any, jid: any, lang: any, content: any, subject: any): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendMessageToJidAnswer
@@ -4536,23 +4648,25 @@ declare module 'lib/services/ChannelsService' {
 	import EventEmitter = NodeJS.EventEmitter;
 	export {};
 	import { Channel } from 'lib/common/models/Channel';
-	import { ChannelEventHandler } from 'lib/connection/XMPPServiceHandler/channelEventHandler';
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Logger } from 'lib/common/Logger'; class Channels {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _channels: any;
-	    _channelsList: any;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class Channels {
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _channels;
+	    private _channelsList;
+	    private _eventEmitter;
+	    private _logger;
 	    MAX_ITEMS: any;
 	    MAX_PAYLOAD_SIZE: any;
 	    PUBLIC_VISIBILITY: any;
 	    PRIVATE_VISIBILITY: any;
 	    CLOSED_VISIBILITY: any;
-	    channelEventHandler: ChannelEventHandler;
-	    channelHandlerToken: any;
+	    private channelEventHandler;
+	    private channelHandlerToken;
 	    invitationCounter: number;
 	    ready: boolean;
 	    private readonly _startConfig;
@@ -4597,7 +4711,7 @@ declare module 'lib/services/ChannelsService' {
 	        MEMBER: string;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
 	    /**
@@ -4767,9 +4881,9 @@ declare module 'lib/services/ChannelsService' {
 	     * @public
 	     * @method getAllChannels
 	     * @instance
-	     * @return {Channel[]} An array of channels (owned and subscribed)
+	     * @return {Channel[]} An array of channels (owned, invited, subscribed)
 	     * @description
-	     *  Return the list of channels (owned and subscribed)
+	     *  Return the list of channels (owned, invited, subscribed)
 	     */
 	    getAllChannels(): [Channel];
 	    /**
@@ -5361,46 +5475,46 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 declare module 'lib/services/TelephonyService' {
 	/// <reference types="node" />
 	export {};
-	import { RESTService } from 'lib/connection/RESTService';
-	import { XMPPService } from 'lib/connection/XMPPService';
 	import { Call } from 'lib/common/models/Call';
-	import { ContactsService } from 'lib/services/ContactsService';
-	import { BubblesService } from 'lib/services/BubblesService';
-	import { ProfilesService } from 'lib/services/ProfilesService';
 	import EventEmitter = NodeJS.EventEmitter;
-	import { Logger } from 'lib/common/Logger'; class Telephony {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _contacts: ContactsService;
-	    _bubbles: BubblesService;
-	    _profiles: ProfilesService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
-	    _calls: any;
-	    voiceMail: any;
-	    userJidTel: any;
-	    started: any;
-	    agentStatus: any;
-	    voicemailNumber: any;
-	    pbxId: any;
-	    forwardObject: any;
-	    nomadicObject: any;
-	    nomadicAnswerNotTakedIntoAccount: any;
-	    isBasicCallAllowed: any;
-	    isSecondCallAllowed: any;
-	    isTransferAllowed: any;
-	    isConferenceAllowed: any;
-	    isVMDeflectCallAllowed: any;
-	    voiceMailFeatureEnabled: any;
-	    isForwardEnabled: any;
-	    isNomadicEnabled: any;
-	    telephonyHandlerToken: any;
-	    telephonyHistoryHandlerToken: any;
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class Telephony {
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _contacts;
+	    private _bubbles;
+	    private _profiles;
+	    private _eventEmitter;
+	    private _logger;
+	    private _calls;
+	    private voiceMail;
+	    private userJidTel;
+	    private started;
+	    private agentStatus;
+	    private voicemailNumber;
+	    private pbxId;
+	    private forwardObject;
+	    private nomadicObject;
+	    private nomadicAnswerNotTakedIntoAccount;
+	    private isBasicCallAllowed;
+	    private isSecondCallAllowed;
+	    private isTransferAllowed;
+	    private isConferenceAllowed;
+	    private isVMDeflectCallAllowed;
+	    private voiceMailFeatureEnabled;
+	    private isForwardEnabled;
+	    private isNomadicEnabled;
+	    private telephonyHandlerToken;
+	    private telephonyHistoryHandlerToken;
 	    startDate: any;
-	    telephonyEventHandler: any;
-	    makingCall: any;
-	    starting: any;
-	    stats: any;
+	    private _telephonyEventHandler;
+	    private makingCall;
+	    private starting;
+	    private stats;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -5408,7 +5522,7 @@ declare module 'lib/services/TelephonyService' {
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _bubbles: BubblesService, _profiles: ProfilesService): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
 	    init(): Promise<unknown>;
@@ -5854,14 +5968,17 @@ declare module 'lib/services/GroupsService' {
 	/// <reference types="node" />
 	import EventEmitter = NodeJS.EventEmitter;
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
-	import { Logger } from 'lib/common/Logger'; class GroupsService {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _groups: any;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class GroupsService {
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _groups;
+	    private _eventEmitter;
+	    private _logger;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -5869,7 +5986,7 @@ declare module 'lib/services/GroupsService' {
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	    * @public
@@ -6074,23 +6191,25 @@ declare module 'lib/services/GroupsService' {
 }
 declare module 'lib/services/AdminService' {
 	/// <reference types="node" />
-	import { XMPPService } from 'lib/connection/XMPPService';
 	export {};
-	import { RESTService } from 'lib/connection/RESTService';
 	import EventEmitter = NodeJS.EventEmitter;
 	import { Logger } from 'lib/common/Logger'; class Admin {
-	    _xmpp: XMPPService;
-	    _rest: RESTService;
-	    _eventEmitter: EventEmitter;
-	    _logger: Logger;
+	    private _xmpp;
+	    private _rest;
+	    private _eventEmitter;
+	    private _logger;
 	    ready: boolean;
 	    private readonly _startConfig;
+	    private _options;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _s2s;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService): Promise<unknown>;
+	    start(_options: any, _core: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
 	     * @public
@@ -6539,13 +6658,9 @@ declare module 'lib/services/CallLogService' {
 	/// <reference types="node" />
 	import EventEmitter = NodeJS.EventEmitter;
 	export {};
-	import { XMPPService } from 'lib/connection/XMPPService';
-	import { RESTService } from 'lib/connection/RESTService';
 	import { Logger } from 'lib/common/Logger';
-	import { ContactsService } from 'lib/services/ContactsService';
-	import { ProfilesService } from 'lib/services/ProfilesService';
-	import { TelephonyService } from 'lib/services/TelephonyService'; class CallLogService {
-	    _eventEmitter: EventEmitter;
+	import { Core } from 'lib/Core'; class CallLogService {
+	    private _eventEmitter;
 	    private logger;
 	    private started;
 	    private _initialized;
@@ -6566,6 +6681,10 @@ declare module 'lib/services/CallLogService' {
 	    private _profiles;
 	    private _calllogEventHandler;
 	    private _telephony;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -6573,7 +6692,7 @@ declare module 'lib/services/CallLogService' {
 	        optional: boolean;
 	    };
 	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
-	    start(_xmpp: XMPPService, _rest: RESTService, _contacts: ContactsService, _profiles: ProfilesService, _telephony: TelephonyService): Promise<void>;
+	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
 	    init(): Promise<void>;
 	    attachHandlers(): void;
@@ -6840,56 +6959,6 @@ declare module 'lib/ProxyImpl' {
 	export { ProxyImpl };
 
 }
-declare module 'lib/connection/S2S/S2SServiceEventHandler' {
-	export {}; class S2SServiceEventHandler {
-	    private logger;
-	    private eventEmitter;
-	    private rest;
-	    constructor(_rest: any, _im: any, _application: any, _eventEmitter: any, _logger: any);
-	    handleS2SEvent(event: any): void;
-	}
-	export { S2SServiceEventHandler };
-
-}
-declare module 'lib/connection/S2S/S2SService' {
-	import { RESTService } from 'lib/connection/RESTService'; class S2SService {
-	    serverURL: any;
-	    host: any;
-	    eventEmitter: any;
-	    version: any;
-	    jid_im: any;
-	    jid_tel: any;
-	    jid_password: any;
-	    fullJid: any;
-	    jid: any;
-	    userId: any;
-	    private logger;
-	    private proxy;
-	    private xmppUtils;
-	    private generatedRandomId;
-	    private hash;
-	    useS2S: any;
-	    _rest: RESTService;
-	    hostCallback: any;
-	    private app;
-	    private locallistenningport;
-	    private s2sEventHandler;
-	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
-	    start(withS2S: any, rest: any): Promise<unknown>;
-	    signin(account: any, headers: any): Promise<unknown>;
-	    stop(forceStop: any): Promise<unknown>;
-	    listConnectionsS2S(): Promise<unknown>;
-	    sendS2SPresence(obj: any): Promise<unknown>;
-	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
-	    deleteAllConnectionsS2S(): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
-	    loginS2S(callback_url: any): Promise<any>;
-	    infoS2S(s2sConnectionId: any): Promise<unknown>;
-	    /** S2S EVENTS */
-	    onS2SReady(event: any): Promise<void>;
-	}
-	export { S2SService };
-
-}
 declare module 'lib/Core' {
 	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
@@ -6952,7 +7021,9 @@ declare module 'lib/Core' {
 	    stop(): Promise<unknown>;
 	    get settings(): SettingsService;
 	    get presence(): PresenceService;
+	    get profiles(): ProfilesService;
 	    get im(): IMService;
+	    get invitations(): InvitationsService;
 	    get contacts(): ContactsService;
 	    get conversations(): ConversationsService;
 	    get channels(): ChannelsService;
