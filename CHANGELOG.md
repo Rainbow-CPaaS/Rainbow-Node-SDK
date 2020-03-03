@@ -21,6 +21,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add postTestRunOpenrainbowDotNet script to post a message in a bubble when the tests for afterbuild start/stop.
 -   Fix "no-store" value in DataStoreType type.
 -   Update the event's data with the subject property when a Message arrive.
+-   Fix presence for S2SServiceEventHandler.
 
 ## [1.67.1] - 2020-02-19
 -   Fix login issue when Rainbow CLI use SDK.

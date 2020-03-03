@@ -61,7 +61,7 @@ let options = {
         "conversationsRetrievedFormat": "small",
         "storeMessages": false,
         "copyMessage": true,
-        "messagesDataStore": DataStoreType.NoPermanentStore
+        "messagesDataStore": DataStoreType.StoreTwinSide
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -158,7 +158,7 @@ rainbowSDK.start(undefined).then(async(result) => {
         let allBubbles = await rainbowSDK.bubbles.getAllBubbles(); // "5e56968c6f18201dde44fa7c"
         let bubble = allBubbles ? allBubbles.filter((bull) => { return bull.name === bullName; }) : null;
         let content = {
-            message: "*`--" + action.toUpperCase() + "--` AfterBuild **Node SDK TESTs***  \n-----------------",
+            message: "<font color='#696969'>**Hello**</font> *`--" + action.toUpperCase() + "--` AfterBuild **Node SDK TESTs***  \n-----------------",
             type: "text/markdown"
         };
         if (bubble) {

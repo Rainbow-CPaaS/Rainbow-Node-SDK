@@ -990,7 +990,6 @@ class Contacts {
             }
 
             let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
-
             this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
             this._eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
         }

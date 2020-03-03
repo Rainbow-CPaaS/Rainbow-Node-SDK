@@ -176,33 +176,56 @@ class S2SServiceEventHandler {
                     // PresenceInfo presenceInfo = Util.GetPresenceInfo((contact.Jid_im == contacts.GetCurrentContactJid()), show, status);
                     // s2sClient.PresenceInfoReceived(new PresenceInfoEventArgs(contact.Jid_im, resource, date, presenceInfo));
 
-                    let eventInfo = {
-                        "fulljid": contact.jid_im + "/" + resource,
-                        "jid": contact.jid_im,
-                        "resource": resource,
-                        "status": show,
-                        "message": status,
-                        "type": that.xmppUtils.isFromTelJid(resource) ?
-                            "phone" :
-                            that.xmppUtils.isFromMobile(resource) ?
-                                "mobile" :
-                                that.xmppUtils.isFromNode(resource) ?
-                                    "node" :
-                                    that.xmppUtils.isFromS2S(resource) ?
-                                        "s2s" : "desktopOrWeb"
-                    };
+
+
+                    that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im);
 
                     if (that.jid_im === contact.jid_im) {
+                        let eventInfo = {
+                            "fulljid": contact.jid_im + "/" + resource,
+                            "jid": contact.jid_im,
+                            "resource": resource,
+                            "status": show,
+                            "message": status,
+                            "type": that.xmppUtils.isFromTelJid(resource) ?
+                                "phone" :
+                                that.xmppUtils.isFromMobile(resource) ?
+                                    "mobile" :
+                                    that.xmppUtils.isFromNode(resource) ?
+                                        "node" :
+                                        that.xmppUtils.isFromS2S(resource) ?
+                                            "s2s" : "desktopOrWeb"
+                        };
                         that._eventEmitter.emit("evt_internal_presencechanged", eventInfo);
                     } else {
-                        that._eventEmitter.emit("evt_internal_onrosterpresencechanged", eventInfo);
+                        let evtParam =  {
+                            fulljid: from,
+                            jid: contact.jid_im, //xmppUtils.getBareJIDFromFullJID(from),
+                            resource: resource, //xmppUtils.getResourceFromFullJID(from),
+                            value: {
+                                priority: 5,
+                                show: show || "",
+                                delay: 0,
+                                status: status || "",
+                                type: that.xmppUtils.isFromTelJid(resource) ?
+                                    "phone" :
+                                    that.xmppUtils.isFromMobile(resource) ?
+                                        "mobile" :
+                                        that.xmppUtils.isFromNode(resource) ?
+                                            "node" :
+                                            that.xmppUtils.isFromS2S(resource) ?
+                                                "s2s" : "desktopOrWeb"
+                            }
+                        };
+                        that._eventEmitter.emit("evt_internal_onrosterpresence", evtParam);
                     }
-
                     return true;
-                } else
+                } else {
                     that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) Impossible to get Contact using from field:[", from, "]",);
-            } else
+                }
+            } else {
                 that._logger.log("warn", LOG_ID + "(ParsePresenceCallback) Impossible to get 'from' property from info provided:[", event, "]");
+            }
         } else {
             that._logger.log("error", LOG_ID + "(ParsePresenceCallback) Impossible to get Presence object using from info provided:[", event, "]");
         }

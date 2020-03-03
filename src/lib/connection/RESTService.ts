@@ -2999,13 +2999,14 @@ Request Method: PUT
         that.logger.log("internal", LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
         return new Promise(function(resolve, reject) {
 
+            let data = obj ?  { presence: { show:obj.show, status: obj.status }} : { presence: { show:"", status: ""}};
             if (!that.connectionS2SInfo || !that.connectionS2SInfo.id) {
                 that.logger.log("error", LOG_ID, "(sendS2SPresence) error");
                 that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error connectionS2SInfo.id is not defined.");
                 return  reject({code:-1, label:"connectionS2SInfo.id is not defined!!!"});
             }
 
-            that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/presences" , that.getRequestHeader(), { presence: { show:"", status: ""}}, undefined).then(function(json) {
+            that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/presences" , that.getRequestHeader(), data, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(sendS2SPresence) successfull.");
                 that.logger.log("internal", LOG_ID + "(sendS2SPresence) REST presence updated", json.data);
                 resolve(json.data);
