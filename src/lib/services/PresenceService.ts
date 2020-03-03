@@ -429,8 +429,6 @@ class PresenceService {
         if ( presence.jid === that._xmpp.jid ) {
             that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", presence);
             that._currentPresence = presence;
-
-            //that.
         }
     }
 }
