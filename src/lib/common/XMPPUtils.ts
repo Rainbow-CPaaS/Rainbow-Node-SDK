@@ -128,6 +128,10 @@ export class XMPPUTils {
         return (fullJid.indexOf("node") > -1);
     }
 
+    isFromS2S(fullJid) {
+        return (fullJid.indexOf("s2s") > -1);
+    }
+
     isFromTelJid(fullJid) {
         return (fullJid.indexOf("tel_") === 0);
     }

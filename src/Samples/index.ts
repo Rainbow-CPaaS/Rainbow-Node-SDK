@@ -9,6 +9,7 @@
 import {setTimeoutPromised} from "../lib/common/Utils";
 import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
+import {url} from "inspector";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -46,17 +47,26 @@ const jwt =  require("jwt-decode");
     output: process.stdout
 }); // */
 
+const ngrok = require('ngrok');
+let urlS2S;
+
+(async function() {
+    console.log("MAIN - ngrock.");
+    urlS2S = await ngrok.connect(4000);
+    console.log("MAIN - ngrock, urlS2S : ", urlS2S);
+
 // Define your configuration
 let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-        //mode: "s2s"
-        mode: "xmpp"
+       "mode": "s2s"
+      //  "mode": "xmpp"
     },
-    s2s: {
-        hostCallback: "http://3d260881.ngrok.io",
-        locallistenningport: "4000"
+    "s2s": {
+        "hostCallback": urlS2S,
+        //"hostCallback": "http://70a0ee9d.ngrok.io",
+        "locallistenningport": "4000"
     },
     "credentials": {
         "login": "",  // The Rainbow email account to use
@@ -98,7 +108,7 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
-    testOutdatedVersion: false,
+    "testOutdatedVersion": false,
     // IM options
     "im": {
         "sendReadReceipt": true,
@@ -1556,7 +1566,7 @@ async function  testgetAvatarFromBubble() {
 
 function testmakeCallByPhoneNumberProd() {
     return __awaiter(this, void 0, void 0, function* () {
-        rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", undefined).then((data1) => {
+        rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", "My_correlatorData").then((data1) => {
             //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
             logger.log("debug", "MAIN - [makeCallByPhoneNumber] after makecall : ", data1);
             Utils.setTimeoutPromised(1000).then(() => {
@@ -2005,3 +2015,5 @@ rainbowSDK.start(token).then(async(result) => {
 }).catch((err) => {
     console.log("MAIN - Error during starting : " + util.inspect(err));
 }); // */
+
+})();

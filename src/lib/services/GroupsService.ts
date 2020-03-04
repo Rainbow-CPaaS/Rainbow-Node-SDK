@@ -8,6 +8,8 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "GROUPS/SVCE - ";
 
@@ -15,7 +17,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @name Groups
+ * @name GroupsService
  * @version SDKVERSION
  * @public
  * @description
@@ -28,12 +30,16 @@ const LOG_ID = "GROUPS/SVCE - ";
  *		- Add a contact in a group
  *		- Remove a contact from a group
  */
- class Groups {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _groups: any;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+ class GroupsService {
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _groups: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -47,6 +53,10 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._groups = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
@@ -59,13 +69,17 @@ const LOG_ID = "GROUPS/SVCE - ";
         this.ready = false;
     }
 
-     start(_xmpp : XMPPService, _rest : RESTService) {
+     start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
          let that = this;
          return new Promise(function(resolve, reject) {
              try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
-                that._groups = [];
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                 that._options = _options;
+                 that._s2s = _core._s2s;
+                 that._useXMPP = that._options.useXMPP;
+                 that._useS2S = that._options.useS2S;
+                 that._groups = [];
 /*
                  that._eventEmitter.removeListener("evt_internal_groupcreated", that._onGroupCreated);
                  that._eventEmitter.removeListener("evt_internal_groupdeleted", that._onGroupDeleted);
@@ -117,11 +131,10 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {string} name The name of the group to create
      * @param {string} comment The comment of the group to create
      * @param {boolean} isFavorite If true, the group is flagged as favorite
-     * @memberof Groups
      * @description
      *      Create a new group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Created group object or an error object depending on the result
      * @category async
      */
@@ -156,12 +169,11 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method deleteGroup
      * @instance
-     * @param {Group} group The group to delete
-     * @memberof Groups
+     * @param {Object} group The group to delete
      * @description
      * 		Delete an owned group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Deleted group object or an error object depending on the result
      * @category async
      */
@@ -240,13 +252,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method updateGroupName
      * @instance
-     * @param {Group} group The group to update
+     * @param {Object} group The group to update
      * @param {string} name The new name of the group
-     * @memberof Groups
      * @description
      * 		Update the name of a group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
@@ -331,12 +342,11 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method setGroupAsFavorite
      * @since 1.67.0
      * @instance
-     * @param {Group} group The group
-     * @memberof Groups
+     * @param {Object} group The group
      * @description
      * 		Set a group as a favorite one of the curent loggued in user.
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
@@ -367,12 +377,11 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method unsetGroupAsFavorite
      * @since 1.67.0
      * @instance
-     * @param {Group} group The group
-     * @memberof Groups
+     * @param {Object} group The group
      * @description
      * 		Remove the favorite state of a group of the curent loggued in user.
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
@@ -403,12 +412,11 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method addUserInGroup
      * @instance
      * @param {Contact} contact The user to add in group
-     * @param {Group} group The group
-     * @memberof Groups
+     * @param {Object} group The group
      * @description
      * 		Add a contact in a group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
      * @category async
      */
@@ -455,12 +463,11 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method removeUserFromGroup
      * @instance
      * @param {Contact} contact The user to remove from the group
-     * @param {Group} group The destination group
-     * @memberof Groups
+     * @param {Object} group The destination group
      * @description
      *		Remove a contact from a group
      * @async
-     * @return {Promise<Group, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
      * @category async
      */
@@ -505,7 +512,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getAll
      * @instance
      * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-     * @memberof Groups
      * @description
      *  Return the list of existing groups
      */
@@ -518,7 +524,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getFavoriteGroups
      * @instance
      * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-     * @memberof Groups
      * @description
      *  Return the list of favorite groups
      */
@@ -533,8 +538,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getGroupById
      * @instance
      * @param {String} group Id of the group to found
-     * @return {Group} The group found if exist or undefined
-     * @memberof Groups
+     * @return {Object} The group found if exist or undefined
      * @description
      *  Return a group by its id
      */
@@ -549,8 +553,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getGroupByName
      * @instance
      * @param {String} name Name of the group to found
-     * @return {Group} The group found if exist or undefined
-     * @memberof Groups
+     * @return {Object} The group found if exist or undefined
      * @description
      *  Return a group by its id
      */
@@ -565,7 +568,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method _onGroupCreated
      * @instance
      * @param {Object} data Contains the groupId of the created group
-     * @memberof Groups
      * @description
      *		Method called when a group is created
      */
@@ -591,7 +593,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method _onGroupDeleted
      * @instance
      * @param {Object} data Contains the groupId of the deleted group
-     * @memberof Groups
      * @description
      *		Method called when a group is deleted
      */
@@ -616,7 +617,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method _onGroupUpdated
      * @instance
      * @param {Object} data Contains the groupId of the updated group
-     * @memberof Groups
      * @description
      *		Method called when a group is updated (name, comment, isFavorite)
      */
@@ -642,7 +642,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method _onUserAddedInGroup
      * @instance
      * @param {Object} data Contains the groupId and the userId
-     * @memberof Groups
      * @description
      *		Method called when a user is added to a group
      */
@@ -671,7 +670,6 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method _onUserRemovedFromGroup
      * @instance
      * @param {Object} data Contains the groupId and the userId
-     * @memberof Groups
      * @description
      *		Method called when a user is removed from a group
      */
@@ -698,5 +696,5 @@ const LOG_ID = "GROUPS/SVCE - ";
     }
  }
 
- module.exports.GroupsService = Groups;
- export {Groups as GroupsService} ;
+ module.exports.GroupsService = GroupsService;
+ export {GroupsService as GroupsService} ;

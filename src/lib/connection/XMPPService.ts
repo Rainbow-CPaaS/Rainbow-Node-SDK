@@ -1189,7 +1189,6 @@ class XMPPService {
         let that = this;
         return new Promise(function (resolve) {
             try {
-                that.stopIdleTimer();
                 that.jid_im = "";
                 that.jid_tel = "";
                 that.jid_password = "";
@@ -1197,6 +1196,7 @@ class XMPPService {
                 that.userId = "";
                 that.initialPresence = true;
                 if (that.useXMPP && forceStop) {
+                    that.stopIdleTimer();
 
                     delete that.IQEventHandler;
                     that.IQEventHandler = null;
@@ -1573,9 +1573,7 @@ class XMPPService {
 
             this.logger.log("internal", LOG_ID + "(markMessageAsRead) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
-                that
-                    .xmppClient
-                    .send(stanzaRead).then(() => {
+                that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
                     resolve();
                 }).catch((err) => {
@@ -1798,7 +1796,7 @@ class XMPPService {
             let stanza = xml("presence", {
                 "id": id,
                 to: jid + "/" + this.fullJid
-            }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}), xml("history", {maxchars: "0"}));
+            }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}).append(xml("history", {maxchars: "0"})));
 
             if (this.initialPresence) {
                 this.initialPresence = false;

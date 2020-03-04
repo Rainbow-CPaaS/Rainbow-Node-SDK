@@ -6,6 +6,29 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.68.0] - 2020-03-XX
+-   Add isFavorite in Conversation.
+-   Move bubbles._sendInitialBubblePresence to presence.sendInitialBubblePresence.
+-   change start methods prototype of services to replace each services in parameters to only one param the Core object.
+-   Add methods in RESTService :: sendS2SMessageInConversation, getS2SServerConversation, joinS2SRoom. 
+-   Add methods in S2SService :: sendMessageInConversation, joinRoom.
+-   Add events treatment S2SServiceEventHandler :: ParseChatStateCallback, ParseReceitpCallback, ParseAllReceitpCallback, ParseConversationCallback, ParseMessageCallback, 
+ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseAlldeletedCallback, ParseErrorCallback.
+-   Add  method in ConversationsService::getS2SServerConversation to get a conversation from id on S2S API Server.
+-   Raise event on message when the content is empty (because message can have a subject filled without body)  in conversationEventHandler.
+-   raise an event when receive a conversation unknown by sdk deleted in conversationEventHandler.
+-   Update ImsService::sendMessageToConversation api to send the message in S2S mode.
+-   Add postTestRunOpenrainbowDotNet script to post a message in a bubble when the tests for afterbuild start/stop.
+-   Fix "no-store" value in DataStoreType type.
+-   Update the event's data with the subject property when a Message arrive.
+-   Fix presence for S2SServiceEventHandler.
+-   Add original url in HttpService errors to help the following.
+-   Update in the S2SServiceEventHandler the event handler for a received message with the `shouldSendReadReceipt`SDK parameter to automatically mark as read a received message.
+-   Fix the stanza "presence" to desactivate history for room on server side.
+
+## [1.67.1] - 2020-02-19
+-   Fix login issue when Rainbow CLI use SDK.
+
 ## [1.67.0] - 2020-02-19
 -   Fix typo error in Gruntfile.js file for the generated documentation of the invitations service. And fix documentation.
 -   Move the methods `BubblesService::resizeImage` and `BubblesService::getBinaryData` to module Utils.ts .
@@ -24,9 +47,17 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform. 
 -   RQRAINB-3023 Add method `RESTService::getRainbowNodeSdkPackagePublishedInfos` to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com.
 -   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com. 
--   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters.
+-   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
 -   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
 -   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
+-   Changelog is removed from https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS.
+-   Fix the retrieve of `csv` file in HttpService. => Fix failure of command in rainbow Cli `rbw masspro template user` .
+-   Fix S2SService::stop method.
+-   Add properties `_options, _useXMPP, _useS2S, _s2s` in all SDK's services to select S2S or XMPP behaviour of API.
+-   Start parse S2S events in S2SServiceEventHandler
+-   Refactor for private members of services.
+-   Fix retrieve at startup of the previous presence saved in settings service, and use it.
+
 
 ## [1.66.1] - 2020-01-29
 -   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)

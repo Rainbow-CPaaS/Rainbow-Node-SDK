@@ -447,7 +447,8 @@ class Events {
                     bubble.users.forEach((user) => {
                         if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
                             // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                            that._core.bubbles._sendInitialBubblePresence(bubble);
+                            //that._core.bubbles._sendInitialBubblePresence(bubble);
+                            that._core._presence.sendInitialBubblePresence(bubble);
                         }
                     });
                 }

@@ -1,7 +1,9 @@
 "use strict";
 
+const DataStoreType = require("./lib/config/config").DataStoreType;
+
 const Core = require("./lib/Core").Core;
-const ErrorManager = require("./lib/common/ErrorManager").ErrorManager ;
+const ErrorManager = require("./lib/common/ErrorManager").ErrorManager;
 const utils = require( "./lib/common/Utils");
 
 /**
@@ -131,8 +133,13 @@ class NodeSDK {
      *      The entry point of the Rainbow Node SDK
      * @param {{rainbow: {host: string}, application: {appID: string, appSecret: string}, im: {sendReadReceipt: boolean, sendMessageToConnectedUser: boolean, conversationsRetrievedFormat: string, copyMessage: boolean, storeMessages: boolean, messageMaxLength: number}, credentials: {password: string, login: string}, logs: {file: {zippedArchive: boolean, path: string, customFileName: string}, color: boolean, level: string, "system-dev": {http: boolean, internals: boolean}, enableFileLogs: boolean, customLabel: string, enableConsoleLogs: boolean}, servicesToStart: {favorites: {start_up: boolean}, fileStorage: {start_up: boolean}, webrtc: {start_up: boolean, optional: boolean}, channels: {start_up: boolean}, calllog: {start_up: boolean}, telephony: {start_up: boolean}, admin: {start_up: boolean}, bubbles: {start_up: boolean}, fileServer: {start_up: boolean}}}} options : The options provided to manage the SDK behavior <br>
      *   "rainbow": {<br>
-     *       "host": "official",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
+     *       "host": "official", // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
+     *       "mode": "xmpp" // The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`)
      *    },<br>
+     *   "s2s": {
+     *      "hostCallback": "http://3d260881.ngrok.io", // S2S Callback URL used to receive events on internet
+     *      "locallistenningport": "4000" // Local port where the events must be forwarded from S2S Callback Web server.
+    *    },
      *   "credentials": {<br>
      *       "login": "user@xxxx.xxx",  // The Rainbow email account to use<br>
      *       "password": "XXXXX",<br>
@@ -143,12 +150,12 @@ class NodeSDK {
      *       "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret<br>
      *   },<br>
      *   // Proxy configuration<br>
-     *   proxy: {<br>
-     *       host: "xxx.xxx.xxx.xxx",<br>
-     *       port: xxxx,<br>
-     *       protocol: "http",<br>
-     *       user: "proxyuser",<br>
-     *       password: "XXXXX",<br>
+     *   "proxy": {<br>
+     *       "host": "xxx.xxx.xxx.xxx",<br>
+     *       "port": xxxx,<br>
+     *       "protocol": "http",<br>
+     *       "user": "proxyuser",<br>
+     *       "password": "XXXXX",<br>
      *   },<br>
      *   // Logs options<br>
      *   "logs": {<br>
@@ -163,7 +170,7 @@ class NodeSDK {
      *           "zippedArchive": false Can activate a zip of file. It needs CPU process, so avoid it.<br>
      *       }<br>
      *   },<br>
-     *       testOutdatedVersion: true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
+     *   "testOutdatedVersion": true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
      *   // IM options<br>
      *   "im": {<br>
      *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
@@ -621,7 +628,9 @@ class NodeSDK {
         return this._core._invitations;
     }
 
-
+    get DataStoreType() {
+        return DataStoreType;
+    }
 
 }
 

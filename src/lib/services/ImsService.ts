@@ -14,6 +14,10 @@ import {Logger} from "../common/Logger";
 import EventEmitter = NodeJS.EventEmitter;
 import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
+import {S2SService} from "../connection/S2S/S2SService";
+import {RESTService} from "../connection/RESTService";
+import {Core} from "../Core";
+import {PresenceService} from "./PresenceService";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -33,19 +37,25 @@ const LOG_ID = "IM/SVCE - ";
  *      - Mark a message as read <br>
  */
 class IMService {
-	public _xmpp: XMPPService;
-	public _conversations: ConversationsService;
-	public _logger: Logger;
-	public _eventEmitter: EventEmitter;
-	public pendingMessages: any;
-	public _bulles: any;
-    private imOptions: any;
-    public _fileStorage: any;
+    private _xmpp: XMPPService;
+    private _conversations: ConversationsService;
+    private _logger: Logger;
+    private _eventEmitter: EventEmitter;
+    private _pendingMessages: any;
+    private _bulles: any;
+    private _imOptions: any;
+    private _fileStorage: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
     };
+    private _rest: RESTService;
+    private _presence: PresenceService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -53,11 +63,16 @@ class IMService {
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._conversations = null;
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
-        this.pendingMessages = {};
-        this.imOptions = _imOptions;
+        this._pendingMessages = {};
+        this._imOptions = _imOptions;
 
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
         this.ready = false;
@@ -65,14 +80,20 @@ class IMService {
 
     }
 
-    start(_xmpp : XMPPService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._conversations = __conversations;
-                that._bulles = __bubbles;
-                that._fileStorage = _filestorage;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                that._options = _options;
+                that._s2s = _core._s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+                that._conversations = _core.conversations;
+                that._bulles = _core.bubbles;
+                that._fileStorage = _core.fileStorage;
+                that._presence = _core.presence;
                 that.ready = true;
                 resolve();
 
@@ -98,16 +119,14 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
-     * @method
+     * @method getMessagesFromConversation
      * @instance
      * @description
      *    <b>(beta)</b> Retrieve the list of messages from a conversation <br/>
      *    Calling several times this method will load older message from the history (pagination) <br/>
      * @param {Conversation} conversation The conversation
      * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
-     * @memberof IMService
      * @async
      * @return {Promise<Conversation, ErrorManager>}
      * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
@@ -129,15 +148,13 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
-     * @method
+     * @method getMessageFromConversationById
      * @instance
      * @description
      *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
      * @param {Conversation} conversation The conversation where to search for the message
      * @param {String} strMessageId The message id
-     * @memberof IMService
      * @return {Message} The message if found or null
      */
     async getMessageFromConversationById(conversation, strMessageId) {
@@ -164,15 +181,13 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
-     * @method
+     * @method getMessageFromBubbleById
      * @instance
      * @description
      *    Retrieve a specific message in a bubble using its id <br/>
      * @param {Bubble} bubble The bubble where to search for the message
      * @param {String} strMessageId The message id
-     * @memberof IMService
      * @return {Message} The message if found or null
      */
     async getMessageFromBubbleById(bubble, strMessageId) {
@@ -211,9 +226,8 @@ class IMService {
 
     /**
      * @public
-     * @beta
      * @since 1.39
-     * @method
+     * @method sendMessageToConversation
      * @instance
      * @description
      *    <b>(beta)</b> Send a instant message to a conversation<br>
@@ -225,37 +239,80 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    sendMessageToConversation(conversation, message, lang, content, subject) {
+    async sendMessageToConversation(conversation, message, lang, content, subject) {
         let that = this;
         if (!conversation) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         if (!message) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         }
 
-        if (message.length > that.imOptions.messageMaxLength) {
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+        if (message.length > that._imOptions.messageMaxLength) {
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
-        let msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
+        let msgSent : any = undefined; //Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: " sent message failed."}));
+        if (this._useXMPP) {
+            msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
+        }
+        if ((this._useS2S)) {
+            /*
+{
+  "message": {
+    "subject": "Greeting",
+    "lang": "en",
+    "contents": [
+      {
+        "type": "text/markdown",
+        "data": "## Hello Bob"
+      }
+    ],
+    "body": "Hello world"
+  }
+}
+             */
+            let msg = {
+                "message": {
+                    "subject": subject,
+                    "lang": lang,
+                    "contents":
+                    content,
+                    // [
+                    // {
+                    //     "type": "text/markdown",
+                    //     "data": "## Hello Bob"
+                    // }
+                    // ],
+                    "body": message
+                }
+            };
+
+            if (!conversation.dbId) {
+                conversation = await this._conversations.createServerConversation(conversation);
+                this._logger.log("internal", LOG_ID + "(sendMessageToConversation) conversation : ", conversation);
+            }
+
+            msgSent = this._s2s.sendMessageInConversation(conversation.dbId, msg);
+        }
+
         return msgSent.then((messageSent) => {
             this._conversations.storePendingMessage(conversation, messageSent);
             //conversation.messages.push(messageSent);
             //this.conversations.getServerConversations();
             return messageSent;
         });
+
     }
 
     /**
@@ -271,7 +328,6 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -296,7 +352,7 @@ class IMService {
      * @param message
      */
     /*storePendingMessage(message) {
-        this.pendingMessages[message.id] = {
+        this._pendingMessages[message.id] = {
 //            conversation: conversation,
             message: message
         };
@@ -310,18 +366,18 @@ class IMService {
      * @param message
      */
     /* removePendingMessage(message) {
-        delete this.pendingMessages[message.id];
+        delete this._pendingMessages[message.id];
     } // */
 
     _onmessageReceipt(receipt) {
         let that = this;
         return;
-        /*if (this.pendingMessages[receipt.id]) {
-            let messagePending = this.pendingMessages[receipt.id].message;
+        /*if (this._pendingMessages[receipt.id]) {
+            let messagePending = this._pendingMessages[receipt.id].message;
             that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending message received from server, so remove from pending", messagePending);
             this.removePendingMessage(messagePending);
         }
-        that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that.pendingMessages);
+        that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that._pendingMessages);
         // */
     }
 
@@ -338,7 +394,6 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -360,9 +415,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -374,12 +429,16 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        let messageSent : any = Promise.reject();
+
+        if (this._useXMPP) {
+             messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        }
 
         /*
         this.storePendingMessage(messageSent);
         await utils.until(() => {
-               return this.pendingMessages[messageSent.id] === undefined;
+               return this._pendingMessages[messageSent.id] === undefined;
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
@@ -402,7 +461,6 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
@@ -432,9 +490,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -451,7 +509,7 @@ class IMService {
         /*
         this.storePendingMessage(messageSent);
         await utils.until(() => {
-               return this.pendingMessages[messageSent.id] === undefined;
+               return this._pendingMessages[messageSent.id] === undefined;
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
@@ -475,7 +533,6 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -505,7 +562,6 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -527,9 +583,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -550,7 +606,7 @@ class IMService {
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                await that._presence.sendInitialBubblePresence(bubble.jid);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
                 await until(() => {
                     return bubble.isActive === true;
@@ -579,7 +635,6 @@ class IMService {
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @memberof IMService
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -607,9 +662,9 @@ class IMService {
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
-        if (messageSize > that.imOptions.messageMaxLength) {
+        if (messageSize > that._imOptions.messageMaxLength) {
             that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that.imOptions.messageMaxLength + " characters"}));
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
@@ -646,7 +701,7 @@ class IMService {
 
     /**
      * @public
-     * @method
+     * @method sendIsTypingStateInBubble
      * @instance IMService
      * @description
      *    Switch the "is typing" state in a bubble/room<br>
@@ -689,7 +744,7 @@ class IMService {
 
     /**
      * @public
-     * @method
+     * @method sendIsTypingStateInConversation
      * @instance IMService
      * @description
      *    Switch the "is typing" state in a conversation<br>
@@ -726,7 +781,6 @@ class IMService {
      * @description
      *  Send a 'read' receipt to the recipient
      * @param {Message} messageReceived The message received to mark as read
-     * @memberof IMService
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -743,7 +797,20 @@ class IMService {
             return ErrorManager.getErrorManager().OK;
         }
 
-        return this._xmpp.markMessageAsRead(messageReceived);
+        this._logger.log("internal", LOG_ID + "(markMessageAsRead) 'messageReceived' parameter : ", messageReceived);
+
+        if (this._useXMPP) {
+            return this._xmpp.markMessageAsRead(messageReceived);
+        }
+        if ((this._useS2S)) {
+            if (messageReceived.conversation) {
+                let conversationId = messageReceived.conversation.dbId ? messageReceived.conversation.dbId : messageReceived.conversation.id;
+                let messageId = messageReceived.id;
+                return this._rest.markMessageAsRead(conversationId, messageId);
+            } else {
+                return Promise.reject('No conversation found in message.');
+            }
+        }
     }
 
     /**
@@ -752,7 +819,6 @@ class IMService {
      * @instance
      * @description
      *      Enable message carbon XEP-0280
-     * @memberof IMService
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -761,12 +827,19 @@ class IMService {
     enableCarbon() {
         let that = this;
         return new Promise((resolve) => {
-            that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
-                that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
-                that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
+            if (this._useXMPP) {
+                that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
+                    that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
+                    that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
+                    resolve();
+                });
+                that._xmpp.enableCarbon();
+            } else
+            if (this._useS2S){
                 resolve();
-            });
-            that._xmpp.enableCarbon();
+            } else {
+                resolve();
+            }
         });
     }
 

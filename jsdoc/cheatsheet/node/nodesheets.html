@@ -25,7 +25,7 @@ class Telephony
 class PresenceService
 class InvitationsService
 class IMService
-class Groups
+class GroupsService
 class FileStorage
 class FavoritesService
 class Conversations
@@ -189,18 +189,18 @@ FileStorage : FileDescriptor[] : getFilesSentInBubble(Bubble)
 FileStorage : Object : getUserQuotaConsumption()
 FileStorage : FileDescriptor[] : getAllFilesSent()
 FileStorage : FileDescriptor[] : getAllFilesReceived()
-Groups : Promise.Group, ErrorManager : createGroup(string, string, boolean)
-Groups : Promise.Group, ErrorManager : deleteGroup(Group)
-Groups : Object : deleteAllGroups()
-Groups : Promise.Group, ErrorManager : updateGroupName(Group, string)
-Groups : Promise.Group, ErrorManager : setGroupAsFavorite(Group)
-Groups : Promise.Group, ErrorManager : unsetGroupAsFavorite(Group)
-Groups : Promise.Group, ErrorManager : addUserInGroup(Contact, Group)
-Groups : Promise.Group, ErrorManager : removeUserFromGroup(Contact, Group)
-Groups : Array : getAll()
-Groups : Array : getFavoriteGroups()
-Groups : Group : getGroupById(String)
-Groups : Group : getGroupByName(String)
+GroupsService : Promise.Object, ErrorManager : createGroup(string, string, boolean)
+GroupsService : Promise.Object, ErrorManager : deleteGroup(Object)
+GroupsService : Object : deleteAllGroups()
+GroupsService : Promise.Object, ErrorManager : updateGroupName(Object, string)
+GroupsService : Promise.Object, ErrorManager : setGroupAsFavorite(Object)
+GroupsService : Promise.Object, ErrorManager : unsetGroupAsFavorite(Object)
+GroupsService : Promise.Object, ErrorManager : addUserInGroup(Contact, Object)
+GroupsService : Promise.Object, ErrorManager : removeUserFromGroup(Contact, Object)
+GroupsService : Array : getAll()
+GroupsService : Array : getFavoriteGroups()
+GroupsService : Object : getGroupById(String)
+GroupsService : Object : getGroupByName(String)
 IMService : Promise.Conversation, ErrorManager : getMessagesFromConversation(Conversation, Number)
 IMService : Message : getMessageFromConversationById(Conversation, String)
 IMService : Message : getMessageFromBubbleById(Bubble, String)
@@ -228,6 +228,7 @@ InvitationsService : Object : sendInvitationByEmail(Array)
 InvitationsService : Object : acceptInvitation(Invitation)
 InvitationsService : Object : declineInvitation(Invitation)
 PresenceService : Promise.ErrorManager : setPresenceTo(String)
+PresenceService : void : getUserConnectedPresence()
 Telephony : boolean : isTelephonyAvailable()
 Telephony : string : getAgentVersion()
 Telephony : string : getXMPPAgentStatus()

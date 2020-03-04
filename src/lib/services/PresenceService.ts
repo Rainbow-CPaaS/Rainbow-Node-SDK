@@ -12,6 +12,10 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
+import {RESTService} from "../connection/RESTService";
+import {S2SService} from "../connection/S2S/S2SService";
+import {Core} from "../Core";
+import {BubblesService} from "./BubblesService";
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -29,14 +33,14 @@ const LOG_ID = "PRES/SVCE - ";
  *      - Change the connected user presence
  */
 class PresenceService {
-	public _logger: Logger;
-	public _xmpp: XMPPService;
-	public _settings: SettingsService;
-	public presenceEventHandler: any;
-	public presenceHandlerToken: any;
-	public _eventEmitter: EventEmitter;
-	public manualState: any;
-	public _currentPresence: any;
+    private _logger: Logger;
+    private _xmpp: XMPPService;
+    private _settings: SettingsService;
+    private _presenceEventHandler: any;
+    private _presenceHandlerToken: any;
+    private _eventEmitter: EventEmitter;
+    private manualState: any;
+    private _currentPresence: any;
     RAINBOW_PRESENCE_ONLINE: any;
     RAINBOW_PRESENCE_DONOTDISTURB: any;
     RAINBOW_PRESENCE_AWAY: any;
@@ -46,10 +50,13 @@ class PresenceService {
         start_up:boolean,
         optional:boolean
     };
-    _s2s: any;
-    options: any;
-    useXMPP: any;
-    useS2S: any;
+    private _s2s: S2SService;
+    private _options: any;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _rest: RESTService;
+    private _bubbles: BubblesService;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -58,8 +65,12 @@ class PresenceService {
         let that = this;
         this._startConfig = _startConfig;
 
-        that._xmpp = null;
+        this._xmpp = null;
+        this._rest = null;
         that._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         that._eventEmitter = _eventEmitter;
         that._logger = _logger;
 
@@ -76,19 +87,22 @@ class PresenceService {
         this.ready = false;
     }
 
-    start(_options, _xmpp, _settings : SettingsService, _s2s) {
+    start(_options, _core : Core ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that.options = _options;
-                that._xmpp = _xmpp;
-                that._s2s = _s2s;
-                that._settings = _settings;
-                that.useXMPP = that.options.useXMPP;
-                that.useS2S = that.options.useS2S;
+                that._options = _options;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                that._s2s = _core._s2s;
+                that._settings = _core.settings;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+                that._bubbles = _core.bubbles;
 
-                that.presenceEventHandler = new PresenceEventHandler(that._xmpp);
-                that.presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that.presenceEventHandler.PRESENCE, that.presenceEventHandler.onPresenceReceived);
+
+                that._presenceEventHandler = new PresenceEventHandler(that._xmpp);
+                that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived);
 
 /*
                 that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
@@ -112,9 +126,9 @@ class PresenceService {
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                delete that.presenceEventHandler;
-                that.presenceEventHandler = null;
-                PubSub.unsubscribe(that.presenceHandlerToken);
+                delete that._presenceEventHandler;
+                that._presenceEventHandler = null;
+                PubSub.unsubscribe(that._presenceHandlerToken);
 
                 that._xmpp = null;
 /*
@@ -137,7 +151,6 @@ class PresenceService {
      * @description
      *  Send the initial presence (online)
      * @return {ErrorManager.Ok} A promise containing the result
-     * @memberof PresenceService
      */
     sendInitialPresence() {
 
@@ -161,7 +174,6 @@ class PresenceService {
      *    Allow to change the presence of the connected user <br/>
      *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
      * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-     * @memberof PresenceService
      * @async
      * @return {Promise<ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -171,7 +183,8 @@ class PresenceService {
         let that = this;
         let show = "online";
         let status = "";
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+
             switch (presence) {
                 case "online":
                     //show = "online";
@@ -195,26 +208,32 @@ class PresenceService {
                     that._logger.log("warn", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter");
                     that._logger.log("internalerror", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter : ", presence);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                break;
+                    break;
             }
 
-            that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged (_presence) {
+            that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(_presence) {
                 that._logger.log("info", LOG_ID + "(setPresenceTo) received.");
                 that._logger.log("internal", LOG_ID + "(setPresenceTo) received : ", _presence);
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
-            that._xmpp.setPresence(show, status);
 
-            that._settings.updateUserSettings({ presence: presence});
+            that._logger.log("internal", LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S);
+
+            if (that._useXMPP) {
+                that._xmpp.setPresence(show, status);
+            }
+            if (that._useS2S) {
+                await that._s2s.sendS2SPresence({show, status});
+            }
+            await that._settings.updateUserSettings({presence: presence});
         });
     }
 
     /**
-     * @private
+     * @public
      * @method getUserConnectedPresence
      * @instance
-     * @memberof PresenceService
      * @description
      *      Get user presence status calculated from events.
      */
@@ -226,7 +245,6 @@ class PresenceService {
      * @private
      * @method _setUserPresenceStatus
      * @instance
-     * @memberof PresenceService
      * @description
      *      Send user presence status and message to xmpp.
      */
@@ -234,7 +252,7 @@ class PresenceService {
          let that = this;
          return new Promise(async (resolve, reject) => {
 
-             if (that.useXMPP) {
+             if (that._useXMPP) {
                  if (status === "online") {
                      that.manualState = false;
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
@@ -276,8 +294,48 @@ class PresenceService {
                      }
                  }
              }
-             if (that.useS2S) {
-                 resolve (await that._s2s.sendS2SPresence({}));
+             if (that._useS2S) {
+                 if (status === "online") {
+                     that.manualState = false;
+                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                         resolve();
+                     });
+                     await that._s2s.sendS2SPresence({"show" : null, "status" : status});
+                 } else {
+                     that.manualState = true;
+                     if (status === "away") {
+                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                             resolve(ErrorManager.getErrorManager().OK);
+                         });
+                         await that._s2s.sendS2SPresence({"show" : "away", "status" : message});
+                     } else if (status === "dnd") {
+                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                             resolve(ErrorManager.getErrorManager().OK);
+                         });
+                         await that._s2s.sendS2SPresence({"show" : "dnd", "status" : message});
+                     } else if (status === "xa") {
+                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                             resolve(ErrorManager.getErrorManager().OK);
+                         });
+                         await that._s2s.sendS2SPresence({"show" : "xa", "status" : message});
+                     } else {
+                         let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                         return reject(error);
+                     }
+                 }
+                 //resolve (that._s2s.sendS2SPresence( { show:"", status: ""} ));
              }
          });
      }
@@ -286,13 +344,12 @@ class PresenceService {
      * @private
      * @method _sendPresenceFromConfiguration
      * @instance
-     * @memberof PresenceService
      * @description
      *      Send user presence according to user settings presence.
      */
     _sendPresenceFromConfiguration() {
         let that = this;
-        return new Promise( (resolve) => {
+        return new Promise( (resolve, reject) => {
             that._settings.getUserSettings().then(function(settings : any) {
                     let message = "";
                     let presence = settings.presence;
@@ -306,14 +363,14 @@ class PresenceService {
                     that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are " + presence + " || message : " + message);
                     if (that._currentPresence && (that._currentPresence.show !== presence || (that._currentPresence.show === "xa" && that._currentPresence.status !== message))) {
                         that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from " + that._currentPresence.show + " to " + presence + " (" + message + ")");
-                        that._setUserPresenceStatus(presence, message).then(() => { resolve(); });
+                        that._setUserPresenceStatus(presence, message).then(() => { resolve(); }).catch((err) => { reject(err); });
                     } else {
                         resolve();
                     }
                 })
-                .catch(function() {
+                .catch(function(error) {
                     that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
-                    that._setUserPresenceStatus("online").then(() => { resolve(); }).catch(() => { resolve(); });
+                    that._setUserPresenceStatus("online").then(() => { resolve(); }).catch(() => { reject(error); });
                 });
 
         });
@@ -321,9 +378,36 @@ class PresenceService {
 
     /**
      * @private
+     * @method sendInitialBubblePresence
+     * @instance
+     * @param {Bubble} bubble The Bubble
+     * @description
+     *      Method called when receiving an invitation to join a bubble
+     */
+    sendInitialBubblePresence(bubble) {
+        let that = this;
+        return new Promise(async function(resolve, reject) {
+            if (!bubble || !bubble.jid) {
+                that._logger.log("debug", LOG_ID + "(joinRoom) failed");
+                that._logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
+                reject({code:-1, label:"roomid is not defined!!!"});
+            }
+            else {
+                if (that._useXMPP) {
+                    resolve(that._xmpp.sendInitialBubblePresence(bubble.jid));
+                }
+                if (that._useS2S) {
+                    let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
+                    resolve(that._s2s.joinRoom(bubbleInfos.id));
+                }
+            }
+        });
+    }
+
+    /**
+     * @private
      * @method _onUserSettingsChanged
      * @instance
-     * @memberof PresenceService
      * @description
      *      Method called when receiving an update on user settings
      */
@@ -336,7 +420,6 @@ class PresenceService {
      * @private
      * @method _onPresenceChanged
      * @instance
-     * @memberof PresenceService
      * @description
      *      Method called when receiving an update on user presence
      */

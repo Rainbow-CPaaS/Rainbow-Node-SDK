@@ -134,13 +134,29 @@ class Core {
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
                         reject(err);
                     });
+                } else {
+                    that._rest.signin(token).then((_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        resolve(json);
+                    });
                 }
             });
         };
 
         self._retrieveInformation = () => {
             let that = self;
-            that.logger.log("debug", LOG_ID + "(_retrieveInformation) options : ", that.options);
+            that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
+            //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
             return new Promise(async (resolve, reject) => {
 
                 if (that.options.testOutdatedVersion) {
@@ -190,9 +206,11 @@ class Core {
                         }).then(() => {
                             return that._groups.getGroups();
                         }).then(() => {
-                            return that.presence.sendInitialPresence();
+                            //return that.presence.sendInitialPresence();
+                            return Promise.resolve();
                         }).then(() => {
-                            return that.im.enableCarbon();
+                            //return that.im.enableCarbon();
+                            return Promise.resolve();
                         }).then(() => {
                             return that._rest.getBots();
                         }).then((bots : any) => {
@@ -243,7 +261,8 @@ class Core {
                         }).then(() => {
                             return that._groups.getGroups();
                         }).then(() => {
-                            return that.presence.sendInitialPresence();
+                            //return that.presence.sendInitialPresence();
+                            return Promise.resolve();
                         }).then(() => {
                             return that.im.enableCarbon();
                         }).then(() => {
@@ -468,39 +487,39 @@ class Core {
                     }).then(() => {
                         return that._xmpp.start(that.options.useXMPP);
                     }).then(() => {
-                        return that._s2s.start(that.options.useS2S, that._rest);
+                        return that._s2s.start(that.options, that);
                     }).then(() => {
-                        return that._settings.start(that._xmpp, that._rest);
+                        return that._settings.start(that.options, that);
                     }).then(() => {
-                        return that._presence.start(that.options,that._xmpp, that._settings, that._s2s) ;
+                        return that._presence.start(that.options,that) ;
                     }).then(() => {
-                        return  that._contacts.start(that._xmpp, that._rest, that._invitations, that._presence ) ;
+                        return  that._contacts.start(that.options, that ) ;
                     }).then(() => {
-                       return that._bubbles.start(that._xmpp, that._rest, that._contacts, that._profiles) ;
+                       return that._bubbles.start(that.options, that) ;
                     }).then(() => {
-                        return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
+                        return that._conversations.start(that.options, that) ;
                     }).then(() => {
-                        return that._profiles.start(that._xmpp, that._rest, []) ;
+                        return that._profiles.start(that.options, that, []) ;
                     }).then(() => {
-                        return that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles) ;
+                        return that._telephony.start(that.options, that) ;
                     }).then(() => {
-                        return that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage) ;
+                        return that._im.start(that.options, that) ;
                     }).then(() => {
-                        return that._channels.start(that._xmpp, that._rest) ;
+                        return that._channels.start(that.options, that) ;
                     }).then(() => {
-                        return that._groups.start(that._xmpp, that._rest) ;
+                        return that._groups.start(that.options, that) ;
                     }).then(() => {
-                        return that._admin.start(that._xmpp, that._rest) ;
+                        return that._admin.start(that.options,that) ;
                     }).then(() => {
-                        return that._fileServer.start(that._xmpp, that._rest, that._fileStorage) ;
+                        return that._fileServer.start(that.options, that) ;
                     }).then(() => {
-                        return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations) ;
+                        return that._fileStorage.start(that.options, that) ;
                     }).then(() => {
-                        return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) ;
+                        return that._calllog.start(that.options, that) ;
                     }).then(() => {
-                        return that._favorites.start(that._xmpp, that._rest) ;
+                        return that._favorites.start(that.options, that) ;
                     }).then(() => {
-                        return that._invitations.start(that._xmpp, that._rest, that._contacts, []) ;
+                        return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -561,14 +580,12 @@ class Core {
 
             that.logger.log("debug", LOG_ID + "(stop) stop all modules");
 
-            that._s2s.stop(that.options.useS2S).then(() => {
+            that._s2s.stop().then(() => {
                 return that._rest.stop();
             }).then(() => {
                 return that._http.stop();
             }).then(() => {
                 return that._xmpp.stop(that.options.useXMPP);
-            }).then(() => {
-                return that._s2s.stop(that.options.useS2S);
             }).then(() => {
                 return that._im.stop();
             }).then(() => {
@@ -621,8 +638,16 @@ class Core {
         return this._presence;
     }
 
+    get profiles() {
+        return this._profiles;
+    }
+
     get im() {
         return this._im;
+    }
+
+    get invitations() {
+        return this._invitations;
     }
 
     get contacts() {

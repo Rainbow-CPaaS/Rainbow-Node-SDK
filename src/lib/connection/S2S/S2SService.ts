@@ -17,9 +17,9 @@ const LOG_ID = "S2S - ";
 
 @logEntryExit(LOG_ID)
 class S2SService {
-    public serverURL: any;
-    public host: any;
-    public eventEmitter: any;
+    private  serverURL: any;
+    private  host: any;
+    private  eventEmitter: any;
     public version: any;
     public jid_im: any;
     public jid_tel: any;
@@ -32,12 +32,15 @@ class S2SService {
     private xmppUtils: XMPPUTils;
     private generatedRandomId: string;
     private hash: string;
-    useS2S: any;
-    _rest: RESTService;
-    hostCallback: any;
+    private useS2S: any;
+    private _rest: RESTService;
+    private hostCallback: any;
     private app: any;
     private locallistenningport: string;
     private s2sEventHandler: S2SServiceEventHandler;
+    private _contacts: any;
+    private options: any;
+    private _conversations: any;
 
     constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
@@ -55,8 +58,8 @@ class S2SService {
 //        this.xmppClient = null;
         this.logger = _logger;
         this.proxy = _proxy;
+        this.useS2S = false;
         /*
-        this.shouldSendReadReceipt = _im.sendReadReceipt;
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
@@ -76,22 +79,27 @@ class S2SService {
         this.generatedRandomId = this.xmppUtils.generateRandomID();
 
         this.hash = makeId(8);
-        this.s2sEventHandler = new S2SServiceEventHandler(this._rest,  _im, _application, _eventEmitter, _logger);
+        this.s2sEventHandler = new S2SServiceEventHandler(_im, _application, _eventEmitter, _logger, _s2s.hostCallback);
         this.eventEmitter.on("evt_internal_ons2sready", this.onS2SReady.bind(this));
 
         this.app = express();
-        this.logger.log("internal", LOG_ID + "(S2SService) ", this.logger.colors.yellow("S2SService contructor : "), this);
+        this.logger.log("internal", LOG_ID + "(S2SService) ", this.logger.colors.yellow("S2SService contructor."));
     }
 
-    start(withS2S, rest) {
+    start(_options, _core) {
         let that = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(async (resolve, reject) => {
             try {
-                that.useS2S = withS2S;
-                that._rest = rest;
-                if (withS2S) {
-                    that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
+                that.options = _options;
+                that.useS2S = that.options.useS2S;
+                that._rest = _core._rest;
+                that._contacts = _core._contacts;
+                that._conversations = _core._conversations;
+
+                await that.s2sEventHandler.start(_core);
+                if (that.useS2S) {
+                    that.logger.log("debug", LOG_ID + "(start) S2S hostCallback used : ", that.hostCallback, ", on locallistenningport : ", that.locallistenningport);
                     //that.logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) S2S connection blocked by configuration");
@@ -99,7 +107,7 @@ class S2SService {
                 }
                 that.app.use(express.json());
                 that.app.listen(that.locallistenningport, function () {
-                    that.logger.log("internal", LOG_ID + "Server is running on " + that.locallistenningport + " port");
+                    that.logger.log("debug", LOG_ID + "Server is running on " + that.locallistenningport + " port");
                 });
 
                /* that.app.post( "/message", (req, res ) => {
@@ -145,11 +153,13 @@ class S2SService {
             that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
             await that.deleteAllConnectionsS2S();
 
+            this.s2sEventHandler.setAccount(account);
+
             resolve(await that.loginS2S(that.hostCallback));
         });
     }
 
-    stop(forceStop) {
+    stop(forceStop: boolean = false) {
         let that = this;
         return new Promise(function (resolve) {
             that.jid_im = "";
@@ -157,7 +167,11 @@ class S2SService {
             that.jid_password = "";
             that.fullJid = "";
             that.userId = "";
-            resolve(that.deleteAllConnectionsS2S());
+            if (that.useS2S || forceStop) {
+                resolve(that.deleteAllConnectionsS2S());
+            } else {
+                resolve();
+            }
         });
     }
 
@@ -257,6 +271,32 @@ class S2SService {
         that.logger.log("internal", LOG_ID + "(onS2SReady) S2S READY ENVENT: ", event );
         await this._rest.setS2SConnection(event.id);
     }
+
+    /** S2S methods */
+    sendMessageInConversation(conversationId, msg) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(sendMessageInConversation) will send msg S2S : ", msg, " in conv id : ", conversationId);
+        return that._rest.sendS2SMessageInConversation(conversationId, msg).then( response => {
+                that.logger.log("debug", LOG_ID + "(sendMessageInConversation) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(sendMessageInConversation) S2S response : ", response );
+                return response;
+            } );
+    }
+
+    joinRoom(bubbleId) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);
+        return that._rest.joinS2SRoom(bubbleId).then( response => {
+                that.logger.log("debug", LOG_ID + "(joinRoom) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(joinRoom) S2S response : ", response );
+                return response;
+            } );
+    }
+
 }
 
 
