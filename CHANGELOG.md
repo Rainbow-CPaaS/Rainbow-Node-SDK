@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.68.0] - 2020-03-XX
+## [1.68.0] - 2020-03-04
 -   Add isFavorite in Conversation.
 -   Move bubbles._sendInitialBubblePresence to presence.sendInitialBubblePresence.
 -   change start methods prototype of services to replace each services in parameters to only one param the Core object.
