@@ -797,7 +797,20 @@ class IMService {
             return ErrorManager.getErrorManager().OK;
         }
 
-        return this._xmpp.markMessageAsRead(messageReceived);
+        this._logger.log("internal", LOG_ID + "(markMessageAsRead) 'messageReceived' parameter : ", messageReceived);
+
+        if (this._useXMPP) {
+            return this._xmpp.markMessageAsRead(messageReceived);
+        }
+        if ((this._useS2S)) {
+            if (messageReceived.conversation) {
+                let conversationId = messageReceived.conversation.dbId ? messageReceived.conversation.dbId : messageReceived.conversation.id;
+                let messageId = messageReceived.id;
+                return this._rest.markMessageAsRead(conversationId, messageId);
+            } else {
+                return Promise.reject('No conversation found in message.');
+            }
+        }
     }
 
     /**

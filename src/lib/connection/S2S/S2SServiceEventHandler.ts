@@ -45,11 +45,12 @@ class S2SServiceEventHandler {
     private jid: any;
     private xmppUtils: XMPPUTils;
     private _conversations: ConversationsService;
+    private shouldSendReadReceipt: boolean;
 
-    constructor(_rest, _im, _application, _eventEmitter, _logger, _hostCallback) {
+    constructor(_im, _application, _eventEmitter, _logger, _hostCallback) {
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
-        this._rest = _rest;
+        this.shouldSendReadReceipt = _im.sendReadReceipt;
         this.callbackAbsolutePath = _hostCallback;
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -104,11 +105,11 @@ class S2SServiceEventHandler {
             // that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseChatStateCallback(content)");
             return that.ParseChatStateCallback(body);
         } else if (requestedPath === "/receipt") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseReceitpCallback(content)");
-            return that.ParseReceitpCallback(body);
+            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseReceiptCallback(content)");
+            return that.ParseReceiptCallback(body);
         } else if (requestedPath === "/all-receipt") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseAllReceitpCallback(content)");
-            return that.ParseAllReceitpCallback(body);
+            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseAllReceiptCallback(content)");
+            return that.ParseAllReceiptCallback(body);
         } else if (requestedPath === "/conversation") {
             //that.logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseConversationCallback(content)");
             return that.ParseConversationCallback(body);
@@ -267,9 +268,9 @@ class S2SServiceEventHandler {
         return false;
     }
 
-    ParseReceitpCallback(content): boolean {
+    async ParseReceiptCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseReceitpCallback)  Content:[", content, "]");
+        that._logger.log("internal", LOG_ID + "(ParseReceiptCallback)  Content:[", content, "]");
 
         let receipt = content.receipt;
         if (content && receipt) {
@@ -281,19 +282,24 @@ class S2SServiceEventHandler {
                 let entity = receipt.entity;
                 let conversation_id = receipt.conversation_id;
 
-                /* let receiptType;
+                /*
+                let receiptType;
 
                 if (entity == "server")
                     receiptType = "ServerReceived";
                 else {
-                    if (evt == "received")
+                    if (evt == "received") {
                         receiptType = "ClientReceived";
-                    else
+                        if (this.shouldSendReadReceipt) {
+                            await that._rest.markMessageAsRead(conversation_id, msg_id);
+                        }
+                    } else
                         receiptType = "ClientRead";
+
                 }
 
                 //s2sClient.NewMessageDeliveryReceived(new MessageDeliveryReceivedEventArgs(msgId, receiptType, date));
-                 */
+                // */
                 let receiptEvent = {
                     event: evt,
                     entity: entity,
@@ -303,7 +309,7 @@ class S2SServiceEventHandler {
                     //resource: resource
                     conversation_id
                 };
-                that._logger.log("info", LOG_ID + "(ParseReceitpCallback) message - receipt received");
+                that._logger.log("info", LOG_ID + "(ParseReceiptCallback) message - receipt received");
                 that._eventEmitter.emit("evt_internal_onreceipt", receiptEvent);
 
                 return true;
@@ -312,9 +318,9 @@ class S2SServiceEventHandler {
         }
     }
 
-    ParseAllReceitpCallback(content): boolean {
+    ParseAllReceiptCallback(content): boolean {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseAllReceitpCallback)  Content:[", content, "]");
+        that._logger.log("internal", LOG_ID + "(ParseAllReceiptCallback)  Content:[", content, "]");
 
         let allreceipt = content["all-receipt"];
         if (content && allreceipt) {
@@ -334,11 +340,11 @@ class S2SServiceEventHandler {
                         // Not take into account : conversation.ackReadAllMessages();
                         break;
                     default:
-                        that._logger.log("error", LOG_ID + "(ParseAllReceitpCallback) error - unknown read type : ", typeread);
+                        that._logger.log("error", LOG_ID + "(ParseAllReceiptCallback) error - unknown read type : ", typeread);
                         break;
                 }
 
-                that._logger.log("info", LOG_ID + "(ParseAllReceitpCallback) message - all-receipt received");
+                that._logger.log("info", LOG_ID + "(ParseAllReceiptCallback) message - all-receipt received");
                 return true;
             }
             return false;
@@ -387,7 +393,7 @@ class S2SServiceEventHandler {
                             //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                             break;
                         default:
-                            that._logger.log("error", LOG_ID + "(ParseAllReceitpCallback) error - unknown action type : ", action);
+                            that._logger.log("error", LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
                             break;
                     }
                 }
@@ -441,7 +447,7 @@ class S2SServiceEventHandler {
                             //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                             break;
                         default:
-                            that._logger.log("error", LOG_ID + "(ParseAllReceitpCallback) error - unknown action type : ", action);
+                            that._logger.log("error", LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
                             break;
                     }
                 }
@@ -526,7 +532,10 @@ class S2SServiceEventHandler {
                 /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                     data.conversation.messages.push(data);
                 } // */
-                this._eventEmitter.emit("evt_internal_onmessagereceived", data);
+                if (this.shouldSendReadReceipt) {
+                    await that._rest.markMessageAsRead(conversationId, msgId);
+                }
+                that._eventEmitter.emit("evt_internal_onmessagereceived", data);
                 that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
 
                 that._logger.log("info", LOG_ID + "(ParseMessageCallback) message - conversation received");
@@ -705,6 +714,7 @@ class S2SServiceEventHandler {
             that._contacts = _core.contacts;
             that._bulles = _core.bubbles;
             that._conversations = _core.conversations;
+            that._rest = _core._rest;
             resolve();
         });
     }

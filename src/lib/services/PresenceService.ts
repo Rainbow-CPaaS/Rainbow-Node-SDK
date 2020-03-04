@@ -218,7 +218,7 @@ class PresenceService {
                 resolve(ErrorManager.getErrorManager().OK);
             });
 
-            that._logger.log("internalerror", LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S);
+            that._logger.log("internal", LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S);
 
             if (that._useXMPP) {
                 that._xmpp.setPresence(show, status);

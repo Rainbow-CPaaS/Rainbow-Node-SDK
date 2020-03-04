@@ -259,7 +259,7 @@ class ConversationEventHandler extends GenericHandler {
                                 })
                             );
 
-                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send receipt 'received'", stanzaReceived.root().toString());
+                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send receipt 'received' : ", stanzaReceived.root().toString());
                             that.xmppClient.send(stanzaReceived);
 
                             //Acknowledge 'read'
@@ -276,7 +276,7 @@ class ConversationEventHandler extends GenericHandler {
                                         "id": stanza.attrs.id
                                     })
                                 );
-                                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send receipt 'read'", stanzaRead.root().toString());
+                                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send markAsRead : receipt 'read' : ", stanzaRead.root().toString());
                                 that.xmppClient.send(stanzaRead);
                             }
                             break;

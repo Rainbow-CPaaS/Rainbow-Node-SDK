@@ -60,7 +60,6 @@ class S2SService {
         this.proxy = _proxy;
         this.useS2S = false;
         /*
-        this.shouldSendReadReceipt = _im.sendReadReceipt;
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
@@ -80,7 +79,7 @@ class S2SService {
         this.generatedRandomId = this.xmppUtils.generateRandomID();
 
         this.hash = makeId(8);
-        this.s2sEventHandler = new S2SServiceEventHandler(this._rest,  _im, _application, _eventEmitter, _logger, _s2s.hostCallback);
+        this.s2sEventHandler = new S2SServiceEventHandler(_im, _application, _eventEmitter, _logger, _s2s.hostCallback);
         this.eventEmitter.on("evt_internal_ons2sready", this.onS2SReady.bind(this));
 
         this.app = express();

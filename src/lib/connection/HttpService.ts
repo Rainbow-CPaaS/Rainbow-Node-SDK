@@ -261,6 +261,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         if (error) {
                             return reject({
                                 code: -1,
+                                url:urlEncoded,
                                 msg: "ErrorManager while requesting",
                                 details: error
                             });
@@ -285,6 +286,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         } else {
                                             return reject({
                                                 code: -1,
+                                                url:urlEncoded,
                                                 msg: "Bad content, please check your host",
                                                 details: ""
                                             });
@@ -304,6 +306,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         that.tokenExpirationControl(bodyjs);
                                         return reject({
                                             code: response.statusCode,
+                                            url:urlEncoded,
                                             msg: msg,
                                             details: errorMsgDetail,
                                             error: bodyjs
@@ -315,6 +318,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         that.logger.log("error", LOG_ID + "(get) HTTP security issue", response.error.reason);
                                         return reject({
                                             code: -1,
+                                            url:urlEncoded,
                                             msg: response.error.reason,
                                             details: ""
                                         });
@@ -324,6 +328,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         that.logger.log("internal", LOG_ID + "(get) HTTP other issue", response);
                                         return reject({
                                             code: -1,
+                                            url:urlEncoded,
                                             msg: "Unknown error",
                                             details: response
                                         });
@@ -332,6 +337,7 @@ get(url, headers : any = {}, params): Promise<any> {
                             } else {
                                 return reject({
                                     code: -1,
+                                    url:urlEncoded,
                                     msg: "ErrorManager while requesting",
                                     details: "error"
                                 });
@@ -345,8 +351,9 @@ get(url, headers : any = {}, params): Promise<any> {
                         statusMessage : null,
                         contentType : null
                     };
+
                     let req = Request.get({
-                        url: that.serverURL + url,
+                        url: urlEncoded,
                         headers: headers,
                         params: params,
                         proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
@@ -370,6 +377,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         that.logger.log("debug", LOG_ID + "(get) _exiting_");
                         return reject({
                             code: -1,
+                            url:urlEncoded,
                             msg: error.message,
                             details: ""
                         });
@@ -383,6 +391,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         } else {
                             return reject({
                                 code: err.statusCode,
+                                url:urlEncoded,
                                 msg: err.statusMessage,
                                 details: ""
                             });
@@ -435,7 +444,7 @@ get(url, headers : any = {}, params): Promise<any> {
                 body: body
             }, (error, response, body) => {
                 if (error) {
-                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error);
+                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error, ", url:", urlEncoded);
                     return reject("post failed");
                 }
                 else {
@@ -454,6 +463,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 } else {
                                     return reject({
                                         code: -1,
+                                        url:urlEncoded,
                                         msg: "Bad content, please check your host",
                                         details: ""
                                     });
@@ -475,6 +485,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 that.tokenExpirationControl(bodyjs);
                                 return reject({
                                     code: response.statusCode,
+                                    url:urlEncoded,
                                     msg: msg,
                                     details: errorMsgDetail,
                                     error: bodyjs
@@ -485,6 +496,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 that.logger.log("error", LOG_ID + "(post) HTTP security issue", response.error.reason);
                                 return reject({
                                     code: -1,
+                                    url:urlEncoded,
                                     msg: response.error.reason,
                                     details: ""
                                 });
@@ -494,6 +506,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
                                 return reject({
                                     code: -1,
+                                    url:urlEncoded,
                                     msg: "Unknown error",
                                     details: response
                                 });
@@ -502,6 +515,7 @@ get(url, headers : any = {}, params): Promise<any> {
                     } else {
                         return reject({
                             code: -1,
+                            url:urlEncoded,
                             msg: "ErrorManager while requesting",
                             details: "error"
                         });
@@ -545,7 +559,7 @@ get(url, headers : any = {}, params): Promise<any> {
                     body: body
                 }, (error, response, body) => {
                     if (error) {
-                        that.logger.log("internalerror", LOG_ID + "(put) put failed:", error);
+                        that.logger.log("internalerror", LOG_ID + "(put) put failed:", error, ', url : ', urlEncoded);
                         return reject("put failed");
                     }
                     else {
@@ -564,6 +578,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     } else {
                                         return reject({
                                             code: -1,
+                                            url:urlEncoded,
                                             msg: "Bad content, please check your host",
                                             details: ""
                                         });
@@ -583,6 +598,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     that.tokenExpirationControl(bodyjs);
                                     return reject({
                                         code: response.statusCode,
+                                        url:urlEncoded,
                                         msg: msg,
                                         details: errorMsgDetail,
                                         error: bodyjs
@@ -593,6 +609,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     that.logger.log("error", LOG_ID + "(put) HTTP security issue", response.error.reason);
                                     return reject({
                                         code: -1,
+                                        url:urlEncoded,
                                         msg: response.error.reason,
                                         details: ""
                                     });
@@ -602,6 +619,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     that.logger.log("internal", LOG_ID + "(put) HTTP other issue", response);
                                     return reject({
                                         code: -1,
+                                        url:urlEncoded,
                                         msg: "Unknown error",
                                         details: response
                                     });
@@ -610,6 +628,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         } else {
                             return reject({
                                 code: -1,
+                                url:urlEncoded,
                                 msg: "ErrorManager while requesting",
                                 details: "error"
                             });
@@ -707,6 +726,7 @@ get(url, headers : any = {}, params): Promise<any> {
                 if (error) {
                     return reject({
                         code: -1,
+                        url:urlEncoded,
                         msg: "ErrorManager while requesting",
                         details: error
                     });
@@ -729,6 +749,7 @@ get(url, headers : any = {}, params): Promise<any> {
                             that.tokenExpirationControl(bodyjs);
                             return reject({
                                 code: response.statusCode,
+                                url:urlEncoded,
                                 msg: response.body ? response.body.errorMsg || "" : "",
                                 details: response.body ? response.body.errorDetails || "" : "",
                                 error: bodyjs

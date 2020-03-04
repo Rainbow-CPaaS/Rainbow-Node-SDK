@@ -3181,6 +3181,34 @@ Request Method: PUT
             }
         });
     }
+
+    markMessageAsRead(conversationId, messageId) {
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{id}/read
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!conversationId) {
+                that.logger.log("debug", LOG_ID + "(markMessageAsRead) failed");
+                that.logger.log("info", LOG_ID + "(markMessageAsRead) No conversationId provided");
+                reject({code:-1, label:"conversationId is not defined!!!"});
+            }
+            else  if (!messageId) {
+                that.logger.log("debug", LOG_ID + "(markMessageAsRead) failed");
+                that.logger.log("info", LOG_ID + "(markMessageAsRead) No messageId provided");
+                reject({code:-1, label:"messageId is not defined!!!"});
+            }
+            else {
+                that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages/" + messageId + "/read", that.getRequestHeader(), {}, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(markMessageAsRead) successfull");
+                    that.logger.log("internal", LOG_ID + "(markMessageAsRead) REST bubble presence received ", json.data);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(markMessageAsRead) error");
+                    that.logger.log("internalerror", LOG_ID, "(markMessageAsRead) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
 }
 
 export {RESTService};
