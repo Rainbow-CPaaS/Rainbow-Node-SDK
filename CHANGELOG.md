@@ -22,6 +22,9 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Fix "no-store" value in DataStoreType type.
 -   Update the event's data with the subject property when a Message arrive.
 -   Fix presence for S2SServiceEventHandler.
+-   Add original url in HttpService errors to help the following.
+-   Update in the S2SServiceEventHandler the event handler for a received message with the `shouldSendReadReceipt`SDK parameter to automatically mark as read a received message.
+-   Fix the stanza "presence" to desactivate history for room on server side.
 
 ## [1.67.1] - 2020-02-19
 -   Fix login issue when Rainbow CLI use SDK.
