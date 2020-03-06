@@ -89,7 +89,7 @@ let conf =  {
         messageMaxLength: 1024,
         sendMessageToConnectedUser: false,
         conversationsRetrievedFormat: "small",
-        storeMessages: false, /* https://xmpp.org/extensions/xep-0334.html#hints :
+        storeMessages: true, /* https://xmpp.org/extensions/xep-0334.html#hints :
          No store :
             A message containing a <no-store/> hint should not be stored by a server either permanently (as above) or temporarily,
             e.g. for later delivery to an offline client, or to users not currently present in a chatroom.
