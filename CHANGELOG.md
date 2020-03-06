@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.68.0] - 2020-03-06
+-   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
+
 ## [1.68.0-dotnet.1] - 2020-03-04
 -   Add isFavorite in Conversation.
 -   Move bubbles._sendInitialBubblePresence to presence.sendInitialBubblePresence.
@@ -25,7 +28,6 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add original url in HttpService errors to help the following.
 -   Update in the S2SServiceEventHandler the event handler for a received message with the `shouldSendReadReceipt` SDK parameter to automatically mark as read a received message.
 -   Fix the stanza "presence" to desactivate history for room on server side.
--   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
 
 ## [1.67.1] - 2020-02-19
 -   Fix login issue when Rainbow CLI use SDK.

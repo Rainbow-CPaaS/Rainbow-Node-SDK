@@ -6,6 +6,41 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.68 - February 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
+
+
+**Others Changes**
+
+-   Add isFavorite in Conversation.
+-   Add events treatment in S2SServiceEventHandler.
+-   Add  method in ConversationsService::getS2SServerConversation to get a conversation from id on S2S API Server.
+-   Raise event on message when the content is empty (because message can have a subject filled without body)  in conversationEventHandler.
+-   Raise an event when receive a conversation unknown by sdk deleted in conversationEventHandler.
+-   Update ImsService::sendMessageToConversation api to send the message in S2S mode.
+-   Add postTestRunOpenrainbowDotNet script to post a message in a bubble when the tests for afterbuild start/stop.
+-   Fix "no-store" value in DataStoreType type.
+-   Update the event's data with the subject property when a Message arrive.
+-   Fix presence for S2SServiceEventHandler.
+-   Add original url in HttpService errors to help the following.
+-   Update in the S2SServiceEventHandler the event handler for a received message with the `shouldSendReadReceipt` SDK parameter to automatically mark as read a received message.
+-   Fix the stanza "presence" to desactivate history for room on server side.
+
 ### SDK for Node.JS 1.67 - February 2019
 
 ---
