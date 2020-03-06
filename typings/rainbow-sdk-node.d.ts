@@ -1052,6 +1052,7 @@ declare module 'lib/connection/RESTService' {
 	    sendS2SMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
 	    getS2SServerConversation(conversationId: any): Promise<unknown>;
 	    joinS2SRoom(roomid: any): Promise<unknown>;
+	    markMessageAsRead(conversationId: any, messageId: any): Promise<unknown>;
 	}
 	export { RESTService };
 
@@ -2305,14 +2306,15 @@ declare module 'lib/connection/S2S/S2SServiceEventHandler' {
 	    private jid;
 	    private xmppUtils;
 	    private _conversations;
-	    constructor(_rest: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _hostCallback: any);
+	    private shouldSendReadReceipt;
+	    constructor(_im: any, _application: any, _eventEmitter: any, _logger: any, _hostCallback: any);
 	    setAccount(account: any): void;
 	    handleS2SEvent(event: any): boolean | Promise<boolean>;
 	    ParseConnectionCallback(event: any): boolean;
 	    ParsePresenceCallback(event: any): Promise<boolean>;
 	    ParseChatStateCallback(content: any): Promise<boolean>;
-	    ParseReceitpCallback(content: any): boolean;
-	    ParseAllReceitpCallback(content: any): boolean;
+	    ParseReceiptCallback(content: any): Promise<boolean>;
+	    ParseAllReceiptCallback(content: any): boolean;
 	    ParseConversationCallback(content: any): Promise<boolean>;
 	    ParseMessageCallback(content: any): Promise<boolean>;
 	    ParseRoomInviteCallback(content: any): Promise<boolean>;

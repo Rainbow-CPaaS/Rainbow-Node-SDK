@@ -6,6 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.69.0] - 2020-03-XX
+-   Rename document Connecting_to_Rainbow to Connecting_to_Rainbow_XMPP_Mode.
+-   Add document Connecting_to_Rainbow_S2S_Mode to describe the connection to Rainbow with a S2S event pipe.
+-   Official ChangeLog RSS Flow URL : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
+
 ## [1.68.0] - 2020-03-06
 -   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
 
