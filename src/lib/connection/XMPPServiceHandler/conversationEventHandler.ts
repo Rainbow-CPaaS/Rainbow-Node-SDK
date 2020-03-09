@@ -469,8 +469,9 @@ class ConversationEventHandler extends GenericHandler {
             try {
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) _entering_ : ", conversationId, data);
                 let conversation = that.conversationService.getConversationById(conversationId);
+                let cs = this.conversationService;
                 if (!conversation) {
-                    let cs = this.conversationService;
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation NOT found in cache by Id : ", conversationId, ", for new message : ", data);
                     let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId) : cs.getOrCreateOneToOneConversation(conversationId);
                     createPromise.then((conv) => {
                         data.conversation = conv;
@@ -480,8 +481,10 @@ class ConversationEventHandler extends GenericHandler {
                         } // */
                         this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                         that.eventEmitter.emit("evt_internal_conversationupdated", conv);
+                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                     });
                 } else {
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                     data.conversation = conversation;
                     data.conversation.addMessage(data);
                     /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
@@ -489,6 +492,7 @@ class ConversationEventHandler extends GenericHandler {
                     } // */
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
@@ -735,14 +739,14 @@ class ConversationEventHandler extends GenericHandler {
             }
         };
 
-        this.onConversationManagementMessageReceived = (node: Element) => {
+        this.onConversationManagementMessageReceived = async (node: Element) => {
             try {
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     let conversationId = node.attrs.id;
                     let conversation = this.conversationService.getConversationById(conversationId);
                     let action = node.attrs.action;
-                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + "");
+                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", conversationId : ", conversationId);
                     that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
 
                     if (conversation) {
@@ -772,7 +776,7 @@ class ConversationEventHandler extends GenericHandler {
                                 break;
                         }
                     } else {
-                        that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache action : ", action);
+                        that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache action : ", action + ", conversationId : ", conversationId);
                         if (action === "create") {
                             let convId = node.find("peer").text();
                             let peerId = node.find("peerId").text();
@@ -788,32 +792,32 @@ class ConversationEventHandler extends GenericHandler {
 
                             let conversationGetter = null;
                             if (type === "user") {
-                                conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
+                                conversationGetter = await this.conversationService.getOrCreateOneToOneConversation(convId);
                             } else {
                                 let bubbleId = convId;
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId);
                                 // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
-                                conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
+                                conversationGetter = await this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
                             }
 
                             if (!conversationGetter) {
                                 return;
                             }
 
-                            conversationGetter.then(function (conv) {
-                                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
-                                    conv.dbId = convDbId;
-                                    conv.lastModification = lastModification ? new Date(lastModification) : undefined;
-                                    conv.lastMessageText = lastMessageText;
-                                    conv.lastMessageSender = lastMessageSender;
-                                    conv.muted = muted;
-                                    conv.isFavorite = isFavorite;
-                                    conv.preload = true;
-                                    conv.missedCounter = missedIMCounter;
-                                    // Send conversations update event
-                                    that.eventEmitter.emit("evt_internal_conversationupdated", conv);
-                                    //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
-                                });
+                            await conversationGetter.then(function (conv) {
+                                that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
+                                conv.dbId = convDbId;
+                                conv.lastModification = lastModification ? new Date(lastModification) : undefined;
+                                conv.lastMessageText = lastMessageText;
+                                conv.lastMessageSender = lastMessageSender;
+                                conv.muted = muted;
+                                conv.isFavorite = isFavorite;
+                                conv.preload = true;
+                                conv.missedCounter = missedIMCounter;
+                                // Send conversations update event
+                                that.eventEmitter.emit("evt_internal_conversationupdated", conv);
+                                //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
+                            });
                         }
 
                         if (action === "delete") {
