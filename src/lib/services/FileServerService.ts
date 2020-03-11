@@ -18,7 +18,7 @@ import * as streamBuffers from 'stream-buffers';
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileStorageService} from "./FileStorageService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "FileServer/SVCE - ";

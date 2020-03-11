@@ -31,7 +31,7 @@ import {ProxyImpl} from "./ProxyImpl";
 import {ErrorManager} from "./common/ErrorManager";
 
 import {lt} from "semver";
-import {S2SService} from "./connection/S2S/S2SService";
+import {S2SService} from "./services/S2SService";
 
 const packageVersion = require("../package.json");
 
@@ -434,7 +434,7 @@ class Core {
         self._http = new HTTPService(self.options.httpOptions, self.logger, self._proxy, self._eventEmitter.iee);
         self._rest = new RESTService(self.options.credentials, self.options.applicationOptions, self.options._isOfficialRainbow(), self._eventEmitter.iee, self.logger);
         self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
-        self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
+        self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
         self._stateManager = new StateManager(self._eventEmitter, self.logger);

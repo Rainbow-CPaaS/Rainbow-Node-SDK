@@ -1771,6 +1771,15 @@ rainbowSDK.start(token).then(async(result) => {
         // that.stats.push({ service: "telephonyService", startDuration: startDuration });
         logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
         console.log("MAIN === STARTED (" + startDuration + " ms) ===");
+
+        /*
+        let nbc = 1;
+        for (let i = 0 ; i < 8000 ; i++) {
+            console.log("MAIN iter : ", i , ", nbc : ", nbc);
+            nbc = nbc * 3;
+        } // */
+
+
       // process.exit(1);
        /*
         await rainbowSDK2.start();

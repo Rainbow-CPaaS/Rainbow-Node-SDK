@@ -14,7 +14,7 @@ import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
 import {TelephonyService} from "./TelephonyService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "CALLLOG/SVCE - ";

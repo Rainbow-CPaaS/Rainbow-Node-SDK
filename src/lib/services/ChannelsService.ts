@@ -14,7 +14,7 @@ import * as fs from "fs";
 import * as mimetypes from "mime-types";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "CHANNELS/SVCE - ";

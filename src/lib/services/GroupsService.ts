@@ -8,7 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "GROUPS/SVCE - ";

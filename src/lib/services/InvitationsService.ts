@@ -14,7 +14,7 @@ import {Invitation} from "../common/models/Invitation";
 import * as moment from 'moment';
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "INVITATION/SVCE - ";

@@ -9,7 +9,7 @@ import  {RESTService} from "../connection/RESTService";
 import {isStarted, logEntryExit} from "../common/Utils";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 
 const LOG_ID = "ADMIN/SVCE - ";
 

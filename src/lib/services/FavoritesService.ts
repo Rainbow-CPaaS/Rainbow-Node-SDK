@@ -12,7 +12,7 @@ import { Favorite } from '../common/models/Favorite';
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
 import EventEmitter = NodeJS.EventEmitter;
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "FAVTE/SVCE - ";

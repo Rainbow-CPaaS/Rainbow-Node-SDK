@@ -17,7 +17,7 @@ import {Logger} from "../common/Logger";
 import {FileServerService} from "./FileServerService";
 import {ConversationsService} from "./ConversationsService";
 import {ContactsService} from "./ContactsService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "FileStorage/SVCE - ";

@@ -14,7 +14,7 @@ import {Logger} from "../common/Logger";
 import EventEmitter = NodeJS.EventEmitter;
 import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {RESTService} from "../connection/RESTService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";

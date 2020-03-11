@@ -112,6 +112,10 @@ let conf =  {
     displayOrder:"firstLast",
     testOutdatedVersion: true,
     servicesToStart : {
+            s2s: {
+                start_up:true,
+                optional:true
+            }, //need services :  (that._xmpp, that._settings);
             presence: {
                 start_up:true,
                 optional:false

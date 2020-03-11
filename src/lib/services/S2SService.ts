@@ -1,21 +1,38 @@
 "use strict";
 
 import * as util from "util";
-import {logEntryExit, makeId, setTimeoutPromised} from "../../common/Utils";
+import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
-import {Conversation} from "../../common/models/Conversation";
-import {DataStoreType} from "../../config/config";
-import {XMPPUTils} from "../../common/XMPPUtils";
-import {NameSpacesLabels, XMPPService} from "../XMPPService";
-import {RESTService} from "../RESTService";
-import {ErrorManager} from "../../common/ErrorManager";
-import {InvitationEventHandler} from "../XMPPServiceHandler/invitationEventHandler";
-import {S2SServiceEventHandler} from "./S2SServiceEventHandler";
+import {Conversation} from "../common/models/Conversation";
+import {DataStoreType} from "../config/config";
+import {XMPPUTils} from "../common/XMPPUtils";
+import {NameSpacesLabels, XMPPService} from "../connection/XMPPService";
+import {RESTService} from "../connection/RESTService";
+import {ErrorManager} from "../common/ErrorManager";
+import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
+import {S2SServiceEventHandler} from "../connection/S2S/S2SServiceEventHandler";
 const express = require( "express" );
 
 const LOG_ID = "S2S - ";
 
 @logEntryExit(LOG_ID)
+@isStarted([])
+    /**
+     * @module
+     * @name s2s
+     * @version SDKVERSION
+     * @public
+     * @description
+     *      This module handles the s2s API's methods to Rainbow.
+     *      <br><br>
+     *      The main methods proposed in that module allow to: <br>
+     *      - Signin in s2s mode <br>
+     *      - List the user's connections in s2s mode <br>
+     *      - Manage presence <br>
+     *      - Send presence in bubble <br>
+     *      - Send messages <br>
+     *      - ... <br>
+     */
 class S2SService {
     private  serverURL: any;
     private  host: any;
@@ -41,8 +58,17 @@ class S2SService {
     private _contacts: any;
     private options: any;
     private _conversations: any;
+    public ready: boolean = false;
+    private readonly _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
-    constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy) {
+    constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy, _startConfig) {
+        this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
         this.hostCallback = _s2s.hostCallback;
         this.locallistenningport = _s2s.locallistenningport;
@@ -82,7 +108,7 @@ class S2SService {
         this.s2sEventHandler = new S2SServiceEventHandler(_im, _application, _eventEmitter, _logger, _s2s.hostCallback);
         this.eventEmitter.on("evt_internal_ons2sready", this.onS2SReady.bind(this));
 
-        this.app = express();
+        this.ready = false;
         this.logger.log("internal", LOG_ID + "(S2SService) ", this.logger.colors.yellow("S2SService contructor."));
     }
 
@@ -96,6 +122,7 @@ class S2SService {
                 that._rest = _core._rest;
                 that._contacts = _core._contacts;
                 that._conversations = _core._conversations;
+                that.app = express();
 
                 await that.s2sEventHandler.start(_core);
                 if (that.useS2S) {
@@ -132,7 +159,7 @@ class S2SService {
                     that.s2sEventHandler.handleS2SEvent(req);
                 });
 
-
+                this.ready = true;
                 resolve();
             } catch (err) {
                 return reject(err);
@@ -140,6 +167,12 @@ class S2SService {
         });
     }
 
+    /**
+     * @private
+     * @name signin
+     * @param account
+     * @param headers
+     */
     signin(account, headers) {
         let that = this;
         return new Promise(async (resolve) => {
@@ -147,7 +180,7 @@ class S2SService {
             that.jid_tel = account.jid_tel;
             that.jid_password = account.jid_password;
             that.userId = account.id;
-            that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
+            that.fullJid = that.xmppUtils.generateRandomFullJidForS2SNode(that.jid_im, that.generatedRandomId);
             that.jid = account.jid_im;
 
             that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
@@ -159,6 +192,10 @@ class S2SService {
         });
     }
 
+    /**
+     * @private
+     * @param forceStop
+     */
     stop(forceStop: boolean = false) {
         let that = this;
         return new Promise(function (resolve) {
@@ -175,6 +212,17 @@ class S2SService {
         });
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     listConnectionsS2S() {
         let that = this;
         that.logger.log("internal", LOG_ID + "(listConnectionsS2S) will get all the cnx S2S");
@@ -188,6 +236,17 @@ class S2SService {
             } );
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     sendS2SPresence( obj ) {
         let that = this;
         that.logger.log("internal", LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
@@ -201,6 +260,17 @@ class S2SService {
             } );
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     deleteConnectionsS2S ( connexions ) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S.");
@@ -222,6 +292,17 @@ class S2SService {
             } );
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     deleteAllConnectionsS2S(){
         let that = this;
 
@@ -233,6 +314,17 @@ class S2SService {
         });
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     loginS2S (callback_url) {
         let that = this;
         let data = {connection: { /*resource: "s2s_machin",*/  callback_url }};
@@ -248,6 +340,17 @@ class S2SService {
             } );
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     infoS2S (s2sConnectionId) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
@@ -273,6 +376,17 @@ class S2SService {
     }
 
     /** S2S methods */
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     sendMessageInConversation(conversationId, msg) {
         let that = this;
         that.logger.log("internal", LOG_ID + "(sendMessageInConversation) will send msg S2S : ", msg, " in conv id : ", conversationId);
@@ -285,6 +399,17 @@ class S2SService {
             } );
     }
 
+    /**
+     * @public
+     * @method listConnectionsS2S
+     * @instance
+     * @description
+     *      List all the connected user's connexions.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
     joinRoom(bubbleId) {
         let that = this;
         that.logger.log("internal", LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);

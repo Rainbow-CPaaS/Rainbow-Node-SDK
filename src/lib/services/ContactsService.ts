@@ -16,7 +16,7 @@ import {PresenceService} from "./PresenceService";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {HTTPService} from "../connection/HttpService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "CONTACTS/SVCE - ";

@@ -19,7 +19,7 @@ import {ProfilesService} from "./ProfilesService";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "TELEPHONY/SVCE - ";

@@ -58,6 +58,11 @@ export class XMPPUTils {
         return fullJid;
     }
 
+    generateRandomFullJidForS2SNode(jid, generatedRandomId) {
+        let fullJid = jid + "/s2s_sdk_node_" + generatedRandomId;
+        return fullJid;
+    }
+
     getBareJIDFromFullJID(fullJid) {
         let index = 0;
 

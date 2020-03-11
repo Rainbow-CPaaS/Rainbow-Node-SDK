@@ -13,7 +13,7 @@ import {SettingsService} from "./SettingsService";
 import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
 import {RESTService} from "../connection/RESTService";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 

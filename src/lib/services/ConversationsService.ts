@@ -24,7 +24,7 @@ import {EventEmitter} from "events";
 import {Contact} from "../common/models/Contact";
 import {rejects} from "assert";
 import {error} from "winston";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 
@@ -1222,7 +1222,7 @@ class Conversations {
      * @instance
      * @async
      * @description
-     *   DELETE ALL MESSAGES IN ONE2ONE CONVERSATION
+     *   Delete all messages for the connected user on a one to one conversation.
      * @param {Conversation} conversation The conversation object
      * @return {Message} - message object with updated replaceMsgs property
      */

@@ -9,7 +9,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import {S2SService} from "../connection/S2S/S2SService";
+import {S2SService} from "./S2SService";
 
 const LOG_ID = "PROFILES/SVCE - ";
 
