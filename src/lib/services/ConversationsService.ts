@@ -445,13 +445,14 @@ class Conversations {
             // TODO ? that.orderConversations();
             return Promise.resolve(result);
         }).catch( (err) => {
+            that._logger.log("internalerror", LOG_ID + "(deleteServerConversation) err : ", err);
             // Check particular case where we are trying to remove an already removed conversation
-            if (err.errorDetailsCode === 404002) {
+            if (err.errorDetailsCode === 404002 || err.error.errorDetailsCode === 404002 ) {
                 that._logger.log("info", LOG_ID + "deleteServerConversation success: " + conversationId);
                 return Promise.resolve();
             }
 
-            let errorMessage = "deleteServerConversation failure: " + err.errorDetails;
+            let errorMessage = "deleteServerConversation failure: " + err.error ? err.error.errorDetails : err.errorDetails;
             that._logger.log("warn", LOG_ID + "Error.");
             that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
             return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
@@ -665,12 +666,14 @@ class Conversations {
         let conversationResult = that.getConversationById(conversationDbId);
         if (conversationResult) {
             conversationResult.preload = true;
+            that._logger.log("internal", LOG_ID + "(getBubbleConversation) conversation found by Id : ", conversationDbId, " : conversation : ", conversationResult);
             return Promise.resolve(conversationResult);
         }
 
         let conversation = that.getConversationByBubbleJid(bubbleJid);
         if (conversation) {
             conversation.preload = true;
+            that._logger.log("internal", LOG_ID + "(getBubbleConversation) conversation found by BubbleJid : ", bubbleJid, " : conversation : ", conversationResult);
             return Promise.resolve(conversation);
         }
         // No conversation found, then create it
