@@ -628,6 +628,18 @@ class NodeSDK {
         return this._core._invitations;
     }
 
+    /**
+     * @public
+     * @property {Object} s2s
+     * @instance
+     * @description
+     *    Get access to the s2s module
+     * @memberof NodeSDK
+     */
+    get s2s() {
+        return this._core._s2s;
+    }
+
     get DataStoreType() {
         return DataStoreType;
     }

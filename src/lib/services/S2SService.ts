@@ -237,11 +237,17 @@ class S2SService {
     }
 
     /**
-     * @public
-     * @method listConnectionsS2S
+     * @private
+     * @method sendS2SPresence
      * @instance
+     * @param {Object} obj Object {show, status} describing the presence :
+     *  To put presence to cases :
+     * "online":     {show = undefined, status = "mode=auto"}
+     * "away": {show = "xa", status = "away"}
+     * "dnd": {show = "dnd", status = ""}
+     * "invisible": {show = "xa", status = ""}
      * @description
-     *      List all the connected user's connexions.
+     *      set the presence of the connected user with s2s api .
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -261,11 +267,12 @@ class S2SService {
     }
 
     /**
-     * @public
-     * @method listConnectionsS2S
+     * @private
+     * @method deleteConnectionsS2S
      * @instance
+     * @param {Array} connexions a List of connections S2S to delete
      * @description
-     *      List all the connected user's connexions.
+     *      Delete one by one a list of S2S connections of the connected user.
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -294,10 +301,10 @@ class S2SService {
 
     /**
      * @public
-     * @method listConnectionsS2S
+     * @method deleteAllConnectionsS2S
      * @instance
      * @description
-     *      List all the connected user's connexions.
+     *      Delete all the connected user's S2S connexions.
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -315,11 +322,12 @@ class S2SService {
     }
 
     /**
-     * @public
-     * @method listConnectionsS2S
+     * @private
+     * @method loginS2S
      * @instance
+     * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
      * @description
-     *      List all the connected user's connexions.
+     *      Login to S2S event server the already connected user to REST API server.
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -342,10 +350,11 @@ class S2SService {
 
     /**
      * @public
-     * @method listConnectionsS2S
+     * @method infoS2S
      * @instance
+     * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
      * @description
-     *      List all the connected user's connexions.
+     *      Get informations about a S2S connexions.
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -377,11 +386,26 @@ class S2SService {
 
     /** S2S methods */
     /**
-     * @public
-     * @method listConnectionsS2S
+     * @private
+     * @method sendMessageInConversation
      * @instance
+     * @param {String} conversationId
+     * @param {String} msg The message object to send.
+     * {
+     *   "message": {
+     *   "subject": "Greeting",
+     *   "lang": "en",
+     *   "contents": [
+     *     {
+     *       "type": "text/markdown",
+     *       "data": "## Hello Bob"
+     *     }
+     *   ],
+     *   "body": "Hello world"
+     *   }
+     * }
      * @description
-     *      List all the connected user's connexions.
+     *      Send a message in a conversation. Note, corrected message is not yet supported.
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -400,11 +424,12 @@ class S2SService {
     }
 
     /**
-     * @public
-     * @method listConnectionsS2S
+     * @private
+     * @method joinRoom
+     * @param {String} bubbleId The id of the bubble to open the conversation.
      * @instance
      * @description
-     *      List all the connected user's connexions.
+     *      send presence in S2S to join a bubble conversation
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result

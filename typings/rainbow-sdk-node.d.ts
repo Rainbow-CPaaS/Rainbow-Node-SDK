@@ -99,6 +99,10 @@ declare module 'lib/config/config' {
 	    displayOrder: string;
 	    testOutdatedVersion: boolean;
 	    servicesToStart: {
+	        s2s: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
 	        presence: {
 	            start_up: boolean;
 	            optional: boolean;
@@ -505,6 +509,7 @@ declare module 'lib/common/XMPPUtils' {
 	    getUniqueMessageId(): string;
 	    getUniqueId(suffix: any): string;
 	    generateRandomFullJidForNode(jid: any, generatedRandomId: any): string;
+	    generateRandomFullJidForS2SNode(jid: any, generatedRandomId: any): string;
 	    getBareJIDFromFullJID(fullJid: any): any;
 	    getRoomJIDFromFullJID(fullJid: any): any;
 	    getDomainFromFullJID(fullJid: any): string;
@@ -2327,7 +2332,7 @@ declare module 'lib/connection/S2S/S2SServiceEventHandler' {
 	export { S2SServiceEventHandler };
 
 }
-declare module 'lib/connection/S2S/S2SService' {
+declare module 'lib/services/S2SService' {
 	 class S2SService {
 	    private serverURL;
 	    private host;
@@ -2353,20 +2358,149 @@ declare module 'lib/connection/S2S/S2SService' {
 	    private _contacts;
 	    private options;
 	    private _conversations;
-	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _startConfig: any);
 	    start(_options: any, _core: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @name signin
+	     * @param account
+	     * @param headers
+	     */
 	    signin(account: any, headers: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @param forceStop
+	     */
 	    stop(forceStop?: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method listConnectionsS2S
+	     * @instance
+	     * @description
+	     *      List all the connected user's connexions.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    listConnectionsS2S(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method sendS2SPresence
+	     * @instance
+	     * @param {Object} obj Object {show, status} describing the presence :
+	     *  To put presence to cases :
+	     * "online":     {show = undefined, status = "mode=auto"}
+	     * "away": {show = "xa", status = "away"}
+	     * "dnd": {show = "dnd", status = ""}
+	     * "invisible": {show = "xa", status = ""}
+	     * @description
+	     *      set the presence of the connected user with s2s api .
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    sendS2SPresence(obj: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method deleteConnectionsS2S
+	     * @instance
+	     * @param {Array} connexions a List of connections S2S to delete
+	     * @description
+	     *      Delete one by one a list of S2S connections of the connected user.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    /**
+	     * @public
+	     * @method deleteAllConnectionsS2S
+	     * @instance
+	     * @description
+	     *      Delete all the connected user's S2S connexions.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    deleteAllConnectionsS2S(): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    /**
+	     * @private
+	     * @method loginS2S
+	     * @instance
+	     * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
+	     * @description
+	     *      Login to S2S event server the already connected user to REST API server.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    loginS2S(callback_url: any): Promise<any>;
+	    /**
+	     * @public
+	     * @method infoS2S
+	     * @instance
+	     * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
+	     * @description
+	     *      Get informations about a S2S connexions.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    infoS2S(s2sConnectionId: any): Promise<unknown>;
 	    /** S2S EVENTS */
 	    onS2SReady(event: any): Promise<void>;
 	    /** S2S methods */
+	    /**
+	     * @private
+	     * @method sendMessageInConversation
+	     * @instance
+	     * @param {String} conversationId
+	     * @param {String} msg The message object to send.
+	     * {
+	     *   "message": {
+	     *   "subject": "Greeting",
+	     *   "lang": "en",
+	     *   "contents": [
+	     *     {
+	     *       "type": "text/markdown",
+	     *       "data": "## Hello Bob"
+	     *     }
+	     *   ],
+	     *   "body": "Hello world"
+	     *   }
+	     * }
+	     * @description
+	     *      Send a message in a conversation. Note, corrected message is not yet supported.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    sendMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method joinRoom
+	     * @param {String} bubbleId The id of the bubble to open the conversation.
+	     * @instance
+	     * @description
+	     *      send presence in S2S to join a bubble conversation
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
 	    joinRoom(bubbleId: any): Promise<unknown>;
 	}
 	export { S2SService };
@@ -4169,7 +4303,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @instance
 	     * @async
 	     * @description
-	     *   DELETE ALL MESSAGES IN ONE2ONE CONVERSATION
+	     *   Delete all messages for the connected user on a one to one conversation.
 	     * @param {Conversation} conversation The conversation object
 	     * @return {Message} - message object with updated replaceMsgs property
 	     */
@@ -6985,7 +7119,7 @@ declare module 'lib/Core' {
 	import { InvitationsService } from 'lib/services/InvitationsService';
 	import { Events } from 'lib/common/Events';
 	import { ProxyImpl } from 'lib/ProxyImpl';
-	import { S2SService } from 'lib/connection/S2S/S2SService'; class Core {
+	import { S2SService } from 'lib/services/S2SService'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
 	    onTokenRenewed: any;
