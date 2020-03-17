@@ -593,6 +593,8 @@ class S2SServiceEventHandler {
                     "status": status,
                 });
 
+          
+
                 /*switch (status) {
                     case "accepted":
                         that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
@@ -646,6 +648,7 @@ class S2SServiceEventHandler {
                     "userJid": that.jid_im,
                     "status": eventType,
                 });
+
 
                 /* switch (eventType) {
                     case "xxx":
