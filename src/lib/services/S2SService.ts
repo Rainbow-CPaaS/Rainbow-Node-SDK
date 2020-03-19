@@ -427,6 +427,7 @@ class S2SService {
      * @private
      * @method joinRoom
      * @param {String} bubbleId The id of the bubble to open the conversation.
+     * @param {string} role Enum: "member" "moderator" of your role in this room
      * @instance
      * @description
      *      send presence in S2S to join a bubble conversation
@@ -435,10 +436,10 @@ class S2SService {
      * @fulfil {Object} - List of connexions or an error object depending on the result
      * @category async
      */
-    joinRoom(bubbleId) {
+    joinRoom(bubbleId, role : ROOMROLE) {
         let that = this;
         that.logger.log("internal", LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);
-        return that._rest.joinS2SRoom(bubbleId).then( response => {
+        return that._rest.joinS2SRoom(bubbleId, role).then( response => {
                 that.logger.log("debug", LOG_ID + "(joinRoom) worked." );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
@@ -449,6 +450,11 @@ class S2SService {
 
 }
 
+enum ROOMROLE  {
+    MODERATOR = "moderator",
+    MEMBER = "member"
+};
 
-export { S2SService};
+export { S2SService, ROOMROLE};
 module.exports.S2SService = S2SService;
+module.exports.ROOMROLE = ROOMROLE;

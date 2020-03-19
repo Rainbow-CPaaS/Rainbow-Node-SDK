@@ -52,7 +52,9 @@ let urlS2S;
 
 (async function() {
     console.log("MAIN - ngrock.");
-    urlS2S = await ngrok.connect(4000);
+    urlS2S = await ngrok.connect(4000).catch((error) => {
+        console.log("MAIN - ngrock, error : ", error);
+    });
     console.log("MAIN - ngrock, urlS2S : ", urlS2S);
 
 // Define your configuration
@@ -76,6 +78,7 @@ let options = {
     "application": {
                "appID": "",
                "appSecret": ""
+
     },
     // */
     /*
@@ -1009,6 +1012,14 @@ function testCreateBubblesAndInviteContactsByEmails() {
                 "message": message
             }, "subject");
         });
+    });
+    //    let utc = new Date().toJSON().replace(/-/g, '/');
+}
+
+function testCreateBubblesOnly() {
+    let utc = new Date().toJSON().replace(/-/g, "/");
+    rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble) => {
+        logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
     });
     //    let utc = new Date().toJSON().replace(/-/g, '/');
 }

@@ -13,7 +13,7 @@ import {SettingsService} from "./SettingsService";
 import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
 import {RESTService} from "../connection/RESTService";
-import {S2SService} from "./S2SService";
+import {ROOMROLE, S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 
@@ -388,8 +388,8 @@ class PresenceService {
         let that = this;
         return new Promise(async function(resolve, reject) {
             if (!bubble || !bubble.jid) {
-                that._logger.log("debug", LOG_ID + "(joinRoom) failed");
-                that._logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
+                that._logger.log("debug", LOG_ID + "(sendInitialBubblePresence) failed");
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) No roomid provided");
                 reject({code:-1, label:"roomid is not defined!!!"});
             }
             else {
@@ -398,7 +398,7 @@ class PresenceService {
                 }
                 if (that._useS2S) {
                     let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
-                    resolve(that._s2s.joinRoom(bubbleInfos.id));
+                    resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
                 }
             }
         });

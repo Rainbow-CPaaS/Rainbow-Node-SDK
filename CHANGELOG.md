@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix empty message list in conversation when conversationEventHandler::onConversationManagementMessageReceived event.
 -   S2SService to service layer and folder
 -   update S2S documentation. 
+-   Add le parameter in joinroom in S2S
 
 ## [1.68.0] - 2020-03-06
 -   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.

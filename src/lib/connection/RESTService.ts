@@ -16,6 +16,7 @@ import {Contact} from "../common/models/Contact";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
+import {ROOMROLE} from "../services/S2SService";
 
 let packageVersion = require("../../package.json");
 
@@ -3159,7 +3160,13 @@ Request Method: PUT
         });
     }
 
-    joinS2SRoom (roomid){
+    /**
+     *
+     * @param roomid
+     * @param {string} role Enum: "member" "moderator" of your role in this room
+
+     */
+    joinS2SRoom (roomid, role : ROOMROLE){
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/rooms/{roomId}/join
         let that = this;
         return new Promise(function(resolve, reject) {
@@ -3169,7 +3176,10 @@ Request Method: PUT
                 reject({code:-1, label:"roomid is not defined!!!"});
             }
             else {
-                that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), {}, undefined).then(function(json) {
+                let data =     {
+                    "role": role
+                };
+                that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function(json) {
                     that.logger.log("debug", LOG_ID + "(joinRoom) successfull");
                     that.logger.log("internal", LOG_ID + "(joinRoom) REST bubble presence received ", json.data);
                     resolve(json.data);
