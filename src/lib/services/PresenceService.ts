@@ -8,7 +8,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {RainbowPresence} from "../common/models/Settings";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isStarted, logEntryExit, setTimeoutPromised} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import EventEmitter = NodeJS.EventEmitter;
 import {types} from "util";
@@ -398,7 +398,7 @@ class PresenceService {
                 }
                 if (that._useS2S) {
                     let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
-                    resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
+                        resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
                 }
             }
         });

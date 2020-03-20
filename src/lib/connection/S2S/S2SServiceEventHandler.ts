@@ -547,23 +547,32 @@ class S2SServiceEventHandler {
 
     async ParseRoomInviteCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseRoomInviteCallback)  Content:[", content, "]");
+        that._logger.log("internal", LOG_ID + "(ParseRoomInviteCallback)  Content:", content, "");
 
         let roomInvite = content["room-invite"];
         if (content && roomInvite) {
 
             let roomId = roomInvite.id;
             if (roomId) {
+                that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) roomId : ", roomId);
                 let date = content.timestamp;
-                let byUserId = roomInvite.by;
-                let bubble: Bubble = await that._bulles.getBubbleById(roomId);
+               /* let byUserId = roomInvite.by;
+                that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) before getBubbleById.");
+                let bubble: Bubble = <Bubble> await that._bulles.getBubbleById(roomId).catch((err)=> {
+                    that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) failed to getBubbleById : ", err);
+
+                }); // */
+               let invitation = {
+                   bubbleId : roomId
+               };
                 /*let contact: Contact = await that._contacts.getContactById(byUserId, false);
                 let invitationdetails = {
                     bulle:bubble,
                     invitedByContact: contact
                 }; */
                 that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) message - room-invite received");
-                that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+                //that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+                that._eventEmitter.emit("evt_internal_invitationreceived", invitation);
 
                 return true;
             }
@@ -593,7 +602,7 @@ class S2SServiceEventHandler {
                     "status": status,
                 });
 
-          
+
 
                 /*switch (status) {
                     case "accepted":
