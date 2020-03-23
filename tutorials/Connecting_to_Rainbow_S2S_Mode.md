@@ -15,8 +15,10 @@ This tutorial will explain in details what you have to do and how it works.
 
 As explained in the guide [Getting Started](/#/documentation/doc/sdk/node/guides/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
 
-Here is a complete sample for connecting to Rainbow. Adapt it with your credentials:
-A 
+**If you need infromations about what is S2S and it's architechture, please have a look on the [S2S-starterkit documentation](/#/documentation/doc/sdk/s2s-starterkit-nodejs/guides/Getting_Started)**
+
+
+Here is a complete sample for connecting to Rainbow. Adapt it with your credentials: 
 
 ```js
 
