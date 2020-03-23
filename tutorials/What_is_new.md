@@ -22,8 +22,37 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
+-   none
 
+**Others Changes**
+
+-   Rename document Connecting_to_Rainbow to Connecting_to_Rainbow_XMPP_Mode.
+-   Add document Connecting_to_Rainbow_S2S_Mode to describe the connection to Rainbow with a S2S event pipe.
+-   Official ChangeLog RSS Flow URL : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
+-   Fix empty message list in conversation when conversationEventHandler::onConversationManagementMessageReceived event.
+-   S2SService to service layer and folder
+-   update S2S documentation. 
+-   Add le parameter in joinroom in S2S
+-   Fix S2SServiceEventHandler::ParseRoomInviteCallback
+-   Fix error when delete conversation.
+
+### SDK for Node.JS 1.68 - February 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
 
 **Others Changes**
 
