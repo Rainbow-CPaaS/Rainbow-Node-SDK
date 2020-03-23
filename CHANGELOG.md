@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.69.0-dotnet.1] - 2020-03-23
+-   Same as 1.69.0-dotnet.0 (Failed of production)
+
 ## [1.69.0-dotnet.0] - 2020-03-23
 -   Rename document Connecting_to_Rainbow to Connecting_to_Rainbow_XMPP_Mode.
 -   Add document Connecting_to_Rainbow_S2S_Mode to describe the connection to Rainbow with a S2S event pipe.
