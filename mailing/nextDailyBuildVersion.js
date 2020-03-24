@@ -127,8 +127,16 @@ let content = fs.readFileSync(path.join(__dirname, "../package.json"));
 let packageJSON = JSON.parse(content);
 let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
 //let fullVersion = packageJSON.version;
-let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
+let currentVersion = "";
+if (packageJSON.version.indexOf("-dotnet") > -1 ) {
+    currentVersion = packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet"))
+} else
+if (packageJSON.version.indexOf("-debug") > -1 ) {
+    currentVersion = packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-debug"))
+} else {
+    packageJSON.version;
+}
 logger.log("debug", "MAIN - nextDailyBuildVersion, minVersion : ", minVersion);
-let dailyVersion = currentVersion + "-daily_" + dateFormat(new Date(), "dS_mm_yyyy_hh:MM:ss")+ ".0";
+let dailyVersion = currentVersion + "-debug-" + dateFormat(new Date(), "dS-mm-yyyy--hh-MM-ss")+ ".0";
 logger.log("debug", "MAIN - nextDailyBuildVersion, currentVersion : ", currentVersion);
 console.log(dailyVersion);
