@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.69.0] - 2020-03-xx
 -   Add nextDailyBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
 -   test
+-   testy
 
 ## [1.69.0-dotnet.2] - 2020-03-23
 -   Same as 1.69.0-dotnet.0 (Failed of production)
