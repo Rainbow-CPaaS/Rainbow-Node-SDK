@@ -31,6 +31,9 @@ import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
 import {ErrorManager} from "./common/ErrorManager";
 
+import {lt} from "semver";
+import {S2SService} from "./services/S2SService";
+
 const packageVersion = require("../package.json");
 
 let _signin;
@@ -71,6 +74,7 @@ class Core {
     public _invitations: InvitationsService;
 	public _botsjid: any;
     public _webrtc: WebRtcService;
+    public _s2s: S2SService;
 
     constructor(options) {
 
@@ -84,40 +88,106 @@ class Core {
 
             return new Promise(function (resolve, reject) {
 
-                return that._xmpp.stop(forceStopXMPP).then(() => {
-                    return that._rest.signin(token);
-                }).then((_json) => {
-                    json = _json;
-                    let headers = {
-                        "headers": {
-                            "Authorization": "Bearer " + that._rest.token,
-                            "x-rainbow-client": "sdk_node",
-                            "x-rainbow-client-version": packageVersion.version
-                            // "Accept": accept || "application/json",
-                        }
-                    };
-                    return that._xmpp.signin(that._rest.loggedInUser, headers);
-                }).then(function () {
-                    that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                    resolve(json);
-                }).catch(function (err) {
-                    that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
-                    that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                    reject(err);
-                });
+                if (that.options.useXMPP) {
+                    return that._xmpp.stop(forceStopXMPP).then(() => {
+                        return that._rest.signin(token);
+                    }).then((_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+                        return that._xmpp.signin(that._rest.loggedInUser, headers);
+                    }).then(function () {
+                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        resolve(json);
+                    }).catch(function (err) {
+                        that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
+                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        reject(err);
+                    });
+                }
+                if (that.options.useS2S) {
+                    return that._rest.signin(token).then(async (_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+
+                        return that._s2s.signin(that._rest.loggedInUser, headers);
+                    }).then(function () {
+                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        resolve(json);
+                    }).catch(function (err) {
+                        that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
+                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        reject(err);
+                    });
+                } else {
+                    that._rest.signin(token).then((_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        resolve(json);
+                    });
+                }
             });
         };
 
-        self._retrieveInformation = (useCLIMode) => {
+        self._retrieveInformation = () => {
             let that = self;
-            that.logger.log("debug", LOG_ID + "(_retrieveInformation) useCLIMode : ", useCLIMode);
-            return new Promise((resolve, reject) => {
+            that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
+            //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
+            return new Promise(async (resolve, reject) => {
 
-                if (useCLIMode) {
-                    resolve();
-                } else {
+                if (that.options.testOutdatedVersion) {
+                    await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
+                        // self.logger.log("internal", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
+                        infos.results.forEach((packagePublished: any) => {
+                            if (packagePublished.package.name === packageVersion.name) {
+                                //if (packagePublished.package.version !== packageVersion.version) {
+                                if (lt(packageVersion.version, packagePublished.package.version)) {
+                                    self.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
+                                        "*******************************************************\n\n", self.logger.colors.red.underline("WARNING : "), self.logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes."), "\n\n*******************************************************");
+                                    let error = {
+                                        "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
+                                        "currentPackage": packageVersion.version,
+                                        "latestPublishedPackage": packagePublished.package.version
+                                    };
+                                    self._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
+
+                                    //self.events.publish("rainbowversionwarning", error);
+                                }
+                            }
+                        });
+                    }).catch((error) => {
+                        self.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                        // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                    });
+                }
+
+                if (that.options.useS2S) {
                     return that._contacts.getRosters()
                         .then(() => {
                             return that._profiles.init();
@@ -138,7 +208,63 @@ class Core {
                         }).then(() => {
                             return that._groups.getGroups();
                         }).then(() => {
-                            return that.presence.sendInitialPresence();
+                            //return that.presence.sendInitialPresence();
+                            return Promise.resolve();
+                        }).then(() => {
+                            //return that.im.enableCarbon();
+                            return Promise.resolve();
+                        }).then(() => {
+                            return that._rest.getBots();
+                        }).then((bots : any) => {
+                            that._botsjid = bots ? bots.map((bot) => {
+                                return bot.jid;
+                            }) : [];
+                            return Promise.resolve();
+                        }).then(() => {
+                            return that._conversations.getServerConversations();
+                        }).then(() => {
+                            return that._calllog.init();
+                        }).then(() => {
+                            return that._favorites.init();
+                        }).then(() => {
+                            return that._invitations.init();
+                        }).then(() => {
+                            return that._s2s.listConnectionsS2S();
+                        }).then(() => {
+                            resolve();
+                        }).catch((err) => {
+                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
+                            that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                            reject(err);
+                        });
+                    //return resolve();
+                }
+                if (that.options.useCLIMode) {
+                    return resolve();
+                }
+                if (that.options.useXMPP) {
+                    return that._contacts.getRosters()
+                        .then(() => {
+                            return that._profiles.init();
+                        }).then(() => {
+                            return that._telephony.init();
+                        }).then(() => {
+                            return that._contacts.init();
+                        }).then(() => {
+                            return that._fileStorage.init();
+                        }).then(() => {
+                            return that._fileServer.init();
+                        }).then(() => {
+                            return that.presence._sendPresenceFromConfiguration();
+                        }).then(() => {
+                            return that._bubbles.getBubbles();
+                        }).then(() => {
+                            return that._channels.fetchMyChannels();
+                        }).then(() => {
+                            return that._groups.getGroups();
+                        }).then(() => {
+                            //return that.presence.sendInitialPresence();
+                            return Promise.resolve();
                         }).then(() => {
                             return that.im.enableCarbon();
                         }).then(() => {
@@ -231,7 +357,7 @@ class Core {
             self._rest.applicationToken = token;
         });
 
-        self._eventEmitter.iee.on("rainbow_onxmpperror", async (err) => {
+        self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop le SDK : ", err);
             await self._stateManager.transitTo(self._stateManager.ERROR, err);
             await self.stop().then(function(result) {
@@ -252,7 +378,7 @@ class Core {
                 return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
-                    return self._retrieveInformation(self.options.useCLIMode);
+                    return self._retrieveInformation();
                 });
             }).then((data3) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed, change state to ready");
@@ -312,6 +438,7 @@ class Core {
         self._http = new HTTPService(self.options.httpOptions, self.logger, self._proxy, self._eventEmitter.iee);
         self._rest = new RESTService(self.options.credentials, self.options.applicationOptions, self.options._isOfficialRainbow(), self._eventEmitter.iee, self.logger);
         self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
+        self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
         self._stateManager = new StateManager(self._eventEmitter, self.logger);
@@ -321,7 +448,7 @@ class Core {
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
         self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat);
+        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations);
         self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
         self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
         self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
@@ -340,10 +467,11 @@ class Core {
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
     }
 
-    start(useCLIMode, token) {
+    start(token) {
         let that = this;
 
         this.logger.log("debug", LOG_ID + "(start) _entering_");
+        this.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
 
         return new Promise(function (resolve, reject) {
 
@@ -364,39 +492,41 @@ class Core {
                     }).then(() => {
                         return that._xmpp.start(that.options.useXMPP);
                     }).then(() => {
-                        return that._settings.start(that._xmpp, that._rest);
+                        return that._s2s.start(that.options, that);
                     }).then(() => {
-                        return that._presence.start(that._xmpp, that._settings) ;
+                        return that._settings.start(that.options, that);
                     }).then(() => {
-                        return  that._contacts.start(that._xmpp, that._rest, that._invitations, that._presence ) ;
+                        return that._presence.start(that.options,that) ;
                     }).then(() => {
-                       return that._bubbles.start(that._xmpp, that._rest) ;
+                        return  that._contacts.start(that.options, that ) ;
                     }).then(() => {
-                        return that._conversations.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer) ;
+                       return that._bubbles.start(that.options, that) ;
                     }).then(() => {
-                        return that._profiles.start(that._xmpp, that._rest, []) ;
+                        return that._conversations.start(that.options, that) ;
                     }).then(() => {
-                        return that._telephony.start(that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles) ;
+                        return that._profiles.start(that.options, that, []) ;
                     }).then(() => {
-                        return that._im.start(that._xmpp, that._conversations, that._bubbles, that._fileStorage) ;
+                        return that._telephony.start(that.options, that) ;
                     }).then(() => {
-                        return that._channels.start(that._xmpp, that._rest) ;
+                        return that._im.start(that.options, that) ;
                     }).then(() => {
-                        return that._groups.start(that._xmpp, that._rest) ;
+                        return that._channels.start(that.options, that) ;
                     }).then(() => {
-                        return that._admin.start(that._xmpp, that._rest) ;
+                        return that._groups.start(that.options, that) ;
                     }).then(() => {
-                        return that._fileServer.start(that._xmpp, that._rest, that._fileStorage) ;
+                        return that._admin.start(that.options,that) ;
                     }).then(() => {
-                        return that._fileStorage.start(that._xmpp, that._rest, that._fileServer, that._conversations) ;
+                        return that._fileServer.start(that.options, that) ;
                     }).then(() => {
-                        return that._calllog.start(that._xmpp, that._rest, that._contacts, that._profiles, that._telephony) ;
+                        return that._fileStorage.start(that.options, that) ;
+                    }).then(() => {
+                        return that._calllog.start(that.options, that) ;
                     }).then(() => {
                         return that._webrtc.start(that._xmpp, that._rest, that._profiles) ;
                     }).then(() => {
-                        return that._favorites.start(that._xmpp, that._rest) ;
+                        return that._favorites.start(that.options, that) ;
                     }).then(() => {
-                        return that._invitations.start(that._xmpp, that._rest, that._contacts, []) ;
+                        return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
@@ -433,7 +563,7 @@ class Core {
                 json = _json;
                 that._tokenSurvey();
                 return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
-                    return that._retrieveInformation(that.options.useCLIMode);
+                    return that._retrieveInformation();
                 });
             }).then(() => {
                 that._stateManager.transitTo(that._stateManager.READY).then(() => {
@@ -451,9 +581,15 @@ class Core {
 
         return new Promise(function (resolve, reject) {
 
+            if (that._stateManager.isSTOPPED()) {
+                return resolve ("core already stopped !");
+            }
+
             that.logger.log("debug", LOG_ID + "(stop) stop all modules");
 
-            that._rest.stop().then(() => {
+            that._s2s.stop().then(() => {
+                return that._rest.stop();
+            }).then(() => {
                 return that._http.stop();
             }).then(() => {
                 return that._xmpp.stop(that.options.useXMPP);
@@ -511,8 +647,16 @@ class Core {
         return this._presence;
     }
 
+    get profiles() {
+        return this._profiles;
+    }
+
     get im() {
         return this._im;
+    }
+
+    get invitations() {
+        return this._invitations;
     }
 
     get contacts() {

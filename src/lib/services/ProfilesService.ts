@@ -9,6 +9,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {S2SService} from "./S2SService";
 
 const LOG_ID = "PROFILES/SVCE - ";
 
@@ -88,7 +89,7 @@ const FeaturesEnum = {
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name ProfilesService
  * @version SDKVERSION
  * @private
@@ -96,18 +97,22 @@ const FeaturesEnum = {
  *  This module is the service used to retrieve profiles from server.
 */
 class ProfilesService {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
 	public started: any;
-	public onUserUpdateNeeded: any;
-	public stats: any;
+    private onUserUpdateNeeded: any;
+    private stats: any;
 	public features: any;
 	public profiles: any;
 	public mainOffers: any;
-	public startDate: any;
-    timer: NodeJS.Timeout;
+    private startDate: any;
+    private timer: NodeJS.Timeout;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -121,6 +126,10 @@ class ProfilesService {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
@@ -158,7 +167,7 @@ class ProfilesService {
     /*********************************************************************/
     /** LIFECYCLE STUFF                                                 **/
     /*********************************************************************/
-    start (_xmpp : XMPPService, _rest : RESTService, stats) {
+    start (_options, _core, stats) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
 
         //that._logger.log("debug", LOG_ID + "(start) ");
@@ -166,9 +175,12 @@ class ProfilesService {
 
         that.stats = stats ? stats : [];
 
-        that._xmpp = _xmpp;
-        that._rest = _rest;
-
+        that._xmpp = _core._xmpp;
+        that._rest = _core._rest;
+        that._options = _options;
+        that._s2s = _core._s2s;
+        that._useXMPP = that._options.useXMPP;
+        that._useS2S = that._options.useS2S;
         that.features = {};
         that.profiles = [];
         that.mainOffers = [];

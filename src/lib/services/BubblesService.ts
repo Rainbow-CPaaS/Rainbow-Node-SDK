@@ -8,10 +8,15 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
 import {createPromiseQueue} from "../common/promiseQueue";
-import {logEntryExit, until} from "../common/Utils";
+import {logEntryExit, until, resizeImage, getBinaryData} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {atob} from "atob";
+import {ContactsService} from "./ContactsService";
+import {ProfilesService} from "./ProfilesService";
+import {S2SService} from "./S2SService";
+import {Core} from "../Core";
+import {PresenceService} from "./PresenceService";
 const Jimp = require('jimp');
 //import Jimp from "jimp";
 
@@ -20,7 +25,7 @@ const LOG_ID = "BUBBLES/SVCE - ";
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Bubbles
  * @version SDKVERSION
  * @public
@@ -37,17 +42,25 @@ const LOG_ID = "BUBBLES/SVCE - ";
  *      - Change the custom data attached to a bubble
  */
 class Bubbles {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _bubbles: Bubble[];
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _bubbles: Bubble[];
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
     };
     private avatarDomain: string;
+    private _contacts: ContactsService;
+    private _profileService: ProfilesService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _presence: PresenceService;
+    private _useXMPP: any;
+    private _useS2S: any;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -56,6 +69,10 @@ class Bubbles {
         this.ready = false;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._bubbles = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
@@ -70,25 +87,34 @@ class Bubbles {
         this._eventEmitter.on("evt_internal_topicchanged", this._onTopicChanged.bind(this));
         this._eventEmitter.on("evt_internal_namechanged", this._onNameChanged.bind(this));
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
+        this._eventEmitter.on("evt_internal_privilegechanged", this._onPrivilegeBubbleChanged.bind(this));
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
 
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
                 that._bubbles = [];
-/*
-                that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
-                that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
-                that._eventEmitter.on("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
-                that._eventEmitter.on("evt_internal_customdatachanged", that._onCustomDataChanged.bind(that));
-                that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
-                that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
-*/
+                that._contacts = _core.contacts;
+                that._profileService = _core.profiles;
+                that._presence = _core.presence;
+                that._options = _options;
+                that._s2s = _core._s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+
+                /*
+                                that._eventEmitter.on("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
+                                that._eventEmitter.on("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_customdatachanged", that._onCustomDataChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
+                                that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
+                */
                 that.ready = true;
                 resolve();
             }
@@ -131,7 +157,6 @@ class Bubbles {
      * @param {string} name  The name of the bubble to create
      * @param {string} description  The description of the bubble to create
      * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - Bubble object, else an ErrorManager object
@@ -171,7 +196,7 @@ class Bubbles {
                     resolve(bubble);
                 }); // */
 
-                that._xmpp.sendInitialBubblePresence(bubble.jid).then(async () => {
+                that._presence.sendInitialBubblePresence(bubble).then(async () => {
                     // Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
                     await until(() => {
                         return (that._bubbles.find((bubbleIter : any) => {
@@ -197,7 +222,6 @@ class Bubbles {
      * @instance
      * @param {Bubble} bubble  The bubble to check
      * @return {boolean} True if the bubble is closed
-     * @memberof Bubbles
      * @description
      *  Check if the bubble is closed or not.
      */
@@ -248,7 +272,6 @@ class Bubbles {
      * @method deleteBubble
      * @instance
      * @param {Bubble} bubble  The bubble to delete
-     * @memberof Bubbles
      * @description
      *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
      * @async
@@ -268,8 +291,8 @@ class Bubbles {
                 return;
             }
 
-            that._rest.deleteBubble(bubble.id).then(function (resultDelete) {
-                //let bubbleRemoved = that.removeBubbleFromCache(updatedBubble.id);
+            that._rest.deleteBubble(bubble.id).then((resultDelete) => {
+                //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
                 /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                     return el.id === updatedBubble.id;
                 }), 1); // */
@@ -290,7 +313,6 @@ class Bubbles {
      * @method closeAndDeleteBubble
      * @instance
      * @param {Bubble} bubble  The bubble to close + delete
-     * @memberof Bubbles
      * @description
      *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants.
      * @async
@@ -310,8 +332,8 @@ class Bubbles {
             }
 
             that.closeBubble(bubble).then((updatedBubble: any) => {
-                that._rest.deleteBubble(updatedBubble.id).then(function() {
-                    //let bubbleRemoved = that.removeBubbleFromCache(updatedBubble.id);
+                that._rest.deleteBubble(updatedBubble.id).then(() => {
+                    //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
                     /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                         return el.id === updatedBubble.id;
                     }), 1); // */
@@ -335,7 +357,6 @@ class Bubbles {
      * @method closeBubble
      * @instance
      * @param {Bubble} bubble The Bubble to close
-     * @memberof Bubbles
      * @description
      *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants.
      * @async
@@ -395,12 +416,12 @@ class Bubbles {
                     that._logger.log("info", LOG_ID + "(closeBubble) all users have been unsubscribed from bubble. Bubble is closed");
 
                     that.removeContactFromBubble({id: that._rest.userId}, bubble).then(() => {
-                        that._rest.getBubble(bubble.id).then(function (bubbleUpdated: any) {
+                        that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
 
                             //
 
                             // Update the existing local bubble stored
-                            let bubbleReturned = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubbleReturned = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
@@ -426,7 +447,6 @@ class Bubbles {
      * @method archiveBubble
      * @instance
      * @param {Bubble} bubble  The bubble to archive
-     * @memberof Bubbles
      * @description
      *  Archive  a bubble.
      *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet.
@@ -466,7 +486,6 @@ class Bubbles {
      * @method leaveBubble
      * @instance
      * @param {Bubble} bubble  The bubble to leave
-     * @memberof Bubbles
      * @description
      *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble.
      * @async
@@ -503,7 +522,6 @@ class Bubbles {
                 that._logger.log("info", LOG_ID + "(leaveBubble) leave successfull");
                 that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                 resolve(json);
-
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(leaveBubble) error.");
                 that._logger.log("internalerror", LOG_ID + "(leaveBubble) error : ", err);
@@ -512,12 +530,69 @@ class Bubbles {
         });
     }
 
+
     /**
+     * @public
+     * @method getUsersFromBubble
+     * @instance
+     * @param {Bubble} bubble           The bubble
+     * @param {Object} options          The criterias to select the users to retrieve
+     * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate)
+     * - small: userId loginEmail displayName jid_im
+     * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName
+     * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType
+     * sortField : Sort items list based on the given field
+     * privilege : Allows to filter users list on the privilege type provided in this option.
+     * limit : Allow to specify the number of items to retrieve.
+     * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+     * sortOrder : Specify order when sorting items list. Available values -1, 1 (default)
+     * @description
+     *  Get a list of users in a bubble filtered by criterias.
+     * @async
+     * @return {Promise<Array, ErrorManager>}
+     */
+    getUsersFromBubble(bubble, options : Object = {}) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+
+            /*let filterToApply = "format=medium";
+            if (_options.format) {
+                filterToApply = "format=" + _options.format;
+            }
+
+            if (_options.page > 0) {
+                filterToApply += "&offset=";
+                if (_options.page > 1) {
+                    filterToApply += (_options.limit * (_options.page - 1));
+                } else {
+                    filterToApply += 0;
+                }
+            }
+
+            filterToApply += "&limit=" + Math.min(_options.limit, 1000);
+
+            if (_options.type) {
+                filterToApply += "&types=" + _options.type;
+            }
+
+            // */
+
+            that._rest.getRoomUsers(bubble.id, options).then(function(json) {
+                that._logger.log("info", LOG_ID + "(getRoomUsers) retrieve successfull");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log("error", LOG_ID + "(getRoomUsers) error.");
+                that._logger.log("internalerror", LOG_ID + "(getRoomUsers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+     /**
      * @public
      * @method getStatusForConnectedUserInBubble
      * @instance
      * @param {Bubble} bubble           The bubble
-     * @memberof Bubbles
      * @description
      *  Get the status of the connected user in a bubble
      * @async
@@ -546,7 +621,6 @@ class Bubbles {
      * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
      * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
      * @param {string} reason        The reason of the invitation (optional)
-     * @memberof Bubbles
      * @description
      *  Invite a contact in a bubble
      * @async
@@ -601,9 +675,9 @@ class Bubbles {
                 that._logger.log("info", LOG_ID + "(inviteContactToBubble) invitation successfully sent");
 
                 return that._rest.getBubble(bubble.id);
-            }).then(function(bubbleReUpdated : any) {
+            }).then(async (bubbleReUpdated : any) => {
 
-                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
 
                 /*
                 // Update the existing local bubble stored
@@ -630,7 +704,6 @@ class Bubbles {
      * @instance
      * @param {Contact} contactsEmails         The contacts email tab to invite
      * @param {Bubble} bubble           The bubble
-     * @memberof Bubbles
      * @description
      *  Invite a list of contacts by emails in a bubble
      * @async
@@ -658,8 +731,8 @@ class Bubbles {
             return that._rest.inviteContactsByEmailsToBubble(contactsEmails, bubble.id).then(function () {
                 that._logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) invitation successfully sent");
                 return that._rest.getBubble(bubble.id);
-            }).then(function (bubbleReUpdated: any) {
-                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+            }).then(async (bubbleReUpdated: any) => {
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
                 resolve(bubble);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(inviteContactsByEmailsToBubble) error");
@@ -672,7 +745,7 @@ class Bubbles {
     joinConference( bubble) {
         let that = this;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(async function(resolve, reject) {
             that._logger.log("internal", LOG_ID + "(joinConference) arguments : ", ...arguments);
 
              if (!bubble || !bubble.id) {
@@ -705,8 +778,29 @@ getAllActiveBubbles
                 return;
             } // */
 
-             that._rest.joinConference(bubble.id, "moderator").then(function(joinResult : any) {
+            if (!bubble || !bubble.confEndpoints) {
+                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter");
+                that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter : ", bubble);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
 
+            let mediaType = bubble.mediaType;
+            if (!that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED) && mediaType !== that._rest.MEDIATYPE.WEBRTCSHARINGONLY) {
+                that._logger.log("warn", LOG_ID + "(WebConferenceService) retrieveWebConferences - user is not allowed");
+                reject(new Error("notAllowed"));
+                return;
+            }
+
+            let endpoint = await that._rest.retrieveWebConferences(mediaType);
+            let confEndPoints = null;
+                confEndPoints = endpoint;
+            let confEndPointId = null;
+            if (confEndPoints.length === 1 && confEndPoints[0].mediaType === that._rest.MEDIATYPE.WEBRTC) {
+                confEndPointId = confEndPoints[0].id;
+            }
+
+             that._rest.joinConference(confEndPointId, "moderator").then(function(joinResult : any) {
                 resolve(joinResult);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(joinConference) error");
@@ -722,7 +816,6 @@ getAllActiveBubbles
      * @param {Contact} contact         The contact to promote or downgraded
      * @param {Bubble} bubble           The bubble
      * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
-     * @memberof Bubbles
      * @description
      *  Promote or not a contact in a bubble
      *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'.
@@ -775,10 +868,10 @@ getAllActiveBubbles
                 that._logger.log("info", LOG_ID + "(promoteContactInBubble) user privilege successfully sent");
 
                 return that._rest.getBubble(bubble.id);
-            }).then(function(bubbleReUpdated : any) {
+            }).then(async (bubbleReUpdated : any) => {
 
                 // Update the existing local bubble stored
-                let bubble = that.addOrUpdateBubbleToCache(bubbleReUpdated);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
                 /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleReUpdated.id);
                 if ( foundIndex > -1) {
                     bubbleReUpdated = Object.assign(that._bubbles[foundIndex], bubbleReUpdated);
@@ -810,6 +903,16 @@ getAllActiveBubbles
      * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
      */
     promoteContactToModerator(contact, bubble) {
+        let that = this;
+        if (!contact) {
+            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter");
+            that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter");
+            that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return this.promoteContactInBubble(contact, bubble, true);
     }
 
@@ -826,6 +929,16 @@ getAllActiveBubbles
      * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
      */
     demoteContactFromModerator (contact, bubble) {
+        let that = this;
+        if (!contact) {
+            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter");
+            that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        } else if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter");
+            that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return this.promoteContactInBubble(contact, bubble, false);
     }
 
@@ -835,7 +948,6 @@ getAllActiveBubbles
      * @instance
      * @param {Contact} contact         The contact to set a new bubble owner
      * @param {Bubble} bubble           The bubble
-     * @memberof Bubbles
      * @description
      *  Set a moderator contact as owner of a bubble
      * @async
@@ -859,10 +971,11 @@ getAllActiveBubbles
 
         return new Promise((resolve, reject) => {
 
-            that._rest.changeBubbleOwner(bubble.id, contact.id).then((bubbleData : any ) => {
-                that._logger.log("info", LOG_ID + "(changeBubbleOwner) owner set", bubbleData.owner);
+            that._rest.changeBubbleOwner(bubble.id, contact.id).then(async (bubbleData : any ) => {
+                bubbleData = await that.addOrUpdateBubbleToCache(bubbleData);
+                that._logger.log("info", LOG_ID + "(changeBubbleOwner) owner setted : ", bubbleData.owner);
                 bubble.owner = bubbleData.owner;
-                resolve(bubble);
+                resolve(bubbleData);
             }).catch((err) => {
                 that._logger.log("error", LOG_ID + "(changeBubbleOwner) error");
                 that._logger.log("internalerror", LOG_ID + "(changeBubbleOwner) error : ", err);
@@ -877,7 +990,6 @@ getAllActiveBubbles
      * @instance
      * @param {Contact} contact The contact to remove
      * @param {Bubble} bubble   The destination bubble
-     * @memberof Bubbles
      * @description
      *    Remove a contact from a bubble
      * @async
@@ -920,9 +1032,9 @@ getAllActiveBubbles
                     that._rest.removeInvitationOfContactToBubble(contact.id, bubble.id).then(function() {
                         that._logger.log("info", LOG_ID + "(removeContactFromBubble) removed successfully");
 
-                        that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                        that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
                             // Update the existing local bubble stored
-                            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
@@ -944,10 +1056,11 @@ getAllActiveBubbles
                     that._rest.unsubscribeContactFromBubble(contact.id, bubble.id).then(function() {
                         that._logger.log("debug", LOG_ID + "(removeContactFromBubble) removed successfully");
 
-                        that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                        that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
 
                             // Update the existing local bubble stored
-                            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubbleProm = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                            let bubble = await bubbleProm;
                             /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                             if ( foundIndex > -1) {
                                 bubbleUpdated = Object.assign(that._bubbles[foundIndex], bubbleUpdated);
@@ -990,8 +1103,8 @@ getAllActiveBubbles
 
                 //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
                 that._bubbles = [];
-                listOfBubbles.map( (bubble) => {
-                    that.addOrUpdateBubbleToCache(bubble);
+                listOfBubbles.map(async (bubble) => {
+                    await that.addOrUpdateBubbleToCache(bubble);
                 });
                 that._logger.log("info", LOG_ID + "(getBubbles) get successfully");
                 let prom = [];
@@ -1002,7 +1115,7 @@ getAllActiveBubbles
                         if (user.userId === that._rest.userId && user.status === "accepted") {
                             if (bubble.isActive) {
                                 that._logger.log("debug", LOG_ID + "(getBubbles) send initial presence to room : ", bubble.jid);
-                                prom.push(that._xmpp.sendInitialBubblePresence(bubble.jid));
+                                prom.push(that._presence.sendInitialBubblePresence(bubble));
                             } else {
                                 that._logger.log("debug", LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to room : ", bubble.jid);
                             }
@@ -1031,7 +1144,6 @@ getAllActiveBubbles
      * @method getAll
      * @instance
      * @return {Bubble[]} The list of existing bubbles
-     * @memberof Bubbles
      * @description
      *  Return the list of existing bubbles
      */
@@ -1044,7 +1156,6 @@ getAllActiveBubbles
      * @method getAllBubbles
      * @instance
      * @return {Bubble[]} The list of existing bubbles
-     * @memberof Bubbles
      * @description
      *  Return the list of existing bubbles
      */
@@ -1056,7 +1167,6 @@ getAllActiveBubbles
      * @public
      * @method getAllOwnedBubbles
      * @instance
-     * @memberof Bubbles
      * @description
      *    Get the list of bubbles created by the user <br/>
      * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
@@ -1089,20 +1199,23 @@ getAllActiveBubbles
         return bubbleFound ;
     }
 
-    private addOrUpdateBubbleToCache(bubble : any): Bubble {
+    private async addOrUpdateBubbleToCache(bubble : any): Promise<Bubble> {
         let that = this;
-        let bubbleObj : Bubble = Bubble.BubbleFactory(that.avatarDomain)(bubble);
+        let bubbleObj : Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubble);
         let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
             return channelIter.id === bubble.id;
         });
         if (bubbleFoundindex != -1) {
             this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
-            this._bubbles[bubbleFoundindex].updateBubble(bubble);
+            //this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
+            this._bubbles[bubbleFoundindex].updateBubble(bubble, that._contacts);
             //this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
-            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
+            this.refreshMemberAndOrganizerLists(this._bubbles[bubbleFoundindex]);
+            //this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
             bubbleObj = this._bubbles[bubbleFoundindex];
         } else {
             this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) add in cache bubbleObj : ", bubbleObj);
+            this.refreshMemberAndOrganizerLists(bubbleObj);
             this._bubbles.push(bubbleObj);
         }
         //this.updateChannelsList();
@@ -1136,7 +1249,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble   The destination bubble
      * @async
      * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
-     * @memberof Bubbles
      * @description
      *  Get A Blob object with data about the avatar picture of the bubble.
      */
@@ -1182,6 +1294,38 @@ getAllActiveBubbles
 
     }
 
+    /**
+     * @private
+     * @method refreshMemberAndOrganizerLists
+     * @instance
+     * @param {Bubble} bubble the bubble to refresh
+     * @async
+     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+     * @description
+     *  Refresh members and organizers of the bubble.
+     */
+    refreshMemberAndOrganizerLists (bubble) {
+        let that = this;
+        if (!bubble) {
+            that._logger.log("debug", LOG_ID + "(refreshMemberAndOrganizerLists) bad or empty 'bubble' parameter.");
+            that._logger.log("internal", LOG_ID + "(refreshMemberAndOrganizerLists) bad or empty 'bubble' parameter : ", bubble);
+            return ErrorManager.getErrorManager().BAD_REQUEST;
+        }
+
+        //Clear both lists :
+        bubble.organizers = [];
+        bubble.members = [];
+
+        bubble.users.forEach(function (user) {
+            if (user.status === Bubble.RoomUserStatus.ACCEPTED || user.status === Bubble.RoomUserStatus.INVITED || user.jid_im === bubble.ownerContact.jid) {
+                if (user.privilege === Bubble.Privilege.MODERATOR) {
+                    bubble.organizers.push(user);
+                } else {
+                    bubble.members.push(user);
+                }
+            }
+        });
+    };
 
     /**
      * @public
@@ -1190,11 +1334,10 @@ getAllActiveBubbles
      * @param {string} id the id of the bubble
      * @async
      * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-     * @memberof Bubbles
      * @description
      *  Get a bubble by its ID in memory and if it is not found in server.
      */
-    getBubbleById(id) {
+    getBubbleById(id) : Promise<Bubble>{
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
@@ -1212,16 +1355,16 @@ getAllActiveBubbles
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound.jid);
             } else {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not found in memory, search in server id : ", id);
-                return that._rest.getBubble(id).then((bubbleFromServer) => {
+                return that._rest.getBubble(id).then(async (bubbleFromServer) => {
                     that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
                         //let bubble = Object.assign(new Bubble(), bubbleFromServer);
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                            that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            await that._presence.sendInitialBubblePresence(bubble);
                         } else {
                             that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
@@ -1247,7 +1390,6 @@ getAllActiveBubbles
      * @param {string} jid the JID of the bubble
      * @async
      * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-     * @memberof Bubbles
      * @description
      *  Get a bubble by its JID in memory and if it is not found in server.
      */
@@ -1270,16 +1412,16 @@ getAllActiveBubbles
                 that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubbleFound in memory : ", bubbleFound.jid);
             } else {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
-                return that._rest.getBubbleByJid(jid).then((bubbleFromServer) => {
+                return that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
                     that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
 
                     if (bubbleFromServer) {
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
                         //let bubble = Object.assign(new Bubble(), bubbleFromServer);
                         //that._bubbles.push(bubble);
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) send initial presence to room : ", bubble.jid);
-                            that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            await that._presence.sendInitialBubblePresence(bubble);
                         } else {
                             that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
@@ -1303,7 +1445,6 @@ getAllActiveBubbles
      * @return {Bubble[]} An array of Bubbles not accepted or declined
      * @description
      *  Get the list of Bubbles that have a pending invitation not yet accepted of declined
-     * @memberof Bubbles
      */
     getAllPendingBubbles() {
 
@@ -1327,7 +1468,6 @@ getAllActiveBubbles
      * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
      * @description
      *  Get the list of Bubbles where the connected user can chat
-     * @memberof Bubbles
      */
     getAllActiveBubbles() {
         let that = this;
@@ -1351,7 +1491,6 @@ getAllActiveBubbles
      * @return {Bubble[]} An array of Bubbles that are closed for the connected user
      * @description
      *  Get the list of Bubbles where the connected user can only read messages
-     * @memberof Bubbles
      */
     getAllClosedBubbles() {
         let that = this;
@@ -1374,7 +1513,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble The Bubble to join
      * @description
      *  Accept an invitation to join a bubble
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -1395,9 +1533,9 @@ getAllActiveBubbles
             that._rest.acceptInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
                 that._logger.log("info", LOG_ID + "(acceptInvitationToJoinBubble) invitation accepted", invitationStatus);
 
-                that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
                     // Update the existing local bubble stored
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                     /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                     if ( foundIndex > -1) {
                         bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1425,7 +1563,6 @@ getAllActiveBubbles
      * @param {Bubble} bubble The Bubble to decline
      * @description
      *  Decline an invitation to join a bubble
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -1446,9 +1583,9 @@ getAllActiveBubbles
             that._rest.declineInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
                 that._logger.log("info", LOG_ID + "(declineInvitationToJoinBubble) invitation declined : ", invitationStatus);
 
-                that._rest.getBubble(bubble.id).then((bubbleUpdated : any) => {
+                that._rest.getBubble(bubble.id).then(async (bubbleUpdated : any) => {
                     // Update the existing local bubble stored
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                    let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
                     /*let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
                     if ( foundIndex > -1) {
                         bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
@@ -1478,7 +1615,6 @@ getAllActiveBubbles
      * @description
      *  Modify all custom data at once in a bubble
      *  To erase all custom data, put {} in customData
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
@@ -1520,11 +1656,11 @@ getAllActiveBubbles
                 } catch (err) {
                     this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.");
                     this._logger.log("internal", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.", err);
-                    that._rest.getBubble(bubble.id).then((bubbleUpdated: any) => {
+                    that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
 
                         that._logger.log("internal", LOG_ID + "(setBubbleCustomData) Custom data in bubble retrieved from server : ", bubbleUpdated.name + " | " + bubbleUpdated.customData);
 
-                        let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
                         /*// Update the existing local bubble stored
                         let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -1555,7 +1691,6 @@ getAllActiveBubbles
      * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
      * @description
      *  Set the Bubble's visibility status
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -1631,7 +1766,6 @@ getAllActiveBubbles
      * @param {string} topic Bubble's name
      * @description
      *  Set the Bubble's name
-     * @memberof Bubbles
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -1714,9 +1848,9 @@ getAllActiveBubbles
         }
 
         return new Promise((resolve, reject) => {
-            that.resizeImage(roomAvatarPath, 512, 512).then(function (resizedImage) {
+            resizeImage(roomAvatarPath, 512, 512).then(function (resizedImage) {
                 that._logger.log("debug", LOG_ID + "(setAvatarBubble) resizedImage : ", resizedImage);
-                let binaryData = that.getBinaryData(resizedImage);
+                let binaryData = getBinaryData(resizedImage);
                 that._rest.setAvatarRoom(bubble.id, binaryData).then(
                     function success(result : any) {
                         that._logger.log("debug", LOG_ID + "(setAvatarBubble) setAvatarRoom success : " + result);
@@ -1793,96 +1927,6 @@ getAllActiveBubbles
             });
         });
         // */
-    };
-
-    /**
-     * @private
-     * @param avatarImg
-     * @param maxWidth
-     * @param maxHeight
-     */
-    resizeImage (avatarImg, maxWidth, maxHeight) {
-        let that = this;
-       return new Promise((resolve, reject)=> {
-           Jimp.read(avatarImg) // this can be url or local location
-               .then(image => {
-                   that._logger.log("debug", LOG_ID + "(resizeImage) image : ", image);
-                   image.resize(maxHeight, maxWidth) // jimp.AUTO automatically sets the width so that the image doesnot looks odd
-                       // @ts-ignore
-                       .getBase64(Jimp.AUTO, (err, res) => {
-                           that._logger.log("debug", LOG_ID + "(setAvatarBubble) getBase64 : ", res);
-                           /*
-                           const buf = new Buffer(
-                               res.replace(/^data:image\/\w+;base64,/, ""),
-                               "base64"
-                           );
-                           let data = {
-                               Body: buf,
-                               ContentEncoding: "base64",
-                               ContentType: "image/jpeg"
-                           };
-                           // */
-                           return resolve(res);
-                       });
-               })
-               .catch(err => {
-                   that._logger.log("error", LOG_ID + "(setAvatarBubble) Error : ", err);
-               });
-       });
-
-
-        /*
-        let defered = $q.defer();
-        let image = new Image();
-        image.src = avatarImg;
-
-        image.onload = function() {
-            let imageWidth = image.width;
-            let imageHeight = image.height;
-
-            if (imageWidth > imageHeight) {
-                if (imageWidth > maxWidth) {
-                    imageHeight *= maxWidth / imageWidth;
-                    imageWidth = maxWidth;
-                }
-            }
-            else {
-                if (imageHeight > maxHeight) {
-                    imageWidth *= maxHeight / imageHeight;
-                    imageHeight = maxHeight;
-                }
-            }
-
-            let canvas = document.createElement("canvas");
-            canvas.width = imageWidth;
-            canvas.height = imageHeight;
-            image.width = imageWidth;
-            image.height = imageHeight;
-            let ctx = canvas.getContext("2d");
-            ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
-
-            let resizedImage = new Image();
-            resizedImage.src = canvas.toDataURL("image/png");
-            defered.resolve(resizedImage);
-        };
-        return defered.promise;
-        // */
-    }
-
-    /**
-     * @private
-     * @param image
-     */
-    getBinaryData (image) {
-        let typeIndex = image.indexOf("image/") + 6;
-        let binaryIndex = image.indexOf(";base64,");
-        let binaryData = image.slice(binaryIndex + 8);
-        let imageType = image.slice(typeIndex, binaryIndex);
-        let binary_string = atob(binaryData);
-        let len = binary_string.length;
-        let bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) { bytes[i] = binary_string.charCodeAt(i); }
-        return { type: imageType, data: bytes };
     };
 
     /**
@@ -1988,23 +2032,9 @@ getAllActiveBubbles
 
     /**
      * @private
-     * @method _sendInitialBubblePresence
-     * @instance
-     * @param {Bubble} bubble The Bubble
-     * @memberof Bubbles
-     * @description
-     *      Method called when receiving an invitation to join a bubble
-     */
-    _sendInitialBubblePresence(bubble) {
-        this._xmpp.sendInitialBubblePresence(bubble.jid);
-    }
-
-    /**
-     * @private
      * @method _onInvitationReceived
      * @instance
      * @param {Object} invitation contains informations about bubble and user's jid
-     * @memberof Bubbles
      * @description
      *      Method called when receiving an invitation to join a bubble
      */
@@ -2012,11 +2042,11 @@ getAllActiveBubbles
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
-        this._rest.getBubble(invitation.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
             that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Store the new bubble
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2040,7 +2070,6 @@ getAllActiveBubbles
      * @method _onAffiliationChanged
      * @instance
      * @param {Object} affiliation contains information about bubble and user's jid
-     * @memberof Bubbles
      * @description
      *      Method called when affilitation to a bubble changed
      */
@@ -2048,11 +2077,12 @@ getAllActiveBubbles
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) affiliation : ", affiliation);
 
-        await this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
+        await this._rest.getBubble(affiliation.bubbleId).then( async (bubbleUpdated : any) => {
             that._logger.log("debug", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble.");
             that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) user affiliation changed for bubble : ", bubbleUpdated, ", affiliation : ", affiliation);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubbleProm = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await bubbleProm;
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2076,7 +2106,6 @@ getAllActiveBubbles
      * @method _onOwnAffiliationChanged
      * @instance
      * @param {Object} affiliation contains information about bubble and user's jid
-     * @memberof Bubbles
      * @description
      *      Method called when the user affilitation to a bubble changed
      */
@@ -2086,44 +2115,46 @@ getAllActiveBubbles
         that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) parameters : affiliation : ", affiliation);
 
         if (affiliation.status !== "deleted") {
-            await this._rest.getBubble(affiliation.bubbleId).then( (bubbleUpdated : any) => {
-                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
+            if (affiliation.status === "available") {
+                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) available state received. Nothing to do.");
+            } else {
+                await this._rest.getBubble(affiliation.bubbleId).then(async (bubbleUpdated: any) => {
+                    that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) own affiliation changed for bubble : ", bubbleUpdated.name + " | " + affiliation.status);
 
-                // Update the existing local bubble stored
-                let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
-                if (foundIndex > -1) {
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
-                    //bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
-                    //that._bubbles[foundIndex] = bubbleUpdated;
-                    if (affiliation.status === "accepted") {
+                    // Update the existing local bubble stored
+                    let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
+                    if (foundIndex > -1) {
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+                        //bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
+                        //that._bubbles[foundIndex] = bubbleUpdated;
+                        if (affiliation.status === "accepted") {
+                            if (bubble.isActive) {
+                                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
+                                that._presence.sendInitialBubblePresence(bubble);
+                            } else {
+                                that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
+                            }
+                        } else if (affiliation.status === "unsubscribed") {
+                            that._xmpp.sendUnavailableBubblePresence(bubble.jid);
+                        }
+                    } else {
+                        let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                        /*bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
+                        that._bubbles.push(bubbleUpdated); // */
+                        // New bubble, send initial presence
                         if (bubble.isActive) {
                             that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                            that._xmpp.sendInitialBubblePresence(bubble.jid);
+                            that._presence.sendInitialBubblePresence(bubble);
                         } else {
                             that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                         }
-                    }
-                    else if (affiliation.status === "unsubscribed") {
-                        that._xmpp.sendUnavailableBubblePresence(bubble.jid);
-                    }
-                }
-                else {
-                    let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
 
-                    /*bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
-                    that._bubbles.push(bubbleUpdated); // */
-                    // New bubble, send initial presence
-                    if (bubble.isActive) {
-                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                        that._xmpp.sendInitialBubblePresence(bubble.jid);
-                    } else {
-                        that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                     }
 
-                }
-
-                that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleUpdated);
-            });
+                    that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleUpdated);
+                });
+            }
         } else {
 
             // remove it
@@ -2133,7 +2164,7 @@ getAllActiveBubbles
              //*/
 
             if (bubbleToRemoved != -1 ) {
-                let bubbleRemoved = that.removeBubbleFromCache(affiliation.bubbleId);
+                let bubbleRemoved = await that.removeBubbleFromCache(affiliation.bubbleId);
                 that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubbleRemoved);
                 that._eventEmitter.emit("evt_internal_bubbledeleted", bubbleRemoved);
             } else {
@@ -2151,18 +2182,17 @@ getAllActiveBubbles
      * @method _onCustomDataChanged
      * @instance
      * @param {Object} data contains information about bubble and new custom data received
-     * @memberof Bubbles
      * @description
      *      Method called when custom data have changed for a bubble
      */
     _onCustomDataChanged(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated : any) => {
 
             that._logger.log("internal", LOG_ID + "(_onCustomDataChanged) Custom data changed for bubble : ", bubbleUpdated.name + " | " + data.customData);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2184,17 +2214,16 @@ getAllActiveBubbles
      * @method _onTopicChanged
      * @instance
      * @param {Object} data contains information about bubble new topic received
-     * @memberof Bubbles
      * @description
      *      Method called when the topic has changed for a bubble
      */
     _onTopicChanged(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("internal", LOG_ID + "(_onTopicChanged) Topic changed for bubble : ", bubbleUpdated.name + " | " + data.topic);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
             if (foundIndex > -1) {
@@ -2212,20 +2241,44 @@ getAllActiveBubbles
 
     /**
      * @private
+     * @method _onPrivilegeBubbleChanged
+     * @instance
+     * @param {Object} bubbleInfo modified bubble info
+     * @description
+     *     Method called when the owner of a bubble changed.
+     */
+    async _onPrivilegeBubbleChanged(bubbleInfo) {
+        /*
+        let that = this;
+        let ownerContact = await that.getContactById(bubbleInfo.creator, false);
+         */
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(_onPrivilegeBubbleChanged) privilege changed for bubbleInfo : ", bubbleInfo);
+
+        this._rest.getBubble(bubbleInfo.bubbleId).then(async (bubbleUpdated : any) => {
+            that._logger.log("internal", LOG_ID + "(_onPrivilegeBubbleChanged) privilege changed for bubble : ", bubbleUpdated.name);
+
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+            that._eventEmitter.emit("evt_internal_bubbleprivilegechanged", {bubble, "privilege" : bubbleInfo.privilege});
+        });
+    }
+
+
+    /**
+     * @private
      * @method _onNameChanged
      * @instance
      * @param {Object} data contains information about bubble new name received
-     * @memberof Bubbles
      * @description
      *      Method called when the name has changed for a bubble
      */
     _onNameChanged(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then( (bubbleUpdated : any) => {
+        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated : any) => {
             that._logger.log("internal", LOG_ID + "(_onNameChanged) Name changed for bubble : ", bubbleUpdated.name + " | " + data.name);
 
-            let bubble = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             /*// Update the existing local bubble stored
             let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
@@ -2246,8 +2299,7 @@ getAllActiveBubbles
      * @private
      * @method _onbubblepresencechanged
      * @instance
-     * @param {Object} data contains information about bubble
-     * @memberof Bubbles
+     * @param {Object} bubbleInfo contains information about bubble
      * @description
      *      Method called when the name has changed for a bubble
      */
@@ -2263,7 +2315,7 @@ getAllActiveBubbles
         if (bubbleInMemory) {
             that._logger.log("internal", LOG_ID + "(_onbubblepresencechanged) bubble found in memory : ", bubbleInMemory.jid);
             if (bubbleInfo.statusCode === "resumed") {
-                that._xmpp.sendInitialBubblePresence(bubbleInfo.jid).then(()=> {
+                that._presence.sendInitialBubblePresence(bubbleInfo).then(()=> {
                     bubbleInMemory.isActive = true;
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 });

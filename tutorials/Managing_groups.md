@@ -24,7 +24,7 @@ Note: Favorite groups are not different but can be filtered and retrieved separa
 let isFavorite = true;
 
 // Creation of a new group
-nodeSDK.groups.createGroup("aFavoriteGroup", "This is a favorite group", isFavorite).then((groupCreated) => {
+rainbowSDK.groups.createGroup("aFavoriteGroup", "This is a favorite group", isFavorite).then((groupCreated) => {
     // Do something once the group has been created
     ...
 }).catch((err) => {
@@ -44,7 +44,7 @@ You can update the name of a group by calling the API `updateGroupName()`
 	let aGroup = ...;
 	let aNewName = ...;
 	
-	nodeSDK.groups.updateGroupName(aGroup, aNewName).then(group => {
+	rainbowSDK.groups.updateGroupName(aGroup, aNewName).then(group => {
 		// Do something once the name of the group has been updated
 	}).catch(err => {
 		// Do something in case of issue
@@ -62,7 +62,7 @@ Once you have created a group, you can add users by calling the API `addUserInGr
 let aGroup = ...;
 let aContact = ...;
 
-nodeSDK.groups.addUserInGroup(aContact, aGroup).then((group) => {
+rainbowSDK.groups.addUserInGroup(aContact, aGroup).then((group) => {
     // Do something once the user has been added to the group
     ...
 }).catch((err) => {
@@ -80,10 +80,10 @@ For retrieving the list of users in a specific group, the following API `getGrou
 ```js
 
 // Get a group by its name
-let familyGroup = nodeSDK.groups.getGroupByName('familyGroup');
+let familyGroup = rainbowSDK.groups.getGroupByName('familyGroup');
 
 // Get a group by its id
-let otherGroup = nodeSDK.groups.getGroupById('59e7b508de8b80386e0cfc5d');
+let otherGroup = rainbowSDK.groups.getGroupById('59e7b508de8b80386e0cfc5d');
 
 ```
 
@@ -100,7 +100,7 @@ At any time, you can remove a user from a group by calling the API `removeUserFr
 let aGroup = ...;
 let aContact = ...;
 
-nodeSDK.groups.removeUserFromGroup(aContact, aGroup).then((groupUpdated) => {
+rainbowSDK.groups.removeUserFromGroup(aContact, aGroup).then((groupUpdated) => {
     // Do something once the contact has been removed from the group
      ...
 }).catch((err) => {
@@ -119,7 +119,7 @@ If you want to retrieve all your groups, you have to call the API `getAll()` lik
 ```js
 
 // Get the existing groups
-let groups = nodeSDK.groups.getAll();
+let groups = rainbowSDK.groups.getAll();
 
 // Do something with the groups.
 ...
@@ -135,7 +135,7 @@ You can retrieve only the favorite groups by calling the API `getFavoriteGroups(
 ```js
 
 // Get the existing groups
-let favoriteGroups = nodeSDK.groups.getFavoriteGroups();
+let favoriteGroups = rainbowSDK.groups.getFavoriteGroups();
 
 // Do something with the favorite groups.
 ...
@@ -152,7 +152,7 @@ A group can be deleted by calling the APi `deleteGroup()` even if there is users
 
 let aGroup = ...;
 
-nodeSDK.groups.deleteGroup(aGroup).then((groupDeleted) => {
+rainbowSDK.groups.deleteGroup(aGroup).then((groupDeleted) => {
     // Do something once the group has been deleted
     ...
 }).catch((err) => {
@@ -172,7 +172,7 @@ To subscribe to any events, just add the following lines of code:
 
 ```js
 
-nodeSDK.events.on("<event_name>", (<parameters>) => {
+rainbowSDK.events.on("<event_name>", (<parameters>) => {
     // Do something once the event has fired
     ...
 });

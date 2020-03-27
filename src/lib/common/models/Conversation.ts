@@ -59,6 +59,7 @@ class Conversation {
     private static randomBase: string;
     private static messageId: string;
     preload: boolean;
+    isFavorite: boolean;
 
     constructor(conversationId) {
         /**

@@ -1,9 +1,10 @@
 ---
 - SDK FOR NODEJS GUIDES:
-  - Changelog RSS: 'ref:doc/sdk/node/guides/CHANGELOGRSS.xml'
   - Getting started: 'ref:doc/sdk/node/guides/Getting_Started.md'
   - What's new ?: 'ref:doc/sdk/node/guides/What_is_new.md'
-  - Connecting to Rainbow: 'ref:doc/sdk/node/guides/Connecting_to_Rainbow.md'
+  - ChangeLog RSS Flow: 'https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml'
+  - Connecting to Rainbow in XMPP Mode (Default, full features): 'ref:doc/sdk/node/guides/Connecting_to_Rainbow_XMPP_Mode.md'
+  - Connecting to Rainbow in S2S MODE (Restricted API - Alpha delivery): 'ref:doc/sdk/node/guides/Connecting_to_Rainbow_S2S_Mode.md'
   - Answering to chat messages: 'ref:doc/sdk/node/guides/Answering_chat_message.md'
   - Managing contacts: 'ref:doc/sdk/node/guides/Managing_contacts.md'
   - Managing favorites: 'ref:doc/sdk/node/guides/Managing_Favorites.md'
@@ -12,6 +13,7 @@
   - Managing groups: 'ref:doc/sdk/node/guides/Managing_groups.md'
   - Sharing files: 'ref:doc/sdk/node/guides/Share_file_with_users.md'
   - Managing channels: 'ref:doc/sdk/node/guides/Managing_channels.md'
+  - Retrieving calls history: 'ref:doc/sdk/node/guides/Retrieving_calls_history.md'
   - Using a proxy: 'ref:doc/sdk/node/guides/Proxy.md'
   - Development Kit: 'ref:doc/sdk/node/guides/Development_Kit.md'
   - Debugging: 'ref:doc/sdk/node/guides/Debugging.md'
@@ -41,4 +43,5 @@
   - IM Service: 'ref:doc/sdk/node/api/im.md'
   - Invitations Service: 'ref:doc/sdk/node/api/invitations.md'
   - Presence Service: 'ref:doc/sdk/node/api/presence.md'
+  - S2S Service: 'ref:doc/sdk/node/api/s2s.md'
   - Telephony Service: 'ref:doc/sdk/node/api/telephony.md'

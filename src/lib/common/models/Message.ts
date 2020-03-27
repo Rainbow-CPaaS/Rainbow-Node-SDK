@@ -115,8 +115,9 @@ class Message {
         "received",
         "read"
     ];
+    public attention: boolean;
 
-    constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
+    constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?, attention1 = false) {
 
         /**
          * @public
@@ -297,6 +298,14 @@ class Message {
          * @instance
          */
         this.fromBubbleUserJid = null;
+
+        /**
+         * @public
+         * @property {object} attention Boolean to indicate if the current logged user is mentionned in the message.
+         * @readonly
+         * @instance
+         */
+        this.attention = attention1;
     }
 
     /**
@@ -445,18 +454,7 @@ class Message {
         //constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
         return (data: any): Message => {
 
-            let message = new Message(
-                data.id,
-                data.type,
-                data.date,
-                data.from,
-                data.side,
-                data.data,
-                data.status,
-                data.fileId,
-                data.isMarkdown,
-                data.subject
-            );
+            let message = new Message(data.id, data.type, data.date, data.from, data.side, data.data, data.status, data.fileId, data.isMarkdown, data.subject, data.attention);
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(message);
                 Object.getOwnPropertyNames(data).forEach(

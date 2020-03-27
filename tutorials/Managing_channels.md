@@ -38,7 +38,7 @@ To access to the list of channels, you have to call the API `getAllChannels()` s
 ...
 rainbowSDK.events.on('rainbow_onready', function() {
 
-    let channels = nodeSDK.channels.getAllChannels();
+    let channels = rainbowSDK.channels.getAllChannels();
     
     // Do something with the channel created
     ...
@@ -91,7 +91,7 @@ In order to create a new private channel, add the following code:
 
 ```js
 
-nodeSDK.channels.createPrivateChannel("a private channel", "The description of my private channel").then((channel) => {
+rainbowSDK.channels.createPrivateChannel("a private channel", "The description of my private channel").then((channel) => {
     // Do something with the channel created
     ...
 }).catch(err) {
@@ -111,7 +111,7 @@ When creating a public channel, only users from the same company can found this 
 
 ```js
 
-nodeSDK.channels.createPublicChannel("a company channel", "The description of my channel limited to my company").then((channel) => {
+rainbowSDK.channels.createPublicChannel("a company channel", "The description of my channel limited to my company").then((channel) => {
     // Do something with the channel created
     ...
 }).catch(err) {
@@ -129,7 +129,7 @@ At any time, as a owner, you can update the channel description by using the API
 
 ```js
 
-nodeSDK.channels.updateChannelDescription(channel, "The new description of my channel").then((channelUpdated) => {
+rainbowSDK.channels.updateChannelDescription(channel, "The new description of my channel").then((channelUpdated) => {
     // Do something with the channel updated
     ...
 }).catch(err) {
@@ -158,7 +158,7 @@ New users with role members can be added to a channel using the API `addMembersT
 let channel = <...> // A channel
 let users = [...]   // A list of users
 
-nodeSDK.channels.addMembersToChannel(channel, users).then((channelUpdated) => {
+rainbowSDK.channels.addMembersToChannel(channel, users).then((channelUpdated) => {
     // Do something once the users have been added to the channel
     ...
 }).catch((err) => {
@@ -178,7 +178,7 @@ New publishers can be added to a channel using the API `addPublishersToChannel()
 let channel = <...> // A channel
 let users = [...]   // A list of users
 
-nodeSDK.channels.addPublishersToChannel(channel, users).then((channelUpdated) => {
+rainbowSDK.channels.addPublishersToChannel(channel, users).then((channelUpdated) => {
     // Do something once the users have been added to the channel
     ...
 }).catch((err) => {
@@ -198,7 +198,7 @@ New owners can be added to a channel using the API `addOwnersToChannel()` as in 
 let channel = <...> // A channel
 let users = [...]   // A list of users
 
-nodeSDK.channels.addOwnersToChannel(channel, users).then((channelUpdated) => {
+rainbowSDK.channels.addOwnersToChannel(channel, users).then((channelUpdated) => {
     // Do something once the users have been added to the channel
     ...
 }).catch((err) => {
@@ -224,7 +224,7 @@ Users can be removed from a channel by calling the API `deleteUsersFromChannel()
 let channel = <...> // A channel
 let usersToRemove = [...]   // A list of users
 
-nodeSDK.channels.deleteUsersFromChannel(channel, usersToRemove).then((channelUpdated) => {
+rainbowSDK.channels.deleteUsersFromChannel(channel, usersToRemove).then((channelUpdated) => {
     // Do something once the users have been removed from the channel
     ...
 }).catch((err) => {
@@ -240,7 +240,7 @@ If you want to remove all users of a channel, you can use the API `deleteAllUser
 
 let channel = <...> // A channel
 
-nodeSDK.channels.deleteAllUsersFromChannel(channel).then((channelUpdated) => {
+rainbowSDK.channels.deleteAllUsersFromChannel(channel).then((channelUpdated) => {
     // Do something once the users have been removed from the channel
     ...
 }).catch((err) => {
@@ -259,7 +259,7 @@ You can have access to the list of users that have subscribed to a channel by us
 
 let channel = <...> // A channel
 
-nodeSDK.channels.fetchChannelUsers(channel).then((listOfUsers) => {
+rainbowSDK.channels.fetchChannelUsers(channel).then((listOfUsers) => {
     // Do something with the list of users
     ...
 }).catch((err) => {
@@ -298,7 +298,7 @@ let options = {
 
 let channel = <...> // A channel
 
-nodeSDK.channels.fetchChannelUsers(channel, options).then((listOfUsers) => {
+rainbowSDK.channels.fetchChannelUsers(channel, options).then((listOfUsers) => {
     // Do something with the list of users
     ...
 }).catch((err) => {
@@ -334,10 +334,10 @@ let aTitle = "This title is optional";
 let aURL = "https://host.adomain/alinktoagreatarticle/";
 let tabImages = null;
 
-nodeSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((myFileStored) => {
+rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((myFileStored) => {
      if (myFileStored) {
          tabImages = [{'id' : myFileStored[0].id}]; // Get the first stored file.
-         nodeSDK.channels.createItem(channel, aMessage, aTitle, aURL, tabImages).then((message) => {
+         rainbowSDK.channels.createItem(channel, aMessage, aTitle, aURL, tabImages).then((message) => {
             // Do something once the message has been sent
             ...
          }).catch((err) => {
@@ -356,7 +356,7 @@ In order to catch messages from channel, you have to subscribe to the event `rai
 
 ```js
 
-nodeSDK.events.on("rainbow_onchannelmessagereceived", (message) => {
+rainbowSDK.events.on("rainbow_onchannelmessagereceived", (message) => {
     // Do something with the channel event
     ...
 });
@@ -392,7 +392,7 @@ Here is an example:
 
 let channelName = "myChannel";
 
-nodeSDK.channels.findChannel(channelName).then((list) => {
+rainbowSDK.channels.findChannel(channelName).then((list) => {
     // Do something with the channels found
     ...
 }).catch((err) => {
@@ -414,9 +414,9 @@ When a channel has been found, you can subscribe to it by calling the API `subsc
 
 let channelName = "myChannel";
 
-nodeSDK.channels.findChannel(channelName).then((list) => {
+rainbowSDK.channels.findChannel(channelName).then((list) => {
     let channel = list[0]; // Pick the right channel in that list
-    return nodeSDK.channels.subscribeToChannel(channel);
+    return rainbowSDK.channels.subscribeToChannel(channel);
 }).then(status) {
     // Do something once subscribed to the channel
     ...
@@ -439,9 +439,9 @@ At any time, you can unsubscribe from a public channel by calling the API `unsub
 
 let channelName = "myChannel";
 
-nodeSDK.channels.findChannel(channelName).then((list) => {
+rainbowSDK.channels.findChannel(channelName).then((list) => {
     let channel = list[0]; // Pick the right channel in that list
-    return nodeSDK.channels.unsubscribeFromChannel(channel);
+    return rainbowSDK.channels.unsubscribeFromChannel(channel);
 }).then(status) {
     // Do something once unsubscribed from the channel
     ...
@@ -462,7 +462,7 @@ A channel can be deleted by calling the API `deleteChannel()` as in the followin
 
 let channel = <...> // A channel
 
-nodeSDK.channels.deleteChannel(channel).then((message) => {
+rainbowSDK.channels.deleteChannel(channel).then((message) => {
     // Do something once the channel has been deleted
     ...
 }).catch((err) => {

@@ -1,10 +1,14 @@
 "use strict";
 
 import * as util from "util";
-import {logEntryExit, makeId} from "../common/Utils";
-import {setTimeoutPromised} from "../common/Utils";
+import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
+import {DataStoreType} from "../config/config";
+import {XMPPUTils} from "../common/XMPPUtils";
+
+import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
+
 const packageVersion = require("../../package");
 const url = require('url');
 
@@ -36,9 +40,6 @@ let backoff = require("backoff");
 
 const HttpsProxyAgent = require("https-proxy-agent");
 
-import {XMPPUTils} from "../common/XMPPUtils";
-
-import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 // import {URL} from "url";
 
 const LOG_ID = "XMPP - ";
@@ -88,11 +89,14 @@ const NameSpacesLabels = {
     "JingleMessageNameSpace" : "urn:xmpp:jingle-message:0",
     "OobNameSpace" : "jabber:x:oob",
     "Monitoring1NameSpace" : "urn:xmpp:pbxagent:monitoring:1",
-    "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1"
-
+    "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1",
+    "MamNameSpace" : "urn:xmpp:mam:1",
+    "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
+    "AttentionNS" : "urn:xmpp:attention:0"
 };
 
 @logEntryExit(LOG_ID)
+@isStarted(["start", "stop"])
 class XMPPService {
 	public serverURL: any;
 	public host: any;
@@ -129,6 +133,16 @@ class XMPPService {
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
     private copyMessage: boolean;
+    private rateLimitPerHour: number;
+    private messagesDataStore: DataStoreType;
+    public ready: boolean = false;
+    private readonly _startConfig: {
+        start_up: boolean,
+        optional: boolean
+    };
+    get startConfig(): { start_up: boolean; optional: boolean } {
+        return this._startConfig;
+    }
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -149,6 +163,8 @@ class XMPPService {
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
+        this.rateLimitPerHour = _im.rateLimitPerHour;
+        this.messagesDataStore = _im.messagesDataStore;
         this.useXMPP = true;
         this.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
         this.isReconnecting = false;
@@ -157,6 +173,11 @@ class XMPPService {
         this.pingTimer = null;
         this.forceClose = false;
         this.applicationId = _application.appID;
+
+        this._startConfig =  {
+            start_up: true,
+            optional: false
+        };
 
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -209,7 +230,7 @@ class XMPPService {
             }); //"domain": domain,
 // */
 
-            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages);
+            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore);
 
             //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
             this.reconnect = this.xmppClient.reconnect;
@@ -901,19 +922,55 @@ class XMPPService {
                 }
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " |", util.inspect(err.condition || err));
                 that.stopIdleTimer();
-                if (that.reconnect) {
-                    if (err.condition === "system-shutdown" && err.condition != "conflict" ) {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait 10 seconds before try to reconnect");
-                        await setTimeoutPromised(3000);
-                        if (!that.isReconnecting) {
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                            await that.reconnect.reconnect();
-                        } else {
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
-                        }
-                    } else {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
-                        that.eventEmitter.emit("rainbow_onxmpperror", err);
+                if (that.reconnect && err) {
+                    // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
+                    switch (err.condition) {
+                        // Conditions which need a reconnection
+                        case "remote-connection-failed":
+                        case "reset":
+                        case "resource-constraint":
+                        case "connection-timeout":
+                        case "system-shutdown":
+                            let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
+                            await setTimeoutPromised(waitime);
+                            if (!that.isReconnecting) {
+                                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
+                                await that.reconnect.reconnect();
+                            } else {
+                                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
+                            }
+                            break;
+                        // Conditions which need to only raise an event to inform up layer.
+                        case "bad-format":
+                        case "bad-namespace-prefix":
+                        case "host-gone":
+                        case "host-unknown":
+                        case "improper-addressing":
+                        case "internal-server-error":
+                        case "invalid-from":
+                        case "invalid-namespace":
+                        case "invalid-xml":
+                        case "not-authorized":
+                        case "not-well-formed":
+                        case "policy-violation":
+                        case "restricted-xml":
+                        case "undefined-condition":
+                        case "unsupported-encoding":
+                        case "unsupported-feature":
+                        case "unsupported-stanza-type":
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
+                            break;
+                        // Conditions which are fatal errors and then need to stop the SDK.
+                        case "see-other-host":
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : condition : ", err.condition, " is not supported the SDK");
+                        case "conflict":
+                        case "unsupported-version":
+                        default:
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
+                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                            break;
                     }
                 } else {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
@@ -935,7 +992,7 @@ class XMPPService {
             this.xmppClient.on(DISCONNECT_EVENT, async () => {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |", {'reconnect': that.reconnect});
                 that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
-                let waitime = 3 + Math.floor(Math.random() * Math.floor(15));
+                let waitime = 11 + Math.floor(Math.random() * Math.floor(15));
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
                 await setTimeoutPromised(waitime);
                 if (that.reconnect) {
@@ -997,8 +1054,9 @@ class XMPPService {
                     id='info1'>
                         <query xmlns='http://jabber.org/protocol/disco#info'/>
                         </iq> // */
+
                 /*
-                Iq to discover the services provided by rainbow xmpp server
+                // Iq to discover the services provided by rainbow xmpp server
                 let stanza = xml("iq", {
                     //to: that.jid_im + "/" + that.fullJid,
                     "type": "get",
@@ -1006,10 +1064,50 @@ class XMPPService {
                     "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("query", {"xmlns": "http://jabber.org/protocol/disco#info"}));
 
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ disco", stanza.root().toString());
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ discover : ", stanza.root().toString());
                 return that.xmppClient.send(stanza);
                 // */
 
+//                if (that.messagesDataStore === DataStoreType.NoStoreBotSide) {
+                    /*<iq type='set' id='juliet2'>
+                    <prefs xmlns='urn:xmpp:mam:tmp' default='roster'>
+                        <always>
+                            <jid>romeo@montague.lit</jid>
+                    </always>
+                    <never>
+                    <jid>montague@montague.lit</jid>
+                    </never>
+                    </prefs>
+                    </iq> // */
+                    // Iq to discover the services provided by rainbow xmpp server
+//                     let stanzaPrefs = xml("iq", {
+//                             //to: that.jid_im + "/" + that.fullJid,
+//                             "id": that.xmppUtils.getUniqueMessageId(),
+//                             "type": "set"
+//                         },
+//                         xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace , "default": 'always' },
+//                         //xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
+//                             /* xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
+//                               xml("never", {},
+//                                xml("jid", {}, that.jid_im)
+//                                )
+//                                )
+//                                //*/
+//
+//                               xml("auto", {"save" : false}, undefined)
+//                             , undefined)
+//                             // */
+// /*
+//                             undefined
+//                         )
+//                         , undefined
+//                         // */
+//                     );
+
+//                    that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ prefs : ", stanzaPrefs.root().toString());
+//                    return that.xmppClient.send(stanzaPrefs);
+//                }
+                // */
             }) // */
             /*
             this.xmppClient.start().then((jid) => {
@@ -1042,6 +1140,7 @@ class XMPPService {
                 }
                 that.isReconnecting = false;
                 that.useXMPP = withXMPP;
+                that.ready = that.useXMPP; // Put not ready state when the XMPP is disabled in SDK config options, then methods become unavailable with @isStarted decorator.
                 resolve();
             } catch (err) {
                 return reject(err);
@@ -1091,7 +1190,6 @@ class XMPPService {
         let that = this;
         return new Promise(function (resolve) {
             try {
-                that.stopIdleTimer();
                 that.jid_im = "";
                 that.jid_tel = "";
                 that.jid_password = "";
@@ -1099,6 +1197,7 @@ class XMPPService {
                 that.userId = "";
                 that.initialPresence = true;
                 if (that.useXMPP && forceStop) {
+                    that.stopIdleTimer();
 
                     delete that.IQEventHandler;
                     that.IQEventHandler = null;
@@ -1252,7 +1351,8 @@ class XMPPService {
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
             let stanza = xml("message", {
-                // "from": this.fullJid,
+                //"from": this.fullJid,
+                //"from": this.jid_im,
                 "to": jid,
                 "xmlns": NameSpacesLabels.ClientNameSpace,
                 "type": TYPE_CHAT,
@@ -1305,7 +1405,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg) {
+    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention) {
         let that = this;
         if (that.useXMPP) {
 
@@ -1341,7 +1441,7 @@ class XMPPService {
             let answeredMsgId = null;
             let answeredMsgDate = null;
             if ( answeredMsg ) {
-                stanza.append(xml("answeredMsg", { "stamp": answeredMsg.date.getTime() }, answeredMsg.id));
+                stanza.append(xml("answeredMsg", { "stamp": answeredMsg.date.getTime() }, answeredMsg.id), undefined);
                 answeredMsgId = answeredMsg.id;
                 answeredMsgDate = answeredMsg.date;
                 that.logger.log("internal", LOG_ID + "(sendChatMessageToBubble) answeredMsg : ", stanza);
@@ -1353,6 +1453,20 @@ class XMPPService {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
                 }, content.message));
+            }
+
+            if (attention) {
+                if (Array.isArray(attention) && attention.length > 0) {
+                    let mentions = xml("mention", {"xmlns": NameSpacesLabels.AttentionNS}, undefined);
+                    attention.forEach(function (jidMentioned) {
+                        mentions.append(xml("jid", {}, jidMentioned), undefined);
+                    });
+                    stanza.append(mentions, undefined);
+                } else if (typeof attention === 'string' || attention instanceof String) {
+                    let mentions = xml("mention", {"xmlns": NameSpacesLabels.AttentionNS}, undefined);
+                    mentions.append(xml("jid", {}, attention), undefined);
+                    stanza.append(mentions, undefined);
+                }
             }
 
             that.logger.log("internal", LOG_ID + "(sendChatMessageToBubble) send - 'message'", stanza.toString());
@@ -1460,9 +1574,7 @@ class XMPPService {
 
             this.logger.log("internal", LOG_ID + "(markMessageAsRead) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
-                that
-                    .xmppClient
-                    .send(stanzaRead).then(() => {
+                that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
                     resolve();
                 }).catch((err) => {
@@ -1685,7 +1797,7 @@ class XMPPService {
             let stanza = xml("presence", {
                 "id": id,
                 to: jid + "/" + this.fullJid
-            }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}), xml("history", {maxchars: "0"}));
+            }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}).append(xml("history", {maxchars: "0"})));
 
             if (this.initialPresence) {
                 this.initialPresence = false;
@@ -1725,40 +1837,45 @@ class XMPPService {
     getAgentStatus() {
         let that = this;
         return new Promise((resolve, reject) => {
-            let stanza = xml("iq", {
-                type: "get",
-                to: that.jid_tel + "/phone",
-                xmlns: NameSpacesLabels.ClientNameSpace,
-                "id": that.xmppUtils.getUniqueMessageId()
-            }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
+            if (this.useXMPP) {
+                let stanza = xml("iq", {
+                    type: "get",
+                    to: that.jid_tel + "/phone",
+                    xmlns: NameSpacesLabels.ClientNameSpace,
+                    "id": that.xmppUtils.getUniqueMessageId()
+                }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
 
-            this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
-            this.xmppClient.sendIq(stanza).then((data) => {
-                let pbxagentstatus = {
-                    "phoneapi": "",
-                    "xmppagent": "",
-                    "version": ""
-                };
-                let agentStatus = {"phoneApi": "", "xmppAgent": "", "agentVersion": ""};
 
-                let subchildren = data.children[0].children;
-                subchildren.forEach((item) => {
-                    if (typeof item === "object") {
-                        let itemName = item.getName();
-                        if (itemName) {
-                            pbxagentstatus[itemName] = item.text();
+                this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
+                this.xmppClient.sendIq(stanza).then((data) => {
+                    let pbxagentstatus = {
+                        "phoneapi": "",
+                        "xmppagent": "",
+                        "version": ""
+                    };
+                    let agentStatus = {"phoneApi": "", "xmppAgent": "", "agentVersion": ""};
+
+                    let subchildren = data.children[0].children;
+                    subchildren.forEach((item) => {
+                        if (typeof item === "object") {
+                            let itemName = item.getName();
+                            if (itemName) {
+                                pbxagentstatus[itemName] = item.text();
+                            }
                         }
-                    }
-                });
+                    });
 
-                if (pbxagentstatus.version) {
-                    let phoneApi = pbxagentstatus.phoneapi;
-                    let xmppAgent = pbxagentstatus.xmppagent;
-                    let agentVersion = pbxagentstatus.version;
-                    agentStatus = {"phoneApi": phoneApi, "xmppAgent": xmppAgent, "agentVersion": agentVersion};
-                }
-                resolve(agentStatus);
-            });
+                    if (pbxagentstatus.version) {
+                        let phoneApi = pbxagentstatus.phoneapi;
+                        let xmppAgent = pbxagentstatus.xmppagent;
+                        let agentVersion = pbxagentstatus.version;
+                        agentStatus = {"phoneApi": phoneApi, "xmppAgent": xmppAgent, "agentVersion": agentVersion};
+                    }
+                    resolve(agentStatus);
+                });
+            } else {
+                resolve({});
+            }
         });
     }
 
@@ -1851,17 +1968,21 @@ class XMPPService {
         let that = this;
         // Get the user contact
         //let userContact = contactService.userContact;
+        if (this.useXMPP) {
+            let message = xml("iq", {
+                "from": that.jid_im,
+                "to": that.jid_im,
+                "type": "set",
+                "id": that.xmppUtils.getUniqueMessageId()
+            });
 
-        let message = xml("iq", {
-            "from": that.jid_im,
-            "to": that.jid_im,
-            "type": "set",
-            "id": that.xmppUtils.getUniqueMessageId()
-        });
-
-        let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace}));
-        return await this.xmppClient.sendIq(msg);
-        //xmppService.sendIQ(msg);
+            let msg = message.append(xml("delete", {xmlns: NameSpacesLabels.CallLogNamespace}));
+            return await this.xmppClient.sendIq(msg);
+            //xmppService.sendIQ(msg);
+        } else {
+            this.logger.log("warn", LOG_ID + "(deleteAllCallLogs) No XMPP connection...");
+            return Promise.resolve();
+        }
     }
 
     async markCallLogAsRead(id) {
@@ -1907,6 +2028,59 @@ class XMPPService {
             }
         }
         return await Promise.all(promSend);
+    }
+
+    async deleteAllMessageInOneToOneConversation(conversationId) {
+        let that = this;
+        /*
+        <iq id="3b718ea6-5dae-4e29-b54c-b843156df93d" type="set" xmlns="jabber:client">
+  <delete queryid="dd008366-ad0f-4197-a61c-0c34fbc0e75a" xmlns="urn:xmpp:mam:1">
+    <x type="submit" xmlns="jabber:x:data">
+      <field type="hidden" var="FORM_TYPE">
+        <value>urn:xmpp:mam:1
+        </value>
+      </field>
+      <field var="with">
+        <value>7ebaaacfa0634f46a903bcdd83ae793b@openrainbow.net
+        </value>
+      </field>
+    </x>
+    <set xmlns="http://jabber.org/protocol/rsm"/>
+  </delete>
+</iq>
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let message = xml("iq", {
+            //"from": that.jid_im,
+            //"to": that.jid_im,
+            "type": "set",
+            "id": uniqMessageId
+        });
+
+        let rsmDelete = xml("delete", {xmlns: NameSpacesLabels.MamNameSpace, queryid: uniqId});
+        let rsmx = xml("x",{xmlns: NameSpacesLabels.DataNameSpace, type: "submit"});
+        let rsmField1 = xml("field",{var: "FORM_TYPE", type: "hidden"});
+        let rsmvalue1 = xml("value",{}, NameSpacesLabels.MamNameSpace);
+        let rsmField2 = xml("field",{var: "with"});
+        let rsmvalue2 = xml("value",{}, conversationId);
+        let rsmset = xml("set", {xmlns:NameSpacesLabels.RsmNameSpace});
+        rsmField1.append(rsmvalue1, undefined);
+        rsmField2.append(rsmvalue2, undefined);
+        rsmx.append(rsmField1,  undefined);
+        rsmx.append(rsmField2,  undefined);
+        rsmDelete.append(rsmx,  undefined);
+        rsmDelete.append(rsmset,  undefined);
+        let msg = message.append(rsmDelete, undefined);
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+        //xmppService.sendIQ(msg);
     }
 
     getErrorMessage (data, actionLabel) {

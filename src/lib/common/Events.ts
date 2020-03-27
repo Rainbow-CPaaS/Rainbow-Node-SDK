@@ -1,4 +1,6 @@
 "use strict";
+import construct = Reflect.construct;
+
 export {};
 
 import {ErrorManager} from "./ErrorManager";
@@ -7,6 +9,76 @@ import {Core} from "../Core";
 import {Logger} from "./Logger";
 
 const LOG_ID = "EVENTS - ";
+let EventEmitterClass = EventEmitter;
+
+ // dev-code //
+ // @ class  Emitter EventEmitter class extended to log the event names and parameters.
+class Emitter extends EventEmitter {
+    public _logger: Logger;
+
+    constructor( _logger : Logger) {
+        super();
+        let that = this;
+
+        this._logger = _logger;
+    }
+
+    emit(type, ...args): boolean {
+        let that = this;
+        try {
+        that._logger.log("internal", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        } catch (e) {
+            that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
+        }
+
+        return super.emit(type, ...args)
+    }
+
+    on(event: string | symbol, listener: (...args: any[]) => void): this {
+        let params = [];
+        let that = this;
+        let listenerWithLog = (...args: any[]) => {
+            try {
+                if (args.length === 0) {
+                    that._logger.log("internal", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
+                }
+                let iter = 0;
+                [...params] = args;
+                params.forEach((dataIter) => {
+                    //console.log("EVENT dataIter : ", dataIter);
+                    //that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", dataIter);
+                    let data = that._logger.argumentsToString(["", dataIter]);
+                    //console.log("EVENT data : ", data);
+                    that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.eventsEmitter(event), " data : ", that._logger.colors.data(data));
+
+                });
+            } catch (e) {
+                that._logger.log("error", LOG_ID + "EventEmitter(on) Catch Error !!! error : ", e);
+            }
+
+            return listener(...args);
+        };
+        super.on(event, listenerWithLog);
+        return this;
+    }
+}
+// end-dev-code //
+
+// dev-code //
+
+/*
+
+// The comment is removed at grunt build so the default EventEmitter is used when delivered.
+
+// end-dev-code //
+
+class Emitter extends EventEmitterClass{
+    constructor(props) {
+        super();
+    }
+}
+// */
+
 
 /**
  * @class
@@ -14,6 +86,7 @@ const LOG_ID = "EVENTS - ";
  * @description
  *      This module fires every events that come from Rainbow.<br/>
  *      To receive them, you need to subscribe individually to each of the following events<br/>
+ * @fires Events#rainbow_onrainbowversionwarning
  * @fires Events#rainbow_onmessageserverreceiptreceived
  * @fires Events#rainbow_onmessagereceiptreceived
  * @fires Events#rainbow_onmessagereceiptreadreceived
@@ -34,6 +107,7 @@ const LOG_ID = "EVENTS - ";
  * @fires Events#rainbow_onbubbleinvitationreceived
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
+ * @fires Events#rainbow_onbubbleprivilegechanged
  * @fires Events#rainbow_onbubbleavatarchanged
  * @fires Events#rainbow_onbubblenamechanged
  * @fires Events#rainbow_ongroupcreated
@@ -84,9 +158,23 @@ class Events {
         this._logger = _logger;
         this._filterCallback = _filterCallback;
 
-        this._evReceiver = new EventEmitter();
+        this._evReceiver = new Emitter(this._logger);
 
         this._evPublisher = new EventEmitter();
+
+        /*
+        this._evReceiver.on('evt_internal_on*', function(...args: any[]) {
+            let event;
+            let params;
+            let that = this;
+            [event, ...params] = args;
+
+            let eventName = this.event;
+
+            that._logger.log("internal", LOG_ID + "(evt_internal_on*) receive event " + that._logger.colors.events(eventName.toString()));
+            //console.log(this.event, value1, value2);
+        });
+         */
 
         this._evReceiver.on("evt_internal_onreceipt", function(receipt) {
             if (_filterCallback && _filterCallback(receipt.fromJid)) {
@@ -170,6 +258,19 @@ class Events {
              */
             that.publishEvent("sendmessagefailed", message);
         });
+  this._evReceiver.on("evt_internal_onrainbowversionwarning", function(data) {
+            /**
+             * @event Events#rainbow_onrainbowversionwarning
+             * @public
+             * @param { Object } data The warning object about the curent SDK version which is not the latest one provided on npmjs.com.
+             * @param { string } data.label The label warning.
+             * @param { string } data.currentPackage The curent SDK version used.
+             * @param { string } data.latestPublishedPackage The latest one provided on npmjs.com.
+             * @description
+             *      Fired when a chat message with no-store attribut sent has failed.
+             */
+            that.publishEvent("rainbowversionwarning", data);
+        });
 
         this._evReceiver.on("evt_internal_onrosterpresencechanged", function(contact) {
 
@@ -205,6 +306,7 @@ class Events {
         this._evReceiver.on("evt_internal_conversationdeleted", function(conversation) {
 
             /**
+             * @public
              * @event Events#rainbow_onconversationremoved
              * @param { Object } conversation The conversation object
              * @param { String } conversation.conversationId Conversation identifier
@@ -217,6 +319,7 @@ class Events {
         this._evReceiver.on("evt_internal_conversationupdated", function(conversation) {
 
             /**
+             * @public
              * @event Events#rainbow_onconversationchanged
              * @param { Conversation } conversation The conversation
              * @description
@@ -228,6 +331,7 @@ class Events {
         this._evReceiver.on("evt_internal_allmessagedremovedfromconversationreceived", function(conversation) {
 
             /**
+             * @public
              * @event Events#rainbow_onallmessagedremovedfromconversationreceived
              * @param { Conversation } conversation The conversation where the messages as all been removed.
              * @description
@@ -239,6 +343,7 @@ class Events {
         this._evReceiver.on("evt_internal_chatstate", function(chatstate) {
 
             /**
+             * @public
              * @event Events#rainbow_onchatstate
              * @param { Object } chatstate The chatstate
              * @description
@@ -250,6 +355,7 @@ class Events {
         this._evReceiver.on("evt_internal_contactinformationchanged", function(contact) {
 
             /**
+             * @public
              * @event Events#rainbow_oncontactinformationchanged
              * @param { Contact } contact The contact
              * @description
@@ -260,8 +366,8 @@ class Events {
 
         this._evReceiver.on("evt_internal_userinvitereceived", function(invitation) {
             /**
+             * @public
              * @event Events#rainbow_onuserinvitereceived
-             * @private
              * @param { Invitation } invitation The invitation received
              * @description
              *      Fired when an user invitation is received
@@ -272,7 +378,7 @@ class Events {
         this._evReceiver.on("evt_internal_userinviteaccepted", function(invitation) {
             /**
              * @event Events#rainbow_onuserinviteaccepted
-             * @private
+             * @public
              * @param { Invitation } invitation The invitation accepted
              * @description
              *      Fired when an user invitation is accepted
@@ -282,8 +388,8 @@ class Events {
 
         this._evReceiver.on("evt_internal_userinvitecanceled", function(invitation) {
             /**
+             * @public
              * @event Events#rainbow_onuserinvitecanceled
-             * @private
              * @param { Invitation } invitation The invitation canceled
              * @description
              *      Fired when an user invitation is canceled
@@ -304,6 +410,7 @@ class Events {
 
         this._evReceiver.on("evt_internal_bubblepresencechanged", function(bubble) {
             /**
+             * @public
              * @event Events#rainbow_onbubblepresencechanged
              * @param { Bubble } bubble The bubble updated
              * @description
@@ -314,6 +421,7 @@ class Events {
 
         this._evReceiver.on("evt_internal_ownaffiliationdetailschanged", function(bubble) {
             /**
+             * @public
              * @event Events#rainbow_onbubbleownaffiliationchanged
              * @param { Bubble } bubble The bubble updated
              * @description
@@ -324,6 +432,7 @@ class Events {
 
         this._evReceiver.on("evt_internal_bubbledeleted", function(bubble) {
             /**
+             * @public
              * @event Events#rainbow_onbubbledeleted
              * @param { Bubble } bubble The bubble deleted
              * @description
@@ -338,7 +447,8 @@ class Events {
                     bubble.users.forEach((user) => {
                         if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
                             // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                            that._core.bubbles._sendInitialBubblePresence(bubble);
+                            //that._core.bubbles._sendInitialBubblePresence(bubble);
+                            that._core._presence.sendInitialBubblePresence(bubble);
                         }
                     });
                 }
@@ -375,6 +485,18 @@ class Events {
              *      Fired when the topic of a bubble has changed
              */
             that.publishEvent("bubbletopicchanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleprivilegechanged", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleprivilegechanged
+             * @public
+             * @param { {Bubble, String} } bubble The bubble updated with the new privilege set
+             *          privilege The privilege updated (Can be moderator, user, owner)
+             * @description
+             *      Fired when the privilage of a bubble has changed
+             */
+            that.publishEvent("bubbleprivilegechanged", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubbleavatarchanged", function(bubble) {
@@ -692,13 +814,24 @@ class Events {
             that.publishEvent("favoritedeleted", data);
         });
 
+        this._evReceiver.on("evt_internal_xmpperror", function (data) {
+            /**
+             * @event Events#rainbow_onxmpperror
+             * @public
+             * @param { Object } error xmpp received.
+             * @description
+             *      Fired when an XMPP Error events happens.
+             */
+            that.publishEvent("xmpperror", data);
+        });
+
     }
 
-    get iee() {
+    get iee(): EventEmitter {
         return this._evReceiver;
     }
 
-    get eee() {
+    get eee(): EventEmitter {
         return this._evPublisher;
     }
 
@@ -713,7 +846,7 @@ class Events {
      * @description
      *      Subscribe to an event
      */
-    on(event, callback) {
+    on(event, callback): EventEmitter {
         return this._evPublisher.on(event, callback);
     }
 
@@ -728,11 +861,11 @@ class Events {
      * @description
      *      Subscribe to an event only one time (fired only the first time)
      */
-    once(event: string, callback :  (...args: any[]) => void) {
+    once(event: string, callback :  (...args: any[]) => void): EventEmitter {
         return this._evPublisher.once(event, callback);
     }
 
-    publish(event: string, data : any) {
+    publish(event: string, data : any): void {
 
         let info = data || ErrorManager.getErrorManager().OK;
 
@@ -823,7 +956,7 @@ class Events {
      * @description
      *      Add "rainbow_on" prefix to event name, print it human readable, and raises it.
      */
-    publishEvent(...args: any[]) {
+    publishEvent(...args: any[]): void {
         let event;
         let params;
         let that = this;
@@ -845,7 +978,7 @@ class Events {
         this._evPublisher.emit(eventName, ...params);
     }
 
-    setCore(_core : Core) {
+    setCore(_core : Core): void {
         this._core = _core;
     }
 

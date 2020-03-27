@@ -1,4 +1,8 @@
 "use strict";
+
+import { Contact } from "./Contact";
+import {orderByFilter} from "../Utils";
+
 export{};
 
 function  randomString(length = 10) {
@@ -13,7 +17,37 @@ function  randomString(length = 10) {
     return string;
 }
 
-    /**
+function getUserAdditionDate(user) {
+    if (user && user.additionDate) {
+        try {
+            return new Date(user.additionDate).getTime();
+        } catch(err){
+            console.error("Error while getUserAdditionDate!!!");
+        }
+    }
+
+    return 0;
+}
+
+function sortUsersByDate (userADate, userBDate) {
+    let res = 0;
+    if (userADate && userBDate) {
+        if (userADate <  userBDate) {
+            res = -1;
+        }
+        if (userADate >  userBDate) {
+            res = 1;
+        }
+    }
+
+    // dev-code //
+    //res = 1;
+    // end-dev-code //
+
+    return res;
+}
+
+/**
  * @class
  * @name Bubble
  * @description
@@ -40,8 +74,11 @@ class Bubble {
         public confEndpoints: [];
         public activeUsersCounter: number;
         public avatar: String;
+        public organizers: Array<any>;
+        public members: Array<any>;
 
-        public static RoomUserStatus = {
+
+    public static RoomUserStatus = {
             "INVITED": "invited",
             "ACCEPTED": "accepted",
             "UNSUBSCRIBED": "unsubscribed",
@@ -51,8 +88,51 @@ class Bubble {
         public autoRegister: any;
         public lastActivityDate: any;
 
+        /**
+         * @private
+         * @readonly
+         * @enum {number}
+         */
+        public static Type = {
+            "PRIVATE": 0,
+            "PUBLIC": 1
+        };
+
+        /**
+         * @public
+         * @readonly
+         * @enum {String}
+         */
+        public static Privilege = {
+            /** User level */
+            "USER": "user",
+            /** Moderator level */
+            "MODERATOR": "moderator",
+            /** Guest level */
+            "GUEST": "guest"
+        };
+
+        /**
+         * @public
+         * @readonly
+         * @enum {String}
+         */
+        public static History = {
+            /** Full bubble history is accessible for newcomers */
+            "ALL": "all",
+            /** No history is accessible for newcomers, only new messages posted */
+            "NONE": "none"
+        };
+
+        /**
+         * @description the creator (owner ) of the bubble.
+         */
+        public ownerContact: Contact;
+        public owner: boolean;
+        public autoAcceptInvitation: boolean;
+
         constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "") {
+                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "", autoAcceptInvitation: boolean = false) {
 
             /**
              * @public
@@ -105,10 +185,34 @@ class Bubble {
             /**
              * @public
              * @readonly
-             * @property {Object[]} users The list of users of that Bubble with their status and privilege
+             * @property {Object[]} users The list of users of that Bubble with their status and privilege. Note : Only 100 users are return by the server. So if there are more than this limit, you have to retrieve them with the method BubblesService::getUsersFromBubble
              * @instance
              */
-            this.users = _users;
+            if (_users) {
+                // need to order the users by date
+                this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
+                // dev-code //
+                console.log("users ordered in bubble (" + this.id + ") : ", this.users);
+                // end-dev-code //
+            } else {
+                this.users = _users;
+            }
+
+            /**
+             * @public
+             * @readonly
+             * @property {string} organizers of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
+             * @instance
+             */
+            this.organizers = [];
+            /**
+             * @public
+             * @readonly
+             * @property {string} members of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
+             * @instance
+             */
+            this.members = [];
+
 
             /**
              * @public
@@ -176,6 +280,12 @@ class Bubble {
              */
             this.autoRegister = _autoRegister;
 
+            this.owner = false;
+
+            /**
+             * @description auto acceptation of the bubble.
+             */
+            this.autoAcceptInvitation = autoAcceptInvitation;
         }
 
         /**
@@ -197,7 +307,19 @@ class Bubble {
             return user ? user.status : "none";
         }
 
-        updateBubble(data) {
+        setUsers(_users) {
+            if (_users) {
+                // need to order the users by date
+                this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
+                // dev-code //
+                // console.log("users ordered in bubble (" + this.id + ") : ", this.users);
+                // end-dev-code //
+            } else {
+                this.users = _users;
+            }
+        }
+
+        async updateBubble(data, contactsService) {
             let that = this;
             if (data) {
 
@@ -209,13 +331,26 @@ class Bubble {
                         if (bubbleproperties.find((el) => {
                             return val == el;
                         })) {
-                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                            that[val] = data[val];
+                            // dev-code //
+                            // console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            // end-dev-code //
+                            if (val === "users") {
+                                // dev-code //
+                                // console.log("update users in bubble : ", data[val]);
+                                // end-dev-code //
+                                that.setUsers(data[val]);
+                            } else {
+                                that[val] = data[val];
+                            }
                         } else {
                             //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
                             console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
                         }
                     });
+                if (data.creator) {
+                    that.ownerContact = await contactsService.getContactById(data.creator, false);
+                    that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
+                }
             }
 
             return this;
@@ -226,12 +361,12 @@ class Bubble {
          * @public
          * @name BubbleFactory
          * @description
-         * This class is used to create a channel from data object
+         * This class is used to create a bubble from data object
          */
-        public static BubbleFactory(avatarDomain) {
+        public static BubbleFactory(avatarDomain, contactsService) {
 //     constructor(_id : any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [],
 //     _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any) {
-            return (data: any): Bubble => {
+            return async (data: any): Promise<Bubble> => {
 
                 let bubble = new Bubble(
                     data.id,
@@ -253,6 +388,7 @@ class Bubble {
                     data.activeUsersCounter,
                     data.autoRegister,
                     data.lastActivityDate,
+                    data.autoAcceptInvitation,
                     avatarDomain
                 );
                 if (data) {
@@ -267,6 +403,22 @@ class Bubble {
                                 console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
                             }
                         });
+                    if (data.creator) {
+                        await contactsService.getContactById(data.creator, false).then((result) => {
+                            //console.log("(BubbleFactory) getContactById : ", result);
+                            bubble.ownerContact = result;
+                            if (bubble.ownerContact) {
+                                if (bubble.ownerContact.jid === contactsService.userContact.jid) {
+                                    bubble.owner = true;
+                                } else {
+                                    // console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
+                                    bubble.owner = false;
+                                }
+                            } else {
+                                console.log("(BubbleFactory) ownerContact empty.");
+                            }
+                        });
+                    }
                 }
 
                 return bubble;
@@ -276,4 +428,4 @@ class Bubble {
 
 
 export {Bubble};
-module.exports.Bubble = Bubble;
+module.exports = {Bubble};

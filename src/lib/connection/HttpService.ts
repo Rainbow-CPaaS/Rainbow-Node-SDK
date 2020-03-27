@@ -146,7 +146,91 @@ safeJsonParse(str) {
         }
     }
 
+    getUrl(url, headers : any = {}, params): Promise<any> {
 
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+
+            try {
+                headers["user-agent"] = USER_AGENT;
+                let urlEncoded = url;
+
+                let request = Request({
+                    url: urlEncoded,
+                    method: "GET",
+                    headers: headers,
+                    //params: params,
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                    agentOptions: {
+                        secureProtocol: that.proxy.secureProtocol
+                    }
+                }, (error, response, body) => {
+                    that.logger.log("info", LOG_ID + "(get) successfull");
+                    if (error) {
+                        return reject({
+                            code: -1,
+                            msg: "ErrorManager while requesting",
+                            details: error
+                        });
+                    } else {
+                        if (response) {
+                            if (response.statusCode) {
+                                that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
+                                if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                    if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                        let json = {};
+                                        if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
+                                            json = JSON.parse(response.body);
+                                            resolve(json);
+                                        } else {
+                                            resolve(response.body);
+                                        }
+                                    } else {
+                                        return reject({
+                                            code: -1,
+                                            msg: "Bad content, please check your host",
+                                            details: ""
+                                        });
+                                    }
+                                } else {
+                                    that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
+                                    that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
+                                    let bodyjs : any = {};
+                                    if (that.hasJsonStructure(response.body)) {
+                                        bodyjs = JSON.parse(response.body);
+                                    } else {
+                                        bodyjs.errorMsg = response.body;
+                                    }
+                                    let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
+                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + ( bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : ""   || "") : "";
+                                    errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "" ;
+                                    that.tokenExpirationControl(bodyjs);
+                                    return reject({
+                                        code: response.statusCode,
+                                        msg: msg,
+                                        details: errorMsgDetail,
+                                        error: bodyjs
+                                    });
+
+                                }
+                            } else {
+                            }
+                        } else {
+                        }
+                    }
+                });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(get) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(get) HTTP ErrorManager", err);
+                return reject({
+                    code: -1,
+                    msg: "Unknown error",
+                    details: ""
+                });
+            }
+        });
+    }
 
 get(url, headers : any = {}, params): Promise<any> {
 
@@ -177,6 +261,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         if (error) {
                             return reject({
                                 code: -1,
+                                url:urlEncoded,
                                 msg: "ErrorManager while requesting",
                                 details: error
                             });
@@ -192,13 +277,16 @@ get(url, headers : any = {}, params): Promise<any> {
                                     if (response.statusCode >= 200 && response.statusCode <= 206) {
                                         if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                             let json = {};
-                                            if (response.body) {
+                                            if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                                 json = JSON.parse(response.body);
+                                                resolve(json);
+                                            } else {
+                                                resolve(response.body);
                                             }
-                                            resolve(json);
                                         } else {
                                             return reject({
                                                 code: -1,
+                                                url:urlEncoded,
                                                 msg: "Bad content, please check your host",
                                                 details: ""
                                             });
@@ -220,6 +308,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         that.tokenExpirationControl(bodyjs);
                                         return reject({
                                             code: response.statusCode,
+                                            url:urlEncoded,
                                             msg: msg,
                                             details: errorMsgDetail,
                                             error: bodyjs
@@ -231,6 +320,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         that.logger.log("error", LOG_ID + "(get) HTTP security issue", response.error.reason);
                                         return reject({
                                             code: -1,
+                                            url:urlEncoded,
                                             msg: response.error.reason,
                                             details: ""
                                         });
@@ -240,6 +330,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                         that.logger.log("internal", LOG_ID + "(get) HTTP other issue", response);
                                         return reject({
                                             code: -1,
+                                            url:urlEncoded,
                                             msg: "Unknown error",
                                             details: response
                                         });
@@ -248,6 +339,7 @@ get(url, headers : any = {}, params): Promise<any> {
                             } else {
                                 return reject({
                                     code: -1,
+                                    url:urlEncoded,
                                     msg: "ErrorManager while requesting",
                                     details: "error"
                                 });
@@ -261,8 +353,9 @@ get(url, headers : any = {}, params): Promise<any> {
                         statusMessage : null,
                         contentType : null
                     };
+
                     let req = Request.get({
-                        url: that.serverURL + url,
+                        url: urlEncoded,
                         headers: headers,
                         params: params,
                         proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
@@ -286,6 +379,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         that.logger.log("debug", LOG_ID + "(get) _exiting_");
                         return reject({
                             code: -1,
+                            url:urlEncoded,
                             msg: error.message,
                             details: ""
                         });
@@ -299,6 +393,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         } else {
                             return reject({
                                 code: err.statusCode,
+                                url:urlEncoded,
                                 msg: err.statusMessage,
                                 details: ""
                             });
@@ -351,7 +446,7 @@ get(url, headers : any = {}, params): Promise<any> {
                 body: body
             }, (error, response, body) => {
                 if (error) {
-                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error);
+                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error, ", url:", urlEncoded);
                     return reject("post failed");
                 }
                 else {
@@ -361,13 +456,16 @@ get(url, headers : any = {}, params): Promise<any> {
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
-                                    if (response.body) {
+                                    if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                         json = JSON.parse(response.body);
+                                        resolve(json);
+                                    } else {
+                                        resolve(response.body);
                                     }
-                                    resolve(json);
                                 } else {
                                     return reject({
                                         code: -1,
+                                        url:urlEncoded,
                                         msg: "Bad content, please check your host",
                                         details: ""
                                     });
@@ -391,6 +489,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 that.tokenExpirationControl(bodyjs);
                                 return reject({
                                     code: response.statusCode,
+                                    url:urlEncoded,
                                     msg: msg,
                                     details: errorMsgDetail,
                                     error: bodyjs
@@ -401,6 +500,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 that.logger.log("error", LOG_ID + "(post) HTTP security issue", response.error.reason);
                                 return reject({
                                     code: -1,
+                                    url:urlEncoded,
                                     msg: response.error.reason,
                                     details: ""
                                 });
@@ -410,6 +510,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                 that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
                                 return reject({
                                     code: -1,
+                                    url:urlEncoded,
                                     msg: "Unknown error",
                                     details: response
                                 });
@@ -418,6 +519,7 @@ get(url, headers : any = {}, params): Promise<any> {
                     } else {
                         return reject({
                             code: -1,
+                            url:urlEncoded,
                             msg: "ErrorManager while requesting",
                             details: "error"
                         });
@@ -461,7 +563,7 @@ get(url, headers : any = {}, params): Promise<any> {
                     body: body
                 }, (error, response, body) => {
                     if (error) {
-                        that.logger.log("internalerror", LOG_ID + "(put) put failed:", error);
+                        that.logger.log("internalerror", LOG_ID + "(put) put failed:", error, ', url : ', urlEncoded);
                         return reject("put failed");
                     }
                     else {
@@ -471,13 +573,16 @@ get(url, headers : any = {}, params): Promise<any> {
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                         let json = {};
-                                        if (response.body) {
+                                        if (response.body  && (response.headers["content-type"].indexOf("json") > -1) ) {
                                             json = JSON.parse(response.body);
+                                            resolve(json);
+                                        } else {
+                                            resolve(response.body);
                                         }
-                                        resolve(json);
                                     } else {
                                         return reject({
                                             code: -1,
+                                            url:urlEncoded,
                                             msg: "Bad content, please check your host",
                                             details: ""
                                         });
@@ -500,6 +605,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     that.tokenExpirationControl(bodyjs);
                                     return reject({
                                         code: response.statusCode,
+                                        url:urlEncoded,
                                         msg: msg,
                                         details: errorMsgDetail,
                                         error: bodyjs
@@ -510,6 +616,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     that.logger.log("error", LOG_ID + "(put) HTTP security issue", response.error.reason);
                                     return reject({
                                         code: -1,
+                                        url:urlEncoded,
                                         msg: response.error.reason,
                                         details: ""
                                     });
@@ -519,6 +626,7 @@ get(url, headers : any = {}, params): Promise<any> {
                                     that.logger.log("internal", LOG_ID + "(put) HTTP other issue", response);
                                     return reject({
                                         code: -1,
+                                        url:urlEncoded,
                                         msg: "Unknown error",
                                         details: response
                                     });
@@ -527,6 +635,7 @@ get(url, headers : any = {}, params): Promise<any> {
                         } else {
                             return reject({
                                 code: -1,
+                                url:urlEncoded,
                                 msg: "ErrorManager while requesting",
                                 details: "error"
                             });
@@ -624,6 +733,7 @@ get(url, headers : any = {}, params): Promise<any> {
                 if (error) {
                     return reject({
                         code: -1,
+                        url:urlEncoded,
                         msg: "ErrorManager while requesting",
                         details: error
                     });
@@ -648,6 +758,7 @@ get(url, headers : any = {}, params): Promise<any> {
                             that.tokenExpirationControl(bodyjs);
                             return reject({
                                 code: response.statusCode,
+                                url:urlEncoded,
                                 msg: response.body ? response.body.errorMsg || "" : "",
                                 details: response.body ? response.body.errorDetails || "" : "",
                                 error: bodyjs

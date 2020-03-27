@@ -156,13 +156,13 @@ If you want to send a message to a recipient, once you have to do is to call the
 
 ```js
 
-nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
     // Check if the message is not from you
-    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+    if(!message.fromJid.includes(rainbowSDK.connectedUser.jid_im)) {
         // Check that the message is from a user and not a bot
         if( message.type === "chat") {
             // Answer to this user
-            nodeSDK.im.sendMessageToJid("hello! How may I help you?", message.fromJid);
+            rainbowSDK.im.sendMessageToJid("hello! How may I help you?", message.fromJid);
             // Do something with the message sent
             ...
         }
@@ -183,13 +183,13 @@ When a message is received in a bubble, you can do the same and respond to every
 
 ```js
 
-nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
     // Check if the message is not from you
-    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+    if(!message.fromJid.includes(rainbowSDK.connectedUser.jid_im)) {
         // Check that the message is from a user and not a bot
         if( message.type === "groupchat") {
             // Answer to this user
-            let messageSent = nodeSDK.im.sendMessageToBubbleJid("I got it!", message.fromBubbleJid);
+            let messageSent = rainbowSDK.im.sendMessageToBubbleJid("I got it!", message.fromBubbleJid);
             // Do something with the message sent
             ...
         }
@@ -207,13 +207,13 @@ If you want to reply to a message to a recipient, once you have to do is to call
 
 ```js
 
-nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
     // Check if the message is not from you
-    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+    if(!message.fromJid.includes(rainbowSDK.connectedUser.jid_im)) {
         // Check that the message is from a user and not a bot
         if( message.type === "chat") {
             // Reply to this message
-            nodeSDK.im.sendMessageToJidAnswer("hello! How may I help you?", message.fromJid,'FR', null, 'subject', message);
+            rainbowSDK.im.sendMessageToJidAnswer("hello! How may I help you?", message.fromJid,'FR', null, 'subject', message);
             // Do something with the message sent
             ...
         }
@@ -229,13 +229,13 @@ When a message is received in a bubble, you can reply to it by calling the API `
 
 ```js
 
-nodeSDK.events.on("rainbow_onmessagereceived", (message) => {
+rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
     // Check if the message is not from you
-    if(!message.fromJid.includes(nodeSDK.connectedUser.jid_im)) {
+    if(!message.fromJid.includes(rainbowSDK.connectedUser.jid_im)) {
         // Check that the message is from a user and not a bot
         if( message.type === "groupchat") {
             // Reply to the message
-            let messageSent = nodeSDK.im.sendMessageToBubbleJidAnswer("I got it!", message.fromBubbleJid, "FR", null, 'subject', message);
+            let messageSent = rainbowSDK.im.sendMessageToBubbleJidAnswer("I got it!", message.fromBubbleJid, "FR", null, 'subject', message);
             // Do something with the message sent
             ...
         }
@@ -254,13 +254,13 @@ The parameter `status` is The typing status. So, set it true for setting "is Typ
 
 ...
 // Get the conversations
-let result = nodeSDK.conversations.getConversations();
+let result = rainbowSDK.conversations.getConversations();
 // Select the first one 
 let conversation = result[0];
 // Check it is a one to one conversation. 
 if (conversation.type === Conversation.Type.ONE_TO_ONE) {
     // Send the typing state to true 
-    nodeSDK.im.sendIsTypingStateInConversation(conversation, true);
+    rainbowSDK.im.sendIsTypingStateInConversation(conversation, true);
 }
 ...
 

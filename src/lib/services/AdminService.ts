@@ -9,13 +9,14 @@ import  {RESTService} from "../connection/RESTService";
 import {isStarted, logEntryExit} from "../common/Utils";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
+import {S2SService} from "./S2SService";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Admin
  * @version SDKVERSION
  * @public
@@ -32,15 +33,20 @@ const LOG_ID = "ADMIN/SVCE - ";
  *      - Create a guest user
  */
 class Admin {
-    public _xmpp: XMPPService;
-    public _rest: RESTService;
-    public _eventEmitter: EventEmitter;
-    public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
     };
+    private _options: any;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _s2s: S2SService;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -49,19 +55,29 @@ class Admin {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.ready = false;
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_options, _core) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
 
 
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+
+                that._options = _options;
+                that._s2s = _core._s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+
                 that.ready = true;
                 resolve();
             } catch (err) {
@@ -97,7 +113,6 @@ class Admin {
      * @param {string} strName The name of the new company
      * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
      * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created Company or an error object depending on the result
@@ -197,7 +212,6 @@ class Admin {
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
      * @param {Array<string>} [roles] The roles the created user.
-     * @memberof Admin
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Created contact in company or an error object depending on the result
@@ -263,7 +277,6 @@ class Admin {
      * @param {string} lastname  The user lastname
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created guest user in company or an error object depending on the result
@@ -320,7 +333,6 @@ class Admin {
      *      Create a new anonymous guest user in the same company as the requester admin
      *      Anonymous guest user is user without name and firstname
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created anonymous guest user in company or an error object depending on the result
@@ -363,7 +375,6 @@ class Admin {
      * @param {string} companyId     The id of the company where the user will be invited in
      * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
      * @param {string} [message=""] A custom message to send
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created invitation or an error object depending on the result
@@ -415,7 +426,6 @@ class Admin {
      *      Change a password for a user
      * @param {string} password The new password
      * @param {string} userId The id of the user
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Updated user or an error object depending on the result
@@ -464,7 +474,6 @@ class Admin {
      *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails`
      * @param {Object} objData An object (key: value) containing the data to change with their new value
      * @param {string} userId The id of the user
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Updated user or an error object depending on the result
@@ -518,7 +527,6 @@ class Admin {
      * @description
      *      Delete an existing user
      * @param {string} userId The id of the user
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Deleted user or an error object depending on the result
@@ -559,7 +567,6 @@ class Admin {
      * @instance
      * @description
      *      Get all companies for a given admin
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
@@ -653,7 +660,6 @@ class Admin {
      *      This allow to not use the secret key on client side
      * @param {string} loginEmail The user login email
      * @param {string} password The user password
-     * @memberof Admin
      * @async
      * @return {Promise<Object, Error>}
      * @fulfil {Object} - Json object containing the user data, application data and token
@@ -686,7 +692,6 @@ class Admin {
      * @instance
      * @description
      *      Get all users for a given admin
-     * @memberof Admin
      * @async
      * @param {string} format Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
@@ -730,7 +735,6 @@ class Admin {
      * @description
      *      Get informations about a user
      * @param {string} userId The id of the user
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing informations or an error object depending on the result
@@ -918,7 +922,6 @@ class Admin {
      * {String{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
      * {String{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
      *
-     * @memberof Admin
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing informations or an error object depending on the result

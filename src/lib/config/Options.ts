@@ -1,7 +1,8 @@
 "use strict";
 export {};
 
-const config = require("./config");
+//const config = require("./config");
+import {config, DataStoreType} from "./config";
 
 const LOG_ID = "OPTIONS - ";
 
@@ -12,12 +13,15 @@ class Options {
 	public _hasApplication: any;
 	public _httpOptions: any;
 	public _xmppOptions: any;
+	public _s2sOptions: any;
 	public _proxyoptions: any;
 	public _imOptions: any;
 	public _applicationOptions: any;
 	public _withXMPP: any;
+	public _withS2S: any;
 	public _CLIMode: any;
 	public _servicesToStart: any;
+	private _testOutdatedVersion: boolean;
 
     constructor(_options, _logger) {
         this._logger = _logger;
@@ -25,8 +29,9 @@ class Options {
         this._hasCredentials = true;
         this._hasApplication = true;
         this._withXMPP = true;
+        this._withS2S = false;
         this._CLIMode = true;
-
+        this._testOutdatedVersion = true;
     }
 
     parse() {
@@ -63,14 +68,25 @@ class Options {
 
         this._httpOptions = this._getHTTPOptions();
         this._xmppOptions = this._getXMPPOptions();
+        this._s2sOptions = this._getS2SOptions();
         this._proxyoptions = this._getProxyOptions();
         this._imOptions = this._getIMOptions();
         this._applicationOptions = this._getApplicationsOptions();
 
         let mode = this._getModeOption();
         this._withXMPP = mode === "xmpp";
+        this._withS2S = mode === "s2s";
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
+        this._testOutdatedVersion = this._gettestOutdatedVersion();
+    }
+
+    get testOutdatedVersion(): boolean {
+        return this._testOutdatedVersion;
+    }
+
+    set testOutdatedVersion(value: boolean) {
+        this._testOutdatedVersion = value;
     }
 
     get servicesToStart () {
@@ -83,6 +99,10 @@ class Options {
 
     get xmppOptions() {
         return this._xmppOptions;
+    }
+
+    get s2sOptions() {
+        return this._s2sOptions;
     }
 
     get proxyOptions() {
@@ -109,12 +129,25 @@ class Options {
         return this._withXMPP;
     }
 
+    get useS2S() {
+        return this._withS2S;
+    }
+
     get useCLIMode() {
         return this._CLIMode;
     }
 
     get credentials() {
         return this._options.credentials;
+    }
+
+    _gettestOutdatedVersion() {
+        if ( this._options["testOutdatedVersion"] !== undefined ) {
+            return this._options.testOutdatedVersion;
+        } else {
+            return config.testOutdatedVersion;
+        }
+
     }
 
     _getservicesToStart() {
@@ -188,6 +221,33 @@ class Options {
         return xmppOptions;
     }
 
+    _getS2SOptions() {
+        let s2sOptions = config.sandbox.s2s;
+
+        switch (this._options.rainbow.host) {
+            case "official":
+                s2sOptions = config.official.s2s;
+                if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
+                if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
+                this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow Official platform");
+                break;
+            case "sandbox":
+                s2sOptions = config.sandbox.s2s;
+                if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
+                if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
+                this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow Sandbox platform");
+                break;
+            default:
+                s2sOptions = config.any.s2s;
+                if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
+                if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
+                this._logger.warn("Be careful, an unofficial Rainbow core is used : " + JSON.stringify(s2sOptions));
+                this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow " + this._options.rainbow.host + " platform");
+                break;
+        }
+        return s2sOptions;
+    }
+
     _getModeOption() {
 
         let mode = config.mode;
@@ -195,6 +255,7 @@ class Options {
         if ("rainbow" in this._options && "mode" in this._options.rainbow) {
             switch (this._options.rainbow.mode) {
                 case "xmpp":
+                case "s2s":
                 case "hook":
                 case "cli":
                     mode = this._options.rainbow.mode;
@@ -266,7 +327,10 @@ class Options {
             sendMessageToConnectedUser: false,
             conversationsRetrievedFormat: "small",
             storeMessages: false,
-            copyMessage: false
+            copyMessage: false,
+            nbMaxConversations: 15,
+            rateLimitPerHour: 1000,
+            messagesDataStore: DataStoreType.UsestoreMessagesField
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -281,6 +345,9 @@ class Options {
         optionsIM.conversationsRetrievedFormat = this._options.im.conversationsRetrievedFormat ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
         optionsIM.storeMessages = this._options.im.storeMessages ? this._options.im.storeMessages : config.im.storeMessages;
         optionsIM.copyMessage = this._options.im.copyMessage ? this._options.im.copyMessage : config.im.copyMessage;
+        optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
+        optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
+        optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
 
         return optionsIM;
     }

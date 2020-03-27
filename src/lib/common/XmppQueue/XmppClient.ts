@@ -1,4 +1,8 @@
 'use strict';
+import {DataStoreType} from "../../config/config";
+//import Element from "ltx";
+import {NameSpacesLabels} from "../../connection/XMPPService";
+
 export {};
 
 /*
@@ -24,8 +28,6 @@ const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
 
 const Element = require('ltx').Element;
-//import Element from "ltx";
-import {NameSpacesLabels} from "../../connection/XMPPService";
 
 let LOG_ID='XMPPCLIENT';
 
@@ -43,6 +45,11 @@ class XmppClient  {
 	public password: any;
     socketClosed: boolean = false;
     storeMessages: any;
+    rateLimitPerHour: any;
+    private nbMessagesSentThisHour: number;
+    lastTimeReset: Date;
+    timeBetweenReset: number;
+    messagesDataStore: DataStoreType;
 
     constructor(...args) {
         //super(...args);
@@ -51,6 +58,8 @@ class XmppClient  {
         this.options = [...args];
         this.restartConnectEnabled = true;
         this.client = client(...args);
+        this.nbMessagesSentThisHour = 0;
+        this.timeBetweenReset = 1000 * 60 * 60 ; // */
 
         this.iqGetEventWaiting = {};
 
@@ -105,12 +114,43 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests, _storeMessages) {
+    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore) {
         let that = this;
         that.logger = _logger;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
         that.storeMessages = _storeMessages;
+        that.rateLimitPerHour = _rateLimitPerHour;
+        that.messagesDataStore = _messagesDataStore;
+        that.lastTimeReset = new Date ();
+
+        if (that.messagesDataStore) {
+            switch (that.messagesDataStore) {
+                case DataStoreType.NoStore: {
+                    that.storeMessages = false;
+                }
+                    break;
+                case DataStoreType.NoPermanentStore: {
+                    that.storeMessages = false;
+                }
+                    break;
+                case DataStoreType.StoreTwinSide: {
+                    that.storeMessages = true;
+                }
+                    break;
+                case DataStoreType.UsestoreMessagesField: {
+                    that.messagesDataStore = DataStoreType.NoStore;
+                }
+                    break;
+                default: {
+                    that.messagesDataStore = DataStoreType.NoPermanentStore;
+                }
+                    break;
+            }
+        } else {
+            that.messagesDataStore = DataStoreType.NoPermanentStore;
+        }
+
         that.on('open', () => {
             that.logger.log("debug", LOG_ID + "(event) open");
             that.socketClosed = false;
@@ -126,6 +166,17 @@ class XmppClient  {
             that.logger.log("debug", LOG_ID + "(event) close");
             that.socketClosed = true;
         });
+
+        setInterval(that.resetnbMessagesSentThisHour.bind(this), that.timeBetweenReset);
+    }
+
+    resetnbMessagesSentThisHour(){
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _entering_");
+        that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) before reset, that.nbMessagesSentThisHour : ", that.nbMessagesSentThisHour);
+        that.nbMessagesSentThisHour = 0;
+        that.lastTimeReset = new Date ();
+        that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _exiting_");
     }
 
     send(...args) {
@@ -149,27 +200,49 @@ class XmppClient  {
                     }
 
                     let stanza = args[0];
-                    if ( that.storeMessages == false && stanza && typeof stanza === "object" &&  stanza.name == "message") {
-                       // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
-                       // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
+
+                    if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
+                   // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
+                        // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
+                        // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
                         //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
                         // <no-copy xmlns="urn:xmpp:hints"/>
                         //   <no-store xmlns="urn:xmpp:hints"/>
-                      /*  stanza.append(xml("no-copy", {
-                            "xmlns": NameSpacesLabels.HintsNameSpace
-                        }));
-                        // */
+                        /*  stanza.append(xml("no-copy", {
+                              "xmlns": NameSpacesLabels.HintsNameSpace
+                          }));
+                          // */
 
-                        stanza.append(xml("no-store", {
+                        //let nostoreTag="no-store";
+                        let nostoreTag=that.messagesDataStore;
+                        stanza.append(xml(nostoreTag, {
                             "xmlns": NameSpacesLabels.HintsNameSpace
                         }));
                         // */
                         //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
                     }
 
+                    // test the rate-limit
+                    if (this.nbMessagesSentThisHour > that.rateLimitPerHour) {
+                        let timeWhenRateLimitPerHourHappens = new Date().getTime();
+                        let timeToWaitBeforeNextMessageAvabilityMs = that.timeBetweenReset - (timeWhenRateLimitPerHourHappens - that.lastTimeReset.getTime());
+                        let error = {
+                            "errorCode": -1,
+                            "timeWhenRateLimitPerHourHappens": timeWhenRateLimitPerHourHappens,
+                            "nbMessagesSentThisHour" : this.nbMessagesSentThisHour,
+                            "rateLimitPerHour": that.rateLimitPerHour,
+                            "timeToWaitBeforeNextMessageAvabilityMs": timeToWaitBeforeNextMessageAvabilityMs,
+                            "label": "error number of sent messages is over the rate limit.",
+                            "sendArgs": args
+                        };
+                        that.logger.log("internalerror", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
+                        return reject2(error);
+                    }
+
                     return this.client.send(...args).then(() => {
+                        that.nbMessagesSentThisHour++;
                         resolve2();
-                    }).catch(async(err) => {
+                    }).catch(async (err) => {
                         that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
                         //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                         return reject2(err);
@@ -182,8 +255,9 @@ class XmppClient  {
                 })
             ).then(() => {
                 that.logger.log("debug", LOG_ID + "(send) sent");
-            }).catch((errr)=> {
+            }).catch((errr) => {
                 that.logger.log("error", LOG_ID + "(send) error in send promise : ", errr);
+                that.logger.log("internalerror", LOG_ID + "(send) error in send promise : ", errr);
                 throw errr;
             });
 
@@ -206,9 +280,14 @@ class XmppClient  {
         }).catch(async(err) => {
             that.logger.log("debug", LOG_ID + "(send) catch an error during sending! ", err);
 
+            // if the error is the exceed of maximum message by a time laps then do not reconnecte
+            if (err && err.errorCode === -1 ) {
+                //return Promise.resolve();
+                throw  err;
+                //return ;
+            }
 
             that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
-
             await that.restartConnect().then((res) => {
                 that.logger.log("debug", LOG_ID + "(send) restartConnect result : ", res);
             }).catch((errr) => {
@@ -364,6 +443,11 @@ Element.prototype.find = function (name) { // Warning do not put an Array functi
 // Shortcut to getText
 Element.prototype.text = function () {
     return this.getText();
+};
+
+// Shortcut to attrs
+Element.prototype.attr = function (attrName) {
+    return this.attrs[attrName];
 };
 
 module.exports.getXmppClient = getXmppClient;

@@ -1,7 +1,9 @@
 "use strict";
 
+const DataStoreType = require("./lib/config/config").DataStoreType;
+
 const Core = require("./lib/Core").Core;
-const ErrorManager = require("./lib/common/ErrorManager").ErrorManager ;
+const ErrorManager = require("./lib/common/ErrorManager").ErrorManager;
 const utils = require( "./lib/common/Utils");
 
 /**
@@ -131,8 +133,13 @@ class NodeSDK {
      *      The entry point of the Rainbow Node SDK
      * @param {{rainbow: {host: string}, application: {appID: string, appSecret: string}, im: {sendReadReceipt: boolean, sendMessageToConnectedUser: boolean, conversationsRetrievedFormat: string, copyMessage: boolean, storeMessages: boolean, messageMaxLength: number}, credentials: {password: string, login: string}, logs: {file: {zippedArchive: boolean, path: string, customFileName: string}, color: boolean, level: string, "system-dev": {http: boolean, internals: boolean}, enableFileLogs: boolean, customLabel: string, enableConsoleLogs: boolean}, servicesToStart: {favorites: {start_up: boolean}, fileStorage: {start_up: boolean}, webrtc: {start_up: boolean, optional: boolean}, channels: {start_up: boolean}, calllog: {start_up: boolean}, telephony: {start_up: boolean}, admin: {start_up: boolean}, bubbles: {start_up: boolean}, fileServer: {start_up: boolean}}}} options : The options provided to manage the SDK behavior <br>
      *   "rainbow": {<br>
-     *       "host": "official",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
+     *       "host": "official", // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
+     *       "mode": "xmpp" // The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`)
      *    },<br>
+     *   "s2s": {
+     *      "hostCallback": "http://3d260881.ngrok.io", // S2S Callback URL used to receive events on internet
+     *      "locallistenningport": "4000" // Local port where the events must be forwarded from S2S Callback Web server.
+    *    },
      *   "credentials": {<br>
      *       "login": "user@xxxx.xxx",  // The Rainbow email account to use<br>
      *       "password": "XXXXX",<br>
@@ -143,12 +150,12 @@ class NodeSDK {
      *       "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret<br>
      *   },<br>
      *   // Proxy configuration<br>
-     *   proxy: {<br>
-     *       host: "xxx.xxx.xxx.xxx",<br>
-     *       port: xxxx,<br>
-     *       protocol: "http",<br>
-     *       user: "proxyuser",<br>
-     *       password: "XXXXX",<br>
+     *   "proxy": {<br>
+     *       "host": "xxx.xxx.xxx.xxx",<br>
+     *       "port": xxxx,<br>
+     *       "protocol": "http",<br>
+     *       "user": "proxyuser",<br>
+     *       "password": "XXXXX",<br>
      *   },<br>
      *   // Logs options<br>
      *   "logs": {<br>
@@ -163,13 +170,21 @@ class NodeSDK {
      *           "zippedArchive": false Can activate a zip of file. It needs CPU process, so avoid it.<br>
      *       }<br>
      *   },<br>
+     *   "testOutdatedVersion": true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
      *   // IM options<br>
      *   "im": {<br>
      *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
      *       "messageMaxLength": 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.<br>
      *       "sendMessageToConnectedUser": false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.<br>
      *       "conversationsRetrievedFormat": "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`<br>
-     *       "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoir to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       @deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.<br>
+     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.<br>
+     *       "messagesDataStore": Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
+     *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
+     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
+     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.<br>
      *   },<br>
      *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -204,6 +219,16 @@ class NodeSDK {
      * }<br>
      */
     constructor(options) {
+        /*
+             *       @ deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
+     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+     *       "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")
+     *                          DataStoreType.NoStore Same behaviour as previously `storeMessages=false` Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
+     *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+     *                          DataStoreType.StoreTwinSide The messages are fully stored.
+
+         */
         /* process.on("uncaughtException", (err) => {
             console.error(err);
         });
@@ -251,7 +276,7 @@ class NodeSDK {
         let that = this;
         that.startTime = new Date();
         return new Promise(function(resolve, reject) {
-            return that._core.start(undefined, token).then(function() {
+            return that._core.start( token).then(function() {
                 return that._core.signin(false, token);
             }).then(function(result) {
                 let startDuration = Math.round(new Date() - that.startTime);
@@ -615,7 +640,21 @@ class NodeSDK {
         return this._core._invitations;
     }
 
+    /**
+     * @public
+     * @property {Object} s2s
+     * @instance
+     * @description
+     *    Get access to the s2s module
+     * @memberof NodeSDK
+     */
+    get s2s() {
+        return this._core._s2s;
+    }
 
+    get DataStoreType() {
+        return DataStoreType;
+    }
 
 }
 

@@ -18,10 +18,11 @@ module.exports = function(grunt) {
             { src: "lib/services/ConversationsService.js", dest: "build/conversations.md" },
             { src: "lib/services/FavoritesService.js", dest: "build/favorites.md" },
             { src: "lib/services/FileStorageService.js", dest: "build/filestorage.md" },
-            { src: "lib/services/ImsService.js", dest: "build/im.md" },
-            { src: "lib/services/InvitationsService.js", dest: "build/invitation.md" },
-            { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
             { src: "lib/services/GroupsService.js", dest: "build/groups.md" },
+            { src: "lib/services/ImsService.js", dest: "build/im.md" },
+            { src: "lib/services/InvitationsService.js", dest: "build/invitations.md" },
+            { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
+            { src: "lib/services/S2SService.js", dest: "build/s2s.md" },
             { src: "lib/services/TelephonyService.js", dest: "build/telephony.md" },
             { src: "index.js", dest: "build/sdk.md" },
             { src: "lib/common/models/Bubble.js", dest: "build/bubble.md" },
@@ -77,7 +78,7 @@ module.exports = function(grunt) {
             },
             files: [
                 {
-                    src: "CHANGELOG.md", dest:"build/CHANGELOGRSS.xml"
+                    src: "CHANGELOG.md", dest:"build/ChangeLogRSS.xml"
                 }
                 /* ,
                 {
@@ -100,7 +101,7 @@ module.exports = function(grunt) {
             src: [
                 "lib/services/AdminService.js",
                 "lib/services/BubblesService.js",
-                 "lib/services/CallLogService.js",
+                "lib/services/CallLogService.js",
                 "lib/services/ChannelsService.js",
                 "lib/services/ContactsService.js",
                 "lib/services/ConversationsService.js",
@@ -110,6 +111,7 @@ module.exports = function(grunt) {
                 "lib/services/ImsService.js",
                 "lib/services/InvitationsService.js",
                 "lib/services/PresenceService.js",
+                "lib/services/S2SService.js",
                 "lib/services/TelephonyService.js",
                 "index.js",
                 "lib/common/Events.js",

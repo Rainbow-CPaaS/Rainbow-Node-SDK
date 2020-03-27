@@ -5,6 +5,7 @@ export {};
 
 
 import {XMPPUTils} from "../../common/XMPPUtils";
+import {ConversationsService} from "../../services/ConversationsService";
 
 const GenericHandler = require("./genericHandler");
 import {Conversation} from "../../common/models/Conversation";
@@ -29,7 +30,7 @@ class ConversationEventHandler extends GenericHandler {
     public MESSAGE_ERROR: any;
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
-    public conversationService: any;
+    public conversationService: ConversationsService;
     public onChatMessageReceived: any;
     public _onMessageReceived: any;
     public eventEmitter: any;
@@ -85,6 +86,7 @@ class ConversationEventHandler extends GenericHandler {
                 let messageType = stanza.attrs.type;
                 let timestamp = new Date();
                 let replaceMessageId = null;
+                let attention = false;
 
                 let fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
                 let resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
@@ -216,6 +218,7 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "subject":
                             subject = node.getText();
+                            hasATextMessage = (!(!subject || subject === ''));
                             break;
                         case "event":
                             event = node.attrs.name;
@@ -232,13 +235,14 @@ class ConversationEventHandler extends GenericHandler {
                                 lang = "en";
                             }
                             that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - lang", lang);
-                            hasATextMessage = true;
+                            hasATextMessage = (!(!content || content === ''));
                             break;
                         case "content":
                             alternativeContent.push({
                                 "message": node.getText(),
                                 "type": node.getAttr("type")
                             });
+                            hasATextMessage = true;
                             break;
                         case "request":
                             that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - asked for receipt");
@@ -255,7 +259,7 @@ class ConversationEventHandler extends GenericHandler {
                                 })
                             );
 
-                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send receipt 'received'", stanzaReceived.root().toString());
+                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send receipt 'received' : ", stanzaReceived.root().toString());
                             that.xmppClient.send(stanzaReceived);
 
                             //Acknowledge 'read'
@@ -272,7 +276,7 @@ class ConversationEventHandler extends GenericHandler {
                                         "id": stanza.attrs.id
                                     })
                                 );
-                                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send receipt 'read'", stanzaRead.root().toString());
+                                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) answered - send markAsRead : receipt 'read' : ", stanzaRead.root().toString());
                                 that.xmppClient.send(stanzaRead);
                             }
                             break;
@@ -316,6 +320,8 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         }
                         case "no-store":
+                            break;
+                        case "no-permanent-store":
                             break;
                         case "store":
                             break;
@@ -361,6 +367,9 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "updated_call_log":
                             break;
+                        case "attention":
+                            attention = true;
+                            break;
                         default:
                             that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
                             that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), stanza);
@@ -374,11 +383,6 @@ class ConversationEventHandler extends GenericHandler {
                     fromBubbleJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
                     fromBubbleUserJid = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
                     resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(fromBubbleUserJid);
-                }
-
-                if (!hasATextMessage) {
-                    that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it!");
-                    return;
                 }
 
                 if ((messageType === TYPE_GROUPCHAT && fromBubbleUserJid !== that.fullJid) || (messageType === TYPE_CHAT && fromJid !== that.fullJid)) {
@@ -407,8 +411,9 @@ class ConversationEventHandler extends GenericHandler {
                         "fromBubbleUserJid": null,
                         "event": null,
                         "eventJid": null,
-                        "originalMessageReplaced": null
-
+                        "originalMessageReplaced": null,
+                        "attention" : undefined,
+                        subject
                     };
 
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {
@@ -420,6 +425,9 @@ class ConversationEventHandler extends GenericHandler {
                             data.event = event;
                             data.eventJid = eventJid;
                             data.isEvent = true;
+                        }
+                        if (attention) {
+                            data.attention = attention;
                         }
                     }
 
@@ -437,8 +445,15 @@ class ConversationEventHandler extends GenericHandler {
                             data.originalMessageReplaced.id = replaceMessageId;
                         }
                         data.originalMessageReplaced.replacedByMessage = data;
+                    } else {
+                        if (!hasATextMessage) {
+                            that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
+                            return;
+                        }
+                        else {
+                            that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data, ", hasATextMessage : ", hasATextMessage);
+                        }
                     }
-
 
                     this._onMessageReceived(conversationId, data);
                 } else {
@@ -454,8 +469,9 @@ class ConversationEventHandler extends GenericHandler {
             try {
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) _entering_ : ", conversationId, data);
                 let conversation = that.conversationService.getConversationById(conversationId);
+                let cs = this.conversationService;
                 if (!conversation) {
-                    let cs = this.conversationService;
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation NOT found in cache by Id : ", conversationId, ", for new message : ", data);
                     let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId) : cs.getOrCreateOneToOneConversation(conversationId);
                     createPromise.then((conv) => {
                         data.conversation = conv;
@@ -465,8 +481,10 @@ class ConversationEventHandler extends GenericHandler {
                         } // */
                         this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                         that.eventEmitter.emit("evt_internal_conversationupdated", conv);
+                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                     });
                 } else {
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                     data.conversation = conversation;
                     data.conversation.addMessage(data);
                     /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
@@ -474,6 +492,7 @@ class ConversationEventHandler extends GenericHandler {
                     } // */
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
@@ -584,6 +603,15 @@ class ConversationEventHandler extends GenericHandler {
                             "bubbleJid": node.attrs.roomjid,
                             "topic": node.attrs.topic
                         });
+                    }  // Topic changed
+                    if (node.attrs.privilege) {
+                        that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble privilege changed");
+                        that.eventEmitter.emit("evt_internal_privilegechanged", {
+                            "bubbleId": node.attrs.roomid,
+                            "bubbleJid": node.attrs.roomjid,
+                            "userjid": node.attrs.userjid,
+                            "privilege": node.attrs.privilege
+                        });
                     }
                     // Name changed
                     if (node.attrs.name) {
@@ -682,26 +710,26 @@ class ConversationEventHandler extends GenericHandler {
 
                     if (action === "create" && scope === "group") {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) group created");
-                        that.eventEmitter.emit("evt_internal_groupcreated", {"groupId": node.attrs.id});
+                        that.eventEmitter.emit("evt_internal_hdle_groupcreated", {"groupId": node.attrs.id});
                     } else if (action === "create" && scope === "user" && node.attrs.userId) {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) user added in group");
-                        that.eventEmitter.emit("evt_internal_useraddedingroup", {
+                        that.eventEmitter.emit("evt_internal_hdle_useraddedingroup", {
                                 "groupId": node.attrs.id,
                                 "userId": node.attrs.userId
                             });
                     } else if (action === "delete" && scope === "group") {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) group deleted");
-                        that.eventEmitter.emit("evt_internal_groupdeleted", {"groupId": node.attrs.id});
+                        that.eventEmitter.emit("evt_internal_hdle_groupdeleted", {"groupId": node.attrs.id});
                     } else if (action === "delete" && scope === "user" && node.attrs.userId) {
                         that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) user removed from group");
-                        that.eventEmitter.emit("evt_internal_userremovedfromgroup", {
+                        that.eventEmitter.emit("evt_internal_hdle_userremovedfromgroup", {
                                 "groupId": node.attrs.id,
                                 "userId": node.attrs.userId
                             });
                     } else if (action === "update" && scope === "group") {
                         if (node.attrs.name || node.attrs.comment || node.attrs.isFavorite) {
                             that.logger.log("debug", LOG_ID + "(onGroupManagementMessageReceived) group updated");
-                            that.eventEmitter.emit("evt_internal_groupupdated", {"groupId": node.attrs.id});
+                            that.eventEmitter.emit("evt_internal_hdle_groupupdated", {"groupId": node.attrs.id});
                         }
                     }
                 }
@@ -711,23 +739,25 @@ class ConversationEventHandler extends GenericHandler {
             }
         };
 
-        this.onConversationManagementMessageReceived = (node: Element) => {
+        this.onConversationManagementMessageReceived = async (node: Element) => {
             try {
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
-                    let conversation = this.conversationService.getConversationById(node.attrs.id);
+                    let conversationId = node.attrs.id;
+                    let conversation = this.conversationService.getConversationById(conversationId);
                     let action = node.attrs.action;
-                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) (" + action + " conversation)");
+                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", conversationId : ", conversationId);
+                    that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
 
                     if (conversation) {
                         switch (action) {
                             case "create":
 //                                conversation.dbId = node.getAttribute("id");
-                                conversation.dbId = node.attrs.id;
+                                conversation.dbId = conversationId;
                                 conversation.lastModification = new Date(node.find("lastMessageDate").text());
                                 conversation.missedCounter = parseInt(node.find("unreadMessageNumber").text(), 10) || 0;
                                 conversation.isFavorite = (node.find("isFavorite").text() === "true");
-                                this.conversationService.orderConversations();
+                                //this.conversationService.orderConversations();
                                 //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                                 // Send conversations update event
                                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
@@ -737,7 +767,7 @@ class ConversationEventHandler extends GenericHandler {
                                 break;
                             case "update":
                                 conversation.isFavorite = (node.find("isFavorite").text() === "true");
-                                this.conversationService.orderConversations();
+                                //this.conversationService.orderConversations();
                                 // Send conversations update event
                                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                 //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
@@ -746,6 +776,7 @@ class ConversationEventHandler extends GenericHandler {
                                 break;
                         }
                     } else {
+                        that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache action : ", action + ", conversationId : ", conversationId);
                         if (action === "create") {
                             let convId = node.find("peer").text();
                             let peerId = node.find("peerId").text();
@@ -761,33 +792,40 @@ class ConversationEventHandler extends GenericHandler {
 
                             let conversationGetter = null;
                             if (type === "user") {
-                                conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
+                                conversationGetter = await this.conversationService.getOrCreateOneToOneConversation(convId);
                             } else {
                                 let bubbleId = convId;
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId);
                                 // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
-                                conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
+                                conversationGetter = await this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
                             }
 
                             if (!conversationGetter) {
                                 return;
                             }
 
-                            conversationGetter
-                                .then(function (conv) {
-                                    that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
-                                    conv.dbId = convDbId;
-                                    conv.lastModification = lastModification ? new Date(lastModification) : undefined;
-                                    conv.lastMessageText = lastMessageText;
-                                    conv.lastMessageSender = lastMessageSender;
-                                    conv.muted = muted;
-                                    conv.isFavorite = isFavorite;
-                                    conv.preload = true;
-                                    conv.missedCounter = missedIMCounter;
-                                    // Send conversations update event
-                                    that.eventEmitter.emit("evt_internal_conversationupdated", conv);
-                                    //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
-                                });
+                            await conversationGetter.then(function (conv) {
+                                that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
+                                conv.dbId = convDbId;
+                                conv.lastModification = lastModification ? new Date(lastModification) : undefined;
+                                conv.lastMessageText = lastMessageText;
+                                conv.lastMessageSender = lastMessageSender;
+                                conv.muted = muted;
+                                conv.isFavorite = isFavorite;
+                                conv.preload = true;
+                                conv.missedCounter = missedIMCounter;
+                                // Send conversations update event
+                                that.eventEmitter.emit("evt_internal_conversationupdated", conv);
+                                //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT", conv);
+                            });
+                        }
+
+                        if (action === "delete") {
+                            that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache deleted : ", conversationId);
+                            let conversationUnknown = new Conversation(conversationId);
+                            if (conversationUnknown) {
+                                that.conversationService.removeConversation(conversationUnknown);
+                            }
                         }
                     }
 
@@ -809,18 +847,6 @@ class ConversationEventHandler extends GenericHandler {
                             conversation.muted = mute;
                         }
                     }
-
-                    /*let action = node.attrs.action;
-
-                    if (action === "delete") {
-                        that
-                            .logger
-                            .log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation deleted");
-                        let conversation = that.conversationService.getConversationById(node.attrs.id);
-                        if (conversation) {
-                            that.conversationService.removeConversation(conversation);
-                        }
-                    } // */
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! ");
@@ -1015,7 +1041,7 @@ class ConversationEventHandler extends GenericHandler {
                 } else {
                     that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
                     that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, util.inspect(stanza));
-                    that.eventEmitter.emit("rainbow_onerror", msg);
+                    that.eventEmitter.emit("evt_internal_xmpperror", msg);
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");

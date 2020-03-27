@@ -11,12 +11,14 @@ import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
-import {logEntryExit, orderByFilter} from "../common/Utils";
+import {getBinaryData, logEntryExit, orderByFilter, resizeImage} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileServerService} from "./FileServerService";
 import {ConversationsService} from "./ConversationsService";
 import {ContactsService} from "./ContactsService";
+import {S2SService} from "./S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -38,12 +40,16 @@ const LOG_ID = "FileStorage/SVCE - ";
  *      - Get the connected user quota and consumption
  */
 class FileStorage {
-    public _rest: RESTService;
-    public _xmpp: XMPPService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
-	public fileServerService: FileServerService;
-	public _conversations: ConversationsService;
+    private _rest: RESTService;
+    private _xmpp: XMPPService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP : any;
+    private _useS2S: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
+    private _fileServerService: FileServerService;
+    private _conversations: ConversationsService;
 	public fileDescriptors: any;
 	public fileDescriptorsByDate: any;
 	public fileDescriptorsByName: any;
@@ -53,11 +59,11 @@ class FileStorage {
 	public receivedFileDescriptorsByDate: any;
 	public receivedFileDescriptorsBySize: any;
 	public consumptionData: any;
-	public contactService: ContactsService;
-	public startDate: any;
+    private _contactService: ContactsService;
+    private startDate: any;
 	public started: any;
-	public errorHelperService: any;
-	public helpersService: any;
+    private _errorHelperService: any;
+    private _helpersService: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -70,9 +76,15 @@ class FileStorage {
     constructor(_eventEmitter, _logger, _startConfig) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
+        this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._logger = _logger;
 
-        this.fileServerService = null;
+        this._fileServerService = null;
         this._conversations = null;
 
         this.fileDescriptors = [];
@@ -87,16 +99,20 @@ class FileStorage {
         this.ready = false;
     }
 
-    start(__xmpp : XMPPService, __rest : RESTService, __fileServerService, __conversations) {
+    start(_options, _core : Core) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
         let that = this;
 
         return new Promise((resolve, reject) => {
             try {
 
-                that._xmpp = __xmpp;
-                that._rest = __rest;
-                that.fileServerService = __fileServerService;
-                that._conversations = __conversations;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                that._options = _options;
+                that._s2s = _core._s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+                that._fileServerService = _core.fileServer;
+                that._conversations = _core.conversations;
                 that.startDate = Date.now();
                 that.started = false;
                 that.fileDescriptors = [];
@@ -136,7 +152,7 @@ class FileStorage {
             // No blocking service
             that.retrieveFileDescriptorsListPerOwner()
                 .then(() => {
-                    return that.retrieveReceivedFiles(that._rest.userId /*contactService.userContact.dbId*/);
+                    return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/);
                 })
                 .then(() => {
                     that.orderDocuments();
@@ -362,6 +378,129 @@ class FileStorage {
 
     /**
      * @public
+     * @since 1.67.0
+     * @method uploadFileToStorage
+     * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+     * @instance
+     * @description
+     *   Send a file in user storage
+     */
+    uploadFileToStorage( file) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("info", LOG_ID + "sendFSMessage");
+
+            // Allow to pass a file path (for test purpose)
+            if ( typeof (file) === "string") {
+                try {
+                    let fileObj = new fileapi.File({
+
+                            //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                            "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
+                            //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+
+                            //            buffer: Node.Buffer,          // use this Buffer instead of reading file
+                            //            stream: Node.ReadStream,      // use this ReadStream instead of reading file
+                            //            name: "SomeAwesomeFile.txt",  // optional when using `path`
+                            // must be supplied when using `Node.Buffer` or `Node.ReadStream`
+                            //            type: "text/plain",           // generated based on the extension of `name` or `path`
+
+                            "jsdom": true,                  // be DoM-like and immediately get `size` and `lastModifiedDate`
+                            // [default: false]
+                            "async": false                  // use `fs.stat` instead of `fs.statSync` for getting
+                            // the `jsdom` info
+                            // [default: false]
+                            //   lastModifiedDate: fileStat.mtime.toISOString()
+                            //   size: fileStat.size || Buffer.length
+                        }
+                    );
+
+                    that._logger.log("internal", LOG_ID + "(uploadFileToStorage) file path : ", file, " give fileObj :", fileObj);
+
+                    file = fileObj;
+                } catch (err) {
+                    that._logger.log("error", LOG_ID + "(uploadFileToStorage) Catch Error !!! Error.");
+                    that._logger.log("internalerror", LOG_ID + "(uploadFileToStorage) Catch Error !!! Error : ", err);
+                    return reject(err);
+                }
+            }
+
+            // Add message in messages array
+            let fileExtension = file.name.split(".").pop();
+            let fileMimeType = file.type;
+            let viewers = [];
+            let currentFileDescriptor;
+
+
+            that.createFileDescriptor(file.name, fileExtension, file.size, viewers).then(async function (fileDescriptor: any) {
+                currentFileDescriptor = fileDescriptor;
+                fileDescriptor.fileToSend = file;
+                if (fileDescriptor.isImage()) {
+                    // let URLObj = $window.URL || $window.webkitURL;
+                    // fileDescriptor.previewBlob = URLObj.createObjectURL(file);
+                    await resizeImage(file.path, 512, 512).then(function (resizedImage) {
+                        that._logger.log("debug", LOG_ID + "(uploadFileToStorage) resizedImage : ", resizedImage);
+                        file.preview = getBinaryData(resizedImage);
+                    });
+
+                    if (file.preview) {
+                        fileDescriptor.previewBlob = file.preview;
+                    }
+                }
+
+                // Upload file
+                fileDescriptor.state = "uploading";
+
+                return that._fileServerService.uploadAFileByChunk(fileDescriptor, file.path )
+                    .then(function successCallback(fileDesc) {
+                            that._logger.log("debug", LOG_ID + "uploadFileToStorage uploadAFileByChunk success");
+                            return Promise.resolve(fileDesc);
+                        },
+                        function errorCallback(error) {
+                            that._logger.log("error", LOG_ID + "uploadFileToStorage uploadAFileByChunk error.");
+                            that._logger.log("internalerror", LOG_ID + "uploadFileToStorage uploadAFileByChunk error : ", error);
+
+                            //do we need to delete the file descriptor from the server if error ??
+                            that.deleteFileDescriptor(currentFileDescriptor.id);
+
+                            // .then(function() {
+                            // currentFileDescriptor.state = "uploadError";
+                            currentFileDescriptor.state = "uploadError";
+
+                            //message.receiptStatus = Message.ReceiptStatus.ERROR;
+                            //message.fileErrorMsg = msgKey;
+                            //that.updateMessage(message);
+
+                            return Promise.reject(error);
+                        });
+            })
+                .then(function successCallback(fileDescriptorResult) {
+                        fileDescriptorResult.state = "uploaded";
+                        fileDescriptorResult.chunkPerformed = 0;
+                        fileDescriptorResult.chunkTotalNumber = 0;
+                        resolve(fileDescriptorResult);
+                    },
+                    function errorCallback(error) {
+                        that._logger.log("error", LOG_ID + "uploadFileToStorage createFileDescriptor error.");
+                        that._logger.log("internalerror", LOG_ID + "uploadFileToStorage createFileDescriptor error : ", error);
+                        return reject(error);
+                    });
+
+
+            //};
+
+
+            /*
+            todo: VBR What is this pendingMessages list coming from WebSDK ? Is it necessary for node SDK ?
+            this.pendingMessages[message.id] = {
+                conversation: conversation,
+                message: message
+            };
+            // */
+        });
+    }
+    /**
+     * @public
      * @since 1.47.1
      * @method downloadFile
      * @instance
@@ -397,7 +536,7 @@ class FileStorage {
                     "filename": fileDescriptor.filename || fileDescriptor.fileName
                 };
 
-                that.fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob) {
+                that._fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob) {
                     that._logger.log("debug", LOG_ID + "[getFile    ] ::  file downloaded");
                     resolve(blob);
                 }).catch(function(err) {
@@ -545,7 +684,7 @@ class FileStorage {
                 }); // */
             } else {
                 that._logger.log("debug", LOG_ID + "[getFilesRcv] ::  get files received in conversation " + conversation.id + "...");
-                that.retrieveFilesReceivedFromPeer(/* contactService.userContact.dbId */ that._rest.userId, conversation.contact.id).then(function(files: any) {
+                that.retrieveFilesReceivedFromPeer(/* _contactService.userContact.dbId */ that._rest.userId, conversation.contact.id).then(function(files: any) {
                     that._logger.log("debug", LOG_ID + "[getFilesRcv] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
@@ -605,7 +744,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of file descriptor
      * @return {Promise<FileDescriptor>} file descriptor
      *
-     * @memberOf FileStorage
      */
     getCompleteFileDescriptorById(id) {
         let that = this;
@@ -624,7 +762,7 @@ class FileStorage {
                 for (let viewer of fileDescriptor.viewers) {
                     if (viewer.type === "user") {
                         promiseArray.push(
-                            that.contactService.getContactById(viewer.viewerId, true).then((contact) => {
+                            that._contactService.getContactById(viewer.viewerId, true).then((contact) => {
                                 viewer.contact = contact;
                                 return (viewer);
                             })
@@ -660,7 +798,6 @@ class FileStorage {
      * @private
      *
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocuments() {
         return this.fileDescriptors;
@@ -671,7 +808,6 @@ class FileStorage {
      * @private
      *
      * @return {FileDescriptor}
-     * @memberof FileStorage
      */
     getReceivedDocuments() {
         return this.receivedFileDescriptors;
@@ -683,7 +819,6 @@ class FileStorage {
      *
      * @param {boolean} received
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocumentsByName(received) {
         return received ? this.receivedFileDescriptorsByName : this.fileDescriptorsByName;
@@ -695,7 +830,6 @@ class FileStorage {
      *
      * @param {boolean} received
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocumentsByDate(received) {
         return received ? this.receivedFileDescriptorsByDate : this.fileDescriptorsByDate;
@@ -707,7 +841,6 @@ class FileStorage {
      *
      * @param {boolean} received
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getDocumentsBySize(received) {
         return received ? this.receivedFileDescriptorsBySize : this.fileDescriptorsBySize;
@@ -719,7 +852,6 @@ class FileStorage {
      *
      * @param {string} dbId
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getReceivedFilesFromContact(dbId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
@@ -735,7 +867,6 @@ class FileStorage {
      *
      * @param {string} dbId
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getSentFilesToContact(dbId) {
         let files = this.fileDescriptorsByDate.filter((file) => {
@@ -756,12 +887,11 @@ class FileStorage {
      *
      * @param {string} bubbleId id of the bubble
      * @return {FileDescriptor[]}
-     * @memberof FileStorage
      */
     getReceivedFilesForRoom(bubbleId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
             for (let i = 0; i < file.viewers.length; i++) {
-                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this.contactService.userContact.dbId) {
+                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.dbId) {
                     return true;
                 }
             }
@@ -776,7 +906,6 @@ class FileStorage {
      * @private
      *
      * @return {Object}
-     * @memberof FileStorage
      */
     getConsumptionData() {
         return this.consumptionData;
@@ -797,7 +926,6 @@ class FileStorage {
      * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
      * @return {Promise<FileDescriptor>} file descriptor created by server or error
      *
-     * @memberof FileStorage
      */
     createFileDescriptor(name, extension, size, viewers) {
         let that = this;
@@ -816,7 +944,7 @@ class FileStorage {
                     resolve(fileDescriptor);
                 })
                 .catch((errorResponse) => {
-                    //const error = that.errorHelperService.handleError(errorResponse, "createFileDescriptor");
+                    //const error = that._errorHelperService.handleError(errorResponse, "createFileDescriptor");
                     that._logger.log("error", LOG_ID + "(createFileDescriptor) Error." );
                     that._logger.log("internalerror", LOG_ID + "(createFileDescriptor) Error : " + errorResponse);
                     return reject(errorResponse);
@@ -831,7 +959,6 @@ class FileStorage {
      *
      * @param {*} data
      * @return {FileDescriptor}
-     * @memberof FileStorage
      */
     createFileDescriptorFromData(data) : any{
         let that = this;
@@ -839,7 +966,7 @@ class FileStorage {
             let viewers = [];
             if (data.viewers) {
                 for (let viewerData of data.viewers) {
-                    viewers.push(fileViewerElementFactory(viewerData.viewerId, viewerData.type, viewerData.contact, that.contactService));
+                    viewers.push(fileViewerElementFactory(viewerData.viewerId, viewerData.type, viewerData.contact, that._contactService));
                 }
             }
             let url = data.url;
@@ -869,7 +996,6 @@ class FileStorage {
      * Method request deletion of a file descriptor on the server and removes it from local storage
      * @param {string} id [required] file descriptor id to be destroyed
      * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
-     * @memberof FileStorage
      */
     deleteFileDescriptor(id) {
         let that = this;
@@ -882,7 +1008,7 @@ class FileStorage {
                     resolve(null);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "deleteFileDescriptor");
+                    //let error = that._errorHelperService.handleError(errorResponse, "deleteFileDescriptor");
                     return reject(errorResponse);
                 });
         });
@@ -894,7 +1020,6 @@ class FileStorage {
      * @description
      * Method request deletion of all files on the server and removes them from local storage
      * @return {Promise<{}>} ???
-     * @memberof FileStorage
      */
     deleteAllFileDescriptor() {
         let that = this;
@@ -916,7 +1041,7 @@ class FileStorage {
                     resolve();
                 })
                 .catch((errorResponse) => {
-                    ///let error = that.errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
+                    ///let error = that._errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
                     return reject(errorResponse);
                 });
         });
@@ -930,7 +1055,6 @@ class FileStorage {
      *
      * @return {Promise<FileDescriptor[]>}
      *
-     * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwner() {
         let that = this;
@@ -985,7 +1109,7 @@ class FileStorage {
                         });
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveFileDescriptorsListPerOwner");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveFileDescriptorsListPerOwner");
                     that._logger.log("error", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveFileDescriptorsListPerOwner) Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1001,7 +1125,6 @@ class FileStorage {
      *
      * @return {Promise<FileDescriptor[]>}
      *
-     * @memberof FileStorage
      */
     retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit) {
         return this._rest.retrieveFileDescriptors("full", limit, offset, undefined);
@@ -1018,7 +1141,6 @@ class FileStorage {
      * @param {string} peerId [required] dbId of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveFilesReceivedFromPeer(userId, peerId) {
         let that = this;
@@ -1037,7 +1159,7 @@ class FileStorage {
                     resolve(receivedFileDescriptors);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveFilesReceivedFromPeer");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveFilesReceivedFromPeer");
                     that._logger.log("error", LOG_ID + "(retrieveFilesReceivedFromPeer) Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveFilesReceivedFromPeer) Error : ", errorResponse);
                     return reject(errorResponse);
@@ -1054,7 +1176,6 @@ class FileStorage {
      * @param {string} peerId [required] id of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveSentFiles(peerId) {
         let that = this;
@@ -1073,7 +1194,7 @@ class FileStorage {
                     resolve(sentFilesDescriptors);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveSentFiles");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveSentFiles");
                     that._logger.log("error", LOG_ID + "(retrieveSentFiles Error" );
                     that._logger.log("internalerror", LOG_ID + "(retrieveSentFiles Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1090,7 +1211,6 @@ class FileStorage {
      * @param {string} bubbleId [required] Id of the room
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveReceivedFilesForRoom(bubbleId) {
         let that = this;
@@ -1115,7 +1235,7 @@ class FileStorage {
                     resolve(result);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveReceivedFilesForRoom");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveReceivedFilesForRoom");
                     that._logger.log("error", LOG_ID + "(retrieveReceivedFilesForRoom) - retrieveReceivedFilesForRoomOrViewer Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveReceivedFilesForRoom) - retrieveReceivedFilesForRoomOrViewer Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1133,7 +1253,6 @@ class FileStorage {
      * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
-     * @memberOf FileStorage
      */
     retrieveReceivedFiles(viewerId) {
         let that = this;
@@ -1164,7 +1283,7 @@ class FileStorage {
                     resolve(that.receivedFileDescriptors);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveReceivedFiles");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveReceivedFiles");
                     that._logger.log("error", LOG_ID + "(retrieveReceivedFiles) Error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveReceivedFiles) Error : " + errorResponse);
                     return reject(errorResponse);
@@ -1315,7 +1434,6 @@ class FileStorage {
      *                  - maxValue {number} : The quota associated to this offer [octet]
      *                  - currentValue {number} : The user's current consumption [octet]
      *                  - unit {string} : The unit of this counters
-     * @memberOf FileStorage
      */
     retrieveUserConsumption() {
         let that = this;
@@ -1327,7 +1445,7 @@ class FileStorage {
                     resolve(that.consumptionData);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "retrieveUserConsumption");
+                    //let error = that._errorHelperService.handleError(errorResponse, "retrieveUserConsumption");
                     that._logger.log("error", LOG_ID + "(retrieveUserConsumption) error." );
                     that._logger.log("internalerror", LOG_ID + "(retrieveUserConsumption) error : " + errorResponse);
                     return reject(errorResponse);
@@ -1345,7 +1463,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
      * @return {Promise<{}>}
      *
-     * @memberof FileStorage
      */
     deleteFileViewer(viewerId, fileId) {
         let that = this;
@@ -1370,7 +1487,7 @@ class FileStorage {
                     resolve();
                 },
                 (errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "deleteFileViewer");
+                    //let error = that._errorHelperService.handleError(errorResponse, "deleteFileViewer");
                     that._logger.log("error", LOG_ID + "(deleteFileViewer) error." );
                     that._logger.log("intenralerror", LOG_ID + "(deleteFileViewer) error : " + errorResponse);
                     return reject(errorResponse);
@@ -1391,7 +1508,6 @@ class FileStorage {
      * @param {string} viewerType [required] type of viewer to be added (user or room)
      * @return {Promise<FileDescriptor>} file descriptor with newly added viewer
      *
-     * @memberOf FileStorage
      */
     addFileViewer(fileId, viewerId, viewerType) {
         let that = this;
@@ -1412,7 +1528,7 @@ class FileStorage {
                         }])[0]; // */
                         let viewerAdded = fileViewerElementFactory(response.data.viewerId, response.data.type, undefined,  undefined);
                         if (viewerAdded.type === "user") {
-                            that.contactService.getContactById(viewerId, true)
+                            that._contactService.getContactById(viewerId, true)
                                 .then((contact) => {
                                     viewerAdded.contact = contact;
                                     fd.viewers.push(viewerAdded);
@@ -1430,7 +1546,7 @@ class FileStorage {
                     }
                 },
                 (errorResponse) => {
-                    const error = that.errorHelperService.handleError(errorResponse, "addFileViewer");
+                    const error = that._errorHelperService.handleError(errorResponse, "addFileViewer");
                     that._logger.log("error", LOG_ID + "(addFileViewer) error." );
                     that._logger.log("internalerror", LOG_ID + "(addFileViewer) error : ", errorResponse);
                     return reject(error);
@@ -1447,7 +1563,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved
      *
-     * @memberOf FileStorage
      */
     retrieveOneFileDescriptor(fileId) {
         let that = this;
@@ -1459,7 +1574,7 @@ class FileStorage {
                     resolve(fileDescriptor);
                 })
                 .catch((errorResponse) => {
-                    //let error = that.errorHelperService.handleError(errorResponse, "getOneFileDescriptor");
+                    //let error = that._errorHelperService.handleError(errorResponse, "getOneFileDescriptor");
                     that._logger.log("error", LOG_ID + "(retrieveOneFileDescriptor) " + errorResponse);
                     that._logger.log("internalerror", LOG_ID + "(retrieveOneFileDescriptor) Error : ", errorResponse);
                     return reject(errorResponse);
@@ -1476,7 +1591,6 @@ class FileStorage {
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
      *
-     * @memberOf FileStorage
      */
     retrieveAndStoreOneFileDescriptor(fileId, forceRetrieve) {
         let that = this;
@@ -1679,7 +1793,6 @@ class FileStorage {
      * @param {string} url
      * @return {string}
      *
-     * @memberof FileStorage
      */
     extractFileIdFromUrl(url) {
         let parts = url.split("/");

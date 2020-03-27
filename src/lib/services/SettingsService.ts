@@ -8,13 +8,15 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {S2SService} from "./S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "SETT/SVCE - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @private
  * @name Settings
  * @version SDKVERSION
@@ -26,10 +28,14 @@ const LOG_ID = "SETT/SVCE - ";
  *      - Update user settings
  */
 class Settings {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -43,6 +49,10 @@ class Settings {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
@@ -53,12 +63,16 @@ class Settings {
         this.ready = false;
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                that._options = _options;
+                that._s2s = _core._s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
                 that.ready = true;
                 resolve();
             } catch (err) {
@@ -89,7 +103,6 @@ class Settings {
      * @description
      *  Get current User Settings
      * @return {Promise<UserSettings>} A promise containing the result
-     * @memberof Settings
      */
     getUserSettings() {
         let that = this;
@@ -113,7 +126,6 @@ class Settings {
      * @description
      *  Update current User Settings
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
-     * @memberof Settings
      */
     updateUserSettings(settings) {
         let that = this;

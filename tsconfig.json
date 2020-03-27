@@ -49,6 +49,7 @@
     "./typings/**/*"
   ],
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "../../../../../../Users/user1/.WebStorm2019.3/config/javascript/nodejs/10.17.0/node-typings/node_modules/@types/node/globals.d.ts"
   ]
 }

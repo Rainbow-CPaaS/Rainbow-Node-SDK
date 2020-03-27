@@ -15,6 +15,8 @@ import {Invitation} from "../common/models/Invitation";
 import {Contact} from "../common/models/Contact";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
+import {error} from "winston";
+import {ROOMROLE} from "../services/S2SService";
 
 let packageVersion = require("../../package.json");
 
@@ -59,6 +61,7 @@ class RESTService {
 	public getDefaultHeader: any;
 	public applicationToken: string;
     public getPostHeader: any;
+    public connectionS2SInfo: any;
 
     constructor(_credentials, _application, _isOfficialRainbow, evtEmitter : EventEmitter, _logger : Logger) {
         let that = this;
@@ -234,6 +237,10 @@ class RESTService {
                 return reject(err);
             });
         });
+    }
+
+    setconnectionS2SInfo(_connectionS2SInfo){
+        this.connectionS2SInfo = _connectionS2SInfo;
     }
 
     askTokenOnBehalf(loginEmail, password) {
@@ -683,6 +690,32 @@ class RESTService {
         });
     }
 
+    setFavoriteGroup(group, favorite) {
+        /*
+        Request URL: https://vberder.openrainbow.org/api/rainbow/enduser/v1.0/users/5bbdc3ae2cf496c07dd8912f/groups/5e3d39e1cbc6187d74aee06c
+Request Method: PUT
+{name: "GroupTest", comment: "descgroup", isFavorite: true}
+         */
+        let that = this;
+        //  let data = { "name": group.name, "comment": group.comment, "isFavorite": group.isFavorite }
+        let data = {
+            isFavorite: favorite
+        };
+        let groupId = group.id;
+
+        return new Promise(function(resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function(json) {
+                 that.logger.log("info", LOG_ID + "(setFavoriteGroup) successfull");
+                 that.logger.log("internal", LOG_ID + "(setFavoriteGroup) REST set group favorite information : ", json.data);
+                 resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(setFavoriteGroup) error");
+                that.logger.log("internalerror", LOG_ID, "(setFavoriteGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     createGroup(name, comment, isFavorite) {
         let that = this;
         return new Promise(function(resolve, reject) {
@@ -996,6 +1029,46 @@ class RESTService {
         });
     }
 
+    // Get all users from bubble
+    getRoomUsers(bubbleId, options: any = {}) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+
+            let filterToApply = "format=medium";
+            if (options.format) {
+                filterToApply = "format=" + options.format;
+            }
+
+            if (!options.limit) options.limit = 100;
+
+            if (options.page > 0) {
+                filterToApply += "&offset=";
+                if (options.page > 1) {
+                    filterToApply += (options.limit * (options.page - 1));
+                }
+                else {
+                    filterToApply += 0;
+                }
+            }
+
+            filterToApply += "&limit=" + Math.min(options.limit, 1000);
+
+            if (options.type) {
+                filterToApply += "&types=" + options.type;
+            }
+
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users?" + filterToApply, that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getUsersChannel) successfull");
+                that.logger.log("internal", LOG_ID + "(getUsersChannel) received ", json.total, " users in bubble");
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getUsersChannel) error");
+                that.logger.log("internalerror", LOG_ID, "(getUsersChannel) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     promoteContactInBubble(contactId, bubbleId, asModerator) {
         let that = this;
         return new Promise(function(resolve, reject) {
@@ -1054,7 +1127,7 @@ class RESTService {
             switch (bubbleStatus) {
                 case "unsubscribed":
                     that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader()).then(function(json) {
-                        that.logger.log("info", LOG_ID + "(leaveBubble) successfull");
+                        that.logger.log("info", LOG_ID + "(leaveBubble) delete successfull");
                         that.logger.log("internal", LOG_ID + "(leaveBubble) REST leave bubble", json.data);
                         resolve(json.data);
                     }).catch(function(err) {
@@ -1065,7 +1138,7 @@ class RESTService {
                     break;
                 default:
                     that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), { "status": "unsubscribed" }, undefined).then(function(json) {
-                        that.logger.log("info", LOG_ID + "(leaveBubble) successfull");
+                        that.logger.log("info", LOG_ID + "(leaveBubble) unsubscribed successfull");
                         that.logger.log("internal", LOG_ID + "(leaveBubble) REST invitation accepted", json.data);
                         resolve(json.data);
                     }).catch(function(err) {
@@ -1211,6 +1284,46 @@ class RESTService {
             });
         });
     };
+
+    /**
+     * Method retrieveWebConferences
+     * @public
+     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
+     * @memberof WebConferenceService
+     */
+    retrieveWebConferences(mediaType: string = this.MEDIATYPE.WEBRTC): Promise<any> {
+        let that = this;
+        that.logger.log("info", LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
+        return new Promise((resolve, reject) => {
+            let urlQueryParameters = "?format=full&userId=" + that.userId;
+
+            if (mediaType) {
+                urlQueryParameters += "&mediaType=" + mediaType;
+            }
+
+            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences" + urlQueryParameters, that.getRequestHeader(), undefined)
+            /* this.$http({
+                method: "GET",
+                url: this.confProvPortalURL + "conferences" + urlQueryParameters,
+                headers: this.authService.getRequestHeader()
+            }) // */
+                // Handle success response
+                .then((response) => {
+                        let conferencesProvisionData = response;
+                        that.logger.log("info", LOG_ID + "(WebConferenceService) retrieveWebConferences successfully");
+                        that.logger.log("internal", LOG_ID + "(WebConferenceService) retrieveWebConferences successfully : ", conferencesProvisionData);
+                        resolve(conferencesProvisionData.data);
+                    },
+                    (response) => {
+                        let msg = response.data ? response.data.errorDetails : response.data;
+                        let errorMessage = "retrieveWebConferences failure: " + msg;
+                        that.logger.log("error", LOG_ID + "(WebConferenceService) error : " + errorMessage);
+                        reject(new Error(errorMessage));
+                    });
+        });
+    };
+
 
     /*
     ownerUpdateRoomCustomData (roomData) {
@@ -2435,6 +2548,25 @@ class RESTService {
         return that.restTelephony.wrapup(that.getRequestHeader(), agentId, groupId, password, status);
     }
 
+    getRainbowNodeSdkPackagePublishedInfos() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let headers = {
+                "Accept": "application/json"
+            };
+
+            that.http.getUrl("https://api.npms.io/v2/search?q=rainbow-node-sdk", headers, undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) successfull");
+                that.logger.log("internal", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) received ", json);
+                resolve(json);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error");
+                that.logger.log("internalerror", LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     ////////
     // Conversations
     getServerConversations(format:String = "small") {
@@ -2504,7 +2636,7 @@ class RESTService {
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation created", json.data);
+                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation sent by email.", json.data);
                 resolve(json.data);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
@@ -2519,7 +2651,7 @@ class RESTService {
         return new Promise(function(resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), undefined, undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(ackAllMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST conversation updated : ", json.data);
+                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST ack all messages updated : ", json.data);
                 resolve(json.data);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(ackAllMessages) error");
@@ -2591,12 +2723,12 @@ class RESTService {
         return new Promise((resolve, reject) => {
             let params = {email: email, lang: lang, customMessage: customMessage};
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST conversation created : ", json);
+                that.logger.log("info", LOG_ID + "(sendInvitationByEmail) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationByEmail) REST invitation created : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
-                that.logger.log("internalerror", LOG_ID, "(sendConversationByEmail) error : ", err);
+                that.logger.log("error", LOG_ID, "(sendInvitationByEmail) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationByEmail) error : ", err);
                 return reject(err);
             });
         });
@@ -2607,7 +2739,7 @@ class RESTService {
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(cancelOneSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST conversation created : ", json);
+                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST cancel one send invitation created : ", json);
                 resolve(json);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(cancelOneSendInvitation) error");
@@ -2622,7 +2754,7 @@ class RESTService {
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST conversation created : ", json);
+                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST reSend invitation created : ", json);
                 resolve(json);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(reSendInvitation) error");
@@ -2640,7 +2772,7 @@ class RESTService {
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST conversation created : ", json);
+                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST invitations sent : ", json);
                 resolve(json);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
@@ -2876,6 +3008,249 @@ class RESTService {
             that.eventEmitter.on("attempt_failed", that.get_attempt_failed_callback(reject));
 
             that.attemptToReconnect(that.reconnectDelay);
+        });
+    }
+
+    // ************* S2S **************************
+
+    listConnectionsS2S(){
+        let that = this;
+        //that.logger.log("internal", LOG_ID + "(listConnectionsS2S) S2S");
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/ucs/v1.0/connections", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(listConnectionsS2S) successfull");
+                that.logger.log("internal", LOG_ID + "(listConnectionsS2S) received : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(listConnectionsS2S) error");
+                that.logger.log("internalerror", LOG_ID, "(listConnectionsS2S) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    sendS2SPresence ( obj ) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
+        return new Promise(function(resolve, reject) {
+
+            let data = obj ?  { presence: { show:obj.show, status: obj.status }} : { presence: { show:"", status: ""}};
+            if (!that.connectionS2SInfo || !that.connectionS2SInfo.id) {
+                that.logger.log("error", LOG_ID, "(sendS2SPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error connectionS2SInfo.id is not defined.");
+                return  reject({code:-1, label:"connectionS2SInfo.id is not defined!!!"});
+            }
+
+            that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/presences" , that.getRequestHeader(), data, undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(sendS2SPresence) successfull.");
+                that.logger.log("internal", LOG_ID + "(sendS2SPresence) REST presence updated", json.data);
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(sendS2SPresence) error.");
+                that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error : ", err);
+                return  reject(err);
+            });
+        });
+
+        /*return axios.put(`/api/rainbow/ucs/v1.0/connections/${connectionInfo.id}/presences`, { presence: { show:"", status: ""}} ) //, {connection: { /*resource: "s2s_machin",*/ /* callback_url: "https://e894efad.ngrok.io" }})
+            .then( response => {
+                console.log( "it worked" );
+                console.log( response.data )
+                console.log( response.config)
+                console.log( "STATUS = ", response.status)
+                return response.data
+            } )
+            // */
+    }
+
+   deleteConnectionsS2S ( connexions ) {
+       let that = this;
+       that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S");
+       that.logger.log("info", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
+       const requests = [];
+       connexions.forEach(cnx => requests.push(
+           that.http.delete("/api/rainbow/ucs/v1.0/connections/" + cnx.id, that.getRequestHeader()).then(function (json) {
+               that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) successfull");
+               that.logger.log("internal", LOG_ID + "(deleteConnectionsS2S) REST result : ", json.data);
+               return json.data;
+           }).catch(function (err) {
+               that.logger.log("error", LOG_ID, "(deleteConnectionsS2S) error");
+               that.logger.log("internalerror", LOG_ID, "(deleteConnectionsS2S) error : ", err);
+               return err;
+           })
+       )
+       );
+       return Promise.all(connexions)
+           .then(response => {
+               that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) all successfull");
+               //console.log("it worked");
+               //console.log( response.data )
+               //connectionInfo = response.data.data
+               //process.exit()
+               return response
+           })
+   }
+
+   loginS2S (callback_url) {
+       let that = this;
+       let data = {connection: { /*resource: "s2s_machin",*/  callback_url }};
+       that.logger.log("debug", LOG_ID + "(loginS2S)  will login  S2S.");
+       that.logger.log("internal", LOG_ID + "(loginS2S) will login S2S : ", data);
+       return new Promise(function (resolve, reject) {
+           that.http.post("/api/rainbow/ucs/v1.0/connections", that.getRequestHeader(), data, undefined).then((json) => {
+               that.logger.log("info", LOG_ID + "(loginS2S) successfull");
+               that.logger.log("internal", LOG_ID + "(loginS2S) REST loginS2S successfull : ", json);
+               that.connectionS2SInfo = json;
+               resolve(json);
+           }).catch((err) => {
+               that.logger.log("error", LOG_ID, "(loginS2S) error");
+               that.logger.log("internalerror", LOG_ID, "(loginS2S) error : ", err);
+               return reject(err);
+           });
+       });
+/*
+       console.log( "will do login S2S")
+       return axios.post(`/api/rainbow/ucs/v1.0/connections`, {connection: { /*resource: "s2s_machin",*/  /* callback_url }})
+            .then( response => {
+                console.log( "it worked" );
+                console.log( response.data )
+                connectionInfo = response.data.data
+                return response.data
+            } )
+// */
+    }
+
+
+    infoS2S (s2sConnectionId) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
+        that.logger.log("internal", LOG_ID + "(infoS2S) will get info S2S");
+        return new Promise(function(resolve, reject) {
+                that.http.get("/api/rainbow/ucs/v1.0/connections/" + s2sConnectionId, that.getRequestHeader(), undefined ).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(infoS2S) successfull");
+                    that.logger.log("internal", LOG_ID + "(infoS2S) REST info S2S received : ", json);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(infoS2S) error");
+                    that.logger.log("internalerror", LOG_ID, "(infoS2S) error : ", err);
+                    return reject(err);
+                });
+        });
+
+        /*console.log( "will do infoS2S", obj );
+
+        return axios.get(`/api/rainbow/ucs/v1.0/connections/`+connectionInfo.id ) //, {connection: { /*resource: "s2s_machin",*/ /*  callback_url: "https://e894efad.ngrok.io" }})
+            .then( response => {
+                console.log( "it worked" );
+                //console.log( response.data )
+                return response.data
+            } )
+            // */
+    }
+
+    async setS2SConnection(connectionId){
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(setS2SConnection)  will get info S2S and save the session infos.");
+        that.logger.log("internal", LOG_ID + "(setS2SConnection) will get info S2S and save the session infos.");
+        return that.connectionS2SInfo = await that.infoS2S(connectionId);
+    }
+
+    sendS2SMessageInConversation(conversationId, msg) {
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!msg) {
+                that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) failed");
+                that.logger.log("info", LOG_ID + "(sendS2SMessageInConversation) No msg provided");
+                resolve(null);
+            }
+            else {
+                that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages", that.getRequestHeader(), msg, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) successfull");
+                    that.logger.log("internal", LOG_ID + "(sendS2SMessageInConversation) REST contact received ", json.data);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(sendS2SMessageInConversation) error");
+                    that.logger.log("internalerror", LOG_ID, "(sendS2SMessageInConversation) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
+    getS2SServerConversation(conversationId) {
+        let that = this;
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId, that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("debug", LOG_ID + "(getServerConversation) successfull");
+                that.logger.log("internal", LOG_ID + "(getServerConversation) received " + JSON.stringify(json) + " conversations");
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getServerConversation) error");
+                that.logger.log("internalerror", LOG_ID, "(getServerConversation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     *
+     * @param roomid
+     * @param {string} role Enum: "member" "moderator" of your role in this room
+
+     */
+    joinS2SRoom (roomid, role : ROOMROLE){
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/rooms/{roomId}/join
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!roomid) {
+                that.logger.log("debug", LOG_ID + "(joinRoom) failed");
+                that.logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
+                reject({code:-1, label:"roomid is not defined!!!"});
+            }
+            else {
+                let data =     {
+                    "role": role
+                };
+                that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(joinRoom) successfull");
+                    that.logger.log("internal", LOG_ID + "(joinRoom) REST bubble presence received ", json.data);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(joinRoom) error");
+                    that.logger.log("internalerror", LOG_ID, "(joinRoom) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
+    markMessageAsRead(conversationId, messageId) {
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{id}/read
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!conversationId) {
+                that.logger.log("debug", LOG_ID + "(markMessageAsRead) failed");
+                that.logger.log("info", LOG_ID + "(markMessageAsRead) No conversationId provided");
+                reject({code:-1, label:"conversationId is not defined!!!"});
+            }
+            else  if (!messageId) {
+                that.logger.log("debug", LOG_ID + "(markMessageAsRead) failed");
+                that.logger.log("info", LOG_ID + "(markMessageAsRead) No messageId provided");
+                reject({code:-1, label:"messageId is not defined!!!"});
+            }
+            else {
+                that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages/" + messageId + "/read", that.getRequestHeader(), {}, undefined).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(markMessageAsRead) successfull");
+                    that.logger.log("internal", LOG_ID + "(markMessageAsRead) REST bubble presence received ", json.data);
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(markMessageAsRead) error");
+                    that.logger.log("internalerror", LOG_ID, "(markMessageAsRead) error : ", err);
+                    return reject(err);
+                });
+            }
         });
     }
 }

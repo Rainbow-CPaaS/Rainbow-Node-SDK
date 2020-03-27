@@ -6,7 +6,105 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.65.0] - 2019-12-19
+## [1.69.0] - 2020-03-xx
+-   Add nextDailyBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
+
+## [1.69.0-dotnet.2] - 2020-03-23
+-   Same as 1.69.0-dotnet.0 (Failed of production)
+
+## [1.69.0-dotnet.1] - 2020-03-23
+-   Same as 1.69.0-dotnet.0 (Failed of production)
+
+## [1.69.0-dotnet.0] - 2020-03-23
+-   Rename document Connecting_to_Rainbow to Connecting_to_Rainbow_XMPP_Mode.
+-   Add document Connecting_to_Rainbow_S2S_Mode to describe the connection to Rainbow with a S2S event pipe.
+-   Official ChangeLog RSS Flow URL : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
+-   Fix empty message list in conversation when conversationEventHandler::onConversationManagementMessageReceived event.
+-   S2SService to service layer and folder
+-   update S2S documentation. 
+-   Add le parameter in joinroom in S2S
+-   Fix S2SServiceEventHandler::ParseRoomInviteCallback
+-   Fix error when delete conversation.
+
+## [1.68.0] - 2020-03-06
+-   Change default value of storeMessages SDK's parameter to true. Because the no-store is not fully supported by officials UI.
+
+## [1.68.0-dotnet.1] - 2020-03-04
+-   Add isFavorite in Conversation.
+-   Move bubbles._sendInitialBubblePresence to presence.sendInitialBubblePresence.
+-   change start methods prototype of services to replace each services in parameters to only one param the Core object.
+-   Add methods in RESTService :: sendS2SMessageInConversation, getS2SServerConversation, joinS2SRoom. 
+-   Add methods in S2SService :: sendMessageInConversation, joinRoom.
+-   Add events treatment S2SServiceEventHandler :: ParseChatStateCallback, ParseReceitpCallback, ParseAllReceitpCallback, ParseConversationCallback, ParseMessageCallback, 
+ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseAlldeletedCallback, ParseErrorCallback.
+-   Add  method in ConversationsService::getS2SServerConversation to get a conversation from id on S2S API Server.
+-   Raise event on message when the content is empty (because message can have a subject filled without body)  in conversationEventHandler.
+-   raise an event when receive a conversation unknown by sdk deleted in conversationEventHandler.
+-   Update ImsService::sendMessageToConversation api to send the message in S2S mode.
+-   Add postTestRunOpenrainbowDotNet script to post a message in a bubble when the tests for afterbuild start/stop.
+-   Fix "no-store" value in DataStoreType type.
+-   Update the event's data with the subject property when a Message arrive.
+-   Fix presence for S2SServiceEventHandler.
+-   Add original url in HttpService errors to help the following.
+-   Update in the S2SServiceEventHandler the event handler for a received message with the `shouldSendReadReceipt` SDK parameter to automatically mark as read a received message.
+-   Fix the stanza "presence" to desactivate history for room on server side.
+
+## [1.67.1] - 2020-02-19
+-   Fix login issue when Rainbow CLI use SDK.
+
+## [1.67.0] - 2020-02-19
+-   Fix typo error in Gruntfile.js file for the generated documentation of the invitations service. And fix documentation.
+-   Move the methods `BubblesService::resizeImage` and `BubblesService::getBinaryData` to module Utils.ts .
+-   Add method `FileStorageService::uploadFileToStorage` to Send a file in user storage.
+-   RQRAINB-2870 Add `ConversationsService::deleteAllMessageInOneToOneConversation` method to delete all messages in ONE2ONE conversation.
+-   RQRAINB-2984 Treat the XMPP Errors conditions provided by the XMPP RFC : https://xmpp.org/rfcs/rfc6120.html#streams-error .
+-   Add `Bubble::autoAcceptationInvitation` property received from server.
+-   RQRAINB-2868 Add property `Message::attention` Boolean to indicate if the current logged user is mentioned in the message.
+-   RQRAINB-2868 Add parameter mention to API `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` which contains an array list of JID of contacts to mention or a string containing a single JID of one contact. 
+-   Fix the treatment of error while method `getServerConversations` failed to retrieve conversations for `removeOlderConversations`.
+-   RQRAINB-3024 Add `GroupsServices::deleteAllGroups` API to delete all existing owned groups.
+-   RQRAINB-3024 Add `GroupsServices::setGroupAsFavorite` API to Set a group as a favorite one of the curent loggued in user. 
+-   RQRAINB-3024 Add `GroupsServices::unsetGroupAsFavorite` API to remove the favorite state of a group of the curent loggued in user.
+-   RQRAINB-3024 Fix errors in groups events.
+-   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com. 
+-   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform. 
+-   RQRAINB-3023 Add method `RESTService::getRainbowNodeSdkPackagePublishedInfos` to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com.
+-   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com. 
+-   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
+-   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
+-   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
+-   Changelog is removed from https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS.
+-   Fix the retrieve of `csv` file in HttpService. => Fix failure of command in rainbow Cli `rbw masspro template user` .
+-   Fix S2SService::stop method.
+-   Add properties `_options, _useXMPP, _useS2S, _s2s` in all SDK's services to select S2S or XMPP behaviour of API.
+-   Start parse S2S events in S2SServiceEventHandler
+-   Refactor for private members of services.
+-   Fix retrieve at startup of the previous presence saved in settings service, and use it.
+
+
+## [1.66.1] - 2020-01-29
+-   Fix when the SDK is already stopped when stop method is called, then return a succeed. (CRRAINB-10270: CPaaS Node SDK - Chief bot demo wasn't unable to restart after connection issue)
+-   Add BubblesService::getUsersFromBubble to get the actives users of a bubble.
+-   Fix the parameter type sent by events `rainbow_onbubbledeleted` and `rainbow_onbubbleownaffiliationchanged`. It is now `Bubble` insteadOf `Promise<Bubble>`.
+
+## [1.66.0] - 2020-01-28
+-   Add correlatorData et GlobaleCallId properties in Call type of phone calls : RQRAINB-2773, RQRAINB-2784, RQRAINB-2784, RQRAINB-2789, RQRAINB-2793, RQRAINB-2793, RQRAINB-2799
+-   Fix method ChannelsService::createItem when parameter "type" is setted.
+-   Split Xmmpp error event treatment in 3 possibilities:
+    * Errors which need a reconnection 
+    * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue. 
+    * Errors which are fatal errors and then need to stop the SDK. => Already existing events `rainbow_onerror` + `rainbow_onstop`.
+-   Work done on private method BubblesServices::joinConference (Not finish, so not available).
+-   Update Bubble::users property ordered by additionDate.
+-   Fix ordered calllogs (`orderByNameCallLogsBruts`, `orderByDateCallLogsBruts`).
+
+## [1.65.2] - 2020-01-10
+-   remove an unwanted log
+
+## [1.65.1] - 2020-01-09
+-   remove an unwanted log
+
+## [1.65.0] - 2020-01-08
 -   Treat the Replace/conflict XMPP event received. This event means a sixth connection to server happens, only five simultaneous are possible. The oldest one is disconneted. The treatmeant is to stop the reconnect process, and stop the SDK. Events `rainbow_onerror` and  `rainbow_onstopped` are raised. **Note : The SDK is not any more connected, so the bot is offline**.
 -   Refactor handling of the process "unhandledRejection" "warning" "uncaughtException".
 -   Fix fill of properties Contact.companyId and Contact.companyName.
@@ -19,7 +117,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
--   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/guides/CHANGELOGRSS.xml)
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS)
 -   Add automatic version of the SDK in jsdoc of service's classes.
 -   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
 -   Typescript improvement.
@@ -40,7 +138,15 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add BubblesService::deleteCustomDataForBubble Delete the customData of the bubble
 -   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
 -   Add BubblesService::openConversationForBubble Open a conversation to a bubble
--   Add `rainbow_onmediapropose` event raised when a WEBRTC `propose` event is received for a media. It allows to know an incommingcall is arriving. 
+-   Add `rainbow_onmediapropose` event raised when a WEBRTC `propose` event is received for a media. It allows to know an incommingcall is arriving.
+-   Add in Bubble the property `owner`, boolean saying the connected user is the owner or not of the Bubble. 
+-   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble. 
+-   Add event `rainbow_onbubbleprivilegechanged` raised when a privilege is changed on a Bubble.
+-   Add method BubblesService::refreshMemberAndOrganizerLists called when treating a Bubble to fill members and organizers of a Bubble 
+-   Add the documentation for the CallLogService.
+-   Add a parameter `nbMaxConversations` to the initialization of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`. 
+-   Put async/await in treatment of  `BubblesService::addOrUpdateBubbleToCache`
+-   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour. Default value is 1000.
 
 ## [1.64.2] - 2019-11-26
 -   rebundle of the 1.64.0 version with the same content.

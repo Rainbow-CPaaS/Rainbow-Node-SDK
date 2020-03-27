@@ -140,7 +140,7 @@ class FavoriteEventHandler extends GenericHandler {
                 } else {
                     that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
                     that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, stanza);
-                    that.eventEmitter.emit("rainbow_onerror", msg);
+                    that.eventEmitter.emit("evt_internal_xmpperror", msg);
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");

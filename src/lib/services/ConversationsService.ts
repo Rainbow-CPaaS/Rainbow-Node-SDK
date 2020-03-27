@@ -22,13 +22,18 @@ import {FileServerService} from "./FileServerService";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {Contact} from "../common/models/Contact";
+import {rejects} from "assert";
+import {error} from "winston";
+import {S2SService} from "./S2SService";
+import {Core} from "../Core";
+import {PresenceService} from "./PresenceService";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
 /**
- * @class
+ * @module
  * @name Conversations
  * @version SDKVERSION
  * @public
@@ -43,20 +48,25 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
  *
  *   */
 class Conversations {
-	public _xmpp: XMPPService;
-	public _rest: RESTService;
-	public _contacts: ContactsService;
-	public _fileStorageService: FileStorageService;
-	public _fileServerService: FileServerService;
-	public _eventEmitter: EventEmitter;
-	public _logger: Logger;
-	public pendingMessages: any;
-	public conversationEventHandler: ConversationEventHandler;
-	public conversationHandlerToken: any;
-	public conversationHistoryHandlerToken: any;
-	public conversations: any;
-	public conversationServiceEventHandler: any;
-	public _bubbles: any;
+    private _xmpp: XMPPService;
+    private _rest: RESTService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
+    _contacts: ContactsService;
+    private _fileStorageService: FileStorageService;
+    private _fileServerService: FileServerService;
+    private _presence: PresenceService;
+    private _eventEmitter: EventEmitter;
+    private _logger: Logger;
+    private pendingMessages: any;
+    private _conversationEventHandler: ConversationEventHandler;
+    private _conversationHandlerToken: any;
+    private _conversationHistoryHandlerToken: any;
+    public conversations: any;
+    private _conversationServiceEventHandler: any;
+    private _bubbles: any;
 	public activeConversation: any;
 	public inCallConversations: any;
 	public idleConversations: any;
@@ -64,32 +74,38 @@ class Conversations {
 	public involvedRoomIds: any;
 	public waitingBotConversations: any;
 	public botServiceReady: any;
-	public conversationHistoryHandler: ConversationHistoryHandler;
-	public chatRenderer: any;
+    private _conversationHistoryHandler: ConversationHistoryHandler;
+    private chatRenderer: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
         optional:boolean
     };
     private conversationsRetrievedFormat: string = "small";
+    private nbMaxConversations: any;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig, _conversationsRetrievedFormat) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig, _conversationsRetrievedFormat, _nbMaxConversations) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
         this._contacts = null;
         this._fileStorageService = null;
         this._fileServerService = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.pendingMessages = {};
-        this.conversationEventHandler = null;
-        this.conversationHandlerToken = [];
-        this.conversationHistoryHandlerToken = [];
-        this.conversationsRetrievedFormat = _conversationsRetrievedFormat
+        this._conversationEventHandler = null;
+        this._conversationHandlerToken = [];
+        this._conversationHistoryHandlerToken = [];
+        this.conversationsRetrievedFormat = _conversationsRetrievedFormat;
+        this.nbMaxConversations = _nbMaxConversations;
 
         //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
         this.ready = false;
@@ -98,18 +114,23 @@ class Conversations {
 
     }
 
-    start(_xmpp : XMPPService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService) {
+    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService
         let that = this;
-        that.conversationHandlerToken = [];
-        that.conversationHistoryHandlerToken= [];
+        that._conversationHandlerToken = [];
+        that._conversationHistoryHandlerToken= [];
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _xmpp;
-                that._rest = _rest;
-                that._contacts = _contacts;
-                that._bubbles = _bubbles;
-                that._fileStorageService = _fileStorageService;
-                that._fileServerService = _fileServerService;
+                that._xmpp = _core._xmpp;
+                that._rest = _core._rest;
+                that._options = _options;
+                that._s2s = _core._s2s;
+                that._useXMPP = that._options.useXMPP;
+                that._useS2S = that._options.useS2S;
+                that._contacts = _core.contacts;
+                that._bubbles = _core.bubbles;
+                that._fileStorageService = _core.fileStorage;
+                that._fileServerService = _core.fileServer;
+                that._presence = _core.presence;
 
                 that.activeConversation = null;
                 that.conversations = [];
@@ -144,17 +165,17 @@ class Conversations {
                 that._xmpp = null;
                 that._rest = null;
 
-                delete that.conversationEventHandler;
-                that.conversationEventHandler = null;
-                if (that.conversationHandlerToken) {
-                    that.conversationHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                delete that._conversationEventHandler;
+                that._conversationEventHandler = null;
+                if (that._conversationHandlerToken) {
+                    that._conversationHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 }
-                that.conversationHandlerToken = [];
+                that._conversationHandlerToken = [];
 
-                if (that.conversationHistoryHandlerToken) {
-                    that.conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
+                if (that._conversationHistoryHandlerToken) {
+                    that._conversationHistoryHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 }
-                that.conversationHistoryHandlerToken = [];
+                that._conversationHistoryHandlerToken = [];
 
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
                 this.ready = false;
@@ -168,20 +189,20 @@ class Conversations {
 
     attachHandlers() {
         let that = this;
-        that.conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
-        that.conversationHandlerToken = [
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_MANAGEMENT, that.conversationEventHandler.onManagementMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_ERROR, that.conversationEventHandler.onErrorMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
+        that._conversationHandlerToken = [
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_GROUPCHAT, that._conversationEventHandler.onChatMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_WEBRTC, that._conversationEventHandler.onWebRTCMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_MANAGEMENT, that._conversationEventHandler.onManagementMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_ERROR, that._conversationEventHandler.onErrorMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CLOSE, that._conversationEventHandler.onCloseMessageReceived)
         ];
 
-        that.conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, this);
-        that.conversationHistoryHandlerToken = [
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationHistoryHandler.MESSAGE_MAM, that.conversationHistoryHandler.onMamMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.conversationHistoryHandler.FIN_MAM, that.conversationHistoryHandler.onMamMessageReceived)
+        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, this);
+        that._conversationHistoryHandlerToken = [
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived)
         ];
     }
 
@@ -213,16 +234,25 @@ class Conversations {
     getServerConversations() {
         let that = this;
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+
+            await that._rest.getServerConversations(that.conversationsRetrievedFormat).then(async (conversations : []) => {
+                await that.removeOlderConversations(conversations);
+            }).catch((error) => {
+                that._logger.log("warn", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                that._logger.log("internalerror", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                // The remove of old conversations is not mandatory, so lets continue the treatment.
+            });
+
             that._rest.getServerConversations(that.conversationsRetrievedFormat).then((conversations : []) => {
                     // Create conversation promises
                     let conversationPromises = [];
-                    that._logger.log("debug", LOG_ID + "[conversationService] getServerConversations conversations.length retrieved : ", conversations.length);
+                    that._logger.log("debug", LOG_ID + "getServerConversations conversations.length retrieved : ", conversations.length);
                     conversations.forEach(function (conversationData : any) {
                             let missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
                             let conversationPromise = null;
                             let muted = (conversationData.mute === true);
-                            //that._logger.log("debug", LOG_ID + "[conversationService] getServerConversations conversationData retrieved : ", conversationData);
+                            //that._logger.log("debug", LOG_ID + "getServerConversations conversationData retrieved : ", conversationData);
                             if (conversationData.type === "user") {
                                 conversationPromise = that.getOrCreateOneToOneConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, muted, conversationData.creationDate);
                             } else {
@@ -234,17 +264,18 @@ class Conversations {
                     // Resolve all promises
                     return Promise
                         .all(conversationPromises)
-                        // .then(() => {
-                        //     return that.removeOlderConversations();
-                        // })
+                         /*.then(async (result) => {
+                             await that.removeOlderConversations();
+                             return result;
+                         }) // */
                         .then((conversationsResult) => {
                             //that.orderConversations();
                             resolve(conversationsResult);
                         })
                         .catch((error) => {
                             let errorMessage = "getServerConversations failure: " + error.message;
-                            that._logger.log("error", LOG_ID + "[conversationService] error.");
-                            that._logger.log("internalerror", LOG_ID + "[conversationService] error : ", errorMessage);
+                            that._logger.log("error", LOG_ID + "error.");
+                            that._logger.log("internalerror", LOG_ID + "error : ", errorMessage);
                             return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                         });
                 })
@@ -255,8 +286,8 @@ class Conversations {
                         errorMessage = "getServerConversations failure: " + JSON.stringify(err);
                     }
 
-                    that._logger.log("error", LOG_ID + "[conversationService] error.");
-                    that._logger.log("internalerror", LOG_ID + "[conversationService] error : ", errorMessage);
+                    that._logger.log("error", LOG_ID + "error.");
+                    that._logger.log("internalerror", LOG_ID + "error : ", errorMessage);
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });
@@ -268,10 +299,9 @@ class Conversations {
      * @instance
      * @description
      *    Allow to create a conversations on server (p2p and bubbles)
-     * @param {String} ID of the conversation (dbId field)
+     * @param {String} conversation of the conversation (dbId field)
      * @return {Conversation} Created conversation object
      */
-    /*
     createServerConversation(conversation) {
         let that = this;
         // Ignore already stored existing conversation
@@ -312,28 +342,87 @@ class Conversations {
             let avatarRoom = conversation.bubble.avatar;
         }
 
-        return this._rest.createServerConversation( data )
-        .then((result : any)=> {
-            that
-            ._logger
-            .log("info", LOG_ID + "[conversationService] createServerConversation success: " + conversation.id);
+        return this._rest.createServerConversation( data ).then((result : any)=> {
+            that._logger.log("info", LOG_ID + "createServerConversation success: " + conversation.id);
                 conversation.dbId = result.id;
                 conversation.lastModification = result.lastMessageDate ? new Date(result.lastMessageDate) : undefined;
                 conversation.creationDate = result.creationDate ? new Date(result.creationDate) : new Date();
                 conversation.missedCounter = parseInt(result.unreadMessageNumber, 10);
-                if (avatarRoom) {
+               /* if (avatarRoom) {
                     conversation.bubble.avatar = avatarRoom;
-                }
+                } */
                 // TODO ? that.orderConversations();
                 return Promise.resolve(conversation);
         }).catch( (err) => {
             let errorMessage = "createServerConversation failure: " + err.errorDetails;
-            that
-            ._logger
-            .log("error", LOG_ID + "[conversationService] " + errorMessage);
+            that._logger.log("error", LOG_ID + "" + errorMessage);
                 return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
         });
     } // */
+
+    removeOlderConversations (conversations? : [] ) {
+        let that = this;
+        return new Promise((resolve,reject) => {
+            // if (!authService.fromSDK) {
+            let maxConversations = that.nbMaxConversations;
+            //add protection when the local storage does not work correctly ...
+            if (!maxConversations || maxConversations < 15) {
+                that.nbMaxConversations = 15;
+                maxConversations = 15;
+            }
+
+            let orderedConversations = conversations? conversations.sort(that.sortFunction) : that.getConversations().sort(that.sortFunction);
+            that._logger.log("debug", LOG_ID + "(removeOlderConversations) -- maxConversations : ", maxConversations);
+            if (orderedConversations.length > maxConversations) {
+                that._logger.log("debug", LOG_ID + "(removeOlderConversations) -- orderedConversations : ", orderedConversations.length);
+                let removePromises = [];
+                for (let index = maxConversations; index < orderedConversations.length; index++) {
+                    let conv = orderedConversations[index];
+                    if (conv) {
+                        removePromises.push(that.deleteServerConversation(conv.id));
+                    } else {
+                        that._logger.log("debug", LOG_ID + "(removeOlderConversations) -- conversation undefined, so cannot delete it.");
+                    }
+                }
+                Promise.all(removePromises).then((result) => {
+                    resolve(result);
+                }).catch((err) => {
+                    resolve(err);
+                });
+            } else {
+                resolve();
+            }
+        });
+    };
+
+    sortFunction (aa, bb) {
+        let aLast = aa.lastModification;
+        let aCreation = aa.creationDate;
+        let bLast = bb.lastModification;
+        let bCreation = bb.creationDate;
+
+        let aDate = aCreation;
+        let bDate = bCreation;
+
+        //get the most recent of the creation date or the last message date
+        if (!aLast && aCreation) {
+            aDate = aCreation;
+        } else {
+            aDate = aLast;
+        }
+
+        if (!bLast && bCreation) {
+            bDate = bCreation;
+        } else {
+            bDate = bLast;
+        }
+
+        return (bDate - aDate);
+    };
+
+   /* formatDate (date){
+        return moment(date).utc().format("YYYY-MM-DDTHH:mm:ss") + "Z";
+    }; // */
 
     /**
      * @private
@@ -347,22 +436,25 @@ class Conversations {
     deleteServerConversation(conversationId) {
         let that = this;
 
+        that._logger.log("info", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
+
         // Ignore conversation without dbId
         if (!conversationId) { return Promise.resolve(); }
 
         return that._rest.deleteServerConversation(conversationId).then( (result ) => {
             // TODO ? that.orderConversations();
-            return Promise.resolve();
+            return Promise.resolve(result);
         }).catch( (err) => {
+            that._logger.log("internalerror", LOG_ID + "(deleteServerConversation) err : ", err);
             // Check particular case where we are trying to remove an already removed conversation
-            if (err.errorDetailsCode === 404002) {
-                that._logger.log("info", LOG_ID + "[conversationService] deleteServerConversation success: " + conversationId);
+            if (err.errorDetailsCode === 404002 || err.error.errorDetailsCode === 404002 ) {
+                that._logger.log("info", LOG_ID + "deleteServerConversation success: " + conversationId);
                 return Promise.resolve();
             }
 
-            let errorMessage = "deleteServerConversation failure: " + err.errorDetails;
-            that._logger.log("warn", LOG_ID + "[conversationService] Error.");
-            that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
+            let errorMessage = "deleteServerConversation failure: " + err.error ? err.error.errorDetails : err.errorDetails;
+            that._logger.log("warn", LOG_ID + "Error.");
+            that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
             return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
 
         });
@@ -396,7 +488,6 @@ class Conversations {
      *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room,
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days.
      * @param {String} ID of the conversation (dbId field)
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -413,7 +504,6 @@ class Conversations {
      * @description
      *    Mark all unread messages in the conversation as read.
      * @param {String} ID of the conversation (dbId field)
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -432,7 +522,6 @@ class Conversations {
      *    Retrieve the remote history of a specific conversation.
      * @param {Conversation} conversation Conversation to retrieve
      * @param {number} size Maximum number of element to retrieve
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -460,7 +549,7 @@ class Conversations {
         }
 
         if (conversation.historyComplete) {
-            that._logger.log("debug", LOG_ID + "[conversationService] getHistoryPage(" + conversation.id + ") : already complete");
+            that._logger.log("debug", LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
             defered.reject();
             return defered.promise;
         }
@@ -503,7 +592,7 @@ class Conversations {
      * @method
      * @instance
      */
-    async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) {
+    async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) : Promise<Conversation>{
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -514,7 +603,7 @@ class Conversations {
                 return resolve(conv);
             }
 
-            that._logger.log("info", LOG_ID + "[conversationService] getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
+            that._logger.log("info", LOG_ID + "getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
 
 
             // No conversation found, then create it
@@ -540,8 +629,8 @@ class Conversations {
                 })
                 .catch( (error) => {
                     let errorMessage = "getOrCreateOneToOneConversation " + conversationId + " failure " + error.message;
-                    that._logger.log("error", LOG_ID + "[conversationService] Error." );
-                    that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
+                    that._logger.log("error", LOG_ID + "Error." );
+                    that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
 
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
@@ -563,27 +652,28 @@ class Conversations {
      * @param muted
      * @param creationDate
      * @param lastMessageSender
-     * @memberof Conversations
      * @async
      * @return {Promise<Conversation>}
      * @fulfil {Conversation} - Conversation object or null if not found
      * @category async
      */
-    getBubbleConversation(bubbleJid, conversationDbId, lastModification, lastMessageText, missedIMCounter, noError, muted, creationDate, lastMessageSender) {
+    getBubbleConversation(bubbleJid, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, noError?, muted?, creationDate?, lastMessageSender?) : Promise<any> {
         let that = this;
 
-        that._logger.log("internal", LOG_ID + "[conversationService] getBubbleConversation bubbleJib : ", bubbleJid);
+        that._logger.log("internal", LOG_ID + "getBubbleConversation bubbleJib : ", bubbleJid);
 
         // Fetch the conversation in memory
         let conversationResult = that.getConversationById(conversationDbId);
         if (conversationResult) {
             conversationResult.preload = true;
+            that._logger.log("internal", LOG_ID + "(getBubbleConversation) conversation found by Id : ", conversationDbId, " : conversation : ", conversationResult);
             return Promise.resolve(conversationResult);
         }
 
         let conversation = that.getConversationByBubbleJid(bubbleJid);
         if (conversation) {
             conversation.preload = true;
+            that._logger.log("internal", LOG_ID + "(getBubbleConversation) conversation found by BubbleJid : ", bubbleJid, " : conversation : ", conversationResult);
             return Promise.resolve(conversation);
         }
         // No conversation found, then create it
@@ -592,7 +682,7 @@ class Conversations {
             // Get the associated bubble
             that._bubbles.getBubbleByJid(bubbleJid).then((bubble) => {
                 if (!bubble) {
-                    that._logger.log("debug", LOG_ID + "[conversationService] getBubbleConversation (" + bubbleJid + ") failure : no such bubble");
+                    that._logger.log("debug", LOG_ID + "getBubbleConversation (" + bubbleJid + ") failure : no such bubble");
 
                     let obj = {
                         jid: bubbleJid,
@@ -633,15 +723,15 @@ class Conversations {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                                 if (bubble) {
-                                    that._bubbles._sendInitialBubblePresence(bubble);
+                                    that._presence.sendInitialBubblePresence(bubble);
                                 }
                                 // Send conversations update event
                                 that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
                                 resolve(__conversation);
                             }).catch(async function (error) {
                                 let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
-                                that._logger.log("error", LOG_ID + "[conversationService] Error.");
-                                that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
+                                that._logger.log("error", LOG_ID + "Error.");
+                                that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                                 await that.deleteServerConversation(conversationDbId);
                                 if (noError) {
                                     resolve();
@@ -653,8 +743,8 @@ class Conversations {
                 }
             }).catch(async (error) => {
                 let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
-                that._logger.log("error", LOG_ID + "[conversationService] Error.");
-                that._logger.log("internalerror", LOG_ID + "[conversationService] Error : ", errorMessage);
+                that._logger.log("error", LOG_ID + "Error.");
+                that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                 await that.deleteServerConversation(conversationDbId);
                 if (noError) {
                     resolve();
@@ -670,7 +760,6 @@ class Conversations {
      * @public
      * @method sendIsTypingState
      * @instance Conversations
-     * @memberof Conversations
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
@@ -761,7 +850,6 @@ class Conversations {
      *    Close a conversation <br/>
      *    This method returns a promise
      * @param {Conversation} conversation The conversation to close
-     * @memberof Conversations
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
@@ -770,7 +858,7 @@ class Conversations {
     closeConversation(conversation) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("info", LOG_ID + "[conversationService] closeConversation " + conversation.id);
+            that._logger.log("info", LOG_ID + "closeConversation " + conversation.id);
 
             // Remove this contact from favorite group
             that
@@ -796,10 +884,10 @@ class Conversations {
      */
     removeConversation(conversation) {
         let that = this;
-        that._logger.log("info", LOG_ID + "[conversationService] remove conversation " + conversation.id);
+        that._logger.log("info", LOG_ID + "remove conversation " + conversation.id);
 
         if (conversation.videoCall && conversation.videoCall.status !== Call.Status.UNKNOWN) {
-            that._logger.log("info", LOG_ID + "[conversationService] Ignore conversation deletion message for conversation" + conversation.id);
+            that._logger.log("info", LOG_ID + "Ignore conversation deletion message for conversation" + conversation.id);
             return;
         }
 
@@ -965,7 +1053,6 @@ class Conversations {
     /**
      * @public
      * @method sendExistingMessage
-     * @memberof Conversations
      * @instance
      * @param {string} data The text message to send
      * @description
@@ -1029,7 +1116,6 @@ class Conversations {
      * @public
      * @method sendCorrectedChatMessage
      * @instance
-     * @memberof Conversations
      * @description
      *    Send a corrected message to a conversation
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
@@ -1104,7 +1190,6 @@ class Conversations {
      * @since 1.58
      * @method deleteMessage
      * @instance
-     * @memberof Conversations
      * @async
      * @description
      *    Delete a message by sending an empty string in a correctedMessage
@@ -1130,6 +1215,37 @@ class Conversations {
         let correctedMsg = await that.sendCorrectedChatMessage(conversation, "", messageId);
 
         return messageOrig;
+    }
+
+    /**
+     *
+     * @public
+     * @since 1.67.0
+     * @method deleteAllMessageInOneToOneConversation
+     * @instance
+     * @async
+     * @description
+     *   Delete all messages for the connected user on a one to one conversation.
+     * @param {Conversation} conversation The conversation object
+     * @return {Message} - message object with updated replaceMsgs property
+     */
+    deleteAllMessageInOneToOneConversation (conversation) {
+        let that = this;
+        if (!conversation) {
+            this._logger.log("error", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter : ", conversation);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        let conversationObj = that.getConversationById(conversation.id);
+
+        if (conversationObj.type !== Conversation.Type.ONE_TO_ONE) {
+            this._logger.log("error", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter : ", conversationObj);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that._xmpp.deleteAllMessageInOneToOneConversation(conversationObj.id);
     }
 
     /**
@@ -1166,7 +1282,6 @@ class Conversations {
      *    Cleanup a conversation by removing all previous messages<br/>
      *    This method returns a promise
      * @param {Conversation} conversation The conversation to clean
-     * @memberof Conversations
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
@@ -1227,7 +1342,6 @@ class Conversations {
      *    Remove a specific range of message in a conversation<br/>
      *    This method returns a promise
      * @param {Conversation} conversation The conversation to clean
-     * @memberof Conversations
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
@@ -1264,7 +1378,6 @@ class Conversations {
      * @public
      * @method getConversationById
      * @instance
-     * @memberof Conversations
      * @description
      *      Get a p2p conversation by id
      * @param {String} conversationId Conversation id of the conversation to clean
@@ -1345,7 +1458,6 @@ class Conversations {
      * @public
      * @method getAllConversations
      * @instance
-     * @memberof Conversations
      * @description
      *    Allow to get the list of existing conversations (p2p and bubbles)
      * @return {Conversation[]} An array of Conversation object
@@ -1358,7 +1470,6 @@ class Conversations {
     /**
      * @private
      * @method
-     * @memberof Conversations
      * @instance
      * @description
      *      Get all conversation
@@ -1378,7 +1489,6 @@ class Conversations {
      * @public
      * @method openConversationForContact
      * @instance
-     * @memberof Conversations
      * @description
      *    Open a conversation to a contact <br/>
      *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
@@ -1386,7 +1496,7 @@ class Conversations {
      * @param {Contact} contact The contact involved in the conversation
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
-    openConversationForContact (contact) {
+    openConversationForContact (contact): Promise<Conversation> {
         let that = this;
         return new Promise(function (resolve, __reject) {
 
@@ -1400,8 +1510,7 @@ class Conversations {
                 that._logger.log("internal", LOG_ID + " :: Try to create of get a conversation with " + contact.lastName + " " + contact.firstName);
 
 
-                that.getOrCreateOneToOneConversation(contact.jid)
-                    .then(function (conversation: any) {
+                that.getOrCreateOneToOneConversation(contact.jid).then(function (conversation: any) {
                         that._logger.log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
                         resolve(conversation);
                     }).catch(function (result) {
@@ -1443,6 +1552,57 @@ class Conversations {
                     resolve(conversation)
                 }).catch(function (result) {
                     that._logger.log("internal", LOG_ID + "(openConversationForBubble) Error : ", result);
+                    __reject(result);
+                });
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method getS2SServerConversation
+     * @since 1.65
+     * @instance
+     * @description
+     *    get a conversation from id on S2S API Server.<br/>
+     *    This method returns a promise
+     * @param {string} conversationId The id of the conversation to find.
+     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+     */
+    getS2SServerConversation(conversationId) {
+        let that = this;
+        return new Promise(function (resolve, __reject) {
+
+            if (!conversationId) {
+                return __reject({
+                    code: ErrorManager.getErrorManager().BAD_REQUEST,
+                    label: "Parameter 'conversationId' is missing or null"
+                });
+            } else {
+                that._logger.log("info", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation for bubble.");
+                that._logger.log("internal", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation with bubble : ", conversationId);
+
+                that.getS2SServerConversation(conversationId).then(function (conversationInfos) {
+                    that._logger.log("internal", LOG_ID + "(getS2SServerConversation), Conversation retrieved or created, conversation : ", conversationInfos);
+                    /*that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
+
+                    let conversation = Conversation.createBubbleConversation(bubble);
+                    conversation.dbId = conversationId;
+                    conversation.lastModification = undefined;
+                    conversation.lastMessageText = undefined;
+                    conversation.muted = false;
+                    conversation.creationDate = new Date();
+                    conversation.preload = false;
+                    conversation.lastMessageSender = undefined;
+                    conversation.missedCounter = 0;
+                    that.conversations[conversation.id] = conversation;
+                    resolve(conversation)
+
+                     */
+
+                    resolve(conversationInfos)
+                }).catch(function (result) {
+                    that._logger.log("internal", LOG_ID + "(getS2SServerConversation) Error : ", result);
                     __reject(result);
                 });
             }
@@ -1502,7 +1662,7 @@ class Conversations {
             if (conversation.bubble && conversation.bubble.isMeetingBubble()) {
                 return;
             }
-            this.conversationServiceEventHandler.onRoomAdminMessageReceived(conversation, contact, type, msgId);
+            this._conversationServiceEventHandler.onRoomAdminMessageReceived(conversation, contact, type, msgId);
         }
     }
 

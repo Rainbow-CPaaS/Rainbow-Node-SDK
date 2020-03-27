@@ -14,6 +14,8 @@ import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
 import {TelephonyService} from "./TelephonyService";
+import {S2SService} from "./S2SService";
+import {Core} from "../Core";
 
 const LOG_ID = "CALLLOG/SVCE - ";
 
@@ -56,7 +58,7 @@ function CallLogsBean() : ICallLogsBean {
 *      - Mark calls as read / unread <br/>
 */
  class CallLogService {
-    public _eventEmitter: EventEmitter;
+    private _eventEmitter: EventEmitter;
     private logger: Logger;
     private started: boolean;
     private _initialized: boolean;
@@ -86,6 +88,10 @@ function CallLogsBean() : ICallLogsBean {
     private _profiles: ProfilesService;
     private _calllogEventHandler: CallLogEventHandler;
     private _telephony: TelephonyService;
+    private _options: any;
+    private _s2s: S2SService;
+    private _useXMPP: any;
+    private _useS2S: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up: boolean,
@@ -106,6 +112,12 @@ function CallLogsBean() : ICallLogsBean {
         //let that = this;
         this._eventEmitter = _eventEmitter;
         this.logger = logger;
+        this._xmpp = null;
+        this._rest = null;
+        this._s2s = null;
+        this._options = {};
+        this._useXMPP = false;
+        this._useS2S = false;
 
         this.started = false;
         this._initialized = false;
@@ -141,14 +153,17 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_xmpp: XMPPService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService) {
+    async start(_options, _core : Core) { //  _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService
         let that = this;
-        that._xmpp = _xmpp;
-        that._rest = _rest;
-        that._contacts = _contacts;
-        that._profiles = _profiles;
-        that._telephony = _telephony;
-
+        that._xmpp = _core._xmpp;
+        that._rest = _core._rest;
+        that._contacts = _core.contacts;
+        that._profiles = _core.profiles;
+        that._telephony = _core.telephony;
+        that._options = _options;
+        that._s2s = _core._s2s;
+        that._useXMPP = that._options.useXMPP;
+        that._useS2S = that._options.useS2S;
 
         this.calllogHandlerToken = [];
 
@@ -212,8 +227,9 @@ function CallLogsBean() : ICallLogsBean {
                     that.logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
                     that.started = true;
                 })
-                .catch(() => {
+                .catch((error) => {
                     that.logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
+                    that.logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
                 });
         });
 
@@ -222,7 +238,7 @@ function CallLogsBean() : ICallLogsBean {
     attachHandlers() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
+        that.logger.log("info", LOG_ID + "(attachHandlers)");
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
@@ -250,8 +266,13 @@ function CallLogsBean() : ICallLogsBean {
     async getCallLogHistoryPage(useAfter?) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[getCallLogHistoryPage] getCallLogHistoryPage");
-        return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
+        that.logger.log("info", LOG_ID + "(getCallLogHistoryPage)");
+        if (that._useXMPP) {
+            return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
+        }
+        if (that._useS2S) {
+            return Promise.resolve();
+        }
     }
 
     /*********************************************************/
@@ -306,6 +327,7 @@ function CallLogsBean() : ICallLogsBean {
 
         that.calllogs.callLogs.forEach(function (callLog) {
             if (!callLog.read && callLog.state === "missed" && callLog.direction === "incoming") {
+                that.logger.log("info", LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
                 num++;
             }
         });
@@ -327,7 +349,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteOneCallLog(id) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[deleteOneCallLog] deleteOneCallLog : ", id);
+        that.logger.log("info", LOG_ID + "(deleteOneCallLog) id : ", id);
         return that._xmpp.deleteOneCallLog(id);
     }
 
@@ -344,7 +366,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteCallLogsForContact(jid) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[deleteCallLogsForContact] deleteCallLogsForContact ", jid);
+        that.logger.log("info", LOG_ID + "(deleteCallLogsForContact) jid : ", jid);
         return that._xmpp.deleteCallLogsForContact(jid);
     }
 
@@ -360,7 +382,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteAllCallLogs() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[deleteAllCallLogs] deleteAllCallLogs");
+        that.logger.log("info", LOG_ID + "(deleteAllCallLogs)");
         return that._xmpp.deleteAllCallLogs();
     }
 
@@ -377,7 +399,7 @@ function CallLogsBean() : ICallLogsBean {
     markCallLogAsRead(id) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[markCallLogAsRead] markCallLogAsRead ", id);
+        that.logger.log("info", LOG_ID + "(markCallLogAsRead) id : ", id);
         return that._xmpp.markCallLogAsRead(id);
     }
 
@@ -393,7 +415,8 @@ function CallLogsBean() : ICallLogsBean {
     async markAllCallsLogsAsRead() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[markAllCallsLogsAsRead] markAllCallsLogsAsRead ");
+        that.logger.log("info", LOG_ID + "(markAllCallsLogsAsRead) ");
+        that.logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
         await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
 
