@@ -6,8 +6,8 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.69.0] - 2020-03-xx
--   Add nextDailyBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
+## [1.69.0] - 2020-03-30
+-   Add nextDebugBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
 
 ## [1.69.0-dotnet.2] - 2020-03-23
 -   Same as 1.69.0-dotnet.0 (Failed of production)
@@ -20,9 +20,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add document Connecting_to_Rainbow_S2S_Mode to describe the connection to Rainbow with a S2S event pipe.
 -   Official ChangeLog RSS Flow URL : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
 -   Fix empty message list in conversation when conversationEventHandler::onConversationManagementMessageReceived event.
--   S2SService to service layer and folder
+-   Move S2SService to service layer and folder
 -   update S2S documentation. 
--   Add le parameter in joinroom in S2S
+-   Add the parameter role (Enum: "member" "moderator" of your role in this room) in joinroom in S2S
 -   Fix S2SServiceEventHandler::ParseRoomInviteCallback
 -   Fix error when delete conversation.
 

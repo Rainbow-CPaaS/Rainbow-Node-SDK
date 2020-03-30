@@ -10,7 +10,7 @@
     "sendmailProduction": "cd mailing/ && node mailChangelog.js notify -e production",
     "sendmailPreProduction": "cd mailing/ && node mailChangelog.js notify -e preproduction",
     "sendmailPreProductionTest": "cd mailing/ && node mailChangelog.js notify -e preproduction -t vincent.berder@al-enterprise.com",
-    "getNextDailyBuildVersion": "node mailing/nextDailyBuildVersion.js"
+    "getNextDebugBuildVersion": "node mailing/nextDebugBuildVersion.js"
   },
   "repository": {
     "type": "git",
