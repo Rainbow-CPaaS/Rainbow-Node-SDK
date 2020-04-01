@@ -541,30 +541,30 @@ declare module 'lib/connection/XMPPServiceHandler/iqEventHandler' {
 }
 declare module 'lib/connection/XMPPService' {
 	import { XMPPUTils } from 'lib/common/XMPPUtils'; const NameSpacesLabels: {
-	    "ChatstatesNS": string;
-	    "ReceiptNS": string;
-	    "CallLogNamespace": string;
-	    "CallLogAckNamespace": string;
-	    "CallLogNotificationsNamespace": string;
-	    "RsmNameSpace": string;
-	    "Carbon2NameSpace": string;
-	    "ApplicationNameSpace": string;
-	    "RosterNameSpace": string;
-	    "ClientNameSpace": string;
-	    "PingNameSpace": string;
-	    "DataNameSpace": string;
-	    "MucNameSpace": string;
-	    "ReceiptsNameSpace": string;
-	    "ChatestatesNameSpace": string;
-	    "ContentNameSpace": string;
-	    "MessageCorrectNameSpace": string;
-	    "HintsNameSpace": string;
-	    "OobNameSpace": string;
-	    "Monitoring1NameSpace": string;
-	    "CallService1NameSpace": string;
-	    "MamNameSpace": string;
-	    "MamNameSpaceTmp": string;
-	    "AttentionNS": string;
+	    ChatstatesNS: string;
+	    ReceiptNS: string;
+	    CallLogNamespace: string;
+	    CallLogAckNamespace: string;
+	    CallLogNotificationsNamespace: string;
+	    RsmNameSpace: string;
+	    Carbon2NameSpace: string;
+	    ApplicationNameSpace: string;
+	    RosterNameSpace: string;
+	    ClientNameSpace: string;
+	    PingNameSpace: string;
+	    DataNameSpace: string;
+	    MucNameSpace: string;
+	    ReceiptsNameSpace: string;
+	    ChatestatesNameSpace: string;
+	    ContentNameSpace: string;
+	    MessageCorrectNameSpace: string;
+	    HintsNameSpace: string;
+	    OobNameSpace: string;
+	    Monitoring1NameSpace: string;
+	    CallService1NameSpace: string;
+	    MamNameSpace: string;
+	    MamNameSpaceTmp: string;
+	    AttentionNS: string;
 	}; class XMPPService {
 	    serverURL: any;
 	    host: any;
@@ -714,18 +714,18 @@ declare module 'lib/common/models/Invitation' {
 declare module 'lib/common/models/Contact' {
 	export {}; const AdminType: {
 	    /** Organization administrator */
-	    'ORGANIZATION_ADMIN': string;
+	    ORGANIZATION_ADMIN: string;
 	    /** Company administrator */
-	    'COMPANY_ADMIN': string;
+	    COMPANY_ADMIN: string;
 	    /** Site administrator */
-	    'SITE_ADMIN': string;
+	    SITE_ADMIN: string;
 	    /** No administrator right */
-	    'UNDEFINED': string;
+	    UNDEFINED: string;
 	}; const NameUpdatePrio: {
-	    'NO_UPDATE_PRIO': number;
-	    'OUTLOOK_UPDATE_PRIO': number;
-	    'SERVER_UPDATE_PRIO': number;
-	    'MAX_UPDATE_PRIO': number;
+	    NO_UPDATE_PRIO: number;
+	    OUTLOOK_UPDATE_PRIO: number;
+	    SERVER_UPDATE_PRIO: number;
+	    MAX_UPDATE_PRIO: number;
 	}; class Contact {
 	    id: any;
 	    _displayName: any;
@@ -828,288 +828,18 @@ declare module 'lib/common/Logger' {
 	export { Logger };
 
 }
-declare module 'lib/connection/RESTService' {
-	/// <reference types="node" />
-	import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
-	import { HTTPService } from 'lib/connection/HttpService';
-	import EventEmitter = NodeJS.EventEmitter;
-	import { Logger } from 'lib/common/Logger'; class RESTService {
-	    http: HTTPService;
-	    account: any;
-	    app: any;
-	    token: any;
-	    renewTokenInterval: any;
-	    auth: any;
-	    _credentials: any;
-	    _application: any;
-	    loginEmail: any;
-	    eventEmitter: EventEmitter;
-	    logger: Logger;
-	    currentAttempt: any;
-	    attempt_succeeded_callback: any;
-	    attempt_failed_callback: any;
-	    attempt_promise_resolver: any;
-	    _isOfficialRainbow: any;
-	    maxAttemptToReconnect: any;
-	    fibonacciStrategy: any;
-	    reconnectDelay: any;
-	    restTelephony: RESTTelephony;
-	    getRequestHeader: any;
-	    getRequestHeaderWithRange: any;
-	    getPostHeaderWithRange: any;
-	    getLoginHeader: any;
-	    getDefaultHeader: any;
-	    applicationToken: string;
-	    getPostHeader: any;
-	    connectionS2SInfo: any;
-	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: EventEmitter, _logger: Logger);
-	    get userId(): any;
-	    get loggedInUser(): any;
-	    start(http: any): Promise<void>;
-	    stop(): Promise<unknown>;
-	    signin(token: any): Promise<unknown>;
-	    setconnectionS2SInfo(_connectionS2SInfo: any): void;
-	    askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
-	    signout(): Promise<unknown>;
-	    startTokenSurvey(): void;
-	    _renewAuthToken(): void;
-	    getContacts(): Promise<unknown>;
-	    getContactInformationByJID(jid: any): Promise<unknown>;
-	    getContactInformationByID(id: any): Promise<unknown>;
-	    getContactInformationByLoginEmail(email: any): Promise<[any]>;
-	    getServerFavorites(): Promise<unknown>;
-	    addServerFavorite(peerId: string, type: string): Promise<unknown>;
-	    removeServerFavorite(favoriteId: string): Promise<unknown>;
-	    /**
-	     * ACCEPT INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * DECLINE INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * SEND INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
-	     */
-	    joinContactInvitation(contact: any): Promise<unknown>;
-	    joinContacts(contact: any, contactIds: any, presence: any): Promise<unknown>;
-	    getInvitationById(invitationId: any): Promise<unknown>;
-	    getGroups(): Promise<unknown>;
-	    getGroup(groupId: any): Promise<unknown>;
-	    setFavoriteGroup(group: any, favorite: any): Promise<unknown>;
-	    createGroup(name: any, comment: any, isFavorite: any): Promise<unknown>;
-	    deleteGroup(groupId: any): Promise<unknown>;
-	    updateGroupName(groupId: any, name: any): Promise<unknown>;
-	    addUserInGroup(contactId: any, groupId: any): Promise<unknown>;
-	    removeUserFromGroup(contactId: any, groupId: any): Promise<unknown>;
-	    getBots(): Promise<unknown>;
-	    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
-	    setBubbleVisibility(bubbleId: any, visibility: any): Promise<unknown>;
-	    setBubbleTopic(bubbleId: any, topic: any): Promise<unknown>;
-	    setBubbleName(bubbleId: any, name: any): Promise<unknown>;
-	    getBubbles(): Promise<unknown>;
-	    getBubble(bubbleId: any): Promise<unknown>;
-	    getBubbleByJid(bubbleJid: any): Promise<unknown>;
-	    setBubbleCustomData(bubbleId: any, customData: any): Promise<unknown>;
-	    inviteContactToBubble(contactId: any, bubbleId: any, asModerator: any, withInvitation: any, reason: any): Promise<unknown>;
-	    inviteContactsByEmailsToBubble(contactsEmails: any, bubbleId: any): Promise<unknown>;
-	    getRoomUsers(bubbleId: any, options?: any): Promise<unknown>;
-	    promoteContactInBubble(contactId: any, bubbleId: any, asModerator: any): Promise<unknown>;
-	    changeBubbleOwner(bubbleId: any, contactId: any): Promise<unknown>;
-	    archiveBubble(bubbleId: any): Promise<unknown>;
-	    leaveBubble(bubbleId: any, bubbleStatus: any): Promise<unknown>;
-	    deleteBubble(bubbleId: any): Promise<unknown>;
-	    removeInvitationOfContactToBubble(contactId: any, bubbleId: any): Promise<unknown>;
-	    unsubscribeContactFromBubble(contactId: any, bubbleId: any): Promise<unknown>;
-	    acceptInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
-	    declineInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
-	    inviteUser(email: any, companyId: any, language: any, message: any): Promise<unknown>;
-	    setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
-	    deleteAvatarRoom(roomId: any): Promise<unknown>;
-	    /**
-	     * Method retrieveWebConferences
-	     * @public
-	     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
-	     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
-	     * @memberof WebConferenceService
-	     */
-	    retrieveWebConferences(mediaType?: string): Promise<any>;
-	    createUser(email: any, password: any, firstname: any, lastname: any, companyId: any, language: any, isAdmin: any, roles: any): Promise<unknown>;
-	    createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<unknown>;
-	    changePassword(password: any, userId: any): Promise<unknown>;
-	    updateInformation(objData: any, userId: any): Promise<unknown>;
-	    deleteUser(userId: any): Promise<unknown>;
-	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
-	    deleteFileDescriptor(fileId: any): Promise<unknown>;
-	    retrieveFileDescriptors(format: any, limit: any, offset: any, viewerId: any): Promise<unknown>;
-	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
-	    retrieveReceivedFilesForRoomOrViewer(roomId: any): Promise<unknown>;
-	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
-	    retrieveUserConsumption(): Promise<unknown>;
-	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
-	    addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<unknown>;
-	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
-	    getFileFromUrl(url: any): Promise<unknown>;
-	    getBlobFromUrl(url: any): Promise<unknown>;
-	    uploadAFile(fileId: any, buffer: any): Promise<unknown>;
-	    uploadAStream(fileId: any, stream: any): Promise<unknown>;
-	    sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
-	    sendPartialFileCompletion(fileId: any): Promise<unknown>;
-	    getServerCapabilities(): Promise<unknown>;
-	    getUserSettings(): Promise<unknown>;
-	    updateUserSettings(settings: any): Promise<unknown>;
-	    getAllCompanies(): Promise<unknown>;
-	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string): Promise<unknown>;
-	    getContactInfos(userId: any): Promise<unknown>;
-	    putContactInfos(userId: any, infos: any): Promise<unknown>;
-	    createCompany(name: any, country: any, state: any): Promise<unknown>;
-	    getCompany(companyId: any): Promise<unknown>;
-	    deleteCompany(companyId: any): Promise<unknown>;
-	    setVisibilityForCompany(companyId: any, visibleByCompanyId: any): Promise<unknown>;
-	    createPublicChannel(name: any, topic: any, category: string, visibility: any, max_items: any, max_payload_size: any): Promise<unknown>;
-	    deleteChannel(channelId: any): Promise<unknown>;
-	    findChannels(name: any, topic: any, category: any, limit: any, offset: any, sortField: any, sortOrder: any): Promise<unknown>;
-	    getChannels(): Promise<unknown>;
-	    getChannel(id: any): Promise<unknown>;
-	    publishMessage(channelId: any, message: any, title: any, url: any, imagesIds: any, type: any): Promise<unknown>;
-	    private chewReceivedItems;
-	    /**
-	     * Get latests message from channel
-	     */
-	    getLatestMessages(maxMessages: number, beforeDate?: Date, afterDate?: Date): Promise<unknown>;
-	    subscribeToChannel(channelId: any): Promise<unknown>;
-	    unsubscribeToChannel(channelId: any): Promise<unknown>;
-	    updateChannel(channelId: any, title: any, visibility: any, max_items: any, max_payload_size: any, channelName: any, mode: any): Promise<unknown>;
-	    uploadChannelAvatar(channelId: string, avatar: any, avatarSize: number, fileType: string): Promise<any>;
-	    deleteChannelAvatar(channelId: string): Promise<any>;
-	    getChannelUsers(channelId: any, options: any): Promise<unknown>;
-	    deleteAllUsersFromChannel(channelId: any): Promise<unknown>;
-	    updateChannelUsers(channelId: any, users: any): Promise<unknown>;
-	    getChannelMessages(channelId: any): Promise<unknown>;
-	    /**
-	     * Delete item from a channel
-	     */
-	    deleteChannelMessage(channelId: any, itemId: any): Promise<unknown>;
-	    getServerProfiles(): Promise<unknown>;
-	    getServerProfilesFeatures(): Promise<unknown>;
-	    makeCall(contact: any, phoneInfo: any): Promise<unknown>;
-	    releaseCall(call: any): Promise<unknown>;
-	    makeConsultationCall(callId: any, contact: any, phoneInfo: any): Promise<unknown>;
-	    answerCall(call: any): Promise<unknown>;
-	    holdCall(call: any): Promise<unknown>;
-	    retrieveCall(call: any): Promise<unknown>;
-	    deflectCallToVM(call: any, VMInfos: any): Promise<unknown>;
-	    deflectCall(call: any, calleeInfos: any): Promise<unknown>;
-	    transfertCall(activeCall: any, heldCall: any): Promise<unknown>;
-	    conferenceCall(activeCall: any, heldCall: any): Promise<unknown>;
-	    forwardToDevice(contact: any, phoneInfo: any): Promise<unknown>;
-	    getForwardStatus(): Promise<unknown>;
-	    getNomadicStatus(): Promise<unknown>;
-	    nomadicLogin(data: any): Promise<unknown>;
-	    sendDtmf(callId: any, deviceId: any, data: any): Promise<unknown>;
-	    logon(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
-	    logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
-	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
-	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
-	    getRainbowNodeSdkPackagePublishedInfos(): Promise<unknown>;
-	    getServerConversations(format?: String): Promise<unknown>;
-	    createServerConversation(conversation: any): Promise<unknown>;
-	    deleteServerConversation(conversationId: any): Promise<unknown>;
-	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
-	    sendConversationByEmail(conversationId: any): Promise<unknown>;
-	    ackAllMessages(conversationId: any): Promise<unknown>;
-	    MEDIATYPE: {
-	        WEBRTC: string;
-	        WEBRTCSHARINGONLY: string;
-	    };
-	    joinConference(webPontConferenceId: any, role?: string): Promise<unknown>;
-	    getAllSentInvitations(): Promise<unknown>;
-	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
-	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
-	    reSendInvitation(invitationId: any): Promise<unknown>;
-	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
-	    getAllReceivedInvitations(): Promise<unknown>;
-	    get(url: any, token: any): Promise<unknown>;
-	    post(url: any, token: any, data: any, contentType: any): Promise<unknown>;
-	    put(url: any, token: any, data: any): Promise<unknown>;
-	    delete(url: any, token: any): Promise<unknown>;
-	    checkEveryPortals(): Promise<[void, void, void, void, void, void] | {
-	        'status': string;
-	    }>;
-	    checkPortalHealth(): Promise<unknown>;
-	    attemptToReconnect(reconnectDelay: any): void;
-	    get_attempt_succeeded_callback(resolve?: any): any;
-	    get_attempt_failed_callback(reject?: any): any;
-	    reconnect(): Promise<unknown>;
-	    listConnectionsS2S(): Promise<unknown>;
-	    sendS2SPresence(obj: any): Promise<unknown>;
-	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
-	    loginS2S(callback_url: any): Promise<unknown>;
-	    infoS2S(s2sConnectionId: any): Promise<unknown>;
-	    setS2SConnection(connectionId: any): Promise<unknown>;
-	    sendS2SMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
-	    getS2SServerConversation(conversationId: any): Promise<unknown>;
-	    joinS2SRoom(roomid: any): Promise<unknown>;
-	    markMessageAsRead(conversationId: any, messageId: any): Promise<unknown>;
-	}
-	export { RESTService };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
-	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    channelsService: any;
-	    eventEmitter: any;
-	    onManagementMessageReceived: any;
-	    onFavoriteManagementMessageReceived: any;
-	    onHeadlineMessageReceived: any;
-	    onReceiptMessageReceived: any;
-	    onErrorMessageReceived: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    constructor(xmppService: any, channelsService: any);
-	}
-	export { FavoriteEventHandler };
-
-}
-declare module 'lib/common/models/Favorite' {
-	export {};
-	export class Favorite {
-	    id: string;
-	    peerId: string;
-	    type: string;
-	    room: any;
-	    contact: any;
-	    conv: any;
-	    constructor(id: string, peerId: string, type: string);
-	}
-
-}
 declare module 'lib/common/ErrorManager' {
 	 const code: {
-	    "OK": number;
-	    "ERROR": number;
-	    "ERRORUNAUTHORIZED": number;
-	    "ERRORXMPP": number;
-	    "ERRORXMPPJID": number;
-	    "ERRORBADREQUEST": number;
-	    "ERRORUNSUPPORTED": number;
-	    "ERRORNOTFOUND": number;
-	    "ERRORFORBIDDEN": number;
-	    "OTHERERROR": number;
+	    OK: number;
+	    ERROR: number;
+	    ERRORUNAUTHORIZED: number;
+	    ERRORXMPP: number;
+	    ERRORXMPPJID: number;
+	    ERRORBADREQUEST: number;
+	    ERRORUNSUPPORTED: number;
+	    ERRORNOTFOUND: number;
+	    ERRORFORBIDDEN: number;
+	    OTHERERROR: number;
 	}; class ErrorManager {
 	    private static xmppUtils;
 	    constructor();
@@ -1207,6 +937,428 @@ declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
 	export { InvitationEventHandler };
 
 }
+declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
+	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    channelsService: any;
+	    eventEmitter: any;
+	    onManagementMessageReceived: any;
+	    onFavoriteManagementMessageReceived: any;
+	    onHeadlineMessageReceived: any;
+	    onReceiptMessageReceived: any;
+	    onErrorMessageReceived: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    constructor(xmppService: any, channelsService: any);
+	}
+	export { FavoriteEventHandler };
+
+}
+declare module 'lib/common/models/Favorite' {
+	export {};
+	export class Favorite {
+	    id: string;
+	    peerId: string;
+	    type: string;
+	    room: any;
+	    contact: any;
+	    conv: any;
+	    constructor(id: string, peerId: string, type: string);
+	}
+
+}
+declare module 'lib/services/FavoritesService' {
+	/// <reference types="node" />
+	import { Logger } from 'lib/common/Logger';
+	export {};
+	import { Favorite } from 'lib/common/models/Favorite';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Core } from 'lib/Core'; class FavoritesService {
+	    private _eventEmitter;
+	    private _logger;
+	    private started;
+	    private _initialized;
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _favoriteEventHandler;
+	    private _favoriteHandlerToken;
+	    private favorites;
+	    private _xmppManagementHandler;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<void>;
+	    stop(): Promise<void>;
+	    init(): Promise<void>;
+	    private attachHandlers;
+	    reconnect(): Promise<void>;
+	    private getServerFavorites;
+	    private addServerFavorite;
+	    private removeServerFavorite;
+	    private toggleFavorite;
+	    private updateFavorites;
+	    private getFavorite;
+	    private createFavoriteObj;
+	    private onXmppEvent;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method fetchAllFavorites()
+	     * @instance
+	     * @description
+	     *   Fetch all the Favorites from the server in a form of an Array
+	     * @return {Conversation[]} An array of Favorite objects
+	     */
+	    fetchAllFavorites(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method createFavorite()
+	     * @instance
+	     * @description
+	     *   Add conversation/bubble/bot to Favorites Array
+	     * @param {String} id of the conversation/bubble
+	     * @param {String} type of Favorite (can be 'user' or 'bubble')
+	     * @return {Promise<Favorite>} A Favorite object
+	     */
+	    createFavorite(id: any, type: any): Promise<Favorite>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method deleteFavorite()
+	     * @instance
+	     * @description
+	     *   Delete conversation/bubble/bot from Favorites Array
+	     * @param {String} id of the Favorite item
+	     * @return {Favorite[]} A Favorite object
+	     */
+	    deleteFavorite(id: any): Promise<any>;
+	    onFavoriteCreated(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	    onFavoriteDeleted(fav: {
+	        id: string;
+	        peerId: string;
+	        type: string;
+	    }): Promise<void>;
+	}
+	export { FavoritesService };
+
+}
+declare module 'lib/services/InvitationsService' {
+	/// <reference types="node" />
+	export {};
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class InvitationsService {
+	    receivedInvitations: {};
+	    sentInvitations: {};
+	    acceptedInvitationsArray: any[];
+	    sentInvitationsArray: any[];
+	    receivedInvitationsArray: any[];
+	    private _listeners;
+	    private _portalURL;
+	    private _contactConfigRef;
+	    acceptedInvitations: {};
+	    private _logger;
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private started;
+	    private _eventEmitter;
+	    private _invitationEventHandler;
+	    private _invitationHandlerToken;
+	    private _contacts;
+	    private stats;
+	    private readonly _startConfig;
+	    ready: boolean;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
+	    /************************************************************/
+	    /** LIFECYCLE STUFF                                        **/
+	    /************************************************************/
+	    start(_options: any, _core: Core, stats: any): Promise<void>;
+	    init(): Promise<void>;
+	    stop(): Promise<void>;
+	    /************************************************************/
+	    /** EVENT HANDLING STUFF                                   **/
+	    /************************************************************/
+	    attachHandlers(): void;
+	    onRosterChanged(): Promise<unknown>;
+	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
+	    handleReceivedInvitation(id: any, action: any): Promise<void>;
+	    handleSentInvitation(id: any, action: any): Promise<unknown>;
+	    updateReceivedInvitationsArray(): void;
+	    updateSentInvitationsArray(): void;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PUBLIC METHODS                                         **/
+	    /************************************************************/
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getReceivedInvitations
+	     * @instance
+	     * @description
+	     *    Get the invite received coming from Rainbow users
+	     * @return {Invitation[]} The list of invitations received
+	     */
+	    getReceivedInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method 	getAcceptedInvitations
+	     * @instance
+	     * @description
+	     *    Get the invites you accepted received from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getAcceptedInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getSentInvitations
+	     * @instance
+	     * @description
+	     *    Get the invites sent to others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getSentInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getInvitationsNumberForCounter
+	     * @instance
+	     * @description
+	     *    Get the number of invitations received from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getInvitationsNumberForCounter(): number;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getAllInvitationsNumber
+	     * @instance
+	     * @description
+	     *    Get the number of invitations sent/received to/from others Rainbow users
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getAllInvitationsNumber: () => any;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getInvitation
+	     * @instance
+	     * @description
+	     *    Get an invite by its id
+	     * @param {String} invitationId the id of the invite to retrieve
+	     * @return {Invitation} The invite if found
+	     */
+	    getInvitation(invitationId: any): any;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method joinContactInvitation
+	     * @instance
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Contact} contact The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    joinContactInvitation(contact: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method sendInvitationByEmail
+	     * @instance
+	     * @description
+	     *    Send an invitation email as UCaaS
+	     * @param {string} email The email
+	     * @param {string} [customMessage] The email text (optional)
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     */
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method cancelOneSendInvitation
+	     * @instance
+	     * @param {Invitation} invitation The invitation to cancel
+	     * @description
+	     *    Cancel an invitation sent
+	     * @return {Object} The SDK Ok object or an error
+	     */
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method reSendInvitation
+	     * @instance
+	     * @param {Number} invitationId The invitation to re send
+	     * @description
+	     *    Re send an invitation sent
+	     * @return {Object} The SDK Ok object or an error
+	     */
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method sendInvitationByEmail
+	     * @instance
+	     * @description
+	     *    Send invitations for a list of emails as UCaaS
+	     *    LIMITED TO 100 invitations
+	     * @param {Array} listOfMails The list of emails
+	     * @return {Object} A promise that the invite result or an object describing an error
+	     */
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method acceptInvitation
+	     * @instance
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to accept
+	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method declineInvitation
+	     * @instance
+	     * @description
+	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once declined, the user will not be part of your network. <br>
+	     *    Return a promise
+	     * @param {Invitation} invitation The invitation to decline
+	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /************************************************************/
+	    /** PRIVATE METHODS                                        **/
+	    /************************************************************/
+	    /**
+	     * @private
+	     */
+	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
+	    /**
+	     * @private
+	     */
+	    sortInvitationArray(invitA: any, invitB: any): number;
+	    /**
+	     * @private
+	     */
+	    getAllReceivedInvitations(): Promise<unknown>;
+	    /**
+	     * @private
+	     */
+	    getAllSentInvitations(): Promise<unknown>;
+	}
+	export { InvitationsService };
+
+}
+declare module 'lib/common/models/Settings' {
+	export {}; let RainbowPresence: {
+	    ONLINE: string;
+	    AWAY: string;
+	    INVISIBLE: string;
+	    DND: string;
+	}; class Settings {
+	    presence: any;
+	    displayNameOrderFirstNameFirst: any;
+	    activeAlarm: any;
+	    activeNotif: any;
+	    constructor();
+	}
+	export { Settings, RainbowPresence };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService';
+	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
+	    PRESENCE: any;
+	    onPresenceReceived: any;
+	    constructor(xmppService: XMPPService);
+	}
+	export { PresenceEventHandler };
+
+}
+declare module 'lib/services/SettingsService' {
+	/// <reference types="node" />
+	import EventEmitter = NodeJS.EventEmitter;
+	export {};
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core'; class Settings {
+	    private _xmpp;
+	    private _rest;
+	    private _options;
+	    private _s2s;
+	    private _useXMPP;
+	    private _useS2S;
+	    private _eventEmitter;
+	    private _logger;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getUserSettings
+	     * @instance
+	     * @description
+	     *  Get current User Settings
+	     * @return {Promise<UserSettings>} A promise containing the result
+	     */
+	    getUserSettings(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method updateUserSettings
+	     * @instance
+	     * @description
+	     *  Update current User Settings
+	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
+	     */
+	    updateUserSettings(settings: any): Promise<unknown>;
+	}
+	export { Settings as SettingsService };
+
+}
 declare module 'lib/common/models/Bubble' {
 	import { Contact } from 'lib/common/models/Contact';
 	export {}; class Bubble {
@@ -1231,11 +1383,11 @@ declare module 'lib/common/models/Bubble' {
 	    organizers: Array<any>;
 	    members: Array<any>;
 	    static RoomUserStatus: {
-	        "INVITED": string;
-	        "ACCEPTED": string;
-	        "UNSUBSCRIBED": string;
-	        "REJECTED": string;
-	        "DELETED": string;
+	        INVITED: string;
+	        ACCEPTED: string;
+	        UNSUBSCRIBED: string;
+	        REJECTED: string;
+	        DELETED: string;
 	    };
 	    autoRegister: any;
 	    lastActivityDate: any;
@@ -1245,8 +1397,8 @@ declare module 'lib/common/models/Bubble' {
 	     * @enum {number}
 	     */
 	    static Type: {
-	        "PRIVATE": number;
-	        "PUBLIC": number;
+	        PRIVATE: number;
+	        PUBLIC: number;
 	    };
 	    /**
 	     * @public
@@ -1255,11 +1407,11 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    static Privilege: {
 	        /** User level */
-	        "USER": string;
+	        USER: string;
 	        /** Moderator level */
-	        "MODERATOR": string;
+	        MODERATOR: string;
 	        /** Guest level */
-	        "GUEST": string;
+	        GUEST: string;
 	    };
 	    /**
 	     * @public
@@ -1268,9 +1420,9 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    static History: {
 	        /** Full bubble history is accessible for newcomers */
-	        "ALL": string;
+	        ALL: string;
 	        /** No history is accessible for newcomers, only new messages posted */
-	        "NONE": string;
+	        NONE: string;
 	    };
 	    /**
 	     * @description the creator (owner ) of the bubble.
@@ -1499,183 +1651,6 @@ declare module 'lib/services/ProfilesService' {
 	    };
 	}
 	export { ProfilesService, FeaturesEnum };
-
-}
-declare module 'lib/common/models/Settings' {
-	export {}; let RainbowPresence: {
-	    ONLINE: string;
-	    AWAY: string;
-	    INVISIBLE: string;
-	    DND: string;
-	}; class Settings {
-	    presence: any;
-	    displayNameOrderFirstNameFirst: any;
-	    activeAlarm: any;
-	    activeNotif: any;
-	    constructor();
-	}
-	export { Settings, RainbowPresence };
-
-}
-declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
-	import { XMPPService } from 'lib/connection/XMPPService';
-	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
-	    PRESENCE: any;
-	    onPresenceReceived: any;
-	    constructor(xmppService: XMPPService);
-	}
-	export { PresenceEventHandler };
-
-}
-declare module 'lib/services/SettingsService' {
-	/// <reference types="node" />
-	import EventEmitter = NodeJS.EventEmitter;
-	export {};
-	import { Logger } from 'lib/common/Logger';
-	import { Core } from 'lib/Core'; class Settings {
-	    private _xmpp;
-	    private _rest;
-	    private _options;
-	    private _s2s;
-	    private _useXMPP;
-	    private _useS2S;
-	    private _eventEmitter;
-	    private _logger;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
-	    start(_options: any, _core: Core): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method getUserSettings
-	     * @instance
-	     * @description
-	     *  Get current User Settings
-	     * @return {Promise<UserSettings>} A promise containing the result
-	     */
-	    getUserSettings(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method updateUserSettings
-	     * @instance
-	     * @description
-	     *  Update current User Settings
-	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
-	     */
-	    updateUserSettings(settings: any): Promise<unknown>;
-	}
-	export { Settings as SettingsService };
-
-}
-declare module 'lib/services/PresenceService' {
-	export {};
-	import { Core } from 'lib/Core'; class PresenceService {
-	    private _logger;
-	    private _xmpp;
-	    private _settings;
-	    private _presenceEventHandler;
-	    private _presenceHandlerToken;
-	    private _eventEmitter;
-	    private manualState;
-	    private _currentPresence;
-	    RAINBOW_PRESENCE_ONLINE: any;
-	    RAINBOW_PRESENCE_DONOTDISTURB: any;
-	    RAINBOW_PRESENCE_AWAY: any;
-	    RAINBOW_PRESENCE_INVISIBLE: any;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    private _s2s;
-	    private _options;
-	    private _useXMPP;
-	    private _useS2S;
-	    private _rest;
-	    private _bubbles;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
-	    start(_options: any, _core: Core): Promise<unknown>;
-	    stop(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method sendInitialPresence
-	     * @instance
-	     * @description
-	     *  Send the initial presence (online)
-	     * @return {ErrorManager.Ok} A promise containing the result
-	     */
-	    sendInitialPresence(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method setPresenceTo
-	     * @instance
-	     * @description
-	     *    Allow to change the presence of the connected user <br/>
-	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
-	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-	     * @async
-	     * @return {Promise<ErrorManager>}
-	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
-	     */
-	    setPresenceTo(presence: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getUserConnectedPresence
-	     * @instance
-	     * @description
-	     *      Get user presence status calculated from events.
-	     */
-	    getUserConnectedPresence(): any;
-	    /**
-	    * @private
-	    * @method _setUserPresenceStatus
-	    * @instance
-	    * @description
-	    *      Send user presence status and message to xmpp.
-	    */
-	    _setUserPresenceStatus(status: any, message?: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _sendPresenceFromConfiguration
-	     * @instance
-	     * @description
-	     *      Send user presence according to user settings presence.
-	     */
-	    _sendPresenceFromConfiguration(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method sendInitialBubblePresence
-	     * @instance
-	     * @param {Bubble} bubble The Bubble
-	     * @description
-	     *      Method called when receiving an invitation to join a bubble
-	     */
-	    sendInitialBubblePresence(bubble: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method _onUserSettingsChanged
-	     * @instance
-	     * @description
-	     *      Method called when receiving an update on user settings
-	     */
-	    _onUserSettingsChanged(): void;
-	    /**
-	     * @private
-	     * @method _onPresenceChanged
-	     * @instance
-	     * @description
-	     *      Method called when receiving an update on user presence
-	     */
-	    _onPresenceChanged(presence: any): void;
-	}
-	export { PresenceService };
 
 }
 declare module 'lib/services/BubblesService' {
@@ -2294,531 +2269,110 @@ declare module 'lib/services/BubblesService' {
 	export { Bubbles as BubblesService };
 
 }
-declare module 'lib/connection/S2S/S2SServiceEventHandler' {
+declare module 'lib/services/PresenceService' {
 	export {};
-	import { Core } from 'lib/Core'; class S2SServiceEventHandler {
-	    private _logger;
-	    private _eventEmitter;
-	    private _rest;
-	    private callbackAbsolutePath;
-	    private _contacts;
-	    private _bulles;
-	    private jid_im;
-	    private jid_password;
-	    private userId;
-	    private fullJid;
-	    private jid_tel;
-	    private jid;
-	    private xmppUtils;
-	    private _conversations;
-	    private shouldSendReadReceipt;
-	    constructor(_im: any, _application: any, _eventEmitter: any, _logger: any, _hostCallback: any);
-	    setAccount(account: any): void;
-	    handleS2SEvent(event: any): boolean | Promise<boolean>;
-	    ParseConnectionCallback(event: any): boolean;
-	    ParsePresenceCallback(event: any): Promise<boolean>;
-	    ParseChatStateCallback(content: any): Promise<boolean>;
-	    ParseReceiptCallback(content: any): Promise<boolean>;
-	    ParseAllReceiptCallback(content: any): boolean;
-	    ParseConversationCallback(content: any): Promise<boolean>;
-	    ParseMessageCallback(content: any): Promise<boolean>;
-	    ParseRoomInviteCallback(content: any): Promise<boolean>;
-	    ParseRoomMemberCallback(content: any): Promise<boolean>;
-	    ParseRoomStateCallback(content: any): Promise<boolean>;
-	    ParseAlldeletedCallback(content: any): Promise<boolean>;
-	    ParseErrorCallback(content: any): Promise<boolean>;
-	    start(_core: Core): Promise<unknown>;
-	}
-	export { S2SServiceEventHandler };
-
-}
-declare module 'lib/services/S2SService' {
-	 class S2SService {
-	    private serverURL;
-	    private host;
-	    private eventEmitter;
-	    version: any;
-	    jid_im: any;
-	    jid_tel: any;
-	    jid_password: any;
-	    fullJid: any;
-	    jid: any;
-	    userId: any;
-	    private logger;
-	    private proxy;
-	    private xmppUtils;
-	    private generatedRandomId;
-	    private hash;
-	    private useS2S;
-	    private _rest;
-	    private hostCallback;
-	    private app;
-	    private locallistenningport;
-	    private s2sEventHandler;
-	    private _contacts;
-	    private options;
-	    private _conversations;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _startConfig: any);
-	    start(_options: any, _core: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @name signin
-	     * @param account
-	     * @param headers
-	     */
-	    signin(account: any, headers: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @param forceStop
-	     */
-	    stop(forceStop?: boolean): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method listConnectionsS2S
-	     * @instance
-	     * @description
-	     *      List all the connected user's connexions.
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    listConnectionsS2S(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method sendS2SPresence
-	     * @instance
-	     * @param {Object} obj Object {show, status} describing the presence :
-	     *  To put presence to cases :
-	     * "online":     {show = undefined, status = "mode=auto"}
-	     * "away": {show = "xa", status = "away"}
-	     * "dnd": {show = "dnd", status = ""}
-	     * "invisible": {show = "xa", status = ""}
-	     * @description
-	     *      set the presence of the connected user with s2s api .
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    sendS2SPresence(obj: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method deleteConnectionsS2S
-	     * @instance
-	     * @param {Array} connexions a List of connections S2S to delete
-	     * @description
-	     *      Delete one by one a list of S2S connections of the connected user.
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
-	    /**
-	     * @public
-	     * @method deleteAllConnectionsS2S
-	     * @instance
-	     * @description
-	     *      Delete all the connected user's S2S connexions.
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    deleteAllConnectionsS2S(): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
-	    /**
-	     * @private
-	     * @method loginS2S
-	     * @instance
-	     * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
-	     * @description
-	     *      Login to S2S event server the already connected user to REST API server.
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    loginS2S(callback_url: any): Promise<any>;
-	    /**
-	     * @public
-	     * @method infoS2S
-	     * @instance
-	     * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
-	     * @description
-	     *      Get informations about a S2S connexions.
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    infoS2S(s2sConnectionId: any): Promise<unknown>;
-	    /** S2S EVENTS */
-	    onS2SReady(event: any): Promise<void>;
-	    /** S2S methods */
-	    /**
-	     * @private
-	     * @method sendMessageInConversation
-	     * @instance
-	     * @param {String} conversationId
-	     * @param {String} msg The message object to send.
-	     * {
-	     *   "message": {
-	     *   "subject": "Greeting",
-	     *   "lang": "en",
-	     *   "contents": [
-	     *     {
-	     *       "type": "text/markdown",
-	     *       "data": "## Hello Bob"
-	     *     }
-	     *   ],
-	     *   "body": "Hello world"
-	     *   }
-	     * }
-	     * @description
-	     *      Send a message in a conversation. Note, corrected message is not yet supported.
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    sendMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method joinRoom
-	     * @param {String} bubbleId The id of the bubble to open the conversation.
-	     * @instance
-	     * @description
-	     *      send presence in S2S to join a bubble conversation
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    joinRoom(bubbleId: any): Promise<unknown>;
-	}
-	export { S2SService };
-
-}
-declare module 'lib/services/FavoritesService' {
-	/// <reference types="node" />
-	import { Logger } from 'lib/common/Logger';
-	export {};
-	import { Favorite } from 'lib/common/models/Favorite';
-	import EventEmitter = NodeJS.EventEmitter;
-	import { Core } from 'lib/Core'; class FavoritesService {
-	    private _eventEmitter;
-	    private _logger;
-	    private started;
-	    private _initialized;
-	    private _xmpp;
-	    private _rest;
-	    private _options;
-	    private _s2s;
-	    private _useXMPP;
-	    private _useS2S;
-	    private _favoriteEventHandler;
-	    private _favoriteHandlerToken;
-	    private favorites;
-	    private _xmppManagementHandler;
-	    ready: boolean;
-	    private readonly _startConfig;
-	    get startConfig(): {
-	        start_up: boolean;
-	        optional: boolean;
-	    };
-	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
-	    start(_options: any, _core: Core): Promise<void>;
-	    stop(): Promise<void>;
-	    init(): Promise<void>;
-	    private attachHandlers;
-	    reconnect(): Promise<void>;
-	    private getServerFavorites;
-	    private addServerFavorite;
-	    private removeServerFavorite;
-	    private toggleFavorite;
-	    private updateFavorites;
-	    private getFavorite;
-	    private createFavoriteObj;
-	    private onXmppEvent;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method fetchAllFavorites()
-	     * @instance
-	     * @description
-	     *   Fetch all the Favorites from the server in a form of an Array
-	     * @return {Conversation[]} An array of Favorite objects
-	     */
-	    fetchAllFavorites(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method createFavorite()
-	     * @instance
-	     * @description
-	     *   Add conversation/bubble/bot to Favorites Array
-	     * @param {String} id of the conversation/bubble
-	     * @param {String} type of Favorite (can be 'user' or 'bubble')
-	     * @return {Promise<Favorite>} A Favorite object
-	     */
-	    createFavorite(id: any, type: any): Promise<Favorite>;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method deleteFavorite()
-	     * @instance
-	     * @description
-	     *   Delete conversation/bubble/bot from Favorites Array
-	     * @param {String} id of the Favorite item
-	     * @return {Favorite[]} A Favorite object
-	     */
-	    deleteFavorite(id: any): Promise<any>;
-	    onFavoriteCreated(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	    onFavoriteDeleted(fav: {
-	        id: string;
-	        peerId: string;
-	        type: string;
-	    }): Promise<void>;
-	}
-	export { FavoritesService };
-
-}
-declare module 'lib/services/InvitationsService' {
-	/// <reference types="node" />
-	export {};
-	import EventEmitter = NodeJS.EventEmitter;
-	import { Logger } from 'lib/common/Logger';
-	import { Core } from 'lib/Core'; class InvitationsService {
-	    receivedInvitations: {};
-	    sentInvitations: {};
-	    acceptedInvitationsArray: any[];
-	    sentInvitationsArray: any[];
-	    receivedInvitationsArray: any[];
-	    private _listeners;
-	    private _portalURL;
-	    private _contactConfigRef;
-	    acceptedInvitations: {};
+	import { Core } from 'lib/Core'; class PresenceService {
 	    private _logger;
 	    private _xmpp;
-	    private _rest;
-	    private _options;
+	    private _settings;
+	    private _presenceEventHandler;
+	    private _presenceHandlerToken;
+	    private _eventEmitter;
+	    private manualState;
+	    private _currentPresence;
+	    RAINBOW_PRESENCE_ONLINE: any;
+	    RAINBOW_PRESENCE_DONOTDISTURB: any;
+	    RAINBOW_PRESENCE_AWAY: any;
+	    RAINBOW_PRESENCE_INVISIBLE: any;
+	    ready: boolean;
+	    private readonly _startConfig;
 	    private _s2s;
+	    private _options;
 	    private _useXMPP;
 	    private _useS2S;
-	    private started;
-	    private _eventEmitter;
-	    private _invitationEventHandler;
-	    private _invitationHandlerToken;
-	    private _contacts;
-	    private stats;
-	    private readonly _startConfig;
-	    ready: boolean;
+	    private _rest;
+	    private _bubbles;
 	    get startConfig(): {
 	        start_up: boolean;
 	        optional: boolean;
 	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
-	        start_up: boolean;
-	        optional: boolean;
-	    });
-	    /************************************************************/
-	    /** LIFECYCLE STUFF                                        **/
-	    /************************************************************/
-	    start(_options: any, _core: Core, stats: any): Promise<void>;
-	    init(): Promise<void>;
-	    stop(): Promise<void>;
-	    /************************************************************/
-	    /** EVENT HANDLING STUFF                                   **/
-	    /************************************************************/
-	    attachHandlers(): void;
-	    onRosterChanged(): Promise<unknown>;
-	    onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
-	    handleReceivedInvitation(id: any, action: any): Promise<void>;
-	    handleSentInvitation(id: any, action: any): Promise<unknown>;
-	    updateReceivedInvitationsArray(): void;
-	    updateSentInvitationsArray(): void;
-	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PUBLIC METHODS                                         **/
-	    /************************************************************/
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getReceivedInvitations
-	     * @instance
-	     * @description
-	     *    Get the invite received coming from Rainbow users
-	     * @return {Invitation[]} The list of invitations received
-	     */
-	    getReceivedInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method 	getAcceptedInvitations
-	     * @instance
-	     * @description
-	     *    Get the invites you accepted received from others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getAcceptedInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getSentInvitations
-	     * @instance
-	     * @description
-	     *    Get the invites sent to others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getSentInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getInvitationsNumberForCounter
-	     * @instance
-	     * @description
-	     *    Get the number of invitations received from others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getInvitationsNumberForCounter(): number;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getAllInvitationsNumber
-	     * @instance
-	     * @description
-	     *    Get the number of invitations sent/received to/from others Rainbow users
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getAllInvitationsNumber: () => any;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getInvitation
-	     * @instance
-	     * @description
-	     *    Get an invite by its id
-	     * @param {String} invitationId the id of the invite to retrieve
-	     * @return {Invitation} The invite if found
-	     */
-	    getInvitation(invitationId: any): any;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method joinContactInvitation
-	     * @instance
-	     * @description
-	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise
-	     * @param {Contact} contact The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
-	     */
-	    joinContactInvitation(contact: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method sendInvitationByEmail
-	     * @instance
-	     * @description
-	     *    Send an invitation email as UCaaS
-	     * @param {string} email The email
-	     * @param {string} [customMessage] The email text (optional)
-	     * @return {Object} A promise that contains the contact added or an object describing an error
-	     */
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method cancelOneSendInvitation
-	     * @instance
-	     * @param {Invitation} invitation The invitation to cancel
-	     * @description
-	     *    Cancel an invitation sent
-	     * @return {Object} The SDK Ok object or an error
-	     */
-	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method reSendInvitation
-	     * @instance
-	     * @param {Number} invitationId The invitation to re send
-	     * @description
-	     *    Re send an invitation sent
-	     * @return {Object} The SDK Ok object or an error
-	     */
-	    reSendInvitation(invitationId: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method sendInvitationByEmail
-	     * @instance
-	     * @description
-	     *    Send invitations for a list of emails as UCaaS
-	     *    LIMITED TO 100 invitations
-	     * @param {Array} listOfMails The list of emails
-	     * @return {Object} A promise that the invite result or an object describing an error
-	     */
-	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method acceptInvitation
-	     * @instance
-	     * @description
-	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
-	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method declineInvitation
-	     * @instance
-	     * @description
-	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once declined, the user will not be part of your network. <br>
-	     *    Return a promise
-	     * @param {Invitation} invitation The invitation to decline
-	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PRIVATE METHODS                                        **/
-	    /************************************************************/
+	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
 	    /**
 	     * @private
+	     * @method sendInitialPresence
+	     * @instance
+	     * @description
+	     *  Send the initial presence (online)
+	     * @return {ErrorManager.Ok} A promise containing the result
 	     */
-	    updateContactInvitationStatus(contactDBId: any, status: any, invitation: any): Promise<unknown>;
+	    sendInitialPresence(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setPresenceTo
+	     * @instance
+	     * @description
+	     *    Allow to change the presence of the connected user <br/>
+	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+	     * @async
+	     * @return {Promise<ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+	     * @category async
+	     */
+	    setPresenceTo(presence: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getUserConnectedPresence
+	     * @instance
+	     * @description
+	     *      Get user presence status calculated from events.
+	     */
+	    getUserConnectedPresence(): any;
+	    /**
+	    * @private
+	    * @method _setUserPresenceStatus
+	    * @instance
+	    * @description
+	    *      Send user presence status and message to xmpp.
+	    */
+	    _setUserPresenceStatus(status: any, message?: any): Promise<unknown>;
 	    /**
 	     * @private
+	     * @method _sendPresenceFromConfiguration
+	     * @instance
+	     * @description
+	     *      Send user presence according to user settings presence.
 	     */
-	    sortInvitationArray(invitA: any, invitB: any): number;
+	    _sendPresenceFromConfiguration(): Promise<unknown>;
 	    /**
 	     * @private
+	     * @method sendInitialBubblePresence
+	     * @instance
+	     * @param {Bubble} bubble The Bubble
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble
 	     */
-	    getAllReceivedInvitations(): Promise<unknown>;
+	    sendInitialBubblePresence(bubble: any): Promise<unknown>;
 	    /**
 	     * @private
+	     * @method _onUserSettingsChanged
+	     * @instance
+	     * @description
+	     *      Method called when receiving an update on user settings
 	     */
-	    getAllSentInvitations(): Promise<unknown>;
+	    _onUserSettingsChanged(): void;
+	    /**
+	     * @private
+	     * @method _onPresenceChanged
+	     * @instance
+	     * @description
+	     *      Method called when receiving an update on user presence
+	     */
+	    _onPresenceChanged(presence: any): void;
 	}
-	export { InvitationsService };
+	export { PresenceService };
 
 }
 declare module 'lib/services/ContactsService' {
@@ -4474,6 +4028,463 @@ declare module 'lib/services/ConversationsService' {
 	    unlockWaitingBotConversations(isBotServiceReady?: any): void;
 	}
 	export { Conversations as ConversationsService };
+
+}
+declare module 'lib/connection/S2S/S2SServiceEventHandler' {
+	export {};
+	import { Core } from 'lib/Core'; class S2SServiceEventHandler {
+	    private _logger;
+	    private _eventEmitter;
+	    private _rest;
+	    private callbackAbsolutePath;
+	    private _contacts;
+	    private _bulles;
+	    private jid_im;
+	    private jid_password;
+	    private userId;
+	    private fullJid;
+	    private jid_tel;
+	    private jid;
+	    private xmppUtils;
+	    private _conversations;
+	    private shouldSendReadReceipt;
+	    constructor(_im: any, _application: any, _eventEmitter: any, _logger: any, _hostCallback: any);
+	    setAccount(account: any): void;
+	    handleS2SEvent(event: any): boolean | Promise<boolean>;
+	    ParseConnectionCallback(event: any): boolean;
+	    ParsePresenceCallback(event: any): Promise<boolean>;
+	    ParseChatStateCallback(content: any): Promise<boolean>;
+	    ParseReceiptCallback(content: any): Promise<boolean>;
+	    ParseAllReceiptCallback(content: any): boolean;
+	    ParseConversationCallback(content: any): Promise<boolean>;
+	    ParseMessageCallback(content: any): Promise<boolean>;
+	    ParseRoomInviteCallback(content: any): Promise<boolean>;
+	    ParseRoomMemberCallback(content: any): Promise<boolean>;
+	    ParseRoomStateCallback(content: any): Promise<boolean>;
+	    ParseAlldeletedCallback(content: any): Promise<boolean>;
+	    ParseErrorCallback(content: any): Promise<boolean>;
+	    start(_core: Core): Promise<unknown>;
+	}
+	export { S2SServiceEventHandler };
+
+}
+declare module 'lib/services/S2SService' {
+	 class S2SService {
+	    private serverURL;
+	    private host;
+	    private eventEmitter;
+	    version: any;
+	    jid_im: any;
+	    jid_tel: any;
+	    jid_password: any;
+	    fullJid: any;
+	    jid: any;
+	    userId: any;
+	    private logger;
+	    private proxy;
+	    private xmppUtils;
+	    private generatedRandomId;
+	    private hash;
+	    private useS2S;
+	    private _rest;
+	    private hostCallback;
+	    private app;
+	    private locallistenningport;
+	    private s2sEventHandler;
+	    private _contacts;
+	    private options;
+	    private _conversations;
+	    ready: boolean;
+	    private readonly _startConfig;
+	    get startConfig(): {
+	        start_up: boolean;
+	        optional: boolean;
+	    };
+	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _startConfig: any);
+	    start(_options: any, _core: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @name signin
+	     * @param account
+	     * @param headers
+	     */
+	    signin(account: any, headers: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @param forceStop
+	     */
+	    stop(forceStop?: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method listConnectionsS2S
+	     * @instance
+	     * @description
+	     *      List all the connected user's connexions.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    listConnectionsS2S(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method sendS2SPresence
+	     * @instance
+	     * @param {Object} obj Object {show, status} describing the presence :
+	     *  To put presence to cases :
+	     * "online":     {show = undefined, status = "mode=auto"}
+	     * "away": {show = "xa", status = "away"}
+	     * "dnd": {show = "dnd", status = ""}
+	     * "invisible": {show = "xa", status = ""}
+	     * @description
+	     *      set the presence of the connected user with s2s api .
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    sendS2SPresence(obj: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method deleteConnectionsS2S
+	     * @instance
+	     * @param {Array} connexions a List of connections S2S to delete
+	     * @description
+	     *      Delete one by one a list of S2S connections of the connected user.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    /**
+	     * @public
+	     * @method deleteAllConnectionsS2S
+	     * @instance
+	     * @description
+	     *      Delete all the connected user's S2S connexions.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    deleteAllConnectionsS2S(): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    /**
+	     * @private
+	     * @method loginS2S
+	     * @instance
+	     * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
+	     * @description
+	     *      Login to S2S event server the already connected user to REST API server.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    loginS2S(callback_url: any): Promise<any>;
+	    /**
+	     * @public
+	     * @method infoS2S
+	     * @instance
+	     * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
+	     * @description
+	     *      Get informations about a S2S connexions.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    infoS2S(s2sConnectionId: any): Promise<unknown>;
+	    /** S2S EVENTS */
+	    onS2SReady(event: any): Promise<void>;
+	    /** S2S methods */
+	    /**
+	     * @private
+	     * @method sendMessageInConversation
+	     * @instance
+	     * @param {String} conversationId
+	     * @param {String} msg The message object to send.
+	     * {
+	     *   "message": {
+	     *   "subject": "Greeting",
+	     *   "lang": "en",
+	     *   "contents": [
+	     *     {
+	     *       "type": "text/markdown",
+	     *       "data": "## Hello Bob"
+	     *     }
+	     *   ],
+	     *   "body": "Hello world"
+	     *   }
+	     * }
+	     * @description
+	     *      Send a message in a conversation. Note, corrected message is not yet supported.
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    sendMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method joinRoom
+	     * @param {String} bubbleId The id of the bubble to open the conversation.
+	     * @param {string} role Enum: "member" "moderator" of your role in this room
+	     * @instance
+	     * @description
+	     *      send presence in S2S to join a bubble conversation
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     * @category async
+	     */
+	    joinRoom(bubbleId: any, role: ROOMROLE): Promise<unknown>;
+	} enum ROOMROLE {
+	    MODERATOR = "moderator",
+	    MEMBER = "member"
+	}
+	export { S2SService, ROOMROLE };
+
+}
+declare module 'lib/connection/RESTService' {
+	/// <reference types="node" />
+	import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
+	import { HTTPService } from 'lib/connection/HttpService';
+	import EventEmitter = NodeJS.EventEmitter;
+	import { Logger } from 'lib/common/Logger';
+	import { ROOMROLE } from 'lib/services/S2SService'; class RESTService {
+	    http: HTTPService;
+	    account: any;
+	    app: any;
+	    token: any;
+	    renewTokenInterval: any;
+	    auth: any;
+	    _credentials: any;
+	    _application: any;
+	    loginEmail: any;
+	    eventEmitter: EventEmitter;
+	    logger: Logger;
+	    currentAttempt: any;
+	    attempt_succeeded_callback: any;
+	    attempt_failed_callback: any;
+	    attempt_promise_resolver: any;
+	    _isOfficialRainbow: any;
+	    maxAttemptToReconnect: any;
+	    fibonacciStrategy: any;
+	    reconnectDelay: any;
+	    restTelephony: RESTTelephony;
+	    getRequestHeader: any;
+	    getRequestHeaderWithRange: any;
+	    getPostHeaderWithRange: any;
+	    getLoginHeader: any;
+	    getDefaultHeader: any;
+	    applicationToken: string;
+	    getPostHeader: any;
+	    connectionS2SInfo: any;
+	    constructor(_credentials: any, _application: any, _isOfficialRainbow: any, evtEmitter: EventEmitter, _logger: Logger);
+	    get userId(): any;
+	    get loggedInUser(): any;
+	    start(http: any): Promise<void>;
+	    stop(): Promise<unknown>;
+	    signin(token: any): Promise<unknown>;
+	    setconnectionS2SInfo(_connectionS2SInfo: any): void;
+	    askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
+	    signout(): Promise<unknown>;
+	    startTokenSurvey(): void;
+	    _renewAuthToken(): void;
+	    getContacts(): Promise<unknown>;
+	    getContactInformationByJID(jid: any): Promise<unknown>;
+	    getContactInformationByID(id: any): Promise<unknown>;
+	    getContactInformationByLoginEmail(email: any): Promise<[any]>;
+	    getServerFavorites(): Promise<unknown>;
+	    addServerFavorite(peerId: string, type: string): Promise<unknown>;
+	    removeServerFavorite(favoriteId: string): Promise<unknown>;
+	    /**
+	     * ACCEPT INVITATION
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * DECLINE INVITATION
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * SEND INVITATION
+	     * Used by SDK (public)
+	     * Warning when modifying this method
+	     */
+	    joinContactInvitation(contact: any): Promise<unknown>;
+	    joinContacts(contact: any, contactIds: any, presence: any): Promise<unknown>;
+	    getInvitationById(invitationId: any): Promise<unknown>;
+	    getGroups(): Promise<unknown>;
+	    getGroup(groupId: any): Promise<unknown>;
+	    setFavoriteGroup(group: any, favorite: any): Promise<unknown>;
+	    createGroup(name: any, comment: any, isFavorite: any): Promise<unknown>;
+	    deleteGroup(groupId: any): Promise<unknown>;
+	    updateGroupName(groupId: any, name: any): Promise<unknown>;
+	    addUserInGroup(contactId: any, groupId: any): Promise<unknown>;
+	    removeUserFromGroup(contactId: any, groupId: any): Promise<unknown>;
+	    getBots(): Promise<unknown>;
+	    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
+	    setBubbleVisibility(bubbleId: any, visibility: any): Promise<unknown>;
+	    setBubbleTopic(bubbleId: any, topic: any): Promise<unknown>;
+	    setBubbleName(bubbleId: any, name: any): Promise<unknown>;
+	    getBubbles(): Promise<unknown>;
+	    getBubble(bubbleId: any): Promise<unknown>;
+	    getBubbleByJid(bubbleJid: any): Promise<unknown>;
+	    setBubbleCustomData(bubbleId: any, customData: any): Promise<unknown>;
+	    inviteContactToBubble(contactId: any, bubbleId: any, asModerator: any, withInvitation: any, reason: any): Promise<unknown>;
+	    inviteContactsByEmailsToBubble(contactsEmails: any, bubbleId: any): Promise<unknown>;
+	    getRoomUsers(bubbleId: any, options?: any): Promise<unknown>;
+	    promoteContactInBubble(contactId: any, bubbleId: any, asModerator: any): Promise<unknown>;
+	    changeBubbleOwner(bubbleId: any, contactId: any): Promise<unknown>;
+	    archiveBubble(bubbleId: any): Promise<unknown>;
+	    leaveBubble(bubbleId: any, bubbleStatus: any): Promise<unknown>;
+	    deleteBubble(bubbleId: any): Promise<unknown>;
+	    removeInvitationOfContactToBubble(contactId: any, bubbleId: any): Promise<unknown>;
+	    unsubscribeContactFromBubble(contactId: any, bubbleId: any): Promise<unknown>;
+	    acceptInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
+	    declineInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
+	    inviteUser(email: any, companyId: any, language: any, message: any): Promise<unknown>;
+	    setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
+	    deleteAvatarRoom(roomId: any): Promise<unknown>;
+	    /**
+	     * Method retrieveWebConferences
+	     * @public
+	     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+	     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
+	     * @memberof WebConferenceService
+	     */
+	    retrieveWebConferences(mediaType?: string): Promise<any>;
+	    createUser(email: any, password: any, firstname: any, lastname: any, companyId: any, language: any, isAdmin: any, roles: any): Promise<unknown>;
+	    createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<unknown>;
+	    changePassword(password: any, userId: any): Promise<unknown>;
+	    updateInformation(objData: any, userId: any): Promise<unknown>;
+	    deleteUser(userId: any): Promise<unknown>;
+	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
+	    deleteFileDescriptor(fileId: any): Promise<unknown>;
+	    retrieveFileDescriptors(format: any, limit: any, offset: any, viewerId: any): Promise<unknown>;
+	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
+	    retrieveReceivedFilesForRoomOrViewer(roomId: any): Promise<unknown>;
+	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
+	    retrieveUserConsumption(): Promise<unknown>;
+	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
+	    addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<unknown>;
+	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
+	    getFileFromUrl(url: any): Promise<unknown>;
+	    getBlobFromUrl(url: any): Promise<unknown>;
+	    uploadAFile(fileId: any, buffer: any): Promise<unknown>;
+	    uploadAStream(fileId: any, stream: any): Promise<unknown>;
+	    sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
+	    sendPartialFileCompletion(fileId: any): Promise<unknown>;
+	    getServerCapabilities(): Promise<unknown>;
+	    getUserSettings(): Promise<unknown>;
+	    updateUserSettings(settings: any): Promise<unknown>;
+	    getAllCompanies(): Promise<unknown>;
+	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string): Promise<unknown>;
+	    getContactInfos(userId: any): Promise<unknown>;
+	    putContactInfos(userId: any, infos: any): Promise<unknown>;
+	    createCompany(name: any, country: any, state: any): Promise<unknown>;
+	    getCompany(companyId: any): Promise<unknown>;
+	    deleteCompany(companyId: any): Promise<unknown>;
+	    setVisibilityForCompany(companyId: any, visibleByCompanyId: any): Promise<unknown>;
+	    createPublicChannel(name: any, topic: any, category: string, visibility: any, max_items: any, max_payload_size: any): Promise<unknown>;
+	    deleteChannel(channelId: any): Promise<unknown>;
+	    findChannels(name: any, topic: any, category: any, limit: any, offset: any, sortField: any, sortOrder: any): Promise<unknown>;
+	    getChannels(): Promise<unknown>;
+	    getChannel(id: any): Promise<unknown>;
+	    publishMessage(channelId: any, message: any, title: any, url: any, imagesIds: any, type: any): Promise<unknown>;
+	    private chewReceivedItems;
+	    /**
+	     * Get latests message from channel
+	     */
+	    getLatestMessages(maxMessages: number, beforeDate?: Date, afterDate?: Date): Promise<unknown>;
+	    subscribeToChannel(channelId: any): Promise<unknown>;
+	    unsubscribeToChannel(channelId: any): Promise<unknown>;
+	    updateChannel(channelId: any, title: any, visibility: any, max_items: any, max_payload_size: any, channelName: any, mode: any): Promise<unknown>;
+	    uploadChannelAvatar(channelId: string, avatar: any, avatarSize: number, fileType: string): Promise<any>;
+	    deleteChannelAvatar(channelId: string): Promise<any>;
+	    getChannelUsers(channelId: any, options: any): Promise<unknown>;
+	    deleteAllUsersFromChannel(channelId: any): Promise<unknown>;
+	    updateChannelUsers(channelId: any, users: any): Promise<unknown>;
+	    getChannelMessages(channelId: any): Promise<unknown>;
+	    /**
+	     * Delete item from a channel
+	     */
+	    deleteChannelMessage(channelId: any, itemId: any): Promise<unknown>;
+	    getServerProfiles(): Promise<unknown>;
+	    getServerProfilesFeatures(): Promise<unknown>;
+	    makeCall(contact: any, phoneInfo: any): Promise<unknown>;
+	    releaseCall(call: any): Promise<unknown>;
+	    makeConsultationCall(callId: any, contact: any, phoneInfo: any): Promise<unknown>;
+	    answerCall(call: any): Promise<unknown>;
+	    holdCall(call: any): Promise<unknown>;
+	    retrieveCall(call: any): Promise<unknown>;
+	    deflectCallToVM(call: any, VMInfos: any): Promise<unknown>;
+	    deflectCall(call: any, calleeInfos: any): Promise<unknown>;
+	    transfertCall(activeCall: any, heldCall: any): Promise<unknown>;
+	    conferenceCall(activeCall: any, heldCall: any): Promise<unknown>;
+	    forwardToDevice(contact: any, phoneInfo: any): Promise<unknown>;
+	    getForwardStatus(): Promise<unknown>;
+	    getNomadicStatus(): Promise<unknown>;
+	    nomadicLogin(data: any): Promise<unknown>;
+	    sendDtmf(callId: any, deviceId: any, data: any): Promise<unknown>;
+	    logon(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
+	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
+	    getRainbowNodeSdkPackagePublishedInfos(): Promise<unknown>;
+	    getServerConversations(format?: String): Promise<unknown>;
+	    createServerConversation(conversation: any): Promise<unknown>;
+	    deleteServerConversation(conversationId: any): Promise<unknown>;
+	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
+	    sendConversationByEmail(conversationId: any): Promise<unknown>;
+	    ackAllMessages(conversationId: any): Promise<unknown>;
+	    MEDIATYPE: {
+	        WEBRTC: string;
+	        WEBRTCSHARINGONLY: string;
+	    };
+	    joinConference(webPontConferenceId: any, role?: string): Promise<unknown>;
+	    getAllSentInvitations(): Promise<unknown>;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    getAllReceivedInvitations(): Promise<unknown>;
+	    get(url: any, token: any): Promise<unknown>;
+	    post(url: any, token: any, data: any, contentType: any): Promise<unknown>;
+	    put(url: any, token: any, data: any): Promise<unknown>;
+	    delete(url: any, token: any): Promise<unknown>;
+	    checkEveryPortals(): Promise<[void, void, void, void, void, void] | {
+	        status: string;
+	    }>;
+	    checkPortalHealth(): Promise<unknown>;
+	    attemptToReconnect(reconnectDelay: any): void;
+	    get_attempt_succeeded_callback(resolve?: any): any;
+	    get_attempt_failed_callback(reject?: any): any;
+	    reconnect(): Promise<unknown>;
+	    listConnectionsS2S(): Promise<unknown>;
+	    sendS2SPresence(obj: any): Promise<unknown>;
+	    deleteConnectionsS2S(connexions: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+	    loginS2S(callback_url: any): Promise<unknown>;
+	    infoS2S(s2sConnectionId: any): Promise<unknown>;
+	    setS2SConnection(connectionId: any): Promise<unknown>;
+	    sendS2SMessageInConversation(conversationId: any, msg: any): Promise<unknown>;
+	    getS2SServerConversation(conversationId: any): Promise<unknown>;
+	    /**
+	     *
+	     * @param roomid
+	     * @param {string} role Enum: "member" "moderator" of your role in this room
+
+	     */
+	    joinS2SRoom(roomid: any, role: ROOMROLE): Promise<unknown>;
+	    markMessageAsRead(conversationId: any, messageId: any): Promise<unknown>;
+	}
+	export { RESTService };
 
 }
 declare module 'lib/services/ImsService' {

@@ -231,7 +231,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("dts-generator");
 
   grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build"]);
   grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("defaultDEBUG", ["prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
 //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);

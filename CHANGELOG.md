@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.70.0-dotnet.0] - 2020-04-XX
+-   Add defaultDEBUG to generate the compiled files with debug log not putted in comment.
+-   Fix generateRss file because Array.values() method did not work anymore.
+
 ## [1.69.0] - 2020-03-30
 -   Add nextDebugBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
 
