@@ -50,6 +50,7 @@ class XmppClient  {
     lastTimeReset: Date;
     timeBetweenReset: number;
     messagesDataStore: DataStoreType;
+    private iqSetEventRoster: any;
 
     constructor(...args) {
         //super(...args);
@@ -57,11 +58,18 @@ class XmppClient  {
         let that = this;
         this.options = [...args];
         this.restartConnectEnabled = true;
+        this.iqGetEventWaiting = {};
+        this.iqSetEventRoster = ctx => {
+            that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRoster set iq receiv - :", ctx);
+            return {};
+        };
         this.client = client(...args);
+        this.client.getQuery('urn:xmpp:ping', 'ping', ctx => { return {} });
+        this.client.setQuery('jabber:iq:roster', 'query', this.iqSetEventRoster);
+
         this.nbMessagesSentThisHour = 0;
         this.timeBetweenReset = 1000 * 60 * 60 ; // */
 
-        this.iqGetEventWaiting = {};
 
         this.onIqErrorReceived = (msg, stanza) => {
             //let children = stanza.children;

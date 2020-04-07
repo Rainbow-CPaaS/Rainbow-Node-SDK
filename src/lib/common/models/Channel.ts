@@ -3,6 +3,62 @@ import {Conversation} from "./Conversation";
 
 export {};
 
+
+///
+/**
+ *
+ * @name Appreciation
+ * @description
+ * To store all Type of Appreciations to set on a item
+ */
+enum Appreciation
+{
+    // Applause
+    Applause = "applause",
+    // Doubt
+    Doubt = "doubt",
+    // Fantastic
+    Fantastic = "fantastic",
+    // Happy
+    Happy = "happy",
+    // Like
+    Like = "like",
+    // None (no appreciation)
+    None = "none"
+}
+
+
+/**
+ *
+ * @name Appreciations
+ * @description
+ * Number of applause, doubt, fantastic, happy and like appreciations for an item
+ */
+class Appreciations {
+    // Number of "Applause" appreciation
+    public Applause;
+
+    // <see cref="int"/> - Number of "Doubt" appreciation
+    public Doubt;
+
+    // <see cref="int"/> - Number of "Fantastic" appreciation
+    public Fantastic;
+
+    // <see cref="int"/> - Number of "Happy" appreciation
+    public Happy;
+
+    // <see cref="int"/> - Number of "Like" appreciation
+    public Like;
+
+    // Serialize this object to string
+    // <returns><see cref="String"/> as serialization result</returns>
+    ToString() {
+        let tab = " ";
+
+        return ("Applause:[" + this.Applause + "] " + tab + "Doubt:[" + this.Doubt + "] " + tab + "Fantastic:[" + this.Fantastic + "] " + tab + "Happy:[" + this.Happy + "] " + tab + "Like:[" + this.Like + "]");
+    }
+}
+
 /**
  * @class
  * @public
@@ -281,4 +337,5 @@ class Channel {
 
 
 module.exports.Channel = Channel;
-export {Channel};
+module.exports.Appreciation = Appreciation;
+export {Channel, Appreciation};

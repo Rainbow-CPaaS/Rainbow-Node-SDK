@@ -1,5 +1,7 @@
 "use strict";
 
+const Appreciation =  require("./lib/common/models/Channel").Appreciation;
+
 const DataStoreType = require("./lib/config/config").DataStoreType;
 
 const Core = require("./lib/Core").Core;
@@ -640,8 +642,21 @@ class NodeSDK {
         return this._core._s2s;
     }
 
+    /**
+     * @public
+     * @property {Object} DataStoreType
+     * @return {*}
+     * @description
+     *    Get access to the s2s module
+     * @memberof NodeSDK
+     */
     get DataStoreType() {
         return DataStoreType;
+    }
+
+
+    static get Appreciation() {
+        return Appreciation;
     }
 
 }

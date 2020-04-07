@@ -357,7 +357,7 @@ Accessing individually an existing contact can be done using the API `getContact
 
     ...
     // Retrieve the contact information when receiving a message from him
-    rainbowSDK.contacts.getContactByJid(message.fromJid).then(function(contact) {
+    rainbowSDK.contacts.getContactByJid(message.fromJid, false).then(function(contact) {
         // do something with the contact found
     }).catch(function(err) {
         // do something on error 

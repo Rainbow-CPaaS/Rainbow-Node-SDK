@@ -353,11 +353,33 @@ class RESTService {
         });
     }
 
+    removeContactFromRoster(dbId) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            if (!dbId) {
+                that.logger.log("debug", LOG_ID + "(removeContactFromRoster) failed");
+                that.logger.log("info", LOG_ID + "(removeContactFromRoster) No dbId provided");
+                resolve(null);
+            }
+            else {
+                that.http.delete("/api/rainbow/enduser/v1.0/users/networks/" + dbId, that.getRequestHeader()).then(function(json) {
+                    that.logger.log("debug", LOG_ID + "(removeContactFromRoster) successfull");
+                    that.logger.log("internal", LOG_ID + "(removeContactFromRoster) received " + json.total + " contacts");
+                    resolve(json.data);
+                }).catch(function(err) {
+                    that.logger.log("error", LOG_ID, "(removeContactFromRoster) error");
+                    that.logger.log("internalerror", LOG_ID, "(removeContactFromRoster) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
     getContactInformationByJID(jid) {
         let that = this;
         return new Promise(function(resolve, reject) {
             if (!jid) {
-                that.logger.log("debug", LOG_ID + "(getContactInformationByJID) successfull");
+                that.logger.log("debug", LOG_ID + "(getContactInformationByJID)  failed");
                 that.logger.log("info", LOG_ID + "(getContactInformationByJID) No jid provided");
                 resolve(null);
             }
@@ -391,7 +413,7 @@ class RESTService {
         let that = this;
         return new Promise(function(resolve, reject) {
             if (!id) {
-                that.logger.log("debug", LOG_ID + "(getContactInformationByID) successfull");
+                that.logger.log("debug", LOG_ID + "(getContactInformationByID) failed");
                 that.logger.log("info", LOG_ID + "(getContactInformationByID) No id provided");
                 resolve(null);
             }
@@ -2159,8 +2181,8 @@ Request Method: PUT
 
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/publish", that.getRequestHeader(), payload, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(publishMessage) successfull");
-                that.logger.log("internal", LOG_ID + "(publishMessage) REST message published", json.data);
-                resolve(json.data);
+                that.logger.log("internal", LOG_ID + "(publishMessage) REST message published : ", json);
+                resolve(json);
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(publishMessage) error");
                 that.logger.log("internalerror", LOG_ID, "(publishMessage) error : ", err);
@@ -2393,6 +2415,37 @@ Request Method: PUT
             }).catch(function(err) {
                 that.logger.log("error", LOG_ID, "(getChannelMessages) error");
                 that.logger.log("internalerror", LOG_ID, "(getChannelMessages) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    likeItem(channelId, itemId, appreciation) {
+        let that = this;
+        let data = {"appreciation": appreciation};
+        return new Promise(function(resolve, reject) {
+            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/like", that.getRequestHeader(), data, undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(likeItem) successfull");
+                that.logger.log("internal", LOG_ID + "(likeItem) REST channels item liked received : ", json.data);
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(likeItem) error");
+                that.logger.log("internalerror", LOG_ID, "(likeItem) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getDetailedAppreciations(channelId, itemId) {
+        let that = this;
+        return new Promise(function(resolve, reject) {
+            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/like?limit=100", that.getRequestHeader(), undefined).then(function(json) {
+                that.logger.log("info", LOG_ID + "(getDetailedAppreciations) successfull");
+                that.logger.log("internal", LOG_ID + "(getDetailedAppreciations) REST channels item liked received : ", json.data);
+                resolve(json.data);
+            }).catch(function(err) {
+                that.logger.log("error", LOG_ID, "(getDetailedAppreciations) error");
+                that.logger.log("internalerror", LOG_ID, "(getDetailedAppreciations) error : ", err);
                 return reject(err);
             });
         });

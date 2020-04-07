@@ -1652,7 +1652,7 @@ class Conversations {
             userJid = conversation.bubble.ownerContact.jid;
         }
 
-        let contact = this._contacts.getContactByJid(userJid);
+        let contact = this._contacts.getContactByJid(userJid, true);
 
         if (conversation && contact) {
             // If invitation msg and I'm not the owner
@@ -1716,7 +1716,7 @@ class Conversations {
             //stop infinite loop in case of error
             that.botServiceReady = false;
             that.waitingBotConversations.forEach(async function(obj, index) {
-                let contact : Contact = await that._contacts.getContactByJid(obj.jid);
+                let contact : Contact = await that._contacts.getContactByJid(obj.jid, false);
                 if (contact) {
                     await that.getOrCreateOneToOneConversation(contact.jid, null, obj.lastModification, obj.lastMessageText, obj.missedIMCounter, obj.muted, obj.creationDate);
                     that.waitingBotConversations.splice(index, 1);

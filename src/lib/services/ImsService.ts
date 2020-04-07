@@ -429,10 +429,12 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent : any = Promise.reject();
+        let messageSent : any = undefined;
 
         if (this._useXMPP) {
              messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        } else {
+            messageSent = Promise.reject("only supported in xmpp mode");
         }
 
         /*

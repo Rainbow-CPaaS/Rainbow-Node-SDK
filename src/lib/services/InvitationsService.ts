@@ -176,9 +176,9 @@ class InvitationsService {
 		];
 	};
 
-	onRosterChanged() {
+	onRosterChanged(data) {
 		let that = this;
-		that._logger.log("info", LOG_ID + "onRosterChanged");
+		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
 		return that.getAllSentInvitations();
 	}
 

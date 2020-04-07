@@ -286,7 +286,7 @@ class TelephonyEventHandler extends GenericHandler {
             let descriptionElm = node.getChild("description");
             let media = descriptionElm.attrs.media;
 
-            let contact = await that.contactService.getContactByJid(from);
+            let contact = await that.contactService.getContactByJid(from, true);
             that.eventEmitter.emit("evt_internal_propose", {contact, media });
         };
 

@@ -102,6 +102,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onuserinvitereceived
  * @fires Events#rainbow_onuserinviteaccepted
  * @fires Events#rainbow_onuserinvitecanceled
+ * @fires Events#rainbow_onusercontactremoved
  * @fires Events#rainbow_onbubbleaffiliationchanged
  * @fires Events#rainbow_onbubbleownaffiliationchanged
  * @fires Events#rainbow_onbubbleinvitationreceived
@@ -382,6 +383,8 @@ class Events {
              * @param { Invitation } invitation The invitation accepted
              * @description
              *      Fired when an user invitation is accepted
+             *      Note :
+             *      A contact is added to connected user's network when this contact accepts the invitation, so the event raised is `rainbow_onuserinviteaccepted` instead of a `rainbow_contactaddedtonetwork`
              */
             that.publishEvent("userinviteaccepted", invitation);
         });
@@ -395,6 +398,19 @@ class Events {
              *      Fired when an user invitation is canceled
              */
             that.publishEvent("userinvitecanceled", invitation);
+        });
+
+        this._evReceiver.on("evt_internal_contactremovedfromnetwork", function(invitation) {
+            /**
+             * @public
+             * @event Events#rainbow_contactremovedfromnetwork
+             * @param { Contact } contact The contact removed from network.
+             * @description
+             *      Fired when a contact is removed from connected user's network.
+             *      Note :
+             *      A contact is added to connected user's network when this contact accepts the invitation, so the event raised is `rainbow_onuserinviteaccepted` instead of a `rainbow_contactaddedtonetwork`
+             */
+            that.publishEvent("contactremovedfromnetwork", invitation);
         });
 
         this._evReceiver.on("evt_internal_affiliationdetailschanged", function(bubble) {
@@ -588,6 +604,17 @@ class Events {
              *      Fired when a message is received from a channel
              */
             that.publishEvent("channelmessagereceived", message);
+        });
+
+        this._evReceiver.on("evt_internal_channelmyappreciationreceived", function(appreciation) {
+            /**
+             * @event Events#rainbow_onchannelmyappreciationreceived
+             * @public
+             * @param { Object } appreciation The appreciation received
+             * @description
+             *      Fired when a message is received from a channel
+             */
+            that.publishEvent("channelmyappreciationreceived", appreciation);
         });
 
         this._evReceiver.on("evt_internal_channelmessagedeletedreceived", function(message) {

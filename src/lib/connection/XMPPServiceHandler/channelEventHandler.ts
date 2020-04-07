@@ -142,6 +142,42 @@ class ChannelEventHandler extends GenericHandler {
                 }
 
                 switch (item.name) {
+                    case "my_appreciation": {
+                        // <message xmlns="jabber:client" to="a9b77288b939470b8da4611cc2af1ed1@openrainbow.com/52984746919062435855569220" from="pubsub.openrainbow.com" type="headline" id="8840206819928441857"><event xmlns="http://jabber.org/protocol/pubsub#event"><update id="628D19BF3E372" channel_id="5dea7c6294e80144c1776fe1" node="5dea7c6294e80144c1776fe1:RNodeSdkChangeLog"><my_appreciation appreciation="like" xmlns="http://jabber.org/protocol/pubsub"/><appreciations doubt="0" happy="0" fantastic="0" applause="0" like="1" xmlns="http://jabber.org/protocol/pubsub"/></update></event></message>
+                        let appreciation = item.attrs ? item.attrs.appreciation || null : null;
+                        if (appreciation === null) {
+                            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel my_appreciation received, but appreciation is empty. So ignored.");
+                        } else {
+                            let my_appreciation = {
+                                appreciation: null,
+                                messageId: null,
+                                channelId : null,
+                                appreciations : {
+                                    "doubt" : 0,
+                                    "happy" : 0,
+                                    "fantastic" : 0,
+                                    "applause" : 0,
+                                    "like" : 0
+                                }
+                            };
+                            my_appreciation.appreciation = item.attrs.appreciation;
+                            my_appreciation.messageId = item.parent.attrs.id ;
+                            my_appreciation.channelId = item.parent.attrs.channel_id;
+                            //"message": entry.getChild("message") ? entry.getChild("message").getText() || "" : "",
+                            let appreciations = item.parent.getChild("appreciations");
+                            if (appreciations) {
+                                my_appreciation.appreciations.doubt = parseInt(appreciations.attrs.doubt);
+                                my_appreciation.appreciations.happy = parseInt(appreciations.attrs.happy);
+                                my_appreciation.appreciations.fantastic = parseInt(appreciations.attrs.fantastic);
+                                my_appreciation.appreciations.applause = parseInt(appreciations.attrs.applause);
+                                my_appreciation.appreciations.like = parseInt(appreciations.attrs.like);
+                            }
+
+                            that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel my_appreciation received, for my_appreciation ", my_appreciation);
+                            that.eventEmitter.emit("evt_internal_channelbyidmyappreciationreceived", my_appreciation);
+                        }
+                    }
+                        break;
                     case "retract": {
                         let messageId = item.attrs ? item.attrs.id || null : null;
                         if (messageId === null) {

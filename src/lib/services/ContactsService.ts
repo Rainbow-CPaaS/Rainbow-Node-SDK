@@ -379,6 +379,7 @@ class Contacts {
      * @method getContactByJid
      * @instance
      * @param {string} jid The contact jid
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
      *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information)
      * @async
@@ -386,7 +387,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid) : Promise<Contact>{
+    getContactByJid(jid, forceServerSearch) : Promise<Contact>{
 
         let that = this;
 
@@ -398,7 +399,7 @@ class Contacts {
             else {
                 let contactFound = null;
 
-                if (that._contacts) {
+                if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
                         return contact.jid_im === jid;
                     });
@@ -672,7 +673,7 @@ class Contacts {
     /**
      * @public
      * @since 1.17
-     * @method
+     * @method addToNetwork
      * @instance
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
@@ -720,13 +721,49 @@ class Contacts {
                                 return reject(err);
                             });
                         } else {
-                            that._logger.log("internal", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
+                            that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                             resolve(null);
                         }
                     }).catch((err) => {
+                        that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                         return reject(err);
                     });
             }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeFromNetwork
+     * @since 1.69
+     * @instance
+     * @description
+     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence
+     * @param {Contact} contact The contact object to unsubscribe
+     * @returns {Promise} A promise that contains success code if removed or an object describing an error
+     */
+    removeFromNetwork(contact) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            if (!contact) {
+                this._logger.log("warn", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter");
+                this._logger.log("internalerror", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter : ", contact);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.removeContactFromRoster(contact.id).then(function () {
+                that._logger.log("info", LOG_ID + "(removeFromNetwork) contact removed from network.");
+                that._logger.log("internal", LOG_ID + "(removeFromNetwork) contact removed from network : ", contact);
+                return resolve({
+                    code: 1,
+                    label: "OK"
+                });
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(removeFromNetwork) contact cannot be removed.");
+                that._logger.log("internalerror", LOG_ID + "(removeFromNetwork) contact cannot be removed : ", util.inspect(contact));
+                return reject(err);
+            });
         });
     }
 
@@ -985,7 +1022,8 @@ class Contacts {
                 delete contact.resources[presence.resource];
             }
 
-            if( contact.presence === oldPresence && contact.status === oldStatus) {
+            if( oldPresence !== "unknown" && contact.presence === oldPresence && contact.status === oldStatus) {
+                this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) presence contact.presence (" + contact.presence + ") === oldPresence && contact.status (" + contact.status + ") === oldStatus, so ignore presence.");
                 return;
             }
 
@@ -1117,13 +1155,13 @@ class Contacts {
      * @private
      * @method _onRostersUpdate
      * @instance
-     * @param {Object} _contacts contains a contact list with updated elements
+     * @param {Object} contacts contains a contact list with updated elements
      * @description
      *      Method called when the roster _contacts is updated
      */
     _onRostersUpdate( contacts) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(_onRostersUpdate) enter");
+        that._logger.log("internal", LOG_ID + "(_onRostersUpdate) enter : ", contacts);
 
         contacts.forEach( contact => {
             if ( contact.jid.substr(0, 3) !== "tel") { // Ignore telephonny events
@@ -1131,6 +1169,7 @@ class Contacts {
                     let foundContact = that._contacts.find(item => item.jid_im === contact.jid );
                     if (foundContact) {
                         foundContact.presence = "unknown";
+                        that._eventEmitter.emit("evt_internal_contactremovedfromnetwork", contact);
                         // Add suppression delay
                         setTimeout( () => {
                             that._contacts = that._contacts.filter( _contact => _contact.jid_im !== contact.jid);
@@ -1143,12 +1182,8 @@ class Contacts {
                     if (!that._contacts.find(item => {
                         return item.jid_im === contact.jid;
                     })) {
-                        that
-                            .getContactByJid(contact.jid)
-                            .then((_contact) => {
-                                that
-                                    ._contacts
-                                    .push(Object.assign(_contact, {
+                        that.getContactByJid(contact.jid,true).then((_contact) => {
+                                that._contacts.push(Object.assign(_contact, {
                                         resources: {},
                                         presence: "offline",
                                         status: ""
@@ -1161,6 +1196,8 @@ class Contacts {
                             });
                     }
                 }
+            } else {
+                that._logger.log("debug", LOG_ID + "(_onRostersUpdate) Ignore telephonny events.");
             }
         });
     }
