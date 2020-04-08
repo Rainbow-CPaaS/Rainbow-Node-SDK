@@ -1,4 +1,6 @@
 "use strict";
+import {IMService} from "../services/ImsService";
+
 export {};
 
 
@@ -8,6 +10,13 @@ const fs = require("fs");
 const colors = require("colors/safe");
 const util = require("util");
 const stripAnsi = require('strip-ansi');
+
+const path = require("path");
+
+let content = fs.readFileSync(path.join(__dirname, "../../package.json"));
+let packageJSON = JSON.parse(content);
+
+import * as Sentry from '@sentry/node';
 
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
@@ -57,10 +66,57 @@ class Logger {
             eventsEmitter: [ 'cyan', 'underline', 'italic']
         });
 
-        let welcome = () => {
-            this._logger.log("info", LOG_ID + "------------------------------------------------");
+        Sentry.init({
+            dsn: 'https://ee26f70152b24e6d81c13b946764c60d@sentry.openrainbow.io/5' ,
+            release: packageJSON.name + '@' + packageJSON.version,
+            beforeBreadcrumb(breadcrumb, hint) {
+                return breadcrumb.category !== 'node' ? null : breadcrumb;
+            }, // */
+            debug: false, // before it was true
+        });
 
-            this._logger.log("info", LOG_ID + "Welcome to the " + this.colors.magenta("ALE Rainbow SDK for Node.JS") + "");
+        Sentry.setTag("AppId", config.application.appID) ;
+        Sentry.setTag("Host", config.rainbow.host) ;
+
+        // Add a breadcrumb for future events
+        Sentry.addBreadcrumb({
+            // dev-code //
+            message: 'RainbowNodeSDKDebug',
+            "level":  Sentry.Severity.Debug,
+            /*
+            // end-dev-code //
+            message: 'RainbowNodeSDKRelease'
+            "level":  Sentry.Severity.Info,
+
+            //  */
+            category: 'node'
+        });
+
+        let welcome = () => {
+
+            /* Sentry logs
+            // Set user information, as well as tags and further extras
+            Sentry.configureScope(scope => {
+              scope.setExtra('battery', 0.7);
+              scope.setTag('user_mode', 'admin');
+              scope.setUser({ id: '4711' });
+              // scope.clear();
+            });
+
+            // Capture exceptions, messages or manual events
+            Sentry.captureMessage('Hello, world!');
+            Sentry.captureException(new Error('Good bye'));
+            Sentry.captureEvent({
+                message: 'Manual',
+                stacktrace: [
+                    // ...
+                ],
+            });
+            Sentry.Handlers.errorHandler();
+            // */
+
+            this._logger.log("info", LOG_ID + "------------------------------------------------");
+            this._logger.log("info", LOG_ID + "Welcome to the " + this.colors.magenta("ALE Rainbow SDK for Node.JS Version : " + packageJSON.version ) + "");
             this._logger.log("info", LOG_ID + "Where Everything connects");
             this._logger.log("info", LOG_ID + "Support: Send message to Emily using #support #api");
             this._logger.log("info", LOG_ID + "------------------------------------------------");
@@ -369,11 +425,43 @@ class Logger {
             this._logger.colors = this.colors ;
         }
 
+        this._logger.captureMessage = function (message, level? : Sentry.Severity ) {
+            level = level? level : Sentry.Severity.Info;
+            that._logger.log("internal", LOG_ID + "(captureMessage) message : ", message);
+            Sentry.configureScope(function(scope) {
+                Sentry.captureMessage(message, level);
+            });
+        }
+        this._logger.captureException = function (message) {
+            that._logger.log("internal", LOG_ID + "(captureException) message : ", message);
+            Sentry.captureException(new Error(message));
+        }
+        this._logger.captureEvent = function (data) {
+            that._logger.log("internal", LOG_ID + "(captureEvent) message : ", data);
+            Sentry.captureEvent({
+                message: 'Manual',
+                // @ts-ignore
+                stacktrace: new Error().stack, //[ data ], // */
+            });
+        }
+        //that._logger.captureMessage("IM config : " + JSON.stringify(config.im));
     }
 
     get log() {
         return this._logger;
     }
+
+    captureMessage(message, level? : Sentry.Severity ) {
+        level = level? level : Sentry.Severity.Info;
+        this._logger.captureMessage(message, level);
+    }
+    captureException (message) {
+        this._logger.captureException(new Error(message));
+    }
+    captureEvent (data) {
+        this._logger.captureEvent(data);
+    }
+
 
     argumentsToStringReduced (v){
         // convert arguments object to real array

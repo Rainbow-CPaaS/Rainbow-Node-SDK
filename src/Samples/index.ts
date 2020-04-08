@@ -111,7 +111,7 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
-    "testOutdatedVersion": false,
+    "testOutdatedVersion": true,
     // IM options
     "im": {
         "sendReadReceipt": true,

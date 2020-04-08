@@ -260,6 +260,7 @@ class NodeSDK {
         //process.on("SIGUSR2", that.stopProcess());
 
         this._core = new Core(options);
+
     }
 
     /**

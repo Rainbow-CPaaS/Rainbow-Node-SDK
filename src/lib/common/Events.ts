@@ -991,6 +991,23 @@ class Events {
 
         let eventName= "rainbow_on" + event;
 
+        switch (eventName) {
+            case "rainbow_onstarted":
+            case "rainbow_onstopped":
+            case "rainbow_onconnected":
+             case "rainbow_ondisconnected":
+             case "rainbow_onreconnecting":
+                 break;
+             case "rainbow_onfailed":
+             case "rainbow_onready":
+             case "rainbow_onerror":
+            case "rainbow_onconnectionerror":
+            case "rainbow_onrainbowversionwarning":
+            case "ready" :
+                let message = eventName + JSON.stringify(params) //? params[0] : "";
+                that._logger.captureMessage(message);
+                break;
+        }
         that._logger.log("info", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));
         let iter = 0;
         params.forEach((dataIter) => {
