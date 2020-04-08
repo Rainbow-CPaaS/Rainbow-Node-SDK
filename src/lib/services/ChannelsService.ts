@@ -1810,7 +1810,7 @@ class Channels {
      * @description
      *  To like an Channel Item with the specified appreciation
      */
-    public likeItem( channel, itemId, appreciation /*, Action<SdkResult<Boolean>> callback = null */): Promise<any> {
+    public likeItem( channel, itemId, appreciation : Appreciation): Promise<any> {
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(likeItem) bad or empty 'channel' parameter ");
             this._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", channel);

@@ -403,7 +403,7 @@ class Events {
         this._evReceiver.on("evt_internal_contactremovedfromnetwork", function(invitation) {
             /**
              * @public
-             * @event Events#rainbow_contactremovedfromnetwork
+             * @event Events#rainbow_oncontactremovedfromnetwork
              * @param { Contact } contact The contact removed from network.
              * @description
              *      Fired when a contact is removed from connected user's network.
