@@ -357,9 +357,9 @@ class NodeSDK {
     stop() {
         let that = this;
         return new Promise(function(resolve, reject) {
-            return that._core.stop().then(function(result) {
+            return that._core.stop().then(async(result) => {
                 //let success = ErrorManager.getErrorManager().OK;
-                utils.setTimeoutPromised(1500).then( () => {
+                await utils.setTimeoutPromised(2000).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);
                     resolve(result);

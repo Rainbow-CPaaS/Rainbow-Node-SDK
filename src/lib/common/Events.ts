@@ -7,6 +7,7 @@ import {ErrorManager} from "./ErrorManager";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
 import {Logger} from "./Logger";
+import {setTimeoutPromised} from "./Utils";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
@@ -983,7 +984,7 @@ class Events {
      * @description
      *      Add "rainbow_on" prefix to event name, print it human readable, and raises it.
      */
-    publishEvent(...args: any[]): void {
+    async publishEvent(...args: any[]): Promise<any> {
         let event;
         let params;
         let that = this;
@@ -993,7 +994,6 @@ class Events {
 
         switch (eventName) {
             case "rainbow_onstarted":
-            case "rainbow_onstopped":
             case "rainbow_onconnected":
              case "rainbow_ondisconnected":
              case "rainbow_onreconnecting":
@@ -1003,9 +1003,12 @@ class Events {
              case "rainbow_onerror":
             case "rainbow_onconnectionerror":
             case "rainbow_onrainbowversionwarning":
-            case "ready" :
+            case "rainbow_onstopped":
                 let message = eventName + JSON.stringify(params) //? params[0] : "";
-                that._logger.captureMessage(message);
+                await that._logger.captureMessage(message);
+                //await setTimeoutPromised(1000);
+                break;
+            default :
                 break;
         }
         that._logger.log("info", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));

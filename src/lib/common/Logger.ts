@@ -425,20 +425,20 @@ class Logger {
             this._logger.colors = this.colors ;
         }
 
-        this._logger.captureMessage = function (message, level? : Sentry.Severity ) {
+        this._logger.captureMessage = async (message, level? : Sentry.Severity ) => {
             level = level? level : Sentry.Severity.Info;
             that._logger.log("internal", LOG_ID + "(captureMessage) message : ", message);
-            Sentry.configureScope(function(scope) {
-                Sentry.captureMessage(message, level);
-            });
+            //Sentry.configureScope(function(scope) {
+              return await Sentry.captureMessage(message, level);
+            //});
         }
-        this._logger.captureException = function (message) {
+        this._logger.captureException = async (message) => {
             that._logger.log("internal", LOG_ID + "(captureException) message : ", message);
-            Sentry.captureException(new Error(message));
+            return await Sentry.captureException(new Error(message));
         }
-        this._logger.captureEvent = function (data) {
+        this._logger.captureEvent = async (data) => {
             that._logger.log("internal", LOG_ID + "(captureEvent) message : ", data);
-            Sentry.captureEvent({
+            return await Sentry.captureEvent({
                 message: 'Manual',
                 // @ts-ignore
                 stacktrace: new Error().stack, //[ data ], // */
@@ -451,15 +451,15 @@ class Logger {
         return this._logger;
     }
 
-    captureMessage(message, level? : Sentry.Severity ) {
+    async captureMessage(message, level? : Sentry.Severity ) {
         level = level? level : Sentry.Severity.Info;
-        this._logger.captureMessage(message, level);
+        return await this._logger.captureMessage(message, level);
     }
-    captureException (message) {
-        this._logger.captureException(new Error(message));
+    async captureException (message) {
+        return await this._logger.captureException(new Error(message));
     }
-    captureEvent (data) {
-        this._logger.captureEvent(data);
+    async captureEvent (data) {
+        return await this._logger.captureEvent(data);
     }
 
 
