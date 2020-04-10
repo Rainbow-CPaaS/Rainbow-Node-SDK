@@ -65,32 +65,41 @@ class Logger {
             events: [ 'magenta', 'underline', 'italic'],
             eventsEmitter: [ 'cyan', 'underline', 'italic']
         });
+        // dev-code //
+        let environment = config.logs.sentry.environment ? config.logs.sentry.environment : 'Development' ; // Production, staging, Qualification, Development
+        // end-dev-code //
+        if (config.logs.sentry.enabled) {
+            Sentry.init({
+                dsn: config.logs.sentry.urlDSN,
+                release: packageJSON.name + '@' + packageJSON.version,
+                beforeBreadcrumb(breadcrumb, hint) {
+                    return breadcrumb.category !== 'node' ? null : breadcrumb;
+                },
+                debug: false, // before it was true
+                // dev-code //
+                environment:environment
+                /*
+                // end-dev-code //
+                environment: 'Production' // Production, staging, Qualification, Development
+                // */
+            });
 
-        Sentry.init({
-            dsn: 'https://ee26f70152b24e6d81c13b946764c60d@sentry.openrainbow.io/5' ,
-            release: packageJSON.name + '@' + packageJSON.version,
-            beforeBreadcrumb(breadcrumb, hint) {
-                return breadcrumb.category !== 'node' ? null : breadcrumb;
-            }, // */
-            debug: false, // before it was true
-        });
+            Sentry.setTag("AppId", config.application.appID);
+            Sentry.setTag("Host", config.rainbow.host);
 
-        Sentry.setTag("AppId", config.application.appID) ;
-        Sentry.setTag("Host", config.rainbow.host) ;
-
-        // Add a breadcrumb for future events
-        Sentry.addBreadcrumb({
-            // dev-code //
-            message: 'RainbowNodeSDKDebug',
-            "level":  Sentry.Severity.Debug,
-            /*
-            // end-dev-code //
-            message: 'RainbowNodeSDKRelease'
-            "level":  Sentry.Severity.Info,
-
-            //  */
-            category: 'node'
-        });
+            // Add a breadcrumb for future events
+            Sentry.addBreadcrumb({
+                // dev-code //
+                message: 'RainbowNodeSDKDebug',
+                "level": Sentry.Severity.Debug,
+                /*
+                // end-dev-code //
+                message: 'RainbowNodeSDKRelease',
+                "level":  Sentry.Severity.Info,
+                //  */
+                category: 'node'
+            });
+        }
 
         let welcome = () => {
 
@@ -429,20 +438,26 @@ class Logger {
             level = level? level : Sentry.Severity.Info;
             that._logger.log("internal", LOG_ID + "(captureMessage) message : ", message);
             //Sentry.configureScope(function(scope) {
-              return await Sentry.captureMessage(message, level);
+            if (config.logs.sentry.enabled) {
+                return await Sentry.captureMessage(message, level);
+            }
             //});
         }
         this._logger.captureException = async (message) => {
             that._logger.log("internal", LOG_ID + "(captureException) message : ", message);
-            return await Sentry.captureException(new Error(message));
+            if (config.logs.sentry.enabled) {
+                return await Sentry.captureException(new Error(message));
+            }
         }
         this._logger.captureEvent = async (data) => {
             that._logger.log("internal", LOG_ID + "(captureEvent) message : ", data);
-            return await Sentry.captureEvent({
-                message: 'Manual',
-                // @ts-ignore
-                stacktrace: new Error().stack, //[ data ], // */
-            });
+            if (config.logs.sentry.enabled) {
+                return await Sentry.captureEvent({
+                    message: 'Manual',
+                    // @ts-ignore
+                    stacktrace: new Error().stack, //[ data ], // */
+                });
+            }
         }
         //that._logger.captureMessage("IM config : " + JSON.stringify(config.im));
     }

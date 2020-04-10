@@ -109,6 +109,11 @@ let options = {
             "zippedArchive": false /*,
             "maxSize" : '10m',
             "maxFiles" : 10 // */
+        },
+        "sentry" : {
+            "enabled"  : true,
+            "urlDSN" : "https://ee26f70152b24e6d81c13b946764c60d@sentry.openrainbow.io/5"//,
+           // "environment" : "Qualification"
         }
     },
     "testOutdatedVersion": true,

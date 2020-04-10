@@ -323,7 +323,14 @@ class Core {
             that._rest.startTokenSurvey();
         };
 
-        // Initialize the logger
+
+        if (!options.logs.sentry) {
+            options.logs.sentry = {};
+            options.logs.sentry.enabled = true;
+            options.logs.sentry.urlDSN = "https://ee26f70152b24e6d81c13b946764c60d@sentry.openrainbow.io/5";
+        }
+
+            // Initialize the logger
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
         self.logger.log("debug", LOG_ID + "(constructor) _entering_");

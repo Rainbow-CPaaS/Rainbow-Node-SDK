@@ -82,7 +82,11 @@ let conf =  {
         },
         zippedArchive: true,
         maxSize : "10m",
-        maxFiles : null
+        maxFiles : null,
+        sentry : {
+            enabled  : true,
+            urlDSN : "https://ee26f70152b24e6d81c13b946764c60d@sentry.openrainbow.io/5"
+        }
     },
     im: {
         sendReadReceipt: true,
