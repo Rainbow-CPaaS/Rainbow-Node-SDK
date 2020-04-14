@@ -138,16 +138,19 @@ Channels : Promise.Object[] : getMessagesFromChannel(Channel)
 Channels : Promise.Object[] : fetchChannelItems(Channel)
 Channels : Promise.Channel : deleteMessageFromChannel(String, String)
 Channels : Promise.Channel : deleteItemFromChannel(String, String)
+Channels : Promise.any : likeItem(Channel, String, Appreciation)
+Channels : Promise.any : getDetailedAppreciations(Channel, String)
 Contacts : String : getDisplayName(Contact)
 Contacts : Promise.Array : getRosters()
 Contacts : Contact[] : getAll()
-Contacts : Promise.Contact, ErrorManager : getContactByJid(string)
+Contacts : Promise.Contact, ErrorManager : getContactByJid(string, boolean)
 Contacts : Promise.Contact, ErrorManager : getContactById(string, boolean)
 Contacts : Promise.Contact, ErrorManager : getContactByLoginEmail(string)
 Contacts : String : getAvatarByContactId(string, string)
 Contacts : Contact : getConnectedUser()
 Contacts : Object : addToNetwork(Contact)
 Contacts : Object : addToContactsList(Contact)
+Contacts : Promise : removeFromNetwork(Contact)
 Contacts : Invitation : getInvitationById(String)
 Contacts : Object : acceptInvitation(Invitation)
 Contacts : Object : declineInvitation(Invitation)
@@ -282,6 +285,7 @@ NodeSDK : Object : calllog
 NodeSDK : Object : favorites
 NodeSDK : Object : invitations
 NodeSDK : Object : s2s
+NodeSDK : Object : DataStoreType
 Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
@@ -298,6 +302,7 @@ Events ::event : rainbow_oncontactinformationchanged
 Events ::event : rainbow_onuserinvitereceived
 Events ::event : rainbow_onuserinviteaccepted
 Events ::event : rainbow_onuserinvitecanceled
+Events ::event : rainbow_oncontactremovedfromnetwork
 Events ::event : rainbow_onbubbleaffiliationchanged
 Events ::event : rainbow_onbubblepresencechanged
 Events ::event : rainbow_onbubbleownaffiliationchanged
@@ -314,6 +319,7 @@ Events ::event : rainbow_ongroupupdated
 Events ::event : rainbow_onuseraddedingroup
 Events ::event : rainbow_onuserremovedfromgroup
 Events ::event : rainbow_onchannelmessagereceived
+Events ::event : rainbow_onchannelmyappreciationreceived
 Events ::event : rainbow_onchannelmessagedeletedreceived
 Events ::event : rainbow_onprofilefeatureupdated
 Events ::event : rainbow_oncallupdated

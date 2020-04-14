@@ -129,6 +129,7 @@ function unhandledRejection(reason, p) {
 class NodeSDK {
     public _core: any;
     public startTime: Date;
+    static NodeSDK: any;
 
     /**
      * @method constructor
@@ -665,4 +666,7 @@ class NodeSDK {
 
 }
 
+NodeSDK.NodeSDK = NodeSDK;
+
 module.exports = NodeSDK;
+export { NodeSDK as NodeSDK};
