@@ -24,8 +24,9 @@
     "lib": [
       "es6",
       "es2017"
-    ]
+    ],
     //, "dom"
+    "moduleResolution": "Node"
   },
   "buildOnSave": true,
   "compileOnSave": true,
