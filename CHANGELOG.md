@@ -19,6 +19,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add method `contactsService::removeFromNetwork` to remove a contact from the list of contacts and unsubscribe to the contact's presence
 -   Add event `rainbow_contactremovedfromnetwork` raised when a contact is removed from connected user's network.
 -   Add in methods `ContactsService::getContactById`, `ContactsService::getContactByJid`, `ContactsService::getContactByLoginEmail`, `ContactsService::getContact` the presence if the requested user is the connected one.
+-   Add in Message received from server a field "geoloc: { datum: 'WGS84', latitude: '4x.567938', longitude: '-4.xxxxxxx' }" of the localisation sent by a mobile.
 
 ## [1.69.0] - 2020-03-30
 -   Add nextDebugBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk

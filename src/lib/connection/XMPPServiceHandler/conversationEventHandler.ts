@@ -83,6 +83,7 @@ class ConversationEventHandler extends GenericHandler {
                 let eventJid = "";
                 let hasATextMessage = false;
                 let oob = null;
+                let geoloc = null;
                 let messageType = stanza.attrs.type;
                 let timestamp = new Date();
                 let replaceMessageId = null;
@@ -325,6 +326,17 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "store":
                             break;
+                        case "geoloc": {
+                            let datum = node.find("datum").text();
+                            let lat = node.find("lat").text();
+                            let lon = node.find("lon").text();
+                            geoloc = {
+                                datum,
+                                "latitude": lat,
+                                "longitude": lon
+                            };
+                        }
+                            break;
                         case "replace": {
                             let replacedId = node.attrs.id;
                             replaceMessageId = replacedId;
@@ -406,6 +418,7 @@ class ConversationEventHandler extends GenericHandler {
                         "cctype": "",
                         "isEvent": false,
                         "oob": oob,
+                        "geoloc": geoloc,
                         "date": timestamp,
                         "fromBubbleJid": null,
                         "fromBubbleUserJid": null,
