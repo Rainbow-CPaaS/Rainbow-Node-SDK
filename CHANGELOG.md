@@ -18,6 +18,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix treatment of XMPP iq query event `set "remove"` from roster which was sending an "unavailable service" to server.
 -   Add method `contactsService::removeFromNetwork` to remove a contact from the list of contacts and unsubscribe to the contact's presence
 -   Add event `rainbow_contactremovedfromnetwork` raised when a contact is removed from connected user's network.
+-   Add in methods `ContactsService::getContactById`, `ContactsService::getContactByJid`, `ContactsService::getContactByLoginEmail`, `ContactsService::getContact` the presence if the requested user is the connected one.
 
 ## [1.69.0] - 2020-03-30
 -   Add nextDebugBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk

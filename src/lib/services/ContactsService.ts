@@ -266,8 +266,10 @@ class Contacts {
             contact = new Contact();
             // that._logger.log("internal", LOG_ID + "(getContact) before updateFromUserData ", contact);
             contact.updateFromUserData(that._rest.account);
+            contact.status = that._presenceService.getUserConnectedPresence().status;
+            contact.presence = that._presenceService.getUserConnectedPresence();
         } else {
-            contact = that._contacts.find( (_contact) => _contact.jid_im === contactId);
+            contact = that._contacts.find((_contact) => _contact.jid_im === contactId);
         }
 
         return contact;
@@ -398,6 +400,7 @@ class Contacts {
             }
             else {
                 let contactFound = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
@@ -407,7 +410,11 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("info", LOG_ID + "(getContactByJid) contact found locally with jid ", jid );
-                    resolve(contactFound);
+                    if (contactFound.jid_im === connectedUser.jid_im) {
+                        resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 }
                 else {
                     that._logger.log("debug", LOG_ID + "(getContactByJid) contact not found locally. Ask the server...");
@@ -429,6 +436,10 @@ class Contacts {
                             //that._logger.log("internal", LOG_ID + "(getContactByJid) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+                            if (contact.jid_im === connectedUser.jid_im) {
+                                contact.status = that._presenceService.getUserConnectedPresence().status;
+                                contact.presence = that._presenceService.getUserConnectedPresence();
+                            }
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
                         }
@@ -463,6 +474,7 @@ class Contacts {
             } else {
 
                 let contactFound = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
@@ -472,7 +484,12 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("internal", LOG_ID + "(getContactById) contact found locally", contactFound);
-                    resolve(contactFound);
+
+                    if (contactFound.id === connectedUser.id) {
+                     resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 }
                 else {
                     that._logger.log("debug", LOG_ID + "(getContactById) contact not found locally. Ask the server...");
@@ -496,6 +513,11 @@ class Contacts {
                             //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                            if (contact.id === connectedUser.id) {
+                                contact.status = that._presenceService.getUserConnectedPresence().status;
+                                contact.presence = that._presenceService.getUserConnectedPresence();
+                            }
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactById) no contact found on server with id", id);
                         }
@@ -533,6 +555,7 @@ class Contacts {
             else {
 
                 let contactFound : Contact = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts) {
                     contactFound = that._contacts.find((contact) => {
@@ -542,7 +565,11 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally : ", contactFound);
-                    resolve(contactFound);
+                    if (contactFound.id === connectedUser.id) {
+                        resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 } else {
                     that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
                     that._rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
@@ -573,6 +600,10 @@ class Contacts {
                                     contact.avatar = that.getAvatarByContactId(contactInformation.id, contactInformation.lastAvatarUpdateDate);
 
                                      */
+                                    if (contact.loginEmail === connectedUser.loginEmail) {
+                                        contact.status = that._presenceService.getUserConnectedPresence().status;
+                                        contact.presence = that._presenceService.getUserConnectedPresence();
+                                    }
                                 });
                             } else {
                                 that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
@@ -666,6 +697,7 @@ class Contacts {
         contact.updateFromUserData(that._rest.account);
         contact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
         contact.status = that._presenceService.getUserConnectedPresence().status;
+        contact.presence = that._presenceService.getUserConnectedPresence();
 
         return contact;
     }
