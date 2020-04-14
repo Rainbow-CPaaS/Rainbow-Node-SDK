@@ -37,7 +37,7 @@
   "author": "Alcatel-Lucent Enterprise",
   "license": "MIT",
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
-  "types": "index.d.ts",
+  "types": "./index.d.ts",
   "devDependencies": {
     "chai": "^4.2.0",
     "commander": "^4.1.1",
