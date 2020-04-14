@@ -264,3 +264,11 @@ fabric.properties
 
 
 /index.js
+/index.d.ts
+/index.js.map
+/lib/Core.d.ts
+/lib/NodeSDK.d.ts
+/lib/NodeSDK.js
+/lib/NodeSDK.js.map
+/lib/ProxyImpl.d.ts
+/Samples/index.d.ts
