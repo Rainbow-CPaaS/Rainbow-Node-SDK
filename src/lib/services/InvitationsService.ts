@@ -11,7 +11,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Invitation} from "../common/models/Invitation";
-import * as moment from 'moment';
+import moment from 'moment';
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "./S2SService";
