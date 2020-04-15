@@ -3,7 +3,8 @@
 import {runInNewContext} from "vm";
 import {RESTTelephony} from "../connection/RestServices/RESTTelephony";
 
-const uuid4 = require("uuid4");
+//const uuid4 = require("uuid4");
+import { v4 as uuid4 } from 'uuid';
 
 export class XMPPUTils {
 	public messageId: any;

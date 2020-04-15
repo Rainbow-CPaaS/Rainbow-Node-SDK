@@ -10,7 +10,8 @@ module.exports = function(grunt) {
         const fs = require("fs");
         const path = require("path");
         const RSS = require('rss');
-        const uuid4 = require("uuid/v4");
+        //const uuid4 = require("uuid/v4");
+        const { v4: uuid4 } = require('uuid');
 
         function  generateRandomID() {
             return uuid4();
