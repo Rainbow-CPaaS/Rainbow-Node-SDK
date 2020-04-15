@@ -4,7 +4,7 @@ import {RESTService} from "../RESTService";
 export {};
 
 
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {xu} from "../../common/XMPPUtils";
 import {ConversationsService} from "../../services/ConversationsService";
 
 const GenericHandler = require("./genericHandler");
@@ -89,8 +89,8 @@ class ConversationEventHandler extends GenericHandler {
                 let replaceMessageId = null;
                 let attention = false;
 
-                let fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
-                let resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
+                let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
+                let resource = xu.getResourceFromFullJID(stanza.attrs.from);
                 let toJid = stanza.attrs.to;
                 let id = stanza.attrs.id;
                 let children = stanza.children;
@@ -103,8 +103,8 @@ class ConversationEventHandler extends GenericHandler {
                                 if (forwarded && forwarded.getName() === "forwarded") {
                                     let message = forwarded.children[0];
                                     if (message && message.getName() === "message") {
-                                        fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(message.attrs.from);
-                                        resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(message.attrs.from);
+                                        fromJid = xu.getBareJIDFromFullJID(message.attrs.from);
+                                        resource = xu.getResourceFromFullJID(message.attrs.from);
                                         toJid = message.attrs.to;
                                         id = message.attrs.id;
                                         let childs = message.children;
@@ -150,8 +150,8 @@ class ConversationEventHandler extends GenericHandler {
                                 if (forwarded && forwarded.getName() === "forwarded") {
                                     let message = forwarded.children[0];
                                     if (message && message.getName() === "message") {
-                                        fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(message.attrs.from);
-                                        resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(message.attrs.from);
+                                        fromJid = xu.getBareJIDFromFullJID(message.attrs.from);
+                                        resource = xu.getResourceFromFullJID(message.attrs.from);
                                         toJid = message.attrs.to;
                                         id = message.attrs.id;
                                         let childs = message.children;
@@ -264,7 +264,7 @@ class ConversationEventHandler extends GenericHandler {
                             that.xmppClient.send(stanzaReceived);
 
                             //Acknowledge 'read'
-                            if (that.xmppService.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
+                            if (that.xmppService.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && xu.getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
 
                                 let stanzaRead = xml("message", {
                                         "to": fromJid,
@@ -392,9 +392,9 @@ class ConversationEventHandler extends GenericHandler {
                 let fromBubbleJid = "";
                 let fromBubbleUserJid = "";
                 if (stanza.attrs.type === TYPE_GROUPCHAT) {
-                    fromBubbleJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(stanza.attrs.from);
-                    fromBubbleUserJid = XMPPUTils.getXMPPUtils().getResourceFromFullJID(stanza.attrs.from);
-                    resource = XMPPUTils.getXMPPUtils().getResourceFromFullJID(fromBubbleUserJid);
+                    fromBubbleJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
+                    fromBubbleUserJid = xu.getResourceFromFullJID(stanza.attrs.from);
+                    resource = xu.getResourceFromFullJID(fromBubbleUserJid);
                 }
 
                 if ((messageType === TYPE_GROUPCHAT && fromBubbleUserJid !== that.fullJid) || (messageType === TYPE_CHAT && fromJid !== that.fullJid)) {
@@ -432,7 +432,7 @@ class ConversationEventHandler extends GenericHandler {
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {
                         data.fromBubbleJid = fromBubbleJid;
                         data.fromBubbleUserJid = fromBubbleUserJid;
-                        data.fromJid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(stanza.attrs.from);
+                        data.fromJid = xu.getRoomJIDFromFullJID(stanza.attrs.from);
 
                         if (event) {
                             data.event = event;
@@ -581,7 +581,7 @@ class ConversationEventHandler extends GenericHandler {
 
                     // Affiliation changed (my own or for a member)
                     if (node.attrs.status) {
-                        if (node.attrs.userjid === XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(that.fullJid)) {
+                        if (node.attrs.userjid === xu.getBareJIDFromFullJID(that.fullJid)) {
                             that.logger.log("debug", LOG_ID + "(onRoomManagementMessageReceived) bubble management received for own.");
                             that.eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                                 "bubbleId": node.attrs.roomid,
@@ -791,7 +791,7 @@ class ConversationEventHandler extends GenericHandler {
                     } else {
                         that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache action : ", action + ", conversationId : ", conversationId);
                         if (action === "create") {
-                            let convId = node.find("peer").text();
+                            let convId = xu.getBareJIDFromFullJID(node.find("peer").text());
                             let peerId = node.find("peerId").text();
 
                             let convDbId = node.attrs.id;
@@ -805,12 +805,13 @@ class ConversationEventHandler extends GenericHandler {
 
                             let conversationGetter = null;
                             if (type === "user") {
-                                conversationGetter = await this.conversationService.getOrCreateOneToOneConversation(convId);
+                                that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, user. convDbId : ", convDbId, ", peerId : ", peerId);
+                                conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
                             } else {
                                 let bubbleId = convId;
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId);
                                 // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
-                                conversationGetter = await this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
+                                conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
                             }
 
                             if (!conversationGetter) {
@@ -818,6 +819,10 @@ class ConversationEventHandler extends GenericHandler {
                             }
 
                             await conversationGetter.then(function (conv) {
+                                if (!conv) {
+                                    that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) conversation not found! will not raise event.");
+                                    return;
+                                }
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
                                 conv.dbId = convDbId;
                                 conv.lastModification = lastModification ? new Date(lastModification) : undefined;

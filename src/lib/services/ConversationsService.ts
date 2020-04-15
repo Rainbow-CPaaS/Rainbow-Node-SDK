@@ -600,7 +600,9 @@ class Conversations {
             let conv = that.getConversationById(conversationId);
             if (conv) {
                 conv.preload = true;
-                return resolve(conv);
+                that._logger.log("info", LOG_ID + "getOrCreateOneToOneConversation, getConversationById found the conversation : " + conversationId + " " + conversationDbId + " " + missedIMCounter);
+                resolve(conv);
+                return;
             }
 
             that._logger.log("info", LOG_ID + "getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
