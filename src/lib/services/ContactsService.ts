@@ -13,7 +13,7 @@ import * as md5 from 'md5';
 import * as path from 'path';
 import {isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {HTTPService} from "../connection/HttpService";
 import {S2SService} from "./S2SService";

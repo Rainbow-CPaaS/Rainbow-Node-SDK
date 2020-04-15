@@ -1,12 +1,11 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
+import {EventEmitter} from "events";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";

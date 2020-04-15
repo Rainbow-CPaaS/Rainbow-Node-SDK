@@ -11,7 +11,7 @@ import {XMPPUTils} from "../common/XMPPUtils";
 import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";

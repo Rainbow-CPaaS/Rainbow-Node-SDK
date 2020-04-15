@@ -1,5 +1,4 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
 
 export {};
 import * as deepEqual from "deep-equal";
@@ -7,6 +6,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
+import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue";
 import {logEntryExit, until, resizeImage, getBinaryData} from "../common/Utils";
 import {isStarted} from "../common/Utils";

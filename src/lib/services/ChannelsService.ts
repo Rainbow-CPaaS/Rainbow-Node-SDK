@@ -1,7 +1,5 @@
 "use strict";
 
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
@@ -9,6 +7,7 @@ import {Appreciation, Channel} from "../common/models/Channel";
 import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
+import {EventEmitter} from "events";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
