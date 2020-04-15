@@ -62,8 +62,8 @@ let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-       "mode": "s2s"
-       // "mode": "xmpp"
+       // "mode": "s2s"
+        "mode": "xmpp"
     },
     "s2s": {
         "hostCallback": urlS2S,
@@ -122,7 +122,7 @@ let options = {
         "copyMessage": true,
         "nbMaxConversations": 15,
         "rateLimitPerHour": 1000,
-        "messagesDataStore": DataStoreType.NoPermanentStore
+        "messagesDataStore": DataStoreType.StoreTwinSide
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -724,6 +724,26 @@ function testPublishChannel() {
     }
     else {
         logger.log("debug", "MAIN - createItem - getAllOwnedChannel mychannel is empty, so can not publish.");
+    }
+}
+async function testgetDetailedAppreciationsChannel() {
+    //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
+    let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+    let mychannel = mychannels ? mychannels[0] : null;
+    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
+    if (mychannel) {
+        for (let i = 0; i < 1; i++) {
+            let now = new Date().getTime();
+            let itemId = "";
+            let item = await rainbowSDK.channels.fetchChannelItems(mychannel);
+            itemId = item[0].id;
+            rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - res : ", res);
+            });
+        }
+    }
+    else {
+        logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
     }
 }
 function testcreateChannel() {
@@ -1454,6 +1474,14 @@ function testaddToContactsList() {
         yield rainbowSDK.contacts.addToNetwork(contactVincent00);
     });
 }
+function testremoveFromNetwork() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
+        let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        logger.log("debug", "MAIN - [testremoveFromNetwork] contactEmailToSearchVincent00 : " + contactEmailToSearchVincent00 + " : " , contactVincent00);
+        yield rainbowSDK.contacts.removeFromNetwork(contactVincent00);
+    });
+}
 function testupdateChannelAvatar() {
     return __awaiter(this, void 0, void 0, function* () {
     });
@@ -1634,10 +1662,11 @@ function commandLineInteraction() {
             if (answers.cmd === "by") {
                 logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                 rainbowSDK.stop().then(() => { process.exit(0); });
+            } else {
+                logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                eval(answers.cmd);
+                commandLineInteraction();
             }
-            logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-            eval(answers.cmd);
-            commandLineInteraction();
         }
         catch (e) {
             logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));

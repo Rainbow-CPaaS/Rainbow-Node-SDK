@@ -10,7 +10,7 @@ import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
 import {isStarted, logEntryExit, setTimeoutPromised} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {types} from "util";
 import {RESTService} from "../connection/RESTService";
 import {ROOMROLE, S2SService} from "./S2SService";

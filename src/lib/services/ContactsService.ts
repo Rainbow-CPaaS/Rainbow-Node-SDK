@@ -13,7 +13,7 @@ import * as md5 from 'md5';
 import * as path from 'path';
 import {isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {HTTPService} from "../connection/HttpService";
 import {S2SService} from "./S2SService";
@@ -266,8 +266,10 @@ class Contacts {
             contact = new Contact();
             // that._logger.log("internal", LOG_ID + "(getContact) before updateFromUserData ", contact);
             contact.updateFromUserData(that._rest.account);
+            contact.status = that._presenceService.getUserConnectedPresence().status;
+            contact.presence = that._presenceService.getUserConnectedPresence();
         } else {
-            contact = that._contacts.find( (_contact) => _contact.jid_im === contactId);
+            contact = that._contacts.find((_contact) => _contact.jid_im === contactId);
         }
 
         return contact;
@@ -379,6 +381,7 @@ class Contacts {
      * @method getContactByJid
      * @instance
      * @param {string} jid The contact jid
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
      *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information)
      * @async
@@ -386,7 +389,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid) : Promise<Contact>{
+    getContactByJid(jid, forceServerSearch) : Promise<Contact>{
 
         let that = this;
 
@@ -397,8 +400,9 @@ class Contacts {
             }
             else {
                 let contactFound = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
-                if (that._contacts) {
+                if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
                         return contact.jid_im === jid;
                     });
@@ -406,7 +410,11 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("info", LOG_ID + "(getContactByJid) contact found locally with jid ", jid );
-                    resolve(contactFound);
+                    if (contactFound.jid_im === connectedUser.jid_im) {
+                        resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 }
                 else {
                     that._logger.log("debug", LOG_ID + "(getContactByJid) contact not found locally. Ask the server...");
@@ -428,6 +436,10 @@ class Contacts {
                             //that._logger.log("internal", LOG_ID + "(getContactByJid) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+                            if (contact.jid_im === connectedUser.jid_im) {
+                                contact.status = that._presenceService.getUserConnectedPresence().status;
+                                contact.presence = that._presenceService.getUserConnectedPresence();
+                            }
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
                         }
@@ -462,6 +474,7 @@ class Contacts {
             } else {
 
                 let contactFound = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
@@ -471,7 +484,12 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("internal", LOG_ID + "(getContactById) contact found locally", contactFound);
-                    resolve(contactFound);
+
+                    if (contactFound.id === connectedUser.id) {
+                     resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 }
                 else {
                     that._logger.log("debug", LOG_ID + "(getContactById) contact not found locally. Ask the server...");
@@ -495,6 +513,11 @@ class Contacts {
                             //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                            if (contact.id === connectedUser.id) {
+                                contact.status = that._presenceService.getUserConnectedPresence().status;
+                                contact.presence = that._presenceService.getUserConnectedPresence();
+                            }
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactById) no contact found on server with id", id);
                         }
@@ -532,6 +555,7 @@ class Contacts {
             else {
 
                 let contactFound : Contact = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts) {
                     contactFound = that._contacts.find((contact) => {
@@ -541,7 +565,11 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally : ", contactFound);
-                    resolve(contactFound);
+                    if (contactFound.id === connectedUser.id) {
+                        resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 } else {
                     that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
                     that._rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
@@ -572,6 +600,10 @@ class Contacts {
                                     contact.avatar = that.getAvatarByContactId(contactInformation.id, contactInformation.lastAvatarUpdateDate);
 
                                      */
+                                    if (contact.loginEmail === connectedUser.loginEmail) {
+                                        contact.status = that._presenceService.getUserConnectedPresence().status;
+                                        contact.presence = that._presenceService.getUserConnectedPresence();
+                                    }
                                 });
                             } else {
                                 that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
@@ -665,6 +697,7 @@ class Contacts {
         contact.updateFromUserData(that._rest.account);
         contact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
         contact.status = that._presenceService.getUserConnectedPresence().status;
+        contact.presence = that._presenceService.getUserConnectedPresence();
 
         return contact;
     }
@@ -672,7 +705,7 @@ class Contacts {
     /**
      * @public
      * @since 1.17
-     * @method
+     * @method addToNetwork
      * @instance
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
@@ -720,13 +753,49 @@ class Contacts {
                                 return reject(err);
                             });
                         } else {
-                            that._logger.log("internal", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
+                            that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                             resolve(null);
                         }
                     }).catch((err) => {
+                        that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                         return reject(err);
                     });
             }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeFromNetwork
+     * @since 1.69
+     * @instance
+     * @description
+     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence
+     * @param {Contact} contact The contact object to unsubscribe
+     * @returns {Promise} A promise that contains success code if removed or an object describing an error
+     */
+    removeFromNetwork(contact) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            if (!contact) {
+                this._logger.log("warn", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter");
+                this._logger.log("internalerror", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter : ", contact);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.removeContactFromRoster(contact.id).then(function () {
+                that._logger.log("info", LOG_ID + "(removeFromNetwork) contact removed from network.");
+                that._logger.log("internal", LOG_ID + "(removeFromNetwork) contact removed from network : ", contact);
+                return resolve({
+                    code: 1,
+                    label: "OK"
+                });
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(removeFromNetwork) contact cannot be removed.");
+                that._logger.log("internalerror", LOG_ID + "(removeFromNetwork) contact cannot be removed : ", util.inspect(contact));
+                return reject(err);
+            });
         });
     }
 
@@ -985,7 +1054,8 @@ class Contacts {
                 delete contact.resources[presence.resource];
             }
 
-            if( contact.presence === oldPresence && contact.status === oldStatus) {
+            if( oldPresence !== "unknown" && contact.presence === oldPresence && contact.status === oldStatus) {
+                this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) presence contact.presence (" + contact.presence + ") === oldPresence && contact.status (" + contact.status + ") === oldStatus, so ignore presence.");
                 return;
             }
 
@@ -1117,13 +1187,13 @@ class Contacts {
      * @private
      * @method _onRostersUpdate
      * @instance
-     * @param {Object} _contacts contains a contact list with updated elements
+     * @param {Object} contacts contains a contact list with updated elements
      * @description
      *      Method called when the roster _contacts is updated
      */
     _onRostersUpdate( contacts) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(_onRostersUpdate) enter");
+        that._logger.log("internal", LOG_ID + "(_onRostersUpdate) enter : ", contacts);
 
         contacts.forEach( contact => {
             if ( contact.jid.substr(0, 3) !== "tel") { // Ignore telephonny events
@@ -1131,6 +1201,7 @@ class Contacts {
                     let foundContact = that._contacts.find(item => item.jid_im === contact.jid );
                     if (foundContact) {
                         foundContact.presence = "unknown";
+                        that._eventEmitter.emit("evt_internal_contactremovedfromnetwork", contact);
                         // Add suppression delay
                         setTimeout( () => {
                             that._contacts = that._contacts.filter( _contact => _contact.jid_im !== contact.jid);
@@ -1143,12 +1214,8 @@ class Contacts {
                     if (!that._contacts.find(item => {
                         return item.jid_im === contact.jid;
                     })) {
-                        that
-                            .getContactByJid(contact.jid)
-                            .then((_contact) => {
-                                that
-                                    ._contacts
-                                    .push(Object.assign(_contact, {
+                        that.getContactByJid(contact.jid,true).then((_contact) => {
+                                that._contacts.push(Object.assign(_contact, {
                                         resources: {},
                                         presence: "offline",
                                         status: ""
@@ -1161,6 +1228,8 @@ class Contacts {
                             });
                     }
                 }
+            } else {
+                that._logger.log("debug", LOG_ID + "(_onRostersUpdate) Ignore telephonny events.");
             }
         });
     }

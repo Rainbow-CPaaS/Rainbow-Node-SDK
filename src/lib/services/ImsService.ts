@@ -11,7 +11,7 @@ import {XMPPUTils} from "../common/XMPPUtils";
 import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
@@ -429,10 +429,12 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent : any = Promise.reject();
+        let messageSent : any = undefined;
 
         if (this._useXMPP) {
              messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        } else {
+            messageSent = Promise.reject("only supported in xmpp mode");
         }
 
         /*

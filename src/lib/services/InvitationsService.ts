@@ -7,7 +7,7 @@ import * as PubSub from "pubsub-js";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Invitation} from "../common/models/Invitation";
@@ -176,9 +176,9 @@ class InvitationsService {
 		];
 	};
 
-	onRosterChanged() {
+	onRosterChanged(data) {
 		let that = this;
-		that._logger.log("info", LOG_ID + "onRosterChanged");
+		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
 		return that.getAllSentInvitations();
 	}
 

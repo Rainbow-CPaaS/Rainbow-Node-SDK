@@ -117,7 +117,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         }
 
                         let promise = new Promise( (resolve) => {
-                            conversationService._contacts.getContactByJid(fromJid)
+                            conversationService._contacts.getContactByJid(fromJid, true)
                                 .then( (from) => {
                                     resolve(from);
                                 }).catch( () => {
@@ -334,7 +334,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     let promise = new Promise( (resolve) => {
-                        conversationService._contacts.getContactByJid(callerJid)
+                        conversationService._contacts.getContactByJid(callerJid, true)
                             .then( (from) => {
                                 resolve(from);
                             }).catch( () => {

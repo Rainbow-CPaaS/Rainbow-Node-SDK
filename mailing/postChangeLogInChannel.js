@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 const RainbowSDK = require("../index");
-//const Utils = require("../lib/common/Utils");
+const Utils = require("../lib/common/Utils");
 
 // Define your configuration
 let options = {
@@ -96,6 +96,8 @@ let options = {
     } // */
 };
 
+let channelNameParam = null;
+let logsActivated = false;
 
 process.argv.forEach((val, index) => {
     //console.log(`${index}: ${val}`);
@@ -114,9 +116,16 @@ process.argv.forEach((val, index) => {
     if (`${val}`.startsWith("appSecret=") ) {
         options.application.appSecret = `${val}`.substring(10);
     }
+    if (`${val}`.startsWith("channelName=") ) {
+        channelNameParam = `${val}`.substring(12);
+    }
+    if (`${val}`.startsWith("logs=") ) {
+        logsActivated = `${val}`.substring(5);
+    }
 });
 
 
+options.logs.enableConsoleLogs = (logsActivated === "true" || logsActivated === "yes" || logsActivated !== 0);
 options.logs.customLabel = options.credentials.login;
 // Instantiate the SDK
 let rainbowSDK = new RainbowSDK(options);
@@ -134,6 +143,7 @@ rainbowSDK.events.on("rainbow_onstarted", () => {
     // do something when the SDK has been started
     logger.log("debug", "MAIN - rainbow_onstarted - rainbow onstarted");
 });
+let publishDone = false;
 
 rainbowSDK.start(undefined).then(async(result) => {
     try {
@@ -145,7 +155,10 @@ rainbowSDK.start(undefined).then(async(result) => {
         //let fullVersion = packageJSON.version;
         //let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
 
-        let mychannels = await rainbowSDK.channels.findChannelsByName("Rainbow API Hub Information Channel");
+
+        let channelName = channelNameParam ? channelNameParam : "Rainbow API Hub Information Channel";
+
+        let mychannels = await rainbowSDK.channels.findChannelsByName(channelName);
         let mychannel = mychannels ? mychannels[0] : null;
         if (mychannel) {
             //for (let i = 0; i < 1; i++) {
@@ -200,11 +213,21 @@ rainbowSDK.start(undefined).then(async(result) => {
 
                 logger.log("debug", "html : ", html);
 
-                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then((res) => {
+                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then(async (res ) => {
                     logger.log("debug", "createItem - res : ", res);
+                    await rainbowSDK.channels.likeItem(mychannel, res.itemId, RainbowSDK.Appreciation.Fantastic).catch((err1)=>{
+                        logger.log("error", "likeItem failed with : ", err1);
+
+                    });
+                }).catch((err2)=>{
+                    logger.log("error", "createItem failed with : ", err2);
+
                 });
+                publishDone = true;
 
             });
+
+            logger.log("warn", "After publish.");
 
             //}
         } else {
@@ -214,6 +237,14 @@ rainbowSDK.start(undefined).then(async(result) => {
     } catch (err){
         logger.log("error", "CATCH Error so can not publish CHANGELOG in channel : ", err);
     }
+
+    logger.log("info", "Before stop.");
+    await Utils.until(() => {
+        logger.log("debug", "until condition done : ", publishDone);
+        return publishDone;
+        },
+        "Waiting for publish.",
+        10000);
 
     rainbowSDK.stop().then(() => {
         process.exit(0);

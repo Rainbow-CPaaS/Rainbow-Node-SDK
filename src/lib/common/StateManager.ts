@@ -5,17 +5,17 @@ export {};
 import {ErrorManager} from "./ErrorManager";
 const utils= require("./Utils");
 
-const types = {
-    "STARTED": "started",
-    "STARTING": "starting",
-    "CONNECTED": "connected",
-    "READY": "ready",
-    "STOPPED": "stopped",
-    "DISCONNECTED": "disconnected",
-    "RECONNECTING": "reconnecting",
-    "FAILED": "failed",
-    "ERROR": "error"
-};
+enum SDKSTATUSENUM {
+    "STARTED" = "started",
+    "STARTING" = "starting",
+    "CONNECTED" = "connected",
+    "READY" = "ready",
+    "STOPPED" = "stopped",
+    "DISCONNECTED" = "disconnected",
+    "RECONNECTING" = "reconnecting",
+    "FAILED" = "failed",
+    "ERROR" = "error"
+}
 
 const LOG_ID = "STATEMGR - ";
 
@@ -29,7 +29,7 @@ class StateManager {
         this.logger = logger;
 
         // Initial state
-        this.state = types.STOPPED;
+        this.state = SDKSTATUSENUM.STOPPED;
     }
 
     start() {
@@ -40,18 +40,18 @@ class StateManager {
         return new Promise(function(resolve, reject) {
             try {
                 if (that.isSTOPPED()) {
-                    that.state = types.STARTING;
+                    that.state = SDKSTATUSENUM.STARTING;
                     that.logger.log("info", LOG_ID + "(start) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
                     resolve();
                 } else {
-                    that.logger.log("error", LOG_ID + "(start) The Rainbow Node Sdk can not start because state \"" + that.state + "\" is not \"" + types.STOPPED + "\"  state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
+                    that.logger.log("error", LOG_ID + "(start) The Rainbow Node Sdk can not start because state \"" + that.state + "\" is not \"" + SDKSTATUSENUM.STOPPED + "\"  state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                    let err = ErrorManager.getErrorManager().CUSTOMERROR(-1, "The Rainbow Node Sdk can not start when it is not in an idle state.", "The Rainbow Node Sdk can not start. Current state \"" + that.state + "\" is not \"" + types.STOPPED + "\" state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
+                    let err = ErrorManager.getErrorManager().CUSTOMERROR(-1, "The Rainbow Node Sdk can not start when it is not in an idle state.", "The Rainbow Node Sdk can not start. Current state \"" + that.state + "\" is not \"" + SDKSTATUSENUM.STOPPED + "\" state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
                     return reject(err);
                 }
             } catch (err) {
-                that.state = types.STOPPED;
+                that.state = SDKSTATUSENUM.STOPPED;
                 that.logger.log("debug", LOG_ID + "(start) _exiting_");
                 return reject(err);
             }
@@ -65,7 +65,7 @@ class StateManager {
 
         return new Promise(function(resolve, reject) {
             try {
-                that.transitTo(types.STOPPED).then(() => {
+                that.transitTo(SDKSTATUSENUM.STOPPED).then(() => {
                     that.logger.log("info", LOG_ID + "(stop) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                     resolve();
@@ -100,78 +100,79 @@ class StateManager {
     }
 
     get STOPPED() {
-        return types.STOPPED;
+        return SDKSTATUSENUM.STOPPED;
     }
 
     get CONNECTED() {
-        return types.CONNECTED;
+        return SDKSTATUSENUM.CONNECTED;
     }
 
     get STARTED() {
-        return types.STARTED;
+        return SDKSTATUSENUM.STARTED;
     }
 
     get STARTING() {
-        return types.STARTING;
+        return SDKSTATUSENUM.STARTING;
     }
 
     get DISCONNECTED() {
-        return types.DISCONNECTED;
+        return SDKSTATUSENUM.DISCONNECTED;
     }
 
     get RECONNECTING() {
-        return types.RECONNECTING;
+        return SDKSTATUSENUM.RECONNECTING;
     }
 
     get READY() {
-        return types.READY;
+        return SDKSTATUSENUM.READY;
     }
 
     get FAILED() {
-        return types.FAILED;
+        return SDKSTATUSENUM.FAILED;
     }
 
     get ERROR() {
-        return types.ERROR;
+        return SDKSTATUSENUM.ERROR;
     }
 
     isSTOPPED() {
-        return (this.state === types.STOPPED);
+        return (this.state === SDKSTATUSENUM.STOPPED);
     }
 
     isCONNECTED() {
-        return (this.state === types.CONNECTED);
+        return (this.state === SDKSTATUSENUM.CONNECTED);
     }
 
     isSTARTED() {
-        return (this.state === types.STARTED);
+        return (this.state === SDKSTATUSENUM.STARTED);
     }
 
     isSTARTING() {
-        return (this.state === types.STARTED);
+        return (this.state === SDKSTATUSENUM.STARTED);
     }
 
     isDISCONNECTED() {
-        return (this.state === types.DISCONNECTED);
+        return (this.state === SDKSTATUSENUM.DISCONNECTED);
     }
 
     isRECONNECTING() {
-        return (this.state === types.RECONNECTING);
+        return (this.state === SDKSTATUSENUM.RECONNECTING);
     }
 
     isREADY() {
-        return (this.state === types.READY);
+        return (this.state === SDKSTATUSENUM.READY);
     }
 
     isFAILED() {
-        return (this.state === types.FAILED);
+        return (this.state === SDKSTATUSENUM.FAILED);
     }
 
     isERROR() {
-        return (this.state === types.ERROR);
+        return (this.state === SDKSTATUSENUM.ERROR);
     }
 
 }
 
 module.exports.StateManager = StateManager;
-export{StateManager};
+module.exports.SDKSTATUSTYPES = SDKSTATUSENUM;
+export{StateManager, SDKSTATUSENUM};

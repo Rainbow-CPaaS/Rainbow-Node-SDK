@@ -11,7 +11,7 @@ import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEve
 import { Favorite } from '../common/models/Favorite';
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 

@@ -26,7 +26,7 @@ const code = {
 */
 
 /**
- * @module 
+ * @module
  * @name ErrorManager
  */
 class ErrorManager {
@@ -34,7 +34,7 @@ class ErrorManager {
 
     constructor() {
     }
-    
+
     static getErrorManager() {
         ErrorManager.xmppUtils = ErrorManager.xmppUtils ? ErrorManager.xmppUtils : new ErrorManager();
 
@@ -102,7 +102,8 @@ class ErrorManager {
         return {
             code: code.ERROR,
             label: "INTERNALERROR",
-            msg: "An error occured. See details for more information"
+            msg: "An error occured. See details for more information",
+            details: ""
         };
     }
 
@@ -115,7 +116,8 @@ class ErrorManager {
         return {
             code: code.ERRORUNAUTHORIZED,
             label: "UNAUTHORIZED",
-            msg: "The email or the password is not correct"
+            msg: "The email or the password is not correct",
+            details: ""
         };
     }
 
