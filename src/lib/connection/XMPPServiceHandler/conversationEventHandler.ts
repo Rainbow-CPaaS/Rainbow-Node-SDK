@@ -805,12 +805,12 @@ class ConversationEventHandler extends GenericHandler {
 
                             let conversationGetter = null;
                             if (type === "user") {
-                                conversationGetter = await this.conversationService.getOrCreateOneToOneConversation(convId);
+                                conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
                             } else {
                                 let bubbleId = convId;
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId);
                                 // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
-                                conversationGetter = await this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
+                                conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
                             }
 
                             if (!conversationGetter) {
@@ -818,6 +818,10 @@ class ConversationEventHandler extends GenericHandler {
                             }
 
                             await conversationGetter.then(function (conv) {
+                                if (!conv) {
+                                    that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) conversation not found! will not raise event.");
+                                    return;
+                                }
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) update conversation (" + conv.id + ")");
                                 conv.dbId = convDbId;
                                 conv.lastModification = lastModification ? new Date(lastModification) : undefined;
