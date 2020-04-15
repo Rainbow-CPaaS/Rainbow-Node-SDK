@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.70.0-dotnet.0] - 2020-04-XX
+## [1.70.0-dotnet.0] - 2020-04-16
 -   Add defaultDEBUG target in gruntfile to generate the compiled files with debug log not putted in comment.
 -   Fix generateRss file because Array.values() method did not work anymore.
 -   Update getContactByJid with a forceServerSearch parameter to force the search of the _contacts informations on the server.
