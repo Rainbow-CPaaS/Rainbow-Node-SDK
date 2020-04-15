@@ -151,5 +151,5 @@ export class XMPPUTils {
 
 }
 
-export let xu = new XMPPUTils();
+export let xu = XMPPUTils.getXMPPUtils();
 module.exports.XMPPUTils = XMPPUTils;
