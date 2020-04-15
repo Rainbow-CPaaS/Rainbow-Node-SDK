@@ -1187,7 +1187,7 @@ class Channels {
                     let fd = fs.openSync(urlAvatar, "r+");
                     let buf = new Buffer(fileStats.size);
                     fs.readSync(fd, buf, 0, fileStats.size, null);
-                    let fileType = mimetypes.lookup(urlAvatar);
+                    let fileType = mimetypes.lookup(urlAvatar) + "";
 
                     that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
                         that._logger.log("internal", LOG_ID + "(updateChannelAvatar) channel : ", channel);
