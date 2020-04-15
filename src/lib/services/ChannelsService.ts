@@ -1,7 +1,5 @@
 "use strict";
 
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
@@ -9,6 +7,7 @@ import {Appreciation, Channel} from "../common/models/Channel";
 import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
+import {EventEmitter} from "events";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
@@ -1188,7 +1187,7 @@ class Channels {
                     let fd = fs.openSync(urlAvatar, "r+");
                     let buf = new Buffer(fileStats.size);
                     fs.readSync(fd, buf, 0, fileStats.size, null);
-                    let fileType = mimetypes.lookup(urlAvatar);
+                    let fileType = mimetypes.lookup(urlAvatar) + "";
 
                     that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
                         that._logger.log("internal", LOG_ID + "(updateChannelAvatar) channel : ", channel);

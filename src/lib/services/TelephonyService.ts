@@ -16,7 +16,7 @@ import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyE
 import {ContactsService} from "./ContactsService";
 import {BubblesService} from "./BubblesService";
 import {ProfilesService} from "./ProfilesService";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {S2SService} from "./S2SService";

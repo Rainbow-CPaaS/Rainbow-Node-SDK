@@ -7,7 +7,7 @@ import * as PubSub from "pubsub-js";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Invitation} from "../common/models/Invitation";

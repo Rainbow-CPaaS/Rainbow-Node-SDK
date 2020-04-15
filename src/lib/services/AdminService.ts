@@ -7,7 +7,7 @@ export {};
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
 import {isStarted, logEntryExit} from "../common/Utils";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 

@@ -3,7 +3,6 @@
 
 
 const config = require ("../config/config");
-import * as core from "./../../../index";
 import {atob} from "atob";
 const Jimp = require('jimp');
 
@@ -32,7 +31,7 @@ let createPassword = (size) => {
 };
 
 let isAdmin = ( roles ) => {
-    return Array.isArray( roles ) && roles.indexOf("admin") !== -1;
+    return Array.isArray( roles ) && -1 !== roles.indexOf("admin");
 };
 
 class Deferred {

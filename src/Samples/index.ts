@@ -1667,10 +1667,11 @@ function commandLineInteraction() {
             if (answers.cmd === "by") {
                 logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                 rainbowSDK.stop().then(() => { process.exit(0); });
+            } else {
+                logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                eval(answers.cmd);
+                commandLineInteraction();
             }
-            logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-            eval(answers.cmd);
-            commandLineInteraction();
         }
         catch (e) {
             logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));

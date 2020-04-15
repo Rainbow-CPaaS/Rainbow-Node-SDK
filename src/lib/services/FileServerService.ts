@@ -1,6 +1,4 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -19,6 +17,7 @@ import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
+import {EventEmitter} from "events";
 import {Core} from "../Core";
 
 const LOG_ID = "FileServer/SVCE - ";

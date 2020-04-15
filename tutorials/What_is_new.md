@@ -6,6 +6,40 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.70 - April 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Add in methods `ContactsService::getContactById`, `ContactsService::getContactByJid`, `ContactsService::getContactByLoginEmail`, `ContactsService::getContact` the presence if the requested user is the connected one.
+-   Add in Message received from server a field "geoloc: { datum: 'WGS84', latitude: '4x.567938', longitude: '-4.xxxxxxx' }" of the localisation sent in messages by a mobile.
+
+**Others Changes**
+
+-   Add defaultDEBUG target in gruntfile to generate the compiled files with debug log not putted in comment.
+-   Fix generateRss file because Array.values() method did not work anymore.
+-   Update getContactByJid with a forceServerSearch parameter to force the search of the _contacts informations on the server.
+-   Add method `channelsService::likeItem` to like treatment/event on a Channel's Item with an appreciation
+-   Add method `channelsService::getDetailedAppreciations` to know in details apprecations given on a channel item (by userId the apprecation given)
+-   Add like events on a Channel's Item with an appreciation.
+-   Add in `postChangeLogInChannel` code to like the item when posting the changelog in Rainbow CPaaS info channel.
+-   Fix `postChangeLogInChannel` to wait until the publish and like item are done.
+-   Fix treatment of XMPP iq query event `set "remove"` from roster which was sending an "unavailable service" to server.
+-   Add method `contactsService::removeFromNetwork` to remove a contact from the list of contacts and unsubscribe to the contact's presence
+-   Add event `rainbow_contactremovedfromnetwork` raised when a contact is removed from connected user's network.
+-   Move `index.js` to `src/index.ts` => become a typescript source file.
+
 ### SDK for Node.JS 1.69 - March 2019
 
 ---

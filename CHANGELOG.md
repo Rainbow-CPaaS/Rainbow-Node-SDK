@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.70.0-dotnet.0] - 2020-04-XX
--   Add defaultDEBUG to generate the compiled files with debug log not putted in comment.
+-   Add defaultDEBUG target in gruntfile to generate the compiled files with debug log not putted in comment.
 -   Fix generateRss file because Array.values() method did not work anymore.
 -   Update getContactByJid with a forceServerSearch parameter to force the search of the _contacts informations on the server.
 -   Add method `channelsService::likeItem` to like treatment/event on a Channel's Item with an appreciation
@@ -18,6 +18,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix treatment of XMPP iq query event `set "remove"` from roster which was sending an "unavailable service" to server.
 -   Add method `contactsService::removeFromNetwork` to remove a contact from the list of contacts and unsubscribe to the contact's presence
 -   Add event `rainbow_contactremovedfromnetwork` raised when a contact is removed from connected user's network.
+-   Add in methods `ContactsService::getContactById`, `ContactsService::getContactByJid`, `ContactsService::getContactByLoginEmail`, `ContactsService::getContact` the presence if the requested user is the connected one.
+-   Add in Message received from server a field "geoloc: { datum: 'WGS84', latitude: '4x.567938', longitude: '-4.xxxxxxx' }" of the localisation sent in messages by a mobile.
+-   Move `index.js` to `src/index.ts` => become a typescript source file.
+-   Update libs to lastest version : `ncu -u` , so update sitemap library => fix sitemap_generation
 
 ## [1.69.0] - 2020-03-30
 -   Add nextDebugBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
