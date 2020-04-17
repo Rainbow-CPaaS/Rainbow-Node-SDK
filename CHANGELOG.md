@@ -22,6 +22,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add in Message received from server a field "geoloc: { datum: 'WGS84', latitude: '4x.567938', longitude: '-4.xxxxxxx' }" of the localisation sent in messages by a mobile.
 -   Move `index.js` to `src/index.ts` => become a typescript source file.
 -   Update libs to lastest version : `ncu -u` , so update sitemap library => fix sitemap_generation
+-   Add a Sample project `usingrainbownodesdkrelease` to github to use the Rainbow-Node-SDK with typescript lib : https://github.com/Rainbow-CPaaS/usingrainbownodesdkrelease 
 
 ## [1.69.0] - 2020-03-30
 -   Add nextDebugBuildVersion program to generate to stdout a new debug version of  rainbow-node-sdk
