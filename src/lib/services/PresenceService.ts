@@ -1,21 +1,19 @@
 "use strict";
 import {Logger} from "../common/Logger";
-
-export {};
-
 import {XMPPService} from "../connection/XMPPService";
 import {ErrorManager} from "../common/ErrorManager";
-import {RainbowPresence} from "../common/models/Settings";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
-import {isStarted, logEntryExit, setTimeoutPromised} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import {EventEmitter} from "events";
-import {types} from "util";
 import {RESTService} from "../connection/RESTService";
 import {ROOMROLE, S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
+import {PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
+
+export {};
 
 const LOG_ID = "PRES/SVCE - ";
 
@@ -36,15 +34,15 @@ class PresenceService {
     private _logger: Logger;
     private _xmpp: XMPPService;
     private _settings: SettingsService;
-    private _presenceEventHandler: any;
+    private _presenceEventHandler: PresenceEventHandler;
     private _presenceHandlerToken: any;
     private _eventEmitter: EventEmitter;
-    private manualState: any;
-    private _currentPresence: any;
-    RAINBOW_PRESENCE_ONLINE: any;
-    RAINBOW_PRESENCE_DONOTDISTURB: any;
-    RAINBOW_PRESENCE_AWAY: any;
-    RAINBOW_PRESENCE_INVISIBLE: any;
+    private manualState: boolean;
+    private _currentPresence: PresenceRainbow;
+    public RAINBOW_PRESENCE_ONLINE: PresenceLevel.Online;
+    public RAINBOW_PRESENCE_DONOTDISTURB: PresenceLevel.Dnd;
+    public RAINBOW_PRESENCE_AWAY: PresenceLevel.Away;
+    public RAINBOW_PRESENCE_INVISIBLE: PresenceLevel.Invisible;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -75,12 +73,12 @@ class PresenceService {
         that._logger = _logger;
 
         that.manualState = false;
-        that._currentPresence = { status: "online", show: ""};
+        that._currentPresence = new PresenceRainbow(PresenceLevel.Online);
+        that.RAINBOW_PRESENCE_ONLINE = PresenceLevel.Online;
+        that.RAINBOW_PRESENCE_DONOTDISTURB = PresenceLevel.Dnd;
+        that.RAINBOW_PRESENCE_AWAY = PresenceLevel.Away;
+        that.RAINBOW_PRESENCE_INVISIBLE = PresenceLevel.Invisible;
 
-        that.RAINBOW_PRESENCE_ONLINE = RainbowPresence.ONLINE;
-        that.RAINBOW_PRESENCE_DONOTDISTURB = RainbowPresence.DND;
-        that.RAINBOW_PRESENCE_AWAY = RainbowPresence.AWAY;
-        that.RAINBOW_PRESENCE_INVISIBLE = RainbowPresence.INVISIBLE;
 
         that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
         that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
@@ -101,7 +99,7 @@ class PresenceService {
                 that._bubbles = _core.bubbles;
 
 
-                that._presenceEventHandler = new PresenceEventHandler(that._xmpp);
+                that._presenceEventHandler = new PresenceEventHandler(that._xmpp, _core._contacts);
                 that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived);
 
 /*
@@ -162,7 +160,10 @@ class PresenceService {
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
-            that._xmpp.setPresence("online", "");
+            let presenceRainbow = new PresenceRainbow();
+            that._logger.log("internal", LOG_ID + "(sendInitialPresence) presenceRainbow : ", presenceRainbow);
+            that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
+            //that._xmpp.setPresence("online", "");
         });
     }
 
@@ -181,11 +182,12 @@ class PresenceService {
      */
     setPresenceTo(presence) {
         let that = this;
-        let show = "online";
-        let status = "";
+        let presenceRainbow = new PresenceRainbow(presence);
+       // let show = "online";
+        //let status = "";
         return new Promise(async (resolve, reject) => {
 
-            switch (presence) {
+            /* switch (presence) {
                 case "online":
                     //show = "online";
                     //status = "";
@@ -209,7 +211,7 @@ class PresenceService {
                     that._logger.log("internalerror", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter : ", presence);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     break;
-            }
+            } // */
 
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(_presence) {
                 that._logger.log("info", LOG_ID + "(setPresenceTo) received.");
@@ -218,15 +220,15 @@ class PresenceService {
                 resolve(ErrorManager.getErrorManager().OK);
             });
 
-            that._logger.log("internal", LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S);
+            that._logger.log("internal", LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S, ", presenceRainbow : ", presenceRainbow, ", presence : ", presence);
 
             if (that._useXMPP) {
-                that._xmpp.setPresence(show, status);
+                that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
             }
             if (that._useS2S) {
-                await that._s2s.sendS2SPresence({show, status});
+                await that._s2s.sendS2SPresence(presenceRainbow.toJsonForServer());
             }
-            await that._settings.updateUserSettings({presence: presence});
+            await that._settings.updateUserSettings({presence: presenceRainbow.presenceLevel});
         });
     }
 
@@ -237,8 +239,8 @@ class PresenceService {
      * @description
      *      Get user presence status calculated from events.
      */
-    getUserConnectedPresence() {
-        return this._currentPresence;
+    getUserConnectedPresence() : PresenceRainbow {
+        return this._currentPresence ;
     }
 
      /**
@@ -248,11 +250,31 @@ class PresenceService {
      * @description
      *      Send user presence status and message to xmpp.
      */
-    _setUserPresenceStatus( status, message?) {
+    //_setUserPresenceStatus( status, message?) {
+    _setUserPresenceStatus( presenceRainbow : PresenceRainbow) {
          let that = this;
          return new Promise(async (resolve, reject) => {
 
              if (that._useXMPP) {
+                 that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                     that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                     that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                     resolve();
+                 });
+                 await that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
+             }
+             if (that._useS2S) {
+                 that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
+                     that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
+                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                     that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
+                     resolve();
+                 });
+                 await that._s2s.sendS2SPresence(presenceRainbow.toJsonForServer());
+             }
+
+             /*if (that._useXMPP) {
                  if (status === "online") {
                      that.manualState = false;
                      that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
@@ -336,7 +358,7 @@ class PresenceService {
                      }
                  }
                  //resolve (that._s2s.sendS2SPresence( { show:"", status: ""} ));
-             }
+             } // */
          });
      }
 
@@ -350,27 +372,30 @@ class PresenceService {
     _sendPresenceFromConfiguration() {
         let that = this;
         return new Promise( (resolve, reject) => {
+            let presenceRainbow : PresenceRainbow = new PresenceRainbow();
             that._settings.getUserSettings().then(function(settings : any) {
-                    let message = "";
-                    let presence = settings.presence;
-                    if (presence === "invisible") {
+                    //let message = "";
+                    presenceRainbow.presenceLevel = settings.presence;
+                    /*if (presence === "invisible") {
                         presence = "xa";
                     } else if (presence === "away") {
                         presence = "xa";
                         message = "away";
-                    }
+                    } // */
 
-                    that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are " + presence + " || message : " + message);
-                    if (that._currentPresence && (that._currentPresence.show !== presence || (that._currentPresence.show === "xa" && that._currentPresence.status !== message))) {
-                        that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from " + that._currentPresence.show + " to " + presence + " (" + message + ")");
-                        that._setUserPresenceStatus(presence, message).then(() => { resolve(); }).catch((err) => { reject(err); });
+                    that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are ", presenceRainbow );
+                    //if (that._currentPresence && (that._currentPresence !== presence || (that._currentPresence. === "xa" && message !== that._currentPresence.status))) {
+                    //if (that._currentPresence && (that._currentPresence.presenceLevel !== presenceRainbow.presenceLevel )) {
+                    if (that._currentPresence ) {
+                        that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from ", that._currentPresence,  " to ", presenceRainbow);
+                        that._setUserPresenceStatus(presenceRainbow).then(() => { resolve(); }).catch((err) => { reject(err); });
                     } else {
                         resolve();
                     }
                 })
                 .catch(function(error) {
                     that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
-                    that._setUserPresenceStatus("online").then(() => { resolve(); }).catch(() => { reject(error); });
+                    that._setUserPresenceStatus(new PresenceRainbow()).then(() => { resolve(); }).catch(() => { reject(error); });
                 });
 
         });
@@ -428,7 +453,8 @@ class PresenceService {
         that._logger.log("debug", LOG_ID + "(_onPresenceChanged) presence : ", presence, ", presence.fulljid : ", presence.fulljid, ", that._xmpp.jid", that._xmpp.jid);
         if ( presence.jid === that._xmpp.jid ) {
             that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", presence);
-            that._currentPresence = presence;
+            that._currentPresence.presenceLevel = presence.presence;
+            that._currentPresence.presenceStatus = presence.status;
         }
     }
 }

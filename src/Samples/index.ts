@@ -54,6 +54,7 @@ let urlS2S;
     console.log("MAIN - ngrock.");
     urlS2S = await ngrok.connect(4000).catch((error) => {
         console.log("MAIN - ngrock, error : ", error);
+        process.exit(0);
     });
     console.log("MAIN - ngrock, urlS2S : ", urlS2S);
 

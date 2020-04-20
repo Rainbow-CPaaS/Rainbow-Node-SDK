@@ -19,6 +19,7 @@ import {ConversationsService} from "../../services/ConversationsService";
 import {Bubble} from "../../common/models/Bubble";
 import {BubblesService} from "../../services/BubblesService";
 import {Core} from "../../Core";
+import {PresenceRainbow} from "../../common/models/PresenceRainbow";
 
 const util = require('util');
 
@@ -165,29 +166,30 @@ class S2SServiceEventHandler {
             if (from) {
                 let contact: Contact = await that._contacts.getContactById(from, false);
                 if (contact != null) {
-                    let show = presence.show;
-                    let status = presence.status;
+                    let show = presence.show ? presence.show : "online";
+                    let status = presence.status ? presence.status : "";
                     let resource = presence.resource;
                     //DateTime date = jObject.GetValue("timestamp").ToObject<DateTime>();
-
-                    if (!show) {
-                        show = "online";
-                    }
-
                     // PresenceInfo presenceInfo = Util.GetPresenceInfo((contact.Jid_im == contacts.GetCurrentContactJid()), show, status);
                     // s2sClient.PresenceInfoReceived(new PresenceInfoEventArgs(contact.Jid_im, resource, date, presenceInfo));
 
+                    let presenceRainbow = new PresenceRainbow();
+                    presenceRainbow.presenceLevel = show;
+                    presenceRainbow.presenceStatus = status;
 
-
-                    that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im);
+                    that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im, ", presenceRainbow : ", presenceRainbow);
 
                     if (that.jid_im === contact.jid_im) {
                         let eventInfo = {
                             "fulljid": contact.jid_im + "/" + resource,
                             "jid": contact.jid_im,
                             "resource": resource,
-                            "status": show,
+                            contact,
+                            /*"status": show,
                             "message": status,
+                            // */
+                            presence : presenceRainbow.presenceLevel,
+                            status : presenceRainbow.presenceStatus,
                             "type": that.xmppUtils.isFromTelJid(resource) ?
                                 "phone" :
                                 that.xmppUtils.isFromMobile(resource) ?
@@ -202,12 +204,15 @@ class S2SServiceEventHandler {
                         let evtParam =  {
                             fulljid: from,
                             jid: contact.jid_im, //xmppUtils.getBareJIDFromFullJID(from),
+                            contact,
                             resource: resource, //xmppUtils.getResourceFromFullJID(from),
                             value: {
                                 priority: 5,
-                                show: show || "",
+                                //show: show || "",
                                 delay: 0,
-                                status: status || "",
+                                //status: status || "",
+                                show : presenceRainbow.presenceShow,
+                                status : presenceRainbow.presenceStatus,
                                 type: that.xmppUtils.isFromTelJid(resource) ?
                                     "phone" :
                                     that.xmppUtils.isFromMobile(resource) ?

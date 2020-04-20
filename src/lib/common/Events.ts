@@ -293,12 +293,12 @@ class Events {
              * @param {Object} presence The presence object updated (jid, status, message, stamp)
              * @description
              *      This event is fired when the presence of the connected user changes <br/>
-             *      status may be <br/>
+             *      presence may be <br/>
              *          + "unknow",<br/>
-             *          + "online" (with message "" | "mode=auto"),<br/>
-             *          + "away" (with message "" ),<br/>
-             *          + "xa" (with message ""| "away"),<br/>
-             *          + "dnd" (with message "" | "audio" | "video" | "sharing" | "presentation")<br/>
+             *          + "online" (with status "" | "mode=auto"),<br/>
+             *          + "away" (with status "" ),<br/>
+             *          + "xa" (with status ""| "away"),<br/>
+             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br/>
              *      This event is also a confirmation from the server that the new presence value has been set
              */
             that.publishEvent("presencechanged", presence);
@@ -460,11 +460,11 @@ class Events {
         this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
             try {
                 if (bubble && bubble.users) {
-                    bubble.users.forEach((user) => {
+                    bubble.users.forEach(async (user) => {
                         if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
                             // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
                             //that._core.bubbles._sendInitialBubblePresence(bubble);
-                            that._core._presence.sendInitialBubblePresence(bubble);
+                            await that._core._presence.sendInitialBubblePresence(bubble);
                         }
                     });
                 }

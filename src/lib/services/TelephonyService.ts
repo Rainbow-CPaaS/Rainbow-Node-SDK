@@ -262,7 +262,7 @@ class Telephony {
             let jid_im = that._contacts.getImJid(__event.fulljid);
             if (!jid_im) { return true; }
 
-            let status = __event.status;
+            let status = __event.presence;
 
             if (that._contacts.isUserContactJid(jid_im)) {
 

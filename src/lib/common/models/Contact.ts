@@ -95,7 +95,7 @@ class Contact {
 	public firstName: any;
 	public isTerminated: any;
 	public language: any;
-	public presence: any;
+	public presence: string;
 	public status: any;
 	public resources: any;
 	public nameUpdatePrio: any;

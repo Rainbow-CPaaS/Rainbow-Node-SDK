@@ -24,6 +24,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Add in methods `ContactsService::getContactById`, `ContactsService::getContactByJid`, `ContactsService::getContactByLoginEmail`, `ContactsService::getContact` the presence if the requested user is the connected one.
 -   Add in Message received from server a field "geoloc: { datum: 'WGS84', latitude: '4x.567938', longitude: '-4.xxxxxxx' }" of the localisation sent in messages by a mobile.
+-   Fix presence in `presenceService` for the `Contact` class (take care may have change with "xa/away", "busy/dnd").
 
 **Others Changes**
 

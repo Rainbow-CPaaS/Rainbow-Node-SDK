@@ -5,6 +5,9 @@ export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 import {logEntryExit} from "../../common/Utils";
+import {PresenceRainbow} from "../../common/models/PresenceRainbow";
+import {Contact} from "../../common/models/Contact";
+import {ContactsService} from "../../services/ContactsService";
 
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
@@ -15,16 +18,19 @@ const LOG_ID = "XMPP/HNDL/PRES - ";
 class PresenceEventHandler extends GenericHandler {
 	public PRESENCE: any;
 	public onPresenceReceived: any;
+	private _contacts : ContactsService
 
-    constructor(xmppService : XMPPService) {
+    constructor(xmppService : XMPPService, contacts: ContactsService) {
         super( xmppService);
 
         this.PRESENCE = "jabber:client.presence";
 
+        this._contacts = contacts;
+
         let that = this;
         let xmppUtils = XMPPUTils.getXMPPUtils();
 
-        this.onPresenceReceived = (msg, stanza) => {
+        this.onPresenceReceived = async (msg, stanza) => {
             try {
                 that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza);
                 let from = stanza.attrs.from;
@@ -33,20 +39,30 @@ class PresenceEventHandler extends GenericHandler {
                     let show = stanza.getChild("show") ? stanza.getChild("show").text() : "online";
                     let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
 
+                    let presenceRainbow = new PresenceRainbow();
+                    presenceRainbow.presenceLevel = show;
+                    presenceRainbow.presenceStatus = status;
+
+                    let contact: Contact = await that._contacts.getContactByJid(from, false);
+
                     that.eventEmitter.emit("evt_internal_presencechanged", {
-                            "fulljid": from,
-                            "jid": xmppUtils.getBareJIDFromFullJID(from),
-                            "resource": xmppUtils.getResourceFromFullJID(from),
-                            "status": show,
-                            "message": status,
-                            "type": xmppUtils.isFromTelJid(from) ?
-                                "phone" :
-                                xmppUtils.isFromMobile(from) ?
-                                    "mobile" :
-                                    xmppUtils.isFromNode(from) ?
-                                        "node" :
-                                        "desktopOrWeb"
-                        });
+                        "fulljid": from,
+                        "jid": xmppUtils.getBareJIDFromFullJID(from),
+                        contact,
+                        "resource": xmppUtils.getResourceFromFullJID(from),
+                        //"status": show,
+                        //"message": status,
+                        "presence": presenceRainbow.presenceLevel,
+                        "status": presenceRainbow.presenceStatus,
+
+                        "type": xmppUtils.isFromTelJid(from) ?
+                            "phone" :
+                            xmppUtils.isFromMobile(from) ?
+                                "mobile" :
+                                xmppUtils.isFromNode(from) ?
+                                    "node" :
+                                    "desktopOrWeb"
+                    });
                 } else if (from.includes("room_")) {
 
                     let presence = stanza.attrs.type;
@@ -93,13 +109,13 @@ class PresenceEventHandler extends GenericHandler {
 
                     // My presence (node or other resources) in the room changes
                     that.eventEmitter.emit("evt_internal_onbubblepresencechanged", {
-                            fulljid: from,
-                            jid: xmppUtils.getBareJIDFromFullJID(from),
-                            resource: xmppUtils.getResourceFromFullJID(from),
-                            presence: presence,
-                            statusCode: status,
-                            description: description
-                        });
+                        fulljid: from,
+                        jid: xmppUtils.getBareJIDFromFullJID(from),
+                        resource: xmppUtils.getResourceFromFullJID(from),
+                        presence: presence,
+                        statusCode: status,
+                        description: description
+                    });
 
                     /*
                     // A presence in a room changes
@@ -168,16 +184,21 @@ class PresenceEventHandler extends GenericHandler {
                         });
                     }
 
+                    let presenceRainbow = new PresenceRainbow();
+                    presenceRainbow.presenceLevel = show;
+                    presenceRainbow.presenceStatus = status;
 
-                    let evtParam =  {
+                    let evtParam = {
                         fulljid: from,
                         jid: xmppUtils.getBareJIDFromFullJID(from),
                         resource: xmppUtils.getResourceFromFullJID(from),
                         value: {
                             priority: priority,
-                            show: show || "",
+                            //show: show || "",
                             delay: delay,
-                            status: status || "",
+                            //status: status || "",
+                            show: presenceRainbow.presenceShow,
+                            status: presenceRainbow.presenceStatus,
                             type: xmppUtils.isFromTelJid(from) ?
                                 "phone" :
                                 xmppUtils.isFromMobile(from) ?
