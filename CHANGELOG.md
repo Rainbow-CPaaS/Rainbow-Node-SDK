@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.71.0-dotnet.0] - 2020-05-XX
+-   Add `altitude` in `geoloc` field of received messages
+
 ## [1.70.0] - 2020-04-16
 -   Add a `PresenceRainbow` class to store the presence of a contact.
 -   Fix presence in `presenceService` for the `Contact` class (take care may have change with "xa/away", "busy/dnd").
