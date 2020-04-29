@@ -757,7 +757,7 @@ class Channels {
             this._rest.publishMessage(channel.id, message, title, url, imagesIds, type).then((status) => {
                 this._logger.log("info", LOG_ID + "(createItem) message published");
                 this._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
-                resolve(ErrorManager.getErrorManager().OK);
+                resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(createItem) error ");
                 this._logger.log("internalerror", LOG_ID + "(createItem) error : ", err);

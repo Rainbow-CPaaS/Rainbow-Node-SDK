@@ -215,10 +215,14 @@ rainbowSDK.start(undefined).then(async(result) => {
 
                 await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then(async (res ) => {
                     logger.log("debug", "createItem - res : ", res);
-                    await rainbowSDK.channels.likeItem(mychannel, res.itemId, RainbowSDK.Appreciation.Fantastic).catch((err1)=>{
-                        logger.log("error", "likeItem failed with : ", err1);
+                    if (res.publishResult && res.publishResult.data && res.publishResult.data[0]) {
+                        await rainbowSDK.channels.likeItem(mychannel, res.publishResult.data[0].id, RainbowSDK.Appreciation.Fantastic).catch((err1) => {
+                            logger.log("error", "likeItem failed with : ", err1);
 
-                    });
+                        });
+                    } else {
+                        logger.log("warn", "createItem - res : ", res, ", can not likeItem because item id not found.");
+                    }
                 }).catch((err2)=>{
                     logger.log("error", "createItem failed with : ", err2);
 

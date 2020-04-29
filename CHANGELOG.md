@@ -7,7 +7,9 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.71.0-dotnet.0] - 2020-05-XX
--   Add `altitude` in `geoloc` field of received messages
+-   Add `altitude` in `geoloc` field of received messages.
+-   Add `publishResult` field in the result of `ChannelsService::publishMessage` API. It now contents the `id` of the created item. Nice to likeItem, deleteItem...
+-   Fix the call of likeItem in postChangeLogInChannel.
 
 ## [1.70.0] - 2020-04-16
 -   Add a `PresenceRainbow` class to store the presence of a contact.
