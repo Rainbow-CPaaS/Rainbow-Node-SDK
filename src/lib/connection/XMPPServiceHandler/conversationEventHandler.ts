@@ -330,10 +330,12 @@ class ConversationEventHandler extends GenericHandler {
                             let datum = node.find("datum").text();
                             let lat = node.find("lat").text();
                             let lon = node.find("lon").text();
+                            let altitude = node.find("altitude").text();
                             geoloc = {
                                 datum,
                                 "latitude": lat,
-                                "longitude": lon
+                                "longitude": lon,
+                                "altitude": altitude
                             };
                         }
                             break;
