@@ -40,7 +40,7 @@
   "types": "./index.d.ts",
   "devDependencies": {
     "chai": "^4.2.0",
-    "commander": "^5.0.0",
+    "commander": "^5.1.0",
     "dts-generator": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-node": "^11.1.0",
@@ -61,7 +61,7 @@
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
     "markdown": "^0.5.0",
-    "mocha": "^7.1.1",
+    "mocha": "^7.1.2",
     "mock-socket": "^9.0.3",
     "ngrok": "^3.2.7",
     "nock": "^12.0.3",
@@ -70,12 +70,12 @@
     "nyc": "^15.0.1",
     "puppeteer": "^2.1.1",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
-    "sitemap": "^6.1.1",
+    "sitemap": "^6.1.2",
     "typescript": "^3.8.3",
     "yamljs": "^0.3.0"
   },
   "dependencies": {
-    "@types/node": "^13.11.1",
+    "@types/node": "^13.13.4",
     "@xmpp/client": "^0.11.1",
     "@xmpp/xml": "^0.11.0",
     "atob": "^2.1.2",
@@ -86,15 +86,15 @@
     "colors": "^1.4.0",
     "crypto-js": "^4.0.0",
     "debug-http": "^1.1.0",
-    "deep-equal": "^2.0.2",
+    "deep-equal": "^2.0.3",
     "express": "^4.17.1",
     "file-api": "^0.10.4",
     "https-proxy-agent": "5.0.0",
     "humanize-number": "0.0.2",
-    "jimp": "^0.10.2",
+    "jimp": "^0.10.3",
     "jwt-decode": "2.2.0",
     "md5": "^2.2.1",
-    "mime-types": "^2.1.26",
+    "mime-types": "^2.1.27",
     "moment": "^2.24.0",
     "moment-duration-format": "^2.3.2",
     "promise.prototype.finally": "^3.1.2",
@@ -110,6 +110,6 @@
     "uuid4": "1.1.4",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.2",
-    "ws": "^7.2.3"
+    "ws": "^7.2.5"
   }
 }

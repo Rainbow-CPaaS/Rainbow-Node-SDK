@@ -1224,7 +1224,8 @@ class XMPPService {
                         stanza.append(xml("show", {}, "away"));
                         stanza.append(xml("status", {}, "away"));
 
-                        that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         that.xmppClient.send(stanza);
 
                         that.xmppClient.stop().then(() => {
@@ -1237,11 +1238,11 @@ class XMPPService {
                             resolve();
                         });
                     } else {
-                        that.logger.log("debug", LOG_ID + "(stop) nothing to stop");
+                        that.logger.log("debug", LOG_ID + "(stop) nothing to stop that.xmppClient : ", that.xmppClient);
                         resolve();
                     }
                 } else {
-                    that.logger.log("debug", LOG_ID + "(stop) nothing to stop");
+                    that.logger.log("debug", LOG_ID + "(stop) nothing to stop, that.useXMPP : ", that.useXMPP, ", forceStop : ", forceStop) ;
                     resolve();
                 }
             } catch (err) {
