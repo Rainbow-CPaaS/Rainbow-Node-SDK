@@ -2439,7 +2439,7 @@ Request Method: PUT
     getDetailedAppreciations(channelId, itemId) {
         let that = this;
         return new Promise(function(resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/like?limit=100", that.getRequestHeader(), undefined).then(function(json) {
+            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/likes", that.getRequestHeader(), undefined).then(function(json) {
                 that.logger.log("info", LOG_ID + "(getDetailedAppreciations) successfull");
                 that.logger.log("internal", LOG_ID + "(getDetailedAppreciations) REST channels item liked received : ", json.data);
                 resolve(json.data);
