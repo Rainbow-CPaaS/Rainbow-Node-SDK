@@ -128,8 +128,10 @@ function unhandledRejection(reason, p) {
  */
 
 /**
- * @class
+ * @module
  * @name NodeSDK
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module is the core module of the Rainbow SDK for Node.JS <br>.
  *      It gives access to the other modules and allow to start/stop the SDK

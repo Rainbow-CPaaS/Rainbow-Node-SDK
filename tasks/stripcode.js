@@ -31,9 +31,8 @@ module.exports = function(grunt) {
         replaceBy[1] = "// */";
 
         replaceCode[2] = /\* @version SDKVERSION/g;
-        replaceBy[2] = "* @version " + fullVersion + " ";
-
-
+        //replaceBy[2] = "* @version " + fullVersion + " ";
+        replaceBy[2] = "* @version " + fullVersion + " - Documentation generated on " + new Date().toJSON().replace(/-/g, "/");
 
         let countremovedcode = 0;
 
@@ -61,7 +60,7 @@ module.exports = function(grunt) {
                     //contents = contents.replace(codeToReplace, '// replaced debug code \n');
                     contents = contents.replace(codeToReplace, replaceBy[index]);
                     if (countremovedcode > 0) {
-                        grunt.log.writeln(">> " + countremovedcode + " debug code " + codeToReplace + " removed from " + file);
+                        grunt.log.writeln(">> " + countremovedcode + " debug code " + codeToReplace + " replaced by " + replaceBy[index] + " from " + file);
                     }
                 });
             }
