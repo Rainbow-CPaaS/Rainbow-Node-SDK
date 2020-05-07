@@ -1047,23 +1047,36 @@ function testCreateBubblesOnly() {
 
 async function testsendMessageToBubbleJid_WithMention() {
     let loginEmail = "vincent02@vbe.test.openrainbow.net";
-    let appointmentRoom = "testBot";
+    let bubbleName = "testBotName_";
+    let bubbleDescription = "testBotDescription_";
+    let bubbleMessage = "testBotMessage_";
+    let bubbleMessageSubject = "testBotMessageSubject_";
+
     //let botappointment = "vincent01@vbe.test.openrainbow.net";
-    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact : any) => {
         if (contact) {
             logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: getContactByLoginEmail contact : ", contact);
-            let utc = new Date().toJSON().replace(/-/g, "/");
-            await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact , appointmentRoom + utc, true).then(async (bubble) => {
+            let utc :string = new Date().toJSON().replace(/-/g, "/");
+            bubbleName += utc + contact.name.value;
+            bubbleDescription += utc;
+            bubbleMessageSubject += utc;
+            await rainbowSDK.bubbles.createBubble( bubbleName, bubbleDescription, true).then(async (bubble) => {
                 logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: createBubble request ok", bubble);
                 rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
-                    let message = "message de test" + " @" + contact.name.value + " ";
+                    let message = bubbleMessage + " @" + contact.name.value + " ";
                     let mentions = [];
 
                     mentions.push(contact.jid);
+                    let content = {
+                        message,
+                        type: "text/markdown"
+                    };
+
 
                     await setTimeoutPromised(20000);
                     //mentions
-                    await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", contact.jid);
+                    await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", content, undefined, contact.jid);
+                    //await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", content, bubbleMessageSubject, contact.jid);
                     /*await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                         "type": "text/markdown",
                         "message": message + " @" + contact.name.value
