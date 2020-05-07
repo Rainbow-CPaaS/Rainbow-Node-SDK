@@ -481,7 +481,7 @@ class S2SServiceEventHandler {
                 let body = messageObj.body;
                 let resource = undefined;
                 let toJid = undefined;
-                let oob = undefined;
+                let oob = messageObj.attachment;
                 let messageType = undefined;
                 let isGroup = messageObj["is_group"];
                 let fromBubbleJid = null;
