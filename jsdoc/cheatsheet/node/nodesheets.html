@@ -20,6 +20,7 @@ class Channel
 class Call
 class Bubble
 class Events
+class NodeSDK
 class Telephony
 class s2s
 class PresenceService
@@ -264,6 +265,27 @@ Telephony : Promise : logon(String, String, String, String)
 Telephony : Promise : logoff(String, String, String, String)
 Telephony : Promise : withdrawal(String, String, String)
 Telephony : Promise : wrapup(String, String, String, String)
+NodeSDK : void : start(String)
+NodeSDK : void : stop()
+NodeSDK : Object : im
+NodeSDK : Object : channels
+NodeSDK : Object : contacts
+NodeSDK : Object : conversations
+NodeSDK : Object : presence
+NodeSDK : Object : bubbles
+NodeSDK : Object : groups
+NodeSDK : Object : events
+NodeSDK : Object : admin
+NodeSDK : Object : settings
+NodeSDK : String : state
+NodeSDK : String : version
+NodeSDK : ConnectedUser : connectedUser
+NodeSDK : Object : telephony
+NodeSDK : Object : calllog
+NodeSDK : Object : favorites
+NodeSDK : Object : invitations
+NodeSDK : Object : s2s
+NodeSDK : Object : DataStoreType
 Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
