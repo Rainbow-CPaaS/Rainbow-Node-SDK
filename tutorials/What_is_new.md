@@ -6,6 +6,36 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.71 - May 2019
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add `altitude` in `geoloc` field of received messages.
+-   Add `publishResult` field in the result of `ChannelsService::publishMessage` API. It now contents the `id` of the created item. Nice to likeItem, deleteItem...
+-   Fix the call of `likeItem` in postChangeLogInChannel.
+-   Fix `RESTService::getDetailedAppreciations` url
+-   Fill the `oob` property in received message in S2S mode. It is the description of an attached file to the message (if provided).
+-   Add date of generation of doc in documentation
+-   Fix `unavailable` stanza to be well understood by Web UI
+-   Add a `PresenceRainbow` class to store the presence of a contact.
+-   Fix presence in `presenceService` for the `Contact` class (take care may have change with "xa/away", "busy/dnd").
+
 ### SDK for Node.JS 1.70 - April 2019
 
 ---

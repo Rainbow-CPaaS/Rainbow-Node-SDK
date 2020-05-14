@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix RESTService::getDetailedAppreciations url
 -   Fill the oob property in received message in S2S mode. It is the description of an attached file to the message (if provided).
 -   Add date of generation of doc in documentation
+-   Fix `unavailable` stanza to be well understood by Web UI
 
 ## [1.70.0] - 2020-04-16
 -   Add a `PresenceRainbow` class to store the presence of a contact.

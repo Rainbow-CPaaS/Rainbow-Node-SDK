@@ -223,8 +223,13 @@ class ChannelEventHandler extends GenericHandler {
                         }
                     }
                         break;
+                    case "update":
+                        that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) update unknown event, channel item : ", item + " received, entry : ", entry);
+
+                        break;
                     default: {
-                        that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel unknown event " + item.name + " received");
+                        that.logger.log("warn", LOG_ID + "(onHeadlineMessageReceived) channel unknown event " + item.name + " received");
+                        that.logger.log("internalwarn", LOG_ID + "(onHeadlineMessageReceived) channel unknown event, channel item : ", item + " received, entry : ", entry);
                     }
                         break;
 

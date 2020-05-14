@@ -1218,11 +1218,13 @@ class XMPPService {
                     // Disconnect the xmpp connection
                     if (that.xmppClient) {
                         let stanza = xml("presence", {
-                            //to: that.jid_im + "/" + that.fullJid,
+                            //from to : that.jid_im + "/" + that.fullJid,
+                            //to: that.jid_im ,
                             type: "unavailable"
-                        }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
-                        stanza.append(xml("show", {}, "away"));
-                        stanza.append(xml("status", {}, "away"));
+                        //}, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
+                        }, null);
+                         // stanza.append(xml("show", {}, "away"));
+                         // stanza.append(xml("status", {}, "away"));
 
                         that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
