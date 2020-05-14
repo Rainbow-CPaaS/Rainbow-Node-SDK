@@ -6,14 +6,16 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.71.0-dotnet.0] - 2020-05-07
+## [1.71.0] - 2020-05-07
+-   Fix `unavailable` stanza to be well understood by Web UI
+
+## [1.71.0-dotnet.0] - 2020-04-26
 -   Add `altitude` in `geoloc` field of received messages.
 -   Add `publishResult` field in the result of `ChannelsService::publishMessage` API. It now contents the `id` of the created item. Nice to likeItem, deleteItem...
 -   Fix the call of likeItem in postChangeLogInChannel.
 -   Fix RESTService::getDetailedAppreciations url
 -   Fill the oob property in received message in S2S mode. It is the description of an attached file to the message (if provided).
 -   Add date of generation of doc in documentation
--   Fix `unavailable` stanza to be well understood by Web UI
 
 ## [1.70.0] - 2020-04-16
 -   Add a `PresenceRainbow` class to store the presence of a contact.
