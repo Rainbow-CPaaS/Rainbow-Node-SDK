@@ -1088,6 +1088,12 @@ async function testsendMessageToBubbleJid_WithMention() {
     //    let utc = new Date().toJSON().replace(/-/g, '/');
 }
 
+function testGetAllConferences() {
+    rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
+        console.log("(getBubbles) retrieveAllConferences : ", conferences);
+    });
+}
+
 function testCreateBubblesAndJoinConference() {
     let physician = {
         "name": "",

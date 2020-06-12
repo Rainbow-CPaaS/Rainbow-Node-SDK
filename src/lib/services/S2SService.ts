@@ -344,7 +344,7 @@ class S2SService {
                 //console.log( response.data )
                 //connectionInfo = response.data.data
                 that.logger.log("internal", LOG_ID + "(loginS2S) connexions S2S : ", response );
-                return Promise.resolve(response.data);
+                return Promise.resolve(response);
             } );
     }
 

@@ -22,6 +22,8 @@ const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
 import {logEntryExit} from "../../common/Utils";
+import {ConversationsService} from "../../services/ConversationsService";
+import {ContactsService} from "../../services/ContactsService";
 
 const LOG_ID = "XMPP/HNDL/CONVERSATIONS - ";
 
@@ -29,18 +31,20 @@ const LOG_ID = "XMPP/HNDL/CONVERSATIONS - ";
 class ConversationHistoryHandler  extends GenericHandler {
 	public MESSAGE_MAM: any;
 	public FIN_MAM: any;
-	public conversationService: any;
+	public _conversationService: ConversationsService;
+	private _contactsService : ContactsService;
 	public onMamMessageReceived: any;
 	public onHistoryMessageReceived: any;
 	public onWebrtcHistoryMessageReceived: any;
 
-    constructor(xmppService : XMPPService, conversationService) {
+    constructor(xmppService : XMPPService, conversationService : ConversationsService, contactsService : ContactsService) {
         super( xmppService);
 
         this.MESSAGE_MAM = "urn:xmpp:mam:1.result";
         this.FIN_MAM = "urn:xmpp:mam:1.fin";
 
-        this.conversationService = conversationService;
+        this._conversationService = conversationService;
+        this._contactsService = contactsService;
 
         let that = this;
 
@@ -78,7 +82,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 if (queryId) {
 
                     // Get associated conversation
-                    conversation = this.conversationService.getConversationById(queryId);
+                    conversation = this._conversationService.getConversationById(queryId);
                     if (conversation) {
 
                         // Extract info
@@ -117,13 +121,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                         }
 
                         let promise = new Promise( (resolve) => {
-                            conversationService._contacts.getContactByJid(fromJid, true)
+                            that._contactsService.getContactByJid(fromJid, true)
                                 .then( (from) => {
                                     resolve(from);
                                 }).catch( () => {
                                     resolve(null);
                                 });
-                        }).then( async (from ) => {
+                        }).then( async (from : any ) => {
                                 let type = stanzaMessage.getAttr("type");
                                 let messageId = stanzaMessage.getAttr("id");
                                 let date = new Date(stanzaForwarded.getChild("delay").getAttr("stamp"));
@@ -136,7 +140,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 if (!from) {
                                     that.logger.log("warn", LOG_ID + "[Conversation] onHistoryMessageReceived missing contact for jid : " + fromJid + ", ignore message");
                                     //create basic contact
-                                    from = that.conversationService._contacts.createEmptyContactContact(fromJid);
+                                    from = that._contactsService.createEmptyContactContact(fromJid);
                                 }
 
                                 if (roomEvent) {
@@ -166,7 +170,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 }
                                 else {
                                     // Create new message
-                                    let side = that.conversationService._contacts.isUserContact(from) ? Message.Side.RIGHT : Message.Side.LEFT;
+                                    let side = that._contactsService.isUserContact(from) ? Message.Side.RIGHT : Message.Side.LEFT;
                                     switch (type) {
                                         case "webrtc":
                                             message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
@@ -221,7 +225,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 else {
                     // Get associated conversation
                     queryId = stanza.getChild("fin").getAttr("queryid");
-                    conversation = this.conversationService.getConversationById(queryId);
+                    conversation = that._conversationService.getConversationById(queryId);
                     if (conversation) {
 
                         if ( conversation.pendingPromise ) {
@@ -334,21 +338,21 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     let promise = new Promise( (resolve) => {
-                        conversationService._contacts.getContactByJid(callerJid, true)
+                        that._contactsService.getContactByJid(callerJid, true)
                             .then( (from) => {
                                 resolve(from);
                             }).catch( () => {
                                 resolve(null);
                             });
-                    }).then( (from) => {
+                    }).then( (from : any) => {
                         // Create new message
                         if (!from) {
                             that.logger.log("warn", LOG_ID + "[Conversation] onWebrtcHistoryMessageReceived missing contact for jid : " + callerJid + ", ignore message");
                             //create basic contact
-                            from = that.conversationService._contacts.createEmptyContactContact(callerJid);
+                            from = that._contactsService.createEmptyContactContact(callerJid);
                         }
 
-                        let side = that.conversationService._contacts.isUserContact(from) ? Message.Side.RIGHT : Message.Side.LEFT;
+                        let side = that._contactsService.isUserContact(from) ? Message.Side.RIGHT : Message.Side.LEFT;
 
                         message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
 

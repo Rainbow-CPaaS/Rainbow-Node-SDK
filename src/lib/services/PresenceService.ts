@@ -4,7 +4,7 @@ import {XMPPService} from "../connection/XMPPService";
 import {ErrorManager} from "../common/ErrorManager";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isStarted, logEntryExit, until} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import {EventEmitter} from "events";
 import {RESTService} from "../connection/RESTService";
@@ -265,13 +265,23 @@ class PresenceService {
                  await that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
              }
              if (that._useS2S) {
+                 let presenceChangedReceived = false;
                  that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
                      that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                     resolve();
+                     presenceChangedReceived = true;
+                     //resolve();
                  });
-                 await that._s2s.sendS2SPresence(presenceRainbow.toJsonForServer());
+                 let result = await that._s2s.sendS2SPresence(presenceRainbow.toJsonForServer());
+                 that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) sendS2SPresence result : ", result);
+                 until(() => { return (presenceChangedReceived === true); }, "Wait for presencechanged after set presence S2S.", 10000).then((untilResult)=>{
+                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged received, can continue : ", untilResult);
+                     resolve();
+                 }).catch((untilResult)=>{
+                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged NOT received, force continue : ", untilResult);
+                     resolve();
+                 })
              }
 
              /*if (that._useXMPP) {
