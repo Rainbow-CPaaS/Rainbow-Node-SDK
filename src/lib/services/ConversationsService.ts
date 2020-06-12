@@ -54,7 +54,7 @@ class Conversations {
     private _s2s: S2SService;
     private _useXMPP: any;
     private _useS2S: any;
-    _contacts: ContactsService;
+    private _contactsService: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
     private _presence: PresenceService;
@@ -64,9 +64,9 @@ class Conversations {
     private _conversationEventHandler: ConversationEventHandler;
     private _conversationHandlerToken: any;
     private _conversationHistoryHandlerToken: any;
-    public conversations: any;
+    public conversations: Array<Conversation>;
     private _conversationServiceEventHandler: any;
-    private _bubbles: any;
+    private _bubblesService: BubblesService;
 	public activeConversation: any;
 	public inCallConversations: any;
 	public idleConversations: any;
@@ -95,7 +95,7 @@ class Conversations {
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
-        this._contacts = null;
+        this._contactsService = null;
         this._fileStorageService = null;
         this._fileServerService = null;
         this._eventEmitter = _eventEmitter;
@@ -126,8 +126,8 @@ class Conversations {
                 that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._contacts = _core.contacts;
-                that._bubbles = _core.bubbles;
+                that._contactsService = _core.contacts;
+                that._bubblesService = _core.bubbles;
                 that._fileStorageService = _core.fileStorage;
                 that._fileServerService = _core.fileServer;
                 that._presence = _core.presence;
@@ -189,7 +189,7 @@ class Conversations {
 
     attachHandlers() {
         let that = this;
-        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService);
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService);
         that._conversationHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_GROUPCHAT, that._conversationEventHandler.onChatMessageReceived),
@@ -199,7 +199,7 @@ class Conversations {
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CLOSE, that._conversationEventHandler.onCloseMessageReceived)
         ];
 
-        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, this);
+        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService);
         that._conversationHistoryHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived)
@@ -543,7 +543,7 @@ class Conversations {
         let defered = conversation.historyDefered = new Deferred();
 
         // Do nothing for userContact
-        if (that._contacts.isUserContact(conversation.contact)) {
+        if (that._contactsService.isUserContact(conversation.contact)) {
             defered.reject();
             return defered.promise;
         }
@@ -609,7 +609,7 @@ class Conversations {
 
 
             // No conversation found, then create it
-            that._contacts.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
+            that._contactsService.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
                     that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation (" + contact.id + ")");
 
                     let  conversation = Conversation.createOneToOneConversation(contact);
@@ -675,14 +675,14 @@ class Conversations {
         let conversation = that.getConversationByBubbleJid(bubbleJid);
         if (conversation) {
             conversation.preload = true;
-            that._logger.log("internal", LOG_ID + "(getBubbleConversation) conversation found by BubbleJid : ", bubbleJid, " : conversation : ", conversationResult);
+            that._logger.log("internal", LOG_ID + "(getBubbleConversation) conversation found by BubbleJid : ", bubbleJid, " : conversation : ", conversation);
             return Promise.resolve(conversation);
         }
         // No conversation found, then create it
         return new Promise((resolve, reject) => {
 
             // Get the associated bubble
-            that._bubbles.getBubbleByJid(bubbleJid).then((bubble) => {
+            that._bubblesService.getBubbleByJid(bubbleJid).then((bubble) => {
                 if (!bubble) {
                     that._logger.log("debug", LOG_ID + "getBubbleConversation (" + bubbleJid + ") failure : no such bubble");
 
@@ -1630,7 +1630,7 @@ class Conversations {
     /**
      * @private
      */
-    onRoomHistoryChangedEvent(__event, room) {
+   /* onRoomHistoryChangedEvent(__event, room) {
         if (room) {
             let conversation = this.getConversationById(room.jid);
             if (conversation && conversation.chatRenderer) {
@@ -1640,7 +1640,7 @@ class Conversations {
                     .loadMore();
             }
         }
-    }
+    } // */
 
     /**
      * @private
@@ -1654,7 +1654,7 @@ class Conversations {
             userJid = conversation.bubble.ownerContact.jid;
         }
 
-        let contact = this._contacts.getContactByJid(userJid, true);
+        let contact = this._contactsService.getContactByJid(userJid, true);
 
         if (conversation && contact) {
             // If invitation msg and I'm not the owner
@@ -1718,7 +1718,7 @@ class Conversations {
             //stop infinite loop in case of error
             that.botServiceReady = false;
             that.waitingBotConversations.forEach(async function(obj, index) {
-                let contact : Contact = await that._contacts.getContactByJid(obj.jid, false);
+                let contact : Contact = await that._contactsService.getContactByJid(obj.jid, false);
                 if (contact) {
                     await that.getOrCreateOneToOneConversation(contact.jid, null, obj.lastModification, obj.lastMessageText, obj.missedIMCounter, obj.muted, obj.creationDate);
                     that.waitingBotConversations.splice(index, 1);

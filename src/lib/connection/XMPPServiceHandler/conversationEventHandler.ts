@@ -1,14 +1,19 @@
 "use strict";
-import {RESTService} from "../RESTService";
+import {xu} from "../../common/XMPPUtils";
+import {ConversationsService} from "../../services/ConversationsService";
+import {Conversation} from "../../common/models/Conversation";
+import {Element} from "ltx";
+import {logEntryExit} from "../../common/Utils";
+import {FileStorageService} from "../../services/FileStorageService";
+import {FileServerService} from "../../services/FileServerService";
+import {Bubble} from "../../common/models/Bubble";
+import {BubblesService} from "../../services/BubblesService";
+import {ContactsService} from "../../services/ContactsService";
 
 export {};
 
 
-import {xu} from "../../common/XMPPUtils";
-import {ConversationsService} from "../../services/ConversationsService";
-
 const GenericHandler = require("./genericHandler");
-import {Conversation} from "../../common/models/Conversation";
 
 const util = require('util');
 
@@ -18,8 +23,6 @@ const LOG_ID = "XMPP/HNDL/CONV - ";
 
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
-import {Element} from "ltx";
-import {logEntryExit} from "../../common/Utils";
 
 @logEntryExit(LOG_ID)
 class ConversationEventHandler extends GenericHandler {
@@ -30,7 +33,7 @@ class ConversationEventHandler extends GenericHandler {
     public MESSAGE_ERROR: any;
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
-    public conversationService: ConversationsService;
+    private _conversationService: ConversationsService;
     public onChatMessageReceived: any;
     public _onMessageReceived: any;
     public eventEmitter: any;
@@ -52,10 +55,12 @@ class ConversationEventHandler extends GenericHandler {
     public findAttrs: any;
     public findChildren: any;
     public onCloseMessageReceived: any;
-    public fileStorageService: any;
-    public fileServerService: any;
+    private _fileStorageService: FileStorageService;
+    private _fileServerService: FileServerService;
+    private _bubbleService: BubblesService;
+    private _contactsService : ContactsService;
 
-    constructor(xmppService, conversationService, fileStorageService, fileServerService) {
+    constructor(xmppService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService) {
         super(xmppService);
 
         this.MESSAGE_CHAT = "jabber:client.message.chat";
@@ -66,9 +71,11 @@ class ConversationEventHandler extends GenericHandler {
         this.MESSAGE_HEADLINE = "jabber:client.message.headline";
         this.MESSAGE_CLOSE = "jabber:client.message.headline";
 
-        this.conversationService = conversationService;
-        this.fileStorageService = fileStorageService;
-        this.fileServerService = fileServerService;
+        this._conversationService = conversationService;
+        this._fileStorageService = fileStorageService;
+        this._fileServerService = fileServerService;
+        this._bubbleService = bubbleService;
+        this._contactsService = contactsService;
 
         let that = this;
 
@@ -88,6 +95,10 @@ class ConversationEventHandler extends GenericHandler {
                 let timestamp = new Date();
                 let replaceMessageId = null;
                 let attention = false;
+                let confOwnerId = null;
+                let confOwnerDisplayName = null;
+                let confOwnerJid =  null;
+
 
                 let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
                 let resource = xu.getResourceFromFullJID(stanza.attrs.from);
@@ -320,6 +331,21 @@ class ConversationEventHandler extends GenericHandler {
                             }
                             break;
                         }
+                        case "y": {
+                            let xmlns = node.attrs.xmlns;
+                            switch (xmlns) {
+                                case "jabber:y:owner":
+                                    confOwnerId = node.attrs.userid;
+                                    confOwnerDisplayName = node.attrs.displayname;
+                                    confOwnerJid = node.attrs.jid;
+                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) y owner received, y : ", node,  ": confOwnerId : ", confOwnerId, ", confOwnerDisplayName : ", confOwnerDisplayName, " confOwnerJid : ", confOwnerJid);
+                                    break;
+                                default:
+                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) y received");
+                                    break;
+                            }
+                            break;
+                        }
                         case "no-store":
                             break;
                         case "no-permanent-store":
@@ -348,7 +374,7 @@ class ConversationEventHandler extends GenericHandler {
                             let idDeleted = node.attrs.id;
                             let conversationJid = node.attrs.with;
                             if (idDeleted === "all") {
-                                let conversation = that.conversationService.getConversationById(conversationJid);
+                                let conversation = that._conversationService.getConversationById(conversationJid);
                                 if (conversation) {
                                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) conversation with all messages deleted received ", conversation.id);
                                     conversation.reset();
@@ -359,7 +385,7 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "mark_as_read": {
                             let conversationId = node.find("mark_as_read").attr("with");
-                            let conversation = this.conversationService.getConversationById(conversationId);
+                            let conversation = this._conversationService.getConversationById(conversationId);
 
                             if (conversation) {
                                 let typeread = node.find("mark_as_read").attr("id");
@@ -428,7 +454,10 @@ class ConversationEventHandler extends GenericHandler {
                         "eventJid": null,
                         "originalMessageReplaced": null,
                         "attention" : undefined,
-                        subject
+                        subject,
+                        confOwnerId: undefined,
+                        confOwnerDisplayName: undefined,
+                        confOwnerJid: undefined
                     };
 
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {
@@ -444,14 +473,26 @@ class ConversationEventHandler extends GenericHandler {
                         if (attention) {
                             data.attention = attention;
                         }
+                        if (attention) {
+                            data.confOwnerId = confOwnerId;
+                            data.confOwnerDisplayName = confOwnerDisplayName;
+                            data.confOwnerJid = confOwnerJid;
+                        }
+                        if (attention) {
+                            data.attention = attention;
+                        }
+                        if (attention) {
+                            data.attention = attention;
+                        }
+
                     }
 
-                    let outgoingMessage = that.conversationService._contacts.isUserContactJid(fromJid);
+                    let outgoingMessage = that._contactsService.isUserContactJid(fromJid);
                     let conversationId = outgoingMessage ? data.toJid : (stanza.attrs.type === TYPE_GROUPCHAT ? fromBubbleJid : data.fromJid);
 
                     if (replaceMessageId) {
                         //data.replaceMessageId = replaceMessageId;
-                        let conversation = that.conversationService.getConversationById(conversationId);
+                        let conversation = that._conversationService.getConversationById(conversationId);
                         if (conversation) {
                             data.originalMessageReplaced = conversation.getMessageById(replaceMessageId);
                         } else {
@@ -480,11 +521,11 @@ class ConversationEventHandler extends GenericHandler {
             }
         };
 
-        this._onMessageReceived = (conversationId, data) => {
+        this._onMessageReceived = async (conversationId, data) => {
             try {
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) _entering_ : ", conversationId, data);
-                let conversation = that.conversationService.getConversationById(conversationId);
-                let cs = this.conversationService;
+                let conversation = that._conversationService.getConversationById(conversationId);
+                let cs = this._conversationService;
                 if (!conversation) {
                     that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation NOT found in cache by Id : ", conversationId, ", for new message : ", data);
                     let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId) : cs.getOrCreateOneToOneConversation(conversationId);
@@ -499,6 +540,15 @@ class ConversationEventHandler extends GenericHandler {
                         that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                     });
                 } else {
+                    //that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
+                    if (data.event === "conferenceAdd") {
+                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data, ", but needed to be updated because event conferenceAdd on bubble received.");
+                        conversation.bubble = await that._bubbleService.getBubbleByJid(conversationId, true);
+                    }
+                    // data.conversation =  conversationId.startsWith("room_") ? await cs.getBubbleConversation(conversationId) : await cs.getOrCreateOneToOneConversation(conversationId);
+                    // data.conversation.addMessage(data);
+                    // that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data, ", but needed to be updated because event conferenceAdd on bubble received." );
+                    // */
                     that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                     data.conversation = conversation;
                     data.conversation.addMessage(data);
@@ -759,7 +809,7 @@ class ConversationEventHandler extends GenericHandler {
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", node);
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     let conversationId = node.attrs.id;
-                    let conversation = this.conversationService.getConversationById(conversationId);
+                    let conversation = this._conversationService.getConversationById(conversationId);
                     let action = node.attrs.action;
                     that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", conversationId : ", conversationId);
                     that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
@@ -778,7 +828,7 @@ class ConversationEventHandler extends GenericHandler {
                                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                                 break;
                             case "delete":
-                                this.conversationService.removeConversation(conversation);
+                                this._conversationService.removeConversation(conversation);
                                 break;
                             case "update":
                                 conversation.isFavorite = (node.find("isFavorite").text() === "true");
@@ -808,12 +858,12 @@ class ConversationEventHandler extends GenericHandler {
                             let conversationGetter = null;
                             if (type === "user") {
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, user. convDbId : ", convDbId, ", peerId : ", peerId);
-                                conversationGetter = this.conversationService.getOrCreateOneToOneConversation(convId);
+                                conversationGetter = this._conversationService.getOrCreateOneToOneConversation(convId);
                             } else {
                                 let bubbleId = convId;
                                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId);
                                 // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
-                                conversationGetter = this.conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
+                                conversationGetter = this._conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
                             }
 
                             if (!conversationGetter) {
@@ -844,7 +894,7 @@ class ConversationEventHandler extends GenericHandler {
                             that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache deleted : ", conversationId);
                             let conversationUnknown = new Conversation(conversationId);
                             if (conversationUnknown) {
-                                that.conversationService.removeConversation(conversationUnknown);
+                                that._conversationService.removeConversation(conversationUnknown);
                             }
                         }
                     }
@@ -861,7 +911,7 @@ class ConversationEventHandler extends GenericHandler {
                             }
                         }
                         let conversationDbId = node.find("mute").attrs.conversation || node.find("unmute").attrs.conversation;
-                        let conversation = this.conversationService.getConversationByDbId(conversationDbId);
+                        let conversation = this._conversationService.getConversationByDbId(conversationDbId);
                         if (conversation) {
                             that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) : mute is changed to " + mute);
                             conversation.muted = mute;
@@ -880,9 +930,9 @@ class ConversationEventHandler extends GenericHandler {
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onMuteManagementMessageReceived) conversation muted");
                     let conversationId = node.attrs.conversation;
-                    let conversation = that.conversationService.getConversationById(conversationId);
+                    let conversation = that._conversationService.getConversationById(conversationId);
                     if (!conversation) {
-                        let cs = this.conversationService;
+                        let cs = this._conversationService;
                         let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId,undefined, undefined, undefined, undefined,undefined,undefined,undefined,undefined) : cs.getOrCreateOneToOneConversation(conversationId);
                         createPromise.then((conv) => {
                             that.eventEmitter.emit("evt_internal_conversationupdated", conv);
@@ -903,9 +953,9 @@ class ConversationEventHandler extends GenericHandler {
                 if (node.attrs.xmlns === "jabber:iq:configuration") {
                     that.logger.log("debug", LOG_ID + "(onUnmuteManagementMessageReceived) conversation unmuted");
                     let conversationId = node.attrs.conversation;
-                    let conversation = that.conversationService.getConversationById(conversationId);
+                    let conversation = that._conversationService.getConversationById(conversationId);
                     if (!conversation) {
-                        let cs = this.conversationService;
+                        let cs = this._conversationService;
                         let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId,undefined, undefined, undefined, undefined,undefined,undefined,undefined,undefined) : cs.getOrCreateOneToOneConversation(conversationId);
                         createPromise.then((conv) => {
                             that.eventEmitter.emit("evt_internal_conversationupdated", conv);
@@ -933,15 +983,15 @@ class ConversationEventHandler extends GenericHandler {
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
 
-                            let fileDescriptor = this.fileStorageService.getFileDescriptorById(fileid);
+                            let fileDescriptor = this._fileStorageService.getFileDescriptorById(fileid);
                             if (!fileDescriptor) {
                                 updateConsumption = true;
                             }
 
-                            await that.fileStorageService.retrieveAndStoreOneFileDescriptor(fileid, true).then(function (fileDesc) {
+                            await that._fileStorageService.retrieveAndStoreOneFileDescriptor(fileid, true).then(function (fileDesc) {
                                 that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) fileDescriptor retrieved");
                                 if (!fileDesc.previewBlob) {
-                                    that.fileServerService.getBlobThumbnailFromFileDescriptor(fileDesc)
+                                    that._fileServerService.getBlobThumbnailFromFileDescriptor(fileDesc)
                                         .then(function (blob) {
                                             fileDesc.previewBlob = blob;
                                         });
@@ -956,15 +1006,15 @@ class ConversationEventHandler extends GenericHandler {
                             let fileNode = node.children[0];
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
-                            let fileDescriptor = this.fileStorageService.getFileDescriptorById(fileid);
+                            let fileDescriptor = this._fileStorageService.getFileDescriptorById(fileid);
                             if (!fileDescriptor) {
                                 updateConsumption = true;
                             }
 
-                            await that.fileStorageService.retrieveAndStoreOneFileDescriptor(fileid, true).then(function (fileDesc) {
+                            await that._fileStorageService.retrieveAndStoreOneFileDescriptor(fileid, true).then(function (fileDesc) {
                                 that.logger.log("debug", LOG_ID + "(onFileManagementMessageReceived) fileDescriptor retrieved");
                                 if (!fileDesc.previewBlob) {
-                                    that.fileServerService.getBlobThumbnailFromFileDescriptor(fileDesc)
+                                    that._fileServerService.getBlobThumbnailFromFileDescriptor(fileDesc)
                                         .then(function (blob) {
                                             fileDesc.previewBlob = blob;
                                         });
@@ -980,14 +1030,14 @@ class ConversationEventHandler extends GenericHandler {
                             let fileNode = node.children[0];
                             let fileid = fileNode.children[0];
                             //.getText() ||  "";
-                            let fileDescriptor = this.fileStorageService.getFileDescriptorById(fileid);
+                            let fileDescriptor = this._fileStorageService.getFileDescriptorById(fileid);
                             if (fileDescriptor) {
                                 //check if we've deleted one of our own files
                                 if (fileDescriptor.ownerId === that.userId && fileDescriptor.state !== "deleted") {
                                     updateConsumption = true;
                                 }
 
-                                this.fileStorageService.deleteFileDescriptorFromCache(fileid, true);
+                                this._fileStorageService.deleteFileDescriptorFromCache(fileid, true);
                             }
 
                             that.eventEmitter.emit("evt_internal_filedeleted", {'fileid': fileid});
@@ -997,7 +1047,7 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                     }
                     if (updateConsumption) {
-                        this.fileStorageService.retrieveUserConsumption();
+                        this._fileStorageService.retrieveUserConsumption();
                     }
                 }
             } catch (err) {

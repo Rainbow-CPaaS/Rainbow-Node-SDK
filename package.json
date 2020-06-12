@@ -106,6 +106,7 @@
     "stream-buffers": "^3.0.2",
     "strip-ansi": "^6.0.0",
     "strophe": "^1.2.4",
+    "ts-generic-collections-linq": "0.0.2",
     "uuid": "^7.0.3",
     "uuid4": "1.1.4",
     "winston": "^3.2.1",
