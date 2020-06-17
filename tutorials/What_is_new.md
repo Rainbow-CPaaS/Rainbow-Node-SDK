@@ -6,7 +6,31 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 1.71 - May 2019
+### SDK for Node.JS 1.72 - June 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles. 
+-   Add methods to manage public url access to bubbles. So a Guest or a Rainbow user can access to it just using a URL. `bubblesService::createPublicUrl`, `bubblesService::generateNewPublicUrl`, `bubblesService::removePublicUrl`.
+-   Fix when sendPresence in S2S mode did not return any data. 
+
+### SDK for Node.JS 1.71 - May 2020
 
 ---
 
@@ -36,7 +60,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add a `PresenceRainbow` class to store the presence of a contact.
 -   Fix presence in `presenceService` for the `Contact` class (take care may have change with "xa/away", "busy/dnd").
 
-### SDK for Node.JS 1.70 - April 2019
+### SDK for Node.JS 1.70 - April 2020
 
 ---
 
@@ -71,7 +95,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add event `rainbow_contactremovedfromnetwork` raised when a contact is removed from connected user's network.
 -   Move `index.js` to `src/index.ts` => become a typescript source file.
 
-### SDK for Node.JS 1.69 - March 2019
+### SDK for Node.JS 1.69 - March 2020
 
 ---
 
@@ -102,7 +126,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix error when delete conversation.
 -   Add jenkins job to generate a new debug version of  rainbow-node-sdk
 
-### SDK for Node.JS 1.68 - February 2019
+### SDK for Node.JS 1.68 - February 2020
 
 ---
 
@@ -136,7 +160,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Update in the S2SServiceEventHandler the event handler for a received message with the `shouldSendReadReceipt` SDK parameter to automatically mark as read a received message.
 -   Fix the stanza "presence" to desactivate history for room on server side.
 
-### SDK for Node.JS 1.67 - February 2019
+### SDK for Node.JS 1.67 - February 2020
 
 ---
 
@@ -180,7 +204,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Refactor for private members of services.
 -   Fix retrieve at startup of the previous presence saved in settings service, and use it.
 
-### SDK for Node.JS 1.66 - January 2019
+### SDK for Node.JS 1.66 - January 2020
 
 ---
 
@@ -213,7 +237,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Update Bubble::users property ordered by additionDate.
 -   Fix ordered calllogs (`orderByNameCallLogsBruts`, `orderByDateCallLogsBruts`).
 
-### SDK for Node.JS 1.65 - January 2019
+### SDK for Node.JS 1.65 - January 2020
 
 ---
 
