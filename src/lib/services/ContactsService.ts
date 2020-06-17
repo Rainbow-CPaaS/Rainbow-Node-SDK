@@ -388,7 +388,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid, forceServerSearch) : Promise<Contact>{
+    getContactByJid(jid, forceServerSearch = false) : Promise<Contact>{
 
         let that = this;
 
@@ -464,7 +464,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactById(id, forceServerSearch) : Promise<Contact>{
+    getContactById(id, forceServerSearch = false) : Promise<Contact>{
         let that = this;
         return new Promise((resolve, reject) => {
              if (!id) {

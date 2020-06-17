@@ -6,8 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.72.0] - 2020-12-17
+-   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles. 
+
 ## [1.72.0-dotnet.1] - 2020-12-06
--   Add methods to manage public url access to bubbles. So a Guest or a Rainbow user can access to it just using a URL. bubblesService::createPublicUrl, bubblesService::generateNewPublicUrl, bubblesService::removePublicUrl.
+-   Add methods to manage public url access to bubbles. So a Guest or a Rainbow user can access to it just using a URL. `bubblesService::createPublicUrl`, `bubblesService::generateNewPublicUrl`, `bubblesService::removePublicUrl`.
 -   Fix when sendPresence in S2S mode did not return any data. 
 
 ## [1.72.0-dotnet.0] - 2020-05-26

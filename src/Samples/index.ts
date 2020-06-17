@@ -1665,6 +1665,52 @@ async function testcreateGuestUserError() {
     }
 }
 
+async function  testgetAllPublicUrlOfBubbles(){
+    let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubbles().catch((err) => {
+        logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubbles) error while creating guest user :  ", err);
+    });
+    logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubbles] All PublicUrl Of Bubbles : ", result);
+}
+
+async function  testgetAllPublicUrlOfBubblesOfAUser(){
+    //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+    let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
+    let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubblesOfAUser(contact).catch((err) => {
+        logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubblesOfAUser) error while creating guest user :  ", err);
+    });
+    logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubblesOfAUser] All PublicUrl Of Bubbles : ", result);
+}
+
+async function  testgetAllPublicUrlOfABubble(){
+    //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+    //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
+    let myBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+    if (myBubbles.length > 0) {
+        logger.log("debug", "MAIN - testgetAllPublicUrlOfABubble - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length : 0);
+        for (let bubble of myBubbles) {
+            let result = await rainbowSDK.bubbles.getAllPublicUrlOfABubble(bubble).catch((err) => {
+                logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubble) error while creating guest user :  ", err);
+            });
+            logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubble] The PublicUrl ", result, " Of a Bubble : ", bubble);
+        }
+    }
+}
+
+async function  testgetAllPublicUrlOfABubbleOfAUser(){
+    //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+    //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
+    let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
+    let myBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+    if (myBubbles.length > 0) {
+        logger.log("debug", "MAIN - testgetAllPublicUrlOfABubbleOfAUser - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length : 0);
+        for (let bubble of myBubbles) {
+            let result = await rainbowSDK.bubbles.getAllPublicUrlOfABubbleOfAUser(contact, bubble).catch((err) => {
+                logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubbleOfAUser) error while creating guest user :  ", err);
+            });
+            logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubbleOfAUser] The PublicUrl ", result, " Of a Bubble : ", bubble);
+        }
+    }
+}
 
 function commandLineInteraction() {
     let questions = [

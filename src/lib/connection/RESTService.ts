@@ -17,7 +17,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {ROOMROLE} from "../services/S2SService";
-import {stringify} from "querystring";
+
 
 let packageVersion = require("../../package.json");
 
@@ -3256,7 +3256,67 @@ Request Method: PUT
         });
     }
 
-    //region Public url
+//region Public url
+
+    /**
+     *
+     * @param {string} userId id of to get all openInviteId belonging to this user. If not setted the connected user is used.
+     * @param {string} type type optionnel to get the public link of personal rooms type query parameter used with personal_audio_room or personal_video_room or default.
+     * @param {string} roomId id optionnel to get the public link for a given roomId, managed by the userId roomId
+     * @return {Promise<any>}
+     */
+    getAllOpenInviteIdPerRoomOfAUser (userId?: string , type?: string,  roomId?: string) : Promise<Array<any>>{
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST.");
+            let userIdFilter = userId ? userId : that.userId;
+            /*
+            let requestParam : any = {};
+            if (type) {
+                requestParam.type = type;
+            }
+            if (roomId) {
+                requestParam.roomId = roomId;
+            } // */
+            let requestParam = "";
+            if (type) {
+                if (requestParam == "") {
+                    requestParam += "?";
+                } else {
+                    requestParam += "+";
+                }
+                requestParam += "type=" + type;
+            }
+            if (roomId) {
+                if (requestParam == "") {
+                    requestParam += "?";
+                } else {
+                    requestParam += "+";
+                }
+                requestParam += "roomId=" + roomId;
+            }
+
+// */
+          /*  let url = queryString.stringifyUrl({
+                url: 'https://foo.bar',
+                query: {
+                    top: 'foo'
+                },
+                fragmentIdentifier: 'bar'
+            });  // */
+
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + userIdFilter + "/public-links" + requestParam, that.getRequestHeader(), requestParam).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) -- " + userIdFilter + " -- success");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error : ", err);
+                return reject(err);
+            });
+        });
+    };
 
     generateNewPublicUrl(  bubbleId) {
         let that = this;
@@ -3345,7 +3405,7 @@ Request Method: PUT
         });
     }
 
-    getRoomByConferenceEndpointId = function(conferenceEndpointId) {
+    getRoomByConferenceEndpointId (conferenceEndpointId) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(getRoomByConferenceEndpointId) REST.");
