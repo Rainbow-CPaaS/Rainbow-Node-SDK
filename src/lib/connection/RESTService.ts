@@ -1941,13 +1941,14 @@ Request Method: PUT
         });
     }
 
-    createCompany(name, country, state) {
+    createCompany(name, country, state, offerType) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let countryObj = {
                 name: name,
                 country: "Fr",
-                state: null
+                state: null,
+                offerType: "freemium"
             };
 
             if (country) {
@@ -1955,6 +1956,10 @@ Request Method: PUT
             }
             if (state) {
                 countryObj.state = state;
+            }
+            if (offerType) {
+                //offerType: "premium"
+                countryObj.offerType = offerType
             }
 
             that.http.post('/api/rainbow/admin/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
@@ -3707,6 +3712,137 @@ Request Method: PUT
     }
 
     //endregion conference
+
+    //region Offers and subscriptions
+    retrieveAllCompanyOffers(companyId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(retrieveAllCompanyOffers) REST companyId : ", companyId);
+
+            that.http.get("/api/rainbow/subscription/v1.0/companies/" + companyId + "/offers" , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveAllCompanyOffers) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllCompanyOffers) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveAllCompanyOffers) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllCompanyOffers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrieveAllCompanySubscriptions(companyId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
+
+            that.http.get("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions" , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveAllCompanySubscriptions) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllCompanySubscriptions) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    subscribeCompanyToOffer(companyId : string, offerId : string, maxNumberUsers? : number, autoRenew? : boolean  ) {
+        let that = this;
+        // /api/rainbow/subscription/v1.0/companies/:companyId/subscriptions
+        return new Promise(function (resolve, reject) {
+            let params : any = {
+                offerId //, // Id of the offer to subscribe.
+                // maxNumberUsers : 	integer, // optionnel Number of users (licences) bought for this offer. Valeurs autorisées : 1..
+                // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
+            };
+
+            if (maxNumberUsers != undefined) {
+                params.maxNumberUsers = maxNumberUsers;
+            }
+
+            if (autoRenew != undefined) {
+                params.autoRenew = autoRenew;
+            }
+
+            that.logger.log("internal", LOG_ID + "(subscribeCompanyToOffer) REST params : ", params);
+
+            that.http.post("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(subscribeCompanyToOffer) successfull");
+                that.logger.log("internal", LOG_ID + "(subscribeCompanyToOffer) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(subscribeCompanyToOffer) error");
+                that.logger.log("internalerror", LOG_ID, "(subscribeCompanyToOffer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+   unSubscribeCompanyToSubscription(companyId : string, subscriptionId : string) {
+        let that = this;
+// /api/rainbow/subscription/v1.0/companies/:companyId/subscriptions/:subscriptionId
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(unSubscribeCompanyToOffer) REST companyId : ", companyId +", subscriptionId : ", subscriptionId);
+
+            that.http.delete("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions/" + subscriptionId, that.getRequestHeader()).then((json) => {
+                that.logger.log("info", LOG_ID + "(unSubscribeCompanyToOffer) successfull");
+                that.logger.log("internal", LOG_ID + "(unSubscribeCompanyToOffer) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(unSubscribeCompanyToOffer) error");
+                that.logger.log("internalerror", LOG_ID, "(unSubscribeCompanyToOffer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    subscribeUserToSubscription(userId : string, subscriptionId : string) {
+        let that = this;
+        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
+        return new Promise(function (resolve, reject) {
+            let params : any = {
+                // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
+            };
+
+            that.logger.log("internal", LOG_ID + "(subscribeUserToSubscription) REST params : ", params);
+
+            that.http.post("/api/rainbow/admin/v1.0/users/" + userId + "/profiles/subscriptions/" + subscriptionId, that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(subscribeUserToSubscription) successfull");
+                that.logger.log("internal", LOG_ID + "(subscribeUserToSubscription) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(subscribeUserToSubscription) error");
+                that.logger.log("internalerror", LOG_ID, "(subscribeUserToSubscription) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    unSubscribeUserToSubscription(userId : string, subscriptionId : string) {
+        let that = this;
+        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
+        return new Promise(function (resolve, reject) {
+            let params : any = {
+                // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
+            };
+
+            that.logger.log("internal", LOG_ID + "(unSubscribeUserToSubscription) REST params : ", params);
+
+            that.http.delete("/api/rainbow/admin/v1.0/users/" + userId + "/profiles/subscriptions/" + subscriptionId, that.getRequestHeader()).then((json) => {
+                that.logger.log("info", LOG_ID + "(unSubscribeUserToSubscription) successfull");
+                that.logger.log("internal", LOG_ID + "(unSubscribeUserToSubscription) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(unSubscribeUserToSubscription) error");
+                that.logger.log("internalerror", LOG_ID, "(unSubscribeUserToSubscription) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion
 
 }
 

@@ -10,8 +10,14 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
+import {resolve} from "dns";
 
 const LOG_ID = "ADMIN/SVCE - ";
+
+enum  OFFERTYPES {
+    FREEMIUM= "freemium",
+    PREMIUM= "premium"
+}
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -113,12 +119,13 @@ class Admin {
      * @param {string} strName The name of the new company
      * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
      * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
+     * @param {OFFERTYPES} offerType Company offer type. Companies with offerType=freemium are not able to subscribe to paid offers, they must be premium to do so. Companies created with privateDC="HDS" are automatically created with offerType=premium (as a paid subscription to HDS Company offer is automatically done during the company creation. Values can be : freemium, premium
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created Company or an error object depending on the result
      * @category async
      */
-    createCompany(strName, country, state) {
+    createCompany(strName :string, country : string, state : string, offerType? : OFFERTYPES) {
         let that = this;
 
         that._logger.log("internal", LOG_ID + "(createCompany) parameters : strName : ", strName,", country : ", country);
@@ -131,7 +138,7 @@ class Admin {
                     return;
                 }
 
-                that._rest.createCompany(strName, country, state).then((company) => {
+                that._rest.createCompany(strName, country, state, offerType).then((company) => {
                     that._logger.log("internal", LOG_ID + "(createCompany) Successfully created company : ", strName);
                     resolve(company);
                 }).catch((err) => {
@@ -1002,9 +1009,311 @@ class Admin {
         });
     }
 
+    //region Offers and Subscriptions.
+    /**
+     * @public
+     * @method retrieveAllOffersOfCompanyById
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to be retrieve the offers.
+     * @description
+     *      Method to retrieve all the offers of one company on server.
+     * @return {Promise<Array<any>>}
+     */
+    retrieveAllOffersOfCompanyById(companyId?: string) : Promise<Array<any>> {
+        let that = this;
 
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                that._rest.retrieveAllCompanyOffers(companyId).then((result: any) => {
+                    that._logger.log("debug", LOG_ID + "(retrieveAllOffersOfCompanyById) Successfully get all infos");
+                    that._logger.log("internal", LOG_ID + "(retrieveAllOffersOfCompanyById) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("internalerror", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos", err);
+                    that._logger.log("error", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos");
+                    return reject(err);
+                });
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
 
+    /**
+     * @public
+     * @method retrieveAllSubscribtionsOfCompanyById
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to be retrieve the subscriptions.
+     * @description
+     *      Method to retrieve all the subscriptions of one company on server.
+     * @return {Promise<Array<any>>}
+     */
+    retrieveAllSubscribtionsOfCompanyById(companyId?: string) : Promise<Array<any>> {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                that._rest.retrieveAllCompanySubscriptions(companyId).then((result: any) => {
+                    that._logger.log("debug", LOG_ID + "(retrieveAllOffersOfCompanyById) Successfully get all infos");
+                    that._logger.log("internal", LOG_ID + "(retrieveAllOffersOfCompanyById) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("internalerror", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos", err);
+                    that._logger.log("error", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos");
+                    return reject(err);
+                });
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getSubscribtionsOfCompanyByOfferId
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} offerId Id of the offer to filter subscriptions.
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @description
+     *      Method to get the subscription of one company for one offer.
+     * @return {Promise<any>}
+     */
+    async getSubscribtionsOfCompanyByOfferId(offerId, companyId) : Promise<any>{
+        let that = this;
+        return new Promise(async function (resolve, reject) {
+            try {        //let Offers =  await that.retrieveAllOffersOfCompanyById(companyId);
+                let subscriptions : Array<any> = await that.retrieveAllSubscribtionsOfCompanyById(companyId);
+                for (let subscription of subscriptions) {
+                    //that._logger.log("debug", "(getSubscribtionsOfCompanyByOfferId) subscription : ", subscription);
+                    if (subscription.offerId === offerId) {
+                        that._logger.log("debug", "(getSubscribtionsOfCompanyByOfferId) subscription found : ", subscription);
+                        return resolve(subscription);
+                    }
+                }
+            } catch (err) {
+                return reject(err);
+            }
+            resolve (undefined);
+        });
+    }
+
+    /**
+     * @public
+     * @method subscribeCompanyToOfferById
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} offerId Id of the offer to filter subscriptions.
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {number} maxNumberUsers
+     * @param {boolean} autoRenew
+     * @description
+     *      Method to subscribe one company to one offer.
+     * @return {Promise<any>}
+     */
+    subscribeCompanyToOfferById(offerId: string, companyId? : string, maxNumberUsers? : number, autoRenew? : boolean ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!offerId) {
+                    that._logger.log("warn", LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                companyId = companyId? companyId : that._rest.account.companyId;
+                that._rest.subscribeCompanyToOffer(companyId, offerId, maxNumberUsers, autoRenew ).then((result: any) => {
+                    that._logger.log("debug", LOG_ID + "(subscribeCompanyToOfferById) Successfully subscribe.");
+                    that._logger.log("internal", LOG_ID + "(subscribeCompanyToOfferById) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("internalerror", LOG_ID + "(subscribeCompanyToOfferById) ErrorManager when put infos", err);
+                    that._logger.log("error", LOG_ID + "(subscribeCompanyToOfferById) ErrorManager when put infos");
+                    return reject(err);
+                });
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method subscribeCompanyToDemoOffer
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @description
+     *      Method to subscribe one company to offer demo.
+     *      Private offer on .Net platform.
+     * @return {Promise<any>}
+     */
+    subscribeCompanyToDemoOffer(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                that._logger.log("debug", "(subscribeCompanyToDemoOffer) - Offers : ", Offers);
+                for (let offer of Offers) {
+                    that._logger.log("debug", "(subscribeCompanyToDemoOffer) offer : ", offer);
+                    if (offer.name === "Enterprise Demo") {
+                        that._logger.log("debug", "(subscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
+                        resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
+                    }
+                }
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method unSubscribeCompanyToDemoOffer
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @description
+     *      Method to unsubscribe one company to offer demo.
+     *      Private offer on .Net platform.
+     * @return {Promise<any>}
+     */
+    unSubscribeCompanyToDemoOffer(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) - Offers : ", Offers);
+                for (let offer of Offers) {
+                    that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) offer : ", offer);
+                    if (offer.name === "Enterprise Demo") {
+                        that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
+                        resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
+                    }
+                }
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method unSubscribeCompanyToOfferById
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} offerId Id of the offer to filter subscriptions.
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @description
+     *      Method to unsubscribe one company to one offer .
+     * @return {Promise<any>}
+     */
+    unSubscribeCompanyToOfferById(offerId: string, companyId? : string ) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!offerId) {
+                    that._logger.log("warn", LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let subscription = await that.getSubscribtionsOfCompanyByOfferId(offerId, companyId) ;
+                if (!subscription) {
+                    return resolve();
+                }
+
+                that._rest.unSubscribeCompanyToSubscription(companyId, subscription.id ).then((result: any) => {
+                    that._logger.log("debug", LOG_ID + "(unSubscribeCompanyToOfferById) Successfully unsubscribe.");
+                    that._logger.log("internal", LOG_ID + "(unSubscribeCompanyToOfferById) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("internalerror", LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos", err);
+                    that._logger.log("error", LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos");
+                    return reject(err);
+                });
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method subscribeUserToSubscription
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} userId the id of the user which will subscribe. If not provided, the connected user is used.
+     * @param {string} subscriptionId the id of the subscription to attach to user.
+     * @description
+     *      Method to subscribe one user to a subscription of the company.
+     * @return {Promise<any>}
+     */
+    subscribeUserToSubscription(userId? : string, subscriptionId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let subscriptionResult = await that._rest.subscribeUserToSubscription(userId,  subscriptionId);
+                that._logger.log("debug", "(subscribeUserToSubscription) - subscription result : ", subscriptionResult);
+                resolve (subscriptionResult);
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @private
+     * @public
+     * @method unSubscribeUserToSubscription
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} userId the id of the user which will unsubscribe. If not provided, the connected user is used.
+     * @param {string} subscriptionId the id of the subscription to unsubscribe the user.
+     * @description
+     *      Method to unsubscribe one user to a subscription.
+     * @return {Promise<any>}
+     */
+    unSubscribeUserToSubscription(userId? : string, subscriptionId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let subscriptionResult = await that._rest.unSubscribeUserToSubscription(userId,  subscriptionId);
+                that._logger.log("debug", "(unSubscribeUserToSubscription) - unsubscription result : ", subscriptionResult);
+                resolve (subscriptionResult);
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+    //endregion
 }
 
 module.exports.AdminService = Admin;
-export {Admin as AdminService};
+module.exports.OFFERTYPES = OFFERTYPES;
+export {Admin as AdminService, OFFERTYPES};

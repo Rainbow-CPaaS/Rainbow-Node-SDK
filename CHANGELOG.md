@@ -6,7 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.72.0] - 2020-12-17
+## [1.73.0] - 2020-07-XX
+-   Add in method `AdminService::createCompany` parameter offerType. It's the company offer type. Companies with `offerType=freemium` are not able to subscribe to paid offers, they must be premium to do so.
+-   Add Offers and subscriptions management in AdminService. Add methods : `retrieveAllOffersOfCompanyById, retrieveAllSubscribtionsOfCompanyById, getSubscribtionsOfCompanyByOfferId, subscribeCompanyToOfferById, subscribeCompanyToDemoOffer, unSubscribeCompanyToDemoOffer, unSubscribeCompanyToOfferById, subscribeUserToSubscription, unSubscribeUserToSubscription`.
+
+## [1.72.0] - 2020-17-06
 -   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles. 
 
 ## [1.72.0-dotnet.1] - 2020-12-06

@@ -10,6 +10,7 @@ import {setTimeoutPromised} from "../lib/common/Utils";
 import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
 import {url} from "inspector";
+import {OFFERTYPES} from "../lib/services/AdminService";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -1710,6 +1711,39 @@ async function  testgetAllPublicUrlOfABubbleOfAUser(){
             logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubbleOfAUser] The PublicUrl ", result, " Of a Bubble : ", bubble);
         }
     }
+}
+
+async function  testretrieveAllCompanyOffers(){
+    let Offers = await rainbowSDK.admin.retrieveAllCompanyOffers();
+    logger.log("debug", "MAIN - testretrieveAllCompanyOffers - Offers : ", Offers);
+    for (let offer of Offers) {
+        logger.log("debug", "MAIN - [testretrieveAllCompanyOffers] offer : ", offer);
+        if (offer.name === "Enterprise Demo") {
+            logger.log("debug", "MAIN - [testretrieveAllCompanyOffers] offer Enterprise Demo found : ", offer);
+        }
+    }
+}
+
+async function  testsubscribeCompanyToDemoOffer(){
+
+    let utc = new Date().toJSON().replace(/-/g, '_');
+    let companyName = "MyVberderCompany_" + utc;
+    let newCompany = await rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM);
+    let subscribeResult = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id);
+    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeResult : ", subscribeResult);
+    let email = "vincentTest01@vbe.test.openrainbow.com";
+    let password = "Password_123";
+    let firstname = "vincentTest01";
+    let lastname = "berderTest01";
+    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscribtionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscribtionsOfCompanyById(newCompany.id));
+
+    let newUser = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]);
+    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id));
+    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id));
+    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id));
+    let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
+    let deletedCompany = await rainbowSDK.admin.removeCompany({id : newCompany.id});
+
 }
 
 function commandLineInteraction() {
