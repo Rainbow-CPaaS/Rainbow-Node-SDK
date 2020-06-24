@@ -161,6 +161,7 @@ class Admin {
      */
     removeUserFromCompany(user) {
         let that = this;
+        that._logger.log("internal", LOG_ID + "(removeUserFromCompany) requested to delete user : ", user);
 
         return that.deleteUser(user.id);
     }
