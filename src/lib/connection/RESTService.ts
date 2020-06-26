@@ -3022,7 +3022,7 @@ Request Method: PUT
     //region S2S
     // ************* S2S **************************
 
-    listConnectionsS2S() {
+    async listConnectionsS2S() : Promise<any>{
         let that = this;
         //that.logger.log("internal", LOG_ID + "(listConnectionsS2S) S2S");
         return new Promise((resolve, reject) => {
@@ -3038,7 +3038,7 @@ Request Method: PUT
         });
     }
 
-    sendS2SPresence(obj) {
+    async sendS2SPresence(obj) : Promise<any> {
         let that = this;
         that.logger.log("internal", LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
         return new Promise(function (resolve, reject) {
@@ -3073,7 +3073,7 @@ Request Method: PUT
             // */
     }
 
-    deleteConnectionsS2S(connexions) {
+    async deleteConnectionsS2S (connexions) : Promise<any> {
         let that = this;
         that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S");
         that.logger.log("info", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
@@ -3101,7 +3101,7 @@ Request Method: PUT
             })
     }
 
-    loginS2S(callback_url) {
+    async loginS2S(callback_url) : Promise<any> {
         let that = this;
         let data = {connection: { /*resource: "s2s_machin",*/  callback_url}};
         that.logger.log("debug", LOG_ID + "(loginS2S)  will login  S2S.");
@@ -3131,7 +3131,7 @@ Request Method: PUT
     }
 
 
-    infoS2S(s2sConnectionId) {
+    async infoS2S(s2sConnectionId) : Promise<any> {
         let that = this;
         that.logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
         that.logger.log("internal", LOG_ID + "(infoS2S) will get info S2S");
@@ -3158,14 +3158,14 @@ Request Method: PUT
             // */
     }
 
-    async setS2SConnection(connectionId) {
+    async setS2SConnection(connectionId) : Promise<any> {
         let that = this;
         that.logger.log("debug", LOG_ID + "(setS2SConnection)  will get info S2S and save the session infos.");
         that.logger.log("internal", LOG_ID + "(setS2SConnection) will get info S2S and save the session infos.");
         return that.connectionS2SInfo = await that.infoS2S(connectionId);
     }
 
-    sendS2SMessageInConversation(conversationId, msg) {
+    async sendS2SMessageInConversation(conversationId, msg) : Promise<any> {
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -3187,7 +3187,7 @@ Request Method: PUT
         });
     }
 
-    getS2SServerConversation(conversationId) {
+    async getS2SServerConversation(conversationId) : Promise<any> {
         let that = this;
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
         return new Promise((resolve, reject) => {
@@ -3203,13 +3203,29 @@ Request Method: PUT
         });
     }
 
+    async checkS2Sconnection() : Promise<any> {
+        let that = this;
+        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
+        return new Promise((resolve, reject) => {
+            that.http.head("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id , that.getRequestHeader()).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(checkS2Sconnection) successfull");
+                that.logger.log("internal", LOG_ID + "(checkS2Sconnection) received : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkS2Sconnection) error");
+                that.logger.log("internalerror", LOG_ID, "(checkS2Sconnection) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     /**
      *
      * @param roomid
      * @param {string} role Enum: "member" "moderator" of your role in this room
 
      */
-    joinS2SRoom(roomid, role: ROOMROLE) {
+    async joinS2SRoom(roomid, role: ROOMROLE) : Promise<any> {
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/rooms/{roomId}/join
         let that = this;
         return new Promise(function (resolve, reject) {

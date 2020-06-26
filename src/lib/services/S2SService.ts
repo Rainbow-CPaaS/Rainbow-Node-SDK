@@ -237,6 +237,30 @@ class S2SService {
     }
 
     /**
+     * @public
+     * @method checkS2Sconnection
+     * @instance
+     * @description
+     *      check the S2S connection with a head request.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
+    async checkS2Sconnection() {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(checkS2Sconnection) check the cnx S2S");
+        return that._rest.checkS2Sconnection()
+            .then( response => {
+                that.logger.log("debug", LOG_ID + "(checkS2Sconnection) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(checkS2Sconnection) connexions S2S OK : ", response );
+                return response;
+            } );
+    }
+
+    /**
      * @private
      * @method sendS2SPresence
      * @instance
