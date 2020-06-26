@@ -1207,36 +1207,39 @@ class Bubbles {
             bubbleObj = this._bubbles[bubbleFoundindex];
         } else {
             this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) add in cache bubbleObj : ", bubbleObj);
-            // Link conference and bubble
-            let conferenceId: string = null;
-            if (bubble.confEndpoints != null) {
-                bubble.confEndpoints.forEach((confEndpoint: any) => {
-                    if (confEndpoint != null) {
-                        conferenceId = confEndpoint.confEndpointId;
-                        if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-                            that._linkConferenceAndBubble.remove((item: KeyValuePair<string, string>) => {
-                                return item.key === conferenceId;
-                            });
-                        }
 
-                        this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) Link conferenceId : ", conferenceId, " to bubbleId : ", bubble.id);
-                        that._linkConferenceAndBubble.add(conferenceId, bubble.id);
-
-                        if (that._conferencesSessionById.containsKey(conferenceId)) {
-                            //needToRaiseEvent = true;
-                            //conference = that.conferenceGetByIdFromCache(conferenceId);
-                            //break;
-                        } else {
-                            // Since we have no information about this conference, we ask the servrr
-                            that.askConferenceSnapshot(confEndpoint.confEndpointId, confEndpoint.mediaType);
-                        }
-                    }
-                });
-            }
             this.refreshMemberAndOrganizerLists(bubbleObj);
             this._bubbles.push(bubbleObj);
         }
         //this.updateChannelsList();
+
+        // Link conference and bubble
+        let conferenceId: string = null;
+        if (bubble.confEndpoints != null) {
+            bubble.confEndpoints.forEach((confEndpoint: any) => {
+                if (confEndpoint != null) {
+                    conferenceId = confEndpoint.confEndpointId;
+                    if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
+                        this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) remove before update link conferenceId : ", conferenceId, " to bubbleId : ", bubble.id);
+                        that._linkConferenceAndBubble.remove((item: KeyValuePair<string, string>) => {
+                            return item.key === conferenceId;
+                        });
+                    }
+
+                    this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) Link conferenceId : ", conferenceId, " to bubbleId : ", bubble.id);
+                    that._linkConferenceAndBubble.add(conferenceId, bubble.id);
+
+                    if (that._conferencesSessionById.containsKey(conferenceId)) {
+                        //needToRaiseEvent = true;
+                        //conference = that.conferenceGetByIdFromCache(conferenceId);
+                        //break;
+                    } else {
+                        // Since we have no information about this conference, we ask the servrr
+                        that.askConferenceSnapshot(confEndpoint.confEndpointId, confEndpoint.mediaType);
+                    }
+                }
+            });
+        }
         return bubbleObj;
     }
 
@@ -1248,6 +1251,22 @@ class Bubbles {
             if (bubbleToRemove) {
                 // Remove from channels
                 let bubbleIdToRemove = bubbleToRemove.id;
+                // Remove link between conference and bubble
+                let conferenceId: string = null;
+                if (bubbleToRemove.confEndpoints != null) {
+                    bubbleToRemove.confEndpoints.forEach((confEndpoint: any) => {
+                        if (confEndpoint != null) {
+                            conferenceId = confEndpoint.confEndpointId;
+                            if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
+                                that._linkConferenceAndBubble.remove((item: KeyValuePair<string, string>) => {
+                                    return item.key === conferenceId;
+                                });
+                            }
+
+                            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) remove link conferenceId : ", conferenceId, " to bubbleId : ", bubbleToRemove.id);
+                        }
+                    });
+                }
 
                 that._logger.log("internal", LOG_ID + "(removeBubbleFromCache) remove from cache bubbleId : ", bubbleIdToRemove);
                 that._bubbles = this._bubbles.filter(function (chnl: any) {
@@ -2754,9 +2773,10 @@ getAllActiveBubbles
         let result: string = null;
         let that = this;
         if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
+            that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) FOUND conferenceId : ", conferenceId, " in that._linkConferenceAndBubble.");
             result = that._linkConferenceAndBubble[conferenceId];
         }
-        that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) conferenceId : ", conferenceId, " bubble : ", result);
+        that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) conferenceId : ", conferenceId, " bubble : ", result, " from that._linkConferenceAndBubble : ", that._linkConferenceAndBubble);
         return result;
     }
 
