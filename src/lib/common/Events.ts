@@ -106,6 +106,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleaffiliationchanged
  * @fires Events#rainbow_onbubbleownaffiliationchanged
  * @fires Events#rainbow_onbubbleinvitationreceived
+ * @fires Events#rainbow_onbubbleconferencestartedreceived
+ * @fires Events#rainbow_onbubbleconferencestoppedreceived
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
@@ -479,6 +481,28 @@ class Events {
              *      Fired when an invitation to join a bubble is received
              */
             that.publishEvent("bubbleinvitationreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencestartedreceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencestartedreceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference started.
+             * @description
+             *      Fired when an event conference start in a bubble is received
+             */
+            that.publishEvent("bubbleconferencestartedreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencestoppedreceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencestoppedreceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference stopped.
+             * @description
+             *      Fired when an event conference stop in a bubble is received
+             */
+            that.publishEvent("bubbleconferencestoppedreceived", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {
