@@ -6,7 +6,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 1.73 - June 2020
+### SDK for Node.JS 1.73 - July 2020
 
 ---
 
@@ -28,6 +28,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Add Offers and subscriptions management in AdminService. Add methods : `retrieveAllOffersOfCompanyById, retrieveAllSubscribtionsOfCompanyById, getSubscribtionsOfCompanyByOfferId, subscribeCompanyToOfferById, subscribeCompanyToDemoOffer, unSubscribeCompanyToDemoOffer, unSubscribeCompanyToOfferById, subscribeUserToSubscription, unSubscribeUserToSubscription`.
 -   Add method `S2SService::checkS2Sconnection` to give the ability to check the S2S connection with a head request.
+-   Add methods `BubblesService::conferenceStart`, `BubblesService::conferenceStop` to start/stop the webrtc conference include in a bubble (Note that a premium account is need for this API to succeed). 
+-   Add the events rainbow_onbubbleconferencestartedreceived rainbow_onbubbleconferencestoppedreceived when a webrtc conference start/stop. 
 
 ### SDK for Node.JS 1.72 - June 2020
 
