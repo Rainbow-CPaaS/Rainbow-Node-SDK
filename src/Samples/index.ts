@@ -1746,6 +1746,12 @@ async function  testsubscribeCompanyToDemoOffer(){
 
 }
 
+async function  test_attempt_failed() {
+    //await rainbowSDK._core.rest.eventEmitter.emit("attempt_failed");
+    await rainbowSDK._core._eventEmitter.iee.emit("rainbow_xmppreconnected");
+    logger.log("debug", "MAIN - test_attempt_failed - attempt_failed sent.");
+}
+
 function commandLineInteraction() {
     let questions = [
         {

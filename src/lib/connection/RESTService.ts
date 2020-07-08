@@ -2926,7 +2926,10 @@ Request Method: PUT
 
     checkPortalHealth() {
         let that = this;
+        that.logger.log("debug", LOG_ID + "(checkPortalHealth) will get the ping to test connection.");
         return new Promise(function (resolve, reject) {
+            return reject({"error" : "force to failed checkPortalHealth for tests." });
+
             that.http.get("/api/rainbow/ping", that.getDefaultHeader(), undefined).then(function (JSON) {
                 that.logger.log("debug", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready.");
                 setTimeout(() => {
@@ -2954,7 +2957,7 @@ Request Method: PUT
                 //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt succeeded!");
                 that.eventEmitter.emit("attempt_succeeded");
             }).catch((err) => {
-                //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt failed!");
+                that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt failed! send attempt_failed.");
                 that.eventEmitter.emit("attempt_failed");
             });
         }, reconnectDelay);
@@ -2983,14 +2986,16 @@ Request Method: PUT
     get_attempt_failed_callback(reject?) {
         let that = this;
         that.attempt_promise_resolver.reject = reject;
-        //that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback");
+        that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback called.");
         if (!that.attempt_failed_callback) {
             that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback create the singleton of attempt_failed_callback method");
             that.attempt_failed_callback = () => { // attempt_failed_callback
+            //that.attempt_failed_callback = async () => { // attempt_failed_callback
                 that.logger.log("debug", LOG_ID + "(reconnect) attempt_failed_callback attempt #" + that.currentAttempt + " has failed!");
                 that.currentAttempt++;
                 if (that.currentAttempt < that.maxAttemptToReconnect) {
                     that.reconnectDelay = that.fibonacciStrategy.next();
+                    //await that.attemptToReconnect(that.reconnectDelay);
                     that.attemptToReconnect(that.reconnectDelay);
                 } else {
                     if (that.attempt_promise_resolver.reject) {
@@ -3000,6 +3005,8 @@ Request Method: PUT
                     }
                 }
             };
+        } else {
+            that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback that.attempt_failed_callback method already defined, so return it.");
         }
         return that.attempt_failed_callback;
     }
@@ -3234,9 +3241,9 @@ Request Method: PUT
                 that.logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
                 reject({code: -1, label: "roomid is not defined!!!"});
             } else {
-                let data = {
+                let data = undefined; /*{
                     "role": role
-                };
+                }; // */
                 that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(joinRoom) successfull");
                     that.logger.log("internal", LOG_ID + "(joinRoom) REST bubble presence received  : ", json.data);
