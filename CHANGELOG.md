@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.75.0] - 2020-08-XX
+-   Refactor `reconnect` code for xmpp lost connection to avoid multiple simultaneous tries to reconnect from low layer (@xmpp/reconnect plugging)
+
 ## [1.73.0] - 2020-07-08
 -   Add methods `BubblesService::conferenceStart`, `BubblesService::conferenceStop` to start/stop the webrtc conference include in a bubble (Note that a premium account is need for this API to succeed). 
 -   Add the events rainbow_onbubbleconferencestartedreceived rainbow_onbubbleconferencestoppedreceived when a webrtc conference start/stop. 

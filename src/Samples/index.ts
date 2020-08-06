@@ -1746,10 +1746,20 @@ async function  testsubscribeCompanyToDemoOffer(){
 
 }
 
-async function  test_attempt_failed() {
-    //await rainbowSDK._core.rest.eventEmitter.emit("attempt_failed");
-    await rainbowSDK._core._eventEmitter.iee.emit("rainbow_xmppreconnected");
-    logger.log("debug", "MAIN - test_attempt_failed - attempt_failed sent.");
+async function  test_multireconnect() {
+    for (let i = 0; i < 1000 ; i++) {
+        /*
+        rainbowSDK._core.rest.reconnect().then((result)=> {
+            logger.log("debug", "MAIN - test_multireconnect - reconnect succeed : ", result, ", for i : ", i);
+        }).catch((err)=> {
+            logger.log("error", "MAIN - test_multireconnect - reconnect error : ", err, ", for i : ", i);
+        });
+        // */
+
+        //await rainbowSDK._core.rest.reconnect();
+        await rainbowSDK._core._eventEmitter.iee.emit("rainbow_xmppreconnected");
+        logger.log("debug", "MAIN - test_multireconnect - reconnect sent ++ : ", i);
+    }
 }
 
 function commandLineInteraction() {
