@@ -14,6 +14,7 @@ jsdoc/cheatsheet/node/nodesheets.nodesheets.html
 lib/common/models/fileDescriptor.js.map
 lib/common/models/fileDescriptor.js
 .idea/
+.idea.OLD/
 package-lock.json
 /Samples/index.js
 lib/common

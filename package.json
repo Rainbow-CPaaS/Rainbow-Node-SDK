@@ -75,7 +75,7 @@
     "yamljs": "^0.3.0"
   },
   "dependencies": {
-    "@types/node": "^13.13.4",
+    "@types/node": "^13.13.13",
     "@xmpp/client": "^0.11.1",
     "@xmpp/xml": "^0.11.0",
     "atob": "^2.1.2",

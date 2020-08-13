@@ -70,6 +70,7 @@ class RESTService {
     public applicationToken: string;
     public getPostHeader: any;
     public connectionS2SInfo: any;
+    private reconnectInProgress: boolean;
 
     constructor(_credentials, _application, _isOfficialRainbow, evtEmitter: EventEmitter, _logger: Logger) {
         let that = this;
@@ -90,6 +91,7 @@ class RESTService {
         this.attempt_succeeded_callback = undefined;
         this.attempt_failed_callback = undefined;
         this.attempt_promise_resolver = {resolve: undefined, reject: undefined};
+        this.reconnectInProgress = false;
 
         this._isOfficialRainbow = _isOfficialRainbow;
 
@@ -2924,40 +2926,55 @@ Request Method: PUT
     }
 
 
-    checkPortalHealth() {
+    checkPortalHealth(currentAttempt) {
         let that = this;
+        that.logger.log("debug", LOG_ID + "(checkPortalHealth) will get the ping to test connection for the currentAttempt : ", currentAttempt);
         return new Promise(function (resolve, reject) {
+            // dev-code //
+            //return reject({"error" : "force to failed checkPortalHealth for tests, currentAttempt : " + currentAttempt });
+            // end-dev-code //
+
             that.http.get("/api/rainbow/ping", that.getDefaultHeader(), undefined).then(function (JSON) {
-                that.logger.log("debug", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready.");
+                that.logger.log("debug", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready for currentAttempt : ", currentAttempt);
                 setTimeout(() => {
                     that.checkEveryPortals().then(() => {
-                        that.logger.log("debug", LOG_ID + "(checkPortalHealth) Connection succeeded!");
+                        that.logger.log("debug", LOG_ID + "(checkPortalHealth) Connection succeeded for currentAttempt : ", currentAttempt);
                         resolve(JSON);
                     }).catch((err) => {
-                        that.logger.log("debug", LOG_ID + "(checkPortalHealth) Connection failed!");
+                        that.logger.log("debug", LOG_ID + "(checkPortalHealth) Connection failed! for currentAttempt : ", currentAttempt);
                         return reject(err);
                     });
                 }, 1000 * 10);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID + "(checkPortalHealth) ErrorManager ");
+                that.logger.log("error", LOG_ID + "(checkPortalHealth) ErrorManager for currentAttempt : ", currentAttempt);
                 that.logger.log("internalerror", LOG_ID + "(checkPortalHealth) ErrorManager : ", err);
                 return reject(err);
             });
         });
     }
 
-    attemptToReconnect(reconnectDelay) {
+    attemptToReconnect(reconnectDelay, currentAttempt) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(attemptToReconnect) Next attempt in " + that.reconnectDelay + "ms");
-        setTimeout(() => {
-            that.checkPortalHealth().then(() => {
-                //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt succeeded!");
-                that.eventEmitter.emit("attempt_succeeded");
-            }).catch((err) => {
-                //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt failed!");
-                that.eventEmitter.emit("attempt_failed");
-            });
-        }, reconnectDelay);
+        if (!that.reconnectInProgress) {
+            that.logger.log("debug", LOG_ID + "(attemptToReconnect) set reconnectInProgress for the currentAttempt : ", currentAttempt);
+            that.reconnectInProgress = true;
+            that.logger.log("debug", LOG_ID + "(attemptToReconnect) Next attempt in " + that.reconnectDelay + " ms, this.currentAttempt : ", currentAttempt);
+            setTimeout(() => {
+                that.checkPortalHealth(currentAttempt).then(() => {
+                    //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt succeeded!");
+                    that.logger.log("debug", LOG_ID + "(attemptToReconnect) reset reconnectInProgress after succeeded for the currentAttempt : ", currentAttempt);
+                    that.reconnectInProgress = false;
+                    that.eventEmitter.emit("attempt_succeeded");
+                }).catch((err) => {
+                    that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt failed! send attempt_failed for the currentAttempt : ", currentAttempt);
+                    that.logger.log("debug", LOG_ID + "(attemptToReconnect) reset reconnectInProgress after failed for the currentAttempt : ", currentAttempt);
+                    that.reconnectInProgress = false;
+                    that.eventEmitter.emit("attempt_failed");
+                });
+            }, reconnectDelay);
+        } else {
+            that.logger.log("debug", LOG_ID + "(attemptToReconnect) reconnect in progress, so ignore this call for this.currentAttempt : ", currentAttempt);
+        }
     }
 
     get_attempt_succeeded_callback(resolve?) {
@@ -2966,7 +2983,7 @@ Request Method: PUT
         that.attempt_promise_resolver.resolve = resolve;
         if (!that.attempt_succeeded_callback) {
             that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_succeeded_callback create the singleton of attempt_succeeded_callback method");
-            that.attempt_succeeded_callback = () => { // attempt_succeeded_callback
+            that.attempt_succeeded_callback = function fn_attempt_succeeded_callback (){ // attempt_succeeded_callback
                 that.logger.log("debug", LOG_ID + "(reconnect) attempt_succeeded_callback reconnection attempt successfull!");
                 that.fibonacciStrategy.reset();
                 //that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
@@ -2983,40 +3000,49 @@ Request Method: PUT
     get_attempt_failed_callback(reject?) {
         let that = this;
         that.attempt_promise_resolver.reject = reject;
-        //that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback");
+        that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback called.");
         if (!that.attempt_failed_callback) {
             that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback create the singleton of attempt_failed_callback method");
-            that.attempt_failed_callback = () => { // attempt_failed_callback
-                that.logger.log("debug", LOG_ID + "(reconnect) attempt_failed_callback attempt #" + that.currentAttempt + " has failed!");
+            that.attempt_failed_callback = function fn_attempt_failed_callback() { // attempt_failed_callback
+            //that.attempt_failed_callback = async () => { // attempt_failed_callback
+                that.logger.log("debug", LOG_ID + "(reconnect) fn_attempt_failed_callback attempt #" + that.currentAttempt + " has failed!");
                 that.currentAttempt++;
                 if (that.currentAttempt < that.maxAttemptToReconnect) {
                     that.reconnectDelay = that.fibonacciStrategy.next();
-                    that.attemptToReconnect(that.reconnectDelay);
+                    //await that.attemptToReconnect(that.reconnectDelay);
+                    that.logger.log("debug", LOG_ID + "(reconnect) fn_attempt_failed_callback attempt #" + that.currentAttempt + " will call attemptToReconnect.");
+                    that.attemptToReconnect(that.reconnectDelay, that.currentAttempt);
                 } else {
                     if (that.attempt_promise_resolver.reject) {
                         that.attempt_promise_resolver.reject();
                     } else {
-                        that.logger.log("error", LOG_ID + "(reconnect) attempt_failed_callback reject is not define !");
+                        that.logger.log("error", LOG_ID + "(reconnect) fn_attempt_failed_callback reject is not define !");
                     }
                 }
             };
+        } else {
+            that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback that.attempt_failed_callback method already defined, so return it.");
         }
         return that.attempt_failed_callback;
     }
 
     reconnect() {
         let that = this;
-        return new Promise((resolve, reject) => {
-            that.currentAttempt = 0;
+        if (!that.reconnectInProgress) {
+            return new Promise((resolve, reject) => {
+                that.currentAttempt = 0;
 
-            that.eventEmitter.removeListener("attempt_succeeded", that.get_attempt_succeeded_callback());
-            that.eventEmitter.on("attempt_succeeded", that.get_attempt_succeeded_callback(resolve));
+                that.eventEmitter.removeListener("attempt_succeeded", that.get_attempt_succeeded_callback());
+                that.eventEmitter.on("attempt_succeeded", that.get_attempt_succeeded_callback(resolve));
 
-            that.eventEmitter.removeListener("attempt_failed", that.get_attempt_failed_callback());
-            that.eventEmitter.on("attempt_failed", that.get_attempt_failed_callback(reject));
+                that.eventEmitter.removeListener("attempt_failed", that.get_attempt_failed_callback());
+                that.eventEmitter.on("attempt_failed", that.get_attempt_failed_callback(reject));
 
-            that.attemptToReconnect(that.reconnectDelay);
-        });
+                that.attemptToReconnect(that.reconnectDelay, that.currentAttempt);
+            });
+        } else {
+            return Promise.reject({"errorname" : "reconnectingInProgress" , "label" : "reconnect already in progress"});
+        }
     }
 
     //region S2S
@@ -3234,9 +3260,9 @@ Request Method: PUT
                 that.logger.log("info", LOG_ID + "(joinRoom) No roomid provided");
                 reject({code: -1, label: "roomid is not defined!!!"});
             } else {
-                let data = {
+                let data = undefined; /*{
                     "role": role
-                };
+                }; // */
                 that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(joinRoom) successfull");
                     that.logger.log("internal", LOG_ID + "(joinRoom) REST bubble presence received  : ", json.data);

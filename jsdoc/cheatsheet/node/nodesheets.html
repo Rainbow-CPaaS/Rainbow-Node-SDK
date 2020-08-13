@@ -35,7 +35,7 @@ class Channels
 class CallsLog
 class Bubbles
 class Admin
-Admin : Promise.Object, ErrorManager : createCompany(string, string, string)
+Admin : Promise.Object, ErrorManager : createCompany(string, string, string, OFFERTYPES)
 Admin : Promise.Contact, ErrorManager : createUserInCompany(string, string, string, string, string, string, boolean, string[])
 Admin : Promise.Object, ErrorManager : createGuestUser(string, string, string, Number)
 Admin : Promise.Object, ErrorManager : createAnonymousGuestUser(Number)
@@ -48,6 +48,13 @@ Admin : Promise.Object, Error : askTokenOnBehalf(string, string)
 Admin : Promise.Object, ErrorManager : getAllUsers(string, number, number, string)
 Admin : Promise.Object, ErrorManager : getContactInfos(string)
 Admin : Promise.Object, ErrorManager : updateContactInfos(string, Object)
+Admin : Promise.any[] : retrieveAllOffersOfCompanyById(string)
+Admin : Promise.any[] : retrieveAllSubscribtionsOfCompanyById(string)
+Admin : Promise.any : getSubscribtionsOfCompanyByOfferId(string, string)
+Admin : Promise.any : subscribeCompanyToOfferById(string, string, number, boolean)
+Admin : Promise.any : unSubscribeCompanyToOfferById(string, string)
+Admin : Promise.any : subscribeUserToSubscription(string, string)
+Admin : Promise.any : unSubscribeUserToSubscription(string, string)
 Bubbles : Promise.Bubble, ErrorManager : createBubble(string, string, boolean)
 Bubbles : boolean : isBubbleClosed(Bubble)
 Bubbles : Object : deleteAllBubbles()
@@ -84,9 +91,15 @@ Bubbles : Bubble : deleteAvatarFromBubble(Bubble)
 Bubbles : Promise.Bubble : updateCustomDataForBubble(Object, Bubble)
 Bubbles : Promise.Bubble : deleteCustomDataForBubble(Bubble)
 Bubbles : Bubble : updateDescriptionForBubble(string, Bubble)
-Bubbles : Promise.any : generateNewPublicUrl(Bubble)
+Bubbles : Promise.any : getAllPublicUrlOfBubbles()
+Bubbles : Promise.any : getAllPublicUrlOfBubblesOfAUser(Contact)
+Bubbles : Promise.any : getAllPublicUrlOfABubble(Bubble)
+Bubbles : Promise.any : getAllPublicUrlOfABubbleOfAUser(Contact, Bubble)
+Bubbles : Promise.string : createPublicUrl(Bubble)
+Bubbles : Promise.string : generateNewPublicUrl(Bubble)
 Bubbles : Promise.any : removePublicUrl(Bubble)
-Bubbles : Promise.any : createPublicUrl(Bubble)
+Bubbles : Promise.any : conferenceStart(Bubble, string)
+Bubbles : Promise.any : conferenceStop(string)
 CallsLog : CallLog[] : getAll()
 CallsLog : Number : getMissedCallLogCounter()
 CallsLog : void : deleteOneCallLog(String)
@@ -237,6 +250,7 @@ InvitationsService : Object : declineInvitation(Invitation)
 PresenceService : Promise.ErrorManager : setPresenceTo(String)
 PresenceService : void : getUserConnectedPresence()
 s2s : Promise.Object, ErrorManager : listConnectionsS2S()
+s2s : Promise.Object, ErrorManager : checkS2Sconnection()
 s2s : Promise.Object, ErrorManager : deleteAllConnectionsS2S()
 s2s : Promise.Object, ErrorManager : infoS2S(String)
 Telephony : boolean : isTelephonyAvailable()
@@ -312,6 +326,8 @@ Events ::event : rainbow_onbubblepresencechanged
 Events ::event : rainbow_onbubbleownaffiliationchanged
 Events ::event : rainbow_onbubbledeleted
 Events ::event : rainbow_onbubbleinvitationreceived
+Events ::event : rainbow_onbubbleconferencestartedreceived
+Events ::event : rainbow_onbubbleconferencestoppedreceived
 Events ::event : rainbow_onbubblecustomdatachanged
 Events ::event : rainbow_onbubbletopicchanged
 Events ::event : rainbow_onbubbleprivilegechanged

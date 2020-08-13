@@ -2727,7 +2727,7 @@ getAllActiveBubbles
 
             let mediaType = bubble.mediaType;
             if (!that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED) && mediaType !== MEDIATYPE.WEBRTCSHARINGONLY) {
-                that._logger.log("warn", LOG_ID + "(WebConferenceService) retrieveWebConferences - user is not allowed");
+                that._logger.log("warn", LOG_ID + "(BubblesService) retrieveWebConferences - user is not allowed");
                 reject(new Error("notAllowed"));
                 return;
             }
@@ -2758,7 +2758,7 @@ getAllActiveBubbles
         let result: Bubble = null;
         let that = this;
         if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-            let bubbleId = that._linkConferenceAndBubble[conferenceId];
+            let bubbleId = that._linkConferenceAndBubble.tryGetValue(conferenceId);
             result = that.getBubbleFromCache(bubbleId);
         }
         return result;
@@ -2774,7 +2774,7 @@ getAllActiveBubbles
         let that = this;
         if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
             that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) FOUND conferenceId : ", conferenceId, " in that._linkConferenceAndBubble.");
-            result = that._linkConferenceAndBubble[conferenceId];
+            result = that._linkConferenceAndBubble.tryGetValue(conferenceId);
         }
         that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) conferenceId : ", conferenceId, " bubble : ", result, " from that._linkConferenceAndBubble : ", that._linkConferenceAndBubble);
         return result;
@@ -2821,7 +2821,7 @@ getAllActiveBubbles
     }
 
     /**
-     * Method retrieveConferences
+     * @Method retrieveConferences
      * @public
      * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
      * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
@@ -2839,7 +2839,7 @@ getAllActiveBubbles
             //return this.pstnConferenceService.retrievePstnConferences(scheduled, provisioning);
             case MEDIATYPE.WEBRTC:
             case MEDIATYPE.WEBRTCSHARINGONLY:
-            //return this.webConferenceService.retrieveWebConferences(mediaType);
+            //return this.BubblesService.retrieveWebConferences(mediaType);
             default:
                 break;
         }
@@ -2889,7 +2889,7 @@ getAllActiveBubbles
                                     break;
                                 case this.MEDIATYPE.WEBRTC:
                                 case this.MEDIATYPE.WEBRTCSHARINGONLY:
-                                    this.webConferenceService.updateOrCreateWebConferenceEndpoint(conferenceData);
+                                    this.BubblesService.updateOrCreateWebConferenceEndpoint(conferenceData);
                                     break;
                                 default:
                                     break;
@@ -2909,11 +2909,11 @@ getAllActiveBubbles
     };
 
     /**
-     * Method updateOrCreateWebConferenceEndpoint
+     * @Method updateOrCreateWebConferenceEndpoint
      * @public
      * @param {any} conferenceData [required] conference data for the update / creation
      * @returns {any} the updated conferenceEndpoint or null on error
-     * @memberof WebConferenceService
+     * @memberof BubblesService
      */
     public updateOrCreateWebConferenceEndpoint(conferenceData: any): any {
         let that = this;
@@ -2981,10 +2981,10 @@ getAllActiveBubbles
 
 
     /**
-     * Method getWebRtcConfEndpointId
+     * @Method getWebRtcConfEndpointId
      * @public
      * @returns {string} the user unique webrtc conference enpoint id
-     * @memberof WebConferenceService
+     * @memberof BubblesService
      */
     public getWebRtcConfEndpointId(): string {
         for (let property in this._conferenceEndpoints) {
@@ -2997,10 +2997,10 @@ getAllActiveBubbles
     }
 
     /**
-     * Method getWebRtcSharingOnlyConfEndpointId
+     * @Method getWebRtcSharingOnlyConfEndpointId
      * @public
      * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
-     * @memberof WebConferenceService
+     * @memberof BubblesService
      */
     public getWebRtcSharingOnlyConfEndpointId(): string {
         for (let property in this._conferenceEndpoints) {
@@ -3012,29 +3012,24 @@ getAllActiveBubbles
         return null;
     }
 
-
-/// <summary>
-/// To start a conference.
-///
-/// Only a moderator can start a conference.
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/> ID of the conference</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
-//conferenceStart(conferenceId : string, Action<SdkResult<Boolean>> callback = null)
+    /**
+     * @public
+     * @method conferenceStart
+     * @since 1.73
+     * @instance
+     * @description
+     *     To start a conference.
+     *     Only a moderator can start a conference. It also need to be a premium account.
+     * @param {Bubble} bubble   The bubble where the conference should start
+     * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
+     * @return {Promise<any>} The result of the starting.
+     */
     async conferenceStart(bubble, conferenceId: string): Promise<any> {
         let that = this;
         let bubbleId = null;
         if (bubble) {
             bubbleId = bubble.id;
         }
-        /*
-        if (!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-        // */
-
         // Cf. https://api.openrainbow.org/conference/#api-conference-Start_conference
 
         let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;
@@ -3068,23 +3063,20 @@ getAllActiveBubbles
          // */
     }
 
-/// <summary>
-/// To stop a conference.
-///
-/// Only a moderator can stop a conference.
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/> ID of the conference</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method conferenceStop
+     * @since 1.73
+     * @instance
+     * @description
+     *     To stop a conference.
+     *     Only a moderator can stop a conference. It also need to be a premium account.
+     * @param {string} conferenceId The id of the conference that should stop
+     * @return {Promise<any>} return undefined.
+     */
     async conferenceStop(conferenceId: string) //, Action<SdkResult<Boolean>> callback = null)
     {
         let that = this;
-        /*if (!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-        // */
-
         // Cf. https://api.openrainbow.org/conference/#api-conference-Stop_conference
 
         let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;

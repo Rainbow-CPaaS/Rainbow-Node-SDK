@@ -7,6 +7,7 @@
  *
  */
 import {setTimeoutPromised} from "../lib/common/Utils";
+import {getRandomInt} from "../lib/common/Utils";
 import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
 import {url} from "inspector";
@@ -1016,6 +1017,43 @@ async function testCreate50BubblesAndArchiveThem() {
     //    let utc = new Date().toJSON().replace(/-/g, '/');
 }
 
+async function testCreate50BubblesAndActivateThem() {
+    let loginEmail = "vincent02@vbe.test.openrainbow.net";
+    let appointmentRoom = "testBot";
+    //let botappointment = "vincent01@vbe.test.openrainbow.net";
+    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+        if (contact) {
+            logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+            for (let i = 0; i < 50; i++) {
+                let utc = new Date().toJSON().replace(/-/g, "/");
+                let bubbleName = appointmentRoom + "_" + utc + contact + "_" + i;
+                let timeBetweenCreate = 2000 + (getRandomInt(6) * 1000);
+                await setTimeoutPromised(timeBetweenCreate).then(async () => {
+                    logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
+
+                await rainbowSDK.bubbles.createBubble(bubbleName, "desc : " + appointmentRoom + "_" + utc + "_" + i).then( async(bubble) => {
+                    logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                    rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async() => {
+                        let message = "message de test";
+                        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                            "type": "text/markdown",
+                            "message": message
+                        }, "subject");
+                        // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
+                        // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
+                        let bubbles = rainbowSDK.bubbles.getAll();
+                        logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
+                    });
+                });
+                // */
+                });
+
+            }
+        }
+    }); // */
+    //    let utc = new Date().toJSON().replace(/-/g, '/');
+}
+
 function testCreateBubblesAndInviteContactsByEmails() {
     let utc = new Date().toJSON().replace(/-/g, "/");
     rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble) => {
@@ -1744,6 +1782,22 @@ async function  testsubscribeCompanyToDemoOffer(){
     let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
     let deletedCompany = await rainbowSDK.admin.removeCompany({id : newCompany.id});
 
+}
+
+async function  test_multireconnect() {
+    for (let i = 0; i < 1000 ; i++) {
+        /*
+        rainbowSDK._core.rest.reconnect().then((result)=> {
+            logger.log("debug", "MAIN - test_multireconnect - reconnect succeed : ", result, ", for i : ", i);
+        }).catch((err)=> {
+            logger.log("error", "MAIN - test_multireconnect - reconnect error : ", err, ", for i : ", i);
+        });
+        // */
+
+        //await rainbowSDK._core.rest.reconnect();
+        await rainbowSDK._core._eventEmitter.iee.emit("rainbow_xmppreconnected");
+        logger.log("debug", "MAIN - test_multireconnect - reconnect sent ++ : ", i);
+    }
 }
 
 function commandLineInteraction() {

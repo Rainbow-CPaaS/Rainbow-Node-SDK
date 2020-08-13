@@ -79,7 +79,7 @@ class ConversationEventHandler extends GenericHandler {
 
         let that = this;
 
-        this.onChatMessageReceived = (msg, stanza) => {
+        this.onChatMessageReceived = async (msg, stanza) => {
             try {
                 that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, stanza);
                 let content = "";
@@ -97,8 +97,10 @@ class ConversationEventHandler extends GenericHandler {
                 let attention = false;
                 let confOwnerId = null;
                 let confOwnerDisplayName = null;
-                let confOwnerJid =  null;
-
+                let confOwnerJid = null;
+                let conference = false;
+                let conferencebubbleId = undefined;
+                let conferencebubbleJid = undefined;
 
                 let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
                 let resource = xu.getResourceFromFullJID(stanza.attrs.from);
@@ -305,15 +307,10 @@ class ConversationEventHandler extends GenericHandler {
                             switch (xmlns) {
                                 case "jabber:x:bubble:conference":
                                 case "jabber:x:conference": {
-                                    let invitation = {
-                                        event: "invitation",
-                                        bubbleId: node.attrs.thread,
-                                        bubbleJid: node.attrs.jid,
-                                        fromJid: fromJid,
-                                        resource: resource
-                                    };
-                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) invitation received");
-                                    that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
+                                    conference = true;
+                                    conferencebubbleId = node.attrs.thread;
+                                    conferencebubbleJid = node.attrs.jid;
+                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference received");
                                 }
                                     break;
                                 case "jabber:x:oob" : {
@@ -338,7 +335,7 @@ class ConversationEventHandler extends GenericHandler {
                                     confOwnerId = node.attrs.userid;
                                     confOwnerDisplayName = node.attrs.displayname;
                                     confOwnerJid = node.attrs.jid;
-                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) y owner received, y : ", node,  ": confOwnerId : ", confOwnerId, ", confOwnerDisplayName : ", confOwnerDisplayName, " confOwnerJid : ", confOwnerJid);
+                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) y owner received, y : ", node, ": confOwnerId : ", confOwnerId, ", confOwnerDisplayName : ", confOwnerDisplayName, " confOwnerJid : ", confOwnerJid);
                                     break;
                                 default:
                                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) y received");
@@ -417,6 +414,34 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 });
 
+                switch (event) {
+                    case "invitation": {
+                        let invitation = {
+                            event: "invitation",
+                            bubbleId: conferencebubbleId,
+                            bubbleJid: conferencebubbleJid,
+                            fromJid: fromJid,
+                            resource: resource
+                        };
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference invitation received");
+                        that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
+                    }
+                        break;
+                    case "conferenceAdd": {
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference start received");
+                        let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                        that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
+                    }
+                        break;
+                    case "conferenceRemove":
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference stop received");
+                        let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                        that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
+                        break;
+                    default:
+                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) no treatment of event ", this.eventEmitter, " so default.");
+                }
+
                 let fromBubbleJid = "";
                 let fromBubbleUserJid = "";
                 if (stanza.attrs.type === TYPE_GROUPCHAT) {
@@ -453,7 +478,7 @@ class ConversationEventHandler extends GenericHandler {
                         "event": null,
                         "eventJid": null,
                         "originalMessageReplaced": null,
-                        "attention" : undefined,
+                        "attention": undefined,
                         subject,
                         confOwnerId: undefined,
                         confOwnerDisplayName: undefined,
@@ -473,16 +498,14 @@ class ConversationEventHandler extends GenericHandler {
                         if (attention) {
                             data.attention = attention;
                         }
-                        if (attention) {
+                        if (confOwnerId) {
                             data.confOwnerId = confOwnerId;
+                        }
+                        if (confOwnerDisplayName) {
                             data.confOwnerDisplayName = confOwnerDisplayName;
+                        }
+                        if (confOwnerJid) {
                             data.confOwnerJid = confOwnerJid;
-                        }
-                        if (attention) {
-                            data.attention = attention;
-                        }
-                        if (attention) {
-                            data.attention = attention;
                         }
 
                     }
@@ -505,8 +528,7 @@ class ConversationEventHandler extends GenericHandler {
                         if (!hasATextMessage) {
                             that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
                             return;
-                        }
-                        else {
+                        } else {
                             that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data, ", hasATextMessage : ", hasATextMessage);
                         }
                     }
@@ -540,11 +562,12 @@ class ConversationEventHandler extends GenericHandler {
                         that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                     });
                 } else {
-                    //that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                     if (data.event === "conferenceAdd") {
                         that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data, ", but needed to be updated because event conferenceAdd on bubble received.");
                         conversation.bubble = await that._bubbleService.getBubbleByJid(conversationId, true);
                     }
+
                     // data.conversation =  conversationId.startsWith("room_") ? await cs.getBubbleConversation(conversationId) : await cs.getOrCreateOneToOneConversation(conversationId);
                     // data.conversation.addMessage(data);
                     // that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data, ", but needed to be updated because event conferenceAdd on bubble received." );
@@ -555,7 +578,7 @@ class ConversationEventHandler extends GenericHandler {
                     /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                         data.conversation.messages.push(data);
                     } // */
-                    this.eventEmitter.emit("evt_internal_onmessagereceived", data);
+                    that.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                     that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                 }

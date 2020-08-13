@@ -391,6 +391,17 @@ function getBinaryData (image) {
     return { type: imageType, data: bytes };
 }
 
+/**
+ *
+ * @param max The greater number which can be generated. If not defined the default value is 10.
+ * @description
+ *      generate an integer number between 1 and max value param.
+ * @return {number} Return an integer number between 1 and max value param.
+ */
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max?max:10));
+}
+
 export {
     makeId,
     createPassword,
@@ -405,5 +416,6 @@ export {
     isStarted,
     logEntryExit,
     resizeImage,
-    getBinaryData
+    getBinaryData,
+    getRandomInt
     };

@@ -367,7 +367,7 @@ class Core {
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
             let that = self;
-            //todo, check that REST part is ok too
+            self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) received, so start reconnect from RESTService.");
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
@@ -390,12 +390,16 @@ class Core {
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
-                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
-                    self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
-                    // ErrorManager in REST micro service, so let say it is disconnected
-                    await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
-                    // relaunch the REST connection.
-                    self._eventEmitter.iee.emit("rainbow_xmppreconnected");
+                    if (err && err.errorname == "reconnectingInProgress") {
+                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
+                    } else {
+                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
+                        self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
+                        // ErrorManager in REST micro service, so let say it is disconnected
+                        await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                        // relaunch the REST connection.
+                        self._eventEmitter.iee.emit("rainbow_xmppreconnected");
+                    }
                 }
             });
         });

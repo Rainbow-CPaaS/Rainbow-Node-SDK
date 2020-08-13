@@ -2,17 +2,17 @@
 
 ---
 
-Welcome to the new release of the Rainbow SDK for Node.JS. 
+Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 1.72 - June 2020
+### SDK for Node.JS 1.75 - August 2020
 
 ---
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -26,9 +26,56 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles. 
+-   Refactor `reconnect` code for xmpp lost connection to avoid multiple simultaneous tries to reconnect from low layer (@xmpp/reconnect plugging)
+
+### SDK for Node.JS 1.73 - July 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Add in method `AdminService::createCompany` parameter offerType. It's the company offer type. Companies with `offerType=freemium` are not able to subscribe to paid offers, they must be premium to do so.
+
+**Others Changes**
+
+-   Add Offers and subscriptions management in AdminService. Add methods : `retrieveAllOffersOfCompanyById, retrieveAllSubscribtionsOfCompanyById, getSubscribtionsOfCompanyByOfferId, subscribeCompanyToOfferById, subscribeCompanyToDemoOffer, unSubscribeCompanyToDemoOffer, unSubscribeCompanyToOfferById, subscribeUserToSubscription, unSubscribeUserToSubscription`.
+-   Add method `S2SService::checkS2Sconnection` to give the ability to check the S2S connection with a head request.
+-   Add methods `BubblesService::conferenceStart`, `BubblesService::conferenceStop` to start/stop the webrtc conference include in a bubble (Note that a premium account is need for this API to succeed).
+-   Add the events rainbow_onbubbleconferencestartedreceived rainbow_onbubbleconferencestoppedreceived when a webrtc conference start/stop.
+
+### SDK for Node.JS 1.72 - June 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles.
 -   Add methods to manage public url access to bubbles. So a Guest or a Rainbow user can access to it just using a URL. `bubblesService::createPublicUrl`, `bubblesService::generateNewPublicUrl`, `bubblesService::removePublicUrl`.
--   Fix when sendPresence in S2S mode did not return any data. 
+-   Fix when sendPresence in S2S mode did not return any data.
 
 ### SDK for Node.JS 1.71 - May 2020
 
@@ -36,7 +83,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -66,7 +113,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -101,7 +148,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -120,7 +167,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Official ChangeLog RSS Flow URL : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
 -   Fix empty message list in conversation when conversationEventHandler::onConversationManagementMessageReceived event.
 -   Move S2SService to service layer and folder
--   update S2S documentation. 
+-   update S2S documentation.
 -   Add the parameter role (Enum: "member" "moderator" of your role in this room) in joinroom in S2S
 -   Fix S2SServiceEventHandler::ParseRoomInviteCallback
 -   Fix error when delete conversation.
@@ -132,7 +179,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -166,7 +213,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -177,7 +224,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 **API Changes**
 
 -   RQRAINB-2868 Add property `Message::attention` Boolean to indicate if the current logged user is mentioned in the message.
--   RQRAINB-2868 Add parameter mention to API `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` which contains an array list of JID of contacts to mention or a string containing a single JID of one contact. 
+-   RQRAINB-2868 Add parameter mention to API `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` which contains an array list of JID of contacts to mention or a string containing a single JID of one contact.
 
 **Others Changes**
 
@@ -188,13 +235,13 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add `Bubble::autoAcceptationInvitation` property received from server.
 -   Fix the treatment of error while method `getServerConversations` failed to retrieve conversations for `removeOlderConversations`.
 -   RQRAINB-3024 Add `GroupsServices::deleteAllGroups` API to delete all existing owned groups.
--   RQRAINB-3024 Add `GroupsServices::setGroupAsFavorite` API to Set a group as a favorite one of the curent loggued in user. 
+-   RQRAINB-3024 Add `GroupsServices::setGroupAsFavorite` API to Set a group as a favorite one of the curent loggued in user.
 -   RQRAINB-3024 Add `GroupsServices::unsetGroupAsFavorite` API to remove the favorite state of a group of the curent loggued in user.
 -   RQRAINB-3024 Fix errors in groups events.
--   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com. 
--   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform. 
+-   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com.
+-   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform.
 -   RQRAINB-3023 Add method `RESTService::getRainbowNodeSdkPackagePublishedInfos` to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com.
--   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com. 
+-   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com.
 -   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
 -   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
 -   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
@@ -210,7 +257,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -230,8 +277,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add correlatorData et GlobaleCallId properties in Call type of phone calls : RQRAINB-2773, RQRAINB-2784, RQRAINB-2784, RQRAINB-2789, RQRAINB-2793, RQRAINB-2793, RQRAINB-2799
 -   Fix method ChannelsService::createItem when parameter "type" is setted.
 -   Split Xmmpp error event treatment in 3 possibilities:
-    * Errors which need a reconnection 
-    * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue. 
+    * Errors which need a reconnection
+    * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue.
     * Errors which are fatal errors and then need to stop the SDK. => Already existing events `rainbow_onerror` + `rainbow_onstop`.
 -   Work done on private method BubblesServices::joinConference (Not finish, so not available).
 -   Update Bubble::users property ordered by additionDate.
@@ -243,14 +290,14 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
 **API Breaking Changes**
 
 -   Add a parameter `nbMaxConversations` to the initialization SDK of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
--   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour. Default value is 1000. 
+-   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour. Default value is 1000.
 
 **API Changes**
 
@@ -265,7 +312,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix datas of channel when fetched.
 -   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
 -   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
--   Move treatment of invitations events from Conversation/Contacts services to invitations service. 
+-   Move treatment of invitations events from Conversation/Contacts services to invitations service.
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
@@ -279,7 +326,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add event `evt_internal_bubbleavatarchanged` raised when a bubble is updated with a new avatar
 -   Add avatar property in Bubble class. This is the URL to download the avatar . Note that it can spot on an empty file if no avatar has been setted.
 -   Add BubblesService::promoteContactToModerator Promote a contact to moderator in a bubble
--   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble 
+-   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble
 -   Add BubblesService::getAvatarFromBubble Get A Blob object with data about the avatar picture of the bubble.
 -   Add BubblesService::updateAvatarForBubble  Update the bubble avatar (from given URL). The image will be automaticalle resized.
 -   Add BubblesService::deleteAvatarFromBubble Delete the bubble avatar
@@ -288,10 +335,10 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
 -   Add BubblesService::openConversationForBubble Open a conversation to a bubble.
 -   Add `rainbow_onmediapropose` event raised when a WEBRTC `propose` event is received for a media. It allows to know an incommingcall is arriving.
--   Add in Bubble the property `owner`, boolean saying the connected user is the owner or not of the Bubble. 
--   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble. 
+-   Add in Bubble the property `owner`, boolean saying the connected user is the owner or not of the Bubble.
+-   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble.
 -   Add event `rainbow_onbubbleprivilegechanged` raised when a privilege is changed on a Bubble.
--   Add in Bubble the fields `members` and `organizers`. 
+-   Add in Bubble the fields `members` and `organizers`.
 -   Add the documentation for the CallLogService.
 
 ### SDK for Node.JS 1.64 - November 2019
@@ -300,7 +347,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -329,7 +376,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x. 
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -344,16 +391,16 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 **Others Changes**
 
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.
--   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
+-   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)
 -   Add Message factory
 -   Add listenning of system's signals "SIGINT", "SIGQUIT", "SIGTERM" for automatic call of stop on the rainbow intance.
 -   Fix Makecall when the user doesn't have telephony.
 -   Fix value Contact.id and Contact._id were sometime not filled
 -   Reduce logs in dev mod
 -   Add Message factory
--   Fix onDivertedEvent callback   
+-   Fix onDivertedEvent callback
 -   Fix some missing return when reject Promise.
--   Remove unused singleton in RESTTelephony  
+-   Remove unused singleton in RESTTelephony
 -   Refactor _entering_ _existing_ logs in services and in some other classes
 
 ### SDK for Node.JS 1.62 - September 2019
@@ -362,7 +409,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -376,7 +423,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   Typescript improvement 
+-   Typescript improvement
 -   Fix issue when an http request failed with a no-JSON body.
 -   Add in the proxy section of option parameter : `secureProtocol: "SSLv3_method"` : The parameter to enable the SSL V3.
 
@@ -386,7 +433,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -411,7 +458,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -438,7 +485,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -464,7 +511,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -504,7 +551,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -518,11 +565,11 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
--   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 
+-   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin)
 -   RQRAINB-1550 : Add userInfo1 and userInfo2 value in Contact but it can only be filled for the current user himself and AdminService::getContactInfos methods
 -   RQRAINB-1550 : Add AdminService::updateContactInfos :  Set informations about a user (userInfo1, userInfo2, ...).
 -   RQRAINB-1585 : Fix use of ErrorManager index.js
--   Update package.json "moment-duration-format": "^2.2.2" and npm audit fix    
+-   Update package.json "moment-duration-format": "^2.2.2" and npm audit fix
 -   RQRAINB-1627 : Update to latest typescript engine
 
 
@@ -532,7 +579,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -542,15 +589,15 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--   Refactor the channel's events to follow the event received from server : 
-    - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)    
+-   Refactor the channel's events to follow the event received from server :
+    - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)
     - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)
 
 **Others Changes**
 
 -   Add TelephonyService::deflectCall method to deflect a call to an other telephone number
 -   Update TelephonyService doc.
--   Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value. 
+-   Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value.
 -   Add event emitter in HttpService to raise event when token fail
 -   Fix json parse in HttpService, and treat token expiration
 -   Add mime-types lib to find file type.
@@ -560,7 +607,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubbles in cache.
 -   Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
 -   Add method ChannelsService::updateChannel to Update a channel
--   Fix new conversation in a Bubble event 
+-   Fix new conversation in a Bubble event
 -   Add calllog API doc
 -   Refactor BubblesService::deleteBubble to not close the Bubble before the delete
 -   Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).
@@ -573,7 +620,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -605,7 +652,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Rename the method `ChannelsService::getUsersFromChannel()` to `ChannelsService::fetchChannelUsers`
 -   Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetchChannel`
 -   Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
--   Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
+-   Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`
 -   Rename the method `ChannelsService::getAllOwnedChannel()` to `ChannelsService::getAllOwnedChannels`
 -   Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsService::getAllSubscribedChannels`
 
@@ -622,7 +669,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -652,7 +699,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **3-Release SDK Breaking Changes**
 
--   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version. 
+-   Warning: Starting January 2019, the LTS active version of Node.js migrated to version 10. This version of SDK Node.js is only compliant with this LTS active version.
 Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
 
 
@@ -662,21 +709,21 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--  
+-
 
 **Others Changes**
 
 -   Add event `rainbow_onbubblepresencechanged` when a bubble presence change. It is also raised when a bubble change isActive from true to false (and reverse)
 -   Add a method `until` in Utils to wait for a while to condition to be done.
 -   Update errors return by HttpService, to have a json object.
--   Add the isActive propertie in `Bubble` object, and the method/events to update it. 
+-   Add the isActive propertie in `Bubble` object, and the method/events to update it.
 -   Improve the `bubble::createBubble` to wait for a while (5s) the success of creation on server side.
 -   Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wake it up, and wait for a while (5s) for the resumed event, before sending message in it.
--   Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.  
+-   Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.
  ! Note ! : only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.`
 -   Add treatment of the replace last message event.
 -   Add event `rainbow_onownbubbledeleted` when a bubble own bythe connected user is deleted.
--   Refactor improve of xmpp reconnection for the new xmpp lib 
+-   Refactor improve of xmpp reconnection for the new xmpp lib
 
 
 ### SDK for Node.JS 1.52 - February 2019
@@ -705,7 +752,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix lastMessageText when retrieve history.
 -   Fix remove from in markAsReadMessage
 -   Fix logs
--   Fix reconnection when network is lost or when the server reboot. 
+-   Fix reconnection when network is lost or when the server reboot.
 -   Fix issue in HttpService when remote server is unavailable
 
 
@@ -733,7 +780,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix the start/stop of the SDK. These processes has been improved to avoid multiple `start()` at the same time, and also to have a better flow life.
 -   Add event `rainbow_onpresencechanged` fired when the presence of the connected user changes.
 -   Fix decode of status in xmpp event when presence changed is received.
-  
+
 
 ### SDK for Node.JS 1.50 - December 2018
 

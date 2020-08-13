@@ -6,17 +6,24 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.75.0-dotnet.0] - 2020-08-13
+-   Refactor `reconnect` code for xmpp lost connection to avoid multiple simultaneous tries to reconnect from low layer (@xmpp/reconnect plugging)
+
+## [1.73.0] - 2020-07-08
+-   Add methods `BubblesService::conferenceStart`, `BubblesService::conferenceStop` to start/stop the webrtc conference include in a bubble (Note that a premium account is need for this API to succeed).
+-   Add the events rainbow_onbubbleconferencestartedreceived rainbow_onbubbleconferencestoppedreceived when a webrtc conference start/stop.
+
 ## [1.73.0-dotnet.0] - 2020-06-26
 -   Add in method `AdminService::createCompany` parameter offerType. It's the company offer type. Companies with `offerType=freemium` are not able to subscribe to paid offers, they must be premium to do so.
 -   Add Offers and subscriptions management in AdminService. Add methods : `retrieveAllOffersOfCompanyById, retrieveAllSubscribtionsOfCompanyById, getSubscribtionsOfCompanyByOfferId, subscribeCompanyToOfferById, subscribeCompanyToDemoOffer, unSubscribeCompanyToDemoOffer, unSubscribeCompanyToOfferById, subscribeUserToSubscription, unSubscribeUserToSubscription`.
 -   Add method `S2SService::checkS2Sconnection` to give the ability to check the S2S connection with a head request.
 
 ## [1.72.0] - 2020-17-06
--   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles. 
+-   Add methods `BubblesService::getInfoForPublicUrlFromOpenInvite`, `BubblesService::getAllPublicUrlOfBubbles`, `BubblesService::getAllPublicUrlOfBubblesOfAUser`, `BubblesService::getAllPublicUrlOfABubbleto`, to retrieve the public URL of bubbles.
 
 ## [1.72.0-dotnet.1] - 2020-12-06
 -   Add methods to manage public url access to bubbles. So a Guest or a Rainbow user can access to it just using a URL. `bubblesService::createPublicUrl`, `bubblesService::generateNewPublicUrl`, `bubblesService::removePublicUrl`.
--   Fix when sendPresence in S2S mode did not return any data. 
+-   Fix when sendPresence in S2S mode did not return any data.
 
 ## [1.72.0-dotnet.0] - 2020-05-26
 -   Fix of jenkins job for delivery
@@ -69,7 +76,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Official ChangeLog RSS Flow URL : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
 -   Fix empty message list in conversation when conversationEventHandler::onConversationManagementMessageReceived event.
 -   Move S2SService to service layer and folder
--   update S2S documentation. 
+-   update S2S documentation.
 -   Add the parameter role (Enum: "member" "moderator" of your role in this room) in joinroom in S2S
 -   Fix S2SServiceEventHandler::ParseRoomInviteCallback
 -   Fix error when delete conversation.
@@ -81,9 +88,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add isFavorite in Conversation.
 -   Move bubbles._sendInitialBubblePresence to presence.sendInitialBubblePresence.
 -   change start methods prototype of services to replace each services in parameters to only one param the Core object.
--   Add methods in RESTService :: sendS2SMessageInConversation, getS2SServerConversation, joinS2SRoom. 
+-   Add methods in RESTService :: sendS2SMessageInConversation, getS2SServerConversation, joinS2SRoom.
 -   Add methods in S2SService :: sendMessageInConversation, joinRoom.
--   Add events treatment S2SServiceEventHandler :: ParseChatStateCallback, ParseReceitpCallback, ParseAllReceitpCallback, ParseConversationCallback, ParseMessageCallback, 
+-   Add events treatment S2SServiceEventHandler :: ParseChatStateCallback, ParseReceitpCallback, ParseAllReceitpCallback, ParseConversationCallback, ParseMessageCallback,
 ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseAlldeletedCallback, ParseErrorCallback.
 -   Add  method in ConversationsService::getS2SServerConversation to get a conversation from id on S2S API Server.
 -   Raise event on message when the content is empty (because message can have a subject filled without body)  in conversationEventHandler.
@@ -108,16 +115,16 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   RQRAINB-2984 Treat the XMPP Errors conditions provided by the XMPP RFC : https://xmpp.org/rfcs/rfc6120.html#streams-error .
 -   Add `Bubble::autoAcceptationInvitation` property received from server.
 -   RQRAINB-2868 Add property `Message::attention` Boolean to indicate if the current logged user is mentioned in the message.
--   RQRAINB-2868 Add parameter mention to API `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` which contains an array list of JID of contacts to mention or a string containing a single JID of one contact. 
+-   RQRAINB-2868 Add parameter mention to API `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` which contains an array list of JID of contacts to mention or a string containing a single JID of one contact.
 -   Fix the treatment of error while method `getServerConversations` failed to retrieve conversations for `removeOlderConversations`.
 -   RQRAINB-3024 Add `GroupsServices::deleteAllGroups` API to delete all existing owned groups.
--   RQRAINB-3024 Add `GroupsServices::setGroupAsFavorite` API to Set a group as a favorite one of the curent loggued in user. 
+-   RQRAINB-3024 Add `GroupsServices::setGroupAsFavorite` API to Set a group as a favorite one of the curent loggued in user.
 -   RQRAINB-3024 Add `GroupsServices::unsetGroupAsFavorite` API to remove the favorite state of a group of the curent loggued in user.
 -   RQRAINB-3024 Fix errors in groups events.
--   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com. 
--   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform. 
+-   RQRAINB-3023 Add events `rainbow_onrainbowversionwarning` (+log) when the curent rainbow-node-sdk version is OLDER than the latest available one on npmjs.com.
+-   RQRAINB-3023 Add method `HttpService::getUrl` to retrieve a specified url. The url can be any one while `HttpService::get` method only accept path on rainbow platform.
 -   RQRAINB-3023 Add method `RESTService::getRainbowNodeSdkPackagePublishedInfos` to retrieve informations about the published package `rainbow-node-sdk` on npmjs.com.
--   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com. 
+-   RQRAINB-3023 Add a SDK parameter `testOutdatedVersion` to activate verification at startup if the current SDK Version is the lastest published on npmjs.com.
 -   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
 -   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
 -   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
@@ -139,8 +146,8 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add correlatorData et GlobaleCallId properties in Call type of phone calls : RQRAINB-2773, RQRAINB-2784, RQRAINB-2784, RQRAINB-2789, RQRAINB-2793, RQRAINB-2793, RQRAINB-2799
 -   Fix method ChannelsService::createItem when parameter "type" is setted.
 -   Split Xmmpp error event treatment in 3 possibilities:
-    * Errors which need a reconnection 
-    * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue. 
+    * Errors which need a reconnection
+    * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue.
     * Errors which are fatal errors and then need to stop the SDK. => Already existing events `rainbow_onerror` + `rainbow_onstop`.
 -   Work done on private method BubblesServices::joinConference (Not finish, so not available).
 -   Update Bubble::users property ordered by additionDate.
@@ -161,7 +168,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Fix datas of channel when fetched.
 -   When Contacts::getContactByLoginEmail, force to get data from server if the contact is not found in local cache by mail.
 -   Add method Presence::getUserConnectedPresence to get connected user's presence status calculated from events.
--   Move treatment of invitations events from Conversation/Contacts services to invitations service. 
+-   Move treatment of invitations events from Conversation/Contacts services to invitations service.
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
@@ -177,7 +184,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add event `evt_internal_bubbleavatarchanged` raised when a bubble is updated with a new avatar
 -   Add avatar property in Bubble class. This is the URL to download the avatar . Note that it can spot on an empty file if no avatar has been setted.
 -   Add BubblesService::promoteContactToModerator Promote a contact to moderator in a bubble
--   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble 
+-   Add BubblesService::demoteContactFromModerator Demote a contact to user in a bubble
 -   Add BubblesService::getAvatarFromBubble Get A Blob object with data about the avatar picture of the bubble.
 -   Add BubblesService::updateAvatarForBubble  Update the bubble avatar (from given URL). The image will be automaticalle resized.
 -   Add BubblesService::deleteAvatarFromBubble Delete the bubble avatar
@@ -187,12 +194,12 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add BubblesService::updateDescriptionForBubble Update the description of the bubble. (it is the topic on server side, and result event)
 -   Add BubblesService::openConversationForBubble Open a conversation to a bubble
 -   Add `rainbow_onmediapropose` event raised when a WEBRTC `propose` event is received for a media. It allows to know an incommingcall is arriving.
--   Add in Bubble the property `owner`, boolean saying the connected user is the owner or not of the Bubble. 
--   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble. 
+-   Add in Bubble the property `owner`, boolean saying the connected user is the owner or not of the Bubble.
+-   Add in Bubble the property `ownerContact`, Contact object which is the owner of the Bubble.
 -   Add event `rainbow_onbubbleprivilegechanged` raised when a privilege is changed on a Bubble.
--   Add method BubblesService::refreshMemberAndOrganizerLists called when treating a Bubble to fill members and organizers of a Bubble 
+-   Add method BubblesService::refreshMemberAndOrganizerLists called when treating a Bubble to fill members and organizers of a Bubble
 -   Add the documentation for the CallLogService.
--   Add a parameter `nbMaxConversations` to the initialization of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`. 
+-   Add a parameter `nbMaxConversations` to the initialization of the SDK to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
 -   Put async/await in treatment of  `BubblesService::addOrUpdateBubbleToCache`
 -   Add option rateLimitPerHour for the SDK to set the maximum of message stanza sent to server by hour. Default value is 1000.
 
@@ -214,11 +221,11 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Fix to much logs in TelephonyService::getCallFromCache
 -   Fix TelephonyService Call instance creation on few methods.
 -   Fix data received from server in TelephonyService::holdCall,retrieveCall,makeConsultationCall
--   Add a BubblesService::joinConference method to do some tests 
+-   Add a BubblesService::joinConference method to do some tests
 
 ## [1.63.0] - 2019-10-31
 -   Fix Options.ts the start up service requested to start when it is not already present in default config.
--   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)    
+-   Add bubble.lastActivityDate property : Last activity date of the room (read only, set automatically on IM exchange)
 -   Fix ts build
 -   Reduce logs in dev mod
 -   Add Message factory
@@ -226,13 +233,13 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add listenning of system's signals "SIGINT", "SIGQUIT", "SIGTERM" for automatic call of stop on the rainbow intance.
 -   Fix Makecall when the user doesn't have telephony.
 -   Fix value Contact.id and Contact._id were sometime not filled
--   Fix onDivertedEvent callback   
+-   Fix onDivertedEvent callback
 -   Fix some missing return when reject Promise.
--   Remove unused singleton in RESTTelephony  
+-   Remove unused singleton in RESTTelephony
 -   Refactor _entering_ _existing_ logs in services and in some other classes
 
 ## [1.62.0] - 2019-10-07
--   Typescript improvement 
+-   Typescript improvement
 
 ## [1.61.3] - 2019-10-08
 -   Fix issue in Contact.ts to be compatible with previous datas names.
@@ -249,7 +256,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   CRRAINB-7686 : Fix code for the 'read' receipt sent automatically to the sender when the message is received.
 -   Add the ability to start services one by one. To avoid the calls to unnecessary pay API on server.
 -   Add event `rainbow_onconferenced` fired when a conference event is received.
-    
+
 
 ## [1.60.0] - 2019-08-28
 -   Add method getStatusForUser in Bubble class to get the status of a user in the bubble
@@ -295,38 +302,38 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add shortFileDescriptor in message when ImsService::getMessageFromConversationById
 
 ## [1.57.0] - 2019-06-18
--   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin) 
+-   RQRAINB-1550 : Add AdminService::getContactInfos method to retrieve informations about a user (need to be loggued in as a admin)
 -   RQRAINB-1550 : Add userInfo1 and userInfo2 value in Contact but it can only be filled for the current user himself and AdminService::getContactInfos methods
 -   RQRAINB-1550 : Add AdminService::updateContactInfos :  Set informations about a user (userInfo1, userInfo2, ...).
 -   RQRAINB-1585 : Fix use of ErrorManager index.js
--   Update package.json "moment-duration-format": "^2.2.2" and npm audit fix    
+-   Update package.json "moment-duration-format": "^2.2.2" and npm audit fix
 -   RQRAINB-1627 : Update to latest typescript engine
 -   Rename event `rainbow_onownbubbledeleted` to `rainbow_onbubbledeleted` when a bubble is deleted.
 -   Add options::im::messageMaxLength option to define the max size of the messages sent.
- 
+
 ## [1.56.0] - 2019-05-28
--   Add TelephonyService::deflectCall method to deflect a call to an other telephone number  
--   Update TelephonyService doc.  
--   Move channel events from conversationEventHandler to channelEventHandler.   
--   Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value.   
--   Refactor the channel's events to follow the event received from server :   
--    - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)    
--    - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)  
--   Add event emitter in HttpService to raise event when token fail  
--   Fix json parse in HttpService, and treat token expiration  
--   Add mime-types lib to find file type.  
--   Update Bubble Class to have a factory  
--   Update Channel Class to have a factory  
--   Fix issue RESTService::unsubscribeToChannel method  
--   Add uploadChannelAvatar  deleteChannelAvatar methods to manbage the avatar of a channel.  
--   Add treatment of "channel-subscription" event  
--   Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubble in cache.  
--   Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id  
--   Add method ChannelsService::updateChannel to Update a channel  
--   Fix new conversation in a Bubble event   
--   Add calllog API doc  
--   Refactor BubblesService::deleteBubble to not close the Bubble before the delete  
--   Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).  
+-   Add TelephonyService::deflectCall method to deflect a call to an other telephone number
+-   Update TelephonyService doc.
+-   Move channel events from conversationEventHandler to channelEventHandler.
+-   Fix XMPPService::sendChatExistingFSMessageToBubble with the right from value.
+-   Refactor the channel's events to follow the event received from server :
+-    - replace events `rainbow_channelcreated`,`rainbow_channeldeleted` by `rainbow_channelupdated` with a `kind` parameter (with also a `label`)
+-    - Add event `rainbow_channelusersubscription` with a `kind` parameter (with also a `label`)
+-   Add event emitter in HttpService to raise event when token fail
+-   Fix json parse in HttpService, and treat token expiration
+-   Add mime-types lib to find file type.
+-   Update Bubble Class to have a factory
+-   Update Channel Class to have a factory
+-   Fix issue RESTService::unsubscribeToChannel method
+-   Add uploadChannelAvatar  deleteChannelAvatar methods to manbage the avatar of a channel.
+-   Add treatment of "channel-subscription" event
+-   Refactor BubblesService with a method addOrUpdateBubbleToCache to have bubble in cache.
+-   Add method ChannelsService::subscribeToChannelById to Subscribe to a channel using its id
+-   Add method ChannelsService::updateChannel to Update a channel
+-   Fix new conversation in a Bubble event
+-   Add calllog API doc
+-   Refactor BubblesService::deleteBubble to not close the Bubble before the delete
+-   Add a BubblesService::closeAndDeleteBubble method to close and delete a Bubble (Previous behaviour of deleteBubble).
 -   Add guestMode property in Contact class : Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
 -   Add openInviteId property in Contact class : The open invite ID of the user.
 
@@ -347,7 +354,7 @@ Rename the method `ChannelsService::getUsersFromChannel()` to `ChannelsService::
 Rename the method `ChannelsService::getChannelById()` to `ChannelsService::fetchChannel`
 Rename the method `ChannelsService::publishMessageToChannel()` to `ChannelsService::createItem`
 Add `ChannelsService::fetchChannelsByFilter` method retrieve a channel by filter
-Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`   
+Fix wrong `INCOMMING` spelling to `INCOMING`, `incomming` to `incoming`, `Incomming` to `Incoming`
 Rename the method `ChannelsService::getAllOwnedChannel()` to `ChannelsService::getAllOwnedChannels`
 Rename the method `ChannelsService::getAllSubscribedChannel()` to `ChannelsService::getAllSubscribedChannels`
 Refactor ChannelsService to return the real Channel type in API/Events
@@ -378,7 +385,7 @@ Fix some type issue find by typescript
 
 ## [1.54.0] - 2019-04-02
 * Add CallLog service (typeScript sources) to `get/delete` the calllog history.
-* Increase "Element" Behaviour for manipulate XML/XMPP objects in XmppClient 
+* Increase "Element" Behaviour for manipulate XML/XMPP objects in XmppClient
 * Update XMPPService to factorise the `NameSpaces`
 * move `orderByFilter` from FileStorage to the common Utils module
 * Update doc about options provided at building the SDK object for the logs
@@ -387,8 +394,8 @@ Fix some type issue find by typescript
 * Change the sources from javascript to typescript.
 * Fix the `conflict` error on xmpp socket when two rainbow node sdk login at the same time.
 * Add `admin::createTokenOnBehalf` method to ask Rainbow a token on behalf a user. You need this user password.
-* Add user/password in the Proxy settings.  
-* Add In `Call` object the member `deviceType`. It can be MAIN for the main device, and SECONDARY for the remote extension linked to it. It can be used when the event `rainbow_oncallupdated` is raised to seperate events.  
+* Add user/password in the Proxy settings.
+* Add In `Call` object the member `deviceType`. It can be MAIN for the main device, and SECONDARY for the remote extension linked to it. It can be used when the event `rainbow_oncallupdated` is raised to seperate events.
 * rename files service
 * update `setBubbleCustomData` to wait for the bubble to be updated by the event `rainbow_bubblecustomDatachanged`, and else get the informations about bubble from server
 
@@ -401,27 +408,27 @@ Fix some type issue find by typescript
 * Fix decode of status in xmpp event when presence changed is received..
 
 ## [1.49.1] - 2018-12-07
-* Update docs 
+* Update docs
 * Fix parsing of stanza event `message is deleted in a channel` when the number of messages limit is reached and then raises the event `rainbow_onchannelmessagedeletedreceived`.
 * Update call to publishToChannel channel new api
 
 ## [1.49.0] - 2018-11-20
 * Refactor Events emitter to produce better logs in dev mode.
-* Correction of contact's phonenumbers filling. Now Contact.phoneNumbers should be synchronised with splitted datas. 
+* Correction of contact's phonenumbers filling. Now Contact.phoneNumbers should be synchronised with splitted datas.
 * Add images property in message retrieved from channels with method channels::getMessagesFromChannel and also when event "rainbow_onchannelmessagereceived" is fired
 * Correction of parsing of the result data from server in method channels::getMessagesFromChannel
 * Add a method to delete message in a channel channels::deleteMessageFromChannel. Note: there is probably an issue with the channelid of the message which is removed from event when a new message arrive in channel.
 * Add event fired when a message is delete in a channel : rainbow_onchannelmessagedeletedreceived
-* Add event fired when a channel is created : rainbow_onchannelcreated 
+* Add event fired when a channel is created : rainbow_onchannelcreated
 * Add event fired when a channel is deleted : rainbow_channeldeleted
 * typo correction in Contacts firstName and lastName
- 
+
 ## [1.48.0] - 2018-10-31
 * Add ability to post files in channels.
 * Correction of stop and reconnection
 * Add log level at root level of logs in config : config.logs.level
-* Add "system-dev" section in logs for DEVELOPPEMENT ONLY, no production system should use it :  
-    "internals" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !  
+* Add "system-dev" section in logs for DEVELOPPEMENT ONLY, no production system should use it :
+    "internals" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !
     "http" moved from logs sections, kept the same behaviour
 
 ## [1.47.7] - 2018-10-28
@@ -435,14 +442,14 @@ Fix some type issue find by typescript
 * Add event `rainbow_onbubblepresencechanged` when a bubble presence change. It is also raised when a bubble change isActive from true to false (and reverse)
 * Add a method `until` in Utils to wait for a while to condition to be done.
 * Update errors return by HttpService, to have a json object.
-* Add the isActive propertie in `Bubble` object, and the method/events to update it. 
+* Add the isActive propertie in `Bubble` object, and the method/events to update it.
 * Improve the `bubble::createBubble` to wait for a while (5s) the success of creation on server side.
 * Update `im::sendMessageToBubbleJid` to take care of isActive value of the bubble. So if it is archived, then sendInitialPresence to wkae it up, and wait for a while (5s) for the resumed event, before sending message in it.
-* Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.  
+* Add the method `conversations::sendCorrectedChatMessage` to send a corrected message to a conversation. This method works for sending messages to a one-to-one conversation or to a bubble conversation.
  ! Note ! : only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.`
 * Add treatment of the replace last message event.
 * Add event `rainbow_onownbubbledeleted` when a bubble own bythe connected user is deleted.
-* Refactor improve of xmpp reconnection for the new xmpp lib 
+* Refactor improve of xmpp reconnection for the new xmpp lib
 
 ## [1.52.0] - 2018-02-12
 
@@ -461,7 +468,7 @@ Fix some type issue find by typescript
 * Fix logs
 
 ## [1.51.2] - 2018-01-30
-* Fix reconnection when network is lost or when the server reboot. 
+* Fix reconnection when network is lost or when the server reboot.
 
 ## [1.51.1] - 2018-01-24
 * Add event fired when a channel is updated : rainbow_channelupdated
@@ -476,27 +483,27 @@ Fix some type issue find by typescript
 * Fix decode of status in xmpp event when presence changed is received..
 
 ## [1.49.1] - 2018-12-07
-* Update docs 
+* Update docs
 * Fix parsing of stanza event `message is deleted in a channel` when the number of messages limit is reached and then raises the event `rainbow_onchannelmessagedeletedreceived`.
 * Update call to publishToChannel channel new api
 
 ## [1.49.0] - 2018-11-20
 * Refactor Events emitter to produce better logs in dev mode.
-* Correction of contact's phonenumbers filling. Now Contact.phoneNumbers should be synchronised with splitted datas. 
+* Correction of contact's phonenumbers filling. Now Contact.phoneNumbers should be synchronised with splitted datas.
 * Add images property in message retrieved from channels with method channels::getMessagesFromChannel and also when event "rainbow_onchannelmessagereceived" is fired
 * Correction of parsing of the result data from server in method channels::getMessagesFromChannel
 * Add a method to delete message in a channel channels::deleteMessageFromChannel. Note: there is probably an issue with the channelid of the message which is removed from event when a new message arrive in channel.
 * Add event fired when a message is delete in a channel : rainbow_onchannelmessagedeletedreceived
-* Add event fired when a channel is created : rainbow_onchannelcreated 
+* Add event fired when a channel is created : rainbow_onchannelcreated
 * Add event fired when a channel is deleted : rainbow_channeldeleted
 * typo correction in Contacts firstName and lastName
- 
+
 ## [1.48.0] - 2018-10-31
 * Add ability to post files in channels.
 * Correction of stop and reconnection
 * Add log level at root level of logs in config : config.logs.level
-* Add "system-dev" section in logs for DEVELOPPEMENT ONLY, no production system should use it :  
-    "internals" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !  
+* Add "system-dev" section in logs for DEVELOPPEMENT ONLY, no production system should use it :
+    "internals" for logs level of debug + unsensored data. Warning password and so on can be logs, it should only be used in dev environement !
     "http" moved from logs sections, kept the same behaviour
 
 ## [1.47.7] - 2018-10-28
@@ -512,23 +519,23 @@ Fix some type issue find by typescript
 * Add uploadFileToConversation to upload a file and share it in a conversation
 * Add code for fileStorage::uploadFileToBubble to upload a file and share it in a bubble
 * Refactor contact model to have initialized field
-* Add file management event handler for Xmpp :  
-  	rainbow_filecreated  
-  	rainbow_fileupdated  
-  	rainbow_filedeleted  
-  	rainbow_thumbnailcreated  
+* Add file management event handler for Xmpp :
+  	rainbow_filecreated
+  	rainbow_fileupdated
+  	rainbow_filedeleted
+  	rainbow_thumbnailcreated
 * Refactor contacts to return the correct type "Contact" of data on few use cases in severals methods
-* Add methods in FileStorage :  
-  	removeFile();  
-    getFileDescriptorFromId();  
-    getFilesReceivedInConversation();  
-    getFilesReceivedInBubble();  
-  	getFilesSentInConversation();  
-    getFilesSentInBubble();  
-    getUserQuotaConsumption();  
-    getAllFilesSent();  
-    getAllFilesReceived()  
-* Refactor the FileStorage::orderByFilter method to correct the behaviour. 
+* Add methods in FileStorage :
+  	removeFile();
+    getFileDescriptorFromId();
+    getFilesReceivedInConversation();
+    getFilesReceivedInBubble();
+  	getFilesSentInConversation();
+    getFilesSentInBubble();
+    getUserQuotaConsumption();
+    getAllFilesSent();
+    getAllFilesReceived()
+* Refactor the FileStorage::orderByFilter method to correct the behaviour.
 
 ## [1.46.0] - 2018-09-07
 * Add Conversations::getConversationByBubbleJid method
@@ -539,12 +546,12 @@ Fix some type issue find by typescript
 - Add Bulles::getAllBulles method witch call the getAll
 - Add Bulles::deleteAllBubbles method to remove all methods own by user logged in.
 - Add Bulles:getAllOwnedBubbles method to Get the list of bubbles created by the user
-- Add "logs.customLabel" property in config file for customize the logs 
+- Add "logs.customLabel" property in config file for customize the logs
 - Add "logs.file.customFileName" property in config file for customize the log file name.
 - Correction of Conversation::getBubbleConversation() who use the updated Bubbles::getBubbleByJid method
-- Add parameters to Admin::createCompany : country, state 
+- Add parameters to Admin::createCompany : country, state
 - Add methods to Switch the "is typing" state in a conversation : Conversations::sendIsTypingState, IM::sendIsTypingStateInBubble, IM::sendIsTypingStateInConversation
- 
+
 ## [1.45.0] - 2018-08-28
 - Correction of the telephony state when transfertcall succeed to allow a new call.
 - Correction of conversations.getServerConversations() method which returned an empty result.
