@@ -6,7 +6,7 @@
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
-import {setTimeoutPromised} from "../lib/common/Utils";
+import {setTimeoutPromised, until} from "../lib/common/Utils";
 import {getRandomInt} from "../lib/common/Utils";
 import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
@@ -65,7 +65,7 @@ let options = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
-        //"mode": "s2s"
+        // "mode": "s2s"
         "mode": "xmpp"
     },
     "s2s": {
@@ -374,8 +374,39 @@ rainbowSDK.events.on("rainbow_onfilecreated", (data) => {
     logger.log("debug", "Main - rainbow_onfilecreated, getFileDescriptorFromId - result : ", fileDescriptorsReceived);
 });
 let countStop = 0;
+rainbowSDK.events.on("rainbow_onerror", (data) => {
+    logger.log("debug", "MAIN - rainbow_onerror  - rainbow event received. data", data, " destroy and recreate the SDK.");
+    until(()=>{ return stopped == true ; },"Waiting for the stop event after the rainbow_onerror event.",10000).then(()=>{
+        rainbowSDK = undefined;
+        stopped = false;
+        rainbowSDK = new RainbowSDK(options);
+        logger = rainbowSDK._core.logger;
+        rainbowSDK.start().then(async(result) => {
+            try {
+                // Do something when the SDK is started
+                logger.log("debug", "MAIN - rainbow SDK started result after rainbow_onerror : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
+                //let startDuration = Math.round(new Date() - startDate);
+                let startDuration = result.startDuration;
+                // that.stats.push({ service: "telephonyService", startDuration: startDuration });
+                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                console.log("MAIN === STARTED (" + startDuration + " ms) ===");
+
+                commandLineInteraction();
+            }
+            catch (err) {
+                console.log("MAIN - Error during starting : " + util.inspect(err));
+            }
+        }).catch((err) => {
+            console.log("MAIN - Error during starting : " + util.inspect(err));
+        });
+    });
+});
+
+let stopped = false;
+
 rainbowSDK.events.on("rainbow_onstopped", (data) => {
     countStop++;
+    stopped = true;
     logger.log("debug", "MAIN - rainbow_onstopped " + countStop + " - rainbow event received. data", data);
     //setTimeout(() => {
     logger.log("debug", "MAIN - rainbow_onstopped rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));

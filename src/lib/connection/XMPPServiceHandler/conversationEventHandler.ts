@@ -439,7 +439,7 @@ class ConversationEventHandler extends GenericHandler {
                         that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
                         break;
                     default:
-                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) no treatment of event ", this.eventEmitter, " so default.");
+                        that.logger.log("internal", LOG_ID + "(_onMessageReceived) no treatment of event ", msg, " : ",  stanza, " so default."); //, this.eventEmitter
                 }
 
                 let fromBubbleJid = "";
