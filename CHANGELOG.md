@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.75.0] - 2020-08-18
+- Add method BubblesService::registerGuestForAPublicURL to register a guest user with a mail and a password and join a bubble with a public url.
+- Add tags data in Bubbles type
+
 ## [1.75.0-dotnet.1] - 2020-08-13
 -   Idem 1.75.0-dotnet.0
 
