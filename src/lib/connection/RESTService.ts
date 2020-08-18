@@ -40,6 +40,239 @@ enum MEDIATYPE {
     WEBRTCSHARINGONLY= "webrtcSharingOnly"
 }
 
+class GuestParams {
+    public loginEmail: string; //    User email address (used for login). Must be unique (409 error is returned if a user already exists with the same email address).
+    public password: string; // User password.  Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character.
+    public temporaryToken: string;   // User temporary token (obtained from POST /api/rainbow/enduser/v1.0/notifications/emails/self-register API) (do not use if invitationId, joinCompanyInvitationId, joinCompanyLinkId or openInviteId is specified).
+
+    public invitationId: string; //User invitation unique identifier (like 569ce8c8f9336c471b98eda4) (obtained from POST /api/rainbow/enduser/v1.0/users/:userId/invitations API) (do not use if temporaryToken, joinCompanyInvitationId, joinCompanyLinkId or openInviteId is specified).
+    public joinCompanyInvitationId: string; // Join company invitation unique identifier (like 5819ed7c9547b313509237d6) (obtained from POST /api/rainbow/admin/v1.0/companies/:companyId/join-companies/invitations API) (do not use if temporaryToken, invitationId, joinCompanyLinkId or openInviteId is specified).
+    public joinCompanyLinkId: string; // Join company link unique identifier (like 12d9413a316649019459cd4ae68bb75f) (obtained from POST /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links API) (do not use if temporaryToken, invitationId, joinCompanyInvitationId or openInviteId is specified).
+    /*
+        Some explanations about this use case:
+
+            joinCompanyLinkId used must correspond to an existing joinCompanyLink.
+        The corresponding joinCompanyLink must be enabled (isEnabled=true),
+        If expirationDate is set for the corresponding joinCompanyLink, it must not be expired (expirationDate > current date),
+        If maxNumberUsers is set for the corresponding joinCompanyLink, it must not have been used by as many users to register their account in the related company (maxNumberUsers > nbUsersRegistered).
+    // */
+    public openInviteId: string; // A Rainbow user is sharing with co-workers an unique URL to join a meeting. This URL is used by somebody not yet a Rainbow user (doesn't have a Rainbow account).
+    /*
+        Some explanations about this use case:
+
+            Each user has a personal UUID.
+        In the api documentation, this UUID is called openInviteId. It can be generated on demand.
+        The public URL is based on this openInviteId (ex: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario=public-url)
+            Refer to /api/rainbow/enduser/v1.0/users/:userId/open-invites/xxxx API(s) to manage the openInviteId
+    // */
+    public isInitialized: boolean; // Is user initialized. default value : false
+    public firstName: string; // User first name
+    public lastName: string; // User last name
+    public nickName: string; // User nickName
+    public title: string; // User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
+    public jobTitle: string; // User job title
+    public department: string; // User department
+    public emails: {
+        email: string, // User email address
+        type: string  // User email type. Authorized values : home, work, other
+    }; //  Array of user emails addresses objects
+    public phoneNumbers: Array<{
+        number: string, // User phone number (as entered by user)
+        country: string,  /* Phone number country (ISO 3166-1 alpha3 format).  country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry:
+        If number is provided and is in E164 format, country is computed from E164 number
+    Else if country field is provided in the phoneNumber entry, this one is used
+    Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed.
+// */
+        type: string, // Phone number type. Authorized values : home, work, other
+        deviceType: string, // Phone number device type. Authorized values : landline, mobile, fax, other
+        isVisibleByOthers: boolean  /*
+
+    Allow user to choose if the phone number is visible by other users or not.
+    Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false.
+    Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
+
+    default value : true
+    // */
+    }>; // Array of user phone numbers objects
+    /*
+        Note: For each provided phoneNumber Object containing number field, the server tries to compute the associated E.164 number (numberE164 field) if number is not in E164 format using provided PhoneNumber country if available, user country otherwise. If numberE164 can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...)
+
+     // */
+    public country: string; // User country (ISO 3166-1 alpha3 format)
+    public state: string; // When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
+    /*
+    List of allowed states for USA:
+        AA: "Armed Forces America", AE: "Armed Forces", AP: "Armed Forces Pacific", AK: "Alaska", AL: "Alabama", AR: "Arkansas", AZ: "Arizona", CA: "California", CO: "Colorado", CT: "Connecticut", DC: Washington DC", DE: "Delaware", FL: "Florida", GA: "Georgia", GU: "Guam", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IL: "Illinois", IN: "Indiana", KS: "Kansas", KY: "Kentucky", LA: "Louisiana", MA: "Massachusetts", MD: "Maryland", ME: "Maine", MI: "Michigan", MN: "Minnesota", MO: "Missouri", MS: "Mississippi", MT: "Montana", NC: "North Carolina",
+    ND: "North Dakota", NE: "Nebraska", NH: "New Hampshire", NJ: "New Jersey", NM: "New Mexico", NV: "Nevada", NY: "New York", OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", PR: "Puerto Rico", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VA: "Virginia", VI: "Virgin Islands", VT: "Vermont", WA: "Washington", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" List of allowed states for CAN: AB: "Alberta", BC: "British Columbia", MB: "Manitoba", NB: "New Brunswick",
+    NL: "Newfoundland and Labrador", NS: "Nova Scotia", NT: "Northwest Territories", NU: "Nunavut", ON: "Ontario", PE: "Prince Edward Island", QC: "Quebec", SK: "Saskatchewan", YT: "Yukon"
+    // */
+    public language: string; // User language
+    /*
+        Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen).
+        Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...
+        More information about the format can be found on this link.
+        // */
+    public timezone: string; // User timezone name
+    /*
+        Allowed values: one of the timezone names defined in IANA tz database
+        Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
+        // */
+    public visibility: string; // User visibility.  Define if the user can be searched by users being in other company and if the user can search users being in other companies.
+    /* // Visibility can be:
+
+        same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility.
+    public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+    private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users
+    closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users
+    isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users
+    none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company.
+
+    default value : same_than_company
+    authorized value : same_than_company, public, private, closed, isolated, none
+    // */
+
+    public customData: {
+        key1: string, // User's custom data key1.
+        key2: string, /* Company's custom data key2.
+    customData can only be created/updated by:
+
+        the user himself,
+    company_admin or organization_admin of his company,
+    bp_admin and bp_finance of his company,
+    superadmin. Restrictions on customData Object:
+        max 10 keys,
+    max key length: 64 characters,
+    max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one).
+    // */
+    } //     User's custom data.
+
+    constructor(
+        _loginEmail: string = null,
+        _password: string= null,
+        _temporaryToken: string= null,
+        _invitationId: string= null,
+        _joinCompanyInvitationId: string= null,
+        _joinCompanyLinkId: string= null,
+        _openInviteId: string= null,
+        _isInitialized: boolean= null,
+        _firstName: string= null,
+        _lastName: string= null,
+        _nickName: string= null,
+        _title: string= null,
+        _jobTitle: string= null,
+        _department: string= null,
+        _emails: {
+            email: string,
+            type: string
+        }= null,
+        _phoneNumbers: Array<any>= null,
+        _country: string= null,
+        _state: string= null,
+        _language: string= null,
+        _timezone: string= null,
+        _visibility: string= null,
+        _customData: any= null
+    ) {
+    let that = this;
+        that.loginEmail = _loginEmail;
+        that.password = _password;
+        that.temporaryToken = _temporaryToken;
+        that.invitationId = _invitationId;
+        that.joinCompanyInvitationId = _joinCompanyInvitationId;
+        that.joinCompanyLinkId = _joinCompanyLinkId;
+        that.openInviteId = _openInviteId;
+        that.isInitialized = _isInitialized;
+        that.firstName = _firstName;
+        that.lastName = _lastName;
+        that.nickName = _nickName;
+        that.title = _title;
+        that.jobTitle = _jobTitle;
+        that.department = _department;
+        that.emails = _emails;
+        that.phoneNumbers = _phoneNumbers;
+        that.country = _country;
+        that.state = _state;
+        that.language = _language;
+        that.timezone = _timezone;
+        that.visibility = _visibility;
+        that.customData = _customData;
+    }
+
+    getUrlParam () {
+        let that = this;
+        let param: any = {};
+        if (that.loginEmail) {
+            param.loginEmail = that.loginEmail;
+        }
+        if (that.password) {
+            param.password = that.password;
+        }
+        if (that.temporaryToken) {
+            param.temporaryToken = that.temporaryToken;
+        }
+        if (that.invitationId) {
+            param.invitationId = that.invitationId;
+        }
+        if (that.joinCompanyInvitationId) {
+            param.joinCompanyInvitationId = that.joinCompanyInvitationId;
+        }
+        if (that.joinCompanyLinkId) {
+            param.joinCompanyLinkId = that.joinCompanyLinkId;
+        }
+        if (that.openInviteId) {
+            param.openInviteId = that.openInviteId;
+        }
+        if (that.isInitialized) {
+            param.isInitialized = that.isInitialized;
+        }
+        if (that.firstName) {
+            param.firstName = that.firstName;
+        }
+        if (that.lastName) {
+            param.lastName = that.lastName;
+        }
+        if (that.nickName) {
+            param.nickName = that.nickName;
+        }
+        if (that.title) {
+            param.title = that.title;
+        }
+        if (that.jobTitle) {
+            param.jobTitle = that.jobTitle;
+        }
+        if (that.department) {
+            param.department = that.department;
+        }
+        if (that.emails) {
+            param.emails = that.emails;
+        }
+        if (that.phoneNumbers) {
+            param.phoneNumbers = that.phoneNumbers;
+        }
+        if (that.country) {
+            param.country = that.country;
+        }
+        if (that.state) {
+            param.state = that.state;
+        }
+        if (that.language) {
+            param.language = that.language;
+        }
+        if (that.timezone) {
+            param.timezone = that.timezone;
+        }
+        if (that.visibility) {
+            param.visibility = that.visibility;
+        }
+        if (that.customData) {
+            param.customData = that.customData;
+        }
+
+        return param
+    }
+
+}
+
 @logEntryExit(LOG_ID)
 class RESTService {
     public http: HTTPService;
@@ -3428,6 +3661,24 @@ Request Method: PUT
         });
     }
 
+    registerGuest(guest : GuestParams ) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(registerGuest) REST.");
+
+            that.http.post("/api/rainbow/enduser/v1.0/users/self-register", that.getRequestHeader(), guest.getUrlParam(), undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(registerGuest) successfull");
+                that.logger.log("internal", LOG_ID + "(registerGuest) REST conference updated : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(registerGuest) error");
+                that.logger.log("internalerror", LOG_ID, "(registerGuest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion Public url
 
     //region Conference
@@ -3888,6 +4139,7 @@ Request Method: PUT
 
 }
 
-export {RESTService, MEDIATYPE};
+export {RESTService, MEDIATYPE, GuestParams};
 module.exports.RESTService = RESTService;
 module.exports.MEDIATYPE = MEDIATYPE;
+module.exports.GuestParams = GuestParams;

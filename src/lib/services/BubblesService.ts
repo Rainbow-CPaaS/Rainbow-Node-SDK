@@ -2,7 +2,7 @@
 
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
 import * as deepEqual from "deep-equal";
-import {MEDIATYPE, RESTService} from "../connection/RESTService";
+import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {XMPPService} from "../connection/XMPPService";
@@ -2675,6 +2675,48 @@ class Bubbles {
             url = that._protocol + "://meet." + that._host + strPort + "/" + openInviteId;
         }
         return url;
+    }
+
+    /**
+     * @private
+     * @method registerGuestForAPublicURL
+     * @since 1.75
+     * @instance
+     * @description
+     *    register a guest user with a mail and a password and join a bubble with a public url.
+     *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble.
+     *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true)
+     *    and automatically joins the room to which the public link is bound.
+     * @param {Object} content   Id of the bubble
+     * @return {string} An url
+     */
+    registerGuestForAPublicURL (openInviteId: string, loginEmail : string, password: string) {
+        let that = this;
+        if (!openInviteId) {
+            that._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'openInviteId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'openInviteId' parameter : ", openInviteId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!loginEmail) {
+            this._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter : ", loginEmail);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!password) {
+            this._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter : ", password);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) arguments : ", ...arguments);
+            let guestParam = new GuestParams(loginEmail,password,null, null, null, null, openInviteId);
+            that._rest.registerGuestForAPublicURL(guestParam ).then(function (joinResult: any) {
+                resolve(joinResult);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(registerGuestForAPublicURL) error");
+                return reject(err);
+            });
+        });
     }
 
 //endregion PUBLIC URL
