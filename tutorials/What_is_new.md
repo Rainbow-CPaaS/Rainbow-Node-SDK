@@ -27,6 +27,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 **Others Changes**
 
 -   Refactor `reconnect` code for xmpp lost connection to avoid multiple simultaneous tries to reconnect from low layer (@xmpp/reconnect plugging)
+-   Add method BubblesService::registerGuestForAPublicURL to register a guest user with a mail and a password and join a bubble with a public url.
+-   Add tags data in Bubbles type
 
 ### SDK for Node.JS 1.73 - July 2020
 
