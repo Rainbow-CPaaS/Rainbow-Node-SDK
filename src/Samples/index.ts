@@ -48,17 +48,23 @@ const jwt =  require("jwt-decode");
     input: process.stdin,
     output: process.stdout
 }); // */
+//let rainbowMode = "s2s" ;
+let rainbowMode =  "xmpp" ;
 
 const ngrok = require('ngrok');
 let urlS2S;
 
 (async function() {
-    console.log("MAIN - ngrock.");
-    urlS2S = await ngrok.connect(4000).catch((error) => {
-        console.log("MAIN - ngrock, error : ", error);
-        process.exit(0);
-    });
-    console.log("MAIN - ngrock, urlS2S : ", urlS2S);
+    if ( rainbowMode == "s2s" ) {
+        console.log("MAIN - S2S Mode, with ngrock.");
+        urlS2S = await ngrok.connect(4000).catch((error) => {
+            console.log("MAIN - ngrock, error : ", error);
+            process.exit(0);
+        });
+        console.log("MAIN - ngrock, urlS2S : ", urlS2S);
+    } else {
+        console.log("MAIN - XMPP Mode.");
+    }
 
 // Define your configuration
 let options = {
@@ -66,7 +72,8 @@ let options = {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
         // "mode": "s2s"
-        "mode": "xmpp"
+        "mode": rainbowMode
+        //"mode": "xmpp"
     },
     "s2s": {
         "hostCallback": urlS2S,
