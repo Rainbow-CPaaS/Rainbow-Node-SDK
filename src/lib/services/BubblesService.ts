@@ -2687,14 +2687,22 @@ class Bubbles {
      *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble.
      *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true)
      *    and automatically joins the room to which the public link is bound.
-     * @param {Object} content   Id of the bubble
-     * @return {string} An url
+     * @param {string} publicUrl
+     * @param {string} loginEmail
+     * @param {string} password
+     * @param {string} firstName
+     * @param {string} lastName
+     * @param {string} nickName
+     * @param {string} title
+     * @param {string} jobTitle
+     * @param {string} department
+     * @return {Promise<any>} An object of the result
      */
-    registerGuestForAPublicURL (openInviteId: string, loginEmail : string, password: string) {
+    registerGuestForAPublicURL (publicUrl: string, loginEmail : string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string) {
         let that = this;
-        if (!openInviteId) {
-            that._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'openInviteId' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'openInviteId' parameter : ", openInviteId);
+        if (!publicUrl) {
+            that._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter : ", publicUrl);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!loginEmail) {
@@ -2709,7 +2717,9 @@ class Bubbles {
         }
         return new Promise(async function (resolve, reject) {
             that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) arguments : ", ...arguments);
-            let guestParam = new GuestParams(loginEmail,password,null, null, null, null, openInviteId);
+            let openInviteId = publicUrl.split("/").pop();
+            that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) openInviteId found : ", openInviteId);
+            let guestParam = new GuestParams(loginEmail,password,null, null, null, null, openInviteId,null, firstName, lastName, nickName, title, jobTitle, department);
             that._rest.registerGuest(guestParam ).then(function (joinResult: any) {
                 resolve(joinResult);
             }).catch(function (err) {
