@@ -2710,7 +2710,7 @@ class Bubbles {
         return new Promise(async function (resolve, reject) {
             that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) arguments : ", ...arguments);
             let guestParam = new GuestParams(loginEmail,password,null, null, null, null, openInviteId);
-            that._rest.registerGuestForAPublicURL(guestParam ).then(function (joinResult: any) {
+            that._rest.registerGuest(guestParam ).then(function (joinResult: any) {
                 resolve(joinResult);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(registerGuestForAPublicURL) error");
