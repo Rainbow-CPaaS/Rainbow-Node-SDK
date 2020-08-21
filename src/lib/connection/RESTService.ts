@@ -4137,6 +4137,27 @@ Request Method: PUT
 
     //endregion
 
+    //region Bubbles Tags
+    retrieveAllBubblesByTags(tags: Array<string>) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
+            let tagParams = "tag=";
+
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/tags?" + tagParams, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveAllCompanySubscriptions) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllCompanySubscriptions) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
+    //endregion
 }
 
 export {RESTService, MEDIATYPE, GuestParams};
