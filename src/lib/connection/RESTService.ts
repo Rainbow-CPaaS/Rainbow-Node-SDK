@@ -4141,7 +4141,7 @@ Request Method: PUT
     retrieveAllBubblesByTags(tags: Array<string>) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
+            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", tags);
             let tagParams = "tag=";
 
             that.http.get("/api/rainbow/enduser/v1.0/rooms/tags?" + tagParams, that.getRequestHeader(), undefined).then((json) => {

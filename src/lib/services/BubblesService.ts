@@ -2687,6 +2687,8 @@ class Bubbles {
      *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble.
      *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true)
      *    and automatically joins the room to which the public link is bound.
+     *
+     *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin.
      * @param {string} publicUrl
      * @param {string} loginEmail
      * @param {string} password

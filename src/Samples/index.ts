@@ -1237,12 +1237,34 @@ function testCreateBubblesAndJoinConference() {
             logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createBubble request ok : ", bubble);
             rainbowSDK.bubbles.createPublicUrl(bubble.id).then(async (publicUrl) => {
                 logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createPublicUrl publicUrl : ", publicUrl);
-                rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl, loginEmail, password).then(async (result) => {
+                rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl, loginEmail, password,"VincentGuest","berderGuest","VBGuest","Mr.","DevGuest", "ITGuest").then(async (result) => {
                     logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: registerGuestForAPublicURL result : ", result);
                 });
             });
         });
 
+    }
+
+    async function testCleanAGuest() {
+        let loginEmail = "vincentGuest@vbe.test.openrainbow.net";
+        let password = "Password_123"
+        let bubbleName = "testBotName_";
+        let bubbleDescription = "testBotDescription_";
+        let bubbleMessage = "testBotMessage_";
+        let bubbleMessageSubject = "testBotMessageSubject_";
+
+        let utc: string = new Date().toJSON().replace(/-/g, "/");
+        bubbleName += utc + "GuestUser";
+        bubbleDescription += utc;
+        bubbleMessageSubject += utc;
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testCleanAGuest    ] :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.admin.deleteUser(contact.id).then(async (result) => {
+                    logger.log("debug", "MAIN - [testCleanAGuest    ] :: deleteUser result : ", result);
+                });
+            }
+        });
     }
 
     function testgetContactByLoginEmail() {
