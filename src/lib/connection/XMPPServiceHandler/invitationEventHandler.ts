@@ -90,6 +90,10 @@ class InvitationEventHandler extends GenericHandler {
                             // treated  also in conversationEventHandler
                             that.onInvitationManagementMessageReceived(node);
                             break;
+                        case "openinvite":
+
+                            that.onopenInvitationManagementMessageReceived(node);
+                            break;
                         case "favorite":
                             // treated in favoriteEventHandler
                             break;
@@ -224,6 +228,36 @@ class InvitationEventHandler extends GenericHandler {
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
                 that.logger.log("internalerror", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : " + err.message);
+                return true;
+            }
+        };
+
+        this.onOpenInvitationManagementMessageReceived = (stanza) => {
+            that.logger.log("internal", LOG_ID + "(onOpenInvitationManagementMessageReceived) _entering_ : ", stanza);
+
+            try {
+                let userInviteElem = stanza; //.find("userinvite");
+                if (userInviteElem && userInviteElem.attrs) {
+                    let id = userInviteElem.attrs.id;
+                    let type = userInviteElem.attrs.type;
+                    let action = userInviteElem.attrs.action;
+                    let status = userInviteElem.attrs.status;
+
+                    let invitation = {
+                        id,
+                        type,
+                        action,
+                        status
+                    };
+                    that.eventEmitter.emit("evt_internal_openinvitationsManagementUpdate", invitation);
+                    return true;
+                } else {
+                    that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty.");
+                    that.logger.log("internalerror", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty : ", stanza);
+                }
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! ");
+                that.logger.log("internalerror", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! : " + err.message);
                 return true;
             }
         };

@@ -637,17 +637,17 @@ class Admin {
     removeCompany(company) {
         let that = this;
 
-        this._logger.log("internal", LOG_ID + "(deleteCompany) parameters : company : ", company);
+        this._logger.log("internal", LOG_ID + "(removeCompany) parameters : company : ", company);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.deleteCompany(company.id).then((companies : any) => {
-                    that._logger.log("debug", LOG_ID + "(deleteCompany) Successfully remove company");
-                    that._logger.log("internal", LOG_ID + "(deleteCompany) : companies values : ", companies.data);
+                    that._logger.log("debug", LOG_ID + "(removeCompany) Successfully remove company");
+                    that._logger.log("internal", LOG_ID + "(removeCompany) : companies values : ", companies.data);
                     resolve(companies);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(deleteCompany) ErrorManager when removing company");
+                    that._logger.log("error", LOG_ID + "(removeCompany) ErrorManager when removing company");
                     return reject(err);
                 });
 
@@ -678,17 +678,18 @@ class Admin {
 
         return new Promise(function (resolve, reject) {
             try {
+                that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
                 that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
-                    that._logger.log("debug", LOG_ID + "(getGuestOrUserToken) Successfully logged-in a user");
-                    that._logger.log("internal", LOG_ID + "(getGuestOrUserToken) : user data : ", json);
+                    that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
+                    that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : user data : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getGuestOrUserToken) Error when getting a token");
+                    that._logger.log("error", LOG_ID + "(askTokenOnBehalf) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getGuestOrUserToken) error : ", err);
+                that._logger.log("internalerror", LOG_ID + "(askTokenOnBehalf) error : ", err);
                 return reject(err);
             }
         });
