@@ -1268,13 +1268,13 @@ function testCreateBubblesAndJoinConference() {
     }
 
     function testgetContactByLoginEmail() {
-    let loginEmail = "vincent++@vbe.test.openrainbow.net";
-    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
-        if (contact) {
-            logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
-        }
-    });
-}
+        let loginEmail = "vincent++@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
+            }
+        });
+    }
 /**
  * need to be administrator of the company. Here vincent02 is ok.
  */
@@ -1883,6 +1883,18 @@ async function  test_multireconnect() {
         logger.log("debug", "MAIN - test_multireconnect - reconnect sent ++ : ", i);
     }
 }
+
+function testretrieveAllBubblesByTags() {
+    let tags = ["test1"];
+    rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
+        if (bubbles) {
+            logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: bubbles : ", bubbles);
+        }
+    }).catch((err) => {
+        logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
+    });
+}
+
 
 function commandLineInteraction() {
     let questions = [

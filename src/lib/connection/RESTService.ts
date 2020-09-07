@@ -17,6 +17,7 @@ import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {ROOMROLE} from "../services/S2SService";
+import {urlencoded} from "body-parser";
 
 
 let packageVersion = require("../../package.json");
@@ -4141,23 +4142,67 @@ Request Method: PUT
     retrieveAllBubblesByTags(tags: Array<string>) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", tags);
-            let tagParams = "tag=";
+            that.logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) REST companyId : ", tags);
+            let nbTags = tags.length;
+            let tagParams = "";
+            if (nbTags == 0) {
+                let err = {
+                    "label" : "retrieveAllBubblesByTags : No tags provided for filter the bubbles."
+                };
+                that.logger.log("error", LOG_ID, "(retrieveAllBubblesByTags) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
+                return reject(err);
+            }
+            if (nbTags == 1) {
+                tagParams = "tag="+ encodeURI(tags[0]);
+            }
+            if (nbTags > 1) {
+                for (let id = 0; id <nbTags ; id++ ) {
+                    tagParams += "tag" + id + "=" + encodeURI(tags[id]) + "+";
+                }
+            }
 
             that.http.get("/api/rainbow/enduser/v1.0/rooms/tags?" + tagParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(retrieveAllBubblesByTags) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllCompanySubscriptions) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllCompanySubscriptions) error : ", err);
+                that.logger.log("error", LOG_ID, "(retrieveAllBubblesByTags) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
                 return reject(err);
             });
         });
     }
 
+    /**
+     *
+     * @param {string} roomId
+     * @param {Array<any>} tags : tags 	Object[]
+     List of objects. Empty to reset the list
+     tag 	String Tag name
+     color optionnel String Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed"
+     emoji optionnel String Tag emoji - an unicode sequence
+     * @return {Promise<unknown>}
+     */
+    setTagsOnABubble(roomId : string, tags: Array<any>) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params = {"tags":tags};
+            that.logger.log("internal", LOG_ID + "(setTagsOnABubble) REST params : ", params);
 
-    //endregion
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/tags", that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(setTagsOnABubble) successfull");
+                that.logger.log("internal", LOG_ID + "(setTagsOnABubble) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(setTagsOnABubble) error");
+                that.logger.log("internalerror", LOG_ID, "(setTagsOnABubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    //endregion Bubbles Tags
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

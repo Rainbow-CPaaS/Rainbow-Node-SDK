@@ -4124,8 +4124,53 @@ getAllActiveBubbles
 
 //endregion
 
+// region tags
+    /**
+     * @public
+     * @method retrieveAllBubblesByTags
+     * @instance
+     * @async
+     * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
+     * @return {Promise<Bubble>}  return a promise with a list of  {Bubble} filtered by tags or null
+     * @description
+     *  Get a list of {Bubble} filtered by tags.
+     */
+    retrieveAllBubblesByTags(tags: Array<string>): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble tags  " + tags);
+
+            if (!tags) {
+                that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'tags' parameter", tags);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+                return that._rest.retrieveAllBubblesByTags(tags).then(async (bubblesFromServer) => {
+                    that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubblesFromServer);
+
+                    if (bubblesFromServer) {
+                        /* let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
+                        if (bubble.isActive) {
+                            that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
+                            await that._presence.sendInitialBubblePresence(bubble);
+                        } else {
+                            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
+                        } // */
+                        resolve(bubblesFromServer);
+                    } else {
+                        resolve(null);
+                    }
+                }).catch((err) => {
+                    return reject(err);
+                });
+        });
+    }
+
+//endregion tags
+
 
 }
 
 module.exports.BubblesService = Bubbles;
 export {Bubbles as BubblesService};
+
