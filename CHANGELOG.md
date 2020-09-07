@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.76.0] - 2020-09-07
+-   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.
+
 ## [1.76.0-dotnet.0] - 2020-09-02
 -   Update method BubblesService::registerGuestForAPublicURL method.
 
