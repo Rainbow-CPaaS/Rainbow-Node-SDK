@@ -550,7 +550,6 @@ class Events {
             that.publishEvent("bubbleavatarchanged", bubble);
         });
 
-
         this._evReceiver.on("evt_internal_bubblenamechanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubblenamechanged
@@ -560,6 +559,17 @@ class Events {
              *      Fired when the name of a bubble has changed
              */
             that.publishEvent("bubblenamechanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_openinvitationUpdate", function(openInvite) {
+            /**
+             * @event Events#rainbow_onopeninvitationupdate
+             * @public
+             * @param { Object } openInvite The informations about the a management event on a public URL share of a bubble.
+             * @description
+             *      Fired when a management event on a public URL share of a bubble has changed
+             */
+            that.publishEvent("openinvitationupdate", openInvite);
         });
 
         this._evReceiver.on("evt_internal_groupcreated", function(group) {

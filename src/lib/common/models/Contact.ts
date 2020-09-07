@@ -117,6 +117,7 @@ class Contact {
     public ask: string;
     public subscription: string;
     public temp: boolean;
+    public invitation: any;
 
     constructor() {
 
