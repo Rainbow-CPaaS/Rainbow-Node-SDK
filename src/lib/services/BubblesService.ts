@@ -2510,11 +2510,19 @@ class Bubbles {
      * @description
      *    Create / Get the public URL used to access the specified bubble. So a Guest or a Rainbow user can access to it just using a URL <br/>
      *    Return a promise.
-     * @param {Bubble} bubbleId   Id of the bubble
+     * @param {Bubble} bubble The bubble on which the public url is requested.
      * @return {Promise<string>} The public url
      */
-    async createPublicUrl(bubbleId: string): Promise<any> {
+    async createPublicUrl(bubble: Bubble): Promise<any> {
         let that = this;
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        this._logger.log("internal", LOG_ID + "(createPublicUrl) bubble parameter : ", bubble);
+
+        let bubbleId: string = bubble.id;
         return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));
         /*
         if (!application.IsCapabilityAvailable(Contact.Capability.BubbleCreate))
@@ -2563,11 +2571,17 @@ class Bubbles {
      *    Return a promise.
      *
      *    !!! The previous URL is no more functional !!!
-     * @param {Bubble} bubbleId   Id of the bubble
+     * @param {Bubble} bubble The bubble on which the public url is requested.
      * @return {Promise<string>} The public url
      */
-    async generateNewPublicUrl(bubbleId: string): Promise<any> {
+    async generateNewPublicUrl(bubble: Bubble): Promise<any> {
         let that = this;
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        let bubbleId: string = bubble.id;
         return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
         /*
         if (!application.IsCapabilityAvailable(Contact.Capability.BubbleCreate))
@@ -2614,11 +2628,12 @@ class Bubbles {
      * @description
      *    'Remove' the public URL used to access the specified bubble. So it's no more possible to access to this buble using this URL <br/>
      *    Return a promise.
-     * @param {Bubble} bubbleId   Id of the bubble
+     * @param {Bubble} bubble The bubble on which the public url must be deleted.
      * @return {Promise<any>} An object of the result
      */
-    removePublicUrl(bubbleId: string): Promise<any> {
+    removePublicUrl(bubble: Bubble): Promise<any> {
         let that = this;
+        let bubbleId = bubble.id;
         return that._rest.removePublicUrl(bubbleId);
         /*
             if (!application.IsCapabilityAvailable(Contact.Capability.BubbleCreate))
@@ -4163,6 +4178,37 @@ getAllActiveBubbles
                 }).catch((err) => {
                     return reject(err);
                 });
+        });
+    }
+
+    setTagsOnABubble(bubble : Bubble, tags: Array<string>): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble tags  " + tags);
+
+            if (!tags) {
+                that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'tags' parameter", tags);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.retrieveAllBubblesByTags(tags).then(async (bubblesFromServer) => {
+                that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubblesFromServer);
+
+                if (bubblesFromServer) {
+                    /* let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
+                    if (bubble.isActive) {
+                        that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
+                        await that._presence.sendInitialBubblePresence(bubble);
+                    } else {
+                        that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
+                    } // */
+                    resolve(bubblesFromServer);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
         });
     }
 

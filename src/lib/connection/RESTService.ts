@@ -3647,7 +3647,7 @@ Request Method: PUT
             let param = {
                 "roomId" : bubbleId
             };
-            that.logger.log("internal", LOG_ID + "(createPublicUrl) REST.");
+            that.logger.log("internal", LOG_ID + "(createPublicUrl) REST bubbleId : ", bubbleId, " param : ", param);
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/bind", that.getRequestHeader(), param, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
