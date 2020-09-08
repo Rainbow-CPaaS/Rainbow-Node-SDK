@@ -199,7 +199,7 @@ class InvitationsService {
 				bubble: undefined
 			};
 			invitation.publicUrl = that._bubbles.getPublicURLFromResponseContent(invitation);
-			invitation.bubble = that._bubbles.getBubbleById(openInvitation.roomid);
+			invitation.bubble = await that._bubbles.getBubbleById(openInvitation.roomid);
 
 			that._eventEmitter.emit("evt_internal_openinvitationUpdate", invitation);
 		} else {
