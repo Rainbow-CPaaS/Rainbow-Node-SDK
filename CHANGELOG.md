@@ -8,6 +8,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.76.0] - 2020-09-07
 -   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.
+-   Add method `BubblesService::getBubblesConsumption` to get an object describing the consumption of number active bubbles.
+-   Update methods : `BubblesService::createPublicUrl` `BubblesService::generateNewPublicUrl` `BubblesService::removePublicUrl` to get a Bubble in parameter instead of an Id.
+-   Fix retrieveAllBubblesByTags method to get the bubbles filtered by a list of tags.of
+-   Add RainbowNodeSDKNews.md guide to explain how to keep informed.
 
 ## [1.76.0-dotnet.0] - 2020-09-02
 -   Update method BubblesService::registerGuestForAPublicURL method.

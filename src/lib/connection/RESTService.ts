@@ -1071,7 +1071,7 @@ Request Method: PUT
         });
     }
 
-    // Bubble API
+    //region BUBBLES
 
     createBubble(name, description, withHistory) {
         let that = this;
@@ -1549,6 +1549,23 @@ Request Method: PUT
             });
         });
     };
+
+    getBubblesConsumption () {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/consumption", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getConsumption) successfull");
+                that.logger.log("internal", LOG_ID + "(getConsumption) received : ", json );
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getConsumption) error");
+                that.logger.log("internalerror", LOG_ID, "(getConsumption) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion BUBBLES
 
     /**
      * Method retrieveWebConferences

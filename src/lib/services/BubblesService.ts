@@ -1333,6 +1333,45 @@ class Bubbles {
     }
 
     /**
+     * @public
+     * @method getBubblesConsumption
+     * @instance
+     * @async
+     * @return {Promise<Object>} return an object describing the consumption of bubbles : {
+        maxValue : number // The quota associated to this offer [room]
+        currentValue : number // The user's current consumption [room].
+     }
+     * @description
+     *      return an object describing the consumption of bubbles.
+     */
+    getBubblesConsumption () {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("internal", LOG_ID + "(getBubblesConsumption) ");
+
+            return that._rest.getBubblesConsumption().then((consumption: any) => {
+                that._logger.log("internal", LOG_ID + "(getBubblesConsumption) consumption from server : ", consumption);
+                that._logger.log("debug", LOG_ID + "(getBubblesConsumption) success.");
+
+                let consumptionBuble = {};
+                if (consumption.feature === "BUBBLE_COUNT" && consumption.unit === "room") {
+                    consumptionBuble = {
+                        maxValue: consumption.maxValue,
+                        currentValue: consumption.currentValue
+                    };
+                    that._logger.log("internal", LOG_ID + "(getBubblesConsumption) return consumptionBuble : ", consumptionBuble);
+                } else {
+                    that._logger.log("warn", LOG_ID + "(getBubblesConsumption) consumption returned is not reconnised.");
+                }
+                resolve(consumptionBuble);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+
+    }
+
+    /**
      * @private
      * @method refreshMemberAndOrganizerLists
      * @instance

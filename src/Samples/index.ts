@@ -1267,6 +1267,17 @@ function testCreateBubblesAndJoinConference() {
         });
     }
 
+    function testgetBubblesConsumption() {
+        rainbowSDK.bubbles.getBubblesConsumption().then(consumption => {
+            if (consumption) {
+                logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption consumption : ", consumption);
+            } else {
+                logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption no consumption found.");
+            }
+        });
+
+    }
+
     function testgetContactByLoginEmail() {
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
