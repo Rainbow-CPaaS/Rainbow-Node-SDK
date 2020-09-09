@@ -22,11 +22,14 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--   none
+-   Update methods : `BubblesService::createPublicUrl` `BubblesService::generateNewPublicUrl` `BubblesService::removePublicUrl` to get a Bubble in parameter instead of an Id.
 
 **Others Changes**
 
 -   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.
+-   Add method `BubblesService::getBubblesConsumption` to get an object describing the consumption of number active bubbles.
+-   Fix retrieveAllBubblesByTags method to get the bubbles filtered by a list of tags.of
+-   Add RainbowNodeSDKNews.md guide to explain how to keep informed.
 
 
 ### SDK for Node.JS 1.75 - August 2020
