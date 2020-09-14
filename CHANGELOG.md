@@ -7,7 +7,9 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.77.0-dotnet.0] - 2020-09-XX
--    update treatment of error event in XMPPService::handleXMPPConnection of the default condition to avoid wrong stop of SDK, so we ignore it.
+-   update treatment of error event in XMPPService::handleXMPPConnection of the default condition to avoid wrong stop of SDK, so we ignore it.
+-   add pretty-data logs of xml data.
+-   add answeredMsgId in messages
 
 ## [1.76.0] - 2020-09-09
 -   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.

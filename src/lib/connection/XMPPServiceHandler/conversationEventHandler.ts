@@ -101,6 +101,7 @@ class ConversationEventHandler extends GenericHandler {
                 let conference = false;
                 let conferencebubbleId = undefined;
                 let conferencebubbleJid = undefined;
+                let answeredMsg = undefined;
 
                 let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
                 let resource = xu.getResourceFromFullJID(stanza.attrs.from);
@@ -240,7 +241,7 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "body":
                             content = node.getText();
-                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - content", "***");
+                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - content : ", "***");
                             if (node.attrs["xml:lang"]) { // in <body>
                                 lang = node.attrs["xml:lang"];
                             } else if (node.parent.attrs["xml:lang"]) { // in <message>
@@ -248,8 +249,12 @@ class ConversationEventHandler extends GenericHandler {
                             } else {
                                 lang = "en";
                             }
-                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - lang", lang);
+                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - lang : ", lang);
                             hasATextMessage = (!(!content || content === ''));
+                            break;
+                        case "answeredMsg":
+                            answeredMsg = node.getText();
+                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - answeredMsg : ", answeredMsg);
                             break;
                         case "content":
                             alternativeContent.push({
@@ -480,9 +485,10 @@ class ConversationEventHandler extends GenericHandler {
                         "originalMessageReplaced": null,
                         "attention": undefined,
                         subject,
-                        confOwnerId: undefined,
-                        confOwnerDisplayName: undefined,
-                        confOwnerJid: undefined
+                        "confOwnerId": undefined,
+                        "confOwnerDisplayName": undefined,
+                        "confOwnerJid": undefined,
+                        "answeredMsgId" : answeredMsg
                     };
 
                     if (stanza.attrs.type === TYPE_GROUPCHAT) {

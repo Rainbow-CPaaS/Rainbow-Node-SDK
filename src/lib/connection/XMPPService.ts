@@ -11,7 +11,7 @@ import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 
 const packageVersion = require("../../package");
 const url = require('url');
-
+const prettydata = require("./pretty-data").pd;
 
 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
 let ws_options = null;
@@ -262,12 +262,12 @@ class XMPPService {
             }); // */
 
             this.xmppClient.on("input", function fn_input (packet) {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(packet));
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(prettydata.xml(packet)));
                 that.startOrResetIdleTimer(true);
             });
 
             this.xmppClient.on("output", function fn_output (packet) {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(packet));
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(prettydata.xml(packet)));
                 that.startOrResetIdleTimer(false);
             });
 
