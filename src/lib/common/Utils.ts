@@ -220,7 +220,7 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers"] ;
+                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers", "getClassName"] ;
                 methodsToIgnoreStartedState = methodsToIgnoreStartedState.concat(_methodsToIgnoreStartedState[0]);
                 let ignoreTheStartedState : boolean = (methodsToIgnoreStartedState.find((elt) => { return elt === propertyName; } ) != undefined);
                 if (this == null) {
@@ -283,13 +283,16 @@ function logEntryExit(LOG_ID) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                if (this == null) {
+                if (this == null || originalMethod.name === "getClassName" || propertyName === "getClassName") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
+                   /* if (!this.getClassName) {
+                        this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
+                    } // */
                     let logger = this.logger ? this.logger : this._logger ? this._logger : {};
-                    logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
+                    logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
                     returnValue = originalMethod.apply(this, args);
-                    logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
+                    logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" +  propertyName + "(...) _exiting_"));
                 }
                 // Return back the value to the execution stack
                 return returnValue;

@@ -59,6 +59,9 @@ class FileServer {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'FileServer'; }
+    getClassName(){ return FileServer.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;

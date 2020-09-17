@@ -39,6 +39,9 @@ class FavoriteEventHandler extends GenericHandler {
     public findAttrs: any;
     public findChildren: any;
 
+    static getClassName(){ return 'FavoriteEventHandler'; }
+    getClassName(){ return FavoriteEventHandler.getClassName(); }
+
     constructor(xmppService, channelsService) {
         super(xmppService);
 

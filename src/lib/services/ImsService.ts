@@ -60,6 +60,9 @@ class IMService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'IMService'; }
+    getClassName(){ return IMService.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;

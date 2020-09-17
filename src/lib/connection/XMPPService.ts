@@ -143,6 +143,10 @@ class XMPPService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'XMPPService'; }
+    getClassName(){ return XMPPService.getClassName(); }
+
+
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
         this.host = _xmpp.host;

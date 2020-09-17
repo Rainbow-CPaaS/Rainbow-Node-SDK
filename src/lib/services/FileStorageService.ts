@@ -72,6 +72,9 @@ class FileStorage {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'FileStorage'; }
+    getClassName(){ return FileStorage.getClassName(); }
+
     constructor(_eventEmitter, _logger, _startConfig) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;

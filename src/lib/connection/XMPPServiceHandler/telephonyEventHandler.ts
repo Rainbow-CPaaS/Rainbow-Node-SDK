@@ -66,6 +66,9 @@ class TelephonyEventHandler extends GenericHandler {
 	public logger: any;
 	public eventEmitter: any;
 
+    static getClassName(){ return 'TelephonyEventHandler'; }
+    getClassName(){ return TelephonyEventHandler.getClassName(); }
+
     constructor(xmppService : XMPPService, telephonyService, contactService, profileService) {
         super(xmppService);
 

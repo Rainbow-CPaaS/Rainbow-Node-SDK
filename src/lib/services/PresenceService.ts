@@ -59,6 +59,9 @@ class PresenceService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'PresenceService'; }
+    getClassName(){ return PresenceService.getClassName(); }
+
     constructor(_eventEmitter, _logger, _startConfig) {
         let that = this;
         this._startConfig = _startConfig;

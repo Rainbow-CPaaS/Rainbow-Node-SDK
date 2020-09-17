@@ -44,6 +44,9 @@ class Settings {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'Settings'; }
+    getClassName(){ return Settings.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;

@@ -67,6 +67,9 @@ class S2SService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'S2SService'; }
+    getClassName(){ return S2SService.getClassName(); }
+
     constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy, _startConfig) {
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";

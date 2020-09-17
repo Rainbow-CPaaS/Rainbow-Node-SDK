@@ -87,6 +87,9 @@ class Telephony {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'Telephony'; }
+    getClassName(){ return Telephony.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
         let that = this;
         this._startConfig = _startConfig;

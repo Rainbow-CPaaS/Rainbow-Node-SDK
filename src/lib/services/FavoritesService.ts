@@ -55,6 +55,9 @@ class FavoritesService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'FavoritesService'; }
+    getClassName(){ return FavoritesService.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
 
         /*********************************************************/

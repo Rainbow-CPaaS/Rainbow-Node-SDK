@@ -17,6 +17,7 @@ import {ContactsService} from "./ContactsService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
+import {GroupsService} from "./GroupsService";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -63,6 +64,9 @@ class InvitationsService {
 	get startConfig(): { start_up: boolean; optional: boolean } {
 		return this._startConfig;
 	}
+
+	static getClassName(){ return 'InvitationsService'; }
+	getClassName(){ return InvitationsService.getClassName(); }
 
 	constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
 		let that = this;

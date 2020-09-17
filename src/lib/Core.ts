@@ -74,6 +74,9 @@ class Core {
 	public _botsjid: any;
     public _s2s: S2SService;
 
+    static getClassName(){ return 'Core'; }
+    getClassName(){ return Core.getClassName(); }
+
     constructor(options) {
 
         let self = this;

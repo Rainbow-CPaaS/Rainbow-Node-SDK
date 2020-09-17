@@ -60,6 +60,9 @@ class Contacts {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'Contacts'; }
+    getClassName(){ return Contacts.getClassName(); }
+
     constructor(_eventEmitter: EventEmitter, _http : any, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length === 2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port : _http.protocol + "://" + _http.host + ":" + _http.port;

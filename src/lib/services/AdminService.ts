@@ -57,6 +57,9 @@ class Admin {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'Admin'; }
+    getClassName(){ return Admin.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;

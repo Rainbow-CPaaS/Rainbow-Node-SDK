@@ -1344,11 +1344,20 @@ rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
     logger.log("debug", "MAIN - Presence status of contact " + contact.displayName + ", changed to " + contact.presence);
     //getLastMessageOfConversation(contact);
 });
+
+async function testgetLastMessageOfConversation() {
+    let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+    let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+    getLastMessageOfConversation(contact);
+}
+
 function getLastMessageOfConversation(contact) {
     let theLastMessageText = null;
     //Request to create new conversation with the contact (in case if it does not exists)
     // or open existing (in case if it already exists)
     rainbowSDK.conversations.openConversationForContact(contact).then(function(conversation) {
+        logger.log("debug", "MAIN - getLastMessageOfConversation - openConversationForContact, conversation : ", conversation);
+
         //This line of code will be executed when conversation object of the contact is provided
         //Check value of property conversation.historyComplete
         if (conversation.historyComplete === false) {
@@ -1400,6 +1409,16 @@ function PrintTheLastMessage(conversation) {
         logger.log("debug", "MAIN - There are no messages in the conversation");
     }
 }
+
+function testgetAllConversations() {
+    let conversations = rainbowSDK.conversations.getAllConversations();
+    if (conversations) {
+        conversations.forEach((conversation) => {
+            logger.log("debug", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
+        });
+    }
+}
+
 //utils.setTimeoutPromised(1).then(()=> {
 //    rainbowSDK.start();
 //});

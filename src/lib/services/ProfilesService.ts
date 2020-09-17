@@ -122,6 +122,9 @@ class ProfilesService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'ProfilesService'; }
+    getClassName(){ return ProfilesService.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;

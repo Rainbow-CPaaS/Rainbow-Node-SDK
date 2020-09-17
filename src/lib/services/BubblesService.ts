@@ -78,10 +78,12 @@ class Bubbles {
     private _host: string = null;
     private _port: string = null;
 
-
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'Bubbles'; }
+    getClassName(){ return Bubbles.getClassName(); }
 
     constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig) {
         this.ready = false;

@@ -23,6 +23,9 @@ class IQEventHandler extends GenericHandler {
 	public _onIqGetQueryReceived: any;
 	public _onIqGetPbxAgentStatusReceived: any;
 
+    static getClassName(){ return 'IQEventHandler'; }
+    getClassName(){ return IQEventHandler.getClassName(); }
+
     constructor(xmppService : XMPPService) {
         super( xmppService);
 

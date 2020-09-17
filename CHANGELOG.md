@@ -7,9 +7,12 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.77.0-dotnet.0] - 2020-09-XX
--   update treatment of error event in XMPPService::handleXMPPConnection of the default condition to avoid wrong stop of SDK, so we ignore it.
--   add pretty-data logs of xml data.
--   add answeredMsgId in messages
+-   Update treatment of error event in XMPPService::handleXMPPConnection of the default condition to avoid wrong stop of SDK, so we ignore it.
+-   Add pretty-data logs of xml data.
+-   Add in classes the method `getClassName` and refactor `Utils::logEntryExit` method to log the name of class in front of method name when used in 'source debug mode'
+-   Refactor conversationEventHandler and conversationHistoryHandler to extract callback definitions from constructor.
+-   Add `answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp` properties in messages received in XMPP event when it is a reply to a previous message (defined by these properties).
+-   Add method `conversations::getOneMessageFromConversationId` To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp (both are mandatory for the search)
 
 ## [1.76.0] - 2020-09-09
 -   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.

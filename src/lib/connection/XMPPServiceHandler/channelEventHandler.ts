@@ -39,6 +39,9 @@ class ChannelEventHandler extends GenericHandler {
     public findAttrs: any;
     public findChildren: any;
 
+    static getClassName(){ return 'ChannelEventHandler'; }
+    getClassName(){ return ChannelEventHandler.getClassName(); }
+
     constructor(xmppService, channelsService) {
         super(xmppService);
 

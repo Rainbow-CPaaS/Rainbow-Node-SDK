@@ -306,6 +306,9 @@ class RESTService {
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
 
+    static getClassName(){ return 'RESTService'; }
+    getClassName(){ return RESTService.getClassName(); }
+
     constructor(_credentials, _application, _isOfficialRainbow, evtEmitter: EventEmitter, _logger: Logger) {
         let that = this;
         let self = this;

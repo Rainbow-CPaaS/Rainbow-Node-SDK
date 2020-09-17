@@ -101,6 +101,8 @@ function CallLogsBean() : ICallLogsBean {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'CallLogService'; }
+    getClassName(){ return CallLogService.getClassName(); }
 
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
     constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {

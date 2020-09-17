@@ -48,6 +48,9 @@ class CallLogEventHandler extends GenericHandler {
 	public logger: any;
 	public callLogs: any;
 
+    static getClassName(){ return 'CallLogEventHandler'; }
+    getClassName(){ return CallLogEventHandler.getClassName(); }
+
     constructor(xmppService : XMPPService, calllogService, contactService, profileService, telephonyService) {
         super(xmppService);
 

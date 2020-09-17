@@ -48,6 +48,9 @@ class S2SServiceEventHandler {
     private _conversations: ConversationsService;
     private shouldSendReadReceipt: boolean;
 
+    static getClassName(){ return 'S2SServiceEventHandler'; }
+    getClassName(){ return S2SServiceEventHandler.getClassName(); }
+
     constructor(_im, _application, _eventEmitter, _logger, _hostCallback) {
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;

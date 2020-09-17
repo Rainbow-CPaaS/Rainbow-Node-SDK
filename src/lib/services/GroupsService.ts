@@ -48,6 +48,9 @@ const LOG_ID = "GROUPS/SVCE - ";
         return this._startConfig;
     }
 
+    static getClassName(){ return 'GroupsService'; }
+    getClassName(){ return GroupsService.getClassName(); }
+
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
         this._xmpp = null;

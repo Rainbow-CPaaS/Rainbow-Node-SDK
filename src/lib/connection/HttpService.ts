@@ -42,6 +42,9 @@ class HTTPService {
     public proxy: any;
     public eventEmitter: any;
 
+    static getClassName(){ return 'HTTPService'; }
+    getClassName(){ return HTTPService.getClassName(); }
+
     constructor(_http, _logger, _proxy, _evtEmitter) {
         this.serverURL = _http.protocol + "://" + _http.host + ":" + _http.port;
         this._host = _http.host;

@@ -61,6 +61,9 @@ class Channels {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'Channels'; }
+    getClassName(){ return Channels.getClassName(); }
+
     public LIST_EVENT_TYPE = {
         ADD: {code : 0, label : "ADD"},
         UPDATE: {code : 1, label : "UPDATE"},
