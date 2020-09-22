@@ -102,6 +102,16 @@ let options = {
             password: "",
             secureProtocol: "SSLv3_method"
         }, // */
+    // Proxy configuration
+    /*
+    proxy: {
+        host: "10.67.253.14",
+        port: 8081,
+        protocol: "http",
+        user: "",
+        password: "",
+        secureProtocol: "SSLv3_method"
+    }, // */
     // Logs options
     "logs": {
         "enableConsoleLogs": true,
