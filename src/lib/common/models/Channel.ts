@@ -96,6 +96,7 @@ class Channel {
     public messageRetrieved: boolean = false;
     public messages: any[] = [];
     public deleted: boolean = false;
+    public mute: boolean = false;
 
     /**
      * @this Channel
@@ -129,7 +130,8 @@ class Channel {
         _userRole: string = 'none',
         _messageRetrieved: boolean = false,
         _messages: any[] = [],
-        _deleted: boolean = false
+        _deleted: boolean = false,
+        _mute: boolean = false
     ) {
         /**
          * @public
@@ -239,6 +241,8 @@ class Channel {
         }
 
         this.deleted = _deleted;
+
+        this.mute = _mute;
     }
 
     public isNotMember() { return (this.userRole = "none"); }
@@ -315,7 +319,8 @@ class Channel {
                 data.userRole,
                 data.messageRetrieved,
                 data.messages,
-                data.deleted
+                data.deleted,
+                data.mute
         );
 
             if (data) {

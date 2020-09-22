@@ -1271,7 +1271,7 @@ class XMPPService {
         this.stopIdleTimer();
         if (!this.forceClose) {
             this.idleTimer = setTimeout(() => {
-                this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
+                this.logger.log("internal", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;

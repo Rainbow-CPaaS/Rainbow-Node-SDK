@@ -87,7 +87,7 @@ class XmppClient  {
         this.onIqResultReceived = (msg, stanza) => {
             //let children = stanza.children;
             let iqId = stanza.attrs.id;
-            that.logger.log("warn", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
+            that.logger.log("info", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
             if (that.iqGetEventWaiting[iqId]) {
                 // The result iq correspond to a stored promise from our request, so resolve it to allow sendIq to get back a result.
                 if (typeof that.iqGetEventWaiting[iqId] === "function") {
