@@ -15,6 +15,8 @@ const util = require('util');
 
 const xml = require("@xmpp/xml");
 
+const prettydata = require("../pretty-data").pd;
+
 const LOG_ID = "XMPP/HNDL/FAV - ";
 
 const TYPE_CHAT = "chat";
@@ -59,7 +61,7 @@ class FavoriteEventHandler extends GenericHandler {
 
         this.onManagementMessageReceived = (msg, stanza) => {
             try {
-                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 let children = stanza.children;
                 children.forEach(function (node) {
                     switch (node.getName()) {
@@ -99,7 +101,7 @@ class FavoriteEventHandler extends GenericHandler {
         };
 
         this.onFavoriteManagementMessageReceived = (stanza) => {
-            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", stanza);
+            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
             try {
                 let stanzaElem = stanza;
@@ -142,7 +144,7 @@ class FavoriteEventHandler extends GenericHandler {
                     // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
                 } else {
                     that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                    that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, stanza);
+                    that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     that.eventEmitter.emit("evt_internal_xmpperror", msg);
                 }
             } catch (err) {

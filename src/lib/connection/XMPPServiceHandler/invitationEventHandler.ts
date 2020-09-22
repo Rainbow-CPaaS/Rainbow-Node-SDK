@@ -15,6 +15,8 @@ const util = require('util');
 
 const xml = require("@xmpp/xml");
 
+const prettydata = require("../pretty-data").pd;
+
 const LOG_ID = "XMPP/HNDL/INVT - ";
 
 const TYPE_CHAT = "chat";
@@ -54,7 +56,7 @@ class InvitationEventHandler extends GenericHandler {
     onManagementMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -201,7 +203,7 @@ class InvitationEventHandler extends GenericHandler {
 
     onInvitationManagementMessageReceived (stanza) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(onInvitationManagementMessageReceived) stanza : ", stanza);
+        that.logger.log("internal", LOG_ID + "(onInvitationManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let userInviteElem = stanza; //.find("userinvite");
@@ -233,7 +235,7 @@ class InvitationEventHandler extends GenericHandler {
     onOpenInvitationManagementMessageReceived (stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onOpenInvitationManagementMessageReceived) stanza : ", stanza);
+        that.logger.log("internal", LOG_ID + "(onOpenInvitationManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
         try {
             let userInviteElem = stanza; //.find("userinvite");
             if (userInviteElem && userInviteElem.attrs) {
@@ -272,7 +274,7 @@ class InvitationEventHandler extends GenericHandler {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, stanza);
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {

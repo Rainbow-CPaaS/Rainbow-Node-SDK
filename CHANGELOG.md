@@ -11,8 +11,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add pretty-data logs of xml data.
 -   Add in classes the method `getClassName` and refactor `Utils::logEntryExit` method to log the name of class in front of method name when used in 'source debug mode'
 -   Refactor conversationEventHandler and conversationHistoryHandler to extract callback definitions from constructor.
--   Add `answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp` properties in messages received in XMPP event when it is a reply to a previous message (defined by these properties).
+-   Add `answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp` properties in messages received in XMPP event and in history when it is a reply to a previous message (defined by these properties).
 -   Add method `conversations::getOneMessageFromConversationId` To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp (both are mandatory for the search)
+-   Refactor logs to show XML of event's node instead of unreadable Element structure
 
 ## [1.76.0] - 2020-09-09
 -   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.

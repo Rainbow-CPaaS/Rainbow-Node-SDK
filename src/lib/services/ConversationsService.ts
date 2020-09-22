@@ -27,6 +27,7 @@ import {error} from "winston";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
+import {Message} from "../common/models/Message";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -452,7 +453,7 @@ class Conversations {
      * @async
      * @return {Promise<any>}
      */
-    getOneMessageFromConversationId(conversationId:string, messageId : string, stamp:string) {
+    getOneMessageFromConversationId(conversationId:string, messageId : string, stamp:string) : Promise<Message> {
         let that = this;
         return new Promise(async (resolve, reject) => {
             let conversation = that.getConversationById(conversationId);
@@ -483,7 +484,7 @@ class Conversations {
         });
     }
 
-    searchMessageArchivedFromServer (conversation : Conversation, messageId: string, stamp : string) {
+    async searchMessageArchivedFromServer(conversation: Conversation, messageId: string, stamp: string) {
         let that = this;
         /*
         // Avoid to call several time the same request
@@ -495,7 +496,11 @@ class Conversations {
         // */
         that._logger.log("debug", LOG_ID + "(searchMessageArchivedFromServer) conversationId : ", conversation.id, ", messageId", messageId, ", stamp : ", stamp, ")");
 
-
+        if (conversation.historyDefered && conversation.historyDefered.promise) {
+            that._logger.log("debug", LOG_ID + "(searchMessageArchivedFromServer) conversation.historyDefered already defined, wait for end promise's treatment.");
+            await conversation.historyDefered.promise;
+            that._logger.log("debug", LOG_ID + "(searchMessageArchivedFromServer) conversation.historyDefered already defined, promise's treatment Ended.");
+        }
         // Create the defered object
         let defered = conversation.historyDefered = new Deferred();
         // Do nothing for userContact
@@ -503,13 +508,13 @@ class Conversations {
             defered.reject();
             return defered.promise;
         }
-      /*
-        if (conversation.historyComplete) {
-            that._logger.log("debug", LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
-            defered.reject();
-            return defered.promise;
-        }
-        // */
+        /*
+          if (conversation.historyComplete) {
+              that._logger.log("debug", LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
+              defered.reject();
+              return defered.promise;
+          }
+          // */
         let mamRequest = {
             "queryid": conversation.id,
             "with": conversation.id,
@@ -531,8 +536,7 @@ class Conversations {
 //                mamRequest.before = conversation.historyIndex;
             }
             that._xmpp.mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest);
-        }
-        else {
+        } else {
             // Request for history messages for the conversation
             that._xmpp.mamQuery(conversation.id, mamRequest);
         } // */

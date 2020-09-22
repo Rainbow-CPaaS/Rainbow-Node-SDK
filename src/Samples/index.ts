@@ -12,6 +12,7 @@ import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
 import {url} from "inspector";
 import {OFFERTYPES} from "../lib/services/AdminService";
+import {Conversation} from "../lib/common/models/Conversation";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -1348,50 +1349,64 @@ rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
 async function testgetLastMessageOfConversation() {
     let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
     let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-    getLastMessageOfConversation(contact);
+    let conversation = await getLastMessageOfConversation(contact);
+    logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation : ", conversation);
+
+    conversation.messages.forEach((message)=> {
+        logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation.message : ", message);
+    });
 }
 
-function getLastMessageOfConversation(contact) {
+function getLastMessageOfConversation(contact) : Promise<Conversation> {
     let theLastMessageText = null;
-    //Request to create new conversation with the contact (in case if it does not exists)
-    // or open existing (in case if it already exists)
-    rainbowSDK.conversations.openConversationForContact(contact).then(function(conversation) {
-        logger.log("debug", "MAIN - getLastMessageOfConversation - openConversationForContact, conversation : ", conversation);
+    let conv = undefined;
+    return new Promise((resolve, reject)=> {
+        //Request to create new conversation with the contact (in case if it does not exists)
+        // or open existing (in case if it already exists)
+        rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
+            logger.log("debug", "MAIN - getLastMessageOfConversation - openConversationForContact, conversation : ", conversation);
+            conv = conversation;
 
-        //This line of code will be executed when conversation object of the contact is provided
-        //Check value of property conversation.historyComplete
-        if (conversation.historyComplete === false) {
-            //Retrieve conversation history prior getting last message from conversation history
-            getConversationHistory(conversation);
-        }
-        else {
-            //The code below will be executed in case if conversation history in completed.
-            //Therefore we can call function to output the last message to console
-            PrintTheLastMessage(conversation);
-        }
-    }).catch(function(err) {
-        //Something when wrong with the server. Handle the trouble here
-        logger.log("debug", "MAIN - Error occurred in function getLastMessageOfConversation:" + err);
+            //This line of code will be executed when conversation object of the contact is provided
+            //Check value of property conversation.historyComplete
+            if (conversation.historyComplete === false) {
+                //Retrieve conversation history prior getting last message from conversation history
+                await getConversationHistory(conversation);
+                resolve (conversation);
+            } else {
+                //The code below will be executed in case if conversation history in completed.
+                //Therefore we can call function to output the last message to console
+                PrintTheLastMessage(conversation);
+                resolve (conversation);
+            }
+        }).catch(function (err) {
+            //Something when wrong with the server. Handle the trouble here
+            logger.log("debug", "MAIN - Error occurred in function getLastMessageOfConversation:" + err);
+        });
+
     });
 }
 function getConversationHistory(conversation) {
-    //get messages from conversation. Max number of messages whichcan be retrieved at once is 100
-    rainbowSDK.im.getMessagesFromConversation(conversation, 100).then(function(result) {
-        logger.log("debug", "MAIN - messages : ", result);
-        // The conversation object is updated with the messages retrieved from the server after
-        //execution of rainbowSDK.im.getMessagesFromConversation function
-        // Check if there are is possibly more messages on the server than 100 requested
-        if (conversation.historyComplete === false) {
-            // TO DO: get next 100 messages
-        }
-        else {
-            //At that pint conversation object has message history updated.
-            //Therefore we can call function to output the last message to console
-            PrintTheLastMessage(conversation);
-        }
-    }).catch(function(err) {
-        //Something when wrong with the server. Handle the trouble here
-        logger.log("debug", "MAIN - Error in function getConversationHistory: " + err);
+    return new Promise((resolve, reject) => {
+        //get messages from conversation. Max number of messages whichcan be retrieved at once is 100
+        rainbowSDK.im.getMessagesFromConversation(conversation, 100).then(function (result) {
+            logger.log("debug", "MAIN - messages : ", result);
+            // The conversation object is updated with the messages retrieved from the server after
+            //execution of rainbowSDK.im.getMessagesFromConversation function
+            // Check if there are is possibly more messages on the server than 100 requested
+            if (conversation.historyComplete === false) {
+                // TO DO: get next 100 messages
+            } else {
+                //At that pint conversation object has message history updated.
+                //Therefore we can call function to output the last message to console
+                PrintTheLastMessage(conversation);
+                resolve(conversation)
+            }
+        }).catch(function (err) {
+            //Something when wrong with the server. Handle the trouble here
+            logger.log("debug", "MAIN - Error in function getConversationHistory: " + err);
+            reject(err);
+        });
     });
 }
 function PrintTheLastMessage(conversation) {

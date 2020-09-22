@@ -16,6 +16,7 @@ const CallLog = require("../../common/models/CallLog");
 
 const xml = require("@xmpp/xml");
 const PromiseQueue = require("../../common/promiseQueue");
+const prettydata = require("../pretty-data").pd;
 
 const orderByFilter = require("../../common/Utils").orderByFilter;
 
@@ -90,7 +91,7 @@ class CallLogEventHandler extends GenericHandler {
 
         this.onIqCallLogReceived = (msg, stanza) => {
             let that = this;
-            that.logger.log("internal", LOG_ID + "(onIqCallLogReceived) received - 'stanza'", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onIqCallLogReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             try {
                 //that.logger.log("info", LOG_ID + "[callLogService] onCallLogMessageReceived");
                 //handle message
@@ -139,7 +140,7 @@ class CallLogEventHandler extends GenericHandler {
 
         this.onCallLogAckReceived = (msg, stanza) => {
             let that = this;
-            that.logger.log("internal", LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             try {
                 that.logger.log("info", LOG_ID + "(onCallLogAckReceived) received");
                 //console.log(stanza);
@@ -170,7 +171,7 @@ class CallLogEventHandler extends GenericHandler {
         this.onIqCallLogNotificationReceived = async(msg, stanza) => {
             let that = this;
 
-            that.logger.log("internal", LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) received");
             //console.log(stanza);
 

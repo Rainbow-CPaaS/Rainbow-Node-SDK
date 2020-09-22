@@ -12,6 +12,8 @@ import {ContactsService} from "../../services/ContactsService";
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
 
+const prettydata = require("../pretty-data").pd;
+
 const LOG_ID = "XMPP/HNDL/PRES - ";
 
 @logEntryExit(LOG_ID)
@@ -35,7 +37,7 @@ class PresenceEventHandler extends GenericHandler {
 
         this.onPresenceReceived = async (msg, stanza) => {
             try {
-                that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza);
+                that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 let from = stanza.attrs.from;
                 if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                     // My presence changes (coming from me or another resource)

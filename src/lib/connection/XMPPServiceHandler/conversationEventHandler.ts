@@ -19,6 +19,8 @@ const util = require('util');
 
 const xml = require("@xmpp/xml");
 
+const prettydata = require("../pretty-data").pd;
+
 const LOG_ID = "XMPP/HNDL/CONV - ";
 
 const TYPE_CHAT = "chat";
@@ -107,7 +109,7 @@ class ConversationEventHandler extends GenericHandler {
     async onChatMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let content = "";
             let lang = "";
             let alternativeContent = [];
@@ -156,7 +158,16 @@ class ConversationEventHandler extends GenericHandler {
                                         message.getChildren("archived")[0].attrs.stamp ?
                                             new Date(message.getChildren("archived")[0].attrs.stamp) : new Date();
 
-                                        childs.forEach((nodeChild) => {
+                                        let answeredMsgId = stanza.find("answeredMsg").text();
+                                        let answeredMsgStamp = undefined;
+                                        let answeredMsgDate = undefined;
+                                        if (answeredMsgId) {
+                                            answeredMsgStamp = stanza.find("answeredMsg").attrs["stamp"];
+                                            answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
+                                        }
+                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+
+                                        childs.forEach(async (nodeChild) => {
                                             if (nodeChild.getName() === "body") {
                                                 that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - CC message 'sent' of type chat received ");
 
@@ -171,10 +182,21 @@ class ConversationEventHandler extends GenericHandler {
                                                     "cc": true,
                                                     "cctype": "sent",
                                                     "isEvent": false,
-                                                    "date": timestamp
+                                                    "date": timestamp,
+                                                    "answeredMsg": undefined,
+                                                    "answeredMsgId": answeredMsgId,
+                                                    "answeredMsgDate": answeredMsgDate,
+                                                    "answeredMsgStamp": answeredMsgStamp
                                                 };
 
                                                 let conversationId = data.toJid;
+
+                                                if (answeredMsgId) {
+                                                    //that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
+                                                    if (conversationId) {
+                                                        data.answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversationId, answeredMsgId, answeredMsgStamp); //conversation.getMessageById(answeredMsgId);
+                                                    }
+                                                }
 
                                                 that._onMessageReceived(conversationId, data);
 
@@ -203,7 +225,16 @@ class ConversationEventHandler extends GenericHandler {
                                         message.getChildren("archived")[0].attrs.stamp ?
                                             new Date(message.getChildren("archived")[0].attrs.stamp) : new Date();
 
-                                        childs.forEach(function (nodeChild) {
+                                        let answeredMsgId = stanza.find("answeredMsg").text();
+                                        let answeredMsgStamp = undefined;
+                                        let answeredMsgDate = undefined;
+                                        if (answeredMsgId) {
+                                            answeredMsgStamp = stanza.find("answeredMsg").attrs["stamp"];
+                                            answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
+                                        }
+                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+
+                                        childs.forEach(async function (nodeChild) {
                                             if (nodeChild.getName() === "body") {
                                                 that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - CC message 'sent' of type chat received ");
 
@@ -218,10 +249,21 @@ class ConversationEventHandler extends GenericHandler {
                                                     "cc": true,
                                                     "cctype": "sent",
                                                     "isEvent": false,
-                                                    "date": timestamp
+                                                    "date": timestamp,
+                                                    "answeredMsg": undefined,
+                                                    "answeredMsgId": answeredMsgId,
+                                                    "answeredMsgDate": answeredMsgDate,
+                                                    "answeredMsgStamp": answeredMsgStamp
                                                 };
 
                                                 let conversationId = data.fromJid;
+
+                                                if (answeredMsgId) {
+                                                    //that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
+                                                    if (conversationId) {
+                                                        data.answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversationId, answeredMsgId, answeredMsgStamp); //conversation.getMessageById(answeredMsgId);
+                                                    }
+                                                }
 
                                                 that._onMessageReceived(conversationId, data);
                                             }
@@ -283,7 +325,7 @@ class ConversationEventHandler extends GenericHandler {
                     case "answeredMsg":
                         answeredMsgId = node.getText();
                         answeredMsgStamp = node.attrs["stamp"];
-                        answeredMsgDate = new Date(parseInt(answeredMsgStamp) ).toISOString();
+                        answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp) ).toISOString() : undefined;
                         that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
                         break;
                     case "content":
@@ -444,7 +486,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
-                        that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), stanza);
+                        that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                         break;
                 }
             });
@@ -474,7 +516,7 @@ class ConversationEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
                     break;
                 default:
-                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) no treatment of event ", msg, " : ",  stanza, " so default."); //, this.eventEmitter
+                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) no treatment of event ", msg, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
             }
 
             let fromBubbleJid = "";
@@ -650,7 +692,7 @@ class ConversationEventHandler extends GenericHandler {
     onManagementMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -702,7 +744,7 @@ class ConversationEventHandler extends GenericHandler {
     onRoomManagementMessageReceived (node) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
 
                 // Affiliation changed (my own or for a member)
@@ -788,7 +830,7 @@ class ConversationEventHandler extends GenericHandler {
         let that = this;
         try {
             that.logger.log("debug", LOG_ID + "(onUserSettingsManagementMessageReceived) _entering_");
-            that.logger.log("internal", LOG_ID + "(onUserSettingsManagementMessageReceived) _entering_", node);
+            that.logger.log("internal", LOG_ID + "(onUserSettingsManagementMessageReceived) _entering_", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 switch (node.attrs.action) {
                     case "update":
@@ -809,7 +851,7 @@ class ConversationEventHandler extends GenericHandler {
         let that = this;
         try {
             that.logger.log("debug", LOG_ID + "(onUserInviteManagementMessageReceived) _entering_");
-            that.logger.log("internal", LOG_ID + "(onUserInviteManagementMessageReceived) _entering_", node);
+            that.logger.log("internal", LOG_ID + "(onUserInviteManagementMessageReceived) _entering_", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             /*
             // Know the treatment is done in invitationEventHandler
             if (node.attrs.xmlns === "jabber:iq:configuration") {
@@ -845,7 +887,7 @@ class ConversationEventHandler extends GenericHandler {
     onGroupManagementMessageReceived (node) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onGroupManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onGroupManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 let action = node.attrs.action;
                 let scope = node.attrs.scope;
@@ -884,7 +926,7 @@ class ConversationEventHandler extends GenericHandler {
     async onConversationManagementMessageReceived (node: Element) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 let conversationId = node.attrs.id;
                 let conversation = this._conversationService.getConversationById(conversationId);
@@ -1005,7 +1047,7 @@ class ConversationEventHandler extends GenericHandler {
     onMuteManagementMessageReceived (node) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onMuteManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onMuteManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 that.logger.log("debug", LOG_ID + "(onMuteManagementMessageReceived) conversation muted");
                 let conversationId = node.attrs.conversation;
@@ -1029,7 +1071,7 @@ class ConversationEventHandler extends GenericHandler {
     onUnmuteManagementMessageReceived (node) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onUnmuteManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onUnmuteManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 that.logger.log("debug", LOG_ID + "(onUnmuteManagementMessageReceived) conversation unmuted");
                 let conversationId = node.attrs.conversation;
@@ -1053,7 +1095,7 @@ class ConversationEventHandler extends GenericHandler {
     async onFileManagementMessageReceived (node) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onFileManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onFileManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 let updateConsumption: boolean = false;
                 switch (node.attrs.action) {
@@ -1140,7 +1182,7 @@ class ConversationEventHandler extends GenericHandler {
     onThumbnailManagementMessageReceived (node) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onThumbnailManagementMessageReceived) _entering_ : ", node);
+            that.logger.log("internal", LOG_ID + "(onThumbnailManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 switch (node.attrs.action) {
                     case "create": {
@@ -1193,7 +1235,7 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, util.inspect(stanza));
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {

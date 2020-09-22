@@ -17,6 +17,7 @@ const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 const xml = require("@xmpp/xml");
 const PromiseQueue = require("../../common/promiseQueue");
 
+const prettydata = require("../pretty-data").pd;
 
 //const config = require("../../config/config");
 import {config, DataStoreType} from "../../config/config";
@@ -139,7 +140,7 @@ class TelephonyEventHandler extends GenericHandler {
 
 
         this.onMessageReceived = (msg, stanza) => {
-            that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza);
+            that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             try {
                 let stanzaElem = stanza;
                 //let that = this;

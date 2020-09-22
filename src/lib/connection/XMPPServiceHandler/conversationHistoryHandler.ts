@@ -141,6 +141,33 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let oob = stanzaMessage.getChild("x", "jabber:x:oob");
                         let conference = stanzaMessage.getChild("x", "jabber:x:audioconference");
                         let content = stanzaMessage.getChild("content", "urn:xmpp:content");
+                        let answeredMsg: Message ;
+                        let answeredMsgId: string;
+                        let answeredMsgDate: string;
+                        let answeredMsgStamp: string;
+
+                        that.logger.log("info", LOG_ID + "[Conversation] onHistoryMessageReceived message - before treat answeredMsg.");
+                        if (stanzaMessage.getChild( "answeredMsg")) {
+                            answeredMsgId = stanzaMessage.getChild("answeredMsg").text();
+                            answeredMsgStamp = stanzaMessage.getChild("answeredMsg").getAttr("stamp");
+                            answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
+
+                            that.logger.log("info", LOG_ID + "[Conversation] onHistoryMessageReceived message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+
+/*
+                            if (answeredMsgId) {
+
+                                //let conversation = that._conversationService.getConversationById(conversation.id);
+                                that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
+                                if (conversation.historyDefered) {
+                                    //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
+                                    conversation.historyDefered.then(async () => {
+                                        answeredMsg = await conversation.getMessageById(answeredMsgId);
+                                    });
+                                }
+                            }
+*/
+                        }
 
                         if (!from) {
                             that.logger.log("warn", LOG_ID + "[Conversation] onHistoryMessageReceived missing contact for jid : " + fromJid + ", ignore message");
@@ -208,7 +235,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     } else {
                                         let isMarkdown = content && content.getAttr("type") === "text/markdown";
                                         body = isMarkdown ? content.text() : body;
-                                        message = Message.create(messageId, date, from, side, body, false, isMarkdown);
+                                        message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
                                     }
                                     break;
                             }
@@ -273,12 +300,31 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 conversation.lastMessageText = "";
                             }
 
+                            conversation.messages.forEach(async (message)=> {
+                                if (message.answeredMsgId) {
+                                    //let conversation = that._conversationService.getConversationById(conversation.id);
+                                    that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
+                                    //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
+                                    message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
+                                }
+                            });
+
                             conversation.historyDefered.resolve(conversation);
                             delete conversation.pendingPromise;
                         });
                     } else {
                         // @ts-ignore
                         conversation.messages.sort( ( msg1, msg2 ) => new Date(msg1.date) - new Date(msg2.date) );
+
+                        /* conversation.messages.forEach(async (message)=> {
+                            if (message.answeredMsgId) {
+                                //let conversation = that._conversationService.getConversationById(conversation.id);
+                                that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
+                                //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
+                                message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
+                            }
+                        }); */
+
                         conversation.historyDefered.resolve(conversation);
                     }
 
