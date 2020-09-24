@@ -36,6 +36,7 @@ class Call {
     public phoneNumber: undefined;
     public globalCallId;
     public correlatorData;
+    public errorMessage: string;
 
     // Static factories
     static create (status, id, type, contact, deviceType) {
@@ -349,7 +350,7 @@ class Call {
      * @description
      * This method is used to update a Call from data object
      */
-    updateCall(data) {
+    updateCall(data) : Call{
         let that = this;
         if (data) {
 

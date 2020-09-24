@@ -3172,6 +3172,7 @@ Request Method: PUT
             let applicationsAbout = that.http.get("/api/rainbow/applications/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) applications about : ", portalAbout);
             });
+
             return Promise.all([authenticationAbout, enduserAbout, telephonyAbout, adminAbout, channelsAbout, applicationsAbout]);
         } else {
             that.logger.log("debug", LOG_ID + "(checkEveryPortals)", that.http._host, "NOT IN RAINBOW PRODUCTION so do not test every application's about status ");
@@ -3205,6 +3206,25 @@ Request Method: PUT
                 return reject(err);
             });
         });
+    }
+
+    async checkRESTAuthentication() : Promise<boolean> {
+        let that = this;
+        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        let authStatus = false;
+
+        try {
+            let authenticationValidator = await that.http.get("/api/rainbow/authentication/v1.0/validator", that.getRequestHeader(), undefined);
+            that.logger.log("debug", LOG_ID + "(checkRESTAuthentication) REST authentication authenticationValidator : ", authenticationValidator);
+            if (authenticationValidator.status === "OK" ) {
+                authStatus = true;
+            }
+        } catch (err) {
+            that.logger.log("debug", LOG_ID + "(checkRESTAuthentication) REST authentication check authenticationValidator failed : ", err);
+            authStatus = false;
+        }
+
+        return authStatus;
     }
 
     attemptToReconnect(reconnectDelay, currentAttempt) {
@@ -3487,6 +3507,9 @@ Request Method: PUT
         let that = this;
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
         return new Promise((resolve, reject) => {
+            if (!that.connectionS2SInfo) {
+                return reject ({message:"connectionS2SInfo is not defined"});
+            }
             that.http.head("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id , that.getRequestHeader()).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(checkS2Sconnection) successfull");
                 that.logger.log("internal", LOG_ID + "(checkS2Sconnection) received : ", json);
@@ -3497,6 +3520,25 @@ Request Method: PUT
                 return reject(err);
             });
         });
+    }
+
+    async checkS2SAuthentication() : Promise<boolean> {
+        let that = this;
+        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        let authStatus = false;
+
+        try {
+            let authenticationValidator = await that.checkS2Sconnection();
+            that.logger.log("debug", LOG_ID + "(checkS2SAuthentication) S2S authentication authenticationValidator : ", authenticationValidator);
+            if (authenticationValidator.id) {
+                authStatus = true;
+            }
+        } catch (err) {
+            that.logger.log("debug", LOG_ID + "(checkS2SAuthentication) S2S authentication check authenticationValidator failed : ", err);
+            authStatus = false;
+        }
+
+        return authStatus;
     }
 
     /**

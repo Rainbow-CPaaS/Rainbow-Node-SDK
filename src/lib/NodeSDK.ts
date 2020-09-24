@@ -678,6 +678,23 @@ class NodeSDK {
         return DataStoreType;
     }
 
+    /**
+     * @public
+     * @description
+     *    Get connections status of each low layer services, and also the full SDK state.
+     *
+     * {
+     * restStatus: boolean, The status of the REST connection authentication to rainbow server.
+     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server.
+     * s2sStatus: boolean, The status of the S2S Connection to rainbow server.
+     * state: SDKSTATUSENUM The state of the SDK.
+     * }
+     * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM}>}
+     */
+    getConnectionStatus () : Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM}> {
+        return this._core.getConnectionStatus();
+    }
+
 
     static get Appreciation() {
         return Appreciation;

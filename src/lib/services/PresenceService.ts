@@ -103,7 +103,7 @@ class PresenceService {
 
 
                 that._presenceEventHandler = new PresenceEventHandler(that._xmpp, _core._contacts);
-                that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived);
+                that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived.bind(that._presenceEventHandler));
 
 /*
                 that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));

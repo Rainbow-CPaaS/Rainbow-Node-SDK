@@ -171,8 +171,8 @@ class FavoritesService {
 
         that._favoriteEventHandler = new FavoriteEventHandler(that._xmpp, that);
         that._favoriteHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived)
+            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived.bind(that._favoriteEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived.bind(that._favoriteEventHandler))
         ];
 
         /*

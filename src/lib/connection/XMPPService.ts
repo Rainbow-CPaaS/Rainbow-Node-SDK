@@ -8,6 +8,7 @@ import {DataStoreType} from "../config/config";
 import {XMPPUTils} from "../common/XMPPUtils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
+import {XmppClient} from "../common/XmppQueue/XmppClient";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -108,7 +109,7 @@ class XMPPService {
 	public jid: any;
 	public userId: any;
 	public initialPresence: any;
-	public xmppClient: any;
+	public xmppClient: XmppClient;
 	public logger: any;
 	public proxy: any;
 	public shouldSendReadReceipt: any;
@@ -1177,14 +1178,14 @@ class XMPPService {
                 that.IQEventHandler = new IQEventHandler(that);
 
                 that.IQEventHandlerToken = [
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetReceived),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetReceived),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived)
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived.bind(that.IQEventHandler))
                 ];
 
                 that.handleXMPPConnection(headers);
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
                 that.startOrResetIdleTimer();
                 //resolve();
@@ -1858,7 +1859,7 @@ class XMPPService {
 
 
                 this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
-                this.xmppClient.sendIq(stanza).then((data) => {
+                this.xmppClient.sendIq(stanza).then((data : any) => {
                     let pbxagentstatus = {
                         "phoneapi": "",
                         "xmppagent": "",
@@ -2188,7 +2189,7 @@ class XMPPService {
         });
     }
 
-    sendPing() {
+    sendPing() : Promise<any>{
         let that = this;
         if (this.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -2198,9 +2199,10 @@ class XMPPService {
             }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
             this.logger.log("internal", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
-            this.xmppClient.send(stanza).catch((error) => {
+            return this.xmppClient.send(stanza).catch((error) => {
                 this.logger.log("error", LOG_ID + "(sendPing) error ");
                 this.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
+                return error;
             });
         } else {
             this.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");

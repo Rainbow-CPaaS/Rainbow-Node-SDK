@@ -244,9 +244,9 @@ function CallLogsBean() : ICallLogsBean {
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived)
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
         ];
 
         /*

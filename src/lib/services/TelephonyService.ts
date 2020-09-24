@@ -196,8 +196,8 @@ class Telephony {
         let that = this;
         that._telephonyEventHandler = new TelephonyEventHandler(that._xmpp, that, that._contacts, that._profiles);
         that.telephonyHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._telephonyEventHandler.MESSAGE, that._telephonyEventHandler.onMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._telephonyEventHandler.IQ_RESULT, that._telephonyEventHandler.onIqResultReceived )
+            PubSub.subscribe(that._xmpp.hash + "." + that._telephonyEventHandler.MESSAGE, that._telephonyEventHandler.onMessageReceived.bind(that._telephonyEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._telephonyEventHandler.IQ_RESULT, that._telephonyEventHandler.onIqResultReceived.bind(that._telephonyEventHandler) )
         ];
     }
 

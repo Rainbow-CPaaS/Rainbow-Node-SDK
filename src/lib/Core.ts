@@ -20,7 +20,7 @@ import {AdminService} from "./services/AdminService";
 import {SettingsService} from "./services/SettingsService";
 import {FileServerService} from "./services/FileServerService";
 import {FileStorageService} from "./services/FileStorageService";
-import {StateManager} from "./common/StateManager";
+import {SDKSTATUSENUM, StateManager} from "./common/StateManager";
 import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
 import {InvitationsService} from "./services/InvitationsService";
@@ -633,6 +633,45 @@ class Core {
                 that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
+            });
+        });
+    }
+
+    async getConnectionStatus():Promise<{
+        restStatus:boolean,
+        xmppStatus:boolean,
+        s2sStatus:boolean,
+        state : SDKSTATUSENUM
+    }>{
+        let that = this;
+        let restStatus : boolean = false;
+        // Test XMPP connection
+        let xmppStatus : boolean = false;
+        // Test S2S connection
+        let s2sStatus : boolean = false;
+
+        return new Promise(async(resolve, reject) => {
+           // Test REST connection
+            restStatus = await that._rest.checkRESTAuthentication();
+           // Test XMPP connection
+            xmppStatus = await this._xmpp.sendPing().then((result) => {
+                that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
+                if (result && result.code === 1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            // */
+           // Test S2S connection
+            s2sStatus  = await that._rest.checkS2SAuthentication();
+
+            return resolve({
+                restStatus,
+                xmppStatus,
+                s2sStatus,
+                state : that.state
             });
         });
     }

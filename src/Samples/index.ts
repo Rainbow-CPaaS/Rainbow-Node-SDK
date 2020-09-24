@@ -1950,6 +1950,10 @@ function testretrieveAllBubblesByTags() {
     });
 }
 
+async function testgetConnectionStatus() {
+    let connectionStatus = await rainbowSDK.getConnectionStatus();
+    logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
+}
 
 function commandLineInteraction() {
     let questions = [

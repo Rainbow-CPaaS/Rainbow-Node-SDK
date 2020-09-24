@@ -15,6 +15,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add method `conversations::getOneMessageFromConversationId` To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp (both are mandatory for the search)
 -   Refactor logs to show XML of event's node instead of unreadable Element structure.
 -   Add `mute` property in Channel object.
+-   Move events callbacks from constructors of classes to get types.
+-   Add NodeSDK::getConnectionStatus API to get connections status of each low layer services, and also the full SDK state.
+-   Fix RainbowNodeSDKNews.md
+
 
 ## [1.76.0] - 2020-09-09
 -   Add event `rainbow_onopeninvitationupdate` to return the informations about a management event on a public URL share of a bubble.

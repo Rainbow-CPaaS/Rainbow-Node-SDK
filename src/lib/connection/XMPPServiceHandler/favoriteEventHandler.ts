@@ -33,11 +33,13 @@ class FavoriteEventHandler extends GenericHandler {
     public MESSAGE_CLOSE: any;
     public channelsService: any;
     public eventEmitter: any;
-    public onManagementMessageReceived: any;
+    /*public onManagementMessageReceived: any;
     public onFavoriteManagementMessageReceived: any;
     public onHeadlineMessageReceived: any;
     public onReceiptMessageReceived: any;
     public onErrorMessageReceived: any;
+
+     */
     public findAttrs: any;
     public findChildren: any;
 
@@ -58,100 +60,6 @@ class FavoriteEventHandler extends GenericHandler {
         this.channelsService = channelsService;
 
         let that = this;
-
-        this.onManagementMessageReceived = (msg, stanza) => {
-            try {
-                that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                let children = stanza.children;
-                children.forEach(function (node) {
-                    switch (node.getName()) {
-                        case "room":
-                            break;
-                        case "usersettings":
-                            break;
-                        case "userinvite":
-                            break;
-                        case "group":
-                            break;
-                        case "conversation":
-                            break;
-                        case "mute":
-                            break;
-                        case "unmute":
-                            break;
-                        case "file":
-                            break;
-                        case "thumbnail":
-                            break;
-                        case "channel-subscription":
-                        case "channel":
-                            break;
-                        case "favorite":
-                            that.onFavoriteManagementMessageReceived(node);
-                            break;
-                        default:
-                            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
-                            break;
-                    }
-                });
-            } catch (err) {
-                that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-                that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
-            }
-        };
-
-        this.onFavoriteManagementMessageReceived = (stanza) => {
-            that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-
-            try {
-                let stanzaElem = stanza;
-                let favoriteElem = stanzaElem.find("favorite");
-                if (favoriteElem) {
-                    let fav = {
-                        "id": favoriteElem.attr("id"),
-                        "type": favoriteElem.attr("type"),
-                        "peerId": favoriteElem.attr("peer_id"),
-                    };
-                    let action = favoriteElem.attr("action");
-
-                    if (action === 'create') {
-                        that.eventEmitter.emit("evt_internal_favoritecreated_handle", fav);
-                    }
-
-                    if (action === 'delete') {
-                        that.eventEmitter.emit("evt_internal_favoritedeleted_handle", fav);
-                    }
-                }
-                return true;
-            } catch (err) {
-                that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
-                that.logger.log("internalerror", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
-                return true;
-            }
-
-            /*
-
-            // */
-        };
-
-
-        this.onReceiptMessageReceived = (msg, stanza) => {
-        };
-
-        this.onErrorMessageReceived = (msg, stanza) => {
-            try {
-                if (stanza.getChild('no-store') != undefined){
-                    // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
-                } else {
-                    that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                    that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                    that.eventEmitter.emit("evt_internal_xmpperror", msg);
-                }
-            } catch (err) {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
-            }
-        };
 
         this.findAttrs = () => {
 
@@ -191,8 +99,109 @@ class FavoriteEventHandler extends GenericHandler {
 
          */
 
-
     }
+
+    onManagementMessageReceived (msg, stanza) {
+        let that = this;
+
+        try {
+            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            let children = stanza.children;
+            children.forEach(function (node) {
+                switch (node.getName()) {
+                    case "room":
+                        break;
+                    case "usersettings":
+                        break;
+                    case "userinvite":
+                        break;
+                    case "group":
+                        break;
+                    case "conversation":
+                        break;
+                    case "mute":
+                        break;
+                    case "unmute":
+                        break;
+                    case "file":
+                        break;
+                    case "thumbnail":
+                        break;
+                    case "channel-subscription":
+                    case "channel":
+                        break;
+                    case "favorite":
+                        that.onFavoriteManagementMessageReceived(node);
+                        break;
+                    default:
+                        that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        break;
+                }
+            });
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    onFavoriteManagementMessageReceived (stanza) {
+        let that = this;
+
+        that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+
+        try {
+            let stanzaElem = stanza;
+            let favoriteElem = stanzaElem.find("favorite");
+            if (favoriteElem) {
+                let fav = {
+                    "id": favoriteElem.attr("id"),
+                    "type": favoriteElem.attr("type"),
+                    "peerId": favoriteElem.attr("peer_id"),
+                };
+                let action = favoriteElem.attr("action");
+
+                if (action === 'create') {
+                    that.eventEmitter.emit("evt_internal_favoritecreated_handle", fav);
+                }
+
+                if (action === 'delete') {
+                    that.eventEmitter.emit("evt_internal_favoritedeleted_handle", fav);
+                }
+            }
+            return true;
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
+            that.logger.log("internalerror", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
+            return true;
+        }
+
+        /*
+
+        // */
+    };
+
+
+    onReceiptMessageReceived (msg, stanza) {
+    };
+
+    onErrorMessageReceived (msg, stanza) {
+        let that = this;
+
+        try {
+            if (stanza.getChild('no-store') != undefined){
+                // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+            } else {
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that.eventEmitter.emit("evt_internal_xmpperror", msg);
+            }
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+
 }
 
 export {FavoriteEventHandler};
