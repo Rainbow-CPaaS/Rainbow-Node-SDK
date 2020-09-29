@@ -159,6 +159,9 @@ safeJsonParse(str) {
                 headers["user-agent"] = USER_AGENT;
                 let urlEncoded = url;
 
+                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
+                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers, ", params : ", params);
+
                 let request = Request({
                     url: urlEncoded,
                     method: "GET",
@@ -244,7 +247,7 @@ safeJsonParse(str) {
             try {
                 headers["user-agent"] = USER_AGENT;
                 that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
-                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers);
+                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers, ", params : ", params);
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
@@ -808,7 +811,7 @@ safeJsonParse(str) {
         });
     }
 
-    delete(url, headers: any = {}): Promise<any> {
+    delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
 
         let that = this;
 
@@ -816,18 +819,27 @@ safeJsonParse(str) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers);
-
+            let body = data;
             headers["user-agent"] = USER_AGENT;
 
-            let request = Request.delete({
+            that.logger.log("internal", LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+
+
+            let deleteOptions = {
                 url: urlEncoded,
                 headers: headers,
                 proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                 agentOptions: {
                     secureProtocol: that.proxy.secureProtocol
-                }
-            }, (error, response, body) => {
+                },
+                body: undefined
+            };
+
+            if (body) {
+                deleteOptions.body = body;
+            }
+
+            let request = Request.delete(deleteOptions, (error, response, body) => {
                 if (error) {
                     return reject({
                         code: -1,

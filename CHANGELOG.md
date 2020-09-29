@@ -6,6 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.77.0] - 2020-09-30
+-   Add Body in HttpService::delete request.
+-   Extract method from RESTService constructor to core of the class.
+-   Add BubblesService::setTagsOnABubble to Set a list of tags on a {Bubble}.
+-   Add BubblesService::deleteTagOnABubble to Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned.
+-   Add in bubble presence event the property statusCode to "disconnected" if status is "332". it is disconnected from room because of a system shutdown
+
 ## [1.77.0-dotnet.0] - 2020-09-23
 -   Update treatment of error event in XMPPService::handleXMPPConnection of the default condition to avoid wrong stop of SDK, so we ignore it.
 -   Add pretty-data logs of xml data.

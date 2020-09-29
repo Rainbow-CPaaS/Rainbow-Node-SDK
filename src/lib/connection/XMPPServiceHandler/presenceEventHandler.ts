@@ -94,6 +94,9 @@ class PresenceEventHandler extends GenericHandler {
                                     case "status":
                                         //that.logger.log("internal", LOG_ID + "(onPresenceReceived) status item", item);
                                         switch (item.attrs.code) {
+                                            case "332":
+                                                status = "disconnected" ; // from room because of a system shutdown
+                                                break;
                                             case "338":
                                                 status = "deactivated";
                                                 break;
@@ -101,6 +104,7 @@ class PresenceEventHandler extends GenericHandler {
                                                 status = "resumed";
                                                 break;
                                             default:
+                                                that.logger.log("internal", LOG_ID + "(onPresenceReceived) default - status not treated : ", item.attrs.code);
                                                 break;
                                         }
                                         break;

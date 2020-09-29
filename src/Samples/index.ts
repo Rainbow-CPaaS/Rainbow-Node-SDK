@@ -103,14 +103,15 @@ let options = {
             secureProtocol: "SSLv3_method"
         }, // */
     // Proxy configuration
+
     /*
     proxy: {
         host: "10.67.253.14",
         port: 8081,
         protocol: "http",
-        user: "",
-        password: "",
-        secureProtocol: "SSLv3_method"
+       // user: "",
+        //password: "",
+        //secureProtocol: "SSLv3_method"
     }, // */
     // Logs options
     "logs": {
@@ -1939,8 +1940,31 @@ async function  test_multireconnect() {
     }
 }
 
+    function testCreateBubblesAndSetTags() {
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTags" + utc, "testCreateBubblesAndSetTags" + utc).then((bubble) => {
+            logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: createBubble request ok", bubble);
+
+            rainbowSDK.bubbles.setTagsOnABubble(bubble, [{ "tag" : "Essai1DeTag" }, { "tag" : "Essai2deTag" }]).then(async(result) => {
+                logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: setTagsOnABubble result : ", result);
+
+                let tags = ["Essai1DeTag"];
+                rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
+                    if (bubbles) {
+                        logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: bubbles : ", bubbles);
+                    }
+                }).catch((err) => {
+                    logger.log("error", "MAIN - [testCreateBubblesAndSetTags    ] :: error : ", err);
+                });
+            });
+        });
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
+
+
 function testretrieveAllBubblesByTags() {
-    let tags = ["test1"];
+    //let tags = [{tag: "Essai1DeTag"}];
+    let tags = ["Essai1DeTag"];
     rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
         if (bubbles) {
             logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: bubbles : ", bubbles);
@@ -1949,6 +1973,38 @@ function testretrieveAllBubblesByTags() {
         logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
     });
 }
+
+    function testCreateBubblesAndSetTagsAndDeleteTags() {
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTagsAndDeleteTags" + utc, "testCreateBubblesAndSetTagsAndDeleteTags" + utc).then((bubble) => {
+            logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: createBubble request ok", bubble);
+
+            rainbowSDK.bubbles.setTagsOnABubble(bubble, [{ "tag" : "Essai1DeTag" }, { "tag" : "Essai2deTag" }]).then(async(result) => {
+                logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: setTagsOnABubble result : ", result);
+
+                let tags = ["Essai1DeTag"];
+                rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubblesIdTags => {
+                    if (bubblesIdTags) {
+                        logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: bubblesIdTags : ", bubblesIdTags);
+
+                        let bubblesTagsToDelete = [];
+                        bubblesTagsToDelete.push( { id : bubblesIdTags.rooms[0].roomId } );
+                        rainbowSDK.bubbles.deleteTagOnABubble(bubblesTagsToDelete, tags[0]).then(result => {
+                            if (result) {
+                                logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: deleteTagsOnABubble result : ", JSON.stringify(result));
+                            }
+                        }).catch((err) => {
+                            logger.log("error", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: error : ", err);
+                        });
+
+                    }
+                }).catch((err) => {
+                    logger.log("error", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: error : ", err);
+                });
+            });
+        });
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
 
 async function testgetConnectionStatus() {
     let connectionStatus = await rainbowSDK.getConnectionStatus();

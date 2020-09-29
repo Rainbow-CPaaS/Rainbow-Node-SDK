@@ -4194,48 +4194,17 @@ getAllActiveBubbles
     retrieveAllBubblesByTags(tags: Array<string>): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble tags  " + tags);
+            that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bubble tags  " + tags);
 
             if (!tags) {
-                that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'tags' parameter", tags);
+                that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter", tags);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-                return that._rest.retrieveAllBubblesByTags(tags).then(async (bubblesFromServer) => {
-                    that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubblesFromServer);
+            return that._rest.retrieveAllBubblesByTags(tags).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) result from server : ", result);
 
-                    if (bubblesFromServer) {
-                        /* let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
-                        if (bubble.isActive) {
-                            that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                            await that._presence.sendInitialBubblePresence(bubble);
-                        } else {
-                            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
-                        } // */
-                        resolve(bubblesFromServer);
-                    } else {
-                        resolve(null);
-                    }
-                }).catch((err) => {
-                    return reject(err);
-                });
-        });
-    }
-
-    setTagsOnABubble(bubble : Bubble, tags: Array<string>): Promise<any> {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble tags  " + tags);
-
-            if (!tags) {
-                that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'tags' parameter", tags);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-
-            return that._rest.retrieveAllBubblesByTags(tags).then(async (bubblesFromServer) => {
-                that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubblesFromServer);
-
-                if (bubblesFromServer) {
+                if (result) {
                     /* let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
                     if (bubble.isActive) {
                         that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
@@ -4243,7 +4212,98 @@ getAllActiveBubbles
                     } else {
                         that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
                     } // */
-                    resolve(bubblesFromServer);
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method setTagsOnABubble
+     * @instance
+     * @async
+     * @description
+     *      Set a list of tags on a {Bubble}.
+     * @param {Bubble} bubble The on which the tags must be setted.
+     * @param {Array<string>} tags The tags to be setted on the selected bubble.
+     * @return {Promise<any>} return a promise with a Bubble's tags infos.
+     */
+    setTagsOnABubble(bubble : Bubble, tags: Array<string>): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bubble tags  " + tags);
+
+            if (!bubble || !bubble.id) {
+                that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bad or empty 'bubble' parameter", bubble);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!tags) {
+                that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bad or empty 'tags' parameter", tags);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.setTagsOnABubble(bubble.id, tags).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(setTagsOnABubble) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     *
+     * @public
+     * @method deleteTagOnABubble
+     * @instance
+     * @async
+     * @description
+     *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned.
+     * @param {Bubble} bubble The on which the tags must be setted.
+     * @param {string} tags The tag to be removed on the selected bubbles.
+     * @return {Promise<any>} return a promise with a Bubble's tags infos.
+     * @param {Array<Bubble>} bubbles
+     * @param {string} tag
+     * @return {Promise<any>}
+     */
+    deleteTagOnABubble(bubbles : Array<Bubble>, tag: string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bubble tag  ", tag);
+            that._logger.log("internal", LOG_ID + "(deleteTagOnABubble) bubble tag  ", tag, " on bubble : ", bubbles);
+
+            if (!bubbles) {
+                that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bad or empty 'bubbles' parameter", bubbles);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!tag) {
+                that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bad or empty 'tags' parameter", tag);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let roomIds = [];
+            for ( let i = 0; i < bubbles.length; i++) {
+                that._logger.log("internal", LOG_ID + "(deleteTagOnABubble) prepare to delete tag from bubble : ", bubbles[i]);
+                roomIds.push(bubbles[i].id);
+            }
+
+            return that._rest.deleteTagOnABubble(roomIds, tag).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(deleteTagOnABubble) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
                 } else {
                     resolve(null);
                 }

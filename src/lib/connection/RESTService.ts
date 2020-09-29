@@ -296,13 +296,7 @@ class RESTService {
     public fibonacciStrategy: any;
     public reconnectDelay: any;
     public restTelephony: RESTTelephony;
-    public getRequestHeader: any;
-    public getRequestHeaderWithRange: any;
-    public getPostHeaderWithRange: any;
-    public getLoginHeader: any;
-    public getDefaultHeader: any;
     public applicationToken: string;
-    public getPostHeader: any;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
 
@@ -343,64 +337,6 @@ class RESTService {
 
         this.restTelephony = new RESTTelephony(evtEmitter, _logger);
 
-        this.getRequestHeader = (accept) => {
-            let headers = {
-                "Authorization": "Bearer " + that.token,
-                "Accept": accept || "application/json",
-            };
-
-            return headers;
-        };
-
-        this.getRequestHeaderWithRange = (accept, range) => {
-            let header = this.getRequestHeader(accept);
-            header.Range = range;
-            return header;
-        };
-
-        this.getPostHeader = (contentType) => {
-            let header = this.getRequestHeader();
-            let type = contentType || "application/json";
-            header["Content-Type"] = type;
-            return header;
-        };
-
-        this.getPostHeaderWithRange = (accept, initialSize, minRange, maxRange) => {
-            let header = this.getRequestHeader(accept);
-            // Content-Range: bytes 0-1048575/2960156
-            //header["Content-Range"] = "bytes " + minRange + "-" + maxRange + "/" + initialSize;
-            return header;
-        };
-
-        this.getLoginHeader = (auth, password) => {
-            let headers = {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Basic " + (auth || that.auth),
-                "x-rainbow-client": "sdk_node",
-                "x-rainbow-client-version": packageVersion.version
-            };
-
-            let toEncrypt = that._application.appSecret + (password || that._credentials.password);
-            //that.logger.log("debug", LOG_ID + "toEncrypt : " + toEncrypt);
-            let encrypted = CryptoJS.SHA256(toEncrypt).toString();
-            //that.logger.log("debug", LOG_ID + "encrypted : " + encrypted);
-            let base64 = btoa(that._application.appID + ':' + encrypted);
-            //that.logger.log("debug", LOG_ID + "base64 : " + base64);
-
-            if (that._application.appSecret && base64 && base64.length) {
-                headers["x-rainbow-app-auth"] = "Basic " + base64 || "";
-            }
-
-            return headers;
-        };
-
-        this.getDefaultHeader = () => {
-            return {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            };
-        };
     }
 
     get userId() {
@@ -431,7 +367,79 @@ class RESTService {
         });
     }
 
-    async signin(token) {
+    getRequestHeader (accept : string = undefined) {
+        let that = this;
+
+        let headers = {
+            "Authorization": "Bearer " + that.token,
+            "Accept": accept || "application/json",
+            Range: undefined
+        };
+
+        return headers;
+    }
+
+    getRequestHeaderWithRange (accept: string = undefined, range: string = undefined) {
+        let that = this;
+
+        let header = that.getRequestHeader(accept);
+        header.Range = range;
+        return header;
+    }
+
+    getPostHeader (contentType : string = undefined) {
+        let that = this;
+
+        let header = that.getRequestHeader(undefined);
+        let type = contentType || "application/json";
+        header["Content-Type"] = type;
+        return header;
+    };
+
+    getPostHeaderWithRange (accept: string = undefined, initialSize: string = undefined, minRange: string = undefined, maxRange: string = undefined) {
+        let that = this;
+
+        let header = this.getRequestHeader(accept);
+        // Content-Range: bytes 0-1048575/2960156
+        //header["Content-Range"] = "bytes " + minRange + "-" + maxRange + "/" + initialSize;
+        return header;
+    };
+
+    getLoginHeader (auth : string = undefined, password : string = undefined) {
+        let that = this;
+
+        let headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": "Basic " + (auth || that.auth),
+            "x-rainbow-client": "sdk_node",
+            "x-rainbow-client-version": packageVersion.version
+        };
+
+        let toEncrypt = that._application.appSecret + (password || that._credentials.password);
+        //that.logger.log("debug", LOG_ID + "toEncrypt : " + toEncrypt);
+        let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+        //that.logger.log("debug", LOG_ID + "encrypted : " + encrypted);
+        let base64 = btoa(that._application.appID + ':' + encrypted);
+        //that.logger.log("debug", LOG_ID + "base64 : " + base64);
+
+        if (that._application.appSecret && base64 && base64.length) {
+            headers["x-rainbow-app-auth"] = "Basic " + base64 || "";
+        }
+
+        return headers;
+    };
+
+    getDefaultHeader () {
+        let that = this;
+
+        return {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        };
+    };
+
+    async signin(token: string = undefined) {
         let that = this;
 
         // Login by the token provided in parameter.
@@ -4246,7 +4254,7 @@ Request Method: PUT
      emoji optionnel String Tag emoji - an unicode sequence
      * @return {Promise<unknown>}
      */
-    setTagsOnABubble(roomId : string, tags: Array<any>) {
+    setTagsOnABubble(roomId : string, tags: Array<string>) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let params = {"tags":tags};
@@ -4264,6 +4272,30 @@ Request Method: PUT
             });
         });
     }
+
+    deleteTagOnABubble(roomIds : Array<string>, tag: string) {
+        let that = this;
+        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
+        return new Promise(function (resolve, reject) {
+            let params : any = {
+                "tag": tag,
+                "rooms": roomIds
+            };
+
+            that.logger.log("internal", LOG_ID + "(deleteTagOnABubble) REST params : ", params);
+
+            that.http.delete("/api/rainbow/enduser/v1.0/rooms/tags" , that.getPostHeader(), params).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteTagOnABubble) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteTagOnABubble) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteTagOnABubble) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteTagOnABubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion Bubbles Tags
 }
 
