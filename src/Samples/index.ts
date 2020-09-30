@@ -274,16 +274,25 @@ rainbowSDK.events.on("rainbow_oncallupdated", (data) => {
 rainbowSDK.events.on("rainbow_onvoicemessageupdated", (data) => {
     logger.log("debug", "MAIN - rainbow_onvoicemessageupdated - rainbow voice message updated.", data);
 });
+
+let bubbleInvitationReceived = null;
 rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", (bubble) => {
     logger.log("debug", "MAIN - rainbow_onbubbleinvitationreceived - rainbow event received.", bubble);
-    rainbowSDK.bubbles.acceptInvitationToJoinBubble(bubble).then((updatedBubble) => {
-        logger.log("debug", "MAIN - acceptInvitationToJoinBubble - sent.", bubble);
-        // Do something once the invitation has been accepted
-    }).catch((err) => {
-        // Do something in case of error
-        logger.log("error", "MAIN - acceptInvitationToJoinBubble - error : ", err);
-    });
+    bubbleInvitationReceived = bubble;
 });
+
+function acceptReceivedInvitation() {
+    if (bubbleInvitationReceived) {
+        rainbowSDK.bubbles.acceptInvitationToJoinBubble(bubbleInvitationReceived).then((updatedBubble) => {
+            logger.log("debug", "MAIN - acceptInvitationToJoinBubble - sent : ", bubbleInvitationReceived, " : ", updatedBubble);
+            // Do something once the invitation has been accepted
+        }).catch((err) => {
+            // Do something in case of error
+            logger.log("error", "MAIN - acceptInvitationToJoinBubble - error : ", err);
+        });
+    }
+}
+
 rainbowSDK.events.on("rainbow_onownbubbledeleted", (bubble) => {
     logger.log("debug", "MAIN - rainbow_onownbubbledeleted - rainbow event received.", bubble);
     let bubbles = rainbowSDK.bubbles.getAll();
