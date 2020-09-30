@@ -6,6 +6,43 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.77 - September 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add Body in HttpService::delete request.
+-   Add BubblesService::setTagsOnABubble to Set a list of tags on a {Bubble}.
+-   Add BubblesService::deleteTagOnABubble to Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned.
+-   Add in bubble presence event the property statusCode to "disconnected" if status is "332". it is disconnected from room because of a system shutdown
+-   Update treatment of error event in XMPPService::handleXMPPConnection of the default condition to avoid wrong stop of SDK, so we ignore it.
+-   Add pretty-data logs of xml data.
+-   Refactor logs to show XML of event's node instead of unreadable Element structure.
+-   Add in classes the method `getClassName` and refactor `Utils::logEntryExit` method to log the name of class in front of method name when used in 'source debug mode'
+-   Refactor conversationEventHandler, conversationHistoryHandler and RESTService to extract callback definitions from constructor.
+-   Move events callbacks from constructors of classes to get types.
+-   Add `answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp` properties in messages received in XMPP event and in history when it is a reply to a previous message (defined by these properties).
+-   Add method `conversations::getOneMessageFromConversationId` To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp (both are mandatory for the search)
+-   Add `mute` property in Channel object.
+-   Add NodeSDK::getConnectionStatus API to get connections status of each low layer services, and also the full SDK state.
+-   Fix RainbowNodeSDKNews.md
+
+
 ### SDK for Node.JS 1.76 - September 2020
 
 ---
