@@ -21,7 +21,7 @@ import {AdminService} from "./services/AdminService";
 import {SettingsService} from "./services/SettingsService";
 import {FileServerService} from "./services/FileServerService";
 import {FileStorageService} from "./services/FileStorageService";
-import {StateManager} from "./common/StateManager";
+import {SDKSTATUSENUM, StateManager} from "./common/StateManager";
 import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
 import {InvitationsService} from "./services/InvitationsService";
@@ -75,6 +75,9 @@ class Core {
 	public _botsjid: any;
     public _webrtc: WebRtcService;
     public _s2s: S2SService;
+
+    static getClassName(){ return 'Core'; }
+    getClassName(){ return Core.getClassName(); }
 
     constructor(options) {
 
@@ -371,7 +374,7 @@ class Core {
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
             let that = self;
-            //todo, check that REST part is ok too
+            self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) received, so start reconnect from RESTService.");
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
@@ -394,12 +397,16 @@ class Core {
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
-                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
-                    self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
-                    // ErrorManager in REST micro service, so let say it is disconnected
-                    await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
-                    // relaunch the REST connection.
-                    self._eventEmitter.iee.emit("rainbow_xmppreconnected");
+                    if (err && err.errorname == "reconnectingInProgress") {
+                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
+                    } else {
+                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
+                        self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
+                        // ErrorManager in REST micro service, so let say it is disconnected
+                        await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                        // relaunch the REST connection.
+                        self._eventEmitter.iee.emit("rainbow_xmppreconnected");
+                    }
                 }
             });
         });
@@ -635,6 +642,45 @@ class Core {
                 that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
+            });
+        });
+    }
+
+    async getConnectionStatus():Promise<{
+        restStatus:boolean,
+        xmppStatus:boolean,
+        s2sStatus:boolean,
+        state : SDKSTATUSENUM
+    }>{
+        let that = this;
+        let restStatus : boolean = false;
+        // Test XMPP connection
+        let xmppStatus : boolean = false;
+        // Test S2S connection
+        let s2sStatus : boolean = false;
+
+        return new Promise(async(resolve, reject) => {
+           // Test REST connection
+            restStatus = await that._rest.checkRESTAuthentication();
+           // Test XMPP connection
+            xmppStatus = await this._xmpp.sendPing().then((result) => {
+                that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
+                if (result && result.code === 1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            // */
+           // Test S2S connection
+            s2sStatus  = await that._rest.checkS2SAuthentication();
+
+            return resolve({
+                restStatus,
+                xmppStatus,
+                s2sStatus,
+                state : that.state
             });
         });
     }

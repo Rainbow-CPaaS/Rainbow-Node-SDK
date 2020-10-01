@@ -16,7 +16,7 @@ import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyE
 import {ContactsService} from "./ContactsService";
 import {BubblesService} from "./BubblesService";
 import {ProfilesService} from "./ProfilesService";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {S2SService} from "./S2SService";
@@ -86,6 +86,9 @@ class Telephony {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'Telephony'; }
+    getClassName(){ return Telephony.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
         let that = this;
@@ -193,8 +196,8 @@ class Telephony {
         let that = this;
         that._telephonyEventHandler = new TelephonyEventHandler(that._xmpp, that, that._contacts, that._profiles);
         that.telephonyHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._telephonyEventHandler.MESSAGE, that._telephonyEventHandler.onMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._telephonyEventHandler.IQ_RESULT, that._telephonyEventHandler.onIqResultReceived )
+            PubSub.subscribe(that._xmpp.hash + "." + that._telephonyEventHandler.MESSAGE, that._telephonyEventHandler.onMessageReceived.bind(that._telephonyEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._telephonyEventHandler.IQ_RESULT, that._telephonyEventHandler.onIqResultReceived.bind(that._telephonyEventHandler) )
         ];
     }
 
@@ -262,7 +265,7 @@ class Telephony {
             let jid_im = that._contacts.getImJid(__event.fulljid);
             if (!jid_im) { return true; }
 
-            let status = __event.status;
+            let status = __event.presence;
 
             if (that._contacts.isUserContactJid(jid_im)) {
 

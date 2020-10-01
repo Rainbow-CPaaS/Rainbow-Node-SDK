@@ -102,9 +102,12 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onuserinvitereceived
  * @fires Events#rainbow_onuserinviteaccepted
  * @fires Events#rainbow_onuserinvitecanceled
+ * @fires Events#rainbow_onusercontactremoved
  * @fires Events#rainbow_onbubbleaffiliationchanged
  * @fires Events#rainbow_onbubbleownaffiliationchanged
  * @fires Events#rainbow_onbubbleinvitationreceived
+ * @fires Events#rainbow_onbubbleconferencestartedreceived
+ * @fires Events#rainbow_onbubbleconferencestoppedreceived
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
@@ -292,12 +295,12 @@ class Events {
              * @param {Object} presence The presence object updated (jid, status, message, stamp)
              * @description
              *      This event is fired when the presence of the connected user changes <br/>
-             *      status may be <br/>
+             *      presence may be <br/>
              *          + "unknow",<br/>
-             *          + "online" (with message "" | "mode=auto"),<br/>
-             *          + "away" (with message "" ),<br/>
-             *          + "xa" (with message ""| "away"),<br/>
-             *          + "dnd" (with message "" | "audio" | "video" | "sharing" | "presentation")<br/>
+             *          + "online" (with status "" | "mode=auto"),<br/>
+             *          + "away" (with status "" ),<br/>
+             *          + "xa" (with status ""| "away"),<br/>
+             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br/>
              *      This event is also a confirmation from the server that the new presence value has been set
              */
             that.publishEvent("presencechanged", presence);
@@ -382,6 +385,8 @@ class Events {
              * @param { Invitation } invitation The invitation accepted
              * @description
              *      Fired when an user invitation is accepted
+             *      Note :
+             *      A contact is added to connected user's network when this contact accepts the invitation, so the event raised is `rainbow_onuserinviteaccepted` instead of a `rainbow_contactaddedtonetwork`
              */
             that.publishEvent("userinviteaccepted", invitation);
         });
@@ -395,6 +400,19 @@ class Events {
              *      Fired when an user invitation is canceled
              */
             that.publishEvent("userinvitecanceled", invitation);
+        });
+
+        this._evReceiver.on("evt_internal_contactremovedfromnetwork", function(invitation) {
+            /**
+             * @public
+             * @event Events#rainbow_oncontactremovedfromnetwork
+             * @param { Contact } contact The contact removed from network.
+             * @description
+             *      Fired when a contact is removed from connected user's network.
+             *      Note :
+             *      A contact is added to connected user's network when this contact accepts the invitation, so the event raised is `rainbow_onuserinviteaccepted` instead of a `rainbow_contactaddedtonetwork`
+             */
+            that.publishEvent("contactremovedfromnetwork", invitation);
         });
 
         this._evReceiver.on("evt_internal_affiliationdetailschanged", function(bubble) {
@@ -444,11 +462,11 @@ class Events {
         this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
             try {
                 if (bubble && bubble.users) {
-                    bubble.users.forEach((user) => {
+                    bubble.users.forEach(async (user) => {
                         if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
                             // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
                             //that._core.bubbles._sendInitialBubblePresence(bubble);
-                            that._core._presence.sendInitialBubblePresence(bubble);
+                            await that._core._presence.sendInitialBubblePresence(bubble);
                         }
                     });
                 }
@@ -463,6 +481,28 @@ class Events {
              *      Fired when an invitation to join a bubble is received
              */
             that.publishEvent("bubbleinvitationreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencestartedreceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencestartedreceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference started.
+             * @description
+             *      Fired when an event conference start in a bubble is received
+             */
+            that.publishEvent("bubbleconferencestartedreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencestoppedreceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencestoppedreceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference stopped.
+             * @description
+             *      Fired when an event conference stop in a bubble is received
+             */
+            that.publishEvent("bubbleconferencestoppedreceived", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {
@@ -510,7 +550,6 @@ class Events {
             that.publishEvent("bubbleavatarchanged", bubble);
         });
 
-
         this._evReceiver.on("evt_internal_bubblenamechanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubblenamechanged
@@ -520,6 +559,17 @@ class Events {
              *      Fired when the name of a bubble has changed
              */
             that.publishEvent("bubblenamechanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_openinvitationUpdate", function(openInvite) {
+            /**
+             * @event Events#rainbow_onopeninvitationupdate
+             * @public
+             * @param { Object } openInvite The informations about the a management event on a public URL share of a bubble.
+             * @description
+             *      Fired when a management event on a public URL share of a bubble has changed
+             */
+            that.publishEvent("openinvitationupdate", openInvite);
         });
 
         this._evReceiver.on("evt_internal_groupcreated", function(group) {
@@ -588,6 +638,17 @@ class Events {
              *      Fired when a message is received from a channel
              */
             that.publishEvent("channelmessagereceived", message);
+        });
+
+        this._evReceiver.on("evt_internal_channelmyappreciationreceived", function(appreciation) {
+            /**
+             * @event Events#rainbow_onchannelmyappreciationreceived
+             * @public
+             * @param { Object } appreciation The appreciation received
+             * @description
+             *      Fired when a message is received from a channel
+             */
+            that.publishEvent("channelmyappreciationreceived", appreciation);
         });
 
         this._evReceiver.on("evt_internal_channelmessagedeletedreceived", function(message) {

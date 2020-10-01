@@ -1,5 +1,4 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
 
 export {};
 
@@ -9,6 +8,7 @@ import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEvent
 //import {setFlagsFromString} from "v8";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
+import {EventEmitter} from "events";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
@@ -101,6 +101,8 @@ function CallLogsBean() : ICallLogsBean {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'CallLogService'; }
+    getClassName(){ return CallLogService.getClassName(); }
 
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
     constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
@@ -242,9 +244,9 @@ function CallLogsBean() : ICallLogsBean {
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived)
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
         ];
 
         /*
@@ -296,7 +298,7 @@ function CallLogsBean() : ICallLogsBean {
 
         // as duration is "h[H] mm[m] ss[s]" in rb, switch it back to ms ...
         for (let i = 0; i < callLogs.length; i++) {
-            let durationMs = 0;
+            let durationMs : any = 0;
             let hmmss = callLogs[i].duration;
             if (hmmss && (typeof hmmss === "string") && hmmss.match(/^(?:(?:([01]?\d|2[0-3])h )?([0-5]?\d)m )?([0-5]?\ds)$/)) {
                 // Remove h, m and s

@@ -67,6 +67,9 @@ class S2SService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'S2SService'; }
+    getClassName(){ return S2SService.getClassName(); }
+
     constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy, _startConfig) {
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
@@ -237,6 +240,30 @@ class S2SService {
     }
 
     /**
+     * @public
+     * @method checkS2Sconnection
+     * @instance
+     * @description
+     *      check the S2S connection with a head request.
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
+    async checkS2Sconnection() {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(checkS2Sconnection) check the cnx S2S");
+        return that._rest.checkS2Sconnection()
+            .then( response => {
+                that.logger.log("debug", LOG_ID + "(checkS2Sconnection) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(checkS2Sconnection) connexions S2S OK : ", response );
+                return response;
+            } );
+    }
+
+    /**
      * @private
      * @method sendS2SPresence
      * @instance
@@ -344,7 +371,7 @@ class S2SService {
                 //console.log( response.data )
                 //connectionInfo = response.data.data
                 that.logger.log("internal", LOG_ID + "(loginS2S) connexions S2S : ", response );
-                return Promise.resolve(response.data);
+                return Promise.resolve(response);
             } );
     }
 

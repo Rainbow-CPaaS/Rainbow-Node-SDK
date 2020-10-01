@@ -36,8 +36,8 @@ class XmppClient  {
 	public restartConnectEnabled: any;
 	public client: any;
 	public iqGetEventWaiting: any;
-	public onIqErrorReceived: any;
-	public onIqResultReceived: any;
+	// public onIqErrorReceived: any;
+	// public onIqResultReceived: any;
 	public logger: any;
 	public xmppQueue: any;
 	public timeBetweenXmppRequests: any;
@@ -50,6 +50,8 @@ class XmppClient  {
     lastTimeReset: Date;
     timeBetweenReset: number;
     messagesDataStore: DataStoreType;
+    private iqSetEventRoster: any;
+    public socket = undefined;
 
     constructor(...args) {
         //super(...args);
@@ -57,60 +59,19 @@ class XmppClient  {
         let that = this;
         this.options = [...args];
         this.restartConnectEnabled = true;
+        this.iqGetEventWaiting = {};
+        this.iqSetEventRoster = ctx => {
+            that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRoster set iq receiv - :", ctx);
+            return {};
+        };
         this.client = client(...args);
+        this.socket = client.socket;
+        this.client.getQuery('urn:xmpp:ping', 'ping', ctx => { return {} });
+        this.client.setQuery('jabber:iq:roster', 'query', this.iqSetEventRoster);
+
         this.nbMessagesSentThisHour = 0;
         this.timeBetweenReset = 1000 * 60 * 60 ; // */
 
-        this.iqGetEventWaiting = {};
-
-        this.onIqErrorReceived = (msg, stanza) => {
-            //let children = stanza.children;
-            let iqId = stanza.attrs.id;
-            let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
-            that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, msg, errorMsg);
-            // reject and delete the waiting iq.
-            if (typeof that.iqGetEventWaiting[iqId] === "function") {
-                that.iqGetEventWaiting[iqId](stanza);
-            } else {
-                delete that.iqGetEventWaiting[iqId];
-            }
-        };
-
-        this.onIqResultReceived = (msg, stanza) => {
-            //let children = stanza.children;
-            let iqId = stanza.attrs.id;
-            that.logger.log("warn", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
-            if (that.iqGetEventWaiting[iqId]) {
-                // The result iq correspond to a stored promise from our request, so resolve it to allow sendIq to get back a result.
-                if (typeof that.iqGetEventWaiting[iqId] === "function") {
-                    that.iqGetEventWaiting[iqId](stanza);
-                } else {
-                    delete that.iqGetEventWaiting[iqId];
-                }
-            } else {
-            }
-            /*            children.forEach((node) => {
-                            switch (node.getName()) {
-                                case "query":
-                                    that._onIqGetQueryReceived(stanza, node);
-                                    break;
-                                case "pbxagentstatus":
-                                    // The treatment is in telephonyEventHandler
-                                    //that._onIqGetPbxAgentStatusReceived(stanza, node);
-                                    break;
-                                case "default":
-                                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) not managed - 'stanza'", node.getName());
-                                    break;
-                                default:
-                                    that
-                                        .logger
-                                        .log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) child not managed for iq - 'stanza'", node.getName());
-                            }
-                        });
-                        if (stanza.attrs.id === "enable_xmpp_carbon") {
-                            that.eventEmitter.emit("rainbow_oncarbonactivated");
-                        } */
-        };
 
     }
 
@@ -169,6 +130,58 @@ class XmppClient  {
 
         setInterval(that.resetnbMessagesSentThisHour.bind(this), that.timeBetweenReset);
     }
+
+    onIqErrorReceived (msg, stanza) {
+        let that = this;
+        //let children = stanza.children;
+        let iqId = stanza.attrs.id;
+        let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
+        that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, msg, errorMsg);
+        // reject and delete the waiting iq.
+        if (typeof that.iqGetEventWaiting[iqId] === "function") {
+            that.iqGetEventWaiting[iqId](stanza);
+        } else {
+            delete that.iqGetEventWaiting[iqId];
+        }
+    };
+
+    onIqResultReceived (msg, stanza) {
+        let that = this;
+        //let children = stanza.children;
+        let iqId = stanza.attrs.id;
+        that.logger.log("info", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
+        if (that.iqGetEventWaiting[iqId]) {
+            // The result iq correspond to a stored promise from our request, so resolve it to allow sendIq to get back a result.
+            if (typeof that.iqGetEventWaiting[iqId] === "function") {
+                that.iqGetEventWaiting[iqId](stanza);
+            } else {
+                delete that.iqGetEventWaiting[iqId];
+            }
+        } else {
+        }
+        /*            children.forEach((node) => {
+                        switch (node.getName()) {
+                            case "query":
+                                that._onIqGetQueryReceived(stanza, node);
+                                break;
+                            case "pbxagentstatus":
+                                // The treatment is in telephonyEventHandler
+                                //that._onIqGetPbxAgentStatusReceived(stanza, node);
+                                break;
+                            case "default":
+                                that.logger.log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) not managed - 'stanza'", node.getName());
+                                break;
+                            default:
+                                that
+                                    .logger
+                                    .log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) child not managed for iq - 'stanza'", node.getName());
+                        }
+                    });
+                    if (stanza.attrs.id === "enable_xmpp_carbon") {
+                        that.eventEmitter.emit("rainbow_oncarbonactivated");
+                    } */
+    };
+
 
     resetnbMessagesSentThisHour(){
         let that = this;
@@ -241,7 +254,7 @@ class XmppClient  {
 
                     return this.client.send(...args).then(() => {
                         that.nbMessagesSentThisHour++;
-                        resolve2();
+                        resolve2({"code": 1, "label":"OK"});
                     }).catch(async (err) => {
                         that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
                         //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
@@ -253,8 +266,9 @@ class XmppClient  {
                         // */
                     });
                 })
-            ).then(() => {
+            ).then((result) => {
                 that.logger.log("debug", LOG_ID + "(send) sent");
+                return (result);
             }).catch((errr) => {
                 that.logger.log("error", LOG_ID + "(send) error in send promise : ", errr);
                 that.logger.log("internalerror", LOG_ID + "(send) error in send promise : ", errr);
@@ -309,13 +323,13 @@ class XmppClient  {
 
     sendIq(...args){
         let that = this;
-        that.logger.log("debug", LOG_ID + "(send) _entering_");
+        that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
         return new Promise((resolve) => {
             if (args.length > 0) {
                 let prom = this.xmppQueue.addPromise(this.client.send(...args).catch((err) => {
-                    that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
+                    that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at super.send", err);
                 })).then(() => {
-                    that.logger.log("debug", LOG_ID + "(send) sent");
+                    that.logger.log("debug", LOG_ID + "(sendIq) sent");
                 });
 
                 // callback to be called when the IQ Get result event is received from server.
@@ -341,7 +355,7 @@ class XmppClient  {
                 resolve(Promise.resolve());
             }
         }).then((promiseToreturn) => {
-            that.logger.log("debug", LOG_ID + "(send) _exiting_ return promise");
+            that.logger.log("debug", LOG_ID + "(sendIq) _exiting_ return promise");
             return promiseToreturn;
         });
     }
@@ -454,3 +468,4 @@ module.exports.getXmppClient = getXmppClient;
 module.exports.XmppClient = XmppClient;
 export {getXmppClient , XmppClient};
 
+export {getXmppClient, XmppClient};

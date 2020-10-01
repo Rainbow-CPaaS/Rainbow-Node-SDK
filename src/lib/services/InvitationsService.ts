@@ -7,7 +7,7 @@ import * as PubSub from "pubsub-js";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Invitation} from "../common/models/Invitation";
@@ -16,6 +16,8 @@ import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {BubblesService} from "./BubblesService";
+import {GroupsService} from "./GroupsService";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -51,7 +53,8 @@ class InvitationsService {
 	private _eventEmitter: EventEmitter;
 	private _invitationEventHandler: InvitationEventHandler;
 	private _invitationHandlerToken: any;
-	private _contacts: any;
+	private _contacts: ContactsService;
+	private _bubbles: BubblesService;
 	private stats: any;
 	private readonly _startConfig: {
 		start_up:boolean,
@@ -61,6 +64,9 @@ class InvitationsService {
 	get startConfig(): { start_up: boolean; optional: boolean } {
 		return this._startConfig;
 	}
+
+	static getClassName(){ return 'InvitationsService'; }
+	getClassName(){ return InvitationsService.getClassName(); }
 
 	constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
 		let that = this;
@@ -79,6 +85,7 @@ class InvitationsService {
 		// DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
 		this._eventEmitter.on("evt_internal_onrosters", that.onRosterChanged.bind(this));
 		this._eventEmitter.on("evt_internal_invitationsManagementUpdate", that.onInvitationsManagementUpdate.bind(this));
+		this._eventEmitter.on("evt_internal_openinvitationManagementUpdate", that.onOpenInvitationManagementUpdate.bind(this));
 	}
 
 	/************************************************************/
@@ -98,6 +105,7 @@ class InvitationsService {
 		that._useXMPP = that._options.useXMPP;
 		that._useS2S = that._options.useS2S;
 		that._contacts = _core.contacts;
+		that._bubbles = _core.bubbles;
 
 		let startDate: any = new Date();
 		// Private invitation storage
@@ -169,17 +177,39 @@ class InvitationsService {
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
-			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_MANAGEMENT, that._invitationEventHandler.onManagementMessageReceived),
-			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_ERROR, that._invitationEventHandler.onErrorMessageReceived),
+			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_MANAGEMENT, that._invitationEventHandler.onManagementMessageReceived.bind(that._invitationEventHandler)),
+			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_ERROR, that._invitationEventHandler.onErrorMessageReceived.bind(that._invitationEventHandler)),
 			//PubSub.subscribe( that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_HEADLINE, that._invitationEventHandler.onHeadlineMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
 		];
 	};
 
-	onRosterChanged() {
+	onRosterChanged(data) {
 		let that = this;
-		that._logger.log("info", LOG_ID + "onRosterChanged");
+		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
 		return that.getAllSentInvitations();
+	}
+
+	async onOpenInvitationManagementUpdate(openInvitation) {
+		let that = this;
+		that._logger.log("internal", LOG_ID + "(onOpenInvitationManagementUpdate) openInvitation : ", openInvitation);
+		//let userInviteElem = stanza.find("userinvite");
+		if (openInvitation) {
+			let invitation = {
+				openInviteId: openInvitation.openinviteid,
+				publicUrl: undefined,
+				action: openInvitation.action,
+				roomType: openInvitation.roomType,
+				bubble: undefined
+			};
+			invitation.publicUrl = that._bubbles.getPublicURLFromResponseContent(invitation);
+			invitation.bubble = await that._bubbles.getBubbleById(openInvitation.roomid);
+
+			that._eventEmitter.emit("evt_internal_openinvitationUpdate", invitation);
+		} else {
+			that._logger.log("warn", LOG_ID + "(onOpenInvitationManagementUpdate) userInvite undefined!");
+		}
+		return true;
 	}
 
 	async onInvitationsManagementUpdate(userInvite) {

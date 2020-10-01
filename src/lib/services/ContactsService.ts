@@ -1,23 +1,22 @@
 "use strict";
 import {InvitationsService} from "./InvitationsService";
-
-export {};
-
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {XMPPUTils} from "../common/XMPPUtils";
 import {ErrorManager} from "../common/ErrorManager";
-import {Contact, AdminType, NameUpdatePrio } from "../common/models/Contact";
+import {Contact, NameUpdatePrio} from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
 import {isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
-import {HTTPService} from "../connection/HttpService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {PresenceLevel, PresenceRainbow, PresenceStatus} from "../common/models/PresenceRainbow";
+
+export {};
 
 const LOG_ID = "CONTACTS/SVCE - ";
 
@@ -60,6 +59,9 @@ class Contacts {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'Contacts'; }
+    getClassName(){ return Contacts.getClassName(); }
 
     constructor(_eventEmitter: EventEmitter, _http : any, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
@@ -266,8 +268,10 @@ class Contacts {
             contact = new Contact();
             // that._logger.log("internal", LOG_ID + "(getContact) before updateFromUserData ", contact);
             contact.updateFromUserData(that._rest.account);
+            contact.status = that._presenceService.getUserConnectedPresence().presenceDetails;
+            contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
         } else {
-            contact = that._contacts.find( (_contact) => _contact.jid_im === contactId);
+            contact = that._contacts.find((_contact) => _contact.jid_im === contactId);
         }
 
         return contact;
@@ -379,6 +383,7 @@ class Contacts {
      * @method getContactByJid
      * @instance
      * @param {string} jid The contact jid
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
      *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information)
      * @async
@@ -386,7 +391,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid) : Promise<Contact>{
+    getContactByJid(jid, forceServerSearch = false) : Promise<Contact>{
 
         let that = this;
 
@@ -397,8 +402,9 @@ class Contacts {
             }
             else {
                 let contactFound = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
-                if (that._contacts) {
+                if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
                         return contact.jid_im === jid;
                     });
@@ -406,7 +412,11 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("info", LOG_ID + "(getContactByJid) contact found locally with jid ", jid );
-                    resolve(contactFound);
+                    if (contactFound.jid_im === connectedUser.jid_im) {
+                        resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 }
                 else {
                     that._logger.log("debug", LOG_ID + "(getContactByJid) contact not found locally. Ask the server...");
@@ -428,6 +438,10 @@ class Contacts {
                             //that._logger.log("internal", LOG_ID + "(getContactByJid) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+                            if (contact.jid_im === connectedUser.jid_im) {
+                                contact.status = that._presenceService.getUserConnectedPresence().presenceDetails;
+                                contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+                            }
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
                         }
@@ -453,7 +467,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactById(id, forceServerSearch) : Promise<Contact>{
+    getContactById(id, forceServerSearch = false) : Promise<Contact>{
         let that = this;
         return new Promise((resolve, reject) => {
              if (!id) {
@@ -462,6 +476,7 @@ class Contacts {
             } else {
 
                 let contactFound = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
@@ -471,7 +486,12 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("internal", LOG_ID + "(getContactById) contact found locally", contactFound);
-                    resolve(contactFound);
+
+                    if (contactFound.id === connectedUser.id) {
+                     resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 }
                 else {
                     that._logger.log("debug", LOG_ID + "(getContactById) contact not found locally. Ask the server...");
@@ -495,6 +515,11 @@ class Contacts {
                             //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                            if (contact.id === connectedUser.id) {
+                                contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+                                contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+                            }
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactById) no contact found on server with id", id);
                         }
@@ -532,6 +557,7 @@ class Contacts {
             else {
 
                 let contactFound : Contact = null;
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if (that._contacts) {
                     contactFound = that._contacts.find((contact) => {
@@ -541,7 +567,11 @@ class Contacts {
 
                 if (contactFound) {
                     that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally : ", contactFound);
-                    resolve(contactFound);
+                    if (contactFound.id === connectedUser.id) {
+                        resolve(connectedUser);
+                    } else {
+                        resolve(contactFound);
+                    }
                 } else {
                     that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
                     that._rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
@@ -572,6 +602,10 @@ class Contacts {
                                     contact.avatar = that.getAvatarByContactId(contactInformation.id, contactInformation.lastAvatarUpdateDate);
 
                                      */
+                                    if (contact.loginEmail === connectedUser.loginEmail) {
+                                        contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+                                        contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+                                    }
                                 });
                             } else {
                                 that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
@@ -623,8 +657,8 @@ class Contacts {
     getRessourceFromJid(jid) {
         let result = "";
         if (jid) {
-            let index = jid.indexOf("/");
-            if (index !== -1) {
+            let index : number = jid.indexOf("/");
+            if ( -1 !== index ) {
                 result = jid.substr(index + 1);
             }
         }
@@ -664,7 +698,8 @@ class Contacts {
         //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
         contact.updateFromUserData(that._rest.account);
         contact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
-        contact.status = that._presenceService.getUserConnectedPresence().status;
+        contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+        contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
 
         return contact;
     }
@@ -672,7 +707,7 @@ class Contacts {
     /**
      * @public
      * @since 1.17
-     * @method
+     * @method addToNetwork
      * @instance
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
@@ -720,13 +755,49 @@ class Contacts {
                                 return reject(err);
                             });
                         } else {
-                            that._logger.log("internal", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
+                            that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                             resolve(null);
                         }
                     }).catch((err) => {
+                        that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                         return reject(err);
                     });
             }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeFromNetwork
+     * @since 1.69
+     * @instance
+     * @description
+     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence
+     * @param {Contact} contact The contact object to unsubscribe
+     * @returns {Promise} A promise that contains success code if removed or an object describing an error
+     */
+    removeFromNetwork(contact) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            if (!contact) {
+                this._logger.log("warn", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter");
+                this._logger.log("internalerror", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter : ", contact);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.removeContactFromRoster(contact.id).then(function () {
+                that._logger.log("info", LOG_ID + "(removeFromNetwork) contact removed from network.");
+                that._logger.log("internal", LOG_ID + "(removeFromNetwork) contact removed from network : ", contact);
+                return resolve({
+                    code: 1,
+                    label: "OK"
+                });
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(removeFromNetwork) contact cannot be removed.");
+                that._logger.log("internalerror", LOG_ID + "(removeFromNetwork) contact cannot be removed : ", util.inspect(contact));
+                return reject(err);
+            });
         });
     }
 
@@ -850,6 +921,7 @@ class Contacts {
 
                     Promise.all(promises).then( (values) => {
                         let mergeResult = values.reduce( (prev, current) => {
+                            // noinspection JSDeepBugsSwappedArgs
                             return Object.assign( prev, current);
                         }, { "success": [], "failed": []});
 
@@ -871,135 +943,187 @@ class Contacts {
      *      Method called when the presence of a contact changed
      */
     _onRosterPresenceChanged(presence) {
+        this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
 
-        let contact = this._contacts.find((contactItem) => {
-            return contactItem.jid_im === presence.jid;
-        });
+        try {
+            let contact = this._contacts.find((contactItem) => {
+                return contactItem.jid_im === presence.jid;
+            });
 
-        if (contact) {
+            if (contact) {
+                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) contact found : ", contact);
 
-            if (!contact.resources) {
-                contact.resources = {};
-            }
+                if (!contact.resources) {
+                    contact.resources = {};
+                }
 
-            // Store the presence of the resource
-            contact.resources[presence.resource] = presence.value;
+                // Store the presence of the resource
+                contact.resources[presence.resource] = presence.value;
 
-            let on_the_phone = false;
-            let manual_invisible = false;
-            let manual_dnd = false;
-            let manual_away = false;
-            let in_presentation_mode = false;
-            let in_webrtc_mode = false;
-            let webrtc_reason = "";
-            let is_online = false;
-            let is_online_mobile = false;
-            let auto_away = false;
-            let is_offline = false;
-            for (let resourceId in contact.resources) {
+                let on_the_phone = false;
+                let manual_invisible = false;
+                let manual_dnd = false;
+                let manual_away = false;
+                let in_presentation_mode = false;
+                let in_webrtc_mode = false;
+                let webrtc_reason = "";
+                let is_online = false;
+                let is_online_mobile = false;
+                let auto_away = false;
+                let is_offline = false;
+                for (let resourceId in contact.resources) {
 
-                let resource = contact.resources[resourceId];
+                    let resource = contact.resources[resourceId];
 
-                if ( resource.type !== "phone" ) {
-                    if (resource.show === "xa" && resource.status === "") {
-                        manual_invisible = true;
-                    }
-                    else if (resource.show === "dnd" && resource.status === "") {
-                        manual_dnd = true;
-                    }
-                    else if (resource.show === "xa" && resource.status === "away") {
-                        manual_away = true;
-                    }
-                    else if (resource.show === "dnd" && resource.status === "presentation") {
-                        in_presentation_mode = true;
-                    }
-                    else if (resource.show === "dnd" && resource.status.length > 0) {
-                        in_webrtc_mode = true;
-                        webrtc_reason = resource.status;
-                    }
-                    else if ((resource.show === "" || resource.show === "online") && (resource.status === "" || resource.status === "mode=auto")) {
-                        if (resource.type === "mobile") {
-                            is_online_mobile = true;
+                    this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
+
+                    if (resource.type !== "phone") {
+                        if (resource.show === "xa" && resource.status === "") {
+                            manual_invisible = true;
+                        } else if (resource.show === "dnd" && resource.status === "") {
+                            manual_dnd = true;
+                        } else if (resource.show === "xa" && resource.status === "away") {
+                            manual_away = true;
+                        } else if (resource.show === "dnd" && resource.status === "presentation") {
+                            in_presentation_mode = true;
+                        } else if (resource.show === "dnd" && resource.status.length > 0) {
+                            in_webrtc_mode = true;
+                            webrtc_reason = resource.status;
+                        } else if ((resource.show === "" || resource.show === "online") && (resource.status === "" || resource.status === "mode=auto")) {
+                            if (resource.type === "mobile") {
+                                is_online_mobile = true;
+                            } else {
+                                is_online = true;
+                            }
+                        } else if (resource.show === "away" && resource.status === "") {
+                            auto_away = true;
+                        } else if (resource.show === "unavailable") {
+                            is_offline = true;
                         }
-                        else {
-                            is_online = true;
+                    } else {
+                        this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource.type === \"phone\" : ", resource.type);
+                        if ((resource.status === "EVT_SERVICE_INITIATED" || resource.status === "EVT_ESTABLISHED") && resource.show === "chat") {
+                            on_the_phone = true;
                         }
-                    }
-                    else if (resource.show === "away" && resource.status === "") {
-                        auto_away = true;
-                    }
-                    else if (resource.show === "unavailable") {
-                        is_offline = true;
+                        if (resource.status === "EVT_CONNECTION_CLEARED" && resource.show === "chat") {
+                            on_the_phone = false;
+                        }
                     }
                 }
-                else {
-                    if ((resource.status === "EVT_SERVICE_INITIATED" || resource.status === "EVT_ESTABLISHED") && resource.show === "chat") {
-                        on_the_phone = true;
-                    }
-                    if (resource.status === "EVT_CONNECTION_CLEARED" && resource.show === "chat") {
-                        on_the_phone = false;
-                    }
+
+                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) result booleans of decoded presence : ", {
+                    manual_invisible,
+                    manual_dnd,
+                    manual_away,
+                    in_presentation_mode,
+                    in_webrtc_mode,
+                    is_online_mobile,
+                    is_online,
+                    auto_away,
+                    is_offline,
+                    on_the_phone
+                });
+
+                // Store previous presence state
+                let oldPresence = contact.presence;
+                let oldStatus = contact.status;
+
+                let newPresenceRainbow = new PresenceRainbow();
+
+                if (on_the_phone) {
+                    // contact.presence = "busy";
+                    //contact.status = "phone";
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Phone;
+                } else if (manual_invisible) {
+                    /*contact.presence = "offline";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Invisible;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
+                } else if (manual_dnd) {
+                    /*contact.presence = "busy";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
+                } else if (manual_away) {
+                    /* contact.presence = "away";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Away;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
+                } else if (in_presentation_mode) {
+                    /*contact.presence = "busy";
+                    contact.status = "presentation";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Presentation;
+                } else if (in_webrtc_mode) {
+                    /* contact.presence = "busy";
+                     contact.status = webrtc_reason;
+                     // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = webrtc_reason;
+                } else if (is_online) {
+                    /* contact.presence = "online";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Online;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
+                } else if (is_online_mobile) {
+                    /*contact.presence = "online";
+                    contact.status = "mobile";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Online;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Mobile;
+                } else if (auto_away) {
+                    /*contact.presence = "away";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Away;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
+                } else if (is_offline && contact.presence !== "unknown") {
+                    /*contact.presence = "offline";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Invisible;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
+                } else {
+                    /*contact.presence = "unknown";
+                    contact.status = "";
+                    // */
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Unknown
+                    newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString
                 }
-            }
 
-            // Store previous presence state
-            let oldPresence = contact.presence;
-            let oldStatus = contact.status;
+                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) newPresenceRainbow : ", newPresenceRainbow);
 
-            if (on_the_phone) {
-                contact.presence = "busy";
-                contact.status = "phone";
-            } else if (manual_invisible) {
-                contact.presence = "offline";
-                contact.status = "";
-            } else if (manual_dnd) {
-                contact.presence = "busy";
-                contact.status = "";
-            } else if (manual_away) {
-                contact.presence = "away";
-                contact.status = "";
-            } else if (in_presentation_mode) {
-                contact.presence = "busy";
-                contact.status = "presentation";
-            } else if (in_webrtc_mode) {
-                contact.presence = "busy";
-                contact.status = webrtc_reason;
-            } else if (is_online) {
-                contact.presence = "online";
-                contact.status = "";
-            } else if (is_online_mobile) {
-                contact.presence = "online";
-                contact.status = "mobile";
-            } else if (auto_away) {
-                contact.presence = "away";
-                contact.status = "";
-            } else if (is_offline && contact.presence !== "unknown") {
-                contact.presence = "offline";
-                contact.status = "";
+                contact.presence = newPresenceRainbow.presenceLevel;
+                contact.status = newPresenceRainbow.presenceStatus;
+
+                if (contact.resources[presence.resource].show === "unavailable") {
+                    delete contact.resources[presence.resource];
+                }
+
+                if (oldPresence !== "unknown" && contact.presence === oldPresence && contact.status === oldStatus) {
+                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) presence contact.presence (" + contact.presence + ") === oldPresence && contact.status (" + contact.status + ") === oldStatus, so ignore presence.");
+                    return;
+                }
+
+                let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
+                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
+                this._eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
             } else {
-                contact.presence = "unknown";
-                contact.status = "";
+                this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) no contact found for " + presence.jid);
+                // Seems to be a pending presence update in roster associated contact not yet available
+                if (presence.value.show !== "unavailable") {
+                    // To a pending presence queue
+                    this._rosterPresenceQueue.push({presence, date: Date.now()});
+                }
             }
-
-            if ( contact.resources[presence.resource].show === "unavailable" ) {
-                delete contact.resources[presence.resource];
-            }
-
-            if( contact.presence === oldPresence && contact.status === oldStatus) {
-                return;
-            }
-
-            let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status : contact.presence;
-            this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
-            this._eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
-        }
-        else {
-            this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) no contact found for " + presence.jid);
-            // Seems to be a pending presence update in roster associated contact not yet available
-            if( presence.value.show !== "unavailable" ) {
-                // To a pending presence queue
-                this._rosterPresenceQueue.push( { presence, date: Date.now() } );
-            }
+        } catch (err) {
+            this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) CATCH Error !!! error : ", err);
         }
     }
 
@@ -1026,18 +1150,30 @@ class Contacts {
 
                 let contact = null;
                 that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server : ", contact);
+                let connectedUser =  that.getConnectedUser() ?  that.getConnectedUser() : new Contact();
 
                 if ( contactIndex !== -1 ) {
                     contact = that._contacts[contactIndex];
                     //that._logger.log("internal", LOG_ID + "(_onContactInfoChanged) local contact before updateFromUserData ", contact);
                     contact.updateFromUserData(_contactFromServer);
                     contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                    if (contact.jid === connectedUser.jid) {
+                        contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+                        contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+                    }
+
                     this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
                 } else {
                     contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
                     //that._logger.log("internal", LOG_ID + "(_onContactInfoChanged) from server contact before updateFromUserData ", contact);
                     contact.updateFromUserData(_contactFromServer);
                     contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+                    if (contact.jid === connectedUser.jid) {
+                        contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+                        contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+                    }
+
                     this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
                 }
             }
@@ -1118,13 +1254,13 @@ class Contacts {
      * @private
      * @method _onRostersUpdate
      * @instance
-     * @param {Object} _contacts contains a contact list with updated elements
+     * @param {Object} contacts contains a contact list with updated elements
      * @description
      *      Method called when the roster _contacts is updated
      */
     _onRostersUpdate( contacts) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(_onRostersUpdate) enter");
+        that._logger.log("internal", LOG_ID + "(_onRostersUpdate) enter : ", contacts);
 
         contacts.forEach( contact => {
             if ( contact.jid.substr(0, 3) !== "tel") { // Ignore telephonny events
@@ -1132,6 +1268,7 @@ class Contacts {
                     let foundContact = that._contacts.find(item => item.jid_im === contact.jid );
                     if (foundContact) {
                         foundContact.presence = "unknown";
+                        that._eventEmitter.emit("evt_internal_contactremovedfromnetwork", contact);
                         // Add suppression delay
                         setTimeout( () => {
                             that._contacts = that._contacts.filter( _contact => _contact.jid_im !== contact.jid);
@@ -1144,12 +1281,8 @@ class Contacts {
                     if (!that._contacts.find(item => {
                         return item.jid_im === contact.jid;
                     })) {
-                        that
-                            .getContactByJid(contact.jid)
-                            .then((_contact) => {
-                                that
-                                    ._contacts
-                                    .push(Object.assign(_contact, {
+                        that.getContactByJid(contact.jid,true).then((_contact) => {
+                                that._contacts.push(Object.assign(_contact, {
                                         resources: {},
                                         presence: "offline",
                                         status: ""
@@ -1162,6 +1295,8 @@ class Contacts {
                             });
                     }
                 }
+            } else {
+                that._logger.log("debug", LOG_ID + "(_onRostersUpdate) Ignore telephonny events.");
             }
         });
     }

@@ -130,9 +130,10 @@ class Bubble {
         public ownerContact: Contact;
         public owner: boolean;
         public autoAcceptInvitation: boolean;
+        public tags: Array<any>;
 
         constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _avatarDomain: String = "", autoAcceptInvitation: boolean = false) {
+                    _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: String = "") {
 
             /**
              * @public
@@ -285,7 +286,14 @@ class Bubble {
             /**
              * @description auto acceptation of the bubble.
              */
-            this.autoAcceptInvitation = autoAcceptInvitation;
+            this.autoAcceptInvitation = _autoAcceptInvitation;
+
+            /**
+             * @description Tags about the bubble.
+             */
+            this.tags = _tags;
+
+
         }
 
         /**
@@ -389,6 +397,7 @@ class Bubble {
                     data.autoRegister,
                     data.lastActivityDate,
                     data.autoAcceptInvitation,
+                    data.tags,
                     avatarDomain
                 );
                 if (data) {

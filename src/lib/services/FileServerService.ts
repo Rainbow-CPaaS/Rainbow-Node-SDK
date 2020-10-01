@@ -1,6 +1,4 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -19,6 +17,7 @@ import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
+import {EventEmitter} from "events";
 import {Core} from "../Core";
 
 const LOG_ID = "FileServer/SVCE - ";
@@ -59,6 +58,9 @@ class FileServer {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'FileServer'; }
+    getClassName(){ return FileServer.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;

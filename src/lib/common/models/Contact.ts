@@ -97,7 +97,7 @@ class Contact {
 	public firstName: any;
 	public isTerminated: any;
 	public language: any;
-	public presence: any;
+	public presence: string;
 	public status: any;
 	public resources: any;
 	public nameUpdatePrio: any;
@@ -119,6 +119,7 @@ class Contact {
     public ask: string;
     public subscription: string;
     public temp: boolean;
+    public invitation: any;
 
     constructor() {
 

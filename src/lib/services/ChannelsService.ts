@@ -1,14 +1,13 @@
 "use strict";
 
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
-import {Channel} from "../common/models/Channel";
+import {Appreciation, Channel} from "../common/models/Channel";
 import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
+import {EventEmitter} from "events";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
@@ -62,6 +61,9 @@ class Channels {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'Channels'; }
+    getClassName(){ return Channels.getClassName(); }
+
     public LIST_EVENT_TYPE = {
         ADD: {code : 0, label : "ADD"},
         UPDATE: {code : 1, label : "UPDATE"},
@@ -100,6 +102,7 @@ class Channels {
         this.ready = false;
 
         this._eventEmitter.on("evt_internal_channelitemreceived", this._onChannelMessageReceived.bind(this));
+        this._eventEmitter.on("evt_internal_channelbyidmyappreciationreceived", this._onChannelMyAppreciationReceived.bind(this));
         this._eventEmitter.on("evt_internal_addtochannel", this.onAddToChannel.bind(this));
         this._eventEmitter.on("evt_internal_updatetochannel", this.onUpdateToChannel.bind(this));
         this._eventEmitter.on("evt_internal_removefromchannel", this.onRemovedFromChannel.bind(this));
@@ -165,9 +168,9 @@ class Channels {
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_MANAGEMENT, that.channelEventHandler.onManagementMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_ERROR, that.channelEventHandler.onErrorMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_HEADLINE, that.channelEventHandler.onHeadlineMessageReceived),
+            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_MANAGEMENT, that.channelEventHandler.onManagementMessageReceived.bind(that.channelEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_ERROR, that.channelEventHandler.onErrorMessageReceived.bind(that.channelEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that.channelEventHandler.MESSAGE_HEADLINE, that.channelEventHandler.onHeadlineMessageReceived.bind(that.channelEventHandler)),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
         ];
 
@@ -757,7 +760,7 @@ class Channels {
             this._rest.publishMessage(channel.id, message, title, url, imagesIds, type).then((status) => {
                 this._logger.log("info", LOG_ID + "(createItem) message published");
                 this._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
-                resolve(ErrorManager.getErrorManager().OK);
+                resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(createItem) error ");
                 this._logger.log("internalerror", LOG_ID + "(createItem) error : ", err);
@@ -1187,7 +1190,7 @@ class Channels {
                     let fd = fs.openSync(urlAvatar, "r+");
                     let buf = new Buffer(fileStats.size);
                     fs.readSync(fd, buf, 0, fileStats.size, null);
-                    let fileType = mimetypes.lookup(urlAvatar);
+                    let fileType = mimetypes.lookup(urlAvatar) + "";
 
                     that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
                         that._logger.log("internal", LOG_ID + "(updateChannelAvatar) channel : ", channel);
@@ -1741,6 +1744,41 @@ class Channels {
         });
     }
 
+    _onChannelMyAppreciationReceived(my_appreciation) {
+
+        this.fetchChannel(my_appreciation.channelId).then((channel) => {
+            let appreciationObj = {
+                "appreciation": Appreciation.None,
+                "channel":channel,
+                "messageId":my_appreciation.messageId,
+                "appreciations":my_appreciation.appreciations
+            };
+
+            switch (my_appreciation.appreciation) {
+                case "applause":
+                    appreciationObj.appreciation = Appreciation.Applause;
+                break;
+                case "doubt":
+                    appreciationObj.appreciation = Appreciation.Doubt;
+                break;
+                case "fantastic":
+                    appreciationObj.appreciation = Appreciation.Fantastic;
+                break;
+                case "happy":
+                    appreciationObj.appreciation = Appreciation.Happy;
+                break;
+                case "like":
+                    appreciationObj.appreciation = Appreciation.Like;
+                break;
+                case "none":
+                    appreciationObj.appreciation = Appreciation.None;
+                break;
+            }
+
+            this._eventEmitter.emit("evt_internal_channelmyappreciationreceived", appreciationObj);
+        });
+    }
+
     /**
      * @private
      * @param channelId
@@ -1757,6 +1795,91 @@ class Channels {
             }).catch((err) => {
                 this._logger.log("error", LOG_ID + "(getChannel) error ");
                 this._logger.log("internalerror", LOG_ID + "(getChannel) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    /**
+     * @public
+     * @method likeItem
+     * @instance
+     * @async
+     * @param  {Channel} channel The channel where the item must be liked.
+     * @param  {String} itemId The Id of the item
+     * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
+     * @return {Promise<any>}
+     * @description
+     *  To like an Channel Item with the specified appreciation
+     */
+    public likeItem( channel, itemId, appreciation : Appreciation): Promise<any> {
+        if (!channel || !channel.id) {
+            this._logger.log("warn", LOG_ID + "(likeItem) bad or empty 'channel' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!itemId) {
+            this._logger.log("error", LOG_ID + "(likeItem) bad or empty 'itemId' parameter");
+            this._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'itemId' parameter : ", itemId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!appreciation) {
+            this._logger.log("error", LOG_ID + "(likeItem) bad or empty 'appreciation' parameter");
+            this._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'appreciation' parameter : ", appreciation);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise((resolve, reject) => {
+            this._rest.likeItem(channel.id, itemId, appreciation).then((result) => {
+                this._logger.log("info", LOG_ID + "(likeItem) done on the server");
+                this._logger.log("internal", LOG_ID + "(likeItem) done on the server : ", result);
+                //let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+                //resolve(channelObj);
+                resolve(result);
+            }).catch((err) => {
+                this._logger.log("error", LOG_ID + "(likeItem) error ");
+                this._logger.log("internalerror", LOG_ID + "(likeItem) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    /**
+     * @public
+     * @method getDetailedAppreciations
+     * @instance
+     * @async
+     * @param  {Channel} channel The channel where the item appreciations must be retrieved.
+     * @param  {String} itemId The Id of the item
+     * @return {Promise<any>}
+     * @description
+     *  To know in details apprecations given on a channel item (by userId the apprecation given)
+     */
+    public getDetailedAppreciations( channel, itemId): Promise<any> {
+        if (!channel || !channel.id) {
+            this._logger.log("warn", LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!itemId) {
+            this._logger.log("error", LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter");
+            this._logger.log("internalerror", LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter : ", itemId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise((resolve, reject) => {
+            this._rest.getDetailedAppreciations(channel.id, itemId).then((result) => {
+                this._logger.log("info", LOG_ID + "(getDetailedAppreciations) done on the server");
+                this._logger.log("internal", LOG_ID + "(getDetailedAppreciations) done on the server : ", result);
+                //let channelObj : Channel = Channel.ChannelFactory()(channel, this._rest.http.serverURL);
+                //resolve(channelObj);
+                resolve(result);
+            }).catch((err) => {
+                this._logger.log("error", LOG_ID + "(getDetailedAppreciations) error ");
+                this._logger.log("internalerror", LOG_ID + "(getDetailedAppreciations) error : ", err);
                 return reject(err);
             });
         });

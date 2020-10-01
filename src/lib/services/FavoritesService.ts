@@ -11,7 +11,7 @@ import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEve
 import { Favorite } from '../common/models/Favorite';
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
@@ -44,7 +44,7 @@ class FavoritesService {
     private _favoriteEventHandler: FavoriteEventHandler;
     private _favoriteHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
-    private favorites: any[] = [];
+    private favorites: Favorite[] = [];
     private _xmppManagementHandler: any;
     public ready: boolean = false;
     private readonly _startConfig: {
@@ -54,6 +54,9 @@ class FavoritesService {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'FavoritesService'; }
+    getClassName(){ return FavoritesService.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
 
@@ -168,8 +171,8 @@ class FavoritesService {
 
         that._favoriteEventHandler = new FavoriteEventHandler(that._xmpp, that);
         that._favoriteHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived)
+            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived.bind(that._favoriteEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived.bind(that._favoriteEventHandler))
         ];
 
         /*
@@ -201,8 +204,8 @@ class FavoritesService {
             let that = this;
             return new Promise(async (resolve, reject) => {
                 this._rest.getServerFavorites().then(async (favorite : []) => {
-                    that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                     if (favorite) {
+                        that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
                             return this.createFavoriteObj(data.id, data.peerId, data.type);
                         });
@@ -211,6 +214,8 @@ class FavoritesService {
                             return favorite !== null;
                         });
                         that._logger.log("info", LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
+                    } else {
+                        that._logger.log("info", LOG_ID + "(getServerFavorites) favorite return by REST service is null.");
                     }
                     resolve(this.favorites);
                 }).catch((err) => {

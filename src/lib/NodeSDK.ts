@@ -1,10 +1,29 @@
 "use strict";
 
-const DataStoreType = require("./lib/config/config").DataStoreType;
-
-const Core = require("./lib/Core").Core;
-const ErrorManager = require("./lib/common/ErrorManager").ErrorManager;
-const utils = require( "./lib/common/Utils");
+import {Core} from "./Core";
+import {Appreciation} from "./common/models/Channel";
+import {DataStoreType} from "./config/config";
+import {ErrorManager} from "./common/ErrorManager";
+import {setTimeoutPromised} from "./common/Utils";
+import {IMService} from "./services/ImsService";
+import {ChannelsService} from "./services/ChannelsService";
+import {S2SService} from "./services/S2SService";
+import {InvitationsService} from "./services/InvitationsService";
+import {FavoritesService} from "./services/FavoritesService";
+import {CallLogService} from "./services/CallLogService";
+import {TelephonyService} from "./services/TelephonyService";
+import {SDKSTATUSENUM} from "./common/StateManager";
+import {SettingsService} from "./services/SettingsService";
+import {RESTService} from "./connection/RESTService";
+import {AdminService} from "./services/AdminService";
+import {FileStorageService} from "./services/FileStorageService";
+import {FileServerService} from "./services/FileServerService";
+import {Events} from "./common/Events";
+import {GroupsService} from "./services/GroupsService";
+import {BubblesService} from "./services/BubblesService";
+import {PresenceService} from "./services/PresenceService";
+import {ConversationsService} from "./services/ConversationsService";
+import {ContactsService} from "./services/ContactsService";
 
 /**
  * @enum { String }
@@ -109,8 +128,10 @@ function unhandledRejection(reason, p) {
  */
 
 /**
- * @class
+ * @module
  * @name NodeSDK
+ * @version SDKVERSION
+ * @public
  * @description
  *      This module is the core module of the Rainbow SDK for Node.JS <br>.
  *      It gives access to the other modules and allow to start/stop the SDK
@@ -125,6 +146,9 @@ function unhandledRejection(reason, p) {
  *      Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
  */
 class NodeSDK {
+    public _core: Core;
+    public startTime: Date;
+    static NodeSDK: any;
 
     /**
      * @method constructor
@@ -278,8 +302,10 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.start( token).then(function() {
                 return that._core.signin(false, token);
-            }).then(function(result) {
-                let startDuration = Math.round(new Date() - that.startTime);
+            }).then(function(result : any) {
+                let startDuration: number;
+                // @ts-ignore
+                startDuration = Math.round(new Date() - that.startTime);
                 if (!result) {result = {};}
                 result.startDuration = startDuration;
                 resolve(result);
@@ -332,7 +358,7 @@ class NodeSDK {
     signinCLI() {
         let that = this;
         return new Promise(function(resolve, reject) {
-            return that._core.signin(false).then(function(json) {
+            return that._core.signin(false, undefined).then(function(json) {
                 resolve(json);
             }).catch(function(err) {
                 let error = ErrorManager.getErrorManager().UNAUTHORIZED;
@@ -356,7 +382,7 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
-                utils.setTimeoutPromised(1500).then( () => {
+                setTimeoutPromised(1500).then( () => {
                     //that._core._stateManager.stop();
                     //that.events.publish("stopped", success);
                     resolve(result);
@@ -378,7 +404,7 @@ class NodeSDK {
                 await self.stop().catch((ee)=>{
                     console.log("stopProcess, stop failed : ", ee);
                 });
-                await utils.setTimeoutPromised(1000);
+                await setTimeoutPromised(1000);
                 // eslint-disable-next-line no-process-exit
             }
             catch (e) {
@@ -394,9 +420,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the IM module
-     * @memberof NodeSDK
+     * @return {IMService}
      */
-    get im() {
+    get im() : IMService {
         return this._core.im;
     }
 
@@ -406,9 +432,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Channels module
-     * @memberof NodeSDK
+     * @return {ChannelsService}
      */
-    get channels() {
+    get channels() : ChannelsService {
         return this._core.channels;
     }
 
@@ -418,9 +444,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Contacts module
-     * @memberof NodeSDK
+     * @return {ContactsService}
      */
-    get contacts() {
+    get contacts() : ContactsService{
         return this._core.contacts;
     }
 
@@ -430,9 +456,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Conversations module
-     * @memberof NodeSDK
+     * @return {ConversationsService}
      */
-    get conversations() {
+    get conversations() : ConversationsService{
         return this._core.conversations;
     }
 
@@ -442,9 +468,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Presence module
-     * @memberof NodeSDK
+     * @return {PresenceService}
      */
-    get presence() {
+    get presence() : PresenceService{
         return this._core.presence;
     }
 
@@ -454,9 +480,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Bubbles module
-     * @memberof NodeSDK
+     * @return {BubblesService}
      */
-    get bubbles() {
+    get bubbles() : BubblesService{
         return this._core.bubbles;
     }
 
@@ -466,9 +492,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Groups module
-     * @memberof NodeSDK
+     * @return {GroupsService}
      */
-    get groups() {
+    get groups() : GroupsService{
         return this._core.groups;
     }
 
@@ -478,9 +504,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Events module
-     * @memberof NodeSDK
+     * @return {Events}
      */
-    get events() {
+    get events() : Events{
         return this._core.events;
     }
 
@@ -490,9 +516,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the File Server module
-     * @memberof NodeSDK
+     * @return {FileServerService}
      */
-    get fileServer() {
+    get fileServer() : FileServerService{
         return this._core.fileServer;
     }
 
@@ -502,9 +528,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the File Storage module
-     * @memberof NodeSDK
+     * @return {FileStorageService}
      */
-    get fileStorage() {
+    get fileStorage() : FileStorageService{
         return this._core.fileStorage;
     }
 
@@ -514,9 +540,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Admin module
-     * @memberof NodeSDK
+     * @return {AdminService}
      */
-    get admin() {
+    get admin() : AdminService{
         return this._core.admin;
     }
 
@@ -526,9 +552,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the REST module
-     * @memberof NodeSDK
+     * @return {RESTService}
      */
-    get rest() {
+    get rest() : RESTService{
         return this._core.rest;
     }
 
@@ -538,9 +564,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the Settings module
-     * @memberof NodeSDK
+     * @return {SettingsService}
      */
-    get settings() {
+    get settings() : SettingsService{
         return this._core.settings;
     }
 
@@ -550,9 +576,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
-     * @memberof NodeSDK
+     * @return {SDKSTATUSENUM}
      */
-    get state() {
+    get state() : SDKSTATUSENUM{
         return this._core.state;
     }
 
@@ -562,7 +588,7 @@ class NodeSDK {
      * @instance
      * @description
      *      Return the version of the SDK
-     * @memberof NodeSDK
+     * @return {any}
      */
     get version() {
         return this._core.version;
@@ -574,7 +600,7 @@ class NodeSDK {
      * @instance
      * @description
      *      Return the connected user information
-     * @memberof NodeSDK
+     * @return {any}
      */
     get connectedUser() {
         return this._core.rest.account;
@@ -586,9 +612,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the telephony module
-     * @memberof NodeSDK
+     * @return {TelephonyService}
      */
-    get telephony() {
+    get telephony() : TelephonyService{
         return this._core.telephony;
     }
 
@@ -598,9 +624,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the calllog module
-     * @memberof NodeSDK
+     * @return {CallLogService}
      */
-    get calllog() {
+    get calllog() : CallLogService{
         return this._core.calllog;
     }
 
@@ -622,9 +648,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the favorite module
-     * @memberof NodeSDK
+     * @return {FavoritesService}
      */
-    get favorites() {
+    get favorites() : FavoritesService{
         return this._core._favorites;
     }
 
@@ -634,9 +660,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the invitation module
-     * @memberof NodeSDK
+     * @return {InvitationsService}
      */
-    get invitations() {
+    get invitations() : InvitationsService{
         return this._core._invitations;
     }
 
@@ -646,16 +672,47 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the s2s module
-     * @memberof NodeSDK
+     * @return {S2SService}
      */
-    get s2s() {
+    get s2s() : S2SService{
         return this._core._s2s;
     }
 
+    /**
+     * @public
+     * @property {Object} DataStoreType
+     * @return {*}
+     * @description
+     *    Get access to the s2s module
+     * @return {ChannelsService}
+     */
     get DataStoreType() {
         return DataStoreType;
     }
 
+    /**
+     * @public
+     * @description
+     *    Get connections status of each low layer services, and also the full SDK state.
+     *
+     * {
+     * restStatus: boolean, The status of the REST connection authentication to rainbow server.
+     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server.
+     * s2sStatus: boolean, The status of the S2S Connection to rainbow server.
+     * state: SDKSTATUSENUM The state of the SDK.
+     * }
+     * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM}>}
+     */
+    getConnectionStatus () : Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM}> {
+        return this._core.getConnectionStatus();
+    }
+
+
+    static get Appreciation() {
+        return Appreciation;
+    }
+
 }
 
-module.exports = NodeSDK;
+module.exports.NodeSDK = NodeSDK;
+export { NodeSDK as NodeSDK};

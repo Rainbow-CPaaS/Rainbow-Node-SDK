@@ -8,10 +8,11 @@ import {DataStoreType} from "../config/config";
 import {XMPPUTils} from "../common/XMPPUtils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
+import {XmppClient} from "../common/XmppQueue/XmppClient";
 
 const packageVersion = require("../../package");
 const url = require('url');
-
+const prettydata = require("./pretty-data").pd;
 
 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
 let ws_options = null;
@@ -109,7 +110,7 @@ class XMPPService {
 	public jid: any;
 	public userId: any;
 	public initialPresence: any;
-	public xmppClient: any;
+	public xmppClient: XmppClient;
 	public logger: any;
 	public proxy: any;
 	public shouldSendReadReceipt: any;
@@ -143,6 +144,10 @@ class XMPPService {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'XMPPService'; }
+    getClassName(){ return XMPPService.getClassName(); }
+
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -262,18 +267,18 @@ class XMPPService {
                 return bind(that.xmppUtils.getResourceFromFullJID(this.fullJid));
             }); // */
 
-            this.xmppClient.on("input", (packet) => {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(packet));
+            this.xmppClient.on("input", function fn_input (packet) {
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(prettydata.xml(packet)));
                 that.startOrResetIdleTimer(true);
             });
 
-            this.xmppClient.on("output", (packet) => {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(packet));
+            this.xmppClient.on("output", function fn_output (packet) {
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(prettydata.xml(packet)));
                 that.startOrResetIdleTimer(false);
             });
 
-            this.xmppClient.on(ONLINE_EVENT, (msg) => {
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " |", msg);
+            this.xmppClient.on(ONLINE_EVENT, function fn_ONLINE_EVENT (msg) {
+                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
                 that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
 
                 if (!that.isReconnecting) {
@@ -281,8 +286,8 @@ class XMPPService {
                 }
             });
 
-            this.xmppClient.on(STATUS_EVENT, msg => {
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " |", msg);
+            this.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (msg) {
+                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", msg);
                 /* if (msg === "closing") {
                      that.xmppClient.restartConnect().then((res) => {
                          that.logger.log("debug", LOG_ID + "(handleXMPPConnection) restartConnect result : ", res);
@@ -294,8 +299,8 @@ class XMPPService {
                  } // */
             });
 
-            this.xmppClient.on(STANZA_EVENT, (stanza) => {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " |", stanza.toString());
+            this.xmppClient.on(STANZA_EVENT, function fn_STANZA_EVENT (stanza) {
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
 
                 let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
@@ -306,7 +311,7 @@ class XMPPService {
                 });
 
                 if (!delivered) {
-                    that.logger.log("error", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed |", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));
+                    that.logger.log("error", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed | ", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));
                 }
 
                 switch (stanza.getName()) {
@@ -916,11 +921,12 @@ class XMPPService {
                 }
             });
 
-            this.xmppClient.on(ERROR_EVENT, async (err) => {
+            this.xmppClient.on(ERROR_EVENT, async function fn_ERROR_EVENT (err) {
                 if (err.code === "HPE_INVALID_CONSTANT") {
                     return;
                 }
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " |", util.inspect(err.condition || err));
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
+                //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
                 that.stopIdleTimer();
                 if (that.reconnect && err) {
                     // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
@@ -964,12 +970,16 @@ class XMPPService {
                             break;
                         // Conditions which are fatal errors and then need to stop the SDK.
                         case "see-other-host":
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : condition : ", err.condition, " is not supported the SDK");
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                         case "conflict":
                         case "unsupported-version":
-                        default:
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                             that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                            break;
+                        // Default condition, we do not know what to do, so to avoir wrong stop of SDK, we ignore it.
+                        default:
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
                             break;
                     }
                 } else {
@@ -977,27 +987,27 @@ class XMPPService {
                 }
             });
 
-            this.xmppClient.on(OFFLINE_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " |" + msg);
+            this.xmppClient.on(OFFLINE_EVENT, function fn_OFFLINE_EVENT (msg) {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
             });
 
-            this.xmppClient.on(CONNECT_EVENT, () => {
+            this.xmppClient.on(CONNECT_EVENT, function fn_CONNECT_EVENT () {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
             });
 
-            this.xmppClient.on(RECONNECT_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECT_EVENT : " + RECONNECT_EVENT + " |" + msg);
+            this.xmppClient.on(RECONNECT_EVENT, function fn_RECONNECT_EVENT (msg) {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECT_EVENT : " + RECONNECT_EVENT + " | " + msg);
             });
 
-            this.xmppClient.on(DISCONNECT_EVENT, async () => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |", {'reconnect': that.reconnect});
+            this.xmppClient.on(DISCONNECT_EVENT, async function fn_DISCONNECT_EVENT () {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " | ", {'reconnect': that.reconnect});
                 that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
                 let waitime = 11 + Math.floor(Math.random() * Math.floor(15));
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
                 await setTimeoutPromised(waitime);
                 if (that.reconnect) {
                     if (!that.isReconnecting) {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : try to reconnect...");
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : It is not already reconnecting, so try to reconnect...");
                         await that.reconnect.reconnect();
                     } else {
                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
@@ -1007,15 +1017,15 @@ class XMPPService {
                 }
             });
 
-            this.xmppClient.on(CLOSE_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " |" + msg);
+            this.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
             });
 
-            this.xmppClient.on(END_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " |" + msg);
+            this.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " | " + msg);
             });
 
-            this.reconnect.on(RECONNECTING_EVENT, () => {
+            this.reconnect.on(RECONNECTING_EVENT, function fn_RECONNECTING_EVENT () {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
                 if (that.reconnect) {
                     that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
@@ -1024,17 +1034,17 @@ class XMPPService {
                         that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT update reconnect delay - ${that.reconnect.delay} ms`);
 
                         that.eventEmitter.emit("rainbow_xmppreconnectingattempt");
-                        this.isReconnecting = true;
+                        that.isReconnecting = true;
                     } else {
                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - RECONNECTING_EVENT : Do nothing, already trying to reconnect...");
                     }
                 } else {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECTING_EVENT : reconnection disabled so no reconnect");
-                    this.isReconnecting = false;
+                    that.isReconnecting = false;
                 }
             });
 
-            this.reconnect.on(RECONNECTED_EVENT, () => {
+            this.reconnect.on(RECONNECTED_EVENT, function fn_RECONNECTED_EVENT () {
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTED_EVENT : " + RECONNECTED_EVENT);
                 that.fibonacciStrategy.reset();
                 that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
@@ -1113,11 +1123,11 @@ class XMPPService {
             this.xmppClient.start().then((jid) => {
                 that.logger.log("info", "started", jid.toString());
             })// */
-                .catch(err => {
+                .catch(async err => {
                     // rejects for any error before online
                     if (err.code === "HPE_INVALID_CONSTANT") {
                         that.logger.log("error", LOG_ID + "start reconnect ", err);
-                        that.reconnect.reconnect();
+                        await that.reconnect.reconnect();
                         return;
                     }
 
@@ -1169,14 +1179,14 @@ class XMPPService {
                 that.IQEventHandler = new IQEventHandler(that);
 
                 that.IQEventHandlerToken = [
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetReceived),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetReceived),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived)
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived.bind(that.IQEventHandler))
                 ];
 
                 that.handleXMPPConnection(headers);
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
                 that.startOrResetIdleTimer();
                 //resolve();
@@ -1219,13 +1229,16 @@ class XMPPService {
                     // Disconnect the xmpp connection
                     if (that.xmppClient) {
                         let stanza = xml("presence", {
-                            //to: that.jid_im + "/" + that.fullJid,
+                            //from to : that.jid_im + "/" + that.fullJid,
+                            //to: that.jid_im ,
                             type: "unavailable"
-                        }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
-                        stanza.append(xml("show", {}, "away"));
-                        stanza.append(xml("status", {}, "away"));
+                        //}, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
+                        }, null);
+                         // stanza.append(xml("show", {}, "away"));
+                         // stanza.append(xml("status", {}, "away"));
 
-                        that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         that.xmppClient.send(stanza);
 
                         that.xmppClient.stop().then(() => {
@@ -1238,11 +1251,11 @@ class XMPPService {
                             resolve();
                         });
                     } else {
-                        that.logger.log("debug", LOG_ID + "(stop) nothing to stop");
+                        that.logger.log("debug", LOG_ID + "(stop) nothing to stop that.xmppClient : ", that.xmppClient);
                         resolve();
                     }
                 } else {
-                    that.logger.log("debug", LOG_ID + "(stop) nothing to stop");
+                    that.logger.log("debug", LOG_ID + "(stop) nothing to stop, that.useXMPP : ", that.useXMPP, ", forceStop : ", forceStop) ;
                     resolve();
                 }
             } catch (err) {
@@ -1260,7 +1273,7 @@ class XMPPService {
         this.stopIdleTimer();
         if (!this.forceClose) {
             this.idleTimer = setTimeout(() => {
-                this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
+                this.logger.log("internal", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;
@@ -1847,7 +1860,7 @@ class XMPPService {
 
 
                 this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
-                this.xmppClient.sendIq(stanza).then((data) => {
+                this.xmppClient.sendIq(stanza).then((data : any) => {
                     let pbxagentstatus = {
                         "phoneapi": "",
                         "xmppagent": "",
@@ -2177,7 +2190,7 @@ class XMPPService {
         });
     }
 
-    sendPing() {
+    sendPing() : Promise<any>{
         let that = this;
         if (this.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -2187,9 +2200,10 @@ class XMPPService {
             }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
             this.logger.log("internal", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
-            this.xmppClient.send(stanza).catch((error) => {
+            return this.xmppClient.send(stanza).catch((error) => {
                 this.logger.log("error", LOG_ID + "(sendPing) error ");
                 this.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
+                return error;
             });
         } else {
             this.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");

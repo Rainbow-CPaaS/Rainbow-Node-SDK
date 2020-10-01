@@ -1,12 +1,11 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
+import {EventEmitter} from "events";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
@@ -53,7 +52,8 @@ const FeaturesEnum = {
     TELEPHONY_CALL_SUBJECT: "CALL_SUBJECT",
     CHANNEL_CREATE: "CHANNEL_CREATE",
     CHANNEL_CREATE_ADMIN_ROLE_BYPASS: "CHANNEL_CREATE_ADMIN_ROLE_BYPASS",
-    CHANNEL_ACTIVATED: "CHANNEL_ACTIVATED"
+    CHANNEL_ACTIVATED: "CHANNEL_ACTIVATED",
+    PERSONAL_CONFERENCE_ALLOWED:"CONFERENCE_ALLOWED"
 
     /*COMPANY_ADMIN_COUNT: "COMPANY_ADMIN_COUNT",
     COMPANY_LOGO_MODIFICATION: "COMPANY_LOGO_MODIFICATION",
@@ -121,6 +121,9 @@ class ProfilesService {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'ProfilesService'; }
+    getClassName(){ return ProfilesService.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;
@@ -350,11 +353,7 @@ class ProfilesService {
      */
     isFeatureEnabled (featureUniqueRef) {
         let that = this;
-        if (that.started &&
-            that.features.hasOwnProperty(featureUniqueRef) &&
-            that.features[featureUniqueRef].hasOwnProperty("featureType") &&
-            that.features[featureUniqueRef].featureType === "boolean" &&
-            that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
+        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
             let enabled = that.features[featureUniqueRef].isEnabled;
             that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
             return enabled;
@@ -365,11 +364,7 @@ class ProfilesService {
 
     getFeatureLimitMax (featureUniqueRef) {
         let that = this ;
-        if (that.started &&
-            that.features.hasOwnProperty(featureUniqueRef) &&
-            that.features[featureUniqueRef].hasOwnProperty("featureType") &&
-            that.features[featureUniqueRef].featureType === "number" &&
-            that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
+        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
             let limitMax = that.features[featureUniqueRef].limitMax;
             that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
             return limitMax;
@@ -380,11 +375,7 @@ class ProfilesService {
 
     getFeatureLimitMin (featureUniqueRef) {
         let that = this ;
-        if (that.started &&
-            that.features.hasOwnProperty(featureUniqueRef) &&
-            that.features[featureUniqueRef].hasOwnProperty("featureType") &&
-            that.features[featureUniqueRef].featureType === "number" &&
-            that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
+        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
             let limitMin = that.features[featureUniqueRef].limitMin;
             that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
             return limitMin;

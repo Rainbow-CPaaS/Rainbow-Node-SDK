@@ -1,11 +1,10 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
+import {EventEmitter} from "events";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
@@ -44,6 +43,9 @@ class Settings {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'Settings'; }
+    getClassName(){ return Settings.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;

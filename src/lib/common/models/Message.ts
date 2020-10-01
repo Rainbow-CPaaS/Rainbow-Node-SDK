@@ -32,6 +32,21 @@ class Message {
     public oob: any;
     public fromBubbleJid: any;
     public fromBubbleUserJid: any;
+    /**
+     * @public
+     * @property {string} answeredMsgId The Id of the message answered
+     * @readonly
+     */
+    public answeredMsgId: string;
+    public answeredMsg: Message;
+
+    /**
+     * @public
+     * @property {string} answeredMsgDate The Date of the message answered
+     * @readonly
+     */
+    public answeredMsgDate: string;
+    public answeredMsgStamp: string;
     fileTransfer: any;
     /*static ReceiptStatus: any;
     static Type: any;
@@ -117,7 +132,7 @@ class Message {
     ];
     public attention: boolean;
 
-    constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?, attention1 = false) {
+    constructor(id, type, date, from, side, data, status, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, fileId?, isMarkdown?, subject?, attention1 = false) {
 
         /**
          * @public
@@ -126,6 +141,10 @@ class Message {
          * @instance
          */
         this.id = id;
+        this.answeredMsg = answeredMsg;
+        this.answeredMsgId = answeredMsgId;
+        this.answeredMsgDate = answeredMsgDate;
+        this.answeredMsgStamp = answeredMsgStamp;
 
         /**
          * @public
@@ -306,6 +325,7 @@ class Message {
          * @instance
          */
         this.attention = attention1;
+
     }
 
     /**
@@ -313,7 +333,7 @@ class Message {
      * @method
      * @instance
      */
-    static create(id, date, from, side, data, status, isMarkdown?, subject?) {
+    static create(id, date, from, side, data, status,answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, isMarkdown?, subject?) {
         // convert emojione from unicode to short
         //let message = $filter("emojiUnicodeToShort")(data);
         const message = data;
@@ -326,6 +346,10 @@ class Message {
             side,
             data: message,
             status,
+            answeredMsg,
+            answeredMsgId,
+            answeredMsgDate,
+            answeredMsgStamp,
             fileId: null,
             isMarkdown,
             subject
@@ -454,7 +478,7 @@ class Message {
         //constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
         return (data: any): Message => {
 
-            let message = new Message(data.id, data.type, data.date, data.from, data.side, data.data, data.status, data.fileId, data.isMarkdown, data.subject, data.attention);
+            let message = new Message(data.id, data.type, data.date, data.from, data.side, data.data, data.status, data.answeredMsg, data.answeredMsgId, data.answeredMsgDate, data.answeredMsgStamp, data.fileId, data.isMarkdown, data.subject, data.attention);
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(message);
                 Object.getOwnPropertyNames(data).forEach(

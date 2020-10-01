@@ -1,6 +1,4 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -12,6 +10,7 @@ import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
 import {getBinaryData, logEntryExit, orderByFilter, resizeImage} from "../common/Utils";
+import {EventEmitter} from "events";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileServerService} from "./FileServerService";
@@ -72,6 +71,9 @@ class FileStorage {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'FileStorage'; }
+    getClassName(){ return FileStorage.getClassName(); }
 
     constructor(_eventEmitter, _logger, _startConfig) {
         this._startConfig = _startConfig;
@@ -1473,7 +1475,7 @@ class FileStorage {
                     // delete viewer from viewer list
                     let fd = that.getFileDescriptorById(fileId);
                     if (fd) {
-                        let index = -1;
+                        let index : number = -1;
                         for (let i = 0; i < fd.viewers.length; i++) {
                             if (fd.viewers[i].viewerId === viewerId) {
                                 index = i;

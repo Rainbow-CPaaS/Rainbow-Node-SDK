@@ -64,11 +64,11 @@ function client(options = {}) {
     ([k, v]) => ({[k]: v(sasl)})
   );
 
-  iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
+  //iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
   iqCallee.get('urn:xmpp:jingle:1', 'jingle', ctx => { return {} });
   iqCallee.set('urn:xmpp:jingle:1', 'jingle', ctx => { return {} });
-
-  return Object.assign(entity, {
+  let self = this;
+  Object.assign(entity, {
     entity,
     reconnect,
     tcp,
@@ -84,8 +84,21 @@ function client(options = {}) {
     resourceBinding,
     sessionEstablishment,
     mechanisms,
-  })
+  });
+  entity.getQuery = (NS, adverb, callback) => {
+    //client.iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
+    iqCallee.get(NS, adverb, callback);
+  };
+
+ entity.setQuery = (NS, adverb, callback) => {
+    //client.iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
+    iqCallee.set(NS, adverb, callback);
+  }; //*/
+  return entity;
 }
+
+
+
 
 module.exports.xml = xml;
 module.exports.jid = jid;

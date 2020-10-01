@@ -3,6 +3,62 @@ import {Conversation} from "./Conversation";
 
 export {};
 
+
+///
+/**
+ *
+ * @name Appreciation
+ * @description
+ * To store all Type of Appreciations to set on a item
+ */
+enum Appreciation
+{
+    // Applause
+    Applause = "applause",
+    // Doubt
+    Doubt = "doubt",
+    // Fantastic
+    Fantastic = "fantastic",
+    // Happy
+    Happy = "happy",
+    // Like
+    Like = "like",
+    // None (no appreciation)
+    None = "none"
+}
+
+
+/**
+ *
+ * @name Appreciations
+ * @description
+ * Number of applause, doubt, fantastic, happy and like appreciations for an item
+ */
+class Appreciations {
+    // Number of "Applause" appreciation
+    public Applause;
+
+    // <see cref="int"/> - Number of "Doubt" appreciation
+    public Doubt;
+
+    // <see cref="int"/> - Number of "Fantastic" appreciation
+    public Fantastic;
+
+    // <see cref="int"/> - Number of "Happy" appreciation
+    public Happy;
+
+    // <see cref="int"/> - Number of "Like" appreciation
+    public Like;
+
+    // Serialize this object to string
+    // <returns><see cref="String"/> as serialization result</returns>
+    ToString() {
+        let tab = " ";
+
+        return ("Applause:[" + this.Applause + "] " + tab + "Doubt:[" + this.Doubt + "] " + tab + "Fantastic:[" + this.Fantastic + "] " + tab + "Happy:[" + this.Happy + "] " + tab + "Like:[" + this.Like + "]");
+    }
+}
+
 /**
  * @class
  * @public
@@ -40,6 +96,7 @@ class Channel {
     public messageRetrieved: boolean = false;
     public messages: any[] = [];
     public deleted: boolean = false;
+    public mute: boolean = false;
 
     /**
      * @this Channel
@@ -73,7 +130,8 @@ class Channel {
         _userRole: string = 'none',
         _messageRetrieved: boolean = false,
         _messages: any[] = [],
-        _deleted: boolean = false
+        _deleted: boolean = false,
+        _mute: boolean = false
     ) {
         /**
          * @public
@@ -183,6 +241,8 @@ class Channel {
         }
 
         this.deleted = _deleted;
+
+        this.mute = _mute;
     }
 
     public isNotMember() { return (this.userRole = "none"); }
@@ -259,7 +319,8 @@ class Channel {
                 data.userRole,
                 data.messageRetrieved,
                 data.messages,
-                data.deleted
+                data.deleted,
+                data.mute
         );
 
             if (data) {
@@ -281,4 +342,5 @@ class Channel {
 
 
 module.exports.Channel = Channel;
-export {Channel};
+module.exports.Appreciation = Appreciation;
+export {Channel, Appreciation};

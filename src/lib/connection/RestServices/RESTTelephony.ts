@@ -15,6 +15,9 @@ class RESTTelephony {
 	public _logger: any;
 	public evtEmitter: any;
 
+    static getClassName(){ return 'RESTTelephony'; }
+    getClassName(){ return RESTTelephony.getClassName(); }
+
     constructor(evtEmitter, logger) {
         let that = this;
         that.evtEmitter = evtEmitter;

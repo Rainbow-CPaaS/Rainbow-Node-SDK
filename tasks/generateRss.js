@@ -10,7 +10,8 @@ module.exports = function(grunt) {
         const fs = require("fs");
         const path = require("path");
         const RSS = require('rss');
-        const uuid4 = require("uuid/v4");
+        //const uuid4 = require("uuid/v4");
+        const { v4: uuid4 } = require('uuid');
 
         function  generateRandomID() {
             return uuid4();
@@ -47,15 +48,18 @@ module.exports = function(grunt) {
         });
 
         let tabFiles = this.files;
+        grunt.log.writeln(">> tabFiles : ", tabFiles );
         //console.log(">> tabFiles : ", tabFiles );
 
-        if (!tabFiles) {
+        if (!tabFiles || !Array.isArray(tabFiles)) {
             grunt.log.writeln(">> tabfiles not defined.");
         }
 
-        const iterator = tabFiles.values();
+        //const iterator = tabFiles.values();
+        //for (const file of iterator) {
 
-        for (const file of iterator) {
+        for (let iter=0 ; iter < tabFiles.length ; iter++ ) {
+            let file = tabFiles[iter];
             grunt.log.writeln(">> src : " + file.src + " to dest : " + file.dest + ", path.join(__dirname, file.src) : ", path.join(__dirname, "../" + file.src.toString()));
             let data = fs.readFileSync(path.join(__dirname, "../" + file.src), "utf8");
             //grunt.log.writeln("data read ");
@@ -110,27 +114,29 @@ module.exports = function(grunt) {
 
                 // Feature item of list of the version : build the line of feature
                 if (markdownElt[0] === "bulletlist") {
-                        const iteratormdElmt = markdownElt.values();
+                        //const iteratormdElmt = markdownElt.values();
                         //console.log("bulletlist iteratormdElmt.length : ", iteratormdElmt.length);
-                        for (const mdElt of iteratormdElmt) {
-
+                    markdownElt.forEach(mdElt => {
+                        //grunt.log.writeln(">> mdElet : ", mdElt);
+                    //for (const mdElt of iteratormdElmt) {
                             // eslint-disable-next-line max-depth
                             if (mdElt[0] === "listitem") {
                                 //console.log("listitem found : ", mdElt.values());
-                                const iteratormdElmtData = mdElt.values();
+                                //const iteratormdElmtData = mdElt.values();
                                 item.description +=  "- ";
                                 // eslint-disable-next-line max-depth
-                                for (const mdDataElt of iteratormdElmtData) {
+                                mdElt.forEach(mdDataElt => {
+//                                    for (const mdDataElt of iteratormdElmtData) {
                                     // eslint-disable-next-line max-depth
                                     if (mdDataElt !== "listitem") {
                                         //console.log("iter data mdDataElt : ", mdDataElt);
                                         item.description +=   mdDataElt;
                                     }
 
-                                }
+                                });
                                 item.description += "<br>\n";
                             }
-                        } // */
+                        });// */
                 }
 
             }

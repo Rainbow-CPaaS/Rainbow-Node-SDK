@@ -24,7 +24,7 @@ module.exports = function(grunt) {
             { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
             { src: "lib/services/S2SService.js", dest: "build/s2s.md" },
             { src: "lib/services/TelephonyService.js", dest: "build/telephony.md" },
-            { src: "index.js", dest: "build/sdk.md" },
+            { src: "lib/NodeSDK.js", dest: "build/sdk.md" },
             { src: "lib/common/models/Bubble.js", dest: "build/bubble.md" },
             { src: "lib/common/models/Channel.js", dest: "build/channel.md" },
             { src: "lib/common/models/Call.js", dest: "build/call.md" },
@@ -113,7 +113,7 @@ module.exports = function(grunt) {
                 "lib/services/PresenceService.js",
                 "lib/services/S2SService.js",
                 "lib/services/TelephonyService.js",
-                "index.js",
+                "lib/NodeSDK.js",
                 "lib/common/Events.js",
                 "lib/common/models/Bubble.js",
                 "lib/common/models/Call.js",
@@ -209,7 +209,7 @@ module.exports = function(grunt) {
         options: {
             "project": "./",
             "baseDir": "./",
-            "out": "typings/rainbow-sdk-node.d.ts"
+            "out": "./typings/rainbow-node-sdk.d.ts"
         },
         "default": {
             src: [ "src/**/*.ts" ]
@@ -231,7 +231,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("dts-generator");
 
   grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build"]);
   grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("defaultDEBUG", ["prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
 //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);

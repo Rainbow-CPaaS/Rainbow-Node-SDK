@@ -11,7 +11,7 @@ import {XMPPUTils} from "../common/XMPPUtils";
 import {logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import EventEmitter = NodeJS.EventEmitter;
+import {EventEmitter} from "events";
 import {BubblesService} from "./BubblesService";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
@@ -25,7 +25,7 @@ const LOG_ID = "IM/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @name IMService
+ * @name Im
  * @version SDKVERSION
  * @public
  * @description
@@ -59,6 +59,9 @@ class IMService {
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'IMService'; }
+    getClassName(){ return IMService.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions, _startConfig) {
         this._startConfig = _startConfig;
@@ -429,10 +432,12 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent : any = Promise.reject();
+        let messageSent : any = undefined;
 
         if (this._useXMPP) {
              messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+        } else {
+            messageSent = Promise.reject("only supported in xmpp mode");
         }
 
         /*

@@ -1,6 +1,4 @@
 "use strict";
-import EventEmitter = NodeJS.EventEmitter;
-
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -8,6 +6,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
@@ -48,6 +47,9 @@ const LOG_ID = "GROUPS/SVCE - ";
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
+
+    static getClassName(){ return 'GroupsService'; }
+    getClassName(){ return GroupsService.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
         this._startConfig = _startConfig;

@@ -4,7 +4,8 @@
 
 //const Call = require("./Call");
 import {Call} from "./Call";
-const uuid4 = require("uuid/v4");
+//const uuid4 = require("uuid/v4");
+import { v4 as uuid4 } from 'uuid';
 
 
 /**
