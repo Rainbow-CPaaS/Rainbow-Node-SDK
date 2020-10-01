@@ -4284,7 +4284,7 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(deleteTagOnABubble) REST params : ", params);
 
-            that.http.delete("/api/rainbow/enduser/v1.0/rooms/tags" , that.getPostHeader(), params).then((json) => {
+            that.http.delete("/api/rainbow/enduser/v1.0/rooms/tags" , that.getPostHeader(), JSON.stringify(params)).then((json) => {
                 that.logger.log("info", LOG_ID + "(deleteTagOnABubble) successfull");
                 that.logger.log("internal", LOG_ID + "(deleteTagOnABubble) REST result : ", json.data);
                 resolve(json.data);
