@@ -463,7 +463,7 @@ class Events {
             try {
                 if (bubble && bubble.users) {
                     bubble.users.forEach(async (user) => {
-                        if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                        if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted" && that._core.options._imOptions.autoInitialBubblePresence) {
                             // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
                             //that._core.bubbles._sendInitialBubblePresence(bubble);
                             await that._core._presence.sendInitialBubblePresence(bubble);
