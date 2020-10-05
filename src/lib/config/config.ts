@@ -104,6 +104,7 @@ let conf =  {
         nbMaxConversations: 15,
         rateLimitPerHour: 1000,
         messagesDataStore: DataStoreType.UsestoreMessagesField,
+        autoInitialBubblePresence: true
 
     },
     mode:"xmpp",

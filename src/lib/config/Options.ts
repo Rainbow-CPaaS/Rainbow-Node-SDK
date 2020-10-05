@@ -330,7 +330,8 @@ class Options {
             copyMessage: false,
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
-            messagesDataStore: DataStoreType.UsestoreMessagesField
+            messagesDataStore: DataStoreType.UsestoreMessagesField,
+            autoInitialBubblePresence: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -348,6 +349,7 @@ class Options {
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
+        optionsIM.autoInitialBubblePresence = (! this._options.im.autoInitialBubblePresence) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
 
         return optionsIM;
     }

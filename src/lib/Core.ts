@@ -344,6 +344,9 @@ class Core {
         self.options = new Options(options, self.logger);
         self.options.parse();
 
+        self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
+
+
         // Initialize the Events Emitter
         self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);

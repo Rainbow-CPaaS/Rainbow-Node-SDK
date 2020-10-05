@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.78.0-dotnet.0] - 2020-10-XX
+-   Add option `autoInitialBubblePresence` to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+
 ## [1.77.0] - 2020-09-30
 -   Add Body in HttpService::delete request.
 -   Extract method from RESTService constructor to core of the class.
