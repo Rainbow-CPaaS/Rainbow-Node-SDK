@@ -145,7 +145,7 @@ let options = {
         "nbMaxConversations": 15,
         "rateLimitPerHour": 1000,
         "messagesDataStore": DataStoreType.StoreTwinSide,
-        "autoInitialBubblePresence": false
+        "autoInitialBubblePresence": true
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
