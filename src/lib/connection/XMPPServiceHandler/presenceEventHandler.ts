@@ -62,7 +62,7 @@ class PresenceEventHandler extends GenericHandler {
                     "presence": presenceRainbow.presenceLevel,
                     "status": presenceRainbow.presenceStatus,
 
-                    "type": xmppUtils.isFromTelJid(from) ?
+                    "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
                         "phone" :
                         xmppUtils.isFromMobile(from) ?
                             "mobile" :
@@ -210,7 +210,7 @@ class PresenceEventHandler extends GenericHandler {
                         //status: status || "",
                         show: presenceRainbow.presenceShow,
                         status: presenceRainbow.presenceStatus,
-                        type: xmppUtils.isFromTelJid(from) ?
+                        "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
                             "phone" :
                             xmppUtils.isFromMobile(from) ?
                                 "mobile" :

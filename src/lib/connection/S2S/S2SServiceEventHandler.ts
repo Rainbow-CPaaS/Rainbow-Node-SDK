@@ -191,9 +191,9 @@ class S2SServiceEventHandler {
                             /*"status": show,
                             "message": status,
                             // */
-                            presence : presenceRainbow.presenceLevel,
-                            status : presenceRainbow.presenceStatus,
-                            "type": that.xmppUtils.isFromTelJid(resource) ?
+                            "presence" : presenceRainbow.presenceLevel,
+                            "status" : presenceRainbow.presenceStatus,
+                            "type": that.xmppUtils.isFromCalendarJid(resource) ? "calendar" : that.xmppUtils.isFromTelJid(resource) ?
                                 "phone" :
                                 that.xmppUtils.isFromMobile(resource) ?
                                     "mobile" :
@@ -205,18 +205,18 @@ class S2SServiceEventHandler {
                         that._eventEmitter.emit("evt_internal_presencechanged", eventInfo);
                     } else {
                         let evtParam =  {
-                            fulljid: from,
-                            jid: contact.jid_im, //xmppUtils.getBareJIDFromFullJID(from),
+                            "fulljid": from,
+                            "jid": contact.jid_im, //xmppUtils.getBareJIDFromFullJID(from),
                             contact,
-                            resource: resource, //xmppUtils.getResourceFromFullJID(from),
-                            value: {
-                                priority: 5,
+                            "resource": resource, //xmppUtils.getResourceFromFullJID(from),
+                            "value": {
+                                "priority": 5,
                                 //show: show || "",
-                                delay: 0,
+                                "delay": 0,
                                 //status: status || "",
-                                show : presenceRainbow.presenceShow,
-                                status : presenceRainbow.presenceStatus,
-                                type: that.xmppUtils.isFromTelJid(resource) ?
+                                "show" : presenceRainbow.presenceShow,
+                                "status" : presenceRainbow.presenceStatus,
+                                "type": that.xmppUtils.isFromCalendarJid(resource) ? "calendar" : that.xmppUtils.isFromTelJid(resource) ?
                                     "phone" :
                                     that.xmppUtils.isFromMobile(resource) ?
                                         "mobile" :

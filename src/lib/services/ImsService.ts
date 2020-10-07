@@ -604,7 +604,7 @@ class IMService {
 
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
-        if (bubble.isActive && that._options._imOptions.autoInitialBubblePresence) {
+        if (bubble.isActive ) {
             let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions);
             return messageSent1;
         } else {
@@ -613,9 +613,11 @@ class IMService {
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that._presence.sendInitialBubblePresence(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
+                /*
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
+                // */
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
                 let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions);
                 return messageSent;
@@ -683,7 +685,7 @@ class IMService {
 
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
-        if (bubble.isActive && that._options._imOptions.autoInitialBubblePresence) {
+        if (bubble.isActive) {
             let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions);
             return messageSent;
         } else {
@@ -692,9 +694,11 @@ class IMService {
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that._presence.sendInitialBubblePresence(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
+                /*
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
+                 */
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
                 let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions);
                 return messageSent;

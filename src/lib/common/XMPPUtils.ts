@@ -142,6 +142,10 @@ export class XMPPUTils {
         return (fullJid.indexOf("tel_") === 0);
     }
 
+    isFromCalendarJid(fullJid) {
+        return ((fullJid.indexOf("tel_") === 0) && this.getResourceFromFullJID(fullJid) == "calendar");
+    }
+
     getResourceFromFullJID(fullJid) {
         if (fullJid.includes("/")) {
             return fullJid.substring(fullJid.indexOf("/") + 1);

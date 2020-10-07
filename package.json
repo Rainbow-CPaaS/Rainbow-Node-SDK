@@ -78,6 +78,7 @@
     "@types/node": "^13.13.13",
     "@xmpp/client": "^0.11.1",
     "@xmpp/xml": "^0.11.0",
+    "async-lock": "^1.2.4",
     "atob": "^2.1.2",
     "backoff": "^2.5.0",
     "body-parser": "^1.19.0",

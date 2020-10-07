@@ -432,7 +432,16 @@ class PresenceService {
             }
             else {
                 if (that._useXMPP) {
-                    resolve(that._xmpp.sendInitialBubblePresence(bubble.jid));
+                    let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
+                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble);
+                    // Wait for the bubble to be active
+                    await until(() => {
+                        return bubble.isActive === true;
+                    }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
+                        that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble , " : ", err);
+                    });
+                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble);
+                    resolve(result);
                 }
                 if (that._useS2S) {
                     let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
