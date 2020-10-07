@@ -143,9 +143,9 @@ let options = {
         "storeMessages": false,
         "copyMessage": true,
         "nbMaxConversations": 15,
-        "rateLimitPerHour": 1000,
+        "rateLimitPerHour": 100000,
         "messagesDataStore": DataStoreType.StoreTwinSide,
-        "autoInitialBubblePresence": true
+        "autoInitialBubblePresence": false
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -1803,6 +1803,11 @@ function  testupdateAvatarForBubble() {
     let result = rainbowSDK.bubbles.getAllOwnedBubbles();
     logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length : 0);
     rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", result[0]);
+}
+
+function  testgetAllOwnedBubbles() {
+    let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+    logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length : 0);
 }
 
 async function  testgetAvatarFromBubble() {
