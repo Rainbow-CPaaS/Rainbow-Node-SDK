@@ -31,6 +31,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Refactor the way the presence is sent in bubble at startup with the `BubblesManager` in `BubblesService`. Presence is now sent it by group of bubbles, and there is a timer when it failed to avoid flood of server.
 -   Add option `autoInitialBubblePresence` to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
 -   Add decode of calendar presence event with `isFromCalendarJid`
+-   Add TelephonyService::getMediaPillarInfo method to retrieve the Jabber id of the Media Pillar linked to the system user belongs to.
 
 
 ### SDK for Node.JS 1.77 - September 2020

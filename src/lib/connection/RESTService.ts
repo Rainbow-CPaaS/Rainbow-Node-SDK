@@ -1108,6 +1108,27 @@ Request Method: PUT
         });
     }
 
+    /**
+     * @description
+     *      https://api.openrainbow.org/mediapillar/#api-mediapillars-GetMediaPillarsData
+     * @return {Promise<unknown>}
+     */
+    getMediaPillarInfo(){
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/mediapillar/v1.0/mediapillars/data", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getMediaPillarInfo) successfull");
+                that.logger.log("internal", LOG_ID + "(getMediaPillarInfo) received ", json, " MediaPillar Info");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMediaPillarInfo) error");
+                that.logger.log("internalerror", LOG_ID, "(getMediaPillarInfo) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //region BUBBLES
 
     createBubble(name, description, withHistory) {
