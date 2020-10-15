@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.78.0] - 2020-10-07
+## [1.78.0-dotnet.1] - 2020-10-15
 -   Add `AdminService::getUserPresenceInformation` method to get user presence information.
 -   Refactor the way the presence is sent in bubble at startup with a BubblesManager. Presence is now sent it by group of bubbles, and there is a timer when it failed to avoid flood of server.
 -   Move the `XMPPService::handleXMPPConnection` method from the constructor to be a fully class method.
