@@ -222,7 +222,8 @@ class BubblesManager {
                         if ( bubble ) {
                             that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", for the initial presence to bubble : ", bubble);
                             await that.addBubbleToJoinInProgress(bubble); // poolBubbleJoinInProgress.add(bubble.jid, bubble);
-                            if (getRandomInt(2) == 1 || true) {
+                            let test = false
+                            if (getRandomInt(2) == 1 || !test) {
                                 that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubble : ", bubble.jid);
                                 await that._presence.sendInitialBubblePresence(bubble);
                             } else {
