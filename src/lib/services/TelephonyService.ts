@@ -477,6 +477,58 @@ class Telephony {
     }
 
     /**
+     *
+     /**
+     * @public
+     * @method getMediaPillarInfo
+     * @instance
+     * @description
+     *   This API allows user to retrieve the Jabber id of the Media Pillar linked to the system he belongs, or Media Pillar user to retrieve the Jabber id credentials and data of the Media Pillar he belongs.
+     * @async
+     * @return {Promise<any>}
+     * @category async
+     */
+     public getMediaPillarInfo() : Promise<any>{
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+
+            if (!that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_WEBRTC_PSTN_CALLING))
+            {
+                that._logger.log("error", LOG_ID + "(getMediaPillarInfo) MediaPillar is NOT allowed");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST) ;
+            }
+
+            that._logger.log("debug", LOG_ID + "(getMediaPillarInfo) MediaPillar is allowed");
+
+            that._rest.getMediaPillarInfo().then(function (json) {
+                that._logger.log("info", LOG_ID + "(getMediaPillarInfo) retrieve successfull");
+                let jid_im = json["jid_im"];
+                let prefix = json["prefix"];
+                let rainbowPhoneNumber = json["rainbowPhoneNumber"];
+                let mediaPillarInfo;
+
+                if ((prefix != null) && (rainbowPhoneNumber != null))
+                {
+                    mediaPillarInfo = {};
+                    mediaPillarInfo.Jid = (jid_im.IndexOf("/") > 0) ? jid_im : jid_im + "/mediapillar";
+                    mediaPillarInfo.Prefix = prefix;
+                    mediaPillarInfo.RainbowPhoneNumber = rainbowPhoneNumber;
+                    mediaPillarInfo.RemoteExtension = prefix + rainbowPhoneNumber;
+
+                    that._logger.log("debug", LOG_ID + "(getMediaPillarInfo) mediaPillarInfo : ", mediaPillarInfo);
+                }
+                resolve(mediaPillarInfo);
+
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getMediaPillarInfo) error.");
+                that._logger.log("internalerror", LOG_ID + "(getMediaPillarInfo) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
      * @private
      * @param connectionElemObj
      */
