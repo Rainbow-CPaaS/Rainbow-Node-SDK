@@ -1078,7 +1078,8 @@ class Bubbles {
                             if (that._options._imOptions.autoInitialBubblePresence) {
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(getBubbles) send initial presence to room : ", bubble.jid);
-                                    prom.push(that._presence.sendInitialBubblePresence(bubble));
+                                    //prom.push(that._presence.sendInitialBubblePresence(bubble));
+                                    prom.push(that.bubblesManager.addBubbleToJoin(bubble));
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -1089,7 +1090,13 @@ class Bubbles {
                     });
                 });
 
-                Promise.all(prom).then(() => {
+                Promise.all(prom).then(async () => {
+                    if (that._options._imOptions.autoInitialBubblePresence) {
+                        await that.bubblesManager.treatAllBubblesToJoin();
+                    } else {
+                        that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not treatAllBubblesToJoin");
+                    }
+
                     return that.retrieveConferences(undefined, false, false).then((conferences) => {
                         that._logger.log("info", LOG_ID + "(getBubbles) retrieveAllConferences : ", conferences);
                         resolve();

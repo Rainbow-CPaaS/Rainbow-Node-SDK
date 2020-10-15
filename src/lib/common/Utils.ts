@@ -76,7 +76,7 @@ let anonymizePhoneNumber = function (number) {
     return result;
 };
 
-let setTimeoutPromised = function(time) {
+let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
           try {
@@ -84,11 +84,14 @@ let setTimeoutPromised = function(time) {
           } catch (err) {
               return reject(err);
           }
-      }, time);
+      }, timeOutMs);
     });
 };
 
-
+let pause = setTimeoutPromised;
+/*let pause = function (timeToWaitMS) : Promise<any> {
+    return setTimeoutPromised(timeToWaitMS);
+} // */
 
 /*
 myFunction() in the original question can be modified as follows
@@ -420,5 +423,6 @@ export {
     logEntryExit,
     resizeImage,
     getBinaryData,
-    getRandomInt
+    getRandomInt,
+    pause
     };

@@ -145,7 +145,7 @@ let options = {
         "nbMaxConversations": 15,
         "rateLimitPerHour": 100000,
         "messagesDataStore": DataStoreType.StoreTwinSide,
-        "autoInitialBubblePresence": false
+        "autoInitialBubblePresence": true
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -455,6 +455,15 @@ rainbowSDK.events.on("rainbow_onstopped", (data) => {
     //}, 1);
     // */
 });
+
+function testgetUserPresenceInformation() {
+    rainbowSDK.admin.getUserPresenceInformation().then(result => {
+        logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
+    }).catch((err) => {
+        logger.log("error", "MAIN - [getUserPresenceInformation    ] :: catch reject contact : ", err);
+    });
+}
+
 function testgetContactByLoginEmail_UnknownUser() {
     let usershouldbeUnkown = "unknowcontact@openrainbow.org";
     rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {

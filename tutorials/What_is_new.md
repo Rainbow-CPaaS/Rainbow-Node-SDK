@@ -6,6 +6,33 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.78 - October 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add `AdminService::getUserPresenceInformation` method to get user presence information.
+-   Add BubblesManager class used to join bubbles by pool with initial XMPP presence.
+-   Refactor the way the presence is sent in bubble at startup with the `BubblesManager` in `BubblesService`. Presence is now sent it by group of bubbles, and there is a timer when it failed to avoid flood of server.
+-   Add option `autoInitialBubblePresence` to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+-   Add decode of calendar presence event with `isFromCalendarJid`
+
+
 ### SDK for Node.JS 1.77 - September 2020
 
 ---

@@ -1014,6 +1014,43 @@ class Admin {
         });
     }
 
+    /**
+     *
+     * @public
+     * @method getUserPresenceInformation
+     * @instance
+     * @description
+     *      Get presence informations about a user
+     *
+     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc).
+     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile.
+     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned .
+     * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id.
+     * @async
+     * @return {Promise<any>}
+     * @category async
+     */
+    getUserPresenceInformation(userId?:undefined) : Promise <any> {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getUserPresenceInformation(userId).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(getUserPresenceInformation) Successfully get Contact Infos");
+                    that._logger.log("internal", LOG_ID + "(getUserPresenceInformation) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getUserPresenceInformation) ErrorManager when get contact infos ");
+                    that._logger.log("internalerror", LOG_ID + "(getUserPresenceInformation) ErrorManager when get contact infos : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getUserPresenceInformation) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
     //region Offers and Subscriptions.
     /**
      * @public

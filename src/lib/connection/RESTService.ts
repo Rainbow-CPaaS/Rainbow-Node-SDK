@@ -1082,6 +1082,32 @@ Request Method: PUT
         });
     }
 
+    /**
+     * @description
+     *      https://api.openrainbow.org/admin/#api-users_presence-admin_users_GetUserPresence
+     * @param {any} userId
+     * @return {Promise<unknown>}
+     */
+    getUserPresenceInformation(userId = undefined){
+        let that = this;
+
+        if (!userId) {
+            userId = that.userId;
+        }
+
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/admin/v1.0/users/" + userId + "/presences", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getUserPresenceInformation) successfull");
+                that.logger.log("internal", LOG_ID + "(getUserPresenceInformation) received ", json, " user presence.");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getUserPresenceInformation) error");
+                that.logger.log("internalerror", LOG_ID, "(getUserPresenceInformation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //region BUBBLES
 
     createBubble(name, description, withHistory) {
