@@ -22,7 +22,7 @@ export{};
 
 const LOG_ID = "BUBBLES/MNGR - ";
 
-const RECONNECT_INITIAL_DELAY = 10000;
+const RECONNECT_INITIAL_DELAY = 15000;
 const RECONNECT_MAX_DELAY = 120000;
 
 @logEntryExit(LOG_ID)
@@ -55,7 +55,7 @@ class BubblesManager {
     private lockEngine: any;
     private lockKey = "LOCK_BUBBLE_MANAGER";
     private nbBubbleAdded : number = 0;
-    private delay: number = 10;
+    private delay: number = 15000;
 
     static getClassName() {
         return 'BubblesManager';
@@ -222,7 +222,7 @@ class BubblesManager {
                         if ( bubble ) {
                             that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", for the initial presence to bubble : ", bubble);
                             await that.addBubbleToJoinInProgress(bubble); // poolBubbleJoinInProgress.add(bubble.jid, bubble);
-                            let test = false
+                            let test = false;
                             if (getRandomInt(2) == 1 || !test) {
                                 that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubble : ", bubble.jid);
                                 await that._presence.sendInitialBubblePresence(bubble);
@@ -244,7 +244,7 @@ class BubblesManager {
                         await pause(that.delay);
                         that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of 10 bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
                         await that.resetBubbleFromJoinInProgressToBubbleToJoin();
-                        //that.delay = that.fibonacciStrategy.next();
+                        that.delay = that.fibonacciStrategy.next();
                     });
                     that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) END treat group of 10 bubbles to join from poolBubbleJoinInProgress, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
                 }
