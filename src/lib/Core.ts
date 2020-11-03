@@ -30,6 +30,7 @@ import {setFlagsFromString} from "v8";
 import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
 import {ErrorManager} from "./common/ErrorManager";
+import {AlertsService} from "./services/AlertsService";
 
 import {lt} from "semver";
 import {S2SService} from "./services/S2SService";
@@ -71,6 +72,7 @@ class Core {
 	public _fileStorage: FileStorageService;
     public _calllog: CallLogService;
     public _favorites: FavoritesService;
+    public _alerts: AlertsService;
     public _invitations: InvitationsService;
 	public _botsjid: any;
     public _webrtc: WebRtcService;
@@ -185,13 +187,19 @@ class Core {
                             }
                         });
                     }).catch((error) => {
-                        self.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                        self.logger.log("error", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
                         // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
                     });
                 }
 
                 if (that.options.useS2S) {
-                    return that._contacts.getRosters()
+                    let result: Promise<any> = Promise.resolve();
+                    if (that.options.imOptions.autoLoadContacts) {
+                        result = that._contacts.getRosters();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                    }
+                    return result
                         .then(() => {
                             return that._profiles.init();
                         }).then(() => {
@@ -224,11 +232,18 @@ class Core {
                             }) : [];
                             return Promise.resolve();
                         }).then(() => {
-                            return that._conversations.getServerConversations();
+                            if (that.options.imOptions.autoLoadConversations) {
+                                return that._conversations.getServerConversations();
+                            } else {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                                return;
+                            }
                         }).then(() => {
                             return that._calllog.init();
                         }).then(() => {
                             return that._favorites.init();
+                        }).then(() => {
+                            return that._alerts.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
@@ -246,7 +261,13 @@ class Core {
                     return resolve();
                 }
                 if (that.options.useXMPP) {
-                    return that._contacts.getRosters()
+                    let result: Promise<any> = Promise.resolve();
+                    if (that.options.imOptions.autoLoadContacts) {
+                        result = that._contacts.getRosters();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                    }
+                    return result
                         .then(() => {
                             return that._profiles.init();
                         }).then(() => {
@@ -272,19 +293,26 @@ class Core {
                             return that.im.enableCarbon();
                         }).then(() => {
                             return that._rest.getBots();
-                        }).then((bots : any) => {
+                        }).then((bots: any) => {
                             that._botsjid = bots ? bots.map((bot: any) => {
                                 return bot.jid;
                             }) : [];
                             return Promise.resolve();
                         }).then(() => {
-                            return that._conversations.getServerConversations();
+                            if (that.options.imOptions.autoLoadConversations) {
+                                return that._conversations.getServerConversations();
+                            } else {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                                return;
+                            }
                         }).then(() => {
                             return that._calllog.init();
                         }).then(() => {
                             return that._webrtc.init();
                         }).then(() => {
                             return that._favorites.init();
+                        }).then(() => {
+                            return that._alerts.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
@@ -458,7 +486,7 @@ class Core {
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
         self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations);
+        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations);
         self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
         self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
         self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
@@ -469,6 +497,7 @@ class Core {
         self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
+        self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
         self._webrtc = new WebRtcService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.webrtc);
 
@@ -535,6 +564,8 @@ class Core {
                         return that._webrtc.start(that._xmpp, that._rest, that._profiles) ;
                     }).then(() => {
                         return that._favorites.start(that.options, that) ;
+                    }).then(() => {
+                        return that._alerts.start(that.options, that) ;
                     }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
@@ -635,6 +666,8 @@ class Core {
                 return that._webrtc.stop();
             }).then(() => {
                 return that._favorites.stop();
+            }).then(() => {
+                return that._alerts.stop();
             }).then(() => {
                 return that._invitations.stop();
             }).then(() => {

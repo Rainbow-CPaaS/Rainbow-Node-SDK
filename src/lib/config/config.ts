@@ -104,7 +104,9 @@ let conf =  {
         nbMaxConversations: 15,
         rateLimitPerHour: 1000,
         messagesDataStore: DataStoreType.UsestoreMessagesField,
-        autoInitialBubblePresence: true
+        autoInitialBubblePresence: true,
+        autoLoadConversations: true,
+        autoLoadContacts: true
 
     },
     mode:"xmpp",
@@ -171,6 +173,10 @@ let conf =  {
                 optional:true
             }, //need services :  (that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
             favorites:  {
+                start_up:true,
+                optional:true
+            }, //need services :  (that._xmpp, that._rest);
+            alerts:  {
                 start_up:true,
                 optional:true
             }, //need services :  (that._xmpp, that._rest);

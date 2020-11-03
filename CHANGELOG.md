@@ -6,6 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.79.0] - 2020-11-XX
+-   Start to add the alert system.
+-   Add autoLoadConversations option to activate the retrieve of conversations from the server. The default value is true.
+-   Add autoLoadContacts option to activate the retrieve of contacts from roster from the server. The default value is true.
+-   Update the XMPPService::markMessageAsReceived with a parameter conversationType to define the type of message marked as read.
+-   Add AdminService::subscribeCompanyToAlertOffer and AdminService::unSubscribeCompanyToAlertOffer to manage the subscription to "Alert Demo" features.
+
 ## [1.78.0] - 2020-10-15
 -   Add TelephonyService::getMediaPillarInfo method to retrieve the Jabber id of the Media Pillar linked to the system user belongs to.
 

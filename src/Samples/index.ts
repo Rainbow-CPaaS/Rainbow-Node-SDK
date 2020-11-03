@@ -145,7 +145,9 @@ let options = {
         "nbMaxConversations": 15,
         "rateLimitPerHour": 100000,
         "messagesDataStore": DataStoreType.StoreTwinSide,
-        "autoInitialBubblePresence": true
+        "autoInitialBubblePresence": true,
+        "autoLoadConversations": true,
+        "autoLoadContacts": true
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -168,12 +170,15 @@ let options = {
             "start_up": true,
         },
         "fileStorage": {
-            start_up: true,
+            "start_up": true,
         },
         "calllog": {
             "start_up": true,
         },
         "favorites": {
+            "start_up": true,
+        },
+        "alerts": {
             "start_up": true,
         }, //need services :
         "webrtc": {
@@ -2035,6 +2040,38 @@ async function testgetConnectionStatus() {
     logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
 }
 
+//region Alerts
+    async function testgetDevices() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id,"","","",0,100);
+        logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.length : 0);
+        if (result.length > 0) {
+                logger.log("debug", "MAIN - testgetDevices - devices : ", result);
+        }
+        //});
+    }
+    async function testgetFilters() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getFilters(0,100);
+        logger.log("debug", "MAIN - testgetFilters - result : ", result, " nb filters : ", result ? result.length : 0);
+        if (result.length > 0) {
+                logger.log("debug", "MAIN - testgetFilters - filters : ", result);
+        }
+        //});
+    }
+
+    async function testgetAlerts() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getAlerts();
+        logger.log("debug", "MAIN - testgetAlerts - result : ", result, " nb alerts : ", result ? result.length : 0);
+        if (result.length > 0) {
+                logger.log("debug", "MAIN - testgetAlerts - alerts : ", result);
+        }
+        //});
+    }
+
+//endregion Alerts
+
 function commandLineInteraction() {
     let questions = [
         {
@@ -2074,10 +2111,12 @@ try {
     logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
 }
 
+let connectedUser : any = {};
 rainbowSDK.start(token).then(async(result) => {
     try {
+        connectedUser = result.loggedInUser;
         // Do something when the SDK is started
-        logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
+        logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
 /*
         await rainbowSDK.stop().then((result)=>{

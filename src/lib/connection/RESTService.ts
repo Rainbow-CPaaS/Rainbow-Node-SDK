@@ -4356,7 +4356,7 @@ Request Method: PUT
 
     deleteTagOnABubble(roomIds : Array<string>, tag: string) {
         let that = this;
-        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
+
         return new Promise(function (resolve, reject) {
             let params : any = {
                 "tag": tag,
@@ -4378,6 +4378,527 @@ Request Method: PUT
     }
 
     //endregion Bubbles Tags
+
+    //region Alerts - Notifications
+
+    createDevice(data : Object) {
+        // /api/rainbow/notificationsadmin/v1.0/devices
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/notificationsadmin/v1.0/devices", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createDevice) successfull");
+                that.logger.log("internal", LOG_ID + "(createDevice) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createDevice) error");
+                that.logger.log("internalerror", LOG_ID, "(createDevice) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateDevice(deviceId, params : Object) {
+        // /api/rainbow/notificationsadmin/v1.0/devices
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.put("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId , that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(updateDevice) successfull");
+                that.logger.log("internal", LOG_ID + "(updateDevice) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateDevice) error");
+                that.logger.log("internalerror", LOG_ID, "(updateDevice) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteDevice(deviceId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteDevice) REST deviceId : ", deviceId);
+
+            that.http.delete("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteDevice) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteDevice) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteDevice) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteDevice) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getDevice(deviceId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getDevice) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDevice) successfull");
+                that.logger.log("internal", LOG_ID + "(getDevice) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDevice) error");
+                that.logger.log("internalerror", LOG_ID, "(getDevice) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getDevices(companyId : string, userId : string, deviceName : string, type : string, tag : string, offset : number, limit : number) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            let getParams = "";
+            if (companyId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "companyId=" + companyId;
+            }
+
+            if (userId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "userId=" + userId;
+            }
+
+            if (deviceName) {
+                getParams += getParams ? "&" : "?";
+                getParams += "name=" + deviceName;
+            }
+
+            if (type) {
+                getParams += getParams ? "&" : "?";
+                getParams += "type=" + type;
+            }
+
+            if (tag) {
+                getParams += getParams ? "&" : "?";
+                getParams += "tags=" + tag;
+            }
+
+            getParams += getParams ? "&" : "?";
+            getParams += "limit=" + limit;
+            getParams += getParams ? "&" : "?";
+            getParams += "offset=" + offset;
+            getParams += getParams ? "&" : "?";
+            getParams += "format=" + "full";
+
+            that.logger.log("internal", LOG_ID + "(getDevices) REST getParams : ", getParams);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/devices" + getParams , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDevices) successfull");
+                that.logger.log("internal", LOG_ID + "(getDevices) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDevices) error");
+                that.logger.log("internalerror", LOG_ID, "(getDevices) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getDevicesTags(companyId : string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            let getParams = "";
+            if (companyId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "companyId=" + companyId;
+            }
+
+            that.logger.log("internal", LOG_ID + "(getDevicesTags) REST getParams : ", getParams);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/devices/tags" + getParams , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDevicesTags) successfull");
+                that.logger.log("internal", LOG_ID + "(getDevicesTags) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDevicesTags) error");
+                that.logger.log("internalerror", LOG_ID, "(getDevicesTags) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    createTemplate(data : Object) {
+        // /api/rainbow/notificationsadmin/v1.0/devices
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/notificationsadmin/v1.0/templates", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(createTemplate) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(createTemplate) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateTemplate(templateId, params : Object) {
+        // /api/rainbow/notificationsadmin/v1.0/devices
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.put("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId , that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(updateTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(updateTemplate) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(updateTemplate) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteTemplate(templateId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteTemplate) REST templateId : ", templateId);
+
+            that.http.delete("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteTemplate) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getTemplate(templateId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getTemplate) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(getTemplate) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(getTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getTemplates(companyId : string, offset : number, limit : number) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            let getParams = "";
+            if (companyId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "companyId=" + companyId;
+            }
+
+            getParams += getParams ? "&" : "?";
+            getParams += "limit=" + limit;
+            getParams += getParams ? "&" : "?";
+            getParams += "offset=" + offset;
+            getParams += getParams ? "&" : "?";
+            getParams += "format=" + "full";
+
+            that.logger.log("internal", LOG_ID + "(getTemplates) REST getParams : ", getParams);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/templates" + getParams , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getTemplates) successfull");
+                that.logger.log("internal", LOG_ID + "(getTemplates) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getTemplates) error");
+                that.logger.log("internalerror", LOG_ID, "(getTemplates) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    createFilter(data : Object) {
+        // /api/rainbow/notificationsadmin/v1.0/filters
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/notificationsadmin/v1.0/filters", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createFilter) successfull");
+                that.logger.log("internal", LOG_ID + "(createFilter) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createFilter) error");
+                that.logger.log("internalerror", LOG_ID, "(createFilter) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateFilter(FilterId, params : Object) {
+        // /api/rainbow/notificationsadmin/v1.0/filters
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.put("/api/rainbow/notificationsadmin/v1.0/filters/" + FilterId , that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(updateFilter) successfull");
+                that.logger.log("internal", LOG_ID + "(updateFilter) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateFilter) error");
+                that.logger.log("internalerror", LOG_ID, "(updateFilter) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteFilter(FilterId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteFilter) REST FilterId : ", FilterId);
+
+            that.http.delete("/api/rainbow/notificationsadmin/v1.0/filters/" + FilterId  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteFilter) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteFilter) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteFilter) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteFilter) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getFilter(templateId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getFilter) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/filters/" + templateId , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getFilter) successfull");
+                that.logger.log("internal", LOG_ID + "(getFilter) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getFilter) error");
+                that.logger.log("internalerror", LOG_ID, "(getFilter) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getFilters( offset : number, limit : number) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            let getParams = "";
+
+            getParams += getParams ? "&" : "?";
+            getParams += "limit=" + limit;
+            getParams += getParams ? "&" : "?";
+            getParams += "offset=" + offset;
+            getParams += getParams ? "&" : "?";
+            getParams += "format=" + "full";
+
+            that.logger.log("internal", LOG_ID + "(getFilters) REST getParams : ", getParams);
+
+            that.http.get("/api/rainbow/notificationsadmin/v1.0/filters" + getParams , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getFilters) successfull");
+                that.logger.log("internal", LOG_ID + "(getFilters) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getFilters) error");
+                that.logger.log("internalerror", LOG_ID, "(getFilters) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    createAlert(data : Object) {
+        // /api/rainbow/notifications/v1.0/notifications
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/notifications/v1.0/notifications", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createAlert) successfull");
+                that.logger.log("internal", LOG_ID + "(createAlert) REST Alert created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createAlert) error");
+                that.logger.log("internalerror", LOG_ID, "(createAlert) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateAlert(AlertId, params : Object) {
+        // /api/rainbow/notifications/v1.0/notifications
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.put("/api/rainbow/notifications/v1.0/notifications/" + AlertId , that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(updateAlert) successfull");
+                that.logger.log("internal", LOG_ID + "(updateAlert) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateAlert) error");
+                that.logger.log("internalerror", LOG_ID, "(updateAlert) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteAlert(AlertId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteAlert) REST AlertId : ", AlertId);
+
+            that.http.delete("/api/rainbow/notifications/v1.0/notifications/" + AlertId  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAlert) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAlert) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAlert) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAlert) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAlert(alertId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getAlert) REST params : ", params);
+
+            that.http.get("/api/rainbow/notifications/v1.0/notifications/" + alertId , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAlert) successfull");
+                that.logger.log("internal", LOG_ID + "(getAlert) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAlert) error");
+                that.logger.log("internalerror", LOG_ID, "(getAlert) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAlerts( offset : number, limit : number) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            let getParams = "";
+
+            getParams += getParams ? "&" : "?";
+            getParams += "limit=" + limit;
+            getParams += getParams ? "&" : "?";
+            getParams += "offset=" + offset;
+            getParams += getParams ? "&" : "?";
+            getParams += "format=" + "full";
+
+            that.logger.log("internal", LOG_ID + "(getAlerts) REST getParams : ", getParams);
+
+            that.http.get("/api/rainbow/notifications/v1.0/notifications" + getParams , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAlerts) successfull");
+                that.logger.log("internal", LOG_ID + "(getAlerts) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAlerts) error");
+                that.logger.log("internalerror", LOG_ID, "(getAlerts) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    sendAlertFeedback(alertId : string, data : Object) {
+        // /api/rainbow/notifications/v1.0/notifications
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/notifications/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createAlert) successfull");
+                that.logger.log("internal", LOG_ID + "(createAlert) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createAlert) error");
+                that.logger.log("internalerror", LOG_ID, "(createAlert) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getReportSummary(alertId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getReportSummary) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/summary", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getReportSummary) successfull");
+                that.logger.log("internal", LOG_ID + "(getReportSummary) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getReportSummary) error");
+                that.logger.log("internalerror", LOG_ID, "(getReportSummary) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getReportDetails(alertId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getReportDetails) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/details", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getReportDetails) successfull");
+                that.logger.log("internal", LOG_ID + "(getReportDetails) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getReportDetails) error");
+                that.logger.log("internalerror", LOG_ID, "(getReportDetails) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion
 }
 
 export {RESTService, MEDIATYPE, GuestParams};
