@@ -1256,6 +1256,72 @@ class Admin {
     }
 
     /**
+     * @private
+     * @method subscribeCompanyToDemoOffer
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @description
+     *      Method to subscribe one company to offer demo.
+     *      Private offer on .Net platform.
+     * @return {Promise<any>}
+     */
+    subscribeCompanyToAlertOffer(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                that._logger.log("debug", "(subscribeCompanyToAlertOffer) - Offers : ", Offers);
+                for (let offer of Offers) {
+                    that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer : ", offer);
+                    if (offer.name === "Alert Demo") {
+                        that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
+                        resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
+                    }
+                }
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method unSubscribeCompanyToDemoOffer
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @description
+     *      Method to unsubscribe one company to offer demo.
+     *      Private offer on .Net platform.
+     * @return {Promise<any>}
+     */
+    unSubscribeCompanyToAlertOffer(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) - Offers : ", Offers);
+                for (let offer of Offers) {
+                    that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer : ", offer);
+                    if (offer.name === "Alert Demo") {
+                        that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
+                        resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
+                    }
+                }
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
      * @public
      * @method unSubscribeCompanyToOfferById
      * @since 1.73

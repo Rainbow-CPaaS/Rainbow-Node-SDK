@@ -6,6 +6,31 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.79 - November 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add autoLoadConversations option to activate the retrieve of conversations from the server. The default value is true.
+-   Add autoLoadContacts option to activate the retrieve of contacts from roster from the server. The default value is true.
+-   Update the XMPPService::markMessageAsReceived with a parameter conversationType to define the type of message marked as read.
+
+
 ### SDK for Node.JS 1.78 - October 2020
 
 ---

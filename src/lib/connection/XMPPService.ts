@@ -1,7 +1,7 @@
 "use strict";
 
 import * as util from "util";
-import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
+import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
 import {DataStoreType} from "../config/config";
@@ -9,6 +9,7 @@ import {XMPPUTils} from "../common/XMPPUtils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 import {XmppClient} from "../common/XmppQueue/XmppClient";
+import { AlertMessage } from "../common/models/AlertMessage";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -61,6 +62,7 @@ const BIND_EVENT = "bind";
 const AUTHENTICATE_EVENT = "authenticate";
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
+const TYPE_HEADLINE = "headline";
 
 const RECONNECT_INITIAL_DELAY = 5000;
 const RECONNECT_MAX_DELAY = 60000;
@@ -108,6 +110,7 @@ class XMPPService {
 	public fullJid: any;
 	public jid: any;
 	public userId: any;
+	public resourceId: any;
 	public initialPresence: any;
 	public xmppClient: XmppClient;
 	public logger: any;
@@ -125,7 +128,6 @@ class XMPPService {
 	public hash: any;
 	public reconnect: any;
 	public fibonacciStrategy: any;
-	public serverUR: any;
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
 	public xmppUtils : XMPPUTils;
@@ -158,6 +160,7 @@ class XMPPService {
         this.fullJid = "";
         this.jid = "";
         this.userId = "";
+        this.resourceId = "";
         this.initialPresence = true;
         this.xmppClient = null;
         this.logger = _logger;
@@ -198,7 +201,7 @@ class XMPPService {
             try {
                 if (withXMPP) {
                     that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
-                    that.logger.log("info", LOG_ID + "(start) XMPP URL : ", that.serverUR);
+                    that.logger.log("info", LOG_ID + "(start) XMPP URL : ", that.serverURL);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) XMPP connection blocked by configuration");
                 }
@@ -226,6 +229,7 @@ class XMPPService {
                 that.jid_password = account.jid_password;
                 that.userId = account.id;
                 that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
+                that.resourceId =  "/node_" + that.generatedRandomId ;
                 that.jid = account.jid_im;
 
                 that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
@@ -1015,14 +1019,26 @@ class XMPPService {
         return messageToSendID;
     }
 
-    markMessageAsRead(message) {
+    markMessageAsRead(message, conversationType: string = "chat", span : number = 0) {
         let that = this;
         if (this.useXMPP) {
+
+            let type = TYPE_CHAT;
+            if (equalIgnoreCase(conversationType,"chat") )
+                type = TYPE_CHAT;
+            else if (equalIgnoreCase(conversationType,"headline"))
+                type = TYPE_HEADLINE;
+            else
+                type = TYPE_GROUPCHAT;
+
             let stanzaRead = xml("message", {
                 "to": message.fromJid,
                 //"from": message.toJid + "ERROR",
-                "type": TYPE_CHAT
-            }, xml("received", {
+                "type": type
+            }, xml("timestamp", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace,
+                "value": new Date().toJSON(),
+            }), xml("received", {
                 "xmlns": NameSpacesLabels.ReceiptsNameSpace,
                 "event": "read",
                 "entity": "client",
@@ -1045,6 +1061,105 @@ class XMPPService {
         that.logger.log("warn", LOG_ID + "(markMessageAsRead) No XMPP connection...");
         return Promise.resolve(null);
     }
+
+    markMessageAsReceived(message, conversationType : string , span : number = 0)
+    {
+        /*
+        Sharp.Xmpp.Im.MessageType type;
+        if (conversationType == Conversation.ConversationType.User)
+        type = Sharp.Xmpp.Im.MessageType.Chat;
+        else if (conversationType == "Headline")
+        type = Sharp.Xmpp.Im.MessageType.Headline;
+        else
+        type = Sharp.Xmpp.Im.MessageType.Groupchat;
+
+        Task task = new Task(() => {
+            if (xmppClient != null)
+                xmppClient.MarkMessageAsReceive(jid, messageId, type);
+        });
+
+        if (span == default)
+        task.Start();
+        else
+        Task.Delay(span).ContinueWith(t => task.Start());
+        // */
+
+
+        /*
+        <message
+        from='kingrichard@royalty.england.lit/throne'
+        id='bi29sg183b4v'
+        to='northumberland@shakespeare.lit/westminster'>
+      <received xmlns='urn:xmpp:receipts' id='richard2-4.1.247'/>
+    </message>
+         */
+        /* C#
+        Message message = new Message(jid);
+        message.Type = messageType;
+
+        XmlElement e = message.Data;
+
+        XmlElement timestamp = e.OwnerDocument.CreateElement("timestamp", "urn:xmpp:receipts");
+        timestamp.SetAttribute("value", DateTime.UtcNow.ToString("o"));
+        e.AppendChild(timestamp);
+
+        XmlElement received = e.OwnerDocument.CreateElement("received", "urn:xmpp:receipts");
+        received.SetAttribute("entity", "client");
+        received.SetAttribute("event", "received");
+        received.SetAttribute("id", messageId);
+        e.AppendChild(received);
+
+        im.SendMessage(message);
+    // */
+        /* otliteclient-sdk
+        let msg = $msg({ "to": to, "from": from, "type": "chat" }).c("received", { "xmlns": Conversation.ReceiptNS, "event": "received", "entity": "client", "id": message.id });
+
+        if (this.type !== Conversation.Type.ONE_TO_ONE) {
+            msg = $msg({ "to": to, "from": from, "type": "groupchat" }).c("received", { "xmlns": Conversation.ReceiptNS, "event": "received", "entity": "client", "type": "muc", "id": message.id });
+        } // */
+
+        let that = this;
+        if (this.useXMPP) {
+
+            let type = TYPE_CHAT;
+            if (equalIgnoreCase(conversationType,"chat") )
+                type = TYPE_CHAT;
+            else if (equalIgnoreCase(conversationType,"headline"))
+                type = TYPE_HEADLINE;
+            else
+                type = TYPE_GROUPCHAT;
+
+            let stanzaRead = xml("message", {
+                "to": message.fromJid,
+                //"from": message.toJid + "ERROR",
+                type
+            }, xml("timestamp", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace,
+                "value": new Date().toJSON(),
+            }), xml("received", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace,
+                "event": "received",
+                "entity": "client",
+                "id": message.id
+            }));
+
+            this.logger.log("internal", LOG_ID + "(markMessageAsReceived) send - 'message'", stanzaRead.root().toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanzaRead).then(() => {
+                    that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
+                    resolve();
+                }).catch((err) => {
+                    that.logger.log("error", LOG_ID + "(markMessageAsRead) error ");
+                    that.logger.log("internalerror", LOG_ID + "(markMessageAsRead) error : ", err);
+                    return reject(err);
+                });
+            });
+        }
+
+        that.logger.log("warn", LOG_ID + "(markMessageAsReceived) No XMPP connection...");
+        return Promise.resolve(null);
+    }
+
 
     sendChatExistingFSMessage(message, jid, lang, fileDescriptor) {
         let that = this;
@@ -1653,8 +1768,180 @@ class XMPPService {
             this.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");
         }
     }
+// region Alerts
 
-    // Mam
+    async SendAlertMessage(alertMessage : AlertMessage) {
+
+        let that = this;
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+
+    if (this.xmppClient != null)
+{
+    // Create IM Message
+   /* Sharp.Xmpp.Im.Message imMessage = new Sharp.Xmpp.Im.Message(alertMessage.ToJid, body, subject, null, Sharp.Xmpp.Im.MessageType.Headline);
+    imMessage.Id = alertMessage.Id;
+    imMessage.From = new Jid(alertMessage.FromJid + "/" + alertMessage.FromResource);
+    // */
+
+    let body = "text of the body";
+
+    // Get 'root' XML node
+    let root = xml("message", {
+        //"from": this.fullJid,
+        //"from": alertMessage.FromJid + "/" + alertMessage.FromResource,
+        "to": alertMessage.toJid,
+        "xmlns": NameSpacesLabels.ClientNameSpace,
+        "type": TYPE_HEADLINE,
+        "id": uniqMessageId
+    }, xml("body", {
+    }, body), xml("request", {
+            "xmlns": NameSpacesLabels.ReceiptsNameSpace
+        }, xml("active", {
+            "xmlns": NameSpacesLabels.ChatestatesNameSpace
+        })
+    ));
+
+   // let root = imMessage.Data;
+
+    let elm;
+    let subElm;
+
+    // Create 'alert' node
+    let  xmlAlertElement = xml("alert", "http://www.incident.com/cap/1.0");
+
+    if (!isNullOrEmpty(alertMessage.identifier))
+{
+    elm = xml("identifier").Text(alertMessage.identifier);
+    xmlAlertElement.append(elm);
+}
+
+if (!isNullOrEmpty(alertMessage.sender))
+{
+    elm = xml("sender").Text(alertMessage.sender);
+    xmlAlertElement.append(elm);
+}
+
+//if (!isNullOrEmpty(alertMessage.Sent))
+//{
+elm = xml("sent").Text(alertMessage.sent); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
+xmlAlertElement.append(elm);
+//}
+
+if (!isNullOrEmpty(alertMessage.status))
+{
+    elm = xml("status").Text(alertMessage.status);
+    xmlAlertElement.append(elm);
+}
+
+if (!isNullOrEmpty(alertMessage.msgType))
+{
+    elm = xml("msgType").Text(alertMessage.msgType);
+    xmlAlertElement.append(elm);
+}
+
+if (!isNullOrEmpty(alertMessage.references))
+{
+    elm = xml("references").Text(alertMessage.references);
+    xmlAlertElement.append(elm);
+}
+
+if (!isNullOrEmpty(alertMessage.scope))
+{
+    elm = xml("scope").Text(alertMessage.scope);
+    xmlAlertElement.append(elm);
+}
+
+// Create 'info' node
+let xmlInfoElement = xml("info");
+
+if( (alertMessage.info != null) && (alertMessage.msgType != "Cancel"))
+{
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("category").Text(alertMessage.info.category);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("event").Text(alertMessage.info.event);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("urgency").Text(alertMessage.info.urgency);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("certainty").Text(alertMessage.info.certainty);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("senderName").Text(alertMessage.info.senderName);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("description").Text(alertMessage.info.description);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.category))
+    {
+        elm = xml("instruction").Text(alertMessage.info.instruction);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.contact))
+    {
+        elm = xml("contact").Text(alertMessage.info.contact);
+        xmlInfoElement.append(elm);
+    }
+
+    if (!isNullOrEmpty(alertMessage.info.headline))
+    {
+        elm = xml("headline").Text(alertMessage.info.headline);
+        xmlInfoElement.append(elm);
+    }
+
+    elm = xml("expires").Text(alertMessage.info.expires); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
+    xmlInfoElement.append(elm);
+
+    // Add resource node
+    if (isNullOrEmpty(alertMessage.info.descriptionMimeType))
+        alertMessage.info.descriptionMimeType = "text/plain";
+
+    elm = xml("resource");
+
+    subElm = xml("mimeType").Text(alertMessage.info.descriptionMimeType);
+    elm.append(subElm);
+
+    subElm = xml("uri").Text("about:blank");
+    elm.append(subElm);
+
+    xmlInfoElement.append(elm);
+
+    xmlAlertElement.append(xmlInfoElement);
+}
+root.append(xmlAlertElement);
+
+// Send ImMessage
+//xmppClient.SendMessage(imMessage);
+        return await this.xmppClient.sendIq(root);
+}
+// */
+}
+
+// enregion Alerts
+//region Mam
     mamQuery( jid, options) {
         let that = this;
 
@@ -1796,7 +2083,7 @@ class XMPPService {
              }
         });
     }
-
+//endregion mam
     // Voice Messages
     voiceMessageQuery(jid) {
         let that = this;
@@ -1827,7 +2114,6 @@ class XMPPService {
             });
         });
     }
-
 
 }
 

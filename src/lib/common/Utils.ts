@@ -76,6 +76,26 @@ let anonymizePhoneNumber = function (number) {
     return result;
 };
 
+let equalIgnoreCase = function(s1: string, s2: string) {
+    let regex = new RegExp('^' + s1 + '$', 'i');
+    if (regex.test(s2)) {
+        return true;
+    } else {
+        return true;
+    }
+}
+
+let isNullOrEmpty = function(value) {
+    let _isNullOrEmpty = true;
+    if (value) {
+        if (typeof (value) == 'string') {
+            if (value.length > 0)
+                _isNullOrEmpty = false;
+        }
+    }
+    return _isNullOrEmpty;
+}
+
 let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
@@ -413,6 +433,8 @@ export {
     createPassword,
     isAdmin,
     anonymizePhoneNumber,
+    equalIgnoreCase,
+    isNullOrEmpty,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,

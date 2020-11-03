@@ -331,7 +331,9 @@ class Options {
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
             messagesDataStore: DataStoreType.UsestoreMessagesField,
-            autoInitialBubblePresence: true
+            autoInitialBubblePresence: true,
+            autoLoadConversations: true,
+            autoLoadContacts: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -350,6 +352,8 @@ class Options {
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
+        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
 
         return optionsIM;
     }

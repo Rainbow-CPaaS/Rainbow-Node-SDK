@@ -24,6 +24,7 @@ import {BubblesService} from "./services/BubblesService";
 import {PresenceService} from "./services/PresenceService";
 import {ConversationsService} from "./services/ConversationsService";
 import {ContactsService} from "./services/ContactsService";
+import {AlertsService} from "./services/AlertsService";
 
 /**
  * @enum { String }
@@ -209,6 +210,9 @@ class NodeSDK {
      *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
      *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
      *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.<br>
+     *       "autoInitialBubblePresence" to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     *       "autoLoadConversations" to activate the retrieve of conversations from the server. The default value is true.
+     *       "autoLoadContacts" to activate the retrieve of contacts from roster from the server. The default value is true.
      *   },<br>
      *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -664,6 +668,18 @@ class NodeSDK {
      */
     get s2s() : S2SService{
         return this._core._s2s;
+    }
+
+    /**
+     * @public
+     * @property {Object} alerts
+     * @instance
+     * @description
+     *    Get access to the alerts module
+     * @return {S2SService}
+     */
+    get alerts() : AlertsService{
+        return this._core._alerts;
     }
 
     /**

@@ -84,6 +84,7 @@ class Conversations {
     };
     private conversationsRetrievedFormat: string = "small";
     private nbMaxConversations: any;
+    private autoLoadConversations: any;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -91,7 +92,7 @@ class Conversations {
     static getClassName(){ return 'Conversations'; }
     getClassName(){ return Conversations.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig, _conversationsRetrievedFormat, _nbMaxConversations) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig, _conversationsRetrievedFormat, _nbMaxConversations,_autoLoadConversations) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -110,6 +111,7 @@ class Conversations {
         this._conversationHistoryHandlerToken = [];
         this.conversationsRetrievedFormat = _conversationsRetrievedFormat;
         this.nbMaxConversations = _nbMaxConversations;
+        this.autoLoadConversations = _autoLoadConversations;
 
         //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
         this.ready = false;
@@ -1251,7 +1253,7 @@ class Conversations {
 
             // No conversation found, then create it
             that._contactsService.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
-                that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation (" + contact.id + ")");
+                that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation for contact.id : (" + contact.id + ")");
 
                 let  conversation = Conversation.createOneToOneConversation(contact);
                 conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
@@ -1553,6 +1555,30 @@ class Conversations {
         //conversation = null;
     }
 
+
+
+    /**
+     * @public
+     * @method cleanConversations
+     * @instance
+     * @async
+     * @description
+     *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations.
+     * @return {Promise<any>} the result of the deletion.
+     */
+    async cleanConversations() {
+        let that = this;
+        return new Promise((resolve,reject) => {
+             that._rest.getServerConversations(that.conversationsRetrievedFormat).then(async (conversations: []) => {
+                resolve (await that.removeOlderConversations(conversations));
+            }).catch((error) => {
+                that._logger.log("warn", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                that._logger.log("internalerror", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                // The remove of old conversations is not mandatory, so lets continue the treatment.
+            });
+        });
+    }
+
     /**
      * @private
      * @method
@@ -1804,25 +1830,29 @@ class Conversations {
             delete that.conversations;
             that.conversations = [];
 
-            // bot service is ready / TODO ? service.botServiceReady = true; Fetch
-            // conversations from server
-            that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
+            if (that.autoLoadConversations) {
+                // bot service is ready / TODO ? service.botServiceReady = true; Fetch
+                // conversations from server
+                that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                     // TODO ? service.linkAllActiveCallsToConversations();
                     resolve();
                 })
-                .catch(function () {
-                    setInterval(() => {
-                        that._logger.log("info", LOG_ID + " getServerConversations failure, try again");
-                        that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
+                    .catch(function () {
+                        setInterval(() => {
+                            that._logger.log("info", LOG_ID + " getServerConversations failure, try again");
+                            that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                                 // TODO ? that.linkAllActiveCallsToConversations();
                             });
-                    }, 10000, 1, true);
+                        }, 10000, 1, true);
 
-                    resolve();
-                });
+                        resolve();
+                    });
+            } else {
+                return;
+            }
+
         });
     }
-
 
     /*********************************************************************/
     /** BOT SERVICE IS RUNNING, CREATE ALL BOT CONVERSATIONS            **/
