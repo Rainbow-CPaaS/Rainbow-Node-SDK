@@ -8652,27 +8652,248 @@ declare module 'lib/services/AlertsService' {
 	     * @category async
 	     */
 	    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset?: number, limit?: number): Promise<any>;
+	    /**
+	     * @public
+	     * @method getDevicesTags
+	     * @instance
+	     * @async
+	     * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
+	     * @description
+	     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getDevicesTags(companyId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method createTemplate
+	     * @instance
+	     * @async
+	     * @param {AlertTemplate} template Template to create.
+	     * @description
+	     *    Create a template
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    createTemplate(template: AlertTemplate): Promise<any>;
+	    /**
+	     * @public
+	     * @method updateTemplate
+	     * @instance
+	     * @async
+	     * @param {AlertTemplate} template Template to Update.
+	     * @description
+	     *    Update a template
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    updateTemplate(template: AlertTemplate): Promise<any>;
 	    private createOrUpdateTemplate;
+	    /**
+	     * @public
+	     * @method deleteTemplate
+	     * @instance
+	     * @async
+	     * @param {AlertTemplate} template Template to Delete.
+	     * @description
+	     *    Delete a template
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    deleteTemplate(template: AlertTemplate): Promise<any>;
+	    /**
+	     * @public
+	     * @method getTemplate
+	     * @instance
+	     * @async
+	     * @param {string} templateId Id of the template.
+	     * @description
+	     *    Get an template by id
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getTemplate(templateId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getTemplates
+	     * @instance
+	     * @async
+	     * @param {string} companyId Id of the company (optional).
+	     * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
+	     * @param {number} limit Limit of templates to retrieve (100 by default).
+	     * @description
+	     *    Get templates
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getTemplates(companyId: string, offset?: number, limit?: number): Promise<any>;
+	    /**
+	     * @public
+	     * @method createFilter
+	     * @instance
+	     * @async
+	     * @param {AlertFilter} filter Filter to create.
+	     * @description
+	     *    Create a filter
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    createFilter(filter: AlertFilter): Promise<any>;
+	    /**
+	     * @public
+	     * @method updateFilter
+	     * @instance
+	     * @async
+	     * @param {AlertFilter} filter Filter to Update.
+	     * @description
+	     *    Update a filter
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    updateFilter(filter: AlertFilter): Promise<any>;
 	    createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<any>;
+	    /**
+	     * @public
+	     * @method deleteFilter
+	     * @instance
+	     * @async
+	     * @param {AlertFilter} filter Filter to Delete.
+	     * @description
+	     *    Delete a filter
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    deleteFilter(filter: AlertFilter): Promise<any>;
+	    /**
+	     * @public
+	     * @method getFilter
+	     * @instance
+	     * @async
+	     * @param {string} filterId Id of the Filter.
+	     * @description
+	     *    Get an filter by id
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getFilter(filterId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getFilters
+	     * @instance
+	     * @async
+	     * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
+	     * @param {number} limit Limit of filters to retrieve (100 by default).
+	     * @description
+	     *    Get filters : have required role(s) superadmin, admin
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getFilters(offset?: number, limit?: number): Promise<any>;
+	    /**
+	     * @public
+	     * @method createAlert
+	     * @instance
+	     * @async
+	     * @param {Alert} alert Alert to send.
+	     * @description
+	     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
+	     *    The alert will be received by devices according the filter id and the company id used.
+	     *    The content of the alert is based on the template id.
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    createAlert(alert: Alert): Promise<any>;
+	    /**
+	     * @public
+	     * @method updateAlert
+	     * @instance
+	     * @async
+	     * @param {Alert} alert Alert to update.
+	     * @description
+	     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
+	     *    The alert will be received by devices according the filter id and the company id used.
+	     *    The content of the alert is based on the template id.
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    updateAlert(alert: Alert): Promise<any>;
 	    createOrUpdateAlert(create: boolean, alert: Alert): Promise<any>;
+	    /**
+	     * @public
+	     * @method deleteAlert
+	     * @instance
+	     * @async
+	     * @param {Alert} alert Alert to Delete.
+	     * @description
+	     *    Delete an alert
+	     *    All the data related to this notification are deleted, including the reports
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    deleteAlert(alert: Alert): Promise<any>;
+	    /**
+	     * @public
+	     * @method getAlert
+	     * @instance
+	     * @async
+	     * @param {string} alertId Id of the alert.
+	     * @description
+	     *    Get an alert by id
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getAlert(alertId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getAlerts
+	     * @instance
+	     * @async
+	     * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
+	     * @param {number} limit Limit of Alerts to retrieve (100 by default).
+	     * @description
+	     *    Get alerts : required role(s) superadmin,support,admin
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getAlerts(offset?: number, limit?: number): Promise<any>;
+	    /**
+	     * @public
+	     * @method sendAlertFeedback
+	     * @instance
+	     * @async
+	     * @param {string} deviceId Id of the device.
+	     * @param {string} alertId Id of the alert.
+	     * @param {string} answerId Id of the answer.
+	     * @description
+	     *    To send a feedback from an alert.
+	     *    To be used by end-user who has received the alert
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getReportSummary
+	     * @instance
+	     * @async
+	     * @param {string} alertId Id of the alert.
+	     * @description
+	     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any).
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getReportSummary(alertId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getReportDetails
+	     * @instance
+	     * @async
+	     * @param {string} alertId Id of the alert.
+	     * @description
+	     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any).
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
 	    getReportDetails(alertId: string): Promise<any>;
 	}
 	export { AlertsService };

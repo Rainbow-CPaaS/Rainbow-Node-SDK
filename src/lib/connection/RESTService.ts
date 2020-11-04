@@ -4798,8 +4798,8 @@ Request Method: PUT
 
             that.http.get("/api/rainbow/notifications/v1.0/notifications" + getParams , that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getAlerts) successfull");
-                that.logger.log("internal", LOG_ID + "(getAlerts) REST result : ", json.data);
-                resolve(json.data);
+                that.logger.log("internal", LOG_ID + "(getAlerts) REST result : ", json);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getAlerts) error");
                 that.logger.log("internalerror", LOG_ID, "(getAlerts) error : ", err);
