@@ -30,6 +30,8 @@ const LOG_ID = "ALERTS/SVCE - ";
      * @public
      * @description
      *      This module is the basic module for handling Alerts in Rainbow.
+     *
+     *      Note: the Rainbow subscriptions "Alerts" is need to use the Alert notification system.
      */
 class AlertsService {
     private _eventEmitter: EventEmitter;
@@ -607,11 +609,17 @@ class AlertsService {
         // */
     }
 
-/// <summary>
-/// Get list of all tags being assigned to devices of the compagnies managed by the administrator
-/// </summary>
-/// <param name="companyId"><see cref="String"/>Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{List{String}}}"/>Callback fired when the operation is done - List of <see cref="String"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getDevicesTags
+     * @instance
+     * @async
+     * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
+     * @description
+     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getDevicesTags(companyId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -672,20 +680,32 @@ class AlertsService {
 
 //region TEMPLATE
 
-/// <summary>
-/// Create a template
-/// </summary>
-/// <param name="template"><see cref="AlertTemplate"/>Template to create</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertTemplate"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method createTemplate
+     * @instance
+     * @async
+     * @param {AlertTemplate} template Template to create.
+     * @description
+     *    Create a template
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     createTemplate(template: AlertTemplate): Promise<any> {
         return this.createOrUpdateTemplate(true, template);
     }
 
-/// <summary>
-/// Update a template
-/// </summary>
-/// <param name="template"><see cref="AlertTemplate"/>Template to update</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertTemplate"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method updateTemplate
+     * @instance
+     * @async
+     * @param {AlertTemplate} template Template to Update.
+     * @description
+     *    Update a template
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     updateTemplate(template: AlertTemplate): Promise<any> {
         return this.createOrUpdateTemplate(false, template);
     }
@@ -820,11 +840,17 @@ class AlertsService {
         // */
     }
 
-/// <summary>
-/// Delete a template
-/// </summary>
-/// <param name="templateId"><see cref="String"/>Id of the template</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method deleteTemplate
+     * @instance
+     * @async
+     * @param {AlertTemplate} template Template to Delete.
+     * @description
+     *    Delete a template
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     deleteTemplate(template: AlertTemplate): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -879,11 +905,17 @@ class AlertsService {
     // */
     }
 
-/// <summary>
-/// Get an template by id
-/// </summary>
-/// <param name="templateId"><see cref="String"/>Id of the template</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertTemplate"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getTemplate
+     * @instance
+     * @async
+     * @param {string} templateId Id of the template.
+     * @description
+     *    Get an template by id
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getTemplate(templateId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -940,13 +972,19 @@ class AlertsService {
     // */
     }
 
-/// <summary>
-/// Get templates
-/// </summary>
-/// <param name="companyId"><see cref="String"/>Id of the company (optional)</param>
-/// <param name="offset"><see cref="int"/> Offset to use to retrieve templates - if offset > total, no result is returned</param>
-/// <param name="limit"><see cref="int"/> Limit of templates to retrieve (100 by default)</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertTemplatesData"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getTemplates
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company (optional).
+     * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
+     * @param {number} limit Limit of templates to retrieve (100 by default).
+     * @description
+     *    Get templates
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -998,20 +1036,32 @@ class AlertsService {
 
 //region FILTERS
 
-/// <summary>
-/// Create a filter
-/// </summary>
-/// <param name="filter"><see cref="AlertFilter"/>Filter to create</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertFilter"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method createFilter
+     * @instance
+     * @async
+     * @param {AlertFilter} filter Filter to create.
+     * @description
+     *    Create a filter
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     createFilter(filter: AlertFilter): Promise<any> {
         return this.createOrUpdateFilter(true, filter);
     }
 
-/// <summary>
-/// Update a filter
-/// </summary>
-/// <param name="filter"><see cref="AlertFilter"/>Filter to update</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertFilter"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method updateFilter
+     * @instance
+     * @async
+     * @param {AlertFilter} filter Filter to Update.
+     * @description
+     *    Update a filter
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     updateFilter(filter: AlertFilter) {
         return this.createOrUpdateFilter(false, filter);
     }
@@ -1114,11 +1164,17 @@ class AlertsService {
     // */
     }
 
-/// <summary>
-/// Delete a filter
-/// </summary>
-/// <param name="filterId"><see cref="String"/>Id of the filter</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method deleteFilter
+     * @instance
+     * @async
+     * @param {AlertFilter} filter Filter to Delete.
+     * @description
+     *    Delete a filter
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     deleteFilter(filter: AlertFilter): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1175,11 +1231,17 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
 // */
     }
 
-/// <summary>
-/// Get an filter by id
-/// </summary>
-/// <param name="filterId"><see cref="String"/>Id of the Filter</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertFilter"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getFilter
+     * @instance
+     * @async
+     * @param {string} filterId Id of the Filter.
+     * @description
+     *    Get an filter by id
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getFilter(filterId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1239,12 +1301,18 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
         // */
     }
 
-/// <summary>
-/// Get filters : have required role(s) superadmin,admin
-/// </summary>
-/// <param name="offset"><see cref="int"/> Offset to use to retrieve filters - if offset > total, no result is returned</param>
-/// <param name="limit"><see cref="int"/> Limit of filters to retrieve (100 by default)</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertFiltersData"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getFilters
+     * @instance
+     * @async
+     * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
+     * @param {number} limit Limit of filters to retrieve (100 by default).
+     * @description
+     *    Get filters : have required role(s) superadmin, admin
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getFilters(offset: number = 0, limit: number = 100): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1294,28 +1362,36 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
 
 //region CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 
-/// <summary>
-/// To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
-///
-/// The alert will be received by devices according the filter id and the company id used.
-///
-/// The content of the alert is based on the template id.
-/// </summary>
-/// <param name="alert"><see cref="Alert"/>Alert to send</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="Alert"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method createAlert
+     * @instance
+     * @async
+     * @param {Alert} alert Alert to send.
+     * @description
+     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
+     *    The alert will be received by devices according the filter id and the company id used.
+     *    The content of the alert is based on the template id.
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     createAlert(alert: Alert): Promise<any> {
         return this.createOrUpdateAlert(true, alert);
     }
 
-/// <summary>
-/// To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
-///
-/// The alert will be received by devices according the filter id and the company id used.
-///
-/// The content of the alert is based on the template id.
-/// </summary>
-/// <param name="alert"><see cref="Alert"/>Alert to send</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="Alert"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method updateAlert
+     * @instance
+     * @async
+     * @param {Alert} alert Alert to update.
+     * @description
+     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
+     *    The alert will be received by devices according the filter id and the company id used.
+     *    The content of the alert is based on the template id.
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     updateAlert(alert: Alert): Promise<any> {
         return this.createOrUpdateAlert(false, alert);
     }
@@ -1472,13 +1548,18 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
     }
     // */
 
-/// <summary>
-/// Delete an alert
-///
-/// All the data related to this notification are deleted, including the reports
-/// </summary>
-/// <param name="alertId"><see cref="String"/>Id of the alert</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method deleteAlert
+     * @instance
+     * @async
+     * @param {Alert} alert Alert to Delete.
+     * @description
+     *    Delete an alert
+     *    All the data related to this notification are deleted, including the reports
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     deleteAlert(alert: Alert): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1535,11 +1616,17 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
         // */
     }
 
-/// <summary>
-/// Get an alert by id
-/// </summary>
-/// <param name="alertId"><see cref="String"/>Id of the alert</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="Alert"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getAlert
+     * @instance
+     * @async
+     * @param {string} alertId Id of the alert.
+     * @description
+     *    Get an alert by id
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getAlert(alertId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1599,12 +1686,18 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
     // */
     }
 
-/// <summary>
-/// Get alerts : required role(s) superadmin,support,admin
-/// </summary>
-/// <param name="offset"><see cref="int"/> Offset to use to retrieve Alerts - if offset > total, no result is returned</param>
-/// <param name="limit"><see cref="int"/> Limit of Alerts to retrieve (100 by default)</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - <see cref="AlertsData"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getAlerts
+     * @instance
+     * @async
+     * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
+     * @param {number} limit Limit of Alerts to retrieve (100 by default).
+     * @description
+     *    Get alerts : required role(s) superadmin,support,admin
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getAlerts(offset: number = 0, limit: number = 100): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1667,15 +1760,20 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
     // */
     }
 
-/// <summary>
-/// To send a feedback from an alert.
-///
-/// To be used by end-user who has received the alert
-/// </summary>
-/// <param name="deviceId"><see cref="String"/>Id of the device</param>
-/// <param name="alertId"><see cref="String"/>Id of the alert</param>
-/// <param name="answerId"><see cref="String"/>Id of the answer</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Alert}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method sendAlertFeedback
+     * @instance
+     * @async
+     * @param {string} deviceId Id of the device.
+     * @param {string} alertId Id of the alert.
+     * @param {string} answerId Id of the answer.
+     * @description
+     *    To send a feedback from an alert.
+     *    To be used by end-user who has received the alert
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1749,11 +1847,17 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
 
 //region REPORTS
 
-/// <summary>
-/// Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any).
-/// </summary>
-/// <param name="alertId"><see cref="String"/>Identifier of the Alert</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{AlertReportSummary}}"/>Callback fired when the operation is done - List of <see cref="AlertReportSummary"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getReportSummary
+     * @instance
+     * @async
+     * @param {string} alertId Id of the alert.
+     * @description
+     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any).
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getReportSummary(alertId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1802,11 +1906,17 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
     // */
     }
 
-/// <summary>
-/// Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any).
-/// </summary>
-/// <param name="alertId"><see cref="String"/>Identifier of the Alert</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{AlertReportDetails}}"/>Callback fired when the operation is done - List of <see cref="AlertReportDetails"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @public
+     * @method getReportDetails
+     * @instance
+     * @async
+     * @param {string} alertId Id of the alert.
+     * @description
+     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any).
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
     getReportDetails(alertId: string): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
