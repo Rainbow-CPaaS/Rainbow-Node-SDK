@@ -1565,6 +1565,7 @@ class Conversations {
      * @description
      *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations.
      * @return {Promise<any>} the result of the deletion.
+     * @category async
      */
     async cleanConversations() {
         let that = this;
