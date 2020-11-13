@@ -22,10 +22,15 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--   none
+-   Fix FileStorageService::downloadFile for big files. So the returned Object.buffer is modified to an Array of data.
 
 **Others Changes**
 
+-   Fix in presenceEventHandler the offline presence of a contact in the roster.
+-   Add FileServerService::getBlobFromUrlWithOptimizationObserver method to retrieve a file and store it in a path. An Observer is returned to follow the download progress.
+-   Add FileStorageService::downloadFileInPath method to retrieve a file and store it in a path. An Observer is returned to follow the download progress.
+-   Fix FileStorageService::downloadFile for big files. So the returned Object.buffer is modified to an Array of data.
+-   Update the AlertsService documentation
 -   Add autoLoadConversations option to activate the retrieve of conversations from the server. The default value is true.
 -   Add autoLoadContacts option to activate the retrieve of contacts from roster from the server. The default value is true.
 -   Update the XMPPService::markMessageAsReceived with a parameter conversationType to define the type of message marked as read.

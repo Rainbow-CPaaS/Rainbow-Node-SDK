@@ -5,7 +5,7 @@ export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 import {logEntryExit} from "../../common/Utils";
-import {PresenceRainbow} from "../../common/models/PresenceRainbow";
+import {PresenceLevel, PresenceRainbow} from "../../common/models/PresenceRainbow";
 import {Contact} from "../../common/models/Contact";
 import {ContactsService} from "../../services/ContactsService";
 
@@ -43,7 +43,16 @@ class PresenceEventHandler extends GenericHandler {
             let from = stanza.attrs.from;
             if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                 // My presence changes (coming from me or another resource)
-                let show = stanza.getChild("show") ? stanza.getChild("show").text() : "online";
+                let show = PresenceLevel.Unknown;
+                if (stanza.attrs.type === "unavailable") {
+                    show = PresenceLevel.Offline;
+                } else {
+                    if (stanza.getChild("show")) {
+                        show = stanza.getChild("show").text();
+                    } else {
+                        that.logger.log("internal", LOG_ID + "(onPresenceReceived) <show> node can not be found in stanza!");
+                    }
+                }
                 let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
 
                 let presenceRainbow = new PresenceRainbow();
@@ -160,7 +169,7 @@ class PresenceEventHandler extends GenericHandler {
                 let delay = "";
                 let status = "";
                 if (stanza.attrs.type === "unavailable") {
-                    show = "unavailable";
+                    show = PresenceLevel.Offline; //"unavailable";
                 } else {
                     let children = stanza.children;
                     children.forEach(function (node) {

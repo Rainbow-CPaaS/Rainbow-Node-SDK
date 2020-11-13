@@ -238,7 +238,7 @@ safeJsonParse(str) {
         });
     }
 
-    get(url, headers: any = {}, params): Promise<any> {
+    get(url, headers: any = {}, params, responseType = ""): Promise<any> {
 
         let that = this;
 
@@ -253,7 +253,7 @@ safeJsonParse(str) {
                 let urlEncoded = that.serverURL + url;
 
                 if (headers.Accept && headers.Accept.indexOf("json") > -1) {
-                    let request = Request({
+                    let req = {
                         url: urlEncoded,
                         method: "GET",
                         headers: headers,
@@ -262,7 +262,11 @@ safeJsonParse(str) {
                         agentOptions: {
                             secureProtocol: that.proxy.secureProtocol
                         }
-                    }, (error, response, body) => {
+                    };
+                    if (responseType != "") {
+                        req["responseType"] = responseType; // 'arraybuffer'
+                    }
+                    let request = Request(req, (error, response, body) => {
                         that.logger.log("info", LOG_ID + "(get) successfull");
                         if (error) {
                             return reject({

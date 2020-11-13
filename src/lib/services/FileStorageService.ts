@@ -1,9 +1,12 @@
 "use strict";
+import {createWriteStream} from "fs";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import * as fileapi from "file-api";
+import {Observable} from 'rxjs';
 import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
 import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
@@ -18,6 +21,8 @@ import {ConversationsService} from "./ConversationsService";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {setInterval} from "timers";
+import {isMainThread} from "worker_threads";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -507,13 +512,14 @@ class FileStorage {
      * @method downloadFile
      * @instance
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
+     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
      * @description
      *    Allow to download a file from the server)
      *    Return a promise
-     * @return {} Object with : buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
+     * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    downloadFile(fileDescriptor) {
-    let that = this;
+    downloadFile(fileDescriptor, path: string) {
+        let that = this;
         return new Promise(function(resolve, reject) {
 
 
@@ -527,25 +533,149 @@ class FileStorage {
                 }); // */
             } else {
 
-                that._logger.log("internal", LOG_ID + "[getFile    ] ::  Try to get a file " + fileDescriptor.filename);
+                that._logger.log("internal", LOG_ID + "(downloadFile) Try to get a file " + fileDescriptor.filename + "/" + fileDescriptor.fileName );
 
                 let urlObj = url.parse(fileDescriptor.url);
 
                 let fileToDownload = {
                     "url": urlObj.pathname || "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id,
-                    "mime": fileDescriptor.mime || fileDescriptor.typeMime,
+                    "mime": fileDescriptor.mime || fileDescriptor.typeMime || fileDescriptor.typeMIME,
                     "filesize": fileDescriptor.filesize || fileDescriptor.size,
                     "filename": fileDescriptor.filename || fileDescriptor.fileName
                 };
 
-                that._fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob) {
-                    that._logger.log("debug", LOG_ID + "[getFile    ] ::  file downloaded");
+                that._fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob : ArrayBuffer) {
+                    that._logger.log("internal", LOG_ID + "(downloadFile) File downloaded : ", fileToDownload);
+                    that._logger.log("debug", LOG_ID + "(downloadFile) File downloaded");
                     resolve(blob);
                 }).catch(function(err) {
+                    that._logger.log("error", LOG_ID + "(downloadFile) !!! Catch Error while downloaded");
+                    that._logger.log("internalerror", LOG_ID + "(downloadFile) !!! Catch Error while downloaded : ", fileToDownload, ", error : ", err);
                     reject(err);
                 });
             }
         });
+    };
+
+    /**
+     * @public
+     * @since 1.79.0
+     * @method downloadFileInPath
+     * @instance
+     * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
+     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
+     * @description
+     *    Allow to download a file from the server and store it in provided path.
+     *    Return a promise
+     * @return {Observable<any>} Return an Observable object to see the completion of the download/save.
+     * It returns a percentage of downloaded data Values are between 0 and 100 (include).
+     * The last one value is the description and content of the file :
+     *  {
+     *      buffer : blobArray, // the buffer with the content of the file.
+     *      type: mime, // The mime type of the encoded file
+     *      fileSize: fileSize, // The size in octects of the file
+     *      fileName: fileName // The file saved.
+     *  }
+     *  Warning !!! :
+     *  take care to not log this last data which can be very important for big files. You can test if the value is < 101.
+     */
+    async downloadFileInPath(fileDescriptor, path: string): Promise<Observable<any>> {
+        let that = this;
+
+        if (!fileDescriptor) {
+            let errorMessage = "Parameter 'fileDescriptor' is missing or null";
+            that._logger.log("error", LOG_ID + "(downloadFileInPath) " + errorMessage);
+            // return(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+            return (Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage)));
+        } else {
+
+            that._logger.log("internal", LOG_ID + "(downloadFileInPath) Try to get a file name : " + fileDescriptor.filename + " or " + fileDescriptor.fileName);
+
+            let urlObj = url.parse(fileDescriptor.url);
+
+            let fileToDownload = {
+                "url": urlObj.pathname || "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id,
+                "mime": fileDescriptor.mime || fileDescriptor.typeMime || fileDescriptor.typeMIME,
+                "filesize": fileDescriptor.filesize || fileDescriptor.size,
+                "filename": fileDescriptor.filename || fileDescriptor.fileName
+            };
+
+            let getBlobObsrv$ = await that._fileServerService.getBlobFromUrlWithOptimizationObserver(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined);
+            let previousValue :any = 0;
+            let currentValue :any = 0;
+            let completed = false;
+            getBlobObsrv$.subscribe({
+                next(value) {
+                    if (value < 101)
+                    {
+                        currentValue = value;
+                        that._logger.log("internal", LOG_ID + "(downloadFileInPath) % : ", value);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(downloadFileInPath) value !< 101 : File downloaded : ", currentValue?currentValue.fileName:"");
+                        that._logger.log("debug", LOG_ID + "(downloadFileInPath) File downloaded");
+                        currentValue = value;
+                    }
+                 },
+                complete() {
+                    that._logger.log("internal", LOG_ID + "C'est fini!");
+                    that._logger.log("internal", LOG_ID + "(downloadFileInPath) File downloaded : ", currentValue?currentValue.fileName:"");
+                    that._logger.log("debug", LOG_ID + "(downloadFileInPath) File downloaded");
+                    if (currentValue && path) {
+                        try {
+                            let blobArray = currentValue.buffer;
+
+                            let writeStream = createWriteStream(path + currentValue.fileName);
+
+                            writeStream.on('error', () => {
+                                that._logger.log("debug", LOG_ID + "(downloadFileInPath) - [RecordsService] WriteStream error event");
+                            });
+                            writeStream.on('drain', () => {
+                                that._logger.log("debug", LOG_ID + "(downloadFileInPath) - [RecordsService] WriteStream drain event");
+                            });
+
+                            for (let index = 0; index < blobArray.length; index++) {
+                                if (blobArray[index]) {
+                                    that._logger.log("debug", LOG_ID + "(downloadFileInPath) >writeAvailableChunksInDisk : Blob " + index + " available");
+                                    //fd.chunkWrittenInDisk = index;
+                                    writeStream.write(new Buffer(blobArray[index]));
+                                    blobArray[index] = null;
+                                } else {
+                                    that._logger.log("debug", LOG_ID + "(downloadFileInPath) >writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                    break;
+                                }
+                            }
+                            that._logger.log("debug", LOG_ID + `(downloadFileInPath) - The file ${currentValue.fileName} was saved!`);
+                        } catch (e) {
+                            that._logger.log("debug", LOG_ID + `(downloadFileInPath) - Error saving file ${currentValue.fileName} from Rainbow`, e);
+                        }
+                    } else {
+                        that._logger.log("info", LOG_ID + `(downloadFileInPath) - Do not write the downloaded file ${currentValue.fileName}`);
+                    }
+                    completed = true;
+                },
+                error() {
+                    completed=true;
+                }
+            });
+
+            let myObservable$ = Observable.create(subject => {
+                let intervalId = setInterval(() => {
+                    if (previousValue != currentValue) {
+                        that._logger.log("debug", "(downloadFileInPath) >myObservable next.");
+                        previousValue = currentValue;
+                        subject.next(Math.ceil(currentValue));
+                    }//subject.complete();}, 1000);
+                    if (completed) {
+                        that._logger.log("debug", "(downloadFileInPath) >myObservable complete.");
+                        subject.complete();
+                        clearInterval(intervalId);
+                    }
+                },50);
+            });
+            //that._logger.log("internal", LOG_ID + "(downloadFile) File downloaded : ", fileToDownload);
+            //that._logger.log("debug", LOG_ID + "(downloadFile) File downloaded");
+            return (Promise.resolve(myObservable$));
+        }
     };
 
     /**
