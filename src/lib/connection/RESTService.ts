@@ -2035,6 +2035,23 @@ Request Method: PUT
         });
     }
 
+    getPartialBufferFromServer(url, minRange, maxRange, index) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let header = that.getRequestHeaderWithRange("responseType: 'arraybuffer'", "bytes=" + minRange + "-" + maxRange);
+            //header["responseType"] = 'arraybuffer';
+            that.http.get(url, header, undefined, 'arraybuffer').then(function (data) {
+                that.logger.log("info", LOG_ID + "(getPartialDataFromServer) successfull");
+                that.logger.log("info", LOG_ID + "(getPartialDataFromServer) REST get Blob from Url");
+                resolve({"data": data, "index": index});
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getPartialDataFromServer) error");
+                that.logger.log("internalerror", LOG_ID, "(getPartialDataFromServer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     getFileFromUrl(url) {
         let that = this;
         return new Promise(function (resolve, reject) {

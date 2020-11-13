@@ -103,6 +103,7 @@
     "pubsub-js": "^1.8.0",
     "request": "^2.88.2",
     "rss": "^1.2.2",
+    "rxjs": "^6.6.3",
     "sasl-digest-md5": "^0.1.0",
     "semver": "^7.3.2",
     "stream-buffers": "^3.0.2",

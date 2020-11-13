@@ -13,6 +13,7 @@ import {DataStoreType} from "../lib/config/config";
 import {url} from "inspector";
 import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
+import {createWriteStream} from "fs";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -882,6 +883,100 @@ function downloadFile() {
         }
     });
 }
+
+    async function validgetFiles() {
+    let that = this;
+        for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
+            logger.log("debug",  `Main - Checking file ${fd.fileName} ...`);
+            if (!fs.existsSync("c:\\temp\\" + fd.fileName) || true) {
+                logger.log("debug", `Main - TEST Downloading file ${fd.fileName} ...`);
+                if ( fd.fileName != "app-ovgtw1_0_34.tar" && fd.fileName != "Delta_Player_on.png") {
+                    //logger.log("debug", `Main - Will NOT Download file ${fd.fileName} done`);
+                } else {
+                    logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
+                   // continue;
+                    let file: any;
+                     file = await rainbowSDK.fileStorage.downloadFile(fd);
+                    logger.log("debug", `Main - Downloading file ${fd.fileName} done`);
+                    if (file ) {
+                        try {
+                            let blobArray = file.buffer;
+
+                            let writeStream = createWriteStream("c:\\temp\\" + fd.fileName);
+
+                            writeStream.on('error', () => {
+                                logger.log("debug", "Main - [RecordsService] WriteStream error event");
+                            });
+                            writeStream.on('drain', () => {
+                                logger.log("debug", "Main - [RecordsService] WriteStream drain event");
+                            });
+
+                            for (let index = 0; index < blobArray.length; index++) {
+                                if (blobArray[index]) {
+                                    logger.log("debug", "[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " available");
+                                    //fd.chunkWrittenInDisk = index;
+                                    writeStream.write(new Buffer(blobArray[index]));
+                                    blobArray[index] = null;
+                                } else {
+                                    this.$log.debug("[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                    break;
+                                }
+                            }
+                            logger.log("debug", `Main - The file ${fd.fileName} was saved!`);
+                        } catch (e) {
+                            logger.log("debug", `Main - Error saving file ${fd.fileName} from Rainbow`, e);
+                        }
+                    } else {
+                        logger.log("error", `Main - Error downloading file ${fd.fileName}`);
+                    }
+                }
+            } else {
+                logger.log("debug", `File ${fd.fileName} already downloaded`)
+            }
+        }
+    }
+    async function validgetFilesInPath() {
+    let that = this;
+        for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
+            logger.log("debug",  `Main - Checking file ${fd.fileName} ...`);
+            if (!fs.existsSync("c:\\temp\\" + fd.fileName) || true) {
+                logger.log("debug", `MAIN - TEST Downloading file ${fd.fileName} ...`);
+                //if ( fd.fileName != "app-ovgtw1_0_34.tar" ) {
+                if ( fd.fileName != "Delta_Player_on.png" ) {
+                    //logger.log("debug", `Main - Will NOT Download file ${fd.fileName} done`);
+                } else {
+                    logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
+                   // continue;
+                    let file$: any;
+                     file$ = await rainbowSDK.fileStorage.downloadFileInPath(fd, "c:\\temp\\");
+                     let currentValue :any = 0;
+                     file$.subscribe({
+                         next(value) {
+                             currentValue = value;
+                             if (value < 101) {
+                                 logger.log("internal", "MAIN - (downloadFile) % : ", value);
+                             } else {
+                                 logger.log("internal", "MAIN - value !< 101 : File downloaded in Next : ", currentValue ? currentValue.fileName : "");
+                                 logger.log("debug", "MAIN - File downloaded");
+                             }
+                         },
+                         complete() {
+                             if (currentValue < 101) {
+                                 logger.log("internal", "MAIN - (downloadFile) % : ", currentValue);
+                             } else {
+                                 logger.log("internal", "MAIN - value !< 101 : File downloaded in Complete : ", currentValue ? currentValue.fileName : "");
+                                 logger.log("debug", "MAIN - File downloaded");
+                             }
+                         }
+                     });
+                    logger.log("debug", `MAIN - Downloading file ${fd.fileName} done`);
+                }
+            } else {
+                logger.log("debug", `File ${fd.fileName} already downloaded`)
+            }
+        }
+    }
+
 function testUploadFileToConversation() {
     let that = this;
     // let conversation = null;
