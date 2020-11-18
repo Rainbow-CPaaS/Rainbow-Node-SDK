@@ -14,7 +14,7 @@ import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
-import {PresenceLevel, PresenceRainbow, PresenceStatus} from "../common/models/PresenceRainbow";
+import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow";
 
 export {};
 
@@ -79,6 +79,7 @@ class Contacts {
         this.userContact = new Contact();
         this.ready = false;
 
+        this._eventEmitter.on("evt_internal_presencechanged", this._onPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onContactInfoChanged.bind(this));
         // this._eventEmitter.on("evt_internal_userinvitemngtreceived", this._onUserInviteReceived.bind(this));
@@ -936,6 +937,48 @@ class Contacts {
 
     /**
      * @private
+     * @method _onPresenceChanged
+     * @instance
+     * @param {Object} presence contains informations about contact changes
+     * @description
+     *      Method called when the presence of a contact changed
+     */
+    _onPresenceChanged(presence) {
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence : ", presence);
+
+        try {
+            let contact = that.userContact;
+            if (contact) {
+                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) current contact found : ", contact);
+                // Store previous presence state
+                let oldPresence = contact.presence;
+                let oldStatus = contact.status;
+
+                this._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence : ", presence);
+
+                if (oldPresence !== "unknown" && presence.presence === oldPresence && presence.status === oldStatus) {
+                    that._logger.log("debug", LOG_ID + "(_onPresenceChanged) presence presence.presence (" + presence.presence + ") === oldPresence && presence.status (" + presence.status + ") === oldStatus, so ignore presence.");
+                    return;
+                } else {
+                    that._logger.log("debug", LOG_ID + "(_onPresenceChanged) presence changed to " + presence.presence );
+                }
+
+                that.userContact.presence = presence.presence;
+                that.userContact.status = presence.status;
+
+                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence changed to " + presence.presence + " for " + that.getDisplayName(contact));
+                that._eventEmitter.emit("evt_internal_mypresencechanged", presence);
+            } else {
+                that._logger.log("warn", LOG_ID + "(_onPresenceChanged) no contact found for current user.");
+            }
+        } catch (err) {
+            that._logger.log("warn", LOG_ID + "(_onPresenceChanged) CATCH Error !!! error : ", err);
+        }
+    }
+
+    /**
+     * @private
      * @method _onRosterPresenceChanged
      * @instance
      * @param {Object} presence contains informations about contact changes
@@ -978,34 +1021,34 @@ class Contacts {
                     this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type !== "phone") {
-                        if (resource.show === "xa" && resource.status === "") {
+                        if (resource.show === PresenceShow.Xa && resource.status === PresenceStatus.EmptyString) {
                             manual_invisible = true;
-                        } else if (resource.show === "dnd" && resource.status === "") {
+                        } else if (resource.show === PresenceShow.Dnd && resource.status === PresenceStatus.EmptyString) {
                             manual_dnd = true;
-                        } else if (resource.show === "xa" && resource.status === "away") {
+                        } else if (resource.show === PresenceShow.Xa && resource.status === PresenceStatus.Away) {
                             manual_away = true;
-                        } else if (resource.show === "dnd" && resource.status === "presentation") {
+                        } else if (resource.show === PresenceShow.Dnd && resource.status === PresenceStatus.Presentation) {
                             in_presentation_mode = true;
-                        } else if (resource.show === "dnd" && resource.status.length > 0) {
+                        } else if (resource.show === PresenceShow.Dnd && resource.status && resource.status.length > 0) {
                             in_webrtc_mode = true;
                             webrtc_reason = resource.status;
-                        } else if ((resource.show === "" || resource.show === "online") && (resource.status === "" || resource.status === "mode=auto")) {
+                        } else if ((resource.show === PresenceShow.EmptyString || resource.show === PresenceShow.Online) && (resource.status === PresenceStatus.EmptyString || resource.status === PresenceStatus.ModeAuto)) {
                             if (resource.type === "mobile") {
                                 is_online_mobile = true;
                             } else {
                                 is_online = true;
                             }
-                        } else if (resource.show === "away" && resource.status === "") {
+                        } else if (resource.show === PresenceShow.Away && resource.status === PresenceStatus.EmptyString) {
                             auto_away = true;
-                        } else if (resource.show === "unavailable") {
+                        } else if (resource.show === "unavailable" || resource.show === PresenceShow.Offline) {
                             is_offline = true;
                         }
                     } else {
                         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource.type === \"phone\" : ", resource.type);
-                        if ((resource.status === "EVT_SERVICE_INITIATED" || resource.status === "EVT_ESTABLISHED") && resource.show === "chat") {
+                        if ((resource.status === "EVT_SERVICE_INITIATED" || resource.status === "EVT_ESTABLISHED") && resource.show === PresenceShow.Chat) {
                             on_the_phone = true;
                         }
-                        if (resource.status === "EVT_CONNECTION_CLEARED" && resource.show === "chat") {
+                        if (resource.status === "EVT_CONNECTION_CLEARED" && resource.show === PresenceShow.Chat) {
                             on_the_phone = false;
                         }
                     }
@@ -1075,7 +1118,7 @@ class Contacts {
                     /*contact.presence = "online";
                     contact.status = "mobile";
                     // */
-                    newPresenceRainbow.presenceLevel = PresenceLevel.Online;
+                    newPresenceRainbow.presenceLevel = PresenceLevel.OnlineMobile;
                     newPresenceRainbow.presenceStatus = PresenceStatus.Mobile;
                 } else if (auto_away) {
                     /*contact.presence = "away";
@@ -1087,7 +1130,7 @@ class Contacts {
                     /*contact.presence = "offline";
                     contact.status = "";
                     // */
-                    newPresenceRainbow.presenceLevel = PresenceLevel.Invisible;
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Offline;
                     newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString;
                 } else {
                     /*contact.presence = "unknown";
@@ -1102,8 +1145,12 @@ class Contacts {
                 contact.presence = newPresenceRainbow.presenceLevel;
                 contact.status = newPresenceRainbow.presenceStatus;
 
-                if (contact.resources[presence.resource].show === "unavailable") {
+                //if (contact.resources[presence.resource].show === "unavailable") {
+                if (contact.resources[presence.resource].show === PresenceLevel.Offline || contact.resources[presence.resource].show === PresenceLevel.Invisible || contact.resources[presence.resource].show === PresenceLevel.Xa ) {
+                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) delete resource : " , presence.resource, ", contact.resources[presence.resource].show :", contact.resources[presence.resource].show, " the contact.presence (" + contact.presence + ")");
                     delete contact.resources[presence.resource];
+                } else {
+                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) DO NOT delete resource : " , presence.resource, ", contact.resources[presence.resource].show :", contact.resources[presence.resource].show, " the contact.presence (" + contact.presence + ")");
                 }
 
                 if (oldPresence !== "unknown" && contact.presence === oldPresence && contact.status === oldStatus) {

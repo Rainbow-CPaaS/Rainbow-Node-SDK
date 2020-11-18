@@ -1,13 +1,12 @@
 "use strict";
 import {XMPPService} from "../XMPPService";
-
-export {};
-
 import {XMPPUTils} from "../../common/XMPPUtils";
 import {logEntryExit} from "../../common/Utils";
-import {PresenceLevel, PresenceRainbow} from "../../common/models/PresenceRainbow";
+import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow";
 import {Contact} from "../../common/models/Contact";
 import {ContactsService} from "../../services/ContactsService";
+
+export {};
 
 const GenericHandler = require("./genericHandler");
 const xml = require("@xmpp/xml");
@@ -55,8 +54,31 @@ class PresenceEventHandler extends GenericHandler {
                 }
                 let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
 
+
                 let presenceRainbow = new PresenceRainbow();
-                presenceRainbow.presenceLevel = show;
+                if (show === PresenceLevel.Xa && status === PresenceStatus.EmptyString) {
+                    presenceRainbow.presenceLevel = PresenceLevel.Invisible;
+                }/* else {
+                    presenceRainbow.presenceLevel = show;
+                } // */
+                else if (show === PresenceLevel.Dnd && status === PresenceStatus.EmptyString) {
+                    presenceRainbow.presenceLevel = PresenceLevel.Dnd;
+                } else if (show === PresenceLevel.Xa && status === PresenceStatus.Away) {
+                    presenceRainbow.presenceLevel = PresenceLevel.Away;
+                } else if (show === PresenceLevel.Dnd && status === PresenceStatus.Presentation) {
+                    presenceRainbow.presenceLevel = PresenceLevel.Dnd;
+                } else if (show === PresenceLevel.Dnd && status && status.length > 0) {
+                    presenceRainbow.presenceLevel = PresenceLevel.Dnd;
+                } else if ((show === PresenceLevel.EmptyString || show === PresenceLevel.Online) && (status === PresenceStatus.EmptyString || status === PresenceStatus.ModeAuto)) {
+                        presenceRainbow.presenceLevel = PresenceLevel.Online;
+                } else if (show === PresenceLevel.Away && status === PresenceStatus.EmptyString) {
+                    presenceRainbow.presenceLevel = PresenceLevel.Away;
+                } else { // @ts-ignore
+                    if (show && show.toString() === "unavailable" || show === PresenceLevel.Offline) {
+                          presenceRainbow.presenceLevel = PresenceLevel.Offline;
+                    }
+                }
+
                 presenceRainbow.presenceStatus = status;
 
                 let contact: Contact = await that._contacts.getContactByJid(from, false);
@@ -169,7 +191,7 @@ class PresenceEventHandler extends GenericHandler {
                 let delay = "";
                 let status = "";
                 if (stanza.attrs.type === "unavailable") {
-                    show = PresenceLevel.Offline; //"unavailable";
+                    show = PresenceShow.Offline; //"unavailable";
                 } else {
                     let children = stanza.children;
                     children.forEach(function (node) {

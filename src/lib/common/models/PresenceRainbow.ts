@@ -33,6 +33,14 @@ enum PresenceLevel {
     /**
      * @public
      * @readonly
+     * @property {string} Online The presence of the contact is connected
+     * @instance
+     */
+    OnlineMobile = "online-mobile",
+
+    /**
+     * @public
+     * @readonly
      * @property {string} Away The presence of the contact is connected but away from a long time
      * @instance
      */
@@ -80,11 +88,17 @@ enum PresenceShow {
     /// The contact is connected
     Online = "online",
 
+    Offline = "offline",
+
     /// The contact is in "Do not disturb" state
     Dnd = "dnd",
 
     /// For current contact only - to appear offline but to stay still connected
     Xa = "xa",
+
+    Away = "away",
+
+    Chat = "chat",
 
     EmptyString = ""
 }
@@ -282,8 +296,8 @@ class PresenceInfo {
                 /* show = "xa";
                 status = "";
                 // */
-                value = PresenceLevel.Invisible;
-                that.presenceShow = PresenceShow.Xa;
+                //value = PresenceLevel.Invisible;
+                that.presenceShow = PresenceShow.Offline;
                 that.presenceStatus = PresenceStatus.EmptyString;
                 break;
             default:
@@ -414,8 +428,9 @@ class PresenceRainbow extends PresenceInfo {
 module.exports.PresenceCalendar = PresenceCalendar;
 module.exports.PresenceInfo = PresenceInfo;
 module.exports.PresenceLevel = PresenceLevel;
+module.exports.PresenceShow = PresenceShow;
 module.exports.PresenceStatus = PresenceStatus;
 module.exports.PresenceDetails = PresenceDetails;
 module.exports.PresencePhone = PresencePhone;
 module.exports.PresenceRainbow = PresenceRainbow;
-export {PresenceCalendar, PresenceInfo, PresenceLevel, PresenceStatus, PresenceDetails, PresencePhone, PresenceRainbow};
+export {PresenceCalendar, PresenceInfo, PresenceLevel, PresenceShow, PresenceStatus, PresenceDetails, PresencePhone, PresenceRainbow};

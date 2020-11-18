@@ -287,7 +287,8 @@ class Events {
             that.publishEvent("contactpresencechanged", contact);
         });
 
-        this._evReceiver.on("evt_internal_presencechanged", function(presence) {
+        //this._evReceiver.on("evt_internal_presencechanged", function(presence) {
+        this._evReceiver.on("evt_internal_mypresencechanged", function(presence) {
 
             /**
              * @event Events#rainbow_onpresencechanged
@@ -298,8 +299,9 @@ class Events {
              *      presence may be <br/>
              *          + "unknow",<br/>
              *          + "online" (with status "" | "mode=auto"),<br/>
-             *          + "away" (with status "" ),<br/>
-             *          + "xa" (with status ""| "away"),<br/>
+             *          + "away" (with status "" | "away"),<br/>
+             *          + "offline" (with status ""),<br/>
+             *          + "invisible" (with status ""),<br/>
              *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br/>
              *      This event is also a confirmation from the server that the new presence value has been set
              */

@@ -1472,7 +1472,13 @@ function testupdateContactInfos() {
 //This is the event handler to detect change of a contact's presence and output in console contact name and new status
 rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
     //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-    logger.log("debug", "MAIN - Presence status of contact " + contact.displayName + ", changed to " + contact.presence);
+    logger.log("debug", "MAIN - Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
+    //getLastMessageOfConversation(contact);
+});
+
+rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
+    //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
+    logger.log("debug", "MAIN - Presence status of contact loggued in : " + data.contact.displayName + ", changed to " + data.presence);
     //getLastMessageOfConversation(contact);
 });
 
