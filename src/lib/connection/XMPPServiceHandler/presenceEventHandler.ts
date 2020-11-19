@@ -42,9 +42,9 @@ class PresenceEventHandler extends GenericHandler {
             let from = stanza.attrs.from;
             if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                 // My presence changes (coming from me or another resource)
-                let show = PresenceLevel.Unknown;
+                let show = PresenceShow.Online;
                 if (stanza.attrs.type === "unavailable") {
-                    show = PresenceLevel.Offline;
+                    show = PresenceShow.Offline;
                 } else {
                     if (stanza.getChild("show")) {
                         show = stanza.getChild("show").text();
@@ -54,52 +54,27 @@ class PresenceEventHandler extends GenericHandler {
                 }
                 let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
 
-
-                let presenceRainbow = new PresenceRainbow();
-                if (show === PresenceLevel.Xa && status === PresenceStatus.EmptyString) {
-                    presenceRainbow.presenceLevel = PresenceLevel.Invisible;
-                }/* else {
-                    presenceRainbow.presenceLevel = show;
-                } // */
-                else if (show === PresenceLevel.Dnd && status === PresenceStatus.EmptyString) {
-                    presenceRainbow.presenceLevel = PresenceLevel.Dnd;
-                } else if (show === PresenceLevel.Xa && status === PresenceStatus.Away) {
-                    presenceRainbow.presenceLevel = PresenceLevel.Away;
-                } else if (show === PresenceLevel.Dnd && status === PresenceStatus.Presentation) {
-                    presenceRainbow.presenceLevel = PresenceLevel.Dnd;
-                } else if (show === PresenceLevel.Dnd && status && status.length > 0) {
-                    presenceRainbow.presenceLevel = PresenceLevel.Dnd;
-                } else if ((show === PresenceLevel.EmptyString || show === PresenceLevel.Online) && (status === PresenceStatus.EmptyString || status === PresenceStatus.ModeAuto)) {
-                        presenceRainbow.presenceLevel = PresenceLevel.Online;
-                } else if (show === PresenceLevel.Away && status === PresenceStatus.EmptyString) {
-                    presenceRainbow.presenceLevel = PresenceLevel.Away;
-                } else { // @ts-ignore
-                    if (show && show.toString() === "unavailable" || show === PresenceLevel.Offline) {
-                          presenceRainbow.presenceLevel = PresenceLevel.Offline;
-                    }
-                }
-
-                presenceRainbow.presenceStatus = status;
-
-                let contact: Contact = await that._contacts.getContactByJid(from, false);
+                //let contact: Contact = await that._contacts.getContactByJid(from, false);
 
                 that.eventEmitter.emit("evt_internal_presencechanged", {
                     "fulljid": from,
                     "jid": xmppUtils.getBareJIDFromFullJID(from),
-                    contact,
+                    //contact,
                     "resource": xmppUtils.getResourceFromFullJID(from),
                     //"status": show,
                     //"message": status,
-                    "presence": presenceRainbow.presenceLevel,
-                    "status": presenceRainbow.presenceStatus,
+                    value: {
+                        "show": show,
+                        "status": status,
 
-                    "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
-                        "phone" :
-                        xmppUtils.isFromMobile(from) ?
-                            "mobile" :
-                            xmppUtils.isFromNode(from) ?
-                                "node" :
-                                "desktopOrWeb"
+                        "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
+                            "phone" :
+                            xmppUtils.isFromMobile(from) ?
+                                "mobile" :
+                                xmppUtils.isFromNode(from) ?
+                                    "node" :
+                                    "desktopOrWeb"
+                    }
                 });
             } else if (from.includes("room_")) {
 
@@ -226,10 +201,6 @@ class PresenceEventHandler extends GenericHandler {
                     });
                 }
 
-                let presenceRainbow = new PresenceRainbow();
-                presenceRainbow.presenceLevel = show;
-                presenceRainbow.presenceStatus = status;
-
                 let evtParam = {
                     fulljid: from,
                     jid: xmppUtils.getBareJIDFromFullJID(from),
@@ -239,8 +210,8 @@ class PresenceEventHandler extends GenericHandler {
                         //show: show || "",
                         delay: delay,
                         //status: status || "",
-                        show: presenceRainbow.presenceShow,
-                        status: presenceRainbow.presenceStatus,
+                        show: show,
+                        status: status,
                         "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
                             "phone" :
                             xmppUtils.isFromMobile(from) ?

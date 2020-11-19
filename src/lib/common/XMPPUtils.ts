@@ -127,15 +127,15 @@ export class XMPPUTils {
     }
 
     isFromMobile(fullJid) {
-        return (fullJid.indexOf("mobile") > -1);
+        return (this.getResourceFromFullJID(fullJid).indexOf("mobile")  === 0);
     }
 
     isFromNode(fullJid) {
-        return (fullJid.indexOf("node") > -1);
+        return (this.getResourceFromFullJID(fullJid).indexOf("node") === 0);
     }
 
     isFromS2S(fullJid) {
-        return (fullJid.indexOf("s2s") > -1);
+        return (this.getResourceFromFullJID(fullJid).indexOf("s2s")  === 0);
     }
 
     isFromTelJid(fullJid) {

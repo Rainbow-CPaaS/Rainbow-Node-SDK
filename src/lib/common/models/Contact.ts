@@ -466,10 +466,10 @@ class Contact {
         /**
          * @public
          * @readonly
-         * @property {Object[]} resources The list of resources of the Contact
+         * @property {Object} resources The list of resources of the Contact
          * @instance
          */
-        this.resources = "";
+        this.resources = {};
 
         /**
          * @public
