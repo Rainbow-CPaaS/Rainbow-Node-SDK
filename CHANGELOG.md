@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.79.2] - 2020-11-18
+-   Same as 1.80.0-dotnet.0
+
 ## [1.80.0-dotnet.0] - 2020-11-19
 -   Fix XMPP resource name to have the string "node_" at the beginning of it.
 -   Fix presence events. The presence event are all raised even if the aggregated contact.presence do not change, and only the resources property (with  detailed presence) is updated.
