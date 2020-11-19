@@ -84,7 +84,7 @@ class PresenceService {
 
 
         that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
-        that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
+        that._eventEmitter.on("evt_internal_mypresencechanged", that._onMyPresenceChanged.bind(that));
         this.ready = false;
     }
 
@@ -470,14 +470,16 @@ class PresenceService {
      * @description
      *      Method called when receiving an update on user presence
      */
-    _onPresenceChanged(presence) {
+    _onMyPresenceChanged(user) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) presence : ", presence, ", presence.fulljid : ", presence.fulljid, ", that._xmpp.jid", that._xmpp.jid);
-        if ( presence.jid === that._xmpp.jid ) {
-            that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", presence);
-            that._currentPresence.presenceLevel = presence.presence;
-            that._currentPresence.presenceStatus = presence.status;
-        }
+        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) user : ", user);
+       // if ( presence.jid === that._xmpp.jid ) {
+            that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", user);
+            that._currentPresence.presenceLevel = user.presence;
+            //that._currentPresence.presenceShow = presence.show;
+            that._currentPresence.presenceStatus = user.status;
+
+        //}
     }
 }
 

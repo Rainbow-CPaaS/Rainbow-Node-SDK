@@ -3057,7 +3057,7 @@ Request Method: PUT
         });
     }
 
-    // ***** INVITATIONS *****
+    //region ***** INVITATIONS *****
     getAllSentInvitations() {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -3167,6 +3167,9 @@ Request Method: PUT
         });
     };
 
+    //endregion invitations
+
+    //region Generic HTTP VERB
 
     getIceConfig () {
         let that = this;
@@ -3201,8 +3204,6 @@ Request Method: PUT
     };
 
 
-    //////
-    // Generic HTTP VERB
     get(url, token) {
         let that = this;
         that.token = token;
@@ -3254,6 +3255,8 @@ Request Method: PUT
             });
         });
     }
+
+//endregion http verbs
 
     async checkEveryPortals() {
         let that = this;
