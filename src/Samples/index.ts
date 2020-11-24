@@ -1964,7 +1964,7 @@ function testmakeCallByPhoneNumberProd() {
 
 async function testcreateGuestUserError() {
     let firstname = "firstname_";
-    let lastname = "lastname_";
+    let lastname = "lastname_" + new Date().getTime() + "_";
     for (let iter = 0; iter < 1; iter++) {
         let firstnameTemp = firstname + iter;
         let lastnameTemp = lastname + iter;

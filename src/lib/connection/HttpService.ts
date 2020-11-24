@@ -146,7 +146,7 @@ safeJsonParse(str) {
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(start) host used", that._host);
             that.logger.log("info", LOG_ID + "(start) REST URL", that.serverURL);
-
+            that.httpManager.treatHttp();
             resolve();
         });
     }

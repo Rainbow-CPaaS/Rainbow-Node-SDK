@@ -92,7 +92,7 @@ class HttpManager {
 
                 that._logger.log("debug", LOG_ID + "(constructor) HttpManager initialized successfull");
                 that._logger.log("internal", LOG_ID + "(constructor) HttpManager initialized successfull");
-                that.started = true;
+
                 resolve();
             } catch (err) {
                 return reject(err);
@@ -183,12 +183,12 @@ class HttpManager {
                         that.nbHttpAdded++;
                     }
                     req.id = new Date().getTime() + "_" + that.nbHttpAdded;
-                    that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded);
+                    that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded, ", nbRunningReq : ", that.nbRunningReq);
                     req.resolve = resolve;
                     req.reject = reject;
                     that.httpList.add(req);
                     //needToAsk = true;
-                    return "OK";
+                    return {label:"OK" , "id" : req.id};
                 //}
                 //return ;
             }).then((result) => {
@@ -222,6 +222,12 @@ class HttpManager {
 
     async treatHttp() {
         let that = this;
+        if (that.started) {
+            that._logger.log("debug", LOG_ID + "(treatHttp) Already running, so do not start the treatment.");
+            return Promise.resolve();
+        }
+        that.started = true;
+
         return new Promise(async (resolve, reject) => {
             that._logger.log("internal", LOG_ID + "(treatHttp) start with nbHttpAdded : ", that.nbHttpAdded, ", that.httpList.length : ", that.httpList.length);
             while (that.started == true) {
@@ -250,11 +256,11 @@ class HttpManager {
                         // {id, method, params, resolve, reject}
                         req.method(...req.params).then((result) => {
                             that._logger.log("debug", LOG_ID + "(treatHttp) The req method call SUCCEED. req.id : ", req.id, ", req.label : ", req.label);
-                            this.decNbRunningReq();
+                            that.decNbRunningReq();
                             req.resolve(result);
                         }).catch((err) => {
                             that._logger.log("error", LOG_ID + "(treatHttp) The req method call failed : ", err, ", req.id : ", req.id, ", req.label : ", req.label);
-                            this.decNbRunningReq();
+                            that.decNbRunningReq();
                             req.reject(err);
                         })
                     } else {
