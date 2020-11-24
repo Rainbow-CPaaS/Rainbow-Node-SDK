@@ -7,9 +7,10 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.80.0-dotnet.1] - 2020-11-XX
--   Add HttpManager class to manage a promised queue of request to the server. It allow to have a queue of request and then avoid to much concurrents one. Only 5 concurrents request allowed.
-
+-   Add HttpManager class to manage a promised queue of request to the server. It allow to have a queue of request and then avoid to much concurrents one.
 -   Initial use HttpManager with first method HttpService::get .
+-   Treat the HttpService methods getUrl, post, head, put, putBuffer, delete with the HttpManager queue.
+-   Add label in RequestForQueue for logs.
 
 ## [1.79.2] - 2020-11-18
 -   Same as 1.80.0-dotnet.0

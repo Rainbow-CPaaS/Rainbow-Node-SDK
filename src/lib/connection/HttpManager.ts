@@ -25,11 +25,12 @@ const RECONNECT_MAX_DELAY = 120000;
 const MaxSimultaneousRequests = 5;
 
 class RequestForQueue {
-    id : string;
-    method : Function;
-    params : IArguments;
-    resolve : Function;
-    reject : Function;
+    id : string; // id to identify the request in queue
+    method : Function; // the pointer to the function with the treatment of the request. Note : do not forget to bind the function to the right object to set the correct this inside it.
+    params : IArguments; // The list of arguments of the function of the treatment.
+    resolve : Function; // Internal for the queue engine, Pointer to the function which resolve the promise waited by the caller when the treatment successfully ended.
+    reject : Function; // Internal for the queue engine, Pointer to the function which reject the promise waited by the caller when the treatment failed ended.
+    label: string; // A label to give a human readable log about the request.
     constructor(){
 
     }
@@ -181,8 +182,8 @@ class HttpManager {
                     } else {
                         that.nbHttpAdded++;
                     }
-                    that._logger.log("debug", LOG_ID + "(add) We add the Http in the pool to treat it as soon as possible, nbHttpAdded : ", that.nbHttpAdded);
                     req.id = new Date().getTime() + "_" + that.nbHttpAdded;
+                    that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded);
                     req.resolve = resolve;
                     req.reject = reject;
                     that.httpList.add(req);
@@ -224,7 +225,7 @@ class HttpManager {
         return new Promise(async (resolve, reject) => {
             that._logger.log("internal", LOG_ID + "(treatHttp) start with nbHttpAdded : ", that.nbHttpAdded, ", that.httpList.length : ", that.httpList.length);
             while (that.started == true) {
-                let req = undefined;
+                let req : RequestForQueue = undefined;
 
                 that.lock(() => {
                     // Treatment in the lock
@@ -232,7 +233,7 @@ class HttpManager {
                     req = that.httpList.elementAt(0);
                     if (req) {
                         that.incNbRunningReq();
-                        that._logger.log("debug", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req.id, ", that.httpList.length : ", that.httpList.length, ", that.nbRunningReq : ", that.nbRunningReq);
+                        that._logger.log("debug", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req.id, ", label : ", req.label,", that.httpList.length : ", that.httpList.length, ", that.nbRunningReq : ", that.nbRunningReq);
                         //that._logger.log("internal", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req);
                         that._logger.log("debug", LOG_ID + "(treatHttp) Remove the element treated id : ", req.id);
                         that.httpList.remove((item: any) => {
@@ -248,11 +249,11 @@ class HttpManager {
                         //that._logger.log("internal", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req);
                         // {id, method, params, resolve, reject}
                         req.method(...req.params).then((result) => {
-                            that._logger.log("debug", LOG_ID + "(treatHttp) The req method call SUCCEED.");
+                            that._logger.log("debug", LOG_ID + "(treatHttp) The req method call SUCCEED. req.id : ", req.id, ", req.label : ", req.label);
                             this.decNbRunningReq();
                             req.resolve(result);
                         }).catch((err) => {
-                            that._logger.log("error", LOG_ID + "(treatHttp) The req method call failed : ", err);
+                            that._logger.log("error", LOG_ID + "(treatHttp) The req method call failed : ", err, ", req.id : ", req.id, ", req.label : ", req.label);
                             this.decNbRunningReq();
                             req.reject(err);
                         })
@@ -260,7 +261,7 @@ class HttpManager {
                       //  that._logger.log("warn", LOG_ID + "(treatHttp) We did not found the req to treat from pool.");
                     }
                 }).catch((result) => {
-                    that._logger.log("internalerror", LOG_ID + "(treatHttp) Failed : ", result);
+                    that._logger.log("internalerror", LOG_ID + "(treatHttp) Failed : ", result, ", req.id : ", req.id, ", req.label : ", req.label);
                     //that._logger.log("debug", LOG_ID + "(treatHttp) nbRunningReq-- : ", nbRunningReq--);
                 });
 

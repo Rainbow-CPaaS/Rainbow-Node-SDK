@@ -169,6 +169,15 @@ safeJsonParse(str) {
     }
 
     getUrl(url, headers: any = {}, params): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._getUrl.bind(this);
+        req.params = arguments;
+        req.label = "getUrl url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _getUrl(url, headers: any = {}, params): Promise<any> {
 
         let that = this;
 
@@ -262,6 +271,7 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._get.bind(this);
         req.params = arguments;
+        req.label = "get url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         return that.httpManager.add(req);
     }
 
@@ -449,6 +459,15 @@ safeJsonParse(str) {
 
     post(url, headers: any = {}, data, contentType): Promise<any> {
         let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._post.bind(this);
+        req.params = arguments;
+        req.label = "post url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _post(url, headers: any = {}, data, contentType): Promise<any> {
+        let that = this;
 
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
@@ -563,6 +582,15 @@ safeJsonParse(str) {
 
     head(url, headers: any = {}): Promise<any> {
         let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._head.bind(this);
+        req.params = arguments;
+        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _head(url, headers: any = {}): Promise<any> {
+        let that = this;
 
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
@@ -665,6 +693,15 @@ safeJsonParse(str) {
     }
 
     put(url, headers: any = {}, data, type): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._put.bind(this);
+        req.params = arguments;
+        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _put(url, headers: any = {}, data, type): Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -779,6 +816,15 @@ safeJsonParse(str) {
 
     putBuffer(url, headers: any = {}, buffer): Promise<any> {
         let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._putBuffer.bind(this);
+        req.params = arguments;
+        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _putBuffer(url, headers: any = {}, buffer): Promise<any> {
+        let that = this;
 
         return new Promise(function (resolve, reject) {
 
@@ -843,6 +889,15 @@ safeJsonParse(str) {
     }
 
     delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._delete.bind(this);
+        req.params = arguments;
+        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
 
         let that = this;
 
