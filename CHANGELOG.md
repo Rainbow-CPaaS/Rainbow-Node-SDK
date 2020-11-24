@@ -11,6 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Initial use HttpManager with first method HttpService::get .
 -   Treat the HttpService methods getUrl, post, head, put, putBuffer, delete with the HttpManager queue.
 -   Add label in RequestForQueue for logs.
+-   Fix HttpManager treatment in treatHttp with the started boolean when a restart of the SDK is happen.
 
 ## [1.79.2] - 2020-11-18
 -   Same as 1.80.0-dotnet.0
