@@ -884,7 +884,7 @@ function downloadFile() {
     });
 }
 
-    async function validgetFiles() {
+    async function testdownloadFile() {
     let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
             logger.log("debug",  `Main - Checking file ${fd.fileName} ...`);
@@ -935,14 +935,14 @@ function downloadFile() {
             }
         }
     }
-    async function validgetFilesInPath() {
+    async function testdownloadFileInPath() {
     let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
             logger.log("debug",  `Main - Checking file ${fd.fileName} ...`);
             if (!fs.existsSync("c:\\temp\\" + fd.fileName) || true) {
                 logger.log("debug", `MAIN - TEST Downloading file ${fd.fileName} ...`);
-                //if ( fd.fileName != "app-ovgtw1_0_34.tar" ) {
-                if ( fd.fileName != "Delta_Player_on.png" ) {
+                if ( fd.fileName != "app-ovgtw1_0_34.tar" ) {
+                //if ( fd.fileName != "Delta_Player_on.png" ) {
                     //logger.log("debug", `Main - Will NOT Download file ${fd.fileName} done`);
                 } else {
                     logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
@@ -2212,8 +2212,34 @@ try {
     logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
 }
 
+    // testMultiPromise(500)
+async function testMultiPromise(nb = 100){
+    let that = this;
+    let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
+    let nbRequestToSend = nb;
+    let nbRequestSent = 0;
+    let promiseList = []
+    logger.log("debug", "MAIN - (testMultiPromise) : START iter.");
+    for (let i = 0; i < nbRequestToSend; i++) {
+        //setTimeoutPromised(100).then(() => {
+            let prom = rainbowSDK._core._rest.getContactInformationByJID(contact.jid).then( (_contactFromServer : any) => {
+                nbRequestSent++;
+                logger.log("debug", "MAIN - promise iter : ", logger.colors.green(i), " : nb request sent ", nbRequestSent, "/", nbRequestToSend, " needed, result : contact : ", _contactFromServer.displayName);
+            }).catch((error) => {
+                logger.log("error", "MAIN - CATCH Error !!! promise to getContactInfo failed result : ", error);
+            });
+            promiseList.push(prom);
+        //});
+    }
+    logger.log("debug", "MAIN - (testMultiPromise) : STOP iter.");
+    Promise.all(promiseList).then(()=>{
+        logger.log("debug", "MAIN - (testMultiPromise) : ALL Promises done.");
+    })
+}
+
 let connectedUser : any = {};
 rainbowSDK.start(token).then(async(result) => {
+//Promise.resolve({}).then(async(result: any) => {
     try {
         connectedUser = result.loggedInUser;
         // Do something when the SDK is started
