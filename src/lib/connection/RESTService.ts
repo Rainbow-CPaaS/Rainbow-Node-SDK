@@ -18,6 +18,7 @@ import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {ROOMROLE} from "../services/S2SService";
 import {urlencoded} from "body-parser";
+import {Core} from "../Core";
 
 
 let packageVersion = require("../../package.json");
@@ -299,11 +300,12 @@ class RESTService {
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
+    private _options: any;
 
     static getClassName(){ return 'RESTService'; }
     getClassName(){ return RESTService.getClassName(); }
 
-    constructor(_credentials, _application, _isOfficialRainbow, evtEmitter: EventEmitter, _logger: Logger) {
+    constructor(_options, evtEmitter: EventEmitter, _logger: Logger, core : Core) {
         let that = this;
         let self = this;
         this.http = null;
@@ -311,10 +313,11 @@ class RESTService {
         this.app = null;
         this.token = null;
         this.renewTokenInterval = null;
-        this.auth = btoa(_credentials.login + ":" + _credentials.password);
-        this._credentials = _credentials;
-        this._application = _application;
-        this.loginEmail = _credentials.login;
+        this._options =  _options;
+        this._credentials = _options.credentials;
+        this._application = _options.applicationOptions;
+        this.loginEmail = _options.credentials.login
+        this.auth = btoa(this._credentials.login + ":" + this._credentials.password);
         this.eventEmitter = evtEmitter;
         this.logger = _logger;
 
@@ -324,7 +327,7 @@ class RESTService {
         this.attempt_promise_resolver = {resolve: undefined, reject: undefined};
         this.reconnectInProgress = false;
 
-        this._isOfficialRainbow = _isOfficialRainbow;
+        this._isOfficialRainbow = _options._isOfficialRainbow();
 
         this.maxAttemptToReconnect = 50;
 

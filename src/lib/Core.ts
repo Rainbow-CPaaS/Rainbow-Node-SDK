@@ -473,8 +473,8 @@ class Core {
 
         // Instantiate basic service
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
-        self._http = new HTTPService(self.options.httpOptions, self.logger, self._proxy, self._eventEmitter.iee);
-        self._rest = new RESTService(self.options.credentials, self.options.applicationOptions, self.options._isOfficialRainbow(), self._eventEmitter.iee, self.logger);
+        self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
+        self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
         self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 

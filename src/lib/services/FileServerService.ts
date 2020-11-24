@@ -642,9 +642,11 @@ class FileServer {
 
                 for (let i = 0; repetition > 0; i++ , repetition-- , minRange += range, maxRange += range) {
                     that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
-                    // promiseArray.push(
+                     promiseArray.push(
                       //let result = await that.getPartialDataFromServer(url, minRange, maxRange, i)
-                      let result = await that.getPartialBufferFromServer(url, minRange, maxRange, i)
+                      //let result = await that.getPartialBufferFromServer(url, minRange, maxRange, i)
+                      //let result = await that.getPartialBufferFromServer(url, minRange, maxRange, i)
+                       that.getPartialBufferFromServer(url, minRange, maxRange, i)
                             .then((response) => {
                                 let index = response['index'];
                                 that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
@@ -654,8 +656,8 @@ class FileServer {
                             }).catch((error) => {
                                 that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
                         })
-                    //);
-                    that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter : ", i, "/", numberOfChunks,", result : ", result);
+                    );
+                    //that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter : ", i, "/", numberOfChunks,", result : ", result);
                    // repetition =0;
                     await pause(20);
                 }

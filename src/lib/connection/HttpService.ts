@@ -2,8 +2,13 @@
 
 //let unirest = require("unirest");
 import {logEntryExit} from "../common/Utils";
+import {HttpManager, RequestForQueue} from "./HttpManager";
+
+
+require('http').globalAgent.maxSockets = 999;
 
 const Request = require("request");
+//const Request = require("http").request;
 const packageVersion = require("../../package.json");
 
 //let http = require('http');
@@ -41,18 +46,30 @@ class HTTPService {
     public logger: any;
     public proxy: any;
     public eventEmitter: any;
+    public httpManager : HttpManager;
+    private _options: any;
+    private _core: any;
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
 
-    constructor(_http, _logger, _proxy, _evtEmitter) {
+    constructor(_options, _logger, _proxy, _evtEmitter, _core) {
+        this._options= _options;
+        let _http  = _options.httpOptions;
         this.serverURL = _http.protocol + "://" + _http.host + ":" + _http.port;
         this._host = _http.host;
         this.logger = _logger;
         this.proxy = _proxy;
         this.eventEmitter = _evtEmitter;
-
+        this._core = _core;
+        this.httpManager = new HttpManager(_evtEmitter,_logger);
         let that = this;
+
+
+        that.httpManager.init(that._options,that._core).then(() => {
+            that.httpManager.treatHttp();
+        }).catch((err)=>{
+        });
 
         function debugHandler(request, options?, cb?): any {
             options = typeof options === "string" ? urlParse(options) : options;
@@ -126,9 +143,10 @@ safeJsonParse(str) {
 
     start(): Promise<any> {
         let that = this;
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(start) host used", that._host);
             that.logger.log("info", LOG_ID + "(start) REST URL", that.serverURL);
+
             resolve();
         });
     }
@@ -136,6 +154,7 @@ safeJsonParse(str) {
     stop(): Promise<any> {
         let that = this;
         return new Promise((resolve) => {
+            that.httpManager.stop();
             that.logger.log("info", LOG_ID + "(stop) Successfully stopped");
             resolve();
         });
@@ -239,6 +258,14 @@ safeJsonParse(str) {
     }
 
     get(url, headers: any = {}, params, responseType = ""): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._get.bind(this);
+        req.params = arguments;
+        return that.httpManager.add(req);
+    }
+
+    _get(url, headers: any = {}, params, responseType = ""): Promise<any> {
 
         let that = this;
 
