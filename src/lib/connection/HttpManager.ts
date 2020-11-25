@@ -227,6 +227,10 @@ class HttpManager {
             that._logger.log("debug", LOG_ID + "(treatHttp) Already running, so do not start the treatment.");
             return Promise.resolve();
         }
+        if (!that.MaxSimultaneousRequests) {
+            that._logger.log("debug", LOG_ID + "(treatHttp) that.MaxSimultaneousRequests not define so force set it to 10.");
+            that.MaxSimultaneousRequests = 10;
+        }
         that.started = true;
 
         return new Promise(async (resolve, reject) => {
