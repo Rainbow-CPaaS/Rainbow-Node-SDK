@@ -22,7 +22,6 @@ const LOG_ID = "HTTP/MNGR - ";
 
 const RECONNECT_INITIAL_DELAY = 15000;
 const RECONNECT_MAX_DELAY = 120000;
-const MaxSimultaneousRequests = 5;
 
 class RequestForQueue {
     id : string; // id to identify the request in queue
@@ -60,6 +59,8 @@ class HttpManager {
     private nbRunningReq = 0;
     started: boolean;
 
+    private MaxSimultaneousRequests = 5;
+
     static getClassName() {
         return 'HttpManager';
     }
@@ -89,7 +90,7 @@ class HttpManager {
         return new Promise(function (resolve, reject) {
             try {
                 that._options = _options;
-
+                that.MaxSimultaneousRequests = _options.concurrentRequests;
                 that._logger.log("debug", LOG_ID + "(constructor) HttpManager initialized successfull");
                 that._logger.log("internal", LOG_ID + "(constructor) HttpManager initialized successfull");
 
@@ -157,7 +158,7 @@ class HttpManager {
         let that = this;
         that.locknbRunningReq(() => {
             // that._logger.log("debug", LOG_ID + "(decNbRunningReq) nbRunningReq : ", that.nbRunningReq, ", MaxSimultaneousRequests : ", MaxSimultaneousRequests);
-            res = that.nbRunningReq < MaxSimultaneousRequests;
+            res = that.nbRunningReq < that.MaxSimultaneousRequests;
         });
         return res;
     }
@@ -183,7 +184,7 @@ class HttpManager {
                         that.nbHttpAdded++;
                     }
                     req.id = new Date().getTime() + "_" + that.nbHttpAdded;
-                    that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded, ", nbRunningReq : ", that.nbRunningReq);
+                    that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded, ", nbRunningReq : ", that.nbRunningReq, ", that.httpList.length : ", that.httpList.length);
                     req.resolve = resolve;
                     req.reject = reject;
                     that.httpList.add(req);
@@ -229,7 +230,7 @@ class HttpManager {
         that.started = true;
 
         return new Promise(async (resolve, reject) => {
-            that._logger.log("internal", LOG_ID + "(treatHttp) start with nbHttpAdded : ", that.nbHttpAdded, ", that.httpList.length : ", that.httpList.length);
+            that._logger.log("internal", LOG_ID + "(treatHttp) start with nbHttpAdded : ", that.nbHttpAdded, ", that.httpList.length : ", that.httpList.length, ", MaxSimultaneousRequests : ", that.MaxSimultaneousRequests);
             while (that.started == true) {
                 let req : RequestForQueue = undefined;
 
@@ -272,7 +273,7 @@ class HttpManager {
                 });
 
 
-                await until(() => { return  (this.isNbRunningReqAuthorized() || that.httpList.length == 0) ;}, "wait the " + MaxSimultaneousRequests + " simultaneous request to be reached! that.nbRunningReq : " + that.nbRunningReq + ", that.httpList.length : " + that.httpList.length,150000).catch((err) => {
+                await until(() => { return  (this.isNbRunningReqAuthorized() || that.httpList.length == 0) ;}, "wait the " + that.MaxSimultaneousRequests + " simultaneous request to be reached! that.nbRunningReq : " + that.nbRunningReq + ", that.httpList.length : " + that.httpList.length,150000).catch((err) => {
                     that._logger.log("internalerror", LOG_ID + "(treatHttp) until Failed : ", err);
                 });
                 if (that.httpList.length == 0) {

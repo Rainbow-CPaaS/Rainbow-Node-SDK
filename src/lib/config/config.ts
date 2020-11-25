@@ -110,6 +110,7 @@ let conf =  {
 
     },
     mode:"xmpp",
+    "concurrentRequests": 10,
     debug:true,
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",

@@ -74,8 +74,9 @@ let options = {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
         // "mode": "s2s"
-        "mode": rainbowMode
+        "mode": rainbowMode,
         //"mode": "xmpp"
+       // "concurrentRequests" : 20
     },
     "s2s": {
         "hostCallback": urlS2S,
