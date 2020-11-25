@@ -22,6 +22,7 @@ class Options {
 	public _CLIMode: any;
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
+    private _concurrentRequests: number;
 
     constructor(_options, _logger) {
         this._logger = _logger;
@@ -79,6 +80,7 @@ class Options {
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
+        this._concurrentRequests = this._getConcurrentRequestsOption();
     }
 
     get testOutdatedVersion(): boolean {
@@ -139,6 +141,10 @@ class Options {
 
     get credentials() {
         return this._options.credentials;
+    }
+
+    get concurrentRequests(): number {
+        return this._concurrentRequests;
     }
 
     _gettestOutdatedVersion() {
@@ -266,6 +272,16 @@ class Options {
             }
         }
         return mode;
+    }
+
+    _getConcurrentRequestsOption() {
+
+        let concurrentRequests = config.concurrentRequests;
+
+        if ("rainbow" in this._options && "concurrentRequests" in this._options.rainbow) {
+            concurrentRequests = this._options.rainbow.concurrentRequests;
+        }
+        return concurrentRequests;
     }
 
     _getProxyOptions() {
