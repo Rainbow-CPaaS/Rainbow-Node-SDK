@@ -697,7 +697,7 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._put.bind(this);
         req.params = arguments;
-        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = "put url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         return that.httpManager.add(req);
     }
 
@@ -819,7 +819,7 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._putBuffer.bind(this);
         req.params = arguments;
-        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = "putBuffer url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         return that.httpManager.add(req);
     }
 
@@ -893,7 +893,7 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._delete.bind(this);
         req.params = arguments;
-        req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = "delete url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         return that.httpManager.add(req);
     }
 
