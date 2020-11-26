@@ -6,6 +6,14 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.80.0-dotnet.2] - 2020-11-26
+-   Change the max value of nbHttpAdded to Number.MAX_SAFE_INTEGER
+-   Update getConnectionStatus() method to return the status of the queue of HTTP requests :
+-   `nbHttpAdded`: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value.
+-   `httpQueueSize`: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue.
+-   `nbRunningReq`: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
+-   `maxSimultaneousRequests` : number, the number of request which can be launch at a same time.
+
 ## [1.80.0-dotnet.1] - 2020-11-26
 -   Add HttpManager class to manage a promised queue of request to the server. It allow to have a queue of request and then avoid to much concurrents one.
 -   Initial use HttpManager with first method HttpService::get .

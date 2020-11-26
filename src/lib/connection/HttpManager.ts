@@ -101,6 +101,39 @@ class HttpManager {
         });
     }
 
+    async checkHTTPStatus() : Promise<{
+        nbHttpAdded: number,
+        httpQueueSize: number,
+        nbRunningReq: number,
+        maxSimultaneousRequests : number
+    }> {
+        let that = this;
+        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        let httpStatus : {
+            nbHttpAdded: number,
+            httpQueueSize: number,
+            nbRunningReq: number,
+            maxSimultaneousRequests : number
+        } = {
+            nbHttpAdded : 0,
+            httpQueueSize : 0,
+            nbRunningReq : 0,
+            maxSimultaneousRequests : 0
+        };
+
+        try {
+            httpStatus.nbHttpAdded = that.nbHttpAdded;
+            httpStatus.httpQueueSize = that.httpList.length;
+            httpStatus.nbRunningReq = that.nbRunningReq;
+            httpStatus.maxSimultaneousRequests = that.MaxSimultaneousRequests;
+            that._logger.log("debug", LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
+        } catch (err) {
+            that._logger.log("debug", LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);
+        }
+
+        return httpStatus;
+    }
+
     //region Lock
 
     lock(fn) {
@@ -178,7 +211,7 @@ class HttpManager {
             that.lock(() => {
                 // Treatment in the lock
                 /*if ( (!that.poolBubbleToJoin.containsKey(roomJid)) && (!that.poolBubbleAlreadyJoined.containsKey(roomJid)) ){ */
-                    if (that.nbHttpAdded == 100000) {
+                    if (that.nbHttpAdded > (Number.MAX_SAFE_INTEGER - 1)) {
                         that.nbHttpAdded = 0;
                     } else {
                         that.nbHttpAdded++;
