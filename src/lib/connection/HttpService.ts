@@ -122,6 +122,37 @@ safeJsonParse(str) {
        return [err];
    }
 } // */
+
+    async checkHTTPStatus() : Promise<{
+        nbHttpAdded: number,
+        httpQueueSize: number,
+        nbRunningReq: number,
+        maxSimultaneousRequests : number
+    }> {
+        let that = this;
+        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        let httpStatus : {
+            nbHttpAdded: number,
+            httpQueueSize: number,
+            nbRunningReq: number,
+            maxSimultaneousRequests : number
+        } = {
+            nbHttpAdded : 0,
+            httpQueueSize : 0,
+            nbRunningReq : 0,
+            maxSimultaneousRequests : 0
+        };
+
+        try {
+            httpStatus = await that.httpManager.checkHTTPStatus();
+            that.logger.log("debug", LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
+        } catch (err) {
+            that.logger.log("debug", LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);
+        }
+
+        return httpStatus;
+    }
+
     /**
      *
      */
