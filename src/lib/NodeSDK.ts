@@ -696,6 +696,8 @@ class NodeSDK {
 
     /**
      * @public
+     * @method getConnectionStatus
+     * @instance
      * @description
      *    Get connections status of each low layer services, and also the full SDK state.
      *
@@ -704,10 +706,15 @@ class NodeSDK {
      * xmppStatus: boolean, The status of the XMPP Connection to rainbow server.
      * s2sStatus: boolean, The status of the S2S Connection to rainbow server.
      * state: SDKSTATUSENUM The state of the SDK.
+     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value.
+     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue.
+     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
+     * maxSimultaneousRequests : number, the number of request which can be launch at a same time.
      * }
-     * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM}>}
+     * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number}>}
+     * @category async
      */
-    getConnectionStatus () : Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM}> {
+    getConnectionStatus () : Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number}> {
         return this._core.getConnectionStatus();
     }
 

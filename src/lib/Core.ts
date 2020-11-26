@@ -677,7 +677,11 @@ class Core {
         restStatus:boolean,
         xmppStatus:boolean,
         s2sStatus:boolean,
-        state : SDKSTATUSENUM
+        state : SDKSTATUSENUM,
+        nbHttpAdded : number,
+        httpQueueSize : number,
+        nbRunningReq : number,
+        maxSimultaneousRequests : number
     }>{
         let that = this;
         let restStatus : boolean = false;
@@ -703,11 +707,17 @@ class Core {
            // Test S2S connection
             s2sStatus  = await that._rest.checkS2SAuthentication();
 
+            let httpStatus = await that._http.checkHTTPStatus();
+
             return resolve({
                 restStatus,
                 xmppStatus,
                 s2sStatus,
-                state : that.state
+                state : that.state,
+                nbHttpAdded : httpStatus.nbHttpAdded ,
+                httpQueueSize : httpStatus.httpQueueSize ,
+                nbRunningReq : httpStatus.nbRunningReq,
+                maxSimultaneousRequests : httpStatus.maxSimultaneousRequests
             });
         });
     }
