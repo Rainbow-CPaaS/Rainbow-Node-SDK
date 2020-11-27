@@ -76,6 +76,7 @@ let conf =  {
         level: "info",
         color: false,
         enableConsoleLog: true,
+        enableEventsLogs: false,
         "system-dev": {
             internals: false,
             http: false

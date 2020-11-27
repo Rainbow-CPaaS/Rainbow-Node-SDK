@@ -186,6 +186,7 @@ class NodeSDK {
      *   "logs": {<br>
      *       "enableConsoleLogs": false, Activate logs on the console<br>
      *       "enableFileLogs": false, Activate the logs in a file<br>
+     *       "enableEventsLogs": false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.<br>>
      *       "color": true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)) <br>
      *       "level": "info", The level of logs. The value can be "info", "debug", "warn", "error"<br>
      *       "customLabel": "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.<br>

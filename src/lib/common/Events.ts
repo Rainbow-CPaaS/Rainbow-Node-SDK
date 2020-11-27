@@ -149,11 +149,19 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onfavoritedeleted
 */
 class Events {
+    get logEmitter(): EventEmitter {
+        return this._logEmitter;
+    }
+
+    set logEmitter(value: EventEmitter) {
+        this._logEmitter = value;
+    }
 	public _logger: Logger;
 	public _filterCallback: Function;
 	public _evReceiver: EventEmitter;
 	public _evPublisher: EventEmitter;
 	public _core: Core;
+    private _logEmitter: EventEmitter;
 
     constructor( _logger : Logger, _filterCallback : Function) {
         let that = this;
@@ -164,6 +172,8 @@ class Events {
         this._evReceiver = new Emitter(this._logger);
 
         this._evPublisher = new EventEmitter();
+
+        this._logEmitter = new EventEmitter();
 
         /*
         this._evReceiver.on('evt_internal_on*', function(...args: any[]) {
@@ -900,6 +910,36 @@ class Events {
 
     get eee(): EventEmitter {
         return this._evPublisher;
+    }
+
+    /**
+     * @method onLog
+     * @public
+     * @memberof Events
+     * @instance
+     * @param {string} event The event name to subscribe
+     * @param {function} callback The function called when the even is fired
+     * @return {Object} The events instance to be able to chain subscriptions
+     * @description
+     *      Subscribe to an event raised when a log is done.
+     */
+    onLog(event, callback): EventEmitter {
+        return this._logEmitter.on(event, callback);
+    }
+
+    /**
+     * @method removeLogListener
+     * @public
+     * @memberof Events
+     * @instance
+     * @param {string} event The event name to unsubscribe
+     * @param {function} callback The function called when the even is fired
+     * @return {Object} The events instance to be able to chain subscriptions
+     * @description
+     *      Unsubscribe to an event raised when a log is done.
+     */
+    removeLogListener(event, callback){
+        return this._logEmitter.removeListener(event, callback);
     }
 
     /**

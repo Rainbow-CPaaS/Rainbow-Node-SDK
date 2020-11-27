@@ -354,9 +354,19 @@ class Core {
             that._rest.startTokenSurvey();
         };
 
+
         // Initialize the logger
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
+
+        // Initialize the Events Emitter
+        self._eventEmitter = new Events(self.logger, (jid) => {
+            return self._botsjid.includes(jid);
+        });
+        self._eventEmitter.setCore(self);
+
+        loggerModule.logEventEmitter = self._eventEmitter.logEmitter;
+
         self.logger.log("debug", LOG_ID + "(constructor) _entering_");
         self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
@@ -375,11 +385,6 @@ class Core {
         self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
 
 
-        // Initialize the Events Emitter
-        self._eventEmitter = new Events(self.logger, (jid) => {
-            return self._botsjid.includes(jid);
-        });
-        self._eventEmitter.setCore(self);
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
             await self.signin(true, undefined);
         });
