@@ -1,4 +1,6 @@
 "use strict";
+import EventEmitter = NodeJS.EventEmitter;
+
 export {};
 
 
@@ -32,11 +34,20 @@ const myFormatNoColors = winston.format.printf(info => {
 
 
 class Logger {
+    get logEventEmitter(): NodeJS.EventEmitter {
+        return this._logEventEmitter;
+    }
+
+    set logEventEmitter(value: NodeJS.EventEmitter) {
+        this._logEventEmitter = value;
+    }
 	public colors: any;
 	public _logger: any;
 	public _winston: any;
 	public hideId: any;
 	public hideUuid: any;
+	private _logEventEmitter: EventEmitter;
+    private emit: (event, info) => void;
 
     constructor(config) {
 
@@ -86,6 +97,7 @@ class Logger {
 
         let enableConsoleLog = true;
         let enableFileLog = false;
+        let enableEventsLogs = false;
         let customFileName = "";
 
         // dev-code //
@@ -128,6 +140,13 @@ class Logger {
             enableFileLog = true;
         } else {
             enableFileLog = false;
+        }
+
+        // Check for events log
+        if (("logs" in config) && ("enableEventsLogs" in config.logs) && config.logs.enableEventsLogs) {
+            enableEventsLogs = true;
+        } else {
+            enableEventsLogs = false;
         }
 
         // Set Path for log file
@@ -230,6 +249,14 @@ class Logger {
             });
         };
 
+        this.emit = function(level, info) {
+            let event = "debug";
+            if (this.logEventEmitter && enableEventsLogs) {
+                let msg = new Date().toISOString() + " - " + level + ": " + (info ? info.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '') : "");
+                this._logEventEmitter.emit(event, msg);
+            }
+        }
+
         this._logger.log = function (level) {
             try {
                 if (level === "internal" || level === "internalerror") {
@@ -242,20 +269,24 @@ class Logger {
                             level = "debug";
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
                             that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                            that.emit(level, that._logger.customLabel + datatolog);
                         }
                         else
                             if (level === "internalerror") {
                                 level = "error";
                                 datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
                                 that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                                that.emit(level, that._logger.customLabel + datatolog);
                             }
                         // end-dev-code //
                     }
                 } else {
                     if (logInternals) {
                         that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.argumentsToString(arguments)]);
+                        that.emit(level, that._logger.customLabel + that.argumentsToString(arguments));
                     } else {
                         that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
+                        that.emit(level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments))));
                     }
                 }
             } catch (err) {

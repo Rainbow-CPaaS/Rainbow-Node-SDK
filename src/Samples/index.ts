@@ -118,7 +118,8 @@ let options = {
     // Logs options
     "logs": {
         "enableConsoleLogs": true,
-        "enableFileLogs": true,
+        "enableFileLogs": false,
+        "enableEventsLogs": false,
         "color": true,
         "level": "debug",
         "customLabel": "RainbowSample",
@@ -248,6 +249,9 @@ function saveCall(call) {
 }
 // Start the SDK
 //rainbowSDK.start();
+rainbowSDK.events.onLog("debug", (log) => {
+    console.log(logger.colors.green("MAIN - Log : ") + log);
+});
 rainbowSDK.events.on("rainbow_onready", () => {
     // do something when the SDK is ready to be used
     logger.log("debug", "MAIN - rainbow_onready - rainbow onready");
