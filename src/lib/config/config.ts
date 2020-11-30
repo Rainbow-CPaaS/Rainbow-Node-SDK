@@ -87,7 +87,7 @@ let conf =  {
     },
     im: {
         sendReadReceipt: true,
-        messageMaxLength: 1024,
+        messageMaxLength: 16384,
         sendMessageToConnectedUser: false,
         conversationsRetrievedFormat: "small",
         storeMessages: true, /* https://xmpp.org/extensions/xep-0334.html#hints :
