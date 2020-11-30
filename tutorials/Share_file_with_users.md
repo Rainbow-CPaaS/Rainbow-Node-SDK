@@ -123,7 +123,7 @@ Sharing a file within a Bubble can be done as simply as with a contact by callin
 
     // Retrieve the bubble
     let bubble = rainbowSDK.bubbles.getBubbleById(bubbleId);
-    
+
     // Upload the file
     rainbowSDK.fileStorage.uploadFileToBubble(bubble, fileInfos, "My message ")
     .then(function(message) {
@@ -147,7 +147,7 @@ When you share a file, you will get in return an event `rainbow_filecreated` whi
 
 ```json
 
-    { 
+    {
         "fileid": "5bbdfde45a0b44c0c08bfa2d"
     }
 
@@ -158,7 +158,7 @@ When you updates an already shared file, you will get in return an event `rainbo
 
 ```json
 
-    { 
+    {
         "fileid": "5bbdfde45a0b44c0c08bfa2d"
     }
 
@@ -169,7 +169,7 @@ When you delete a file, you will get in return an event `rainbow_filedeleted` wh
 
 ```json
 
-    { 
+    {
         "fileid": "5bbdfde45a0b44c0c08bfa2d"
     }
 
@@ -184,7 +184,7 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
 
 ```javascript
 
-    
+
     // Retrieve a list of files own by the current logged in user
     rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceived) => {
             // iter over the list of file
@@ -192,12 +192,36 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
                 // Download the current file
                 rainbowSDK.fileStorage.downloadFile(fileReceived).then((file) => {
                     // Write the downloaded file to OS filesystem
-                    fs.writeFile("c:\\temp\\" + fileReceived.fileName, file.buffer, "binary", function (err) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log("The file was saved!");
-                    }
+                        if (file ) {
+                            try {
+                                let blobArray = file.buffer;
+                                let writeStream = createWriteStream("c:\\temp\\" + fd.fileName);
+
+                                writeStream.on('error', () => {
+                                    console.log("WriteStream error event");
+                                });
+                                writeStream.on('drain', () => {
+                                    console.log("WriteStream drain event");
+                                });
+
+                                for (let index = 0; index < blobArray.length; index++) {
+                                    if (blobArray[index]) {
+                                        console.log("writeAvailableChunksInDisk : Blob " + index + " available");
+                                        //fd.chunkWrittenInDisk = index;
+                                        writeStream.write(new Buffer(blobArray[index]));
+                                        blobArray[index] = null;
+                                    } else {
+                                        console.log("writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                        break;
+                                    }
+                                }
+                                console.log(`The file ${fd.fileName} was saved!`);
+                            } catch (e) {
+                                console.log(`Error saving file ${fd.fileName} from Rainbow`, e);
+                            }
+                        } else {
+                            console.log(`Main - Error downloading file ${fd.fileName}`);
+                        }
                 });
             });
         }
@@ -209,6 +233,46 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
 
 In that code, the API `downloadFile()` is used to get a JavaScript  object. Then you can save it to OS Files system.
 
+It is also possible to download and save the file directly to disk with the downloadFileInPath method. This method return an observer of the download progress.
+
+```javascript
+
+
+    // Retrieve a list of files own by the current logged in user
+    rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceived) => {
+            // iter over the list of file
+            for (let fileReceived of fileDescriptorsReceived) {
+                // Download the current file
+                    let file$: any;
+                    file$ = await rainbowSDK.fileStorage.downloadFileInPath(fileReceived, "c:\\temp\\");
+                    let currentValue :any = 0;
+                    file$.subscribe({
+                        next(value) {
+                            currentValue = value;
+                            if (value < 101) {
+                                console.log("progress % : ", value);
+                            } else {
+                                console.log("value !< 101 : File downloaded in Next : ", currentValue ? currentValue.fileName : "");
+                                console.log("File downloaded");
+                            }
+                        },
+                        complete() {
+                            if (currentValue < 101) {
+                                console.log("progress % : ", currentValue);
+                            } else {
+                                console.log("value !< 101 : File downloaded in Complete : ", currentValue ? currentValue.fileName : "");
+                                console.log("File downloaded");
+                            }
+                        }
+                    });
+                    console.log(`Downloading file ${fileReceived.fileName} done`);
+            });
+        }
+    });
+
+
+```
+
 
 ### Removing a file shared
 
@@ -219,8 +283,8 @@ File shared on Rainbow can be removed at any time. When removed, the file can't 
 
 ```javascript
 
-    let shortFileDescriptor = {...};        
-    
+    let shortFileDescriptor = {...};
+
     rainbowSDK.fileStorage.removeFile(shortFileDescriptor).then(function(){
         // Do something when the file has been removed
         ...
@@ -279,7 +343,7 @@ Use the API `getFilesSentInBubble()` and `getFilesReceivedInBubble()` if you nee
 ```
 
 
-### Retrieving the whole list of files sent 
+### Retrieving the whole list of files sent
 
 ---
 
