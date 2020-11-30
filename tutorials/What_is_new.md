@@ -22,7 +22,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **API Changes**
 
--   None.
+-   Update messageMaxLength option default value to 16384.
 
 **Others Changes**
 
