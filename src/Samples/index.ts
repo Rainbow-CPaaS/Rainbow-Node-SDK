@@ -14,6 +14,7 @@ import {url} from "inspector";
 import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
 import {createWriteStream} from "fs";
+import {SDKSTATUSENUM} from "../lib/common/StateManager";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -2142,8 +2143,11 @@ function testretrieveAllBubblesByTags() {
     }
 
 async function testgetConnectionStatus() {
-    let connectionStatus = await rainbowSDK.getConnectionStatus();
+    let connectionStatus : {restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number } = await rainbowSDK.getConnectionStatus();
     logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
+    let state=SDKSTATUSENUM.CONNECTED;
+    logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: SDKSTATUSENUM.CONNECTED state : ", state);
+
 }
 
 //region Alerts
