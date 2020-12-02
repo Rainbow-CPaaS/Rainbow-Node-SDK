@@ -37,8 +37,6 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   `nbRunningReq`: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
 -   `maxSimultaneousRequests` : number, the number of request which can be launch at a same time.
 -   Add SDK parameter in log section : `enableEventsLogs`: false, Activate the logs to be raised from the events service (with `onLog` listener).
-
-## [1.80.0-dotnet.0] - 2020-11-19
 -   Fix XMPP resource name to have the string "node_" at the beginning of it.
 -   Fix presence events. The presence event are all raised even if the aggregated contact.presence do not change, and only the resources property (with  detailed presence) is updated.
 
