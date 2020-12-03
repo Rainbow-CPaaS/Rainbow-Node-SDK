@@ -1919,6 +1919,7 @@ Request Method: PUT
             that.http.get("/api/rainbow/filestorage/v1.0/files" + (queries.length ? "?" + queries.join("&") : ""), that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(retrieveFileDescriptors) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveFileDescriptors) REST get file descriptors");
+                that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST get file descriptors : ", json);
                 resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveFileDescriptors) error");
@@ -1949,6 +1950,7 @@ Request Method: PUT
             that.http.get("/api/rainbow/filestorage/v1.0/files/viewers/" + roomId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) REST get file descriptors");
+                that.logger.log("internal", LOG_ID + "(retrieveFilesReceivedFromPeer) REST get file descriptors : ", json);
                 resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveFilesReceivedFromPeer) error");
@@ -1964,6 +1966,7 @@ Request Method: PUT
             that.http.get("/api/rainbow/filestorage/v1.0/files/" + fileId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveOneFileDescriptor) REST get file descriptors");
+                that.logger.log("internal", LOG_ID + "(retrieveOneFileDescriptor) REST get file descriptors : ", json);
                 let res = json ? json.data : {};
                 resolve(res);
             }).catch(function (err) {
