@@ -1114,7 +1114,7 @@ class FileStorage {
             }
 
             let fd =  fileDescriptorFactory()(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
-                data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation);
+                data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation, data.md5sum, data.applicationId );
 
             return fd;
         }
@@ -1687,8 +1687,9 @@ class FileStorage {
     }
 
     /**
-     * @private
-     *
+     * @public
+     * @method retrieveOneFileDescriptor
+     * @instance
      * @description
      * Method retrieve a specific file descriptor from server
      *

@@ -129,6 +129,8 @@ class FileDescriptor implements IFileDescriptor {
     thumbnailPlaceholder: ThumbnailPlaceholder;
     //EXIF data:
     orientation: number;
+    md5sum: string;
+    applicationId: string;
 
     /**
      * @this FileDescriptor
@@ -147,7 +149,10 @@ class FileDescriptor implements IFileDescriptor {
         viewers = null,
         state: FileState = null,
         thumbnail: IThumbnail = null,
-        orientation: number) {
+        orientation: number,
+        md5sum : string,
+        applicationId : string
+    ) {
 
         /**
          * @public
@@ -251,6 +256,23 @@ class FileDescriptor implements IFileDescriptor {
          *      8 -> rotate(270deg).
          */
         this.orientation = orientation ? orientation : undefined;
+
+        /**
+         * @public
+         * @property {string} md5sum
+         * @description
+         *     md5 of the file get from the backend file storage (default: "", refreshed each time the file is uploaded).
+         */
+        this.md5sum = md5sum;
+
+        /**
+         * @public
+         * @property {string} applicationId
+         * @description
+         *    applicationId the file belong to.
+         */
+        this.applicationId = applicationId;
+
     };
 
     public isMicrosoftFile(): boolean {
@@ -350,9 +372,9 @@ class FileDescriptor implements IFileDescriptor {
 
 function FileDescriptorFactory() {
     return (id, url, ownerId, fileName, extension, typeMIME,
-            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation): FileDescriptor => {
+            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation, md5sum, applicationId): FileDescriptor => {
         return new FileDescriptor(id, url, ownerId, fileName, extension, typeMIME,
-            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation);
+            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation, md5sum, applicationId);
     };
 }
 

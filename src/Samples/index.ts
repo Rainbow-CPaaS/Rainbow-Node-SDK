@@ -889,6 +889,14 @@ function downloadFile() {
         }
     });
 }
+    async function testgetAllFilesReceived() {
+        let that = this;
+        for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
+            logger.log("debug", `Main - Checking file ${fd.fileName} ...`, fd);
+            let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
+            logger.log("debug", `Main - fileDescriptorFull : `, fileDescriptorFull);
+        }
+    }
 
     async function testdownloadFile() {
     let that = this;
