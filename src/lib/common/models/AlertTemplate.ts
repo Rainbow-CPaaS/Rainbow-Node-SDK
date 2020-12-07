@@ -131,5 +131,5 @@ class AlertTemplatesData {
     public offset: number;
 }
 
-export {AlertTemplate, AlertTemplatesData};
 module.exports = {AlertTemplate, AlertTemplatesData};
+export {AlertTemplate, AlertTemplatesData};

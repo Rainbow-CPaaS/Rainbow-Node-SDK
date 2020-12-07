@@ -95,7 +95,8 @@ const NameSpacesLabels = {
     "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1",
     "MamNameSpace" : "urn:xmpp:mam:1",
     "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
-    "AttentionNS" : "urn:xmpp:attention:0"
+    "AttentionNS" : "urn:xmpp:attention:0",
+    "IncidentCap" : "http://www.incident.com/cap/1.0"
 };
 
 @logEntryExit(LOG_ID)

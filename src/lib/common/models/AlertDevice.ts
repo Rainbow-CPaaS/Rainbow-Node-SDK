@@ -2,7 +2,7 @@
 export {};
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
 
-export class AlertDevice {
+class AlertDevice {
 
     /// <summary>
     /// <see cref="String"/> - Device Id
@@ -63,7 +63,7 @@ export class AlertDevice {
 /// <see cref="Geolocation"/> - Geolocation of the device. (only latitude and longitude (in degrees) are used for the moment)
 /// </summary>
     public geolocation: string; //Geolocation
-    constructor(Id: string) {
+    constructor(Id? : string ) {
         this.id = Id;
     }
 }
@@ -89,5 +89,6 @@ class AlertDevicesData {
     public offset: number;
 }
 
-exports= {AlertDevice, AlertDevicesData};
-module.exports = {AlertDevice, AlertDevicesData};
+module.exports.AlertDevice =  AlertDevice;
+module.exports.AlertDevicesData = AlertDevicesData;
+export {AlertDevice, AlertDevicesData};
