@@ -178,7 +178,8 @@ class AlertsService {
 
         that._alertEventHandler = new AlertEventHandler(that._xmpp, that);
         that._alertHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_MANAGEMENT, that._alertEventHandler.onManagementMessageReceived.bind(that._alertEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_MANAGEMENT, that._alertEventHandler.onManagementMessageReceived.bind(that._alertEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_HEADLINE, that._alertEventHandler.onHeadlineMessageReceived.bind(that._alertEventHandler)),
             PubSub.subscribe(that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_ERROR, that._alertEventHandler.onErrorMessageReceived.bind(that._alertEventHandler))
         ];
 

@@ -15,6 +15,11 @@ import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
 import {createWriteStream} from "fs";
 import {SDKSTATUSENUM} from "../lib/common/StateManager";
+import {AlertFilter} from "../lib/common/models/AlertFilter";
+import {List} from "ts-generic-collections-linq";
+import {AlertTemplate} from "../lib/common/models/AlertTemplate";
+import {Alert} from "../lib/common/models/Alert";
+import {AlertDevice} from "../lib/common/models/AlertDevice";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -2159,12 +2164,134 @@ async function testgetConnectionStatus() {
 }
 
 //region Alerts
+    async function testcreateDevice() {
+
+        let alertDevice: AlertDevice = new AlertDevice();
+        alertDevice.name = "MyNodeDevice";
+        alertDevice.jid_im = rainbowSDK._core._xmpp.fullJid;
+        let result = await rainbowSDK.alerts.createDevice(alertDevice);
+        logger.log("debug", "MAIN - testcreateDevice - result : ", result);
+    }
+
+    async function testdeleteDevice() {
+        let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
+        logger.log("debug", "MAIN - testgetDevices - result : ", result);
+        for (let i = 0 ; i < result.length ; i++)
+        {
+            await rainbowSDK.alerts.deleteDevice(result[i]);
+        }
+    }
+
+    async function testcreateFilter() {
+
+        let filter: AlertFilter = new AlertFilter();
+        filter.name = "Filter1";
+        filter.tags = new List<string>();
+        filter.companyId = connectedUser.companyId;
+        let result = await rainbowSDK.alerts.createFilter(filter);
+        logger.log("debug", "MAIN - testcreateFilter - result : ", result);
+
+        /*    {
+                "executing": "api:_core._alerts.createFilter",
+                "injecting":["obj:{ \"Name\" : \"Filter1\", \"Tags\" : null, \"CompanyId\" : @glo:maeveContact.companyId@ }"],
+                "resulting": "filterCreated",
+                "expecting": [{ "var:filterCreated": "$defined" } ],
+                "using": [
+                "robert"
+            ]
+            // */
+    }
+
+    async function testcreateTemplate() {
+
+        let template: AlertTemplate = new AlertTemplate();
+        template.name = "Template01";
+        template.companyId = connectedUser.companyId;
+        template.event = "Fire in building";
+        template.senderName = "sender name";
+        template.headline = "headline - headline";
+        template.instruction = "instruction - instruction";
+        template.contact = "contact - contact";
+        template.mimeType = "text/html";
+        template.description = "Fire in the building";
+        let result = await rainbowSDK.alerts.createTemplate(template);
+        logger.log("debug", "MAIN - testcreateTemplate - result : ", result);
+
+        /*
+    {
+        "executing": "api:_core._alerts.createTemplate",
+        "injecting": [ "obj:{ \"name\" : \"Template01\", \"companyId\"  : @glo:maeveContact.companyId@, \"event\" : \"Fire in building\", \"senderName\" : \"sender name\", \"headline\" : \"headline - headline\", \"instruction\" : \"instruction - instruction\", \"contact\" : \"contact - contact\", \"mimeType\" : \"text/html\", \"description\" : \"Fire in the building\" }"],
+        "resulting": "glo:templateCreated",
+        "expecting": [
+        {
+            "glo:templateCreated": "$defined"
+        }
+    ],
+        "using": [
+        "robert"
+    ]
+    },
+    // */
+    }
+
+async function testdeleteDevice_createDevice() {
+    let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
+    logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
+    for (let i = 0 ; i < result.length ; i++)
+    {
+        await rainbowSDK.alerts.deleteDevice(result[i]);
+    }
+    let alertDevice: AlertDevice = new AlertDevice();
+    alertDevice.name = "MyNodeDevice";
+    alertDevice.jid_im = rainbowSDK._core._xmpp.fullJid;
+    result = await rainbowSDK.alerts.createDevice(alertDevice);
+    logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
+
+}
+
+async function testcreateAlert() {
+
+            let alert: Alert = new Alert();
+            alert.companyId = connectedUser.companyId;
+            let resultTemplates = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0,100);
+            logger.log("debug", "MAIN - testcreateAlert - resultTemplates : ", resultTemplates, " nb templates : ", resultTemplates ? resultTemplates.length : 0);
+            if (resultTemplates.length > 0) {
+                let template = resultTemplates[0];
+                alert.templateId = template.id;
+                let result = await rainbowSDK.alerts.createAlert(alert);
+                logger.log("debug", "MAIN - testcreateAlert - result : ", result);
+            }
+        /*
+
+{
+        "executing": "api:_core._alerts.createAlert",
+            "injecting": [ "obj:{ \"companyId\"  : @glo:maeveContact.companyId@, \"templateId\" : @glo:templateCreated.id@ }"],
+            "resulting": "glo:alertCreated",
+            "expecting": [
+            {
+                "glo:alertCreated": "$defined"
+            }
+        ],
+            "using": [
+            "robert"
+        ]
+    }, // */
+    }
     async function testgetDevices() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id,"","","",0,100);
         logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.length : 0);
         if (result.length > 0) {
                 logger.log("debug", "MAIN - testgetDevices - devices : ", result);
+        }
+        //});
+    }
+    async function testgetTemplates() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getTemplates( connectedUser.companyId, 0,100);
+        logger.log("debug", "MAIN - getTemplates - result : ", result, " nb templates : ", result ? result.length : 0);
+        if (result.length > 0) {
+                logger.log("debug", "MAIN - getTemplates - filters : ", result);
         }
         //});
     }
@@ -2179,6 +2306,7 @@ async function testgetConnectionStatus() {
     }
 
     async function testgetAlerts() {
+        // To use with vincent01 on .NET
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getAlerts();
         logger.log("debug", "MAIN - testgetAlerts - result : ", result, " nb alerts : ", result ? result.length : 0);

@@ -2,7 +2,7 @@
 
 export {};
 
-export class AlertMessage
+class AlertMessage
 {
 
     /// <summary>
@@ -130,5 +130,5 @@ class AlertMessageInfo
     public contact : string;
 }
 
-exports= {AlertMessage, AlertMessageInfo};
 module.exports = {AlertMessage, AlertMessageInfo};
+export {AlertMessage, AlertMessageInfo};
