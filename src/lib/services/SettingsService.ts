@@ -20,11 +20,11 @@ const LOG_ID = "SETT/SVCE - ";
  * @name Settings
  * @version SDKVERSION
  * @description
- *      This module manages the settings of the connected user.
+ *      This module manages the settings of the connected user. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
- *      - Get user settings
- *      - Update user settings
+ *      - Get user settings <br/>
+ *      - Update user settings <br/>
  */
 class Settings {
     private _xmpp: XMPPService;
@@ -103,7 +103,7 @@ class Settings {
      * @method getUserSettings
      * @instance
      * @description
-     *  Get current User Settings
+     *  Get current User Settings <br/>
      * @return {Promise<UserSettings>} A promise containing the result
      */
     getUserSettings() {
@@ -126,7 +126,7 @@ class Settings {
      * @method updateUserSettings
      * @instance
      * @description
-     *  Update current User Settings
+     *  Update current User Settings <br/>
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
      */
     updateUserSettings(settings) {

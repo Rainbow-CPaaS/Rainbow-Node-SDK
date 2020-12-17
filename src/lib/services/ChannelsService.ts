@@ -26,7 +26,7 @@ const LOG_ID = "CHANNELS/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This service manages Channels. This service is in Beta.
+ *      This service manages Channels. This service is in Beta. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Create a new channel <br>
@@ -185,7 +185,7 @@ class Channels {
      * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new public channel with a visibility limited to my company
+     *  Create a new public channel with a visibility limited to my company <br/>
      */
     createChannel(name, channelTopic) {
         return this.createPublicChannel(name, channelTopic, "globalnews");
@@ -201,7 +201,7 @@ class Channels {
      * @param {String} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new public channel with a visibility limited to my company
+     *  Create a new public channel with a visibility limited to my company <br/>
      */
     createPublicChannel(name, channelTopic, category) : Promise<Channel>{
         return new Promise((resolve, reject) => {
@@ -237,7 +237,7 @@ class Channels {
      * @param {string} [description]  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new private channel
+     *  Create a new private channel <br/>
      */
     createPrivateChannel(name, description) {
         return this.createClosedChannel(name, description, "globalnews");
@@ -253,7 +253,7 @@ class Channels {
      * @param {String} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new closed channel
+     *  Create a new closed channel <br/>
      */
     createClosedChannel(name, description, category) : Promise<Channel> {
 
@@ -286,7 +286,7 @@ class Channels {
      * @param {Channel} channel  The channel to delete
      * @return {Promise<CHannel>} Promise object represents The channel deleted
      * @description
-     *  Delete a owned channel
+     *  Delete a owned channel <br/>
      */
     deleteChannel(channel) : Promise<Channel> {
 
@@ -329,7 +329,7 @@ class Channels {
      * @param {String} name Search this provided substring in the channel name (case insensitive).
      * @return {Promise<Channel[]>} Channels found
      * @description
-     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
+     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
      */
     findChannelsByName(name : string) : Promise<[Channel]> {
 
@@ -350,7 +350,7 @@ class Channels {
      * @param {String} topic Search this provided substring in the channel topic (case insensitive).
      * @return {Promise<Channel[]>} Channels found
      * @description
-     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned.
+     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
      */
     findChannelsByTopic(topic : string) : Promise<[Channel]> {
 
@@ -417,7 +417,7 @@ class Channels {
      * @param {boolean} [force=false] True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
-     * Find a channel by its id (locally if exists or by sending a request to Rainbow)
+     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
      */
     getChannelById(id, force?) : Promise <Channel> {
         return this.fetchChannel(id,  force);
@@ -432,7 +432,7 @@ class Channels {
      * @param {boolean} [force=false] True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
-     * Find a channel by its id (locally if exists or by sending a request to Rainbow)
+     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
      */
     async fetchChannel(id, force?) : Promise<Channel>{
         return new Promise(async (resolve, reject) => {
@@ -466,17 +466,17 @@ class Channels {
      * @instance
      * @description
      *    Find channels using a filter (on name, topic)<br/>
-     *    Result may be filtered with result limit, offet and sortField or SortOrder
-     *    Return a promise.
-     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined
-     *      {String} [filter.name] search by channel names (case insensitive substring).
-     *      {String} [filter.topic] search by channel topics (case insensitive substring).
-     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve.
-     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned.
-     *      {String} [filter.sortField="name"] sort channel list based on the given field.
-     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending.
-     * @return {Promise<Channel[]>} Result of the find with
-     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count }
+     *    Result may be filtered with result limit, offet and sortField or SortOrder <br/>
+     *    Return a promise. <br/>
+     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined <br/>
+     *      {String} [filter.name] search by channel names (case insensitive substring). <br/>
+     *      {String} [filter.topic] search by channel topics (case insensitive substring). <br/>
+     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve. <br/>
+     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned. <br/>
+     *      {String} [filter.sortField="name"] sort channel list based on the given field. <br/>
+     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending. <br/>
+     * @return {Promise<Channel[]>} Result of the find with <br/>
+     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count } <br/>
      */
     fetchChannelsByFilter (filter) : Promise<[Channel]> {
         let getChannel = (id) : Promise<Channel> => {
@@ -531,7 +531,7 @@ class Channels {
      * [#4] In case you need similar behavior use the fetchMyChannels method instead,
      * @description
      *    Get the channels you own, are subscribed to, are publisher<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
      */
     getChannels() {
@@ -545,7 +545,7 @@ class Channels {
      * @instance
      * @description
      *    Get the channels you own, are subscribed to, are publisher<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
      */
     fetchMyChannels() : Promise<[Channel]>{
@@ -617,7 +617,7 @@ class Channels {
      * @instance
      * @return {Channel[]} An array of channels (owned, invited, subscribed)
      * @description
-     *  Return the list of channels (owned, invited, subscribed)
+     *  Return the list of channels (owned, invited, subscribed) <br/>
      */
     getAllChannels() : [Channel] {
         return this._channels;
@@ -632,7 +632,7 @@ class Channels {
      * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
      * @return {Channel[]} An array of channels (owned only)
      * @description
-     *  Return the list of owned channels only
+     *  Return the list of owned channels only <br/>
      */
     getAllOwnedChannel(){
         return this.getAllOwnedChannels();
@@ -644,7 +644,7 @@ class Channels {
      * @instance
      * @return {Channel[]} An array of channels (owned only)
      * @description
-     *  Return the list of owned channels only
+     *  Return the list of owned channels only <br/>
      */
     getAllOwnedChannels() : [Channel] {
         return this._channels.filter((channel) => {
@@ -661,7 +661,7 @@ class Channels {
      * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
-     *  Return the list of subscribed channels only
+     *  Return the list of subscribed channels only <br/>
      */
     getAllSubscribedChannel() {
         return this.getAllSubscribedChannels();
@@ -673,7 +673,7 @@ class Channels {
      * @instance
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
-     *  Return the list of subscribed channels only
+     *  Return the list of subscribed channels only <br/>
      */
     getAllSubscribedChannels() : [Channel] {
         return this._channels.filter((channel) => {
@@ -688,7 +688,7 @@ class Channels {
      * @instance
      * @return {Channel[]} An array of channels (invited only)
      * @description
-     *  Return the list of invited channels only
+     *  Return the list of invited channels only <br/>
      */
     getAllPendingChannels() : [Channel] {
         return this._channels.filter((channel) => {
@@ -709,7 +709,7 @@ class Channels {
      * @param {String} [type="basic"] An optional message content type (could be basic, markdown, html or data)
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
-     *  Publish to a channel
+     *  Publish to a channel <br/>
      */
     publishMessageToChannel(channel, message, title, url, imagesIds, type) : Promise<{}> {
         return this.createItem(channel, message, title, url, imagesIds, type);
@@ -728,7 +728,7 @@ class Channels {
      * @param {String} [type="basic"] An optional message content type (could be basic, markdown, html or data)
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
-     *  Publish to a channel
+     *  Publish to a channel <br/>
      */
     createItem(channel, message, title, url, imagesIds, type) : Promise <{}> {
         if (!channel || !channel.id) {
@@ -777,7 +777,7 @@ class Channels {
      * @param {Channel} channel The channel to subscribe
      * @return {Promise<Channel>} The channel updated with the new subscription
      * @description
-     *  Subscribe to a public channel
+     *  Subscribe to a public channel <br/>
      */
     subscribeToChannel(channel : Channel) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -809,7 +809,7 @@ class Channels {
      * @instance
      * @description
      *    Subscribe to a channel using its id<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {String} id The id of the channel
      * @return {Object} Nothing or an error object depending on the result
      */
@@ -869,7 +869,7 @@ class Channels {
      * @param {Channel} channel The channel to unsubscribe
      * @return {Promise<String>} The status of the unsubscribe.
      * @description
-     *  Unsubscribe from a public channel
+     *  Unsubscribe from a public channel <br/>
      */
     unsubscribeFromChannel(channel : Channel) : Promise<String> {
         if (!channel || !channel.id) {
@@ -962,7 +962,7 @@ class Channels {
      * @instance
      * @description
      *    Update a channel name<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {Channel} channel The channel to update
      * @param {String} channelName The name of the channel
      * @return {Channel} Return the channel updated or an error
@@ -1016,7 +1016,7 @@ class Channels {
      *    Update a channel<br/>
      *      May be updated: name, topic, visibility, max_items and max_payload<br/>
      *      Please put null to not update a property.<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {String} id The id of the channel
      * @param {String} [channelTopic=""] The topic of the channel
      * @param {String} [visibility=public] public/company/closed group visibility for search
@@ -1079,7 +1079,7 @@ class Channels {
      * @instance
      * @description
      *    Update a channel visibility<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {String} channel The channel to update
      * @param {String} visibility  The new channel visibility (closed or company)
      * @return {Promise<Channel>} Return the channel updated or an error
@@ -1135,7 +1135,7 @@ class Channels {
      * @instance
      * @description
      *    Set the channel visibility to company (visible for users in that company)<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {String} channel The channel to update
      * @return {Channel} Return the channel updated or an error
      */
@@ -1150,7 +1150,7 @@ class Channels {
      * @instance
      * @description
      *    Set the channel visibility to closed (not visible by users)<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {String} channel The channel to update
      * @return {Channel} Return the channel updated or an error
      */
@@ -1166,7 +1166,7 @@ class Channels {
      * @instance
      * @description
      *    Update a channel avatar<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {Channel} channel The Channel to update
      * @param {string} urlAvatar  The avatar Url.  It must be resized to 512 pixels before calling this API.
      * @return {Channel} Return the channel updated or an error
@@ -1219,7 +1219,7 @@ class Channels {
      * @instance
      * @description
      *    Delete a channel avatar<br/>
-     *    Return a promise.
+     *    Return a promise. <br/>
      * @param {Channel} channel The channel to update
      * @return {Channel} Return the channel updated or an error
      */
@@ -1252,9 +1252,9 @@ class Channels {
      * @method fetchChannelUsers
      * @instance
      * @async
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the fetchChannelUsers method instead,
+     * @deprecated [#1] since version 1.55 [#2]. <br/>
+     * [#3] Will be deleted in future version <br/>
+     * [#4] In case you need similar behavior use the fetchChannelUsers method instead, <br/>
      * @param {Channel} channel The channel
      * @param {Object} [options] A filter parameter
      * @param {Number} [options.page = 0] Display a specific page of results
@@ -1263,7 +1263,7 @@ class Channels {
      * @param {Boolean} [options.onlyOwners=false] Filter to owners only
      * @return {Promise<Users[]>} An array of users who belong to this channel
      * @description
-     *  Get a pagined list of users who belongs to a channel
+     *  Get a pagined list of users who belongs to a channel <br/>
      */
     getUsersFromChannel(channel, options) {
         return this.fetchChannelUsers(channel, options);
@@ -1282,7 +1282,7 @@ class Channels {
      * @param {Boolean} [options.onlyOwners=false] Filter to owners only
      * @return {Promise<Users[]>} An array of users who belong to this channel
      * @description
-     *  Get a pagined list of users who belongs to a channel
+     *  Get a pagined list of users who belongs to a channel <br/>
      */
     public fetchChannelUsers(channel, options) : Promise<Array<{}>> {
         if (!channel || !channel.id) {
@@ -1334,13 +1334,13 @@ class Channels {
      * @method removeAllUsersFromChannel
      * @instance
      * @async
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead,
+     * @deprecated [#1] since version 1.55 [#2]. <br/>
+     * [#3] Will be deleted in future version <br/>
+     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br/>
      * @param {String} channel The channel
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Remove all users from a channel
+     *  Remove all users from a channel <br/>
      */
     removeAllUsersFromChannel(channel) {
         return this.deleteAllUsersFromChannel(channel);
@@ -1353,7 +1353,7 @@ class Channels {
      * @param {String} channel The channel
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Remove all users from a channel
+     *  Remove all users from a channel <br/>
      */
     public deleteAllUsersFromChannel(channel) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -1440,7 +1440,7 @@ class Channels {
      * @param owners
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of owners to the channel
+     *  Add a list of owners to the channel <br/>
      */
     public addOwnersToChannel(channel : Channel, owners) : Promise<Channel>  {
         if (!channel || !channel.id) {
@@ -1474,7 +1474,7 @@ class Channels {
      * @param {User[]} users An array of users to add
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of publishers to the channel
+     *  Add a list of publishers to the channel <br/>
      */
     public addPublishersToChannel(channel : Channel, publishers) : Promise<Channel> {
         if (!channel || !channel.id ) {
@@ -1508,7 +1508,7 @@ class Channels {
      * @param {User[]} users An array of users to add
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of members to the channel
+     *  Add a list of members to the channel <br/>
      */
     public async addMembersToChannel(channel, members) : Promise<Channel> {
         //this._logger.log("internal", LOG_ID + "(addMembersToChannel) this._channels : ", this._channels);
@@ -1547,14 +1547,14 @@ class Channels {
      * @method removeUsersFromChannel1
      * @instance
      * @async
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead,
+     * @deprecated [#1] since version 1.55 [#2]. <br/>
+     * [#3] Will be deleted in future version <br/>
+     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br/>
      * @param {Channel} channel The channel
      * @param {User[]} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Remove a list of users from a channel
+     *  Remove a list of users from a channel <br/>
      */
     removeUsersFromChannel1(channel, users) {
         return this.deleteUsersFromChannel(channel, users);
@@ -1568,7 +1568,7 @@ class Channels {
      * @param {User[]} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Remove a list of users from a channel
+     *  Remove a list of users from a channel <br/>
      */
     public deleteUsersFromChannel(channel : Channel, users) : Promise<Channel> {
         if (!channel || !channel.id) {
@@ -1604,7 +1604,7 @@ class Channels {
      * @param {Channel} channel The channel
      * @return {Promise<Object[]>} The list of messages received
      * @description
-     *  Retrieve the last messages from a channel
+     *  Retrieve the last messages from a channel <br/>
      */
     getMessagesFromChannel (channel) {
         return this.fetchChannelItems(channel);
@@ -1618,7 +1618,7 @@ class Channels {
      * @param {Channel} channel The channel
      * @return {Promise<Object[]>} The list of messages received
      * @description
-     *  Retrieve the last messages from a channel
+     *  Retrieve the last messages from a channel <br/>
      */
     public fetchChannelItems (channel : Channel) : Promise<Array<any>>{
         if (!channel || !channel.id) {
@@ -1670,14 +1670,14 @@ class Channels {
      * @method deleteMessageFromChannel
      * @instance
      * @async
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead,
+     * @deprecated [#1] since version 1.55 [#2]. <br/>
+     * [#3] Will be deleted in future version <br/>
+     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br/>
      * @param  {String} channelId The Id of the channel
      * @param  {String} messageId The Id of the message
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Delete a message from a channel
+     *  Delete a message from a channel <br/>
      */
     deleteMessageFromChannel(channelId, messageId) {
         return this.deleteItemFromChannel(channelId, messageId);
@@ -1692,7 +1692,7 @@ class Channels {
      * @param  {String} itemId The Id of the item
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Delete a message from a channel
+     *  Delete a message from a channel <br/>
      */
     public deleteItemFromChannel (channelId, itemId) : Promise<Channel> {
         if (!channelId ) {
@@ -1783,7 +1783,7 @@ class Channels {
      * @private
      * @param channelId
      * @description
-     *      GET A CHANNEL
+     *      GET A CHANNEL <br/>
      */
     public getChannel(channelId: string): Promise<Channel> {
         return new Promise((resolve, reject) => {
@@ -1810,7 +1810,7 @@ class Channels {
      * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
      * @return {Promise<any>}
      * @description
-     *  To like an Channel Item with the specified appreciation
+     *  To like an Channel Item with the specified appreciation <br/>
      */
     public likeItem( channel, itemId, appreciation : Appreciation): Promise<any> {
         if (!channel || !channel.id) {
@@ -1855,7 +1855,7 @@ class Channels {
      * @param  {String} itemId The Id of the item
      * @return {Promise<any>}
      * @description
-     *  To know in details apprecations given on a channel item (by userId the apprecation given)
+     *  To know in details apprecations given on a channel item (by userId the apprecation given) <br/>
      */
     public getDetailedAppreciations( channel, itemId): Promise<any> {
         if (!channel || !channel.id) {
@@ -1889,7 +1889,7 @@ class Channels {
      * @private
      * @param channelId
      * @description
-     *      GET A CHANNEL FROM CACHE
+     *      GET A CHANNEL FROM CACHE <br/>
      */
     private getChannelFromCache(channelId: string): Channel {
         let channelFound = null;

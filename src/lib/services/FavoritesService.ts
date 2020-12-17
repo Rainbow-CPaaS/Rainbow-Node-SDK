@@ -25,7 +25,7 @@ const LOG_ID = "FAVTE/SVCE - ";
  * @version SDKVERSION
  * @public
 * @description
-*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots.
+*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots. <br/>
 *      The main methods and events proposed in that service allow to: <br>
 *      - Create or delete a Rainbow Favorite (one-to-one, bubble or bot), <br/>
 *      - Retrieve all information linked to that Favorite, <br>
@@ -379,7 +379,7 @@ class FavoritesService {
      * @method fetchAllFavorites()
      * @instance
      * @description
-     *   Fetch all the Favorites from the server in a form of an Array
+     *   Fetch all the Favorites from the server in a form of an Array <br/>
      * @return {Conversation[]} An array of Favorite objects
      */
     public async fetchAllFavorites() {
@@ -406,7 +406,7 @@ class FavoritesService {
      * @method createFavorite()
      * @instance
      * @description
-     *   Add conversation/bubble/bot to Favorites Array
+     *   Add conversation/bubble/bot to Favorites Array <br/>
      * @param {String} id of the conversation/bubble
      * @param {String} type of Favorite (can be 'user' or 'bubble')
      * @return {Promise<Favorite>} A Favorite object
@@ -453,7 +453,7 @@ class FavoritesService {
      * @method deleteFavorite()
      * @instance
      * @description
-     *   Delete conversation/bubble/bot from Favorites Array
+     *   Delete conversation/bubble/bot from Favorites Array <br/>
      * @param {String} id of the Favorite item
      * @return {Favorite[]} A Favorite object
      */

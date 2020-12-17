@@ -39,14 +39,14 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- * This module is the basic module for handling conversations in Rainbow. In Rainbow, conversations are the way to get in touch with someone or something (i.e. a Rainbow contact, a external phone number, a connected thing, ...) so a conversation is the "long tail" of communication between you and someone or something else like a bubble.
- * A Rainbow conversation by default supports sending and receiving Instant Messages with a single recipient (one-to-one conversation) or with several persons (bubble). Using the FileStorage service, you can share files in conversations.
- *
- * The main methods and events proposed in that service allow to:
- *   - Create or close a Rainbow conversation (one-to-one of bubble),
- *   - Get all conversations or get a conversation by Id, bubbleID or bubbleJid
- *   - Retrieve all information linked to that conversation,
- *
+ * This module is the basic module for handling conversations in Rainbow. In Rainbow, conversations are the way to get in touch with someone or something (i.e. a Rainbow contact, a external phone number, a connected thing, ...) so a conversation is the "long tail" of communication between you and someone or something else like a bubble. <br/>
+ * A Rainbow conversation by default supports sending and receiving Instant Messages with a single recipient (one-to-one conversation) or with several persons (bubble). Using the FileStorage service, you can share files in conversations. <br/>
+ * <br/>
+ * The main methods and events proposed in that service allow to: <br/>
+ *   - Create or close a Rainbow conversation (one-to-one of bubble), <br/>
+ *   - Get all conversations or get a conversation by Id, bubbleID or bubbleJid <br/>
+ *   - Retrieve all information linked to that conversation, <br/>
+ * <br/>
  *   */
 class Conversations {
     private _xmpp: XMPPService;
@@ -295,7 +295,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     * Get a pstn conference
+     * Get a pstn conference <br/>
      */
     getRoomConferences(conversation) {
         let that = this;
@@ -322,7 +322,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     * Update a pstn conference
+     * Update a pstn conference <br/>
      */
     updateRoomConferences() {
         let that = this;
@@ -354,7 +354,7 @@ class Conversations {
      * @method ackAllMessages
      * @instance
      * @description
-     *    Mark all unread messages in the conversation as read.
+     *    Mark all unread messages in the conversation as read. <br/>
      * @param {String} ID of the conversation (dbId field)
      * @async
      * @return {Promise<Conversation[]>}
@@ -371,7 +371,7 @@ class Conversations {
      * @method getHistoryPage
      * @instance
      * @description
-     *    Retrieve the remote history of a specific conversation.
+     *    Retrieve the remote history of a specific conversation. <br/>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {number} size Maximum number of element to retrieve
      * @async
@@ -445,10 +445,10 @@ class Conversations {
      * @method getOneMessageFromConversationId
      * @instance
      * @description
-     *    To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp
-     *
-     *    Time stamp is mandatory - the search is performed using it.
-     *    Once results are returned, we look for a message with the message id specified.
+     *    To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp <br/>
+     * <br/>
+     *    Time stamp is mandatory - the search is performed using it. <br/>
+     *    Once results are returned, we look for a message with the message id specified. <br/>
      * @param {string} conversationId : Id of the conversation
      * @param {string} messageId : Id of the message
      * @param {string} stamp : Time stamp. Time stamp is mandatory - the search is performed using it.
@@ -551,7 +551,7 @@ class Conversations {
      * @method sendFSMessage
      * @instance
      * @description
-     *   Send an file sharing message
+     *   Send an file sharing message <br/>
      */
     sendFSMessage(conversation, file, data) {
         //let message = conversation.sendFSMessage(file, data);
@@ -681,7 +681,7 @@ class Conversations {
      * @instance
      * @param {string} data The text message to send
      * @description
-     *    Send a message to this conversation
+     *    Send a message to this conversation <br/>
      * @return {Message} The message sent
      */
      sendExistingFSMessage(conversation, message, fileDescriptor) {
@@ -710,7 +710,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *   Send an existing file sharing message
+     *   Send an existing file sharing message <br/>
      */
     sendEFSMessage(conversation, fileDescriptor, data) {
         let message = conversation.sendEFSMessage(fileDescriptor, data);
@@ -723,7 +723,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *    Send a instant message to a conversation
+     *    Send a instant message to a conversation <br/>
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
      * @param {Conversation} conversation The conversation to clean
      * @param {String} data Test message to send
@@ -742,11 +742,11 @@ class Conversations {
      * @method sendCorrectedChatMessage
      * @instance
      * @description
-     *    Send a corrected message to a conversation
+     *    Send a corrected message to a conversation <br/>
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
-     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend.
-     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend.
-     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message.
+     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend. <br/>
+     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend. <br/>
+     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message. <br/>
      * @param conversation
      * @param data
      * @param origMsgId
@@ -817,7 +817,7 @@ class Conversations {
      * @instance
      * @async
      * @description
-     *    Delete a message by sending an empty string in a correctedMessage
+     *    Delete a message by sending an empty string in a correctedMessage <br/>
      * @param {Conversation} conversation The conversation object
      * @param {String} messageId The id of the message to be deleted
      * @return {Message} - message object with updated replaceMsgs property
@@ -850,7 +850,7 @@ class Conversations {
      * @instance
      * @async
      * @description
-     *   Delete all messages for the connected user on a one to one conversation.
+     *   Delete all messages for the connected user on a one to one conversation. <br/>
      * @param {Conversation} conversation The conversation object
      * @return {Message} - message object with updated replaceMsgs property
      */
@@ -876,8 +876,8 @@ class Conversations {
     /**
      * @private
      * @description
-     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-     *      It allow to give back the status of the sending process.
+     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
+     *      It allow to give back the status of the sending process. <br/>
      * @param conversation
      * @param message
      */
@@ -891,8 +891,8 @@ class Conversations {
     /**
      * @private
      * @description
-     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-     *      It allow to give back the status of the sending process.
+     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
+     *      It allow to give back the status of the sending process. <br/>
      * @param message
      */
     removePendingMessage(message) {
@@ -905,7 +905,7 @@ class Conversations {
      * @instance
      * @description
      *    Cleanup a conversation by removing all previous messages<br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {Conversation} conversation The conversation to clean
      * @async
      * @return {Promise}
@@ -965,7 +965,7 @@ class Conversations {
      * @instance
      * @description
      *    Remove a specific range of message in a conversation<br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {Conversation} conversation The conversation to clean
      * @async
      * @return {Promise}
@@ -1006,7 +1006,7 @@ class Conversations {
      * @method getAllConversations
      * @instance
      * @description
-     *    Allow to get the list of existing conversations (p2p and bubbles)
+     *    Allow to get the list of existing conversations (p2p and bubbles) <br/>
      * @return {Conversation[]} An array of Conversation object
      */
     getAllConversations() {
@@ -1019,7 +1019,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *      Get all conversation
+     *      Get all conversation <br/>
      * @return {Conversation[]} The conversation list to retrieve
      */
     getConversations() {
@@ -1040,7 +1040,7 @@ class Conversations {
      * @description
      *    Open a conversation to a contact <br/>
      *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {Contact} contact The contact involved in the conversation
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
@@ -1078,7 +1078,7 @@ class Conversations {
      * @description
      *    Open a conversation to a bubble <br/>
      *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {Bubble} bubble The bubble involved in this conversation
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
@@ -1113,7 +1113,7 @@ class Conversations {
      * @instance
      * @description
      *    get a conversation from id on S2S API Server.<br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {string} conversationId The id of the conversation to find.
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
@@ -1162,7 +1162,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *    Allow to delete a conversation on server (p2p and bubbles)
+     *    Allow to delete a conversation on server (p2p and bubbles) <br/>
      * @param {String} conversationId of the conversation (id field)
      * @return {Promise}
      */
@@ -1198,8 +1198,8 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *    Allow to mute notification in a conversations (p2p and bubbles)
-     *    When a conversation is muted/unmuted, all user's resources will receive the notification
+     *    Allow to mute notification in a conversations (p2p and bubbles) <br/>
+     *    When a conversation is muted/unmuted, all user's resources will receive the notification <br/>
      * @param {String} ID of the conversation (dbId field)
      * @param {Boolean} mute mutation state
      * @return {Promise}
@@ -1217,9 +1217,9 @@ class Conversations {
      * @method sendConversationByEmail
      * @instance
      * @description
-     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles)
-     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room,
-     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days.
+     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br/>
+     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br/>
+     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br/>
      * @param {String} ID of the conversation (dbId field)
      * @async
      * @return {Promise<Conversation[]>}
@@ -1287,7 +1287,7 @@ class Conversations {
      * @method getConversationById
      * @instance
      * @description
-     *      Get a p2p conversation by id
+     *      Get a p2p conversation by id <br/>
      * @param {String} conversationId Conversation id of the conversation to clean
      * @return {Conversation} The conversation to retrieve
      */
@@ -1306,7 +1306,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *      Get a conversation by db id
+     *      Get a conversation by db id <br/>
      * @param {String} dbId db id of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
@@ -1327,7 +1327,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *      Get a bubble conversation by bubble id
+     *      Get a bubble conversation by bubble id <br/>
      * @param {String} bubbleId Bubble id of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
@@ -1347,7 +1347,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *      Get a bubble conversation by bubble id
+     *      Get a bubble conversation by bubble id <br/>
      * @param {String} bubbleJid Bubble jid of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
@@ -1367,7 +1367,7 @@ class Conversations {
      * @method getBubbleConversation
      * @instance
      * @description
-     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it)
+     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it) <br/>
      * @param {String} bubbleJid JID of the bubble (dbId field)
      * @param conversationDbId
      * @param lastModification
@@ -1487,7 +1487,7 @@ class Conversations {
      * @instance
      * @description
      *    Close a conversation <br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {Conversation} conversation The conversation to close
      * @async
      * @return {Promise}
@@ -1518,7 +1518,7 @@ class Conversations {
      * @instance
      * @description
      *    Remove locally a conversation <br/>
-     *    This method returns a promise
+     *    This method returns a promise <br/>
      * @param {Conversation} conversation The conversation to remove
      */
     removeConversation(conversation) {
@@ -1563,7 +1563,7 @@ class Conversations {
      * @instance
      * @async
      * @description
-     *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations.
+     *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations. <br/>
      * @return {Promise<any>} the result of the deletion.
      * @category async
      */
@@ -1585,7 +1585,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *    Allow to get the list of existing conversations from server (p2p and bubbles)
+     *    Allow to get the list of existing conversations from server (p2p and bubbles) <br/>
      * @return {Conversation[]} An array of Conversation object
      */
     getServerConversations() {
@@ -1655,7 +1655,7 @@ class Conversations {
      * @method
      * @instance
      * @description
-     *    Allow to create a conversations on server (p2p and bubbles)
+     *    Allow to create a conversations on server (p2p and bubbles) <br/>
      * @param {String} conversation of the conversation (dbId field)
      * @return {Conversation} Created conversation object
      */

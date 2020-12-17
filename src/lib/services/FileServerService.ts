@@ -37,7 +37,7 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
  * @version SDKVERSION
 * @public
 * @description
-*      This service manage files on server side
+*      This service manage files on server side <br/>
 */
 class FileServer {
     private _eventEmitter: EventEmitter;
