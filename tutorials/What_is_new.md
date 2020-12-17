@@ -6,6 +6,42 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.80 - December 2020
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Update messageMaxLength option default value to 16384.
+
+**Others Changes**
+
+-   Fix in presenceEventHandler the offline presence of a contact in the roster.
+-   Add HttpManager class to manage a promised queue of request to the server. It allow to have a queue of request and then avoid to much concurrents one.
+-   Treat the HttpService methods getUrl, post, head, put, putBuffer, delete with the HttpManager queue.
+-   Add property "concurrentRequests" in options.rainbow section parameter of the SDK to define the number of allowed concurrent request running in the HttpManager queue.
+-   Change the max value of nbHttpAdded to Number.MAX_SAFE_INTEGER
+-   Update getConnectionStatus() method to return the status of the queue of HTTP requests :
+-   `nbHttpAdded`: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value.
+-   `httpQueueSize`: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue.
+-   `nbRunningReq`: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
+-   `maxSimultaneousRequests` : number, the number of request which can be launch at a same time.
+-   Add SDK parameter in log section : `enableEventsLogs`: false, Activate the logs to be raised from the events service (with `onLog` listener).
+-   Fix XMPP resource name to have the string "node_" at the beginning of it.
+-   Fix presence events. The presence event are all raised even if the aggregated contact.presence do not change, and only the resources property (with  detailed presence) is updated.
+
+
+
 ### SDK for Node.JS 1.79 - November 2020
 
 ---

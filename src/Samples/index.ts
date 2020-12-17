@@ -14,6 +14,12 @@ import {url} from "inspector";
 import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
 import {createWriteStream} from "fs";
+import {SDKSTATUSENUM} from "../lib/common/StateManager";
+import {AlertFilter} from "../lib/common/models/AlertFilter";
+import {List} from "ts-generic-collections-linq";
+import {AlertTemplate} from "../lib/common/models/AlertTemplate";
+import {Alert} from "../lib/common/models/Alert";
+import {AlertDevice} from "../lib/common/models/AlertDevice";
 
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
@@ -118,7 +124,8 @@ let options = {
     // Logs options
     "logs": {
         "enableConsoleLogs": true,
-        "enableFileLogs": true,
+        "enableFileLogs": false,
+        "enableEventsLogs": false,
         "color": true,
         "level": "debug",
         "customLabel": "RainbowSample",
@@ -248,6 +255,9 @@ function saveCall(call) {
 }
 // Start the SDK
 //rainbowSDK.start();
+rainbowSDK.events.onLog("debug", (log) => {
+    console.log(logger.colors.green("MAIN - Log : ") + log);
+});
 rainbowSDK.events.on("rainbow_onready", () => {
     // do something when the SDK is ready to be used
     logger.log("debug", "MAIN - rainbow_onready - rainbow onready");
@@ -884,6 +894,14 @@ function downloadFile() {
         }
     });
 }
+    async function testgetAllFilesReceived() {
+        let that = this;
+        for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
+            logger.log("debug", `Main - Checking file ${fd.fileName} ...`, fd);
+            let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
+            logger.log("debug", `Main - fileDescriptorFull : `, fileDescriptorFull);
+        }
+    }
 
     async function testdownloadFile() {
     let that = this;
@@ -1024,6 +1042,26 @@ function testUploadFileToConversation() {
         // Share the file
         return rainbowSDK.fileStorage.uploadFileToConversation(conversation, file, strMessage).then((result) => {
             logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
+        });
+    });
+    //});
+}function testUploadFileToConversationEmpty() {
+    let that = this;
+    // let conversation = null;
+    let file = null;
+    //let strMessage = {message: "message for the file"};
+    let strMessage = "message for the file";
+    file = { "path": "c:\\temp\\NotExistingFile.jpg", "name": "NotExistingFile.jpg", "type": "image/JPEG", "size": 2960156 };
+    logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
+    rainbowSDK.contacts.getContactByLoginEmail("vincent02@vbe.test.openrainbow.net").then(function(contact) {
+        // Retrieve the associated conversation
+        return rainbowSDK.conversations.openConversationForContact(contact);
+    }).then(function(conversation) {
+        // Share the file
+        return rainbowSDK.fileStorage.uploadFileToConversation(conversation, file, strMessage).then((result) => {
+            logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
+        }).catch((err) => {
+            logger.log("error", "MAIN - uploadFileToConversation - error : ", err);
         });
     });
     //});
@@ -2138,17 +2176,142 @@ function testretrieveAllBubblesByTags() {
     }
 
 async function testgetConnectionStatus() {
-    let connectionStatus = await rainbowSDK.getConnectionStatus();
+    let connectionStatus : {restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number } = await rainbowSDK.getConnectionStatus();
     logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
+    let state=SDKSTATUSENUM.CONNECTED;
+    logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: SDKSTATUSENUM.CONNECTED state : ", state);
+
 }
 
 //region Alerts
+    async function testcreateDevice() {
+
+        let alertDevice: AlertDevice = new AlertDevice();
+        alertDevice.name = "MyNodeDevice";
+        alertDevice.jid_im = rainbowSDK._core._xmpp.fullJid;
+        let result = await rainbowSDK.alerts.createDevice(alertDevice);
+        logger.log("debug", "MAIN - testcreateDevice - result : ", result);
+    }
+
+    async function testdeleteDevice() {
+        let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
+        logger.log("debug", "MAIN - testgetDevices - result : ", result);
+        for (let i = 0 ; i < result.length ; i++)
+        {
+            await rainbowSDK.alerts.deleteDevice(result[i]);
+        }
+    }
+
+    async function testcreateFilter() {
+
+        let filter: AlertFilter = new AlertFilter();
+        filter.name = "Filter1";
+        filter.tags = new List<string>();
+        filter.companyId = connectedUser.companyId;
+        let result = await rainbowSDK.alerts.createFilter(filter);
+        logger.log("debug", "MAIN - testcreateFilter - result : ", result);
+
+        /*    {
+                "executing": "api:_core._alerts.createFilter",
+                "injecting":["obj:{ \"Name\" : \"Filter1\", \"Tags\" : null, \"CompanyId\" : @glo:maeveContact.companyId@ }"],
+                "resulting": "filterCreated",
+                "expecting": [{ "var:filterCreated": "$defined" } ],
+                "using": [
+                "robert"
+            ]
+            // */
+    }
+
+    async function testcreateTemplate() {
+
+        let template: AlertTemplate = new AlertTemplate();
+        template.name = "Template01";
+        template.companyId = connectedUser.companyId;
+        template.event = "Fire in building";
+        template.senderName = "sender name";
+        template.headline = "headline - headline";
+        template.instruction = "instruction - instruction";
+        template.contact = "contact - contact";
+        template.mimeType = "text/html";
+        template.description = "Fire in the building";
+        let result = await rainbowSDK.alerts.createTemplate(template);
+        logger.log("debug", "MAIN - testcreateTemplate - result : ", result);
+
+        /*
+    {
+        "executing": "api:_core._alerts.createTemplate",
+        "injecting": [ "obj:{ \"name\" : \"Template01\", \"companyId\"  : @glo:maeveContact.companyId@, \"event\" : \"Fire in building\", \"senderName\" : \"sender name\", \"headline\" : \"headline - headline\", \"instruction\" : \"instruction - instruction\", \"contact\" : \"contact - contact\", \"mimeType\" : \"text/html\", \"description\" : \"Fire in the building\" }"],
+        "resulting": "glo:templateCreated",
+        "expecting": [
+        {
+            "glo:templateCreated": "$defined"
+        }
+    ],
+        "using": [
+        "robert"
+    ]
+    },
+    // */
+    }
+
+async function testdeleteDevice_createDevice() {
+    let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
+    logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
+    for (let i = 0 ; i < result.length ; i++)
+    {
+        await rainbowSDK.alerts.deleteDevice(result[i]);
+    }
+    let alertDevice: AlertDevice = new AlertDevice();
+    alertDevice.name = "MyNodeDevice";
+    alertDevice.jid_im = rainbowSDK._core._xmpp.fullJid;
+    result = await rainbowSDK.alerts.createDevice(alertDevice);
+    logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
+
+}
+
+async function testcreateAlert() {
+
+            let alert: Alert = new Alert();
+            alert.companyId = connectedUser.companyId;
+            let resultTemplates = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0,100);
+            logger.log("debug", "MAIN - testcreateAlert - resultTemplates : ", resultTemplates, " nb templates : ", resultTemplates ? resultTemplates.length : 0);
+            if (resultTemplates.length > 0) {
+                let template = resultTemplates[0];
+                alert.templateId = template.id;
+                let result = await rainbowSDK.alerts.createAlert(alert);
+                logger.log("debug", "MAIN - testcreateAlert - result : ", result);
+            }
+        /*
+
+{
+        "executing": "api:_core._alerts.createAlert",
+            "injecting": [ "obj:{ \"companyId\"  : @glo:maeveContact.companyId@, \"templateId\" : @glo:templateCreated.id@ }"],
+            "resulting": "glo:alertCreated",
+            "expecting": [
+            {
+                "glo:alertCreated": "$defined"
+            }
+        ],
+            "using": [
+            "robert"
+        ]
+    }, // */
+    }
     async function testgetDevices() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id,"","","",0,100);
         logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.length : 0);
         if (result.length > 0) {
                 logger.log("debug", "MAIN - testgetDevices - devices : ", result);
+        }
+        //});
+    }
+    async function testgetTemplates() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getTemplates( connectedUser.companyId, 0,100);
+        logger.log("debug", "MAIN - getTemplates - result : ", result, " nb templates : ", result ? result.length : 0);
+        if (result.length > 0) {
+                logger.log("debug", "MAIN - getTemplates - filters : ", result);
         }
         //});
     }
@@ -2163,6 +2326,7 @@ async function testgetConnectionStatus() {
     }
 
     async function testgetAlerts() {
+        // To use with vincent01 on .NET
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getAlerts();
         logger.log("debug", "MAIN - testgetAlerts - result : ", result, " nb alerts : ", result ? result.length : 0);

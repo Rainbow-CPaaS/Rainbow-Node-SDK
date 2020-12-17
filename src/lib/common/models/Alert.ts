@@ -3,7 +3,7 @@ import {List} from "ts-generic-collections-linq";
 
 export {};
 
-export class Alert {
+class Alert {
 
     /// <summary>
     /// <see cref="string"/> - Alert Id
@@ -66,5 +66,5 @@ class AlertsData {
     offset: number
 }
 
-exports = {Alert, AlertsData};
 module.exports = {Alert, AlertsData};
+export {Alert, AlertsData};

@@ -29,7 +29,7 @@ const LOG_ID = "IM/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This module manages Instant Messages. It allows to send messages to a user or a bubble.
+ *      This module manages Instant Messages. It allows to send messages to a user or a bubble. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Send a message to a user <br>
@@ -234,7 +234,7 @@ class IMService {
      * @instance
      * @description
      *    <b>(beta)</b> Send a instant message to a conversation<br>
-     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation
+     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br/>
      * @param {Conversation} conversation The conversation recipient
      * @param {String} message The message to send
      * @param {String} [lang=en] The content language used
@@ -323,7 +323,7 @@ class IMService {
      * @method sendMessageToContact
      * @instance
      * @description
-     *  Send a one-2-one message to a contact
+     *  Send a one-2-one message to a contact <br/>
      * @param {String} message The message to send
      * @param {Contact} contact The contact (should have at least a jid_im property)
      * @param {String} [lang=en] The content language used
@@ -349,8 +349,8 @@ class IMService {
     /**
      * @private
      * @description
-     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-     *      It allow to give back the status of the sending process.
+     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
+     *      It allow to give back the status of the sending process. <br/>
      * @param conversation
      * @param message
      */
@@ -364,8 +364,8 @@ class IMService {
     /**
      * @private
      * @description
-     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-     *      It allow to give back the status of the sending process.
+     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
+     *      It allow to give back the status of the sending process. <br/>
      * @param message
      */
     /* removePendingMessage(message) {
@@ -389,7 +389,7 @@ class IMService {
      * @method sendMessageToJid
      * @instance
      * @description
-     *  Send a one-2-one message to a contact identified by his Jid
+     *  Send a one-2-one message to a contact identified by his Jid <br/>
      * @param {String} message The message to send
      * @param {String} jid The contact Jid
      * @param {String} [lang=en] The content language used
@@ -457,7 +457,7 @@ class IMService {
      * @method sendMessageToJidAnswer
      * @instance
      * @description
-     *  Send a reply to a one-2-one message to a contact identified by his Jid
+     *  Send a reply to a one-2-one message to a contact identified by his Jid <br/>
      * @param {String} message The message to send
      * @param {String} jid The contact Jid
      * @param {String} [lang=en] The content language used
@@ -529,7 +529,7 @@ class IMService {
      * @method sendMessageToBubble
      * @instance
      * @description
-     *  Send a message to a bubble
+     *  Send a message to a bubble <br/>
      * @param {String} message The message to send
      * @param {Bubble} bubble The bubble (should at least have a jid property)
      * @param {String} [lang=en] The content language used
@@ -558,7 +558,7 @@ class IMService {
      * @method sendMessageToBubbleJid
      * @instance
      * @description
-     *  Send a message to a bubble identified by its JID
+     *  Send a message to a bubble identified by its JID <br/>
      * @param {String} message The message to send
      * @param {String} jid The bubble JID
      * @param {String} [lang=en] The content language used
@@ -632,7 +632,7 @@ class IMService {
      * @method sendMessageToBubbleJidAnswer
      * @instance
      * @description
-     *  Send a message to a bubble identified by its JID
+     *  Send a message to a bubble identified by its JID <br/>
      * @param {String} message The message to send
      * @param {String} jid The bubble JID
      * @param {String} [lang=en] The content language used
@@ -713,7 +713,7 @@ class IMService {
      * @method sendIsTypingStateInBubble
      * @instance IMService
      * @description
-     *    Switch the "is typing" state in a bubble/room<br>
+     *    Switch the "is typing" state in a bubble/room<br> <br/>
      * @param {Bubble} bubble The destination bubble
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return {Object} Return a promise with no parameter when succeed.
@@ -788,7 +788,7 @@ class IMService {
      * @method markMessageAsRead
      * @instance
      * @description
-     *  Send a 'read' receipt to the recipient
+     *  Send a 'read' receipt to the recipient <br/>
      * @param {Message} messageReceived The message received to mark as read
      * @async
      * @return {Promise}
@@ -827,7 +827,7 @@ class IMService {
      * @method enableCarbon
      * @instance
      * @description
-     *      Enable message carbon XEP-0280
+     *      Enable message carbon XEP-0280 <br/>
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result

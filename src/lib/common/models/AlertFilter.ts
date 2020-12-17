@@ -6,7 +6,7 @@ import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
 /// <summary>
 /// Define a filter used when an alert is created to notify only some devices
 /// </summary>
-export class AlertFilter {
+class AlertFilter {
     /// <summary>
     /// <see cref="string"/> - Filter Id
     /// </summary>
@@ -53,5 +53,5 @@ class AlertFiltersData {
     offset: number
 }
 
-exports= {AlertFilter, AlertFiltersData};
 module.exports = {AlertFilter, AlertFiltersData};
+export {AlertFilter, AlertFiltersData};

@@ -28,7 +28,7 @@ enum  OFFERTYPES {
  * @public
  * @description
  *      This module handles the management of users. Using it, You will be able to create new users, to modify information of users and to delete them.<br>
- *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow.
+ *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Create a new user in a specified company <br>
@@ -36,7 +36,7 @@ enum  OFFERTYPES {
  *      - Delete an existing user <br>
  *      - Invite a user in Rainbow <br>
  *      - Change the password of a user <br>
- *      - Create a guest user
+ *      - Create a guest user <br/>
  */
 class Admin {
     private _xmpp: XMPPService;
@@ -118,7 +118,7 @@ class Admin {
      * @method createCompany
      * @instance
      * @description
-     *      Create a company
+     *      Create a company <br/>
      * @param {string} strName The name of the new company
      * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
      * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
@@ -214,7 +214,7 @@ class Admin {
      * @method createUserInCompany
      * @instance
      * @description
-     *      Create a new user in a given company
+     *      Create a new user in a given company <br/>
      * @param {string} email The email of the user to create
      * @param {string} password The associated password
      * @param {string} firstname The user firstname
@@ -283,7 +283,7 @@ class Admin {
      * @method createGuestUser
      * @instance
      * @description
-     *      Create a new guest user in the same company as the requester admin
+     *      Create a new guest user in the same company as the requester admin <br/>
      * @param {string} firstname The user firstname
      * @param {string} lastname  The user lastname
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
@@ -341,8 +341,8 @@ class Admin {
      * @since 1.31
      * @instance
      * @description
-     *      Create a new anonymous guest user in the same company as the requester admin
-     *      Anonymous guest user is user without name and firstname
+     *      Create a new anonymous guest user in the same company as the requester admin   <br/>
+     *      Anonymous guest user is user without name and firstname   <br/>
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -381,7 +381,7 @@ class Admin {
      * @method inviteUserInCompany
      * @instance
      * @description
-     *      Invite a new user to join a company in Rainbow
+     *      Invite a new user to join a company in Rainbow <br/>
      * @param {string} email The email address of the contact to invite
      * @param {string} companyId     The id of the company where the user will be invited in
      * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
@@ -434,7 +434,7 @@ class Admin {
      * @method changePasswordForUser
      * @instance
      * @description
-     *      Change a password for a user
+     *      Change a password for a user <br/>
      * @param {string} password The new password
      * @param {string} userId The id of the user
      * @async
@@ -482,7 +482,7 @@ class Admin {
      * @method updateInformationForUser
      * @instance
      * @description
-     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails`
+     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails` <br/>
      * @param {Object} objData An object (key: value) containing the data to change with their new value
      * @param {string} userId The id of the user
      * @async
@@ -536,7 +536,7 @@ class Admin {
      * @method deleteUser
      * @instance
      * @description
-     *      Delete an existing user
+     *      Delete an existing user <br/>
      * @param {string} userId The id of the user
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -577,7 +577,7 @@ class Admin {
      * @method getAllCompanies
      * @instance
      * @description
-     *      Get all companies for a given admin
+     *      Get all companies for a given admin <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
@@ -667,8 +667,8 @@ class Admin {
      * @method askTokenOnBehalf
      * @instance
      * @description
-     *      Ask Rainbow for a token on behalf a user
-     *      This allow to not use the secret key on client side
+     *      Ask Rainbow for a token on behalf a user <br/>
+     *      This allow to not use the secret key on client side <br/>
      * @param {string} loginEmail The user login email
      * @param {string} password The user password
      * @async
@@ -703,7 +703,7 @@ class Admin {
      * @method getAllUsers
      * @instance
      * @description
-     *      Get all users for a given admin
+     *      Get all users for a given admin <br/>
      * @async
      * @param {string} format Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
@@ -745,7 +745,7 @@ class Admin {
      * @method getContactInfos
      * @instance
      * @description
-     *      Get informations about a user
+     *      Get informations about a user <br/>
      * @param {string} userId The id of the user
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -781,7 +781,7 @@ class Admin {
      * @method updateContactInfos
      * @instance
      * @description
-     *      Set informations about a user
+     *      Set informations about a user <br/>
      * @param {string} userId The id of the user
      * @param {Object} infos The infos of the user :
      * {String{3..255}}  [infos.loginEmail]      User email address (used for login).
@@ -1020,12 +1020,12 @@ class Admin {
      * @method getUserPresenceInformation
      * @instance
      * @description
-     *      Get presence informations about a user
-     *
-     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc).
-     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile.
-     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned .
-     * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id.
+     *      Get presence informations about a user <br/>
+     * <br/>
+     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc). <br/>
+     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile. <br/>
+     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned . <br/>
+     * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id. 
      * @async
      * @return {Promise<any>}
      * @category async
@@ -1060,7 +1060,7 @@ class Admin {
      * @async
      * @param {string} companyId Id of the company to be retrieve the offers.
      * @description
-     *      Method to retrieve all the offers of one company on server.
+     *      Method to retrieve all the offers of one company on server. <br/>
      * @return {Promise<Array<any>>}
      */
     retrieveAllOffersOfCompanyById(companyId?: string) : Promise<Array<any>> {
@@ -1092,7 +1092,7 @@ class Admin {
      * @async
      * @param {string} companyId Id of the company to be retrieve the subscriptions.
      * @description
-     *      Method to retrieve all the subscriptions of one company on server.
+     *      Method to retrieve all the subscriptions of one company on server. <br/>
      * @return {Promise<Array<any>>}
      */
     retrieveAllSubscribtionsOfCompanyById(companyId?: string) : Promise<Array<any>> {
@@ -1125,7 +1125,7 @@ class Admin {
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to get the subscription of one company for one offer.
+     *      Method to get the subscription of one company for one offer. <br/>
      * @return {Promise<any>}
      */
     async getSubscribtionsOfCompanyByOfferId(offerId, companyId) : Promise<any>{
@@ -1158,7 +1158,7 @@ class Admin {
      * @param {number} maxNumberUsers
      * @param {boolean} autoRenew
      * @description
-     *      Method to subscribe one company to one offer.
+     *      Method to subscribe one company to one offer. <br/>
      * @return {Promise<any>}
      */
     subscribeCompanyToOfferById(offerId: string, companyId? : string, maxNumberUsers? : number, autoRenew? : boolean ) {
@@ -1197,8 +1197,8 @@ class Admin {
      * @async
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to subscribe one company to offer demo.
-     *      Private offer on .Net platform.
+     *      Method to subscribe one company to offer demo. <br/>
+     *      Private offer on .Net platform. <br/>
      * @return {Promise<any>}
      */
     subscribeCompanyToDemoOffer(companyId? : string) {
@@ -1230,8 +1230,8 @@ class Admin {
      * @async
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to unsubscribe one company to offer demo.
-     *      Private offer on .Net platform.
+     *      Method to unsubscribe one company to offer demo. <br/>
+     *      Private offer on .Net platform. <br/>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToDemoOffer(companyId? : string) {
@@ -1263,8 +1263,8 @@ class Admin {
      * @async
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to subscribe one company to offer demo.
-     *      Private offer on .Net platform.
+     *      Method to subscribe one company to offer demo. <br/>
+     *      Private offer on .Net platform. <br/>
      * @return {Promise<any>}
      */
     subscribeCompanyToAlertOffer(companyId? : string) {
@@ -1296,8 +1296,8 @@ class Admin {
      * @async
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to unsubscribe one company to offer demo.
-     *      Private offer on .Net platform.
+     *      Method to unsubscribe one company to offer demo. <br/>
+     *      Private offer on .Net platform. <br/>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToAlertOffer(companyId? : string) {
@@ -1330,7 +1330,7 @@ class Admin {
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to unsubscribe one company to one offer .
+     *      Method to unsubscribe one company to one offer . <br/>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToOfferById(offerId: string, companyId? : string ) {
@@ -1375,7 +1375,7 @@ class Admin {
      * @param {string} userId the id of the user which will subscribe. If not provided, the connected user is used.
      * @param {string} subscriptionId the id of the subscription to attach to user.
      * @description
-     *      Method to subscribe one user to a subscription of the company.
+     *      Method to subscribe one user to a subscription of the company. <br/>
      * @return {Promise<any>}
      */
     subscribeUserToSubscription(userId? : string, subscriptionId? : string) {
@@ -1403,7 +1403,7 @@ class Admin {
      * @param {string} userId the id of the user which will unsubscribe. If not provided, the connected user is used.
      * @param {string} subscriptionId the id of the subscription to unsubscribe the user.
      * @description
-     *      Method to unsubscribe one user to a subscription.
+     *      Method to unsubscribe one user to a subscription. <br/>
      * @return {Promise<any>}
      */
     unSubscribeUserToSubscription(userId? : string, subscriptionId? : string) {
