@@ -902,6 +902,17 @@ class Events {
             that.publishEvent("xmpperror", data);
         });
 
+        this._evReceiver.on("evt_internal_alertmessagereceived", function (data) {
+            /**
+             * @event Events#rainbow_onalertmessagereceived
+             * @public
+             * @param { AlertMessage } Alert received.
+             * @description
+             *      Fired when an Alert events happens.
+             */
+            that.publishEvent("alertmessagereceived", data);
+        });
+
     }
 
     get iee(): EventEmitter {

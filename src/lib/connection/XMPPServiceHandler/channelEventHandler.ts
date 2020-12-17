@@ -158,14 +158,12 @@ class ChannelEventHandler extends GenericHandler {
 
         try {
             that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-            that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
-
-            that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) channel message received");
+            that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) message received");
 
             let eventNode = stanza.children[0];
-            if (!eventNode) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived eventNode is empty");
-                that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
+            if (!eventNode || eventNode.name != "event") {
+                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) it is not an event message.");
+                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) it is not an event message, stanza: " + stanza);
                 that.logger.log("internal", LOG_ID + util.inspect(stanza));
                 return;
             }

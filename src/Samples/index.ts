@@ -1045,6 +1045,26 @@ function testUploadFileToConversation() {
         });
     });
     //});
+}function testUploadFileToConversationEmpty() {
+    let that = this;
+    // let conversation = null;
+    let file = null;
+    //let strMessage = {message: "message for the file"};
+    let strMessage = "message for the file";
+    file = { "path": "c:\\temp\\NotExistingFile.jpg", "name": "NotExistingFile.jpg", "type": "image/JPEG", "size": 2960156 };
+    logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
+    rainbowSDK.contacts.getContactByLoginEmail("vincent02@vbe.test.openrainbow.net").then(function(contact) {
+        // Retrieve the associated conversation
+        return rainbowSDK.conversations.openConversationForContact(contact);
+    }).then(function(conversation) {
+        // Share the file
+        return rainbowSDK.fileStorage.uploadFileToConversation(conversation, file, strMessage).then((result) => {
+            logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
+        }).catch((err) => {
+            logger.log("error", "MAIN - uploadFileToConversation - error : ", err);
+        });
+    });
+    //});
 }
 function testUploadFileToConversationByPath() {
     let that = this;

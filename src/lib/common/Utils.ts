@@ -81,7 +81,7 @@ let equalIgnoreCase = function(s1: string, s2: string) {
     if (regex.test(s2)) {
         return true;
     } else {
-        return true;
+        return false;
     }
 }
 

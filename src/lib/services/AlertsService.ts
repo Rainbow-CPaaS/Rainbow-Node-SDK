@@ -29,9 +29,9 @@ const LOG_ID = "ALERTS/SVCE - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This module is the basic module for handling Alerts in Rainbow.
-     *
-     *      Note: the Rainbow subscriptions "Alerts" is need to use the Alert notification system.
+     *      This module is the basic module for handling Alerts in Rainbow.   <br/>
+     *   <br/>
+     *      Note: the Rainbow subscriptions "Alerts" is need to use the Alert notification system. <br/>  
      */
 class AlertsService {
     private _eventEmitter: EventEmitter;
@@ -176,7 +176,7 @@ class AlertsService {
 
         that._logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
 
-        that._alertEventHandler = new AlertEventHandler(that._xmpp, that);
+        that._alertEventHandler = new AlertEventHandler(that._xmpp, that, that._options);
         that._alertHandlerToken = [
             //PubSub.subscribe(that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_MANAGEMENT, that._alertEventHandler.onManagementMessageReceived.bind(that._alertEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_HEADLINE, that._alertEventHandler.onHeadlineMessageReceived.bind(that._alertEventHandler)),
@@ -218,7 +218,7 @@ class AlertsService {
      * @param {string} jid The Jid of the sender</param>
      * @param {string} messageXmppId the Xmpp Id of the alert message</param>
      * @description
-     *    Mark as Received the specified alert message
+     *    Mark as Received the specified alert message   <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -245,17 +245,17 @@ class AlertsService {
 
     /**
      * @public
-     * @method MarkAlertMessageAsRead
+     * @method markAlertMessageAsRead
      * @instance
      * @async
      * @param {string} jid The Jid of the sender
      * @param {string} messageXmppId the Xmpp Id of the alert message
      * @description
-     *    Mark as Read the specified alert message
+     *    Mark as Read the specified alert message   <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
-    MarkAlertMessageAsRead(jid: string, messageXmppId: string): Promise<any> {
+    markAlertMessageAsRead(jid: string, messageXmppId: string): Promise<any> {
         let that = this;
         /*if (!application.Restrictions.AlertMessage)
         {
@@ -281,10 +281,10 @@ class AlertsService {
      * @async
      * @param {AlertDevice} device Device to create.
      * @description
-     *    Create a device which can receive Alerts(notifications) from the server
-     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user.
-     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user.
-     *    if AlertDevice.type is not specified, automatically it's set to "desktop"
+     *    Create a device which can receive Alerts(notifications) from the server   <br/>
+     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br/>
+     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br/>
+     *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -299,12 +299,12 @@ class AlertsService {
      * @async
      * @param {AlertDevice} device Device to Update.
      * @description
-     *    Update a device which can receive Alerts(notifications) from the server
-     *    AlertDevice.CompanyId cannot be specified, it's always the Compnay of the current user
-     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid()
-     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId()
-     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"
-     * @return {Promise<any>} the result of the operation.
+     *    Update a device which can receive Alerts(notifications) from the server <br/>    
+     *    AlertDevice.CompanyId cannot be specified, it's always the Compnay of the current user <br/>    
+     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br/>    
+     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br/>    
+     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br/>
+     * @return {Promise<any>} the result of the operation.   <br/>
      * @category async
      */
     updateDevice(device: AlertDevice): Promise<any> {
@@ -407,7 +407,7 @@ class AlertsService {
      * @async
      * @param {AlertDevice} device Device to delete.
      * @description
-     *    Delete a device (using its id)
+     *    Delete a device (using its id) <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -472,7 +472,7 @@ class AlertsService {
      * @async
      * @param {string} deviceId Id of the device.
      * @description
-     *    Get a device using its Id
+     *    Get a device using its Id <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -546,7 +546,7 @@ class AlertsService {
      * @param {number} offset Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
      * @param {number} limit Allow to specify the number of devices to retrieve.
      * @description
-     *    Get list of devices
+     *    Get list of devices   <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -617,7 +617,7 @@ class AlertsService {
      * @async
      * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
      * @description
-     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator
+     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -688,7 +688,7 @@ class AlertsService {
      * @async
      * @param {AlertTemplate} template Template to create.
      * @description
-     *    Create a template
+     *    Create a template <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -703,7 +703,7 @@ class AlertsService {
      * @async
      * @param {AlertTemplate} template Template to Update.
      * @description
-     *    Update a template
+     *    Update a template  <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -848,7 +848,7 @@ class AlertsService {
      * @async
      * @param {AlertTemplate} template Template to Delete.
      * @description
-     *    Delete a template
+     *    Delete a template <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -913,7 +913,7 @@ class AlertsService {
      * @async
      * @param {string} templateId Id of the template.
      * @description
-     *    Get an template by id
+     *    Get an template by id <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -982,7 +982,7 @@ class AlertsService {
      * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
      * @param {number} limit Limit of templates to retrieve (100 by default).
      * @description
-     *    Get templates
+     *    Get templates <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1044,7 +1044,7 @@ class AlertsService {
      * @async
      * @param {AlertFilter} filter Filter to create.
      * @description
-     *    Create a filter
+     *    Create a filter <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1059,7 +1059,7 @@ class AlertsService {
      * @async
      * @param {AlertFilter} filter Filter to Update.
      * @description
-     *    Update a filter
+     *    Update a filter <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1077,11 +1077,16 @@ class AlertsService {
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
-            let body = {
-                "name": filter.name,
-                "companyId": filter.companyId,
-                "tags": filter.tags
-            };
+            let body : any = {};
+            if (filter.name) {
+                body.name = filter.name;
+            }
+            if (filter.companyId) {
+                body.companyId = filter.companyId;
+            }
+             if (filter.tags) {
+                 body.tags = filter.tags;
+             }
 
             if (create) {
                 that._rest.createFilter(body).then(function (json) {
@@ -1172,7 +1177,7 @@ class AlertsService {
      * @async
      * @param {AlertFilter} filter Filter to Delete.
      * @description
-     *    Delete a filter
+     *    Delete a filter <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1239,7 +1244,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {string} filterId Id of the Filter.
      * @description
-     *    Get an filter by id
+     *    Get an filter by id <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1310,7 +1315,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
      * @param {number} limit Limit of filters to retrieve (100 by default).
      * @description
-     *    Get filters : have required role(s) superadmin, admin
+     *    Get filters : have required role(s) superadmin, admin <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1370,10 +1375,10 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {Alert} alert Alert to send.
      * @description
-     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
-     *    The alert will be received by devices according the filter id and the company id used.
-     *    The content of the alert is based on the template id.
-     * @return {Promise<any>} the result of the operation.
+     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
+     *    The alert will be received by devices according the filter id and the company id used.   <br/>
+     *    The content of the alert is based on the template id.   <br/>
+     * @return {Promise<any>} the result of the operation.  
      * @category async
      */
     createAlert(alert: Alert): Promise<any> {
@@ -1387,9 +1392,10 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {Alert} alert Alert to update.
      * @description
-     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future).
-     *    The alert will be received by devices according the filter id and the company id used.
-     *    The content of the alert is based on the template id.
+     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
+     *    The alert will be received by devices according the filter id and the company id used.   <br/>
+     *    The content of the alert is based on the template id.   <br/>
+     *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br/>  
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1408,47 +1414,63 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 return;
             }
 
-            let date: Date = alert.startDate ? new Date(alert.startDate) : new Date();
-            let expirationDate = alert.expirationDate ? new Date(alert.expirationDate) : new Date();
+            try {
+                let date: Date = alert.startDate ? new Date(alert.startDate) : new Date();
 
-            expirationDate.setDate(expirationDate.getDate() + 1);
-            let body = {
-                "companyId": alert.companyId,
+                let expirationDate: Date = new Date();
+                expirationDate.setDate(expirationDate.getDate() + 1);
+                if (alert.expirationDate) {
+                    expirationDate = new Date(alert.expirationDate);
+                }
 
-                "notificationTemplateId": alert.templateId,
-                "notificationFilterId": alert.filterId,
+                let body: any = {};
 
-                "startDate": date.toISOString(),
-                "expirationDate": expirationDate.toISOString()
-            };
+                if (alert.companyId) {
+                    body.companyId = alert.companyId;
+                }
 
-            that._logger.log("info", LOG_ID + "(createOrUpdateAlert) body : ", body);
+                if (alert.templateId) {
+                    body.notificationTemplateId = alert.templateId;
+                }
 
-            if (create) {
-                that._rest.createAlert(body).then(function (json) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
-                    resolve(json);
-// TODO : make the AlertFilter with the result. And maybe the AlertDeviceData.
+                if (alert.filterId) {
+                    body.notificationFilterId = alert.filterId;
+                }
 
-                }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
-                    return reject(err);
-                });
-            } else {
-                that._rest.updateAlert(alert.id, body).then(function (json) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
-                    resolve(json);
-// TODO : make the AlertFilter with the result. And maybe the AlertDeviceData.
+                body.startDate = date.toISOString();
+                body.expirationDate = expirationDate.toISOString();
 
-                }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
-                    return reject(err);
-                });
+                that._logger.log("info", LOG_ID + "(createOrUpdateAlert) body : ", body);
+
+                if (create) {
+                    that._rest.createAlert(body).then(function (json) {
+                        that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
+                        resolve(json);
+                        // TODO : make the Alert with the result. And maybe the AlertDeviceData.
+                    }).catch(function (err) {
+                        that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
+                        that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
+                        return reject(err);
+                    });
+                } else {
+                    that._rest.updateAlert(alert.id, body).then(function (json) {
+                        that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
+                        resolve(json);
+// TODO : make the Alert with the result. And maybe the AlertDeviceData.
+
+                    }).catch(function (err) {
+                        that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
+                        that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
+                        return reject(err);
+                    });
+                }
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createOrUpdateAlert) CATCH Error !!!");
+                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) CATCH Error !!! error : ", err);
+                return reject(err);
             }
-
         });
+
 
         /*
                 if (!application.Restrictions.AlertMessage)
@@ -1556,8 +1578,8 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {Alert} alert Alert to Delete.
      * @description
-     *    Delete an alert
-     *    All the data related to this notification are deleted, including the reports
+     *    Delete an alert   <br/>
+     *    All the data related to this notification are deleted, including the reports <br/>  
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1624,7 +1646,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {string} alertId Id of the alert.
      * @description
-     *    Get an alert by id
+     *    Get an alert by id <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1695,7 +1717,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
      * @param {number} limit Limit of Alerts to retrieve (100 by default).
      * @description
-     *    Get alerts : required role(s) superadmin,support,admin
+     *    Get alerts : required role(s) superadmin,support,admin <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1770,8 +1792,8 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @param {string} alertId Id of the alert.
      * @param {string} answerId Id of the answer.
      * @description
-     *    To send a feedback from an alert.
-     *    To be used by end-user who has received the alert
+     *    To send a feedback from an alert.   <br/>
+     *    To be used by end-user who has received the alert   <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1855,7 +1877,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {string} alertId Id of the alert.
      * @description
-     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any).
+     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
@@ -1914,7 +1936,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
      * @async
      * @param {string} alertId Id of the alert.
      * @description
-     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any).
+     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br/>
      * @return {Promise<any>} the result of the operation.
      * @category async
      */

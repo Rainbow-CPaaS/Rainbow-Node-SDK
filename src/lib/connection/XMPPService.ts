@@ -1915,174 +1915,157 @@ class XMPPService {
     async SendAlertMessage(alertMessage : AlertMessage) {
 
         let that = this;
-        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
-        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+        let uniqMessageId = that.xmppUtils.getUniqueMessageId();
+        let uniqId = that.xmppUtils.getUniqueId(undefined);
 
 
-    if (this.xmppClient != null)
-{
-    // Create IM Message
-   /* Sharp.Xmpp.Im.Message imMessage = new Sharp.Xmpp.Im.Message(alertMessage.ToJid, body, subject, null, Sharp.Xmpp.Im.MessageType.Headline);
-    imMessage.Id = alertMessage.Id;
-    imMessage.From = new Jid(alertMessage.FromJid + "/" + alertMessage.FromResource);
-    // */
+        if (this.xmppClient != null) {
+            // Create IM Message
+            /* Sharp.Xmpp.Im.Message imMessage = new Sharp.Xmpp.Im.Message(alertMessage.ToJid, body, subject, null, Sharp.Xmpp.Im.MessageType.Headline);
+             imMessage.Id = alertMessage.Id;
+             imMessage.From = new Jid(alertMessage.FromJid + "/" + alertMessage.FromResource);
+             // */
 
-    let body = "text of the body";
+            let body = "text of the body";
 
-    // Get 'root' XML node
-    let root = xml("message", {
-        //"from": this.fullJid,
-        //"from": alertMessage.FromJid + "/" + alertMessage.FromResource,
-        "to": alertMessage.toJid,
-        "xmlns": NameSpacesLabels.ClientNameSpace,
-        "type": TYPE_HEADLINE,
-        "id": uniqMessageId
-    }, xml("body", {
-    }, body), xml("request", {
-            "xmlns": NameSpacesLabels.ReceiptsNameSpace
-        }, xml("active", {
-            "xmlns": NameSpacesLabels.ChatestatesNameSpace
-        })
-    ));
+            // Get 'root' XML node
+            let root = xml("message", {
+                //"from": this.fullJid,
+                //"from": alertMessage.FromJid + "/" + alertMessage.FromResource,
+                "to": alertMessage.toJid,
+                "xmlns": NameSpacesLabels.ClientNameSpace,
+                "type": TYPE_HEADLINE,
+                "id": uniqMessageId
+            }, xml("body", {}, body), xml("request", {
+                    "xmlns": NameSpacesLabels.ReceiptsNameSpace
+                }, xml("active", {
+                    "xmlns": NameSpacesLabels.ChatestatesNameSpace
+                })
+            ));
 
-   // let root = imMessage.Data;
+            // let root = imMessage.Data;
 
-    let elm;
-    let subElm;
+            let elm;
+            let subElm;
 
-    // Create 'alert' node
-    let  xmlAlertElement = xml("alert", "http://www.incident.com/cap/1.0");
+            // Create 'alert' node
+            let xmlAlertElement = xml("alert", "http://www.incident.com/cap/1.0");
 
-    if (!isNullOrEmpty(alertMessage.identifier))
-{
-    elm = xml("identifier").Text(alertMessage.identifier);
-    xmlAlertElement.append(elm);
-}
+            if (!isNullOrEmpty(alertMessage.identifier)) {
+                elm = xml("identifier").Text(alertMessage.identifier);
+                xmlAlertElement.append(elm);
+            }
 
-if (!isNullOrEmpty(alertMessage.sender))
-{
-    elm = xml("sender").Text(alertMessage.sender);
-    xmlAlertElement.append(elm);
-}
+            if (!isNullOrEmpty(alertMessage.sender)) {
+                elm = xml("sender").Text(alertMessage.sender);
+                xmlAlertElement.append(elm);
+            }
 
 //if (!isNullOrEmpty(alertMessage.Sent))
 //{
-elm = xml("sent").Text(alertMessage.sent); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
-xmlAlertElement.append(elm);
+            elm = xml("sent").Text(alertMessage.sent); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
+            xmlAlertElement.append(elm);
 //}
 
-if (!isNullOrEmpty(alertMessage.status))
-{
-    elm = xml("status").Text(alertMessage.status);
-    xmlAlertElement.append(elm);
-}
+            if (!isNullOrEmpty(alertMessage.status)) {
+                elm = xml("status").Text(alertMessage.status);
+                xmlAlertElement.append(elm);
+            }
 
-if (!isNullOrEmpty(alertMessage.msgType))
-{
-    elm = xml("msgType").Text(alertMessage.msgType);
-    xmlAlertElement.append(elm);
-}
+            if (!isNullOrEmpty(alertMessage.msgType)) {
+                elm = xml("msgType").Text(alertMessage.msgType);
+                xmlAlertElement.append(elm);
+            }
 
-if (!isNullOrEmpty(alertMessage.references))
-{
-    elm = xml("references").Text(alertMessage.references);
-    xmlAlertElement.append(elm);
-}
+            if (!isNullOrEmpty(alertMessage.references)) {
+                elm = xml("references").Text(alertMessage.references);
+                xmlAlertElement.append(elm);
+            }
 
-if (!isNullOrEmpty(alertMessage.scope))
-{
-    elm = xml("scope").Text(alertMessage.scope);
-    xmlAlertElement.append(elm);
-}
+            if (!isNullOrEmpty(alertMessage.scope)) {
+                elm = xml("scope").Text(alertMessage.scope);
+                xmlAlertElement.append(elm);
+            }
 
 // Create 'info' node
-let xmlInfoElement = xml("info");
+            let xmlInfoElement = xml("info");
 
-if( (alertMessage.info != null) && (alertMessage.msgType != "Cancel"))
-{
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("category").Text(alertMessage.info.category);
-        xmlInfoElement.append(elm);
-    }
+            if ((alertMessage.info != null) && (alertMessage.msgType != "Cancel")) {
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("category").Text(alertMessage.info.category);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("event").Text(alertMessage.info.event);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("event").Text(alertMessage.info.event);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("urgency").Text(alertMessage.info.urgency);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("urgency").Text(alertMessage.info.urgency);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("certainty").Text(alertMessage.info.certainty);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("certainty").Text(alertMessage.info.certainty);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("senderName").Text(alertMessage.info.senderName);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("senderName").Text(alertMessage.info.senderName);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("description").Text(alertMessage.info.description);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("description").Text(alertMessage.info.description);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.category))
-    {
-        elm = xml("instruction").Text(alertMessage.info.instruction);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("instruction").Text(alertMessage.info.instruction);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.contact))
-    {
-        elm = xml("contact").Text(alertMessage.info.contact);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.contact)) {
+                    elm = xml("contact").Text(alertMessage.info.contact);
+                    xmlInfoElement.append(elm);
+                }
 
-    if (!isNullOrEmpty(alertMessage.info.headline))
-    {
-        elm = xml("headline").Text(alertMessage.info.headline);
-        xmlInfoElement.append(elm);
-    }
+                if (!isNullOrEmpty(alertMessage.info.headline)) {
+                    elm = xml("headline").Text(alertMessage.info.headline);
+                    xmlInfoElement.append(elm);
+                }
 
-    elm = xml("expires").Text(alertMessage.info.expires); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
-    xmlInfoElement.append(elm);
+                elm = xml("expires").Text(alertMessage.info.expires); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
+                xmlInfoElement.append(elm);
 
-    // Add resource node
-    if (isNullOrEmpty(alertMessage.info.descriptionMimeType))
-        alertMessage.info.descriptionMimeType = "text/plain";
+                // Add resource node
+                if (isNullOrEmpty(alertMessage.info.descriptionMimeType))
+                    alertMessage.info.descriptionMimeType = "text/plain";
 
-    elm = xml("resource");
+                elm = xml("resource");
 
-    subElm = xml("mimeType").Text(alertMessage.info.descriptionMimeType);
-    elm.append(subElm);
+                subElm = xml("mimeType").Text(alertMessage.info.descriptionMimeType);
+                elm.append(subElm);
 
-    subElm = xml("uri").Text("about:blank");
-    elm.append(subElm);
+                subElm = xml("uri").Text("about:blank");
+                elm.append(subElm);
 
-    xmlInfoElement.append(elm);
+                xmlInfoElement.append(elm);
 
-    xmlAlertElement.append(xmlInfoElement);
-}
-root.append(xmlAlertElement);
+                xmlAlertElement.append(xmlInfoElement);
+            }
+            root.append(xmlAlertElement);
 
 // Send ImMessage
 //xmppClient.SendMessage(imMessage);
-        return await this.xmppClient.sendIq(root);
-}
+            return await this.xmppClient.sendIq(root);
+        }
 // */
-}
+    }
 
 // enregion Alerts
+
 //region Mam
     mamQuery( jid, options) {
         let that = this;

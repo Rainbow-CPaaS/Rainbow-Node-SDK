@@ -403,6 +403,8 @@ class NodeSDK {
 
     stopProcess() {
         let self = this;
+        // console.log("stopProcess.");
+
         return async () => {
             try {
                 // console.log("stopProcess");

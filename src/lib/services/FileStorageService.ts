@@ -252,6 +252,8 @@ class FileStorage {
 
                     that._conversations.sendFSMessage(conversation, _file, data).then(function(message) {
                         resolve(message);
+                    }).catch((err)=> {
+                        return reject(err);
                     });
                 }
             });
