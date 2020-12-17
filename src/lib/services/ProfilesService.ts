@@ -95,7 +95,7 @@ const FeaturesEnum = {
  * @version SDKVERSION
  * @private
  * @description
- *  This module is the service used to retrieve profiles from server.
+ *  This module is the service used to retrieve profiles from server. <br/>
 */
 class ProfilesService {
     private _xmpp: XMPPService;

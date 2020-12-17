@@ -38,7 +38,7 @@ const LOG_ID = "TELEPHONY/SVCE - ";
  *      - Know the version of the agent (deployed on the PBX) that monitors your line, <br>
  *      - Handle the basic telephony services: Make a call, take a call, hold a call, retrieve a call and release a call,<br/>
  *      - Listen to the call state change <br><br>
- *      Depending the agent version deployed, some services can return an error (unavailable service) when called
+ *      Depending the agent version deployed, some services can return an error (unavailable service) when called <br/>
  *
  */
 class Telephony {
@@ -256,7 +256,7 @@ class Telephony {
      * @method onTelPresenceChange
      * @instance
      * @description
-     *      Method called when receiving an update on user presence
+     *      Method called when receiving an update on user presence <br/>
      */
     onTelPresenceChange (__event, attr?) {
         let that = this;
@@ -335,7 +335,7 @@ class Telephony {
      * @method onCallUpdated
      * @instance
      * @description
-     *      Method called when receiving an update on a call
+     *      Method called when receiving an update on a call <br/>
      */
     onCallUpdated (callInfo : Call) {
         let that = this;
@@ -383,7 +383,7 @@ class Telephony {
      * @method isTelephonyAvailable
      * @instance
      * @description
-     *    Check if the telephony service can be used or not (if the connected user has a phone monitored by a PBX)
+     *    Check if the telephony service can be used or not (if the connected user has a phone monitored by a PBX) <br/>
      * @return {boolean} Return true if the telephony service is configured
      */
     isTelephonyAvailable() {
@@ -395,7 +395,7 @@ class Telephony {
      * @method getAgentVersion
      * @instance
      * @description
-     *    Get the associated PBX agent version
+     *    Get the associated PBX agent version <br/>
      * @return {string} Return the version of the agent or "unknown"
      */
     getAgentVersion() {
@@ -408,7 +408,7 @@ class Telephony {
      * @method getXMPPAgentStatus
      * @instance
      * @description
-     *    Get the status of the XMPP connection to the PBX Agent
+     *    Get the status of the XMPP connection to the PBX Agent <br/>
      * @return {string} Return the status of the connections to the agent or "unknown"
      */
     getXMPPAgentStatus() {
@@ -421,7 +421,7 @@ class Telephony {
      * @method getPhoneAPIStatus
      * @instance
      * @description
-     *    Get the status of the Phone API status for the PBX Agent
+     *    Get the status of the Phone API status for the PBX Agent <br/>
      * @return {string} Return the Phone API status for to this Agent or "unknown"
      */
     getPhoneAPIStatus() {
@@ -483,7 +483,7 @@ class Telephony {
      * @method getMediaPillarInfo
      * @instance
      * @description
-     *   This API allows user to retrieve the Jabber id of the Media Pillar linked to the system he belongs, or Media Pillar user to retrieve the Jabber id credentials and data of the Media Pillar he belongs.
+     *   This API allows user to retrieve the Jabber id of the Media Pillar linked to the system he belongs, or Media Pillar user to retrieve the Jabber id credentials and data of the Media Pillar he belongs. <br/>
      * @async
      * @return {Promise<any>}
      * @category async
@@ -661,7 +661,7 @@ class Telephony {
      * @public
      * @method getVoiceMessageCounter
      * @description
-     *      Get the number of voice message
+     *      Get the number of voice message <br/>
      * @return {Promise<integer>} Return resolved promise if succeed with the number of messages, and a rejected else.
      */
     getVoiceMessageCounter() {
@@ -700,7 +700,7 @@ class Telephony {
      * @public
      * @method getCallToHangOut
      * @description
-     *      Get the call which can be hang out
+     *      Get the call which can be hang out <br/>
      * @return {Call} The call with the ability to be hang out.
      */
     getCallToHangOut() {
@@ -720,7 +720,7 @@ class Telephony {
      * @public
      * @method getActiveCall
      * @description
-     *      get the active call
+     *      get the active call <br/>
      * @return {Call} The active call
      */
     getActiveCall() {
@@ -739,7 +739,7 @@ class Telephony {
      * @public
      * @method getActiveCalls
      * @description
-     *      get active calls
+     *      get active calls <br/>
      * @return {Call} The active call
      */
     getActiveCalls() {
@@ -764,7 +764,7 @@ class Telephony {
      * @public
      * @method getCalls
      * @description
-     *      get calls
+     *      get calls <br/>
      * @return {Call} The calls
      */
     getCalls() {
@@ -780,7 +780,7 @@ class Telephony {
      * @public
      * @method getCallsSize
      * @description
-     *      get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1
+     *      get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1 <br/>
      * @return {Call} The calls tab size
      */
     getCallsSize() {
@@ -800,7 +800,7 @@ class Telephony {
      * @method getActiveCall
      * @param {Contact} contact The contact with an active call with us.
      * @description
-     *      get the active call for a contact
+     *      get the active call for a contact <br/>
      * @return {Call} The active call
      */
     getActiveCallsForContact(contact) {
@@ -832,8 +832,8 @@ class Telephony {
      * @instance
      * @description
      *    Call a number <br/>
-     *    Contacts and numbers are allowed
-     *    Return a promise
+     *    Contacts and numbers are allowed <br/>
+     *    Return a promise <br/>
      * @param {Contact} contact - contact object that you want to call
      * @param {String} phoneNumber The number to call
      * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
@@ -1080,7 +1080,7 @@ class Telephony {
      * @instance
      * @description
      *    Call a number <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {String} phoneNumber The number to call
      * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      * @return {Promise<Call>} Return a promise with the call created
@@ -1240,7 +1240,7 @@ class Telephony {
      * @instance
      * @description
      *    Release a call <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} call The call to release
      * @return {Promise<Call>} Return a promise with the call released
      */
@@ -1306,7 +1306,7 @@ class Telephony {
      * @instance
      * @description
      *    Answer a call <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} call The call to answer
      * @return {Promise<Call>} Return a promise with the answered call.
      */
@@ -1390,7 +1390,7 @@ class Telephony {
      * @instance
      * @description
      *    Hold a call <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} call The call to hold
      * @return {Call} Return a promise with the held call.
      */
@@ -1459,7 +1459,7 @@ class Telephony {
      * @instance
      * @description
      *    Retrieve a call <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} call The call to retrieve
      * @return {Promise<Call>} Return a promise with the call retrieved
      */
@@ -1545,7 +1545,7 @@ class Telephony {
      * @instance
      * @description
      *    Deflect a call to the voice mail <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} call The call to deflect
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
      */
@@ -1612,7 +1612,7 @@ class Telephony {
      * @instance
      * @description
      *    Deflect a call to an other telephone number<br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} call The call to deflect
      * @param {Object} callee The callee phone number informations where the call shopuld be deflecte'd.
      * @param {string} callee.calleeExtNumber : The phone number where the call is deflected, the format could be anything the user can type, it will be transformed in E164 format.,
@@ -1667,7 +1667,7 @@ class Telephony {
      * @description
      *    Transfer a held call to the active call <br/>
      *    User should have transfer rights <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} activeCall The active call
      * @param {Call} heldCall The held call to transfer to the activeCall
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
@@ -1728,7 +1728,7 @@ class Telephony {
      * @description
      *    Create a conference with a held call and the active call <br/>
      *    User should have conference rights <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Call} activeCall The active call
      * @param {Call} heldCall The held call to transfer to the activeCall
      * @return {Promise} Return a resolved promise .
@@ -1787,7 +1787,7 @@ class Telephony {
      * @instance
      * @description
      *    Activate the forward to a number <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {String} phoneNumber The number to call
      * @return {Promise} Return a promise resolved.
     */
@@ -1838,7 +1838,7 @@ class Telephony {
      * @instance
      * @description
      *    Activate the forward to VM <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @return {Promise} Return a promise resolved.
 
      */
@@ -1892,7 +1892,7 @@ class Telephony {
      * @instance
      * @description
      *    Cancel the forward <br/>
-     *    Return a promise
+     *    Return a promise <br/>
      * @return {Promise<Call>} Return a promise with the canceled forward call.
      */
     cancelForward() {
@@ -2213,7 +2213,7 @@ class Telephony {
      * @public
      * @method sendDtmf
      * @description
-     *      send dtmf to the remote party
+     *      send dtmf to the remote party <br/>
      * @param {string} connectionId
      * @param {string} dtmf
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
@@ -2342,7 +2342,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      * @private
      * @param callId
      * @description
-     *      GET A CALL FROM CACHE
+     *      GET A CALL FROM CACHE <br/>
      */
     private getCallFromCache(callId: string): Call {
         let that = this;
@@ -2422,7 +2422,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      * @param {String} password optionnel Password or authorization code.
      * @param {String} groupId optionnel CCD Agent's group number
      * @description
-     *      This api allows an CCD Agent to logon into the CCD system.
+     *      This api allows an CCD Agent to logon into the CCD system. <br/>
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
      */
     logon(endpointTel, agentId, password, groupId) {
@@ -2455,7 +2455,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      * @param {String} password optionnel Password or authorization code.
      * @param {String} groupId optionnel CCD Agent's group number
      * @description
-     *      This api allows an CCD Agent logoff logon from the CCD system.
+     *      This api allows an CCD Agent logoff logon from the CCD system. <br/>
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
      */
     logoff(endpointTel, agentId, password, groupId) {
@@ -2487,7 +2487,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      * @param {String} groupId optionnel CCD Agent's group number
      * @param {String} status optionnel Used to deactivate the withdrawal state. Values: 'on', 'off'; 'on' is optional.
      * @description
-     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'
+     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready' <br/>
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
      */
     withdrawal(agentId, groupId, status) {
@@ -2526,7 +2526,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      * @param {String} password optionnel Password or authorization code.
      * @param {String} status optionnel Used to deactivate the WrapUp state. Values: 'on', 'off'; 'on' is optional.
      * @description
-     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'.
+     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'. <br/>
      * @return {Promise} Return resolved promise if succeed, and a rejected else.
      */
     wrapup(agentId, groupId, password, status) {

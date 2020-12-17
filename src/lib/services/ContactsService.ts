@@ -29,7 +29,7 @@ const LOG_ID = "CONTACTS/SVCE - ";
  * @public
  * @description
  *       This module manages _contacts. A contact is defined by a set of public information (name, firstname, avatar...) and a set of private information.<br>
- *       Using this module, you can get access to your network _contacts or search for Rainbow _contacts.
+ *       Using this module, you can get access to your network _contacts or search for Rainbow _contacts. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Get the network _contacts (roster) <br>
@@ -189,7 +189,7 @@ class Contacts {
      * @param {Contact} contact  The contact to get display name
      * @return {String} The contact first name and last name
      * @description
-     *      Get the display name of a contact
+     *      Get the display name of a contact <br/>
      */
     getDisplayName(contact) {
         return contact.firstName + " " + contact.lastName;
@@ -200,7 +200,7 @@ class Contacts {
      * @method getRosters
      * @instance
      * @description
-     *      Get the list of _contacts that are in the user's network (aka rosters)
+     *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
      * @async
      * @return {Promise<Array>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -241,7 +241,7 @@ class Contacts {
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
-     *  Return the list of _contacts that are in the network of the connected users (aka rosters)
+     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
      */
     getAll() {
         return this._contacts;
@@ -386,7 +386,7 @@ class Contacts {
      * @param {string} jid The contact jid
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
-     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information)
+     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br/>
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
@@ -462,7 +462,7 @@ class Contacts {
      * @param {string} id The contact id
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
-     *  Get a contact by his id
+     *  Get a contact by his id <br/>
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
@@ -539,7 +539,7 @@ class Contacts {
      * @instance
      * @param {string} loginEmail The contact loginEmail
      * @description
-     *  Get a contact by his loginEmail
+     *  Get a contact by his loginEmail <br/>
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
@@ -632,7 +632,7 @@ class Contacts {
      * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
      *      if missing or null in case where no avatar available a local module file is provided instead of URL
      * @description
-     *  Get a contact avatar by his contact id
+     *  Get a contact avatar by his contact id <br/>
      * @return {String} Contact avatar URL or file
      */
     getAvatarByContactId(id, lastUpdate) {
@@ -685,7 +685,7 @@ class Contacts {
      * @method getConnectedUser
      * @instance
      * @description
-     *    Get the connected user information
+     *    Get the connected user information <br/>
      * @return {Contact} Return a Contact object representing the connected user information or null if not connected
      */
     getConnectedUser() : Contact{
@@ -721,7 +721,7 @@ class Contacts {
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
      *    In return, when accepted, he will be part of your network <br>
-     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
      * @param {Contact} contact The contact object to subscribe
      * @return {Object} A promise that contains the contact added or an object describing an error
      */
@@ -737,7 +737,7 @@ class Contacts {
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
      *    In return, when accepted, he will be part of your network <br>
-     *    When in the same company, invitation is automatically accepted (ie: can't be declined)
+     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
      * @param {Contact} contact The contact object to subscribe
      * @return {Object} A promise that contains the contact added or an object describing an error
      * @category async
@@ -780,7 +780,7 @@ class Contacts {
      * @since 1.69
      * @instance
      * @description
-     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence
+     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence <br/>
      * @param {Contact} contact The contact object to unsubscribe
      * @returns {Promise} A promise that contains success code if removed or an object describing an error
      */
@@ -815,7 +815,7 @@ class Contacts {
      * @method getInvitationById
      * @instance
      * @description
-     *    Get an invite by its id
+     *    Get an invite by its id <br/>
      * @param {String} strInvitationId the id of the invite to retrieve
      * @return {Invitation} The invite if found
      */
@@ -839,7 +839,7 @@ class Contacts {
      * @description
      *    Accept an invitation from an other Rainbow user to mutually join the network <br>
      *    Once accepted, the user will be part of your network. <br>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Invitation} invitation The invitation to accept
      * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
      */
@@ -864,7 +864,7 @@ class Contacts {
      * @description
      *    Decline an invitation from an other Rainbow user to mutually join the network <br>
      *    Once declined, the user will not be part of your network. <br>
-     *    Return a promise
+     *    Return a promise <br/>
      * @param {Invitation} invitation The invitation to decline
      * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
      */
@@ -896,7 +896,7 @@ class Contacts {
      * @method joinContacts
      * @instance
      * @description
-     *    As admin, add _contacts to a user roster
+     *    As admin, add _contacts to a user roster <br/>
      * @param {Contact} contact The contact object to subscribe
      * @param {String[]} contactIds List of contactId to add to the user roster
      * @async
@@ -948,7 +948,7 @@ class Contacts {
      * @instance
      * @param {Object} presence contains informations about contact changes
      * @description
-     *      Method called when the presence of a contact changed
+     *      Method called when the presence of a contact changed <br/>
      */
     _onPresenceChanged(presence) {
         let that = this;
@@ -1206,7 +1206,7 @@ class Contacts {
      * @instance
      * @param {Object} presence contains informations about contact changes
      * @description
-     *      Method called when the presence of a contact changed
+     *      Method called when the presence of a contact changed <br/>
      */
     _onRosterPresenceChanged(presence) {
         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
@@ -1403,7 +1403,7 @@ class Contacts {
      * @instance
      * @param {string} jid modified roster contact Jid
      * @description
-     *     Method called when an roster user information are updated
+     *     Method called when an roster user information are updated <br/>
      */
     _onContactInfoChanged(jid) {
         let that = this;
@@ -1459,7 +1459,7 @@ class Contacts {
      * @instance
      * @param {Object} data contains the invitationId
      * @description
-     *      Method called when an user invite is received
+     *      Method called when an user invite is received <br/>
      */
     /* _onUserInviteReceived(data) {
         let that = this;
@@ -1483,7 +1483,7 @@ class Contacts {
      * @instance
      * @param {Object} data contains the invitationId
      * @description
-     *      Method called when an user invite is accepted
+     *      Method called when an user invite is accepted <br/>
      */
     /* _onUserInviteAccepted(data) {
         let that = this;
@@ -1505,7 +1505,7 @@ class Contacts {
      * @instance
      * @param {Object} data contains the invitationId
      * @description
-     *      Method called when an user invite is canceled
+     *      Method called when an user invite is canceled <br/>
      */
     /* _onUserInviteCanceled(data) {
         let that = this;
@@ -1526,7 +1526,7 @@ class Contacts {
      * @instance
      * @param {Object} contacts contains a contact list with updated elements
      * @description
-     *      Method called when the roster _contacts is updated
+     *      Method called when the roster _contacts is updated <br/>
      */
     _onRostersUpdate( contacts) {
         let that = this;

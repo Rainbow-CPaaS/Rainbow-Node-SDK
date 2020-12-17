@@ -27,7 +27,7 @@ const LOG_ID = "INVITATION/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This services manages the invitations received/ sent from/to server.
+ *      This services manages the invitations received/ sent from/to server. <br/>
  *
  */
 @logEntryExit(LOG_ID)
@@ -452,7 +452,7 @@ class InvitationsService {
 	 * @method getReceivedInvitations
 	 * @instance
 	 * @description
-	 *    Get the invite received coming from Rainbow users
+	 *    Get the invite received coming from Rainbow users <br/>
 	 * @return {Invitation[]} The list of invitations received
 	 */
 	getReceivedInvitations() {
@@ -466,7 +466,7 @@ class InvitationsService {
 	 * @method 	getAcceptedInvitations
 	 * @instance
 	 * @description
-	 *    Get the invites you accepted received from others Rainbow users
+	 *    Get the invites you accepted received from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getAcceptedInvitations() {
@@ -480,7 +480,7 @@ class InvitationsService {
 	 * @method getSentInvitations
 	 * @instance
 	 * @description
-	 *    Get the invites sent to others Rainbow users
+	 *    Get the invites sent to others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getSentInvitations() {
@@ -494,7 +494,7 @@ class InvitationsService {
 	 * @method getInvitationsNumberForCounter
 	 * @instance
 	 * @description
-	 *    Get the number of invitations received from others Rainbow users
+	 *    Get the number of invitations received from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getInvitationsNumberForCounter() {
@@ -508,7 +508,7 @@ class InvitationsService {
 	 * @method getAllInvitationsNumber
 	 * @instance
 	 * @description
-	 *    Get the number of invitations sent/received to/from others Rainbow users
+	 *    Get the number of invitations sent/received to/from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getAllInvitationsNumber = function () {
@@ -524,7 +524,7 @@ class InvitationsService {
 	 * @method getInvitation
 	 * @instance
 	 * @description
-	 *    Get an invite by its id
+	 *    Get an invite by its id <br/>
 	 * @param {String} invitationId the id of the invite to retrieve
 	 * @return {Invitation} The invite if found
 	 */
@@ -564,7 +564,7 @@ class InvitationsService {
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
-	 *    Return a promise
+	 *    Return a promise <br/>
 	 * @param {Contact} contact The invitation to accept
 	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	 */
@@ -593,7 +593,7 @@ class InvitationsService {
 	 * @method sendInvitationByEmail
 	 * @instance
 	 * @description
-	 *    Send an invitation email as UCaaS
+	 *    Send an invitation email as UCaaS <br/>
 	 * @param {string} email The email
 	 * @param {string} [customMessage] The email text (optional)
 	 * @return {Object} A promise that contains the contact added or an object describing an error
@@ -622,7 +622,7 @@ class InvitationsService {
 	 * @instance
 	 * @param {Invitation} invitation The invitation to cancel
 	 * @description
-	 *    Cancel an invitation sent
+	 *    Cancel an invitation sent <br/>
 	 * @return {Object} The SDK Ok object or an error
 	 */
 	cancelOneSendInvitation(invitation) {
@@ -649,7 +649,7 @@ class InvitationsService {
 	 * @instance
 	 * @param {Number} invitationId The invitation to re send
 	 * @description
-	 *    Re send an invitation sent
+	 *    Re send an invitation sent <br/>
 	 * @return {Object} The SDK Ok object or an error
 	 */
 	reSendInvitation(invitationId) {
@@ -674,8 +674,8 @@ class InvitationsService {
 	 * @method sendInvitationByEmail
 	 * @instance
 	 * @description
-	 *    Send invitations for a list of emails as UCaaS
-	 *    LIMITED TO 100 invitations
+	 *    Send invitations for a list of emails as UCaaS <br/>
+	 *    LIMITED TO 100 invitations <br/>
 	 * @param {Array} listOfMails The list of emails
 	 * @return {Object} A promise that the invite result or an object describing an error
 	 */
@@ -711,7 +711,7 @@ class InvitationsService {
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
-	 *    Return a promise
+	 *    Return a promise <br/>
 	 * @param {Invitation} invitation The invitation to accept
 	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	 */
@@ -754,7 +754,7 @@ class InvitationsService {
 	 * @description
 	 *    Decline an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once declined, the user will not be part of your network. <br>
-	 *    Return a promise
+	 *    Return a promise <br/>
 	 * @param {Invitation} invitation The invitation to decline
 	 * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
 	 */

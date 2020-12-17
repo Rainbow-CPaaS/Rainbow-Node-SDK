@@ -25,10 +25,10 @@ const LOG_ID = "PRES/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This module manages the presence of the connected user.
+ *      This module manages the presence of the connected user. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
- *      - Change the connected user presence
+ *      - Change the connected user presence <br/>
  */
 class PresenceService {
     private _logger: Logger;
@@ -150,7 +150,7 @@ class PresenceService {
      * @method sendInitialPresence
      * @instance
      * @description
-     *  Send the initial presence (online)
+     *  Send the initial presence (online) <br/>
      * @return {ErrorManager.Ok} A promise containing the result
      */
     sendInitialPresence() {
@@ -176,7 +176,7 @@ class PresenceService {
      * @instance
      * @description
      *    Allow to change the presence of the connected user <br/>
-     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online'
+     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br/>
      * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
      * @async
      * @return {Promise<ErrorManager>}
@@ -240,7 +240,7 @@ class PresenceService {
      * @method getUserConnectedPresence
      * @instance
      * @description
-     *      Get user presence status calculated from events.
+     *      Get user presence status calculated from events. <br/>
      */
     getUserConnectedPresence() : PresenceRainbow {
         return this._currentPresence ;
@@ -251,7 +251,7 @@ class PresenceService {
      * @method _setUserPresenceStatus
      * @instance
      * @description
-     *      Send user presence status and message to xmpp.
+     *      Send user presence status and message to xmpp. <br/>
      */
     //_setUserPresenceStatus( status, message?) {
     _setUserPresenceStatus( presenceRainbow : PresenceRainbow) {
@@ -380,7 +380,7 @@ class PresenceService {
      * @method _sendPresenceFromConfiguration
      * @instance
      * @description
-     *      Send user presence according to user settings presence.
+     *      Send user presence according to user settings presence. <br/>
      */
     _sendPresenceFromConfiguration() {
         let that = this;
@@ -420,7 +420,7 @@ class PresenceService {
      * @instance
      * @param {Bubble} bubble The Bubble
      * @description
-     *      Method called when receiving an invitation to join a bubble
+     *      Method called when receiving an invitation to join a bubble <br/>
      */
     sendInitialBubblePresence(bubble) {
         let that = this;
@@ -456,7 +456,7 @@ class PresenceService {
      * @method _onUserSettingsChanged
      * @instance
      * @description
-     *      Method called when receiving an update on user settings
+     *      Method called when receiving an update on user settings <br/>
      */
     _onUserSettingsChanged() {
         let that = this;
@@ -468,7 +468,7 @@ class PresenceService {
      * @method _onPresenceChanged
      * @instance
      * @description
-     *      Method called when receiving an update on user presence
+     *      Method called when receiving an update on user presence <br/>
      */
     _onMyPresenceChanged(user) {
         let that = this;

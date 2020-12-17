@@ -23,7 +23,7 @@ const LOG_ID = "S2S - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This module handles the s2s API's methods to Rainbow.
+     *      This module handles the s2s API's methods to Rainbow. <br/>
      *      <br><br>
      *      The main methods proposed in that module allow to: <br>
      *      - Signin in s2s mode <br>
@@ -221,7 +221,7 @@ class S2SService {
      * @method listConnectionsS2S
      * @instance
      * @description
-     *      List all the connected user's connexions.
+     *      List all the connected user's connexions. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -245,7 +245,7 @@ class S2SService {
      * @method checkS2Sconnection
      * @instance
      * @description
-     *      check the S2S connection with a head request.
+     *      check the S2S connection with a head request. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -268,14 +268,14 @@ class S2SService {
      * @private
      * @method sendS2SPresence
      * @instance
-     * @param {Object} obj Object {show, status} describing the presence :
-     *  To put presence to cases :
-     * "online":     {show = undefined, status = "mode=auto"}
-     * "away": {show = "xa", status = "away"}
-     * "dnd": {show = "dnd", status = ""}
-     * "invisible": {show = "xa", status = ""}
+     * @param {Object} obj Object {show, status} describing the presence : <br/>
+     *  To put presence to cases : <br/>
+     * "online":     {show = undefined, status = "mode=auto"} <br/>
+     * "away": {show = "xa", status = "away"} <br/>
+     * "dnd": {show = "dnd", status = ""} <br/>
+     * "invisible": {show = "xa", status = ""} <br/>
      * @description
-     *      set the presence of the connected user with s2s api .
+     *      set the presence of the connected user with s2s api . <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -300,7 +300,7 @@ class S2SService {
      * @instance
      * @param {Array} connexions a List of connections S2S to delete
      * @description
-     *      Delete one by one a list of S2S connections of the connected user.
+     *      Delete one by one a list of S2S connections of the connected user. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -332,7 +332,7 @@ class S2SService {
      * @method deleteAllConnectionsS2S
      * @instance
      * @description
-     *      Delete all the connected user's S2S connexions.
+     *      Delete all the connected user's S2S connexions. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -355,7 +355,7 @@ class S2SService {
      * @instance
      * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
      * @description
-     *      Login to S2S event server the already connected user to REST API server.
+     *      Login to S2S event server the already connected user to REST API server. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -382,7 +382,7 @@ class S2SService {
      * @instance
      * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
      * @description
-     *      Get informations about a S2S connexions.
+     *      Get informations about a S2S connexions. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -418,22 +418,22 @@ class S2SService {
      * @method sendMessageInConversation
      * @instance
      * @param {String} conversationId
-     * @param {String} msg The message object to send.
-     * {
-     *   "message": {
-     *   "subject": "Greeting",
-     *   "lang": "en",
-     *   "contents": [
-     *     {
-     *       "type": "text/markdown",
-     *       "data": "## Hello Bob"
-     *     }
-     *   ],
-     *   "body": "Hello world"
-     *   }
-     * }
+     * @param {String} msg The message object to send. <br/>
+     * { <br/>
+     *   "message": { <br/>
+     *   "subject": "Greeting", <br/>
+     *   "lang": "en", <br/>
+     *   "contents": [ <br/>
+     *     { <br/>
+     *       "type": "text/markdown", <br/>
+     *       "data": "## Hello Bob" <br/>
+     *     } <br/>
+     *   ], <br/>
+     *   "body": "Hello world" <br/>
+     *   } <br/>
+     * } <br/>
      * @description
-     *      Send a message in a conversation. Note, corrected message is not yet supported.
+     *      Send a message in a conversation. Note, corrected message is not yet supported. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -458,7 +458,7 @@ class S2SService {
      * @param {string} role Enum: "member" "moderator" of your role in this room
      * @instance
      * @description
-     *      send presence in S2S to join a bubble conversation
+     *      send presence in S2S to join a bubble conversation <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
