@@ -302,7 +302,7 @@
         "no-restricted-syntax": 0,
         "no-spaced-func": 2,
         "no-ternary": 0,
-        "no-trailing-spaces": 0,
+        "no-trailing-spaces": 1,
         "no-underscore-dangle": 0,
         "no-unneeded-ternary": 2,
         "object-curly-spacing": [

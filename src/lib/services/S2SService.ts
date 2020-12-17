@@ -207,6 +207,7 @@ class S2SService {
             that.jid_password = "";
             that.fullJid = "";
             that.userId = "";
+            that.logger.log("debug", LOG_ID + "(stop)" );
             if (that.useS2S || forceStop) {
                 resolve(that.deleteAllConnectionsS2S());
             } else {

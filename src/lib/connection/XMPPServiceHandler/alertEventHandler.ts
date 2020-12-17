@@ -12,13 +12,18 @@ import {Channel} from "../../common/models/Channel";
 import {isNullOrEmpty, logEntryExit} from "../../common/Utils";
 import {AlertMessage} from "../../common/models/AlertMessage";
 import {AlertMessageInfo} from "../../common/models/AlertMessage";
-import {NameSpacesLabels} from "../XMPPService";
+import {NameSpacesLabels, XMPPService} from "../XMPPService";
+import {AlertsService} from "../../services/AlertsService";
+import {Dictionary, IDictionary, KeyValuePair} from "ts-generic-collections-linq";
+import {Bubble} from "../../common/models/Bubble";
 
 const util = require('util');
 
 const xml = require("@xmpp/xml");
 
 const prettydata = require("../pretty-data").pd;
+
+const AsyncLock = require('async-lock');
 
 const LOG_ID = "XMPP/HNDL/ALERTS - ";
 
@@ -209,22 +214,20 @@ class AlertEventHandler extends GenericHandler {
     public MESSAGE_ERROR: any;
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
-    public channelsService: any;
+    public alertsService: any;
     public eventEmitter: any;
-    /*public onManagementMessageReceived: any;
-    public onNotificationManagementMessageReceived: any;
-    public onHeadlineMessageReceived: any;
-    public onReceiptMessageReceived: any;
-    public onErrorMessageReceived: any;
-
-     */
+    private _options: any;
+    private _xmpp : XMPPService;
+    private alertsMessagePoolReceived: IDictionary<string, KeyValuePair<Date, string>> = new Dictionary();
+    private lockEngine: any;
+    private lockKey = "LOCK_ALERTS_EVENTS";
     public findAttrs: any;
     public findChildren: any;
 
     static getClassName(){ return 'NotificationEventHandler'; }
     getClassName(){ return AlertEventHandler.getClassName(); }
 
-    constructor(xmppService, channelsService) {
+    constructor(xmppService : XMPPService, alertsService : AlertsService, options: any) {
         super(xmppService);
 
         this.MESSAGE_CHAT = "jabber:client.message.chat";
@@ -235,7 +238,12 @@ class AlertEventHandler extends GenericHandler {
         this.MESSAGE_HEADLINE = "jabber:client.message.headline";
         this.MESSAGE_CLOSE = "jabber:client.message.headline";
 
-        this.channelsService = channelsService;
+        this.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
+
+        this.alertsService = alertsService;
+        this._options = options;
+
+        this._xmpp = xmppService;
 
         let that = this;
 
@@ -310,6 +318,25 @@ class AlertEventHandler extends GenericHandler {
   </message>
      */
 
+    //region Lock
+
+    lock(fn) {
+        let that = this;
+        let opts = undefined;
+        return that.lockEngine.acquire(that.lockKey,
+            async function () {
+                // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
+                that.logger.log("internal", LOG_ID + "(lock) lock the ", that.lockKey);
+                return await fn(); // async work
+            }, opts).then((result) => {
+            // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
+            that.logger.log("internal", LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
+            return result;
+        });
+    }
+
+    //endregion
+
     onManagementMessageReceived (msg, stanza) {
         let that = this;
 
@@ -358,7 +385,7 @@ class AlertEventHandler extends GenericHandler {
 
         try {
             that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-            that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) alert message received");
+            that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) message received");
 
 
             //DateTime dateTime;
@@ -449,56 +476,70 @@ class AlertEventHandler extends GenericHandler {
                     }
                 }
 
-                /*
+
                 // Check if this alert message must be handled by other party (already cancelled for example)
-                Tuple<DateTime, String> alertInfo;
-                lock (lockAlertMessagesReceivedPool)
-                {
+                let alertInfo : KeyValuePair<Date, string> ;
+                let alreadyTreated = false;
+                that.lock(() => {
                     // Do we have already received an alert message with same identifier ?
-                    if (alertsMessagePoolReceived.ContainsKey(alertMessage.Identifier))
+                    if (that.alertsMessagePoolReceived.containsKey(alertMessage.identifier))
                     {
                         // Get infor from the previous reception
-                        alertInfo = alertsMessagePoolReceived[alertMessage.Identifier];
+                        alertInfo = that.alertsMessagePoolReceived[alertMessage.identifier];
                         if(alertInfo != null)
                         {
-                            DateTime previousSent = alertInfo.Item1;    // previous Sent information
-                            String previousMsgType = alertInfo.Item2;   // previous MsgType information
+                            let previousSent : Date = alertInfo.key;    // previous Sent information
+                            let previousMsgType : string = alertInfo.value;   // previous MsgType information
 
                             // Check is this alert has been already Cancelled
                             if (previousMsgType == "Cancel")
                             {
-                                log.Info("[Xmpp_AlertMessageReceived] This alert has been already cancelled - we don't take care of this alert message - id:[{0}] - identifier[{1}]", alertMessage.Id, alertMessage.Identifier);
-                                return;
+                                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived)  This alert has been already cancelled - we don't take care of this alert message - id:[{0}] - identifier[{1}]", alertMessage.id, alertMessage.identifier);
+                                alreadyTreated = true;
                             }
                             // Check is the previous alert is more recent than the current one
-                            else if (previousSent > alertMessage.Sent )
+                            else if (previousSent > new Date(alertMessage.sent) )
                             {
-                                log.Info("[Xmpp_AlertMessageReceived] This alert is older than the previous one - we don't take care of this alert message - id:[{0}] - identifier[{1}] - sent[{2}] - previous sent[{3}]", alertMessage.Id, alertMessage.Identifier, alertMessage.Sent.ToString("o"), previousSent.ToString("o"));
-                                return;
+                                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) This alert is older than the previous one - we don't take care of this alert message - id:[{0}] - identifier[{1}] - sent[{2}] - previous sent[{3}]", alertMessage.id, alertMessage.identifier, alertMessage.sent, previousSent);
+                                alreadyTreated = true;
                             }
                         }
                     }
+                });
+
+                if (alreadyTreated) {
+                        return;
                 }
 
                 // We store Alert Info for future check
-                alertInfo = new Tuple<DateTime, string>(alertMessage.Sent, alertMessage.MsgType);
+                alertInfo = new KeyValuePair (new Date(alertMessage.sent), alertMessage.msgType) ;
 
                 // It's possible to receive the same Alert several times (if we don't answered it with "read" receipt).
                 // So we need to check keys before to add it
-                if (alertsMessagePoolReceived.ContainsKey(alertMessage.Identifier))
-                    alertsMessagePoolReceived.Remove(alertMessage.Identifier);
-                alertsMessagePoolReceived.Add(alertMessage.Identifier, alertInfo);
-
+                if (that.alertsMessagePoolReceived.containsKey(alertMessage.identifier)) {
+                    /* let itToRemove = that.alertsMessagePoolReceived.single((item) => {
+                        return item.key == alertMessage.identifier;
+                    }); // */
+                    that.alertsMessagePoolReceived.remove((item) => {
+                        return item.key == alertMessage.identifier;
+                    });
+                }
+                that.alertsMessagePoolReceived.add(alertMessage.identifier, alertInfo);
+// */
                 // Inform the server that we have received it
-                MarkAlertMessageAsReceived(alertMessage.FromJid, alertMessage.Id, null);
-
-                AlertMessageReceived.Raise(this, new AlertMessageEventArgs(alertMessage));
+                that.alertsService.markAlertMessageAsReceived(alertMessage.fromJid, alertMessage.id);
 
                 // Do we need to automatically mark message as read ?
-                if (application.Restrictions.SendReadReceipt)
-                    MarkAlertMessageAsRead(alertMessage.FromJid, alertMessage.Id, null);
+                if (that._options._getIMOptions().sendReadReceipt) {
+                    that.alertsService.markAlertMessageAsRead(alertMessage.fromJid, alertMessage.id);
+                }
                 // */
-                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) alert message received decoded : ", alertMessage);
+                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) alert message received decoded : ", alertMessage);
+                //AlertMessageReceived.Raise(this, new AlertMessageEventArgs(alertMessage));
+                that.eventEmitter.emit("evt_internal_alertmessagereceived", alertMessage);
+            } else {
+                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received.");
+                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received : ", stanza);
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
@@ -562,7 +603,6 @@ class AlertEventHandler extends GenericHandler {
             that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
-
 
 }
 

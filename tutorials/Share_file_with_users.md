@@ -85,7 +85,7 @@ When in a conversation with a Rainbow user, you can share a file by calling the 
     fileInfos.name = "filename";
 
     // Retrieve a contact by its id
-    rainbowSDK.contacts.searchById(contactIdToSearch)
+    rainbowSDK.contacts.getContactById(contactIdToSearch)
     .then(function(contact) {
         // Retrieve the associated conversation
         return rainbowSDK.conversations.openConversationForContact(contact);
