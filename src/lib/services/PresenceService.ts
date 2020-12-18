@@ -472,9 +472,9 @@ class PresenceService {
      */
     _onMyPresenceChanged(user) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(_onPresenceChanged) user : ", user);
+        //that._logger.log("internal", LOG_ID + "(_onPresenceChanged) user : ", user);
        // if ( presence.jid === that._xmpp.jid ) {
-            that._logger.log("debug", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", user);
+            that._logger.log("internal", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", user);
             that._currentPresence.presenceLevel = user.presence;
             //that._currentPresence.presenceShow = presence.show;
             that._currentPresence.presenceStatus = user.status;

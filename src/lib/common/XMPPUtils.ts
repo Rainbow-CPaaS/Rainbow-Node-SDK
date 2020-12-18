@@ -153,6 +153,19 @@ export class XMPPUTils {
         return "";
     }
 
+    /** Function: getBareJidFromJid
+     *  Get the bare JID from a JID String.
+     *
+     *  Parameters:
+     *    (String) jid - A JID.
+     *
+     *  Returns:
+     *    A String containing the bare JID.
+     */
+    getBareJidFromJid (jid)
+    {
+        return jid ? jid.split("/")[0] : null;
+    }
 }
 
 export let xu = XMPPUTils.getXMPPUtils();
