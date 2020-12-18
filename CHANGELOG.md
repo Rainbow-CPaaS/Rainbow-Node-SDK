@@ -11,6 +11,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.81.1] - 2021-01-06
 -   Fix issue when login failed. 
+## [1.81.0-dotnet.1] - 2020-12-XX
+-   Add in Contact property {String} `selectedTheme` Set the selected theme for the user. 
+-   Add in Contact property {Object} `customData` User's custom data.
+-   Add event `rainbow_onuserinformationchanged` when the properties of the connected user are changed on server side.
+-   Add properties `selectedTheme, customData` in `AdminService::updateContactInfos` API method parameters.
 
 ## [1.81.0] - 2021-01-06
 -   Add in Contact property {String} `selectedTheme` Set the selected theme for the user. 
