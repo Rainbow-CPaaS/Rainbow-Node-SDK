@@ -118,6 +118,8 @@ class Contact {
     public subscription: string;
     public temp: boolean;
     public invitation: any;
+    public selectedTheme: string;
+    public customData: any;
 
     constructor() {
 
@@ -542,6 +544,9 @@ class Contact {
 
         this.userInfo1 = null;
         this.userInfo2 = null;
+        
+        this.customData = [];
+        this.selectedTheme = null;
 
 
     }
@@ -681,6 +686,10 @@ class Contact {
         that.openInviteId = userData.openInviteId ? userData.openInviteId : that.openInviteId;
         that.userInfo1 = that.userInfo1 ? that.userInfo1 : userData.userInfo1;
         that.userInfo2 = that.userInfo2 ? that.userInfo2 : userData.userInfo2;
+
+        that.customData = userData.customData ? userData.customData : [];
+        that.selectedTheme = userData.selectedTheme;
+
 
         // Handle jids
         if (userData.jid_im) {

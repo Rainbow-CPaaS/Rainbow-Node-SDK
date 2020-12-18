@@ -783,127 +783,127 @@ class Admin {
      * @description
      *      Set informations about a user <br/>
      * @param {string} userId The id of the user
-     * @param {Object} infos The infos of the user :
-     * {String{3..255}}  [infos.loginEmail]      User email address (used for login).
-     * <br/> Must be unique (409 error is returned if a user already exists with the same email address).
-     *  {String{8..64}}   [infos.password]        User password.
-     * <br/> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character.
-     * {String{1..255}}  [infos.firstName]     User first name
-     * {String{1..255}}  [infos.lastName]      User last name
-     * {String{1..255}}  [infos.nickName]      User nickName
-     * {String{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
-     * {String{1..255}}  [infos.jobTitle]      User job title
-     * {String[]{1..64}} [infos.tags]          An Array of free tags associated to the user.
-     * <br/> A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters.
-     * <br/> `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags.
-     * <br/> The tags are visible by the user and all users belonging to his organisation/company, and can be used with
-     * the search API to search the user based on his tags.
-     * {Object[]}           [infos.emails]        Array of user emails addresses objects
-     * {String{3..255}}          [infos.emails.email]    User email address
-     * {String=home,work,other}  [infos.emails.type]     User email type
-     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects
+     * @param {Object} infos The infos of the user : <br/>
+     * {String{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
+     * <br/> Must be unique (409 error is returned if a user already exists with the same email address). <br/>
+     *  {String{8..64}}   [infos.password]        User password. <br/>
+     * <br/> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br/>
+     * {String{1..255}}  [infos.firstName]     User first name <br/>
+     * {String{1..255}}  [infos.lastName]      User last name <br/>
+     * {String{1..255}}  [infos.nickName]      User nickName <br/>
+     * {String{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
+     * {String{1..255}}  [infos.jobTitle]      User job title <br/>
+     * {String[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br/>
+     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br/>
+     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br/>
+     * the search API to search the user based on his tags. <br/>
+     * {Object[]}           [infos.emails]        Array of user emails addresses objects <br/>
+     * {String{3..255}}          [infos.emails.email]    User email address <br/>
+     * {String=home,work,other}  [infos.emails.type]     User email type <br/>
+     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br/>
      * <br/>
-     * <br/><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise.
-     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...)
-     * {String{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user)
-     * {String{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field.
+     * <br/><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br/>
+     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br/>
+     * {String{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
+     * {String{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
      * <br/>
-     * <br/>If not provided, user country is used by default.
-     * {String=home,work,other}              phoneNumbers.type           Phone number type
-     * {String=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type
-     * {String{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format)
-     * {String=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed.
-     * <br/> USA states code list:
-     * <li> <code>AA</code>:"Armed Forces America",
-     * <li> <code>AE</code>:"Armed Forces",
-     * <li> <code>AP</code>:"Armed Forces Pacific",
-     * <li> <code>AK</code>:"Alaska",
-     * <li> <code>AL</code>:"Alabama",
-     * <li> <code>AR</code>:"Arkansas",
-     * <li> <code>AZ</code>:"Arizona",
-     * <li> <code>CA</code>:"California",
-     * <li> <code>CO</code>:"Colorado",
-     * <li> <code>CT</code>:"Connecticut",
-     * <li> <code>DC</code>:"Washington DC",
-     * <li> <code>DE</code>:"Delaware",
-     * <li> <code>FL</code>:"Florida",
-     * <li> <code>GA</code>:"Georgia",
-     * <li> <code>GU</code>:"Guam",
-     * <li> <code>HI</code>:"Hawaii",
-     * <li> <code>IA</code>:"Iowa",
-     * <li> <code>ID</code>:"Idaho",
-     * <li> <code>IL</code>:"Illinois",
-     * <li> <code>IN</code>:"Indiana",
-     * <li> <code>KS</code>:"Kansas",
-     * <li> <code>KY</code>:"Kentucky",
-     * <li> <code>LA</code>:"Louisiana",
-     * <li> <code>MA</code>:"Massachusetts",
-     * <li> <code>MD</code>:"Maryland",
-     * <li> <code>ME</code>:"Maine",
-     * <li> <code>MI</code>:"Michigan",
-     * <li> <code>MN</code>:"Minnesota",
-     * <li> <code>MO</code>:"Missouri",
-     * <li> <code>MS</code>:"Mississippi",
-     * <li> <code>MT</code>:"Montana",
-     * <li> <code>NC</code>:"North Carolina",
-     * <li> <code>ND</code>:"Northmo Dakota",
-     * <li> <code>NE</code>:"Nebraska",
-     * <li> <code>NH</code>:"New Hampshire",
-     * <li> <code>NJ</code>:"New Jersey",
-     * <li> <code>NM</code>:"New Mexico",
-     * <li> <code>NV</code>:"Nevada",
-     * <li> <code>NY</code>:"New York",
-     * <li> <code>OH</code>:"Ohio",
-     * <li> <code>OK</code>:"Oklahoma",
-     * <li> <code>OR</code>:"Oregon",
-     * <li> <code>PA</code>:"Pennsylvania",
-     * <li> <code>PR</code>:"Puerto Rico",
-     * <li> <code>RI</code>:"Rhode Island",
-     * <li> <code>SC</code>:"South Carolina",
-     * <li> <code>SD</code>:"South Dakota",
-     * <li> <code>TN</code>:"Tennessee",
-     * <li> <code>TX</code>:"Texas",
-     * <li> <code>UT</code>:"Utah",
-     * <li> <code>VA</code>:"Virginia",
-     * <li> <code>VI</code>:"Virgin Islands",
-     * <li> <code>VT</code>:"Vermont",
-     * <li> <code>WA</code>:"Washington",
-     * <li> <code>WI</code>:"Wisconsin",
-     * <li> <code>WV</code>:"West Virginia",
-     * <li> <code>WY</code>:"Wyoming"
-     * <br/> Canada states code list:
-     * <li> <code>AB</code>: "Alberta",
-     * <li> <code>BC</code>: "British Columbia",
-     * <li> <code>MB</code>: "Manitoba",
-     * <li> <code>NB</code>:	"New Brunswick",
-     * <li> <code>NL</code>: "Newfoundland and Labrador",
-     * <li> <code>NS</code>: "Nova Scotia",
-     * <li> <code>NT</code>: "Northwest Territories",
-     * <li> <code>NU</code>: "Nunavut",
-     * <li> <code>ON</code>: "Ontario",
-     * <li> <code>PE</code>: "Prince Edward Island",
-     * <li> <code>QC</code>: "Quebec",
-     * <li> <code>SK</code>: "Saskatchewan",
-     * <li> <code>YT</code>: "Yukon"
-     * {String="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language
+     * <br/>If not provided, user country is used by default. <br/>
+     * {String=home,work,other}              phoneNumbers.type           Phone number type <br/>
+     * {String=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
+     * {String{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
+     * {String=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
+     * <br/> USA states code list: <br/>
+     * <li> <code>AA</code>:"Armed Forces America", <br/>
+     * <li> <code>AE</code>:"Armed Forces", <br/>
+     * <li> <code>AP</code>:"Armed Forces Pacific", <br/>
+     * <li> <code>AK</code>:"Alaska", <br/>
+     * <li> <code>AL</code>:"Alabama", <br/>
+     * <li> <code>AR</code>:"Arkansas", <br/>
+     * <li> <code>AZ</code>:"Arizona", <br/>
+     * <li> <code>CA</code>:"California", <br/>
+     * <li> <code>CO</code>:"Colorado", <br/>
+     * <li> <code>CT</code>:"Connecticut", <br/>
+     * <li> <code>DC</code>:"Washington DC", <br/>
+     * <li> <code>DE</code>:"Delaware", <br/>
+     * <li> <code>FL</code>:"Florida", <br/>
+     * <li> <code>GA</code>:"Georgia", <br/>
+     * <li> <code>GU</code>:"Guam", <br/>
+     * <li> <code>HI</code>:"Hawaii", <br/>
+     * <li> <code>IA</code>:"Iowa", <br/>
+     * <li> <code>ID</code>:"Idaho", <br/>
+     * <li> <code>IL</code>:"Illinois", <br/>
+     * <li> <code>IN</code>:"Indiana", <br/>
+     * <li> <code>KS</code>:"Kansas", <br/>
+     * <li> <code>KY</code>:"Kentucky", <br/>
+     * <li> <code>LA</code>:"Louisiana", <br/>
+     * <li> <code>MA</code>:"Massachusetts", <br/>
+     * <li> <code>MD</code>:"Maryland", <br/>
+     * <li> <code>ME</code>:"Maine", <br/>
+     * <li> <code>MI</code>:"Michigan", <br/>
+     * <li> <code>MN</code>:"Minnesota", <br/>
+     * <li> <code>MO</code>:"Missouri", <br/>
+     * <li> <code>MS</code>:"Mississippi", <br/>
+     * <li> <code>MT</code>:"Montana", <br/>
+     * <li> <code>NC</code>:"North Carolina", <br/>
+     * <li> <code>ND</code>:"Northmo Dakota", <br/>
+     * <li> <code>NE</code>:"Nebraska", <br/>
+     * <li> <code>NH</code>:"New Hampshire", <br/>
+     * <li> <code>NJ</code>:"New Jersey", <br/>
+     * <li> <code>NM</code>:"New Mexico", <br/>
+     * <li> <code>NV</code>:"Nevada", <br/>
+     * <li> <code>NY</code>:"New York", <br/>
+     * <li> <code>OH</code>:"Ohio", <br/>
+     * <li> <code>OK</code>:"Oklahoma", <br/>
+     * <li> <code>OR</code>:"Oregon", <br/>
+     * <li> <code>PA</code>:"Pennsylvania", <br/>
+     * <li> <code>PR</code>:"Puerto Rico", <br/>
+     * <li> <code>RI</code>:"Rhode Island", <br/>
+     * <li> <code>SC</code>:"South Carolina", <br/>
+     * <li> <code>SD</code>:"South Dakota", <br/>
+     * <li> <code>TN</code>:"Tennessee", <br/>
+     * <li> <code>TX</code>:"Texas", <br/>
+     * <li> <code>UT</code>:"Utah", <br/>
+     * <li> <code>VA</code>:"Virginia", <br/>
+     * <li> <code>VI</code>:"Virgin Islands", <br/>
+     * <li> <code>VT</code>:"Vermont", <br/>
+     * <li> <code>WA</code>:"Washington", <br/>
+     * <li> <code>WI</code>:"Wisconsin", <br/>
+     * <li> <code>WV</code>:"West Virginia", <br/>
+     * <li> <code>WY</code>:"Wyoming" <br/>
+     * <br/> Canada states code list: <br/>
+     * <li> <code>AB</code>: "Alberta", <br/>
+     * <li> <code>BC</code>: "British Columbia", <br/>
+     * <li> <code>MB</code>: "Manitoba", <br/>
+     * <li> <code>NB</code>:	"New Brunswick", <br/>
+     * <li> <code>NL</code>: "Newfoundland and Labrador", <br/>
+     * <li> <code>NS</code>: "Nova Scotia", <br/>
+     * <li> <code>NT</code>: "Northwest Territories", <br/>
+     * <li> <code>NU</code>: "Nunavut", <br/>
+     * <li> <code>ON</code>: "Ontario", <br/>
+     * <li> <code>PE</code>: "Prince Edward Island", <br/>
+     * <li> <code>QC</code>: "Quebec", <br/>
+     * <li> <code>SK</code>: "Saskatchewan", <br/>
+     * <li> <code>YT</code>: "Yukon" <br/>
+     * {String="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
+     * <br/> 
+     * <br/> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br/>
+     * <br/> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br/>
+     * <br/> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br/>
+     * {String}          [infos.timezone]      User timezone name <br/>
+     * <br/> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br/>
+     * <br/> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br/>
+     * {String=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
+     * {String[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
      * <br/>
-     * <br/> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen).
-     * <br/> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...
-     * <br/> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>.
-     * {String}          [infos.timezone]      User timezone name
-     * <br/> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a>
-     * <br/> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...)
-     * {String=free,basic,advanced} [infos.accountType=free]  User subscription type
-     * {String[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles
-     * <br/>
-     * <br/>The general rule is that a user must have the roles that the wants to assign to someone else.
-     * <br/>Examples:
+     * <br/>The general rule is that a user must have the roles that the wants to assign to someone else. <br/>
+     * <br/>Examples: <br/>
      * <ul>
      *     <li>an <code>admin</code> can add or remove the role <code>admin</code> to another user of the company(ies) he manages,</li>
      *     <li>an <code>bp_admin</code> can add or remove the role <code>bp_admin</code> to another user of the company(ies) he manages,</li>
      *     <li>an <code>app_superadmin</code> can add or remove the role <code>app_superadmin</code> to another user...</li>
      * </ul>
-     * Here are some explanations regarding the roles available in Rainbow:
+     * Here are some explanations regarding the roles available in Rainbow: <br/>
      * <ul>
      * <li><code>admin</code>, <code>bp_admin</code> and <code>bp_finance</code> roles are related to company management (and resources linked to companies, such as users, systems, subscriptions, ...).</li>
      * <li><code>bp_admin</code> and <code>bp_finance</code> roles can only be set to users of a BP company (company with isBP=true).</li>
@@ -912,27 +912,36 @@ class Admin {
      * <li>Only <code>superadmin</code> can set <code>superadmin</code> and <code>support</code> roles to a user.</li>
      * <li>A user with admin rights (admin, bp_admin, superadmin) can't change his own roles, except for roles related to channels (<code>all_company_channels_admin</code>, <code>public_channels_admin</code> and <code>closed_channels_admin</code>).</li>
      * </ul>
-     * {String=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS
-     * {String}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1)
-     * <br/> companyName field is automatically filled on server side based on companyId.
-     * {Boolean} [infos.isActive=true]         Is user active
-     * {Boolean} [infos.isInitialized=false]   Is user initialized
-     * {String=private,public,closed,isolated,none} [infos.visibility]  User visibility
-     * </br> Define if the user can be searched by users being in other company and if the user can search users being in other companies.
-     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
-     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users
-     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users
-     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users
-     * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users
-     * <br/>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company.
-     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date.
-     * <br/> Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment.
-     * <br/> Value -1 means timeToLive is disable (i.e. user account will not expire).
-     * <br/> If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours).
-     * <br/> If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration).
-     * {String=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used)
-     * {String{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
-     * {String{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
+     * {String=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
+     * {String}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
+     * <br/> companyName field is automatically filled on server side based on companyId. <br/>
+     * {Boolean} [infos.isActive=true]         Is user active <br/>
+     * {Boolean} [infos.isInitialized=false]   Is user initialized <br/>
+     * {String=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
+     * </br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br/>
+     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
+     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
+     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users <br/>
+     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users <br/>
+     * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users <br/>
+     * <br/>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. <br/>
+     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. <br/>
+     * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. <br/>
+     * Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
+     * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br/>
+     * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br/>
+     * {String=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
+     * {String{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+     * {String{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+     * {String} selectedTheme Set the selected theme for the user. <br/>
+     * {Object} customData  User's custom data. <br/>
+     *    key1 	String User's custom data key1. <br/>
+     *    key2 	String Company's custom data key2. <br/>
+     *  customData can only be created/updated by: <br/>
+     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br/> 
+     *   Restrictions on customData Object: <br/>
+     *   max 10 keys, <br/>
+     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). <br/>   
      *
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -947,7 +956,8 @@ class Admin {
 
                 const propertiesToSave = ["loginEmail", "password", "phoneNumbers", "country", "number", "type", "deviceType", "shortNumber", "systemId", "internalNumber",
                     "firstName", "lastName", "nickName", "title", "jobTitle", "tags", "emails", "country", "state", "language", "timezone",
-                    "accountType", "roles", "adminType", "companyId", "isActive", "isInitialized", "visibility", "timeToLive", "authenticationType", "userInfo1", "userInfo2"
+                    "accountType", "roles", "adminType", "companyId", "isActive", "isInitialized", "visibility", "timeToLive", "authenticationType", "userInfo1", "userInfo2",
+                        "selectedTheme","customData"
                 ];
 
                 let data = {};

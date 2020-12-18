@@ -6,12 +6,18 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.81.0-dotnet.1] - 2020-12-XX
+-   Add in Contact property {String} `selectedTheme` Set the selected theme for the user. 
+-   Add in Contact property {Object} `customData` User's custom data.
+-   Add event `rainbow_onuserinformationchanged` when the properties of the connected user are changed on server side.
+-   Add properties `selectedTheme, customData` in `AdminService::updateContactInfos` API method parameters.
+
 ## [1.81.0-dotnet.0] - 2020-12-17
--   Add the property FileDescriptor::md5sum : md5 of the file getted from the backend file storage. This value is not filled at the first retrieve of all files. To get this property filled you need to call the retrieveOneFileDescriptor API.
+-   Add the property `FileDescriptor::md5sum` : md5 of the file getted from the backend file storage. This value is not filled at the first retrieve of all files. To get this property filled you need to call the retrieveOneFileDescriptor API.
 -   Continue progress of coding AlertsService
--   Fix fileStorage.uploadFileToConversation method to return the error when the file provided in parameter does not exist.
--   Add event rainbow_onalertmessagereceived when an alert is received from server.
--   Fix AlertsService::createAlert method about date and no provided parameters.
+-   Fix `fileStorage.uploadFileToConversation` method to return the error when the file provided in parameter does not exist.
+-   Add event `rainbow_onalertmessagereceived` when an alert is received from server.
+-   Fix `AlertsService::createAlert` method about date and no provided parameters.
 -   Fix documentation.
 
 ## [1.80.0] - 2020-12-02
