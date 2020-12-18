@@ -4268,7 +4268,7 @@ getAllActiveBubbles
      * @description
      *      Set a list of tags on a {Bubble}. <br/>
      * @param {Bubble} bubble The on which the tags must be setted.
-     * @param {Array<Object : { "tag" : string}>} tags The tags to be setted on the selected bubble. Ex :  [{ "tag" : "Test1Tag" }, { "tag" : "Test2Tag" }]
+     * @param {Array<Object>} tags The tags to be setted on the selected bubble. Ex :  [{ "tag" : "Test1Tag" }, { "tag" : "Test2Tag" }]
      * @return {Promise<any>} return a promise with a Bubble's tags infos.
      */
     setTagsOnABubble(bubble : Bubble, tags: Array<string>): Promise<any> {
