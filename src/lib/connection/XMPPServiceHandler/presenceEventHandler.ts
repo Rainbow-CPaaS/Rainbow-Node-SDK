@@ -1,5 +1,5 @@
 "use strict";
-import {XMPPService} from "../XMPPService";
+import {XMPPService, NameSpacesLabels} from "../XMPPService";
 import {XMPPUTils} from "../../common/XMPPUtils";
 import {logEntryExit} from "../../common/Utils";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow";
@@ -19,13 +19,16 @@ const LOG_ID = "XMPP/HNDL/PRES - ";
 class PresenceEventHandler extends GenericHandler {
 	public PRESENCE: any;
 	// public onPresenceReceived: any;
-	private _contacts : ContactsService
+	private _contacts : ContactsService;
+	private _xmpp : XMPPService;
 
     static getClassName(){ return 'PresenceEventHandler'; }
     getClassName(){ return PresenceEventHandler.getClassName(); }
 
     constructor(xmppService : XMPPService, contacts: ContactsService) {
         super( xmppService);
+        
+        this._xmpp = xmppService;
 
         this.PRESENCE = "jabber:client.presence";
 
@@ -40,6 +43,15 @@ class PresenceEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let from = stanza.attrs.from;
+
+            const fromJid = stanza.attr("from");
+            const fromBareJid = XMPPUTils.getXMPPUtils().getBareJidFromJid(fromJid);
+            const x = stanza.find("x");
+            const namespace = x.attr("xmlns");
+
+            // Ignore muc presence
+            if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) { return true; }
+
             if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                 // My presence changes (coming from me or another resource)
                 let show = PresenceShow.Online;
@@ -54,6 +66,33 @@ class PresenceEventHandler extends GenericHandler {
                 }
                 let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
 
+                let isContactInformationChanged = false;
+                let children = stanza.children;
+                children.forEach(function (node) {
+                    if (node && typeof node !== "string") {
+                        switch (node.getName()) {                            
+                            case "status":
+                                status = node.getText() || "";
+                                break;
+                            case "actor":
+                                if (node.attrs && (node.attrs.xmlns === "jabber:iq:configuration")) {
+                                    // Contact updated
+                                    if (node.parent && node.parent.getChild("x") &&
+                                            (node.parent.getChild("x").getChild("data") || node.parent.getChild("x").getChild("avatar"))) {
+                                        // Either avatar or user vcard changed
+                                        isContactInformationChanged = true;
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+                
+                if (isContactInformationChanged) {
+                    that.eventEmitter.emit("evt_internal_oncontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
+                }
                 //let contact: Contact = await that._contacts.getContactByJid(from, false);
 
                 that.eventEmitter.emit("evt_internal_presencechanged", {

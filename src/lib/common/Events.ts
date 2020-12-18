@@ -379,6 +379,18 @@ class Events {
             that.publishEvent("contactinformationchanged", contact);
         });
 
+        this._evReceiver.on("evt_internalinformationchanged", function(contact) {
+
+            /**
+             * @public
+             * @event Events#rainbow_onuserinformationchanged
+             * @param { Contact } contact The connected user
+             * @description
+             *      This event is fired when a conversation has been removed
+             */
+            that.publishEvent("userinformationchanged", contact);
+        });
+
         this._evReceiver.on("evt_internal_userinvitereceived", function(invitation) {
             /**
              * @public

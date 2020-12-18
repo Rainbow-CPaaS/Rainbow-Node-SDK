@@ -449,6 +449,9 @@ Element.prototype.find = function (name) { // Warning do not put an Array functi
         result = children[0];
         result.length = 1;
     } else if (children.length > 1) {
+        // Fake the get of an attribute if the result is a tab.
+        children.attr = () => {return undefined;};
+        children.attrs = {};
         result = children;
     }
     return result;

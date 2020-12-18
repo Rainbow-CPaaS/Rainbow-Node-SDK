@@ -400,7 +400,7 @@ rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
 });
 rainbowSDK.events.on("rainbow_onuserinvitereceived", (data) => __awaiter(void 0, void 0, void 0, function* () {
     logger.log("debug", "MAIN - rainbow_onuserinvitereceived - rainbow event received. data", data);
-    let acceptInvitationResult = yield rainbowSDK.contactService.acceptInvitation(data);
+    let acceptInvitationResult = yield rainbowSDK.contacts.acceptInvitation(data);
     logger.log("debug", "Main - rainbow_onuserinvitereceived, acceptInvitation - result : ", acceptInvitationResult);
 }));
 rainbowSDK.events.on("rainbow_onfileupdated", (data) => {
@@ -1487,7 +1487,11 @@ function testupdateContactInfos() {
             let infos = {
                 "userInfo1": "My Value UserInfo 1_" + utc,
                 "userInfo2": "My Value UserInfo 2_" + utc,
-                "jobTitle": "my job"
+                "jobTitle": "my job",
+                customData:{
+                    "key1":"TestTextOfKey1" + utc,
+                    "key2":"TestTextOfKey2" + utc
+                }
             };
             rainbowSDK.admin.updateContactInfos(contact.id, infos).then(result => {
                 if (result) {
