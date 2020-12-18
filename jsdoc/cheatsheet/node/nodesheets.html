@@ -57,7 +57,7 @@ Admin : Promise.any : subscribeCompanyToOfferById(string, string, number, boolea
 Admin : Promise.any : unSubscribeCompanyToOfferById(string, string)
 Admin : Promise.any : subscribeUserToSubscription(string, string)
 Admin : Promise.any : unSubscribeUserToSubscription(string, string)
-AlertsService : Promise.any : MarkAlertMessageAsRead(string, string)
+AlertsService : Promise.any : markAlertMessageAsRead(string, string)
 AlertsService : Promise.any : createDevice(AlertDevice)
 AlertsService : Promise.any : updateDevice(AlertDevice)
 AlertsService : Promise.any : deleteDevice(AlertDevice)
@@ -129,7 +129,7 @@ Bubbles : Promise.any : registerGuestForAPublicURL(string, string, string, strin
 Bubbles : Promise.any : conferenceStart(Bubble, string)
 Bubbles : Promise.any : conferenceStop(string)
 Bubbles : Promise.Bubble : retrieveAllBubblesByTags(string[])
-Bubbles : Promise.any : setTagsOnABubble(Bubble, string[])
+Bubbles : Promise.any : setTagsOnABubble(Bubble, Object[])
 Bubbles : Promise.any : deleteTagOnABubble(Bubble, string, Bubble[], string)
 CallsLog : CallLog[] : getAll()
 CallsLog : Number : getMissedCallLogCounter()
@@ -219,7 +219,8 @@ FavoritesService : Favorite[] : deleteFavorite()(String)
 FileStorage : Message : uploadFileToConversation(Conversation, Object, String)
 FileStorage : Message : uploadFileToBubble(Bubble, File, String)
 FileStorage : void : uploadFileToStorage(String)
-FileStorage : void : downloadFile(FileDescriptor)
+FileStorage : void : downloadFile(FileDescriptor, string)
+FileStorage : Observable.<any> : downloadFileInPath(FileDescriptor, string)
 FileStorage : Object : getUserQuotaConsumption()
 FileStorage : Object : removeFile(FileDescriptor)
 FileStorage : FileDescriptor : getFileDescriptorFromId(String)
@@ -229,6 +230,7 @@ FileStorage : FileDescriptor[] : getFilesSentInConversation(Conversation)
 FileStorage : FileDescriptor[] : getFilesSentInBubble(Bubble)
 FileStorage : FileDescriptor[] : getAllFilesSent()
 FileStorage : FileDescriptor[] : getAllFilesReceived()
+FileStorage : Promise.FileDescriptor : retrieveOneFileDescriptor(string)
 GroupsService : Promise.Object, ErrorManager : createGroup(string, string, boolean)
 GroupsService : Promise.Object, ErrorManager : deleteGroup(Object)
 GroupsService : Object : deleteAllGroups()
@@ -327,7 +329,7 @@ NodeSDK : Object : invitations
 NodeSDK : Object : s2s
 NodeSDK : Object : alerts
 NodeSDK : Object : DataStoreType
-NodeSDK : Promise.{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM} : getConnectionStatus()
+NodeSDK : Promise.{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number} : getConnectionStatus()
 Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
@@ -341,6 +343,7 @@ Events ::event : rainbow_onconversationchanged
 Events ::event : rainbow_onallmessagedremovedfromconversationreceived
 Events ::event : rainbow_onchatstate
 Events ::event : rainbow_oncontactinformationchanged
+Events ::event : rainbow_onuserinformationchanged
 Events ::event : rainbow_onuserinvitereceived
 Events ::event : rainbow_onuserinviteaccepted
 Events ::event : rainbow_onuserinvitecanceled
@@ -385,6 +388,9 @@ Events ::event : rainbow_oncalllogackupdated
 Events ::event : rainbow_onfavoritecreated
 Events ::event : rainbow_onfavoritedeleted
 Events ::event : rainbow_onxmpperror
+Events ::event : rainbow_onalertmessagereceived
+Events : Object : onLog(string, function)
+Events : Object : removeLogListener(string, function)
 Events : Object : on(string, function)
 Events : Object : once(string, function)
 Events ::event : rainbow_onstarted
@@ -491,7 +497,7 @@ Contact : Boolean : isTerminated
 Contact : string : language
 Contact : string : presence
 Contact : string : status
-Contact : Object[] : resources
+Contact : Object : resources
 Contact : number : nameUpdatePrio
 Contact : string : initials
 Contact : string : nickname
