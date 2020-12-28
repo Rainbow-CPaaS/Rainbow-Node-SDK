@@ -1865,6 +1865,7 @@ function testgetServerFavorites() {
         //await rainbowSDK.contacts.addToNetwork(contactVincent00);
     });
 }
+
 function testgetAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
         // let utc = new Date().toJSON().replace(/-/g, '_');
@@ -1878,6 +1879,31 @@ function testgetAllUsers() {
         //await rainbowSDK.contacts.addToNetwork(contactVincent00);
     });
 }
+
+function testgetAllUsersByCompanyId() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        
+        let users = yield rainbowSDK.admin.getAllUsersByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId);
+        logger.log("debug", "MAIN - [testgetAllUsersByCompanyId] after getAllUsersByCompanyId : ", users);
+    });
+}
+
+function testgetAllUsersBySearchEmailByCompanyId() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        let searchEmail = "cord";
+        let users = yield rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
+        logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
+    });
+}
+
 function testmakeCallByPhoneNumber() {
     return __awaiter(this, void 0, void 0, function* () {
         rainbowSDK.telephony.makeCallByPhoneNumber("23050", undefined).then((data1) => {
