@@ -2224,11 +2224,18 @@ Request Method: PUT
         });
     }
 
-    getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail") {
+    getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("debug", LOG_ID + "(getAllUsers) that.account.roles : ", that.account.roles);
-            that.http.get("/api/rainbow/admin/v1.0/users?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1", that.getRequestHeader(), undefined).then(function (json) {
+            if (!companyId) {
+                companyId = that.account.companyId;
+            }
+            let url = "/api/rainbow/admin/v1.0/users?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1" + "&companyId=" + encodeURIComponent(companyId);
+            if (searchEmail) {
+                url += "&searchEmail=" + encodeURIComponent(searchEmail);    
+            }
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getAllUsers) successfull");
                 that.logger.log("internal", LOG_ID + "(getAllUsers) REST get all companies : ", json.data);
                 resolve(json);

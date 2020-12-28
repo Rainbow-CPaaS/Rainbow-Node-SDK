@@ -11,6 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add in Contact property {Object} `customData` User's custom data.
 -   Add event `rainbow_onuserinformationchanged` when the properties of the connected user are changed on server side.
 -   Add properties `selectedTheme, customData` in `AdminService::updateContactInfos` API method parameters.
+-   Add API methods to get users `AdminService::getAllUsersByCompanyId` to get all users for a given admin in a company and `AdminService::getAllUsersBySearchEmailByCompanyId` to get all users for a given admin in a company by a search of string in email .
 
 ## [1.81.0-dotnet.0] - 2020-12-17
 -   Add the property `FileDescriptor::md5sum` : md5 of the file getted from the backend file storage. This value is not filled at the first retrieve of all files. To get this property filled you need to call the retrieveOneFileDescriptor API.
