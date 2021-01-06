@@ -314,7 +314,13 @@ class NodeSDK {
                 if (!result) {result = {};}
                 result.startDuration = startDuration;
                 resolve(result);
-            }).catch(function(err) {
+            }).catch(async function(err) {
+                try {
+                    await that.stop();
+                } catch (e) {
+                    
+                }
+                
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(err));
                     that.events.publish("connectionerror", err);
@@ -343,7 +349,13 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.start(true).then(function() {
                 resolve();
-            }).catch(function(err) {
+            }).catch(async function(err) {
+                try {
+                    await that.stop();
+                } catch (e) {
+
+                }
+
                 let error = ErrorManager.getErrorManager().UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);
@@ -365,7 +377,13 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.signin(false, undefined).then(function(json) {
                 resolve(json);
-            }).catch(function(err) {
+            }).catch(async function(err) {
+                try {
+                    await that.stop();
+                } catch (e) {
+
+                }
+
                 let error = ErrorManager.getErrorManager().UNAUTHORIZED;
                 error.details = err;
                 that.events.publish("connectionerror", error);

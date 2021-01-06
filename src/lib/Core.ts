@@ -614,7 +614,9 @@ class Core {
             }).then(() => {
                 that._stateManager.transitTo(that._stateManager.READY).then(() => {
                     resolve(json);
-                }).catch((err)=> { reject(err); });
+                }).catch((err)=> { 
+                    reject(err); 
+                });
             }).catch((err) => {
                 reject(err);
             });
