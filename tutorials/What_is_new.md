@@ -6,6 +6,38 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.81 - January 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add in Contact property {String} `selectedTheme` Set the selected theme for the user. 
+-   Add in Contact property {Object} `customData` User's custom data.
+-   Add event `rainbow_onuserinformationchanged` when the properties of the connected user are changed on server side.
+-   Add properties `selectedTheme, customData` in `AdminService::updateContactInfos` API method parameters.
+-   Add API methods to get users `AdminService::getAllUsersByCompanyId` to get all users for a given admin in a company and `AdminService::getAllUsersBySearchEmailByCompanyId` to get all users for a given admin in a company by a search of string in email .
+-   Add the property `FileDescriptor::md5sum` : md5 of the file getted from the backend file storage. This value is not filled at the first retrieve of all files. To get this property filled you need to call the retrieveOneFileDescriptor API.
+-   Fix `fileStorage.uploadFileToConversation` method to return the error when the file provided in parameter does not exist.
+-   Add event `rainbow_onalertmessagereceived` when an alert is received from server.
+-   Fix `AlertsService::createAlert` method about date and no provided parameters.
+-   Fix documentation.
+
+
 ### SDK for Node.JS 1.80 - December 2020
 
 ---
@@ -39,7 +71,6 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add SDK parameter in log section : `enableEventsLogs`: false, Activate the logs to be raised from the events service (with `onLog` listener).
 -   Fix XMPP resource name to have the string "node_" at the beginning of it.
 -   Fix presence events. The presence event are all raised even if the aggregated contact.presence do not change, and only the resources property (with  detailed presence) is updated.
-
 
 
 ### SDK for Node.JS 1.79 - November 2020
