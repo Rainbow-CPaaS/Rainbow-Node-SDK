@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.82.0-dotnet.0] - 2021-01-14
+-   Add `generateFoss` grunt task to update the FOSS during delivery process.
+
 ## [1.81.1] - 2021-01-06
 -   Fix issue when login failed. 
 
