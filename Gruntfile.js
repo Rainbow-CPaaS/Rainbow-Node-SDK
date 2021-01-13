@@ -89,7 +89,19 @@ module.exports = function(grunt) {
         }
     },
 
-
+      generateFoss: {
+          all: {
+              options: {
+                  debugcode: true
+              },
+              files: [
+                  {
+                      dest:"build/fossText.md"
+                  }
+              ]
+          }
+      },
+      
       watch: {
         lint: {
             files: ["lib/**/*.js", "index.js", "tests/**/*.js"],
@@ -232,7 +244,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
 
-  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "generateFoss"]);
   grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build"]);
   grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("defaultDEBUG", ["prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
