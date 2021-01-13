@@ -273,3 +273,6 @@ fabric.properties
 /lib/NodeSDK.js.map
 /lib/ProxyImpl.d.ts
 /Samples/index.d.ts
+/tasks/generateFoss.d.ts
+/tasks/generateFoss.js
+/tasks/generateFoss.js.map
