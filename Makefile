@@ -2,6 +2,7 @@ all: build doc
 
 build:
 	yarn && \
+	grunt ts && \
 	grunt
 
 doc:
