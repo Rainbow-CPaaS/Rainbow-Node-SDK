@@ -53,5 +53,6 @@ The Rainbow SDK includes the following third parties libraries:
 <br>
 <br>
 
-FOSS informations | [Foss](#/documentation/doc/sdk/node/api/sdk/fossText)
-FOSS informations | [Foss](/doc/sdk/node/api/fossText.md)
+FOSS informations </br> 
+* [Foss on the Web](#/documentation/doc/sdk/node/api/fossText)
+* [Foss file](/doc/sdk/node/api/fossText.md)
