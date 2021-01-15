@@ -164,7 +164,7 @@ module.exports = function(grunt) {
                     fossModifiedByAle = "false";
                     fossVersion = packageJSON.dependencies[depKey];
 
-                    fossText += fossName + " | [www](" + fossWebSite + ") | " + fossLicence + " | " + fossModifiedByAle + " | " + fossVersion + "\n"; //@xmpp/client | [www](http://github.com/xmppjs/xmpp.js) | [ISC](http://www.opensource.org/licenses/ISC) | NO | 0.3.0
+                    fossText += fossName + " | [" + fossWebSite + "](" + fossWebSite + ") | " + fossLicence + " | " + fossModifiedByAle + " | " + fossVersion + "\n"; //@xmpp/client | [www](http://github.com/xmppjs/xmpp.js) | [ISC](http://www.opensource.org/licenses/ISC) | NO | 0.3.0
 
                 }).catch(function (err) {
                     grunt.log.writeln( "MAIN - (getRainbowNodeSdkPackagePublishedInfos) error : ", err);

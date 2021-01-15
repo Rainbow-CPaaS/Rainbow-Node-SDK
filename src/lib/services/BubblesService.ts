@@ -1092,6 +1092,7 @@ class Bubbles {
 
                 Promise.all(prom).then(async () => {
                     if (that._options._imOptions.autoInitialBubblePresence) {
+                        that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence active, so treatAllBubblesToJoin");
                         await that.bubblesManager.treatAllBubblesToJoin();
                     } else {
                         that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not treatAllBubblesToJoin");
