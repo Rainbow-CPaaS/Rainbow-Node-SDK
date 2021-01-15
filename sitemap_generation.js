@@ -53,7 +53,8 @@ function streamToString (smStream) {
     try {
         let args = process.argv.slice(2);
 
-        const index = yaml.safeLoad(fs.readFileSync("index.yml", "utf8"));
+        //const index = yaml.safeLoad(fs.readFileSync("index.yml", "utf8"));
+        const index = yaml.load(fs.readFileSync("index.yml", "utf8"));
 
         //console.log("index : ", JSON.stringify(index));
         /*

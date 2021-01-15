@@ -1,6 +1,8 @@
 module.exports = function(grunt) {
   grunt.initConfig({
 
+//      touch: ['tasks/generateFoss.js'],
+      
     /* ------------------------------ VARIABLES -------------------------------- */
     version: grunt.file.read("./config/version.js").split("\"")[1],
     nodeSdkOrder: grunt.file.read("./jsdoc/cheatsheet/node/nodeSdkOrder") + "\n</div><!--MERMAID-->",
@@ -243,12 +245,22 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
+//  grunt.loadNpmTasks('grunt-touch');
 
-  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "generateFoss"]);
-  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "generateFoss"]);
+    grunt.registerTask('generateFossRun', 'My "generateFossRun" task.', function() {
+        // Enqueue "bar" and "baz" tasks, to run after "foo" finishes, in-order.
+        grunt.task.run(["generateFoss"]);
+    
+    });
+    
+  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "generateFossRun"]);
   grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-  grunt.registerTask("debugDelivery", ["prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-//    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+
+  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "generateFossRun"]);
+  grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+
+  //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+    
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };

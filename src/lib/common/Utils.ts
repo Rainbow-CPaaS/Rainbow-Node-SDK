@@ -100,7 +100,7 @@ let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
           try {
-              resolve();
+              resolve(undefined);
           } catch (err) {
               return reject(err);
           }
@@ -160,7 +160,7 @@ function until(conditionFunction : Function, labelOfWaitingCondition : string, w
     let end = new Date(now.getTime() + waitMsTimeBeforeReject);
     const poll = (resolve, reject) => {
         if (conditionFunction()) {
-            resolve();
+            resolve(undefined);
         } else  {
             if (new Date() > end ) {
                 labelOfWaitingCondition  = labelOfWaitingCondition ? labelOfWaitingCondition : "";

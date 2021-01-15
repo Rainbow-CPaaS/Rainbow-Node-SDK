@@ -296,7 +296,7 @@ class XmppClient  {
 
             // if the error is the exceed of maximum message by a time laps then do not reconnecte
             if (err && err.errorCode === -1 ) {
-                //return Promise.resolve();
+                //return Promise.resolve(undefined);
                 throw  err;
                 //return ;
             }

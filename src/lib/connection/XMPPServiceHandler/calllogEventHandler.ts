@@ -441,11 +441,11 @@ class CallLogEventHandler extends GenericHandler {
                 .catch(function (error) {
                     that.logger.log("error", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error ");
                     that.logger.log("internalerror", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error : " + error);
-                    defered.resolve();
+                    defered.resolve(undefined);
                 });
         } else {
             that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  No jid or no phoneNumber ");
-            defered.resolve();
+            defered.resolve(undefined);
         }
         return defered.promise;
     }

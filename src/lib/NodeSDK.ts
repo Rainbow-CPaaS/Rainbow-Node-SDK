@@ -348,7 +348,7 @@ class NodeSDK {
         let that = this;
         return new Promise(function(resolve, reject) {
             return that._core.start(true).then(function() {
-                resolve();
+                resolve(undefined);
             }).catch(async function(err) {
                 try {
                     await that.stop();

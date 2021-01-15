@@ -98,7 +98,7 @@ class IMService {
                 that._fileStorage = _core.fileStorage;
                 that._presence = _core.presence;
                 that.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject(err);
@@ -112,7 +112,7 @@ class IMService {
             try {
                 that._xmpp = null;
                 that.ready = false;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject(err);
@@ -740,7 +740,7 @@ class IMService {
                         else {
                             await that._xmpp.sendIsTypingState(conversation, status) ;
                             //conversationService.sendIsTypingState(conversation, status);
-                            resolve();
+                            resolve(undefined);
                         }
                     }).catch((err)=>{
                         return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
@@ -776,7 +776,7 @@ class IMService {
                     return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     await that._xmpp.sendIsTypingState(conversation, status);
-                    resolve();
+                    resolve(undefined);
                 }
             }
         });
@@ -840,14 +840,14 @@ class IMService {
                 that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
                     that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
                     that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
-                    resolve();
+                    resolve(undefined);
                 });
                 that._xmpp.enableCarbon();
             } else
             if (this._useS2S){
-                resolve();
+                resolve(undefined);
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     }

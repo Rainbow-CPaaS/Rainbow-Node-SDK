@@ -101,7 +101,7 @@ class BubblesManager {
 
                 that._logger.log("debug", LOG_ID + "(constructor) BubblesManager initialized successfull");
                 that._logger.log("internal", LOG_ID + "(constructor) BubblesManager initialized successfull");
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -149,7 +149,7 @@ class BubblesManager {
                 return resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -173,7 +173,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(removeBubbleToJoin) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -199,7 +199,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(getBubbleToJoin) Failed - bubble : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -309,7 +309,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(addBubbleToJoinInProgress) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -337,7 +337,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(removeBubbleToJoinInProgress) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -371,7 +371,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(removeBubbleToJoinInProgress) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -393,7 +393,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(addBubbleAlreadyJoined) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -417,7 +417,7 @@ class BubblesManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(removeBubbleAlreadyJoined) Failed - Jid : ", result);
-                resolve();
+                resolve(undefined);
             });        });
     }
 

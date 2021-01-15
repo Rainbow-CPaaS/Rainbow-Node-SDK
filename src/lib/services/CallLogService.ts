@@ -273,7 +273,7 @@ function CallLogsBean() : ICallLogsBean {
             return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
         }
         if (that._useS2S) {
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 

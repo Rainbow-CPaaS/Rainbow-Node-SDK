@@ -247,7 +247,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             // }
 
                             conversation.historyMessages.push(message);
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }
                     });
                     conversation.pendingPromise.push(promise);
@@ -413,7 +413,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     conversation.historyMessages.push(message);
-                    return Promise.resolve();
+                    return Promise.resolve(undefined);
                 });
                 conversation.pendingPromise.push(promise);
             }

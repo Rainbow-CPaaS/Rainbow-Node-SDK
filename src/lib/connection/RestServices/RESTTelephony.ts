@@ -29,7 +29,7 @@ class RESTTelephony {
         return new Promise( (resolve)=> {
             let that = this;
             that.http = http;
-            resolve();
+            resolve(undefined);
         }) ;
     }
 

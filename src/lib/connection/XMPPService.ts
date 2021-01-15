@@ -210,7 +210,7 @@ class XMPPService {
                 that.isReconnecting = false;
                 that.useXMPP = withXMPP;
                 that.ready = that.useXMPP; // Put not ready state when the XMPP is disabled in SDK config options, then methods become unavailable with @isStarted decorator.
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -223,7 +223,7 @@ class XMPPService {
             that.IQEventHandlerToken = [];
             that.eventEmitter.once("xmppconnected", function fn_xmppconnected() {
                 that.eventEmitter.removeListener("xmppconnected", fn_xmppconnected);
-                resolve();
+                resolve(undefined);
             });
             if (that.useXMPP) {
                 that.jid_im = account.jid_im;
@@ -250,9 +250,9 @@ class XMPPService {
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
                 that.startOrResetIdleTimer();
-                //resolve();
+                //resolve(undefined);
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     }
@@ -305,24 +305,24 @@ class XMPPService {
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
                             that.xmppClient = null;
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("debug", LOG_ID + "(stop) error received");
                             that.logger.log("internalerror", LOG_ID + "(stop) error received : ", err);
-                            resolve();
+                            resolve(undefined);
                         });
                     } else {
                         that.logger.log("debug", LOG_ID + "(stop) nothing to stop that.xmppClient : ", that.xmppClient);
-                        resolve();
+                        resolve(undefined);
                     }
                 } else {
                     that.logger.log("debug", LOG_ID + "(stop) nothing to stop, that.useXMPP : ", that.useXMPP, ", forceStop : ", forceStop) ;
-                    resolve();
+                    resolve(undefined);
                 }
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) error received");
                 that.logger.log("internalerror", LOG_ID + "(stop) error received : ", err);
-                resolve();
+                resolve(undefined);
             }
         });
     }
@@ -778,7 +778,7 @@ class XMPPService {
             return this.xmppClient.send(stanza);
         } else {
             this.logger.log("warn", LOG_ID + "(setPresence) No XMPP connection...");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 
@@ -794,7 +794,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
                     that.logger.log("debug", LOG_ID + "(enableCarbon) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     return reject(err);
                 });
@@ -1055,7 +1055,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     that.logger.log("error", LOG_ID + "(markMessageAsRead) error ");
                     that.logger.log("internalerror", LOG_ID + "(markMessageAsRead) error : ", err);
@@ -1153,7 +1153,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     that.logger.log("error", LOG_ID + "(markMessageAsRead) error ");
                     that.logger.log("internalerror", LOG_ID + "(markMessageAsRead) error : ", err);
@@ -1310,7 +1310,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(sendIsTypingState) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     return reject(err);
                 });
@@ -1390,7 +1390,7 @@ class XMPPService {
             return this.xmppClient.send(stanza);
         } else {
             this.logger.log("warn", LOG_ID + "(sendInitialBubblePresence) No XMPP connection...");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 
@@ -1559,7 +1559,7 @@ class XMPPService {
             //xmppService.sendIQ(msg);
         } else {
             this.logger.log("warn", LOG_ID + "(deleteAllCallLogs) No XMPP connection...");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 

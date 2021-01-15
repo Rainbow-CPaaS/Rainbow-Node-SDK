@@ -751,7 +751,7 @@ declare module 'lib/connection/XMPPService' {
 	    sendGetCallLogHistoryPage(useAfter: any): Promise<unknown>;
 	    deleteOneCallLog(id: any): Promise<unknown>;
 	    deleteCallLogsForContact(jid: any): Promise<unknown>;
-	    deleteAllCallLogs(): Promise<unknown>;
+	    deleteAllCallLogs(): Promise<any>;
 	    markCallLogAsRead(id: any): Promise<unknown>;
 	    markAllCallsLogsAsRead(callLogs: any): Promise<any[]>;
 	    deleteAllMessageInOneToOneConversation(conversationId: any): Promise<unknown>;
@@ -2221,7 +2221,7 @@ declare module 'lib/services/ProfilesService' {
 	    /** LIFECYCLE STUFF                                                 **/
 	    /*********************************************************************/
 	    start(_options: any, _core: any, stats: any): void;
-	    stop(): Promise<void>;
+	    stop(): Promise<any>;
 	    restart(): void;
 	    init(): Promise<unknown>;
 	    /*********************************************************************/
@@ -5440,7 +5440,7 @@ declare module 'lib/connection/HttpManager' {
 	     */
 	    add(req: any): Promise<any>;
 	    remove(req: any): Promise<any>;
-	    treatHttp(): Promise<unknown>;
+	    treatHttp(): Promise<any>;
 	    stop(): void;
 	}
 	export { RequestForQueue, HttpManager };
@@ -7013,11 +7013,11 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    /*********************************************************************/
 	    /** INITIATED CALL STUFF                                           **/
 	    /*********************************************************************/
-	    onInitiatedEvent(initiatedElem: any): Promise<void>;
+	    onInitiatedEvent(initiatedElem: any): Promise<any>;
 	    /*********************************************************************/
 	    /** ORIGINATED CALL STUFF                                           **/
 	    /*********************************************************************/
-	    onOriginatedEvent(originatedElem: any): Promise<void>;
+	    onOriginatedEvent(originatedElem: any): Promise<any>;
 	    /*********************************************************************/
 	    /** DELIVERED STUFF                                                 **/
 	    /*********************************************************************/
@@ -7037,7 +7037,7 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    /*********************************************************************/
 	    /** HOLD CALL STUFF                                                 **/
 	    /*********************************************************************/
-	    onHeldEvent(heldElem: any): Promise<void>;
+	    onHeldEvent(heldElem: any): Promise<any>;
 	    /*********************************************************************/
 	    /** QUEUED STUFF                                                    **/
 	    /*********************************************************************/
@@ -7045,7 +7045,7 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    /*********************************************************************/
 	    /** DIVERTED STUFF                                                  **/
 	    /*********************************************************************/
-	    onDivertedEvent(divertedElem: any): Promise<void>;
+	    onDivertedEvent(divertedElem: any): Promise<any>;
 	    /*********************************************************************/
 	    /** TRANSFER STUFF                                                  **/
 	    /*********************************************************************/
@@ -7069,11 +7069,11 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    /*********************************************************************/
 	    /** FORWARD CALL STUFF                                              **/
 	    /*********************************************************************/
-	    onCallForwardedEvent(forwardElem: any): Promise<void>;
+	    onCallForwardedEvent(forwardElem: any): Promise<any>;
 	    /*********************************************************************/
 	    /** NOMADIC STATUS STUFF                                              **/
 	    /*********************************************************************/
-	    onNomadicStatusEvent(eventElem: any): Promise<void>;
+	    onNomadicStatusEvent(eventElem: any): Promise<any>;
 	    /*********************************************************************/
 	    /** PRIVATE UTILITY METHODS                                         **/
 	    /*********************************************************************/
@@ -8364,7 +8364,7 @@ declare module 'lib/services/CallLogService' {
 	    /*********************************************************/
 	    /**       MAM REQUESTS                                  **/
 	    /*********************************************************/
-	    getCallLogHistoryPage(useAfter?: any): Promise<unknown>;
+	    getCallLogHistoryPage(useAfter?: any): Promise<any>;
 	    /*********************************************************/
 	    /**                     API                             **/
 	    /*********************************************************/
@@ -8417,7 +8417,7 @@ declare module 'lib/services/CallLogService' {
 	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
 	     * @return Nothing
 	     */
-	    deleteAllCallLogs(): Promise<unknown>;
+	    deleteAllCallLogs(): Promise<any>;
 	    /**
 	     * @public
 	     * @method markCallLogAsRead

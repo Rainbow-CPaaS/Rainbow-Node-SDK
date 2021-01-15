@@ -154,7 +154,7 @@ class Conversations {
                 that.attachHandlers();
 
                 this.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) !!! Catch error.");
@@ -186,7 +186,7 @@ class Conversations {
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
                 this.ready = false;
 
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -283,7 +283,7 @@ class Conversations {
                     return reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     that._xmpp.sendIsTypingState(conversation, status);
-                    resolve();
+                    resolve(undefined);
                 }
             }
         });
@@ -313,7 +313,7 @@ class Conversations {
                     }
                 });
             }
-            resolve();
+            resolve(undefined);
         });
     }
 
@@ -385,7 +385,7 @@ class Conversations {
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
             that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
         conversation.currentHistoryId = conversation.historyIndex;
 
@@ -492,7 +492,7 @@ class Conversations {
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
             that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
         conversation.currentHistoryId = conversation.historyIndex;
         // */
@@ -987,7 +987,7 @@ class Conversations {
                     that
                         ._logger
                         .log("info", LOG_ID + " MAM Message deleted !!!");
-                    resolve();
+                    resolve(undefined);
                 }
             };
 
@@ -1172,7 +1172,7 @@ class Conversations {
         that._logger.log("info", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
 
         // Ignore conversation without dbId
-        if (!conversationId) { return Promise.resolve(); }
+        if (!conversationId) { return Promise.resolve(undefined); }
 
         return that._rest.deleteServerConversation(conversationId).then( (result ) => {
             // TODO ? that.orderConversations();
@@ -1182,7 +1182,7 @@ class Conversations {
             // Check particular case where we are trying to remove an already removed conversation
             if (err.errorDetailsCode === 404002 || err.error.errorDetailsCode === 404002 ) {
                 that._logger.log("info", LOG_ID + "deleteServerConversation success: " + conversationId);
-                return Promise.resolve();
+                return Promise.resolve(undefined);
             }
 
             let errorMessage = "deleteServerConversation failure: " + err.error ? err.error.errorDetails : err.errorDetails;
@@ -1207,7 +1207,7 @@ class Conversations {
     updateServerConversation(conversationId, mute) {
 
         // Ignore conversation without dbId
-        if (!conversationId) { return Promise.resolve(); }
+        if (!conversationId) { return Promise.resolve(undefined); }
 
         return this._rest.updateServerConversation(conversationId, mute);
     }
@@ -1421,7 +1421,7 @@ class Conversations {
 
                     that.waitingBotConversations.push(obj);
                     that.unlockWaitingBotConversations();
-                    resolve();
+                    resolve(undefined);
                 } else {
                     that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
@@ -1459,7 +1459,7 @@ class Conversations {
                             that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                             await that.deleteServerConversation(conversationDbId);
                             if (noError) {
-                                resolve();
+                                resolve(undefined);
                             } else {
                                 return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             }
@@ -1472,7 +1472,7 @@ class Conversations {
                 that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                 await that.deleteServerConversation(conversationDbId);
                 if (noError) {
-                    resolve();
+                    resolve(undefined);
                 } else {
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                 }
@@ -1504,7 +1504,7 @@ class Conversations {
                 .deleteServerConversation(conversation.dbId)
                 .then( () => {
                     that.removeConversation(conversation);
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch( (error) => {
                     return reject(error);
@@ -1747,7 +1747,7 @@ class Conversations {
                     resolve(err);
                 });
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     };
@@ -1836,7 +1836,7 @@ class Conversations {
                 // conversations from server
                 that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                     // TODO ? service.linkAllActiveCallsToConversations();
-                    resolve();
+                    resolve(undefined);
                 })
                     .catch(function () {
                         setInterval(() => {
@@ -1846,7 +1846,7 @@ class Conversations {
                             });
                         }, 10000, 1, true);
 
-                        resolve();
+                        resolve(undefined);
                     });
             } else {
                 return;

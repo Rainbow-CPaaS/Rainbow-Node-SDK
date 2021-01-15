@@ -144,7 +144,7 @@ class Bubbles {
                                 that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
                 */
                 that.ready = true;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject();
             }
@@ -168,7 +168,7 @@ class Bubbles {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 // */
                 that.ready = false;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -407,7 +407,7 @@ class Bubbles {
                     return that.removeContactFromBubble({id: participantID}, bubble).then(() => {
                         that._logger.log("debug", LOG_ID + "(closeBubble) Participant " + participantID + " unsubscribed");
                         return unsubscribeParticipants(participantsIDList).then(() => {
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             return reject(err);
                         });
@@ -415,7 +415,7 @@ class Bubbles {
                         return reject(err);
                     });
                 }
-                resolve();
+                resolve(undefined);
             });
         };
 
@@ -1100,9 +1100,9 @@ class Bubbles {
 
                     return that.retrieveConferences(undefined, false, false).then((conferences) => {
                         that._logger.log("info", LOG_ID + "(getBubbles) retrieveAllConferences : ", conferences);
-                        resolve();
+                        resolve(undefined);
                     }).catch(() => {
-                        resolve();
+                        resolve(undefined);
                     });
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getBubbles) error");
@@ -2031,7 +2031,7 @@ class Bubbles {
                 headers: authService.getRequestHeader()
             }).then(function success() {
                 $log.info("[roomService] avatar room sucessfully deleted");
-                resolve();
+                resolve(undefined);
             }).catch(function(err) {
                 reject(err);
             });

@@ -97,7 +97,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 */
                 that.ready = true;
 
-                 resolve();
+                 resolve(undefined);
              } catch (err) {
                  return reject();
              }
@@ -119,7 +119,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.removeListener("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup);
 */
                 that.ready = false;
-                 resolve();
+                 resolve(undefined);
              } catch (err) {
                  return reject(err);
              }
