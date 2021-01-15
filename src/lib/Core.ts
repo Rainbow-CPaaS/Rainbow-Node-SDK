@@ -191,7 +191,7 @@ class Core {
                 }
 
                 if (that.options.useS2S) {
-                    let result: Promise<any> = Promise.resolve();
+                    let result: Promise<any> = Promise.resolve(undefined);
                     if (that.options.imOptions.autoLoadContacts) {
                         result = that._contacts.getRosters();
                     } else {
@@ -218,17 +218,17 @@ class Core {
                             return that._groups.getGroups();
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             //return that.im.enableCarbon();
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             return that._rest.getBots();
                         }).then((bots : any) => {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             if (that.options.imOptions.autoLoadConversations) {
                                 return that._conversations.getServerConversations();
@@ -247,19 +247,19 @@ class Core {
                         }).then(() => {
                             return that._s2s.listConnectionsS2S();
                         }).then(() => {
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
                             that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                             reject(err);
                         });
-                    //return resolve();
+                    //return resolve(undefined);
                 }
                 if (that.options.useCLIMode) {
-                    return resolve();
+                    return resolve(undefined);
                 }
                 if (that.options.useXMPP) {
-                    let result: Promise<any> = Promise.resolve();
+                    let result: Promise<any> = Promise.resolve(undefined);
                     if (that.options.imOptions.autoLoadContacts) {
                         result = that._contacts.getRosters();
                     } else {
@@ -286,7 +286,7 @@ class Core {
                             return that._groups.getGroups();
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             return that.im.enableCarbon();
                         }).then(() => {
@@ -295,7 +295,7 @@ class Core {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             if (that.options.imOptions.autoLoadConversations) {
                                 return that._conversations.getServerConversations();
@@ -312,7 +312,7 @@ class Core {
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
                             that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
@@ -570,7 +570,7 @@ class Core {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
                             that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             reject(err);
                         });

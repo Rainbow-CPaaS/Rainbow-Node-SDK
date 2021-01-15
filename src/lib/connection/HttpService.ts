@@ -178,7 +178,7 @@ safeJsonParse(str) {
             that.logger.log("debug", LOG_ID + "(start) host used", that._host);
             that.logger.log("info", LOG_ID + "(start) REST URL", that.serverURL);
             that.httpManager.treatHttp();
-            resolve();
+            resolve(undefined);
         });
     }
 
@@ -187,7 +187,7 @@ safeJsonParse(str) {
         return new Promise((resolve) => {
             that.httpManager.stop();
             that.logger.log("info", LOG_ID + "(stop) Successfully stopped");
-            resolve();
+            resolve(undefined);
         });
     }
 

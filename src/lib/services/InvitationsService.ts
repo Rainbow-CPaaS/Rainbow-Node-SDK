@@ -318,7 +318,7 @@ class InvitationsService {
 			if (action === "delete") {
 				delete that.sentInvitations[id];
 				that.updateReceivedInvitationsArray();
-				resolve();
+				resolve(undefined);
 			}
 
 			// Handle other actions
@@ -358,11 +358,11 @@ class InvitationsService {
 							that.updateContactInvitationStatus(invitation.invitedUserId, contactStatus, invitation)
 								.then(function () {
 									that.updateSentInvitationsArray();
-									resolve();
+									resolve(undefined);
 								});
 						} else {
 							that.updateSentInvitationsArray();
-							resolve();
+							resolve(undefined);
 						}
 					});
 
@@ -658,7 +658,7 @@ class InvitationsService {
 		that._rest.reSendInvitation(invitationId).then(
 				function success() {
 					that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
-					resolve();
+					resolve(undefined);
 				},
 				function failure(err) {
 					that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
@@ -809,7 +809,7 @@ class InvitationsService {
 						break;
 				}
 				// contact.updateRichStatus();
-				resolve();
+				resolve(undefined);
 			});
 		});
 	};

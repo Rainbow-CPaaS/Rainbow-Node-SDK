@@ -1,6 +1,6 @@
 "use strict";
 
-import * as jwt from "jwt-decode";
+import jwtDecode from "jwt-decode";
 import * as btoa from "btoa";
 import * as CryptoJS from "crypto-js";
 
@@ -20,6 +20,7 @@ import {ROOMROLE} from "../services/S2SService";
 import {urlencoded} from "body-parser";
 import {Core} from "../Core";
 
+const jwt : any = jwtDecode;
 
 let packageVersion = require("../../package.json");
 
@@ -363,7 +364,7 @@ class RESTService {
         return new Promise((resolve, reject) => {
             that.signout().then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) Successfully stopped");
-                resolve();
+                resolve(undefined);
             }).catch((err) => {
                 return reject(err);
             });
@@ -825,7 +826,7 @@ class RESTService {
             that.logger.log("internal", LOG_ID + "(declineInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(declineInvitation) successfull");
-                resolve();
+                resolve(undefined);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(declineInvitation) error");
                 that.logger.log("internalerror", LOG_ID, "(declineInvitation) error : ", err);
@@ -3350,7 +3351,7 @@ Request Method: PUT
                 that.fibonacciStrategy.reset();
                 //that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
                 if (that.attempt_promise_resolver.resolve) {
-                    that.attempt_promise_resolver.resolve();
+                    that.attempt_promise_resolver.resolve(undefined);
                 } else {
                     that.logger.log("error", LOG_ID + "(reconnect) attempt_succeeded_callback resolve is not define !");
                 }

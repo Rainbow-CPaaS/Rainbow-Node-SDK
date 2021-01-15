@@ -94,7 +94,7 @@ class HttpManager {
                 that._logger.log("debug", LOG_ID + "(constructor) HttpManager initialized successfull");
                 that._logger.log("internal", LOG_ID + "(constructor) HttpManager initialized successfull");
 
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -230,7 +230,7 @@ class HttpManager {
                // return resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(add) Failed - failed to add the request : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -249,7 +249,7 @@ class HttpManager {
                 resolve(result);
             }).catch((result) => {
                 that._logger.log("internal", LOG_ID + "(remove) Failed : ", result);
-                resolve();
+                resolve(undefined);
             });
         });
     }
@@ -258,7 +258,7 @@ class HttpManager {
         let that = this;
         if (that.started) {
             that._logger.log("debug", LOG_ID + "(treatHttp) Already running, so do not start the treatment.");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
         if (!that.MaxSimultaneousRequests) {
             that._logger.log("debug", LOG_ID + "(treatHttp) that.MaxSimultaneousRequests not define so force set it to 10.");
@@ -369,7 +369,7 @@ class HttpManager {
                 // */
                 //resolve("done");
             }
-            resolve();
+            resolve(undefined);
         });
     }
 

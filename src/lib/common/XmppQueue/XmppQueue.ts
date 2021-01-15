@@ -15,7 +15,7 @@ class XmppQueue {
 
     constructor(_logger) {
         this.logger = _logger; // Temp to be changed
-        this.requestsToSend = Promise.resolve();
+        this.requestsToSend = Promise.resolve(undefined);
     }
 
     addPromise(promiseFactory) {

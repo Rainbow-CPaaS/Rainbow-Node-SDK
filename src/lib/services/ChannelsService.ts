@@ -128,7 +128,7 @@ class Channels {
                 that._channelsList = [];
                 that.attachHandlers();
                 this.ready = true;
-                resolve();
+                resolve(undefined);
             }
             catch (err) {
                 this._logger.log("error", LOG_ID + "(start) error ");
@@ -152,7 +152,7 @@ class Channels {
                 }
                 that.channelHandlerToken = [];
                 this.ready = false;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 this._logger.log("error", LOG_ID + "(stop) error ");
                 this._logger.log("internalerror", LOG_ID + "(stop) error : ", err);

@@ -133,7 +133,7 @@ class FileStorage {
                 that.consumptionData = {};
                 this.ready = true;
 
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 reject(err);
@@ -148,7 +148,7 @@ class FileStorage {
                 that.started = false;
             }
             this.ready = false;
-            resolve();
+            resolve(undefined);
         });
     }
 
@@ -170,7 +170,7 @@ class FileStorage {
                     let startDuration = Math.round(Date.now() - that.startDate);
 
                     that._logger.log("debug", LOG_ID + "(init) === STARTED (" + startDuration + " ms) ===");
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch((error) => {
                     that._logger.log("debug", LOG_ID + "(init) === STARTING === failure -- " + error.message);
@@ -1172,7 +1172,7 @@ class FileStorage {
 
             Promise.all(promiseArray)
                 .then(() => {
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch((errorResponse) => {
                     ///let error = that._errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
@@ -1199,7 +1199,7 @@ class FileStorage {
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
-                        resolve();
+                        resolve(undefined);
                     }
 
                     // Check if we have received all fileDescriptors
@@ -1353,7 +1353,7 @@ class FileStorage {
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
-                        resolve();
+                        resolve(undefined);
                     }
 
                     let result = [];
@@ -1395,7 +1395,7 @@ class FileStorage {
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
-                        resolve();
+                        resolve(undefined);
                         return;
                     }
 
@@ -1618,7 +1618,7 @@ class FileStorage {
                             fd.viewers.splice(index, 1);
                         }
                     }
-                    resolve();
+                    resolve(undefined);
                 },
                 (errorResponse) => {
                     //let error = that._errorHelperService.handleError(errorResponse, "deleteFileViewer");

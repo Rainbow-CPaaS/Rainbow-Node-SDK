@@ -133,7 +133,7 @@ class S2SService {
                     //that.logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) S2S connection blocked by configuration");
-                    return resolve();
+                    return resolve(undefined);
                 }
                 that.app.use(express.json());
                 that.app.listen(that.locallistenningport, function () {
@@ -163,7 +163,7 @@ class S2SService {
                 });
 
                 this.ready = true;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -211,7 +211,7 @@ class S2SService {
             if (that.useS2S || forceStop) {
                 resolve(that.deleteAllConnectionsS2S());
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     }

@@ -154,7 +154,7 @@ class Telephony {
                 that.attachHandlers();
 
                 this.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch ErrorManager !!! ");
@@ -185,7 +185,7 @@ class Telephony {
                 that.telephonyHistoryHandlerToken = [];
 
                 this.ready = false;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -236,11 +236,11 @@ class Telephony {
             try {
                 that._xmpp.getAgentStatus().then((data) => {
                     that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
-                    resolve();
+                    resolve(undefined);
                 });
             } catch (err) {
                 that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
-                resolve();
+                resolve(undefined);
             }
         });
     }
@@ -297,16 +297,16 @@ class Telephony {
                                         if (that.nomadicObject.featureActivated && that.nomadicObject.modeActivated && !that.nomadicObject.makeCallInitiatorIsMain) {
                                             return that.getTelephonyState(true);
                                         }
-                                        //return Promise.resolve();
+                                        //return Promise.resolve(undefined);
                                     });
                             }
-                            //return Promise.resolve();
+                            //return Promise.resolve(undefined);
                         })
                         .then(function() {
                             if (that.isForwardEnabled) {
                                 return that.getForwardStatus();
                             }
-                            //return Promise.resolve();
+                            //return Promise.resolve(undefined);
                         })
                         .then(function() {
                             // @ts-ignore
@@ -462,7 +462,7 @@ class Telephony {
                     Promise.all(getCallPromises)
                         .then(function () {
                             that._logger.log("debug", LOG_ID + "getTelephonyState -- success");
-                            resolve();
+                            resolve(undefined);
                         })
                         .catch(function (error) {
                             that._logger.log("error", LOG_ID + "getTelephonyState -- failure -- " );
@@ -567,7 +567,7 @@ class Telephony {
             }
 
             // Ignore useless info
-            if (lci === "LCI_INITIATED") { resolve(); }
+            if (lci === "LCI_INITIATED") { resolve(undefined); }
 
             //service.getSnapshotCall(connectionId);
 
@@ -643,7 +643,7 @@ class Telephony {
                     participantPromises.push(new Promise(function(resolvePromise, rejectPromise) {
                         if (!endpointIm && !endpointTel) { endpointTel = "****"; }
                         that._contacts.getOrCreateContact(endpointIm, endpointTel)
-                            .then(function(contact) { confParticipants.push(contact); resolvePromise(); })
+                            .then(function(contact) { confParticipants.push(contact); resolvePromise(undefined); })
                             .catch(function(error) { rejectPromise(error); });
                     }));
                 }
@@ -1149,7 +1149,7 @@ class Telephony {
 
                 xmppService.sendIQ(makeMobileCallMsg)
                     .then(function() {
-                        defer.resolve();
+                        defer.resolve(undefined);
                     })
                     .catch(function(error) {
                         let errorMessageMobile = "makeCallWithMobile failure : " + error.message;
@@ -1522,7 +1522,7 @@ class Telephony {
                             //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
 
                          */
-                            resolve();
+                            resolve(undefined);
                         },
                         function failure(response) {
                             let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1590,7 +1590,7 @@ class Telephony {
             that._rest.deflectCallToVM(call, data) .then(
                 function success() {
                     that._logger.log("debug", LOG_ID + "(deflectCallToVM) deflectCall success");
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1628,7 +1628,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!call || !callee) {
-                resolve();
+                resolve(undefined);
             }
 
             that._logger.log("internal", LOG_ID + "(deflectCall) deflectCall " + call.contact.displayNameForLog());
@@ -1645,7 +1645,7 @@ class Telephony {
             that._rest.deflectCall(call, data) .then(
                 function success() {
                     that._logger.log("debug", LOG_ID + "(deflectCall) deflectCall success");
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1677,7 +1677,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!activeCall || !heldCall) {
-                return resolve();
+                return resolve(undefined);
             }
 
             //reject not allowed operations
@@ -1706,7 +1706,7 @@ class Telephony {
                     that.makingCall = false;
                     await that.clearCall(activeCall);
                     await that.clearCall(heldCall);
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1739,7 +1739,7 @@ class Telephony {
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!activeCall || !heldCall) {
-                return resolve();
+                return resolve(undefined);
             }
 
             //reject not allowed operations
@@ -1766,7 +1766,7 @@ class Telephony {
             that._rest.conferenceCall(activeCall, heldCall).then(
                 function success() {
                     that._logger.log("debug", LOG_ID + "(conferenceCall) conferenceCall success");
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1820,7 +1820,7 @@ class Telephony {
                         that._rest.forwardToDevice(contact, phoneInfo).then(
                         function success() {
                             // TODO: subscribe somehow to ON_CALL_FORWARDED_EVENT is order to know that foward is applied
-                            resolve();
+                            resolve(undefined);
                         },
                         function failure(response) {
                             let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1875,7 +1875,7 @@ class Telephony {
             that._rest.forwardToDevice({}, phoneInfo).then(
                 function success() {
                     // TODO: subscribe somehow to ON_CALL_FORWARDED_EVENT is order to know that foward is applied
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1917,7 +1917,7 @@ class Telephony {
                 that._rest.forwardToDevice({}, phoneInfo).then(
                     function success() {
                         that._logger.log("debug", LOG_ID + "(cancelForward) cancelForward success");
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -1944,7 +1944,7 @@ class Telephony {
                 that._rest.getForwardStatus().then(
                     function success() {
                         // Nothing much to do here, the real call forward status will arrive by XMPP (see ON_CALL_FORWARDED_EVENT)
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -2055,7 +2055,7 @@ class Telephony {
                     // TODO: subscribe somehow to ON_NOMADIC_EVENT is order to know that foward is applied
                     $log.info("(nomadicLoginOnOfficePhone) nomadicLoginOnOfficePhone success");
                     //service.isMakeCallInitiatorIsMain = true;
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = errorHelperService.handleError(response);
@@ -2089,7 +2089,7 @@ class Telephony {
                     // TODO: subscribe somehow to ON_NOMADIC_EVENT is order to know that foward is applied
                     $log.info("(nomadicLogout) nomadicLogout success");
                     //service.isMakeCallInitiatorIsMain = true;
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = errorHelperService.handleError(response);
@@ -2116,7 +2116,7 @@ class Telephony {
                     function success(response) {
                         that._logger.log("info", LOG_ID + "(getNomadicStatus) nomadicStatus success");
                         that.updateNomadicData(response);
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -2150,7 +2150,7 @@ class Telephony {
             }).then(
                 function success() {
                     $log.info(" setNomadicState success");
-                    resolve();
+                    resolve(undefined);
                 },
                 function failure(response) {
                     let error = errorHelperService.handleError(response);
@@ -2241,7 +2241,7 @@ class Telephony {
                 that._rest.sendDtmf(callId, deviceId, data)
                     .then(
                     function success() {
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -2436,7 +2436,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
             }
             that._rest.logon(endpointTel, agentId, password, groupId).then(
                     function success() {
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -2469,7 +2469,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
             }
             that._rest.logoff(endpointTel, agentId, password, groupId).then(
                     function success() {
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -2507,7 +2507,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
             }
             that._rest.withdrawal(agentId, groupId, status).then(
                     function success() {
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
@@ -2546,7 +2546,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
             }
             that._rest.wrapup(agentId, groupId, password, status).then(
                     function success() {
-                        resolve();
+                        resolve(undefined);
                     },
                     function failure(response) {
                         let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);

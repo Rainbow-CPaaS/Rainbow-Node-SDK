@@ -143,7 +143,7 @@ class Contacts {
                                 that._eventEmitter.on("evt_internal_onrosters", that._onRostersUpdate.bind(that));
                 */
                 that.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch ErrorManager !!!");
@@ -169,7 +169,7 @@ class Contacts {
                                 that._eventEmitter.removeListener("evt_internal_onrosters", that._onRostersUpdate.bind(that));
                 */
                 that.ready = false;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject();
@@ -185,7 +185,7 @@ class Contacts {
                 that.userContact.updateFromUserData(contact);
             });
             Promise.all([userInfo]).then(() => {
-                resolve();
+                resolve(undefined);
             }).catch(() => {
                 return reject();
             });

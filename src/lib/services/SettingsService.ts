@@ -76,7 +76,7 @@ class Settings {
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that.ready = true;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject();
             }
@@ -90,7 +90,7 @@ class Settings {
                 that._xmpp = null;
                 that._rest = null;
                 that.ready = false;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject();

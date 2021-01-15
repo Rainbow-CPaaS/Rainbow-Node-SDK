@@ -200,7 +200,7 @@ class ProfilesService {
         that.started = false;
         that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
         this.ready = false;
-        return Promise.resolve();
+        return Promise.resolve(undefined);
     }
 
     restart () {
@@ -233,7 +233,7 @@ class ProfilesService {
                     // NED TO BE PORTED !!!!!!!
                     // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
 
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch(function (error) {
                     that._logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
@@ -273,7 +273,7 @@ class ProfilesService {
                         }
                     });
                     that.mainOffers.sort(offerManager.offerComparator);
-                    resolve();
+                    resolve(undefined);
                 },
                 function error(response) {
                     let errorMessage = "(getServerProfiles) failure: no server response";
@@ -305,7 +305,7 @@ class ProfilesService {
                             that.features[featureData.featureUniqueRef] = featureData;
                         }
                     });
-                    resolve();
+                    resolve(undefined);
                 },
                 function error(response) {
                     let errorMessage = "(getServerProfilesFeatures) failure : no server response";

@@ -113,7 +113,7 @@ class PresenceService {
                 that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
                 that.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch Error !!!");
@@ -137,7 +137,7 @@ class PresenceService {
                 that._eventEmitter.removeListener("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
                 that.ready = false;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject();
@@ -263,7 +263,7 @@ class PresenceService {
                      that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                     resolve();
+                     resolve(undefined);
                  });
                  await that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
              }
@@ -274,16 +274,16 @@ class PresenceService {
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                      presenceChangedReceived = true;
-                     //resolve();
+                     //resolve(undefined);
                  });
                  let result = await that._s2s.sendS2SPresence(presenceRainbow.toJsonForServer());
                  that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) sendS2SPresence result : ", result);
                  until(() => { return (presenceChangedReceived === true); }, "Wait for presencechanged after set presence S2S.", 10000).then((untilResult)=>{
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged received, can continue : ", untilResult);
-                     resolve();
+                     resolve(undefined);
                  }).catch((untilResult)=>{
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged NOT received, force continue : ", untilResult);
-                     resolve();
+                     resolve(undefined);
                  })
              }
 
@@ -294,7 +294,7 @@ class PresenceService {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                          that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve();
+                         resolve(undefined);
                      });
                      that._xmpp.setPresence(null, status);
                  } else {
@@ -336,7 +336,7 @@ class PresenceService {
                          that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
                          that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                          that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve();
+                         resolve(undefined);
                      });
                      await that._s2s.sendS2SPresence({"show" : null, "status" : status});
                  } else {
@@ -401,14 +401,14 @@ class PresenceService {
                     //if (that._currentPresence && (that._currentPresence.presenceLevel !== presenceRainbow.presenceLevel )) {
                     if (that._currentPresence ) {
                         that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from ", that._currentPresence,  " to ", presenceRainbow);
-                        that._setUserPresenceStatus(presenceRainbow).then(() => { resolve(); }).catch((err) => { reject(err); });
+                        that._setUserPresenceStatus(presenceRainbow).then(() => { resolve(undefined); }).catch((err) => { reject(err); });
                     } else {
-                        resolve();
+                        resolve(undefined);
                     }
                 })
                 .catch(function(error) {
                     that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
-                    that._setUserPresenceStatus(new PresenceRainbow()).then(() => { resolve(); }).catch(() => { reject(error); });
+                    that._setUserPresenceStatus(new PresenceRainbow()).then(() => { resolve(undefined); }).catch(() => { reject(error); });
                 });
 
         });

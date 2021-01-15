@@ -735,7 +735,7 @@ class S2SServiceEventHandler {
             that._bulles = _core.bubbles;
             that._conversations = _core.conversations;
             that._rest = _core._rest;
-            resolve();
+            resolve(undefined);
         });
     }
 }

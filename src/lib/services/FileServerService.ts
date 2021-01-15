@@ -114,7 +114,7 @@ class FileServer {
                 that._fileStorageService = _core.fileStorage;
 
                 that.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject(err);
@@ -130,7 +130,7 @@ class FileServer {
                 that._rest = null;
 
                 that.ready = false;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }

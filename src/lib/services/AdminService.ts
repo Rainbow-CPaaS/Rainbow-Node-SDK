@@ -88,7 +88,7 @@ class Admin {
                 that._useS2S = that._options.useS2S;
 
                 that.ready = true;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(start) error : ", err);
                 return reject();
@@ -105,7 +105,7 @@ class Admin {
                 that._xmpp = null;
                 that._rest = null;
                 that.ready = false;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(stop) error : ", err);
                 return reject(err);
@@ -1446,7 +1446,7 @@ class Admin {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let subscription = await that.getSubscribtionsOfCompanyByOfferId(offerId, companyId) ;
                 if (!subscription) {
-                    return resolve();
+                    return resolve(undefined);
                 }
 
                 that._rest.unSubscribeCompanyToSubscription(companyId, subscription.id ).then((result: any) => {
