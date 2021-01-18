@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
   grunt.initConfig({
 
-//      touch: ['tasks/generateFoss.js'],
+      //touch: ['tasks/generateFoss.js'],
       
     /* ------------------------------ VARIABLES -------------------------------- */
     version: grunt.file.read("./config/version.js").split("\"")[1],
@@ -231,6 +231,7 @@ module.exports = function(grunt) {
             src: [ "src/**/*.ts" ]
             }
     }
+      
 });
 
   grunt.loadTasks("tasks");
@@ -245,7 +246,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
-//  grunt.loadNpmTasks('grunt-touch');
+  // grunt.loadNpmTasks('grunt-touch');
 
     grunt.registerTask('generateFossRun', 'My "generateFossRun" task.', function() {
         // Enqueue "bar" and "baz" tasks, to run after "foo" finishes, in-order.
@@ -253,11 +254,15 @@ module.exports = function(grunt) {
     
     });
     
-  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "generateFossRun"]);
-  grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+  grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
+  //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
 
-  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "generateFossRun"]);
-  grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build"]);
+  //grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryBuild", [ "prepareDEBUGcode"]);
 
   //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
     
