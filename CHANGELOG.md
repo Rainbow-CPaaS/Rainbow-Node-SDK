@@ -8,6 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.82.0-dotnet.3] - 2021-01-15
 -    Update the imported lib.
+-    Split the grunt build in two steps : Step 1 : `grunt` : to compil the sources, Step 2 : `grunt delivery` : To pepare the sources + doc for package
 
 ## [1.82.0-debug.0] - 2021-01-15
 -    Update the Web site column in Foss file.
