@@ -6,13 +6,16 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.82.0-dotnet.3] - 2021-01-15
--    Update the imported lib.
--    Split the grunt build in two steps : Step 1 : `grunt` : to compil the sources, Step 2 : `grunt delivery` : To pepare the sources + doc for package
+## [1.82.0] - 2021-01-19
+-   Delivery of the version 
+
+## [1.82.0-dotnet.3] - 2021-01-19
+-   Update the imported lib.
+-   Split the grunt build in two steps : Step 1 : `grunt` : to compil the sources, Step 2 : `grunt delivery` : To pepare the sources + doc for package
 
 ## [1.82.0-debug.0] - 2021-01-15
--    Update the Web site column in Foss file.
--    Update the grunt task "debug" to be able to deliver a version with debug logs.
+-   Update the Web site column in Foss file.
+-   Update the grunt task "debug" to be able to deliver a version with debug logs.
 
 ## [1.82.0-dotnet.2] - 2021-01-14
 -   Update foss
