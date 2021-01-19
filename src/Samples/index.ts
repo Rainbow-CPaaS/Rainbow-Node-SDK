@@ -645,6 +645,39 @@ function testsendCorrectedChatMessage() {
         }), 10000);
     });
 }
+
+    function tesdeleteMessageFromConversation() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let that = this;
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                    "\n" +
+                    "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+            let content = {
+                message: txt,
+                type: "text/markdown"
+            };
+            /*let content = {
+                message : "<a href=\"xxx\">mon lmien</<a>",
+                type : "text/html"
+            }; // */
+            rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
+                logger.log("debug", "MAIN - tesdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
+                logger.log("debug", "MAIN - tesdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
+
+                await Utils.until(() => {
+                    return conversation.getMessageById(msgSent.id) !== undefined;
+                }, "Wait for message to be added in conversation id : " + conversation.id);
+                
+                let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+                logger.log("debug", "MAIN - tesdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
+                
+            });
+        });
+    }
+
 function testsendCorrectedChatMessageForBubble() {
     return __awaiter(this, void 0, void 0, function* () {
         //let that = this;
