@@ -39,6 +39,7 @@
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "types": "./index.d.ts",
   "devDependencies": {
+    "@types/node": "^14.14.22",
     "chai": "^4.2.0",
     "commander": "^7.0.0",
     "dts-generator": "^3.0.0",
@@ -76,7 +77,6 @@
   },
   "dependencies": {
     "@types/backoff": "^2.5.1",
-    "@types/node": "^14.14.21",
     "@xmpp/client": "^0.12.0",
     "@xmpp/xml": "^0.12.0",
     "async-lock": "^1.2.8",
