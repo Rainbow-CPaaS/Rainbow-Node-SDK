@@ -2319,6 +2319,7 @@ async function testgetConnectionStatus() {
     }
 
 async function testdeleteDevice_createDevice() {
+    // Use alertDemoWestworld@vbe.test.openrainbow.net
     let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
     logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
     for (let i = 0 ; i < result.length ; i++)
@@ -2335,6 +2336,8 @@ async function testdeleteDevice_createDevice() {
 
 async function testcreateAlert() {
 
+    // Use vincent01@vbe.test.openrainbow.net
+    
             let alert: Alert = new Alert();
             alert.companyId = connectedUser.companyId;
             let resultTemplates = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0,100);
