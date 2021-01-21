@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.82.0] - 2021-01-19
--   Delivery of the version 
+-   Add stack traces when using winston logger. 
 
 ## [1.82.0-dotnet.3] - 2021-01-19
 -   Update the imported lib.

@@ -301,7 +301,8 @@ class Logger {
             this._winston = winston.createLogger({
 
                 format: winston.format.combine(
-                    winston.format.colorize({ all: logColor }),
+                        winston.format.errors({ stack: true }), // <-- use errors format
+                        winston.format.colorize({ all: logColor }),
                     //winston.format.label({ label: 'right meow!' }),
                     //winston.format.colorize({ all: false }),
                     winston.format.simple(),
@@ -338,6 +339,7 @@ class Logger {
 
             this._winston = winston.createLogger({
                 format: winston.format.combine(
+                        winston.format.errors({ stack: true }), // <-- use errors format
                     winston.format.colorize({ all: logColor }),
                     winston.format.simple(),
                     //winston.format.label({ label: 'right meow!' }),
@@ -358,8 +360,8 @@ class Logger {
         }
         else if (enableFileLog) {
             this._winston = winston.createLogger({
-
                 format: winston.format.combine(
+                        winston.format.errors({ stack: true }), // <-- use errors format
                     winston.format.colorize({ all: logColor }),
                     //winston.format.label({ label: 'right meow!' }),
                     winston.format.timestamp(),
