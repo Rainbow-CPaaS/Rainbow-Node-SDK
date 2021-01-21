@@ -1375,11 +1375,12 @@ class Admin {
                 that._logger.log("debug", "(subscribeCompanyToAlertOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
                     that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer : ", offer);
-                    if (offer.name === "Alert Demo") {
+                    if (offer.name === "Alert Demo" || offer.name === "Alert Custom") {
                         that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
-                        resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
+                        return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
                 }
+                return reject ({"code" : -1, "label" : "Failed to subscribeCompanyToAlertOffer"}) ;
             } catch (err) {
                 return reject(err);
             }
