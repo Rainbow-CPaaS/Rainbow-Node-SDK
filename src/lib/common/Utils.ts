@@ -428,6 +428,11 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max?max:10));
 }
 
+function stackTrace() {
+    var err = new Error();
+    return err.stack;
+}
+
 export {
     makeId,
     createPassword,
@@ -446,5 +451,6 @@ export {
     resizeImage,
     getBinaryData,
     getRandomInt,
-    pause
+    pause,
+    stackTrace
     };

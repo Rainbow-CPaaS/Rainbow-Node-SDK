@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit} from "./common/Utils";
+import {logEntryExit, stackTrace} from "./common/Utils";
 
 export {};
 
@@ -521,7 +521,12 @@ class Core {
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
                     reject("Credentials are missing. Check your configuration!");
                 } else {
-                    that.logger.log("debug", LOG_ID + "(start) start all modules");
+                    if (token) {
+                        that.logger.log("debug", LOG_ID + "(start) with token.");
+                        that.logger.log("internal", LOG_ID + "(start) with token : ", token);                        
+                    }
+
+                        that.logger.log("debug", LOG_ID + "(start) start all modules");
                     that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
                     that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
                     return that._stateManager.start().then(() => {
@@ -618,8 +623,8 @@ class Core {
 
     stop() {
         let that = this;
-        this.logger.log("debug", LOG_ID + "(stop) _entering_");
-
+        this.logger.log("debug", LOG_ID + "(stop) _entering_ stack : ", stackTrace());
+        
         return new Promise(async function (resolve, reject) {
 
             if (that._stateManager.isSTOPPED()) {

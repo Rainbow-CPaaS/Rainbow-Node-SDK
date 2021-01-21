@@ -2467,6 +2467,13 @@ async function testMultiPromise(nb = 100){
 }
 
 let connectedUser : any = {};
+
+await rainbowSDK.start(token).then(async(result2) => {
+    // Do something when the SDK is started
+    logger.log("debug", "MAIN - rainbow SDK started result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+});
+await rainbowSDK.stop();
+// */
 rainbowSDK.start(token).then(async(result) => {
 //Promise.resolve({}).then(async(result: any) => {
     try {
@@ -2474,73 +2481,78 @@ rainbowSDK.start(token).then(async(result) => {
         // Do something when the SDK is started
         logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
-/*
-        await rainbowSDK.stop().then((result)=>{
-            logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-        });
-        await rainbowSDK.start(token).then(async(result2) => {
-            // Do something when the SDK is started
-            logger.log("debug", "MAIN - rainbow SDK started result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
-            await rainbowSDK.stop().then((result)=>{
-                logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-            });
-            await rainbowSDK.start(token).then(async (result3) => {
-                // Do something when the SDK is started
-                logger.log("debug", "MAIN - rainbow SDK started result 3 : ", logger.colors.green(result3)); //logger.colors.green(JSON.stringify(result)));
+      
+
+
+        /*
                 await rainbowSDK.stop().then((result)=>{
                     logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                 });
-                await rainbowSDK.start(token).then(async (result4) => {
+                await rainbowSDK.start(token).then(async(result2) => {
                     // Do something when the SDK is started
-                    logger.log("debug", "MAIN - rainbow SDK started result 4 : ", logger.colors.green(result4)); //logger.colors.green(JSON.stringify(result)));
+                    logger.log("debug", "MAIN - rainbow SDK started result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
                     await rainbowSDK.stop().then((result)=>{
                         logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                     });
-                    await rainbowSDK.start(token).then(async (result5) => {
+                    await rainbowSDK.start(token).then(async (result3) => {
                         // Do something when the SDK is started
-                        logger.log("debug", "MAIN - rainbow SDK started result 5 : ", logger.colors.green(result5)); //logger.colors.green(JSON.stringify(result)));
+                        logger.log("debug", "MAIN - rainbow SDK started result 3 : ", logger.colors.green(result3)); //logger.colors.green(JSON.stringify(result)));
                         await rainbowSDK.stop().then((result)=>{
                             logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                         });
-                        await rainbowSDK.start(token).then(async (result6) => {
+                        await rainbowSDK.start(token).then(async (result4) => {
                             // Do something when the SDK is started
-                            logger.log("debug", "MAIN - rainbow SDK started result 6 : ", logger.colors.green(result6)); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("debug", "MAIN - rainbow SDK started result 4 : ", logger.colors.green(result4)); //logger.colors.green(JSON.stringify(result)));
                             await rainbowSDK.stop().then((result)=>{
                                 logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                             });
-                            await rainbowSDK.start(token).then(async (result7) => {
+                            await rainbowSDK.start(token).then(async (result5) => {
                                 // Do something when the SDK is started
-                                logger.log("debug", "MAIN - rainbow SDK started result 7 : ", logger.colors.green(result7)); //logger.colors.green(JSON.stringify(result)));
+                                logger.log("debug", "MAIN - rainbow SDK started result 5 : ", logger.colors.green(result5)); //logger.colors.green(JSON.stringify(result)));
                                 await rainbowSDK.stop().then((result)=>{
                                     logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                 });
-                                await rainbowSDK.start(token).then(async (result8) => {
+                                await rainbowSDK.start(token).then(async (result6) => {
                                     // Do something when the SDK is started
-                                    logger.log("debug", "MAIN - rainbow SDK started result 8 : ", logger.colors.green(result8)); //logger.colors.green(JSON.stringify(result)));
+                                    logger.log("debug", "MAIN - rainbow SDK started result 6 : ", logger.colors.green(result6)); //logger.colors.green(JSON.stringify(result)));
                                     await rainbowSDK.stop().then((result)=>{
                                         logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                     });
-                                    await rainbowSDK.start(token).then(async (result9) => {
+                                    await rainbowSDK.start(token).then(async (result7) => {
                                         // Do something when the SDK is started
-                                        logger.log("debug", "MAIN - rainbow SDK started result 9 : ", logger.colors.green(result9)); //logger.colors.green(JSON.stringify(result)));
+                                        logger.log("debug", "MAIN - rainbow SDK started result 7 : ", logger.colors.green(result7)); //logger.colors.green(JSON.stringify(result)));
                                         await rainbowSDK.stop().then((result)=>{
                                             logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                         });
-                                        await rainbowSDK.start(token).then(async (result10) => {
+                                        await rainbowSDK.start(token).then(async (result8) => {
                                             // Do something when the SDK is started
-                                            logger.log("debug", "MAIN - rainbow SDK started result 10 : ", logger.colors.green(result10)); //logger.colors.green(JSON.stringify(result)));
+                                            logger.log("debug", "MAIN - rainbow SDK started result 8 : ", logger.colors.green(result8)); //logger.colors.green(JSON.stringify(result)));
                                             await rainbowSDK.stop().then((result)=>{
                                                 logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                             });
-                                            await rainbowSDK.start(token).then(async (result11) => {
+                                            await rainbowSDK.start(token).then(async (result9) => {
                                                 // Do something when the SDK is started
-                                                logger.log("debug", "MAIN - rainbow SDK started result 11 : ", logger.colors.green(result11)); //logger.colors.green(JSON.stringify(result)));
+                                                logger.log("debug", "MAIN - rainbow SDK started result 9 : ", logger.colors.green(result9)); //logger.colors.green(JSON.stringify(result)));
                                                 await rainbowSDK.stop().then((result)=>{
                                                     logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                                 });
-                                                await rainbowSDK.start(token).then(async (result12) => {
+                                                await rainbowSDK.start(token).then(async (result10) => {
                                                     // Do something when the SDK is started
-                                                    logger.log("debug", "MAIN - rainbow SDK started result 12 : ", logger.colors.green(result12)); //logger.colors.green(JSON.stringify(result)));
+                                                    logger.log("debug", "MAIN - rainbow SDK started result 10 : ", logger.colors.green(result10)); //logger.colors.green(JSON.stringify(result)));
+                                                    await rainbowSDK.stop().then((result)=>{
+                                                        logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                    });
+                                                    await rainbowSDK.start(token).then(async (result11) => {
+                                                        // Do something when the SDK is started
+                                                        logger.log("debug", "MAIN - rainbow SDK started result 11 : ", logger.colors.green(result11)); //logger.colors.green(JSON.stringify(result)));
+                                                        await rainbowSDK.stop().then((result)=>{
+                                                            logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                        });
+                                                        await rainbowSDK.start(token).then(async (result12) => {
+                                                            // Do something when the SDK is started
+                                                            logger.log("debug", "MAIN - rainbow SDK started result 12 : ", logger.colors.green(result12)); //logger.colors.green(JSON.stringify(result)));
+                                                        });
+                                                    });
                                                 });
                                             });
                                         });
@@ -2550,9 +2562,7 @@ rainbowSDK.start(token).then(async(result) => {
                         });
                     });
                 });
-            });
-        });
-// */
+        // */
 
         //logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
         /*
