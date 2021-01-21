@@ -1375,7 +1375,7 @@ class Admin {
                 that._logger.log("debug", "(subscribeCompanyToAlertOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
                     that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer : ", offer);
-                    if (offer.name === "Alert Demo" || offer.name === "Alert Custom") {
+                    if (offer.name === "Alert Demo" || offer.name === "Alert Custom") { //
                         that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
                         return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
