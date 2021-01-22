@@ -26,9 +26,14 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Others Changes**
 
+-   Update the imported lib.
 -   Add `generateFoss` grunt task to update the FOSS in documentation during delivery process.
 -   Update the grunt task "debug" to be able to deliver a version with debug logs. 
--   Update the imported lib.
+-   Split the grunt build in two steps : Step 1 : `grunt` : to compil the sources, Step 2 : `grunt delivery` : To pepare the sources + doc for package
+-   Add stack traces when using winston logger. 
+-   Update doc generation for Alert, AlertDevice, AlertFilter, AlertMessage, AlertTemplate.
+-   Add "Alert Custom" offer in AdminService::subscribeCompanyToAlertOffer and AdminService::unSubscribeCompanyToAlertOffer .
+-   Fix AlertsService::createOrUpdateAlert API for name and description properties.
 
 
 ### SDK for Node.JS 1.81 - January 2021

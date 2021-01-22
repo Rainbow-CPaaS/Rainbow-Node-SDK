@@ -7,8 +7,8 @@ declare module 'lib/common/Utils' {
 	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
 	    type: any;
 	    data: Uint8Array;
-	}; function getRandomInt(max: any): number;
-	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause };
+	}; function getRandomInt(max: any): number; function stackTrace(): string;
+	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace };
 
 }
 declare module 'lib/common/models/Channel' {
@@ -627,6 +627,7 @@ declare module 'lib/common/models/AlertMessage' {
 	    references: string;
 	    scope: string;
 	    info: AlertMessageInfo;
+	    constructor(id?: string, toJid?: string, fromJid?: string, fromResource?: string, identifier?: string, sender?: string, sent?: string, status?: string, msgType?: string, references?: string, scope?: string, info?: AlertMessageInfo);
 	} class AlertMessageInfo {
 	    category: string;
 	    event: string;
@@ -639,6 +640,7 @@ declare module 'lib/common/models/AlertMessage' {
 	    descriptionMimeType: string;
 	    instruction: string;
 	    contact: string;
+	    constructor(category?: string, event?: string, urgency?: string, certainty?: string, expires?: string, senderName?: string, headline?: string, description?: string, descriptionMimeType?: string, instruction?: string, contact?: string);
 	}
 	export { AlertMessage, AlertMessageInfo };
 
@@ -8694,17 +8696,21 @@ declare module 'lib/common/models/Alert' {
 	import { List } from 'ts-generic-collections-linq';
 	export {}; class Alert {
 	    id: string;
+	    name: string;
+	    description: string;
 	    status: string;
 	    templateId: string;
 	    filterId: string;
 	    companyId: string;
 	    startDate: string;
 	    expirationDate: string;
+	    constructor(name?: string, description?: string, status?: string, templateId?: string, filterId?: string, companyId?: string, startDate?: string, expirationDate?: string);
 	} class AlertsData {
 	    data: List<Alert>;
 	    total: number;
 	    limit: number;
 	    offset: number;
+	    constructor(data: List<Alert>, total?: number, limit?: number, offset?: number);
 	}
 	export { Alert, AlertsData };
 
@@ -8718,18 +8724,19 @@ declare module 'lib/common/models/AlertDevice' {
 	    userId: string;
 	    companyId: string;
 	    jid_im: string;
-	    Jid_resource: string;
+	    jid_resource: string;
 	    creationDate: string;
 	    ipAddresses: List<string>;
 	    macAddresses: List<string>;
 	    tags: List<string>;
 	    geolocation: string;
-	    constructor(Id?: string);
+	    constructor(id?: string, name?: string, type?: string, userId?: string, companyId?: string, jid_im?: string, jid_resource?: string, creationDate?: string, ipAddresses?: List<string>, macAddresses?: List<string>, tags?: List<string>, geolocation?: string);
 	} class AlertDevicesData {
 	    data: List<AlertDevice>;
 	    total: number;
 	    limit: number;
 	    offset: number;
+	    constructor(data: List<AlertDevice>, total?: number, limit?: number, offset?: number);
 	}
 	export { AlertDevice, AlertDevicesData };
 
@@ -8754,12 +8761,13 @@ declare module 'lib/common/models/AlertTemplate' {
 	    urgency: string;
 	    severity: string;
 	    certainty: string;
-	    constructor();
+	    constructor(id?: string, name?: string, companyId?: string, event?: string, description?: string, mimeType?: string, senderName?: string, headline?: string, instruction?: string, contact?: string, type?: string, status?: string, scope?: string, category?: string, urgency?: string, severity?: string, certainty?: string);
 	} class AlertTemplatesData {
 	    data: List<AlertTemplate>;
 	    total: number;
 	    limit: number;
 	    offset: number;
+	    constructor(data?: List<AlertTemplate>, total?: number, limit?: number, offset?: number);
 	}
 	export { AlertTemplate, AlertTemplatesData };
 
@@ -8771,11 +8779,13 @@ declare module 'lib/common/models/AlertFilter' {
 	    name: string;
 	    companyId: string;
 	    tags: List<string>;
+	    constructor(id?: string, name?: string, companyId?: string, tags?: List<string>);
 	} class AlertFiltersData {
 	    data: List<AlertFilter>;
 	    total: number;
 	    limit: number;
 	    offset: number;
+	    constructor(data: List<AlertFilter>, total?: number, limit?: number, offset?: number);
 	}
 	export { AlertFilter, AlertFiltersData };
 

@@ -1415,6 +1415,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
             }
 
             try {
+                
                 let date: Date = alert.startDate ? new Date(alert.startDate) : new Date();
 
                 let expirationDate: Date = new Date();
@@ -1424,7 +1425,15 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 }
 
                 let body: any = {};
+                
+                if (alert.name){
+                    body.name = alert.name;
+                }
 
+                if (alert.description){
+                    body.description = alert.description;
+                }
+                
                 if (alert.companyId) {
                     body.companyId = alert.companyId;
                 }
