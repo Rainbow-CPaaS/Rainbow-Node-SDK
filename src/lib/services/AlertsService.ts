@@ -14,10 +14,11 @@ import {isStarted} from "../common/Utils";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
-import {Dictionary} from "ts-generic-collections-linq";
+import {Dictionary, List} from "ts-generic-collections-linq";
 import {AlertDevice} from "../common/models/AlertDevice";
 import {AlertTemplate} from "../common/models/AlertTemplate";
 import {AlertFilter} from "../common/models/AlertFilter";
+import {resolveAny} from "dns";
 
 const LOG_ID = "ALERTS/SVCE - ";
 
@@ -311,7 +312,7 @@ class AlertsService {
         return this.createOrUpdateDevice(false, device);
     }
 
-    private createOrUpdateDevice(create: boolean, device: AlertDevice): Promise<any> {
+    private createOrUpdateDevice(create: boolean, device: AlertDevice): Promise<AlertDevice> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -340,9 +341,26 @@ class AlertsService {
             };
 
             if (create) {
-                that._rest.createDevice(body).then(function (json) {
+                that._rest.createDevice(body).then(function (json: any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
-                    resolve(json);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let type: string= json.type
+                    let userId: string = json.userId;
+                    let companyId: string = json.companyId;
+                    let jid_im: string = json.jid_im;
+                    let jid_resource: string = json.jid_resource;
+                    let creationDate: string = json.creationDate;
+                    let ipAddresses: List<string> = json.ipAddresses;
+                    let macAddresses: List<string> = json.macAddresses;
+                    let tags: List<string> = json.tags;
+                    let geolocation: string = json.geolocation;
+                    
+                    let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
+
+                    resolve(deviceCreated);
 // TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
                     /*
                      String body = Util.GetJsonStringFromDictionary(bodyDico);
@@ -369,9 +387,26 @@ class AlertsService {
             } else {
                 // resource = rest.GetResource("notificationsadmin", $"devices/{device.Id}");
                 // restRequest = rest.GetRestRequest(resource, Method.PUT);
-                that._rest.updateDevice(device.id, body).then(function (json) {
+                that._rest.updateDevice(device.id, body).then(function (json : any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
-                    resolve(json);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let type: string= json.type
+                    let userId: string = json.userId;
+                    let companyId: string = json.companyId;
+                    let jid_im: string = json.jid_im;
+                    let jid_resource: string = json.jid_resource;
+                    let creationDate: string = json.creationDate;
+                    let ipAddresses: List<string> = json.ipAddresses;
+                    let macAddresses: List<string> = json.macAddresses;
+                    let tags: List<string> = json.tags;
+                    let geolocation: string = json.geolocation;
+
+                    let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
+
+                    resolve(deviceCreated);
 // TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
                     /*
                      String body = Util.GetJsonStringFromDictionary(bodyDico);
