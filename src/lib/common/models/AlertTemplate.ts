@@ -30,7 +30,7 @@ class AlertTemplate {
     public severity: string;
     public certainty: string;
 
-    public constructor(id?: string, name?: string, companyId?: string, event?: string, description?: string, mimeType: string = "text/plain", senderName?: string, headline?: string, instruction?: string, contact?: string, type?: string = "cap", status?: string = "Actual", scope?: string = "Public", category?: string = "Safety", urgency?: string = "Immediate", severity?: string = "Severe", certainty?: string = "Observed") {
+    public constructor(id?: string, name?: string, companyId?: string, event?: string, description?: string, mimeType: string = "text/plain", senderName?: string, headline?: string, instruction?: string, contact?: string, type: string = "cap", status: string = "Actual", scope: string = "Public", category: string = "Safety", urgency: string = "Immediate", severity: string = "Severe", certainty: string = "Observed") {
         /*
         let that = this;
         that.type = "cap";
