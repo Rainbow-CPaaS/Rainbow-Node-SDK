@@ -5,96 +5,33 @@ import {List} from "ts-generic-collections-linq";
 
 export {};
 
+/**
+ * @class
+ * @name AlertTemplate
+ * @description
+ *      This class represents a filter used when an alert is created to notify only some devices. <br>
+ */
 class AlertTemplate {
-    /// <summary>
-    /// <see cref="string"/> - Template Id
-    /// </summary>
     public id: string;
-
-/// <summary>
-/// <see cref="string"/> - Human readable string identifying this template
-/// </summary>
     public name: string;
-
-/// <summary>
-/// <see cref="string"/> - unique identifier of the company that own this template.  default value user logged in company Id
-/// </summary>
     public companyId: string;
-
-/// <summary>
-/// <see cref="string"/> - String denoting the type of the subject event of the alert message (max 255 characters)
-/// </summary>
     public event: string;
-
-/// <summary>
-/// <see cref="string"/> - String describing the subject event of the alert message (max 8192 characters)
-/// </summary>
     public description: string;
-
-/// <summary>
-/// <see cref="string"/> - Mime Type of description's content (max 255 characters) - Default value: text/plain
-/// </summary>
     public mimeType: string;
-
-/// <summary>
-/// <see cref="string"/> - String naming the originator of the alert message (max 255 characters)
-/// </summary>
     public senderName: string;
-
-/// <summary>
-/// <see cref="string"/> - headline of the alert message (max 255 characters) used for short message devices that may only presents this field (mobile device push)
-/// </summary>
     public headline: string;
-
-/// <summary>
-/// <see cref="string"/> - text representing the recommended action (max 4096 characters)
-/// </summary>
     public instruction: string;
-
-/// <summary>
-/// <see cref="string"/> - contact for follow-up or confirmation of the alert message (optional)
-/// </summary>
     public contact: string;
-
-/// <summary>
-/// <see cref="string"/> - templates type only 'cap' is allowed
-/// </summary>
     public type: string;
-
-/// <summary>
-/// <see cref="String"/> - templates status ( 'Actual', 'Exercise', 'System', 'Test','Draft') - default: Actual
-/// </summary>
     public status: string;
-
-/// <summary>
-/// <see cref="String"/> - templates scope ( 'Public', 'Restricted', 'Alert') - Default value: Public
-/// </summary>
     public scope: string;
-
-/// <summary>
-/// <see cref="string"/> - template category ('Geo', 'Met', 'Safety', 'Security', 'Rescue', 'Fire', 'Health', 'Env', 'Transport', 'Infra', 'CBRNE', 'Other') - Default value: Safety
-/// </summary>
     public category: string;
-
-/// <summary>
-/// <see cref="string"/> - template urgency ('Immediate', 'Expected', 'Future', 'Past', 'Unknown') - Default value: Immediate
-/// </summary>
     public urgency: string;
-
-/// <summary>
-/// <see cref="String"/> - template severity ('Extreme', 'Severe', 'Moderate', 'Minor', 'Unknown') - Default value: Severe
-/// </summary>
     public severity: string;
-
-/// <summary>
-/// <see cref="string"/> - template certainty ('Observed', 'Likely', 'Possible', 'Unlikely', 'Unknown') - Default value: Observed
-/// </summary>
     public certainty: string;
 
-/// <summary>
-/// Default constructor
-/// </summary>
-    public constructor() {
+    public constructor(id?: string, name?: string, companyId?: string, event?: string, description?: string, mimeType: string = "text/plain", senderName?: string, headline?: string, instruction?: string, contact?: string, type?: string = "cap", status?: string = "Actual", scope?: string = "Public", category?: string = "Safety", urgency?: string = "Immediate", severity?: string = "Severe", certainty?: string = "Observed") {
+        /*
         let that = this;
         that.type = "cap";
         that.status = "Actual";
@@ -103,32 +40,193 @@ class AlertTemplate {
         that.urgency = "Immediate";
         that.severity = "Severe";
         that.certainty = "Observed";
+        // */
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} id The Template Id
+     * @instance
+     */
+    this.id = id;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} name The Human readable string identifying this template
+     * @instance
+     */
+    this.name = name;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} companyId The unique identifier of the company that own this template.  default value user logged in company Id
+     * @instance
+     */
+    this.companyId = companyId;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} event The String denoting the type of the subject event of the alert message (max 255 characters)
+     * @instance
+     */
+    this.event = event;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} description The String describing the subject event of the alert message (max 8192 characters)
+     * @instance
+     */
+    this.description = description;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} mimeType The Mime Type of description's content (max 255 characters) - Default value: text/plain
+     * @instance
+     */
+    this.mimeType = mimeType;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} senderName The String naming the originator of the alert message (max 255 characters)
+     * @instance
+     */
+    this.senderName = senderName;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} headline The headline of the alert message (max 255 characters) used for short message devices that may only presents this field (mobile device push)
+     * @instance
+     */
+    this.headline = headline;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} instruction The text representing the recommended action (max 4096 characters)
+     * @instance
+     */
+    this.instruction = instruction;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} contact The contact for follow-up or confirmation of the alert message (optional)
+     * @instance
+     */
+    this.contact = contact;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} type The templates type only 'cap' is allowed
+     * @instance
+     */
+    this.type = type;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} status The templates status ( 'Actual', 'Exercise', 'System', 'Test','Draft') - default: Actual
+     * @instance
+     */
+    this.status = status;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} scope The templates scope ( 'Public', 'Restricted', 'Alert') - Default value: Public
+     * @instance
+     */
+    this.scope = scope;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} category The template category ('Geo', 'Met', 'Safety', 'Security', 'Rescue', 'Fire', 'Health', 'Env', 'Transport', 'Infra', 'CBRNE', 'Other') - Default value: Safety
+     * @instance
+     */
+    this.category = category;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} urgency The template urgency ('Immediate', 'Expected', 'Future', 'Past', 'Unknown') - Default value: Immediate
+     * @instance
+     */
+    this.urgency = urgency;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} severity The template severity ('Extreme', 'Severe', 'Moderate', 'Minor', 'Unknown') - Default value: Severe
+     * @instance
+     */
+    this.severity = severity;
+
+    /**
+     * @public
+     * @readonly
+     * @property {string} certainty The template certainty ('Observed', 'Likely', 'Possible', 'Unlikely', 'Unknown') - Default value: Observed
+     * @instance
+     */
+    this.certainty = certainty;
+
     }
 }
 
-/// <summary>
-/// Structure used when retrieving severals AlertTemplate from server
-/// </summary>
+/**
+ * @class
+ * @name AlertTemplatesData
+ * @description
+ *      This class represents a Structure used when retrieving severals AlertTemplate from server. <br>
+ */
 class AlertTemplatesData {
-    /// <summary>
-    /// List of AlertTemplate found
-    /// </summary>
     public data: List<AlertTemplate>;
-
-/// <summary>
-/// Total number of items available
-/// </summary>
     public total: number;
-
-/// <summary>
-/// Number of items asked
-/// </summary>
     public limit: number;
-
-/// <summary>
-/// Offset used
-/// </summary>
     public offset: number;
+
+    constructor(data?: List<AlertTemplate>, total: number = 0, limit: number = 0, offset: number = 0){
+    /**
+     * @public
+     * @readonly
+     * @property {List<AlertTemplate>} data The List of AlertTemplate found.
+     * @instance
+     */
+    this.data = data;
+
+    /**
+     * @public
+     * @readonly
+     * @property {number} total The Total number of items available
+     * @instance
+     */
+    this.total = total;
+
+    /**
+     * @public
+     * @readonly
+     * @property {number} limit The Number of items asked
+     * @instance
+     */
+    this.limit = limit;
+
+    /**
+     * @public
+     * @readonly
+     * @property {number} offset The Offset used
+     * @instance
+     */
+    this.offset = offset;
+
+    }
 }
 
 module.exports = {AlertTemplate, AlertTemplatesData};

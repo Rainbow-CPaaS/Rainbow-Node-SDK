@@ -623,7 +623,7 @@ class Core {
 
     stop() {
         let that = this;
-        this.logger.log("debug", LOG_ID + "(stop) _entering_ stack : ", stackTrace());
+        this.logger.log("internal", LOG_ID + "(stop) _entering_ stack : ", stackTrace());
         
         return new Promise(async function (resolve, reject) {
 

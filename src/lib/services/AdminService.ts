@@ -1409,7 +1409,7 @@ class Admin {
                 that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
                     that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer : ", offer);
-                    if (offer.name === "Alert Demo") {
+                    if (offer.name === "Alert Demo" || offer.name === "Alert Custom") {
                         that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
                         resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
                     }

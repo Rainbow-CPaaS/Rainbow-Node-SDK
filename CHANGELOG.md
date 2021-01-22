@@ -6,8 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.82.0] - 2021-01-19
+## [1.82.0] - 2021-01-22
 -   Add stack traces when using winston logger. 
+-   Update doc generation for Alert, AlertDevice, AlertFilter, AlertMessage, AlertTemplate.
+-   Add "Alert Custom" offer in AdminService::subscribeCompanyToAlertOffer and AdminService::unSubscribeCompanyToAlertOffer .
+-   Fix AlertsService::createOrUpdateAlert API for name and description properties.
 
 ## [1.82.0-dotnet.3] - 2021-01-19
 -   Update the imported lib.

@@ -4766,7 +4766,7 @@ Request Method: PUT
 
             that.http.put("/api/rainbow/notifications/v1.0/notifications/" + AlertId , that.getRequestHeader(), params, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(updateAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAlert) REST bubble created : ", json.data);
+                that.logger.log("internal", LOG_ID + "(updateAlert) REST Alert created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateAlert) error");
@@ -4850,7 +4850,7 @@ Request Method: PUT
 
             that.http.post("/api/rainbow/notifications/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(createAlert) REST bubble created : ", json.data);
+                that.logger.log("internal", LOG_ID + "(createAlert) REST Alert created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createAlert) error");
