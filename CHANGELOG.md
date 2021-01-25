@@ -8,9 +8,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.82.0] - 2021-01-22
 -   Add stack traces when using winston logger. 
--   Update doc generation for Alert, AlertDevice, AlertFilter, AlertMessage, AlertTemplate.
--   Add "Alert Custom" offer in AdminService::subscribeCompanyToAlertOffer and AdminService::unSubscribeCompanyToAlertOffer .
--   Fix AlertsService::createOrUpdateAlert API for name and description properties.
+-   Update doc generation for `Alert, AlertDevice, AlertFilter, AlertMessage, AlertTemplate`.
+-   Add "Alert Custom" offer in `AdminService::subscribeCompanyToAlertOffer` and `AdminService::unSubscribeCompanyToAlertOffer` .
+-   Fix `AlertsService::createOrUpdateAlert` API for name and description properties.
+-   Use of `AlertDevice` type in the result of `AlertsService::createOrUpdateDevice, AlertsService::deleteDevice, AlertsService::getDevice, AlertsService::getDevices` to represent an Alert Device.
+-   Use of `AlertDeviceData` type in `AlertsService::getDevices` result to represent a list of Alert Devices.
 
 ## [1.82.0-dotnet.3] - 2021-01-19
 -   Update the imported lib.
