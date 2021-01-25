@@ -19,7 +19,7 @@ import {AlertFilter} from "../lib/common/models/AlertFilter";
 import {List} from "ts-generic-collections-linq";
 import {AlertTemplate} from "../lib/common/models/AlertTemplate";
 import {Alert} from "../lib/common/models/Alert";
-import {AlertDevice} from "../lib/common/models/AlertDevice";
+import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
 
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
@@ -2364,15 +2364,30 @@ async function testcreateAlert() {
         ]
     }, // */
     }
+
     async function testgetDevices() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
-        let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id,"","","",0,100);
-        logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.length : 0);
-        if (result.length > 0) {
+        let result : AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id,"","","",0,100);
+        logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.total : 0);
+        if (result.total > 0) {
                 logger.log("debug", "MAIN - testgetDevices - devices : ", result);
+                logger.log("debug", "MAIN - testgetDevices - first device : ", await result.first());
         }
         //});
     }
+
+    async function testgetDevice() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id,"","","",0,100);
+        logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.total : 0);
+        if (result.total > 0) {
+            logger.log("debug", "MAIN - testgetDevices - devices : ", result);
+            let result2 = await rainbowSDK.alerts.getDevice((await result.first()).id);
+            logger.log("debug", "MAIN - testgetDevices - AlertDevice : ", result2);
+        }
+        //});
+    }
+
     async function testgetTemplates() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getTemplates( connectedUser.companyId, 0,100);

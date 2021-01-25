@@ -15,10 +15,11 @@ import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {Dictionary, List} from "ts-generic-collections-linq";
-import {AlertDevice} from "../common/models/AlertDevice";
+import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice";
 import {AlertTemplate} from "../common/models/AlertTemplate";
 import {AlertFilter} from "../common/models/AlertFilter";
 import {resolveAny} from "dns";
+import {isArray} from "util";
 
 const LOG_ID = "ALERTS/SVCE - ";
 
@@ -361,24 +362,6 @@ class AlertsService {
                     that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
 
                     resolve(deviceCreated);
-// TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
-                    /*
-                     String body = Util.GetJsonStringFromDictionary(bodyDico);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-            restClient.ExecuteAsync<AlertDeviceData>(restRequest).ContinueWith(task => {
-                //Do we have a correct answer
-                if (task.Result.IsSuccessful)
-                    callback?.Invoke(new SdkResult<AlertDevice>(task.Result.Data.Data));
-                else {
-                    String
-                    str = Sdk.ErrorFromResponse(task.Result).ToString();
-                    callback?.Invoke(new SdkResult<AlertDevice>(str));
-                    log.Warn("[createOrUpdateDevice] - error:[{0}]", str);
-                }
-            });
-                     */
-
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
                     that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
@@ -407,24 +390,6 @@ class AlertsService {
                     that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
 
                     resolve(deviceCreated);
-// TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
-                    /*
-                     String body = Util.GetJsonStringFromDictionary(bodyDico);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-            restClient.ExecuteAsync<AlertDeviceData>(restRequest).ContinueWith(task => {
-                //Do we have a correct answer
-                if (task.Result.IsSuccessful)
-                    callback?.Invoke(new SdkResult<AlertDevice>(task.Result.Data.Data));
-                else {
-                    String
-                    str = Sdk.ErrorFromResponse(task.Result).ToString();
-                    callback?.Invoke(new SdkResult<AlertDevice>(str));
-                    log.Warn("[createOrUpdateDevice] - error:[{0}]", str);
-                }
-            });
-                     */
-
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
                     that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
@@ -494,29 +459,6 @@ class AlertsService {
             });
 
         });
-        /*    if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("notificationsadmin", $"devices/{deviceId}");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.DELETE);
-
-        restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(task.Result)));
-
-        });
-        // */
     }
 
     /**
@@ -549,10 +491,27 @@ class AlertsService {
                 return;
             }
 
-            that._rest.getDevice(deviceId).then(function (json) {
+            that._rest.getDevice(deviceId).then(function (json : any) {
                 that._logger.log("info", LOG_ID + "(getDevice) get successfull");
-// TODO : make the AlertDevice with the result.
-                resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let type: string= json.type
+                let userId: string = json.userId;
+                let companyId: string = json.companyId;
+                let jid_im: string = json.jid_im;
+                let jid_resource: string = json.jid_resource;
+                let creationDate: string = json.creationDate;
+                let ipAddresses: List<string> = json.ipAddresses;
+                let macAddresses: List<string> = json.macAddresses;
+                let tags: List<string> = json.tags;
+                let geolocation: string = json.geolocation;
+
+                let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", deviceDeleted);
+                resolve(deviceDeleted);
+
+                // resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getDevice) error.");
                 that._logger.log("internalerror", LOG_ID + "(getDevice) error : ", err);
@@ -560,31 +519,6 @@ class AlertsService {
             });
 
         });
-
-        /* if (!application.Restrictions.AlertMessage)
-            {
-                callback?.Invoke(new SdkResult<AlertDevice>("AlertMessage has not been allowed in Application.Restrictions object"));
-                return;
-            }
-
-            RestClient restClient = rest.GetClient();
-            string resource = rest.GetResource("notificationsadmin", $"devices/{deviceId}");
-
-            RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-            restClient.ExecuteAsync<AlertDeviceData>(restRequest).ContinueWith(task =>
-            {
-                //Do we have a correct answer
-                if (task.Result.IsSuccessful)
-                {
-                    callback?.Invoke(new SdkResult<AlertDevice>(task.Result.Data.Data));
-                }
-                else
-                    callback?.Invoke(new SdkResult<AlertDevice>(Sdk.ErrorFromResponse(task.Result)));
-
-            });
-
-         // */
     }
 
     /**
@@ -604,14 +538,37 @@ class AlertsService {
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
-    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<any> {
+    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
         let that = this;
         return new Promise((resolve, reject) => {
 
-            that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(function (json) {
+            that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(async function (json) {
                 that._logger.log("info", LOG_ID + "(getDevices) get successfull");
-// TODO : make a Data typed with the result.
-                resolve(json);
+                let alertDevices = new AlertDevicesData(1000);
+                if (Array.isArray( json)) {
+                    for (const optionsKey in json) {
+                        let id: string = json[optionsKey].id;
+                        let name: string = json[optionsKey].name;
+                        let type: string = json[optionsKey].type
+                        let userId: string = json[optionsKey].userId;
+                        let companyId: string = json[optionsKey].companyId;
+                        let jid_im: string = json[optionsKey].jid_im;
+                        let jid_resource: string = json[optionsKey].jid_resource;
+                        let creationDate: string = json[optionsKey].creationDate;
+                        let ipAddresses: List<string> = json[optionsKey].ipAddresses;
+                        let macAddresses: List<string> = json[optionsKey].macAddresses;
+                        let tags: List<string> = json[optionsKey].tags;
+                        let geolocation: string = json[optionsKey].geolocation;
+
+                        let alertDevice = new AlertDevice(id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                        //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                        that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", alertDevice);
+                        await alertDevices.addAlertDevice(alertDevice);
+                    }
+                }
+                resolve(alertDevices);
+                
+                //resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getDevices) error.");
                 that._logger.log("internalerror", LOG_ID + "(getDevices) error : ", err);
