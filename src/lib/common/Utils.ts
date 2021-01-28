@@ -134,7 +134,7 @@ async function myFunction(number) {
 /**
  * @description
  * function to wait for a condition for a few time before it is resolved of rejected.
- * To be used with asunchrone function :
+ * To be used with asynchrone function :
  * myFunction() is the code using until function.
  *
  * async function myFunction(number) {

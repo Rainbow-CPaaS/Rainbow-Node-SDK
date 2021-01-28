@@ -1638,6 +1638,37 @@ function PrintTheLastMessage(conversation) {
     }
 }
 
+    function getConversationHistoryMaxime(conversation){
+        return rainbowSDK.conversations.getHistoryPage(conversation,100).then( (conversationUpdated)  => {
+            return conversationUpdated.historyComplete ? conversationUpdated : getConversationHistoryMaxime(conversationUpdated);
+        });
+    }
+    
+async function testGetHistoryPage() {
+    let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+    let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+    rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
+        logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
+        getConversationHistoryMaxime(conversation).then(() => {
+            logger.log("debug", "MAIN - testGetHistoryPage - getConversationHistoryMaxime, conversation : ", conversation);
+        });;
+    });
+}
+
+async function testGetHistoryPageBubble() {
+    let bubbles = rainbowSDK.bubbles.getAllBubbles(); 
+    if (bubbles.length > 0) {
+        let bubble = bubbles[0];
+        rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
+            logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
+            getConversationHistoryMaxime(conversation).then(() => {
+                logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation);
+            });            
+        });
+    }
+}
+
+
 function testgetAllConversations() {
     let conversations = rainbowSDK.conversations.getAllConversations();
     if (conversations) {
@@ -2485,7 +2516,7 @@ async function testMultiPromise(nb = 100){
 }
 
 let connectedUser : any = {};
-
+/*
 await rainbowSDK.start(token).then(async(result2) => {
     // Do something when the SDK is started
     logger.log("debug", "MAIN - rainbow SDK started result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
