@@ -1,7 +1,7 @@
 "use strict";
-import {Alert} from "./Alert";
-import {Bubble} from "./Bubble";
-import {List} from "ts-generic-collections-linq";
+const AsyncLock = require('async-lock');
+import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 
 export {};
 
@@ -188,46 +188,169 @@ class AlertTemplate {
  *      This class represents a Structure used when retrieving severals AlertTemplate from server. <br>
  */
 class AlertTemplatesData {
-    public data: List<AlertTemplate>;
+    //public data: List<AlertTemplate>
+    private alertTemplates: IDictionary<string, AlertTemplate> = new Dictionary();
     public total: number;
     public limit: number;
     public offset: number;
 
-    constructor(data?: List<AlertTemplate>, total: number = 0, limit: number = 0, offset: number = 0){
-    /**
-     * @public
-     * @readonly
-     * @property {List<AlertTemplate>} data The List of AlertTemplate found.
-     * @instance
-     */
-    this.data = data;
+    private lockEngine: any;
+    private lockKey = "LOCK_AlertTemplate";
 
-    /**
-     * @public
-     * @readonly
-     * @property {number} total The Total number of items available
-     * @instance
-     */
-    this.total = total;
+    constructor(limit: number = 0) {
+        this.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
 
-    /**
-     * @public
-     * @readonly
-     * @property {number} limit The Number of items asked
-     * @instance
-     */
-    this.limit = limit;
+        /**
+         * @public
+         * @readonly
+         * @property {List<string>} data The List of AlertTemplate found
+         * @instance
+         */
+        // this.data = new List<AlertTemplate>();
 
-    /**
-     * @public
-     * @readonly
-     * @property {number} offset The Offset used
-     * @instance
-     */
-    this.offset = offset;
+        /**
+         * @public
+         * @readonly
+         * @property {number} total The Total number of items available
+         * @instance
+         */
+        this.total = 0;
 
+        /**
+         * @public
+         * @readonly
+         * @property {number} limit The Number of items asked
+         * @instance
+         */
+        this.limit = limit;
+
+        /**
+         * @public
+         * @readonly
+         * @property {number} offset The Offset used
+         * @instance
+         */
+        this.offset = 0;
     }
+
+    //region Lock
+
+    lock(fn) {
+        let that = this;
+        let opts = undefined;
+        return that.lockEngine.acquire(that.lockKey,
+                async function () {
+                    // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
+                    //that._logger.log("internal", LOG_ID + "(lock) lock the ", that.lockKey);
+                    return await fn(); // async work
+                }, opts).then((result) => {
+            // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
+            //that._logger.log("internal", LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
+            return result;
+        });
+    }
+
+    //endregion
+
+    // region Add/get/first/last/remove AlertTemplate
+
+    addAlertTemplate (alertTemplate : AlertTemplate) : Promise<AlertTemplate> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                if ( (!that.alertTemplates.containsKey(alertTemplate.id)) )
+                {
+                    that.total++;
+                    that.alertTemplates.add(alertTemplate.id, alertTemplate);
+                    //needToAsk = true;
+                    return alertTemplate;
+                }
+                return ;
+            }).then((result) => {
+                return resolve(result);
+            }).catch((result) => {
+                resolve(undefined);
+            });
+        });
+    }
+
+    async removeBubbleToJoin(alertTemplate: AlertTemplate): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                if ( (that.alertTemplates.containsKey(alertTemplate.id)) )
+                {
+                    that.alertTemplates.remove((item: KeyValuePair<string, AlertTemplate>) => {
+                        return alertTemplate.id === item.key;
+                    });
+                    //needToAsk = true;
+                }
+            }).then((result) => {
+                resolve(result);
+            }).catch((result) => {
+                resolve(undefined);
+            });
+        });
+    }
+
+    async getAlertTemplate() : Promise<AlertTemplate>{
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                let item: KeyValuePair<string, AlertTemplate> = that.alertTemplates.elementAt(0);
+                if (!item) return ;
+                let id = item.key;
+                let alertTemplate = item.value;
+                that.alertTemplates.remove((item: KeyValuePair<string, AlertTemplate>) => {
+                    return id === item.key;
+                });
+                return alertTemplate;
+            }).then((result) => {
+                resolve(result);
+            }).catch((result) => {
+                resolve(undefined);
+            });
+        });
+    }
+
+    first () : Promise<AlertTemplate>{
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                let item: KeyValuePair<string, AlertTemplate> = that.alertTemplates.elementAt(0);
+                return item.value;
+            }).then((result) => {
+                return resolve(result);
+            }).catch((result) => {
+                resolve(undefined);
+            });
+        });
+    }
+
+    last () : Promise<AlertTemplate> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                let item: KeyValuePair<string, AlertTemplate> = that.alertTemplates.elementAt(that.total);
+                return item.value;
+            }).then((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Succeed - Jid : ", result);
+                return resolve(result);
+            }).catch((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Failed - Jid : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+
+    //endregion
 }
+
 
 module.exports = {AlertTemplate, AlertTemplatesData};
 export {AlertTemplate, AlertTemplatesData};
