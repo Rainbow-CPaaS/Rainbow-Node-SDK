@@ -2483,6 +2483,7 @@ declare module 'lib/common/BubblesManager' {
 	    getClassName(): string;
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger);
 	    init(_options: any, _core: Core): Promise<unknown>;
+	    reset(): Promise<any>;
 	    lock(fn: any): any;
 	    addBubbleToJoin(bubble: any): Promise<any>;
 	    removeBubbleToJoin(bubble: any): Promise<any>;
@@ -2996,7 +2997,7 @@ declare module 'lib/services/BubblesService' {
 	     * @method setBubbleName
 	     * @instance
 	     * @param {Bubble} bubble The Bubble
-	     * @param {string} topic Bubble's name
+	     * @param {string} name Bubble's name
 	     * @description
 	     *  Set the Bubble's name <br/>
 	     * @async
@@ -3446,7 +3447,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
-	    onChatMessageReceived(msg: any, stanza: any): Promise<void>;
+	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
 	    _onMessageReceived(conversationId: any, data: any): Promise<void>;
 	    onRoomAdminMessageReceived(msg: any, stanza: any): void;
 	    onFileMessageReceived(msg: any, stanza: any): void;
@@ -8732,17 +8733,24 @@ declare module 'lib/common/models/AlertDevice' {
 	    geolocation: string;
 	    constructor(id?: string, name?: string, type?: string, userId?: string, companyId?: string, jid_im?: string, jid_resource?: string, creationDate?: string, ipAddresses?: List<string>, macAddresses?: List<string>, tags?: List<string>, geolocation?: string);
 	} class AlertDevicesData {
-	    data: List<AlertDevice>;
+	    private alertDevices;
 	    total: number;
 	    limit: number;
 	    offset: number;
-	    constructor(data: List<AlertDevice>, total?: number, limit?: number, offset?: number);
+	    private lockEngine;
+	    private lockKey;
+	    constructor(limit?: number);
+	    lock(fn: any): any;
+	    addAlertDevice(alertDevice: AlertDevice): Promise<AlertDevice>;
+	    removeBubbleToJoin(alertDevice: AlertDevice): Promise<any>;
+	    getAlertDevice(): Promise<AlertDevice>;
+	    first(): Promise<AlertDevice>;
+	    last(): Promise<AlertDevice>;
 	}
 	export { AlertDevice, AlertDevicesData };
 
 }
 declare module 'lib/common/models/AlertTemplate' {
-	import { List } from 'ts-generic-collections-linq';
 	export {}; class AlertTemplate {
 	    id: string;
 	    name: string;
@@ -8763,11 +8771,19 @@ declare module 'lib/common/models/AlertTemplate' {
 	    certainty: string;
 	    constructor(id?: string, name?: string, companyId?: string, event?: string, description?: string, mimeType?: string, senderName?: string, headline?: string, instruction?: string, contact?: string, type?: string, status?: string, scope?: string, category?: string, urgency?: string, severity?: string, certainty?: string);
 	} class AlertTemplatesData {
-	    data: List<AlertTemplate>;
+	    private alertTemplates;
 	    total: number;
 	    limit: number;
 	    offset: number;
-	    constructor(data?: List<AlertTemplate>, total?: number, limit?: number, offset?: number);
+	    private lockEngine;
+	    private lockKey;
+	    constructor(limit?: number);
+	    lock(fn: any): any;
+	    addAlertTemplate(alertTemplate: AlertTemplate): Promise<AlertTemplate>;
+	    removeBubbleToJoin(alertTemplate: AlertTemplate): Promise<any>;
+	    getAlertTemplate(): Promise<AlertTemplate>;
+	    first(): Promise<AlertTemplate>;
+	    last(): Promise<AlertTemplate>;
 	}
 	export { AlertTemplate, AlertTemplatesData };
 
@@ -8781,11 +8797,19 @@ declare module 'lib/common/models/AlertFilter' {
 	    tags: List<string>;
 	    constructor(id?: string, name?: string, companyId?: string, tags?: List<string>);
 	} class AlertFiltersData {
-	    data: List<AlertFilter>;
+	    private alertFilters;
 	    total: number;
 	    limit: number;
 	    offset: number;
-	    constructor(data: List<AlertFilter>, total?: number, limit?: number, offset?: number);
+	    private lockEngine;
+	    private lockKey;
+	    constructor(limit?: number);
+	    lock(fn: any): any;
+	    addAlertFilter(alertFilter: AlertFilter): Promise<AlertFilter>;
+	    removeBubbleToJoin(alertFilter: AlertFilter): Promise<any>;
+	    getAlertFilter(): Promise<AlertFilter>;
+	    first(): Promise<AlertFilter>;
+	    last(): Promise<AlertFilter>;
 	}
 	export { AlertFilter, AlertFiltersData };
 
@@ -8797,7 +8821,7 @@ declare module 'lib/services/AlertsService' {
 	import { Alert } from 'lib/common/models/Alert';
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
-	import { AlertDevice } from 'lib/common/models/AlertDevice';
+	import { AlertDevice, AlertDevicesData } from 'lib/common/models/AlertDevice';
 	import { AlertTemplate } from 'lib/common/models/AlertTemplate';
 	import { AlertFilter } from 'lib/common/models/AlertFilter'; class AlertsService {
 	    private _eventEmitter;
@@ -8905,7 +8929,7 @@ declare module 'lib/services/AlertsService' {
 	     * @return {Promise<any>} the result of the operation.
 	     * @category async
 	     */
-	    deleteDevice(device: AlertDevice): Promise<any>;
+	    deleteDevice(device: AlertDevice): Promise<AlertDevice>;
 	    /**
 	     * @public
 	     * @method getDevice
@@ -8935,7 +8959,7 @@ declare module 'lib/services/AlertsService' {
 	     * @return {Promise<any>} the result of the operation.
 	     * @category async
 	     */
-	    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset?: number, limit?: number): Promise<any>;
+	    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset?: number, limit?: number): Promise<AlertDevicesData>;
 	    /**
 	     * @public
 	     * @method getDevicesTags
@@ -9034,8 +9058,8 @@ declare module 'lib/services/AlertsService' {
 	     * @return {Promise<any>} the result of the operation.
 	     * @category async
 	     */
-	    updateFilter(filter: AlertFilter): Promise<any>;
-	    createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<any>;
+	    updateFilter(filter: AlertFilter): Promise<AlertFilter>;
+	    createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<AlertFilter>;
 	    /**
 	     * @public
 	     * @method deleteFilter
