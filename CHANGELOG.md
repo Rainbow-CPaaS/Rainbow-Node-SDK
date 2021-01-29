@@ -10,6 +10,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Use of `AlertFilter`, `AlertFiltersData`, `AlertTemplate`, `AlertTemplatesData`, `AlertFilter`, `AlertFiltersData`, types of result of API in `AlertsService`.
 -   Update of `rainbow_onmessagereceived` event with the `mentions` tab. It is to indicate the contacts mentioned in the message.
 -   Fix of initial bubble presence when the SDK is restarted.
+-   Fix build in Makefile for the docs of the HUB.
 
 ## [1.82.0] - 2021-01-22
 -   Add stack traces when using winston logger. 
