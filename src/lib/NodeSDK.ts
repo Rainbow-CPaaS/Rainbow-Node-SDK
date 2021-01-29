@@ -743,6 +743,7 @@ class NodeSDK {
      * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue.
      * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
      * maxSimultaneousRequests : number, the number of request which can be launch at a same time.
+     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager. 
      * }
      * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number}>}
      * @category async

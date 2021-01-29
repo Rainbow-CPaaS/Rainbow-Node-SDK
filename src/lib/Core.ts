@@ -726,6 +726,7 @@ class Core {
         httpQueueSize : number,
         nbRunningReq : number,
         maxSimultaneousRequests : number
+        nbReqInQueue : number
     }>{
         let that = this;
         let restStatus : boolean = false;
@@ -761,7 +762,8 @@ class Core {
                 nbHttpAdded : httpStatus.nbHttpAdded ,
                 httpQueueSize : httpStatus.httpQueueSize ,
                 nbRunningReq : httpStatus.nbRunningReq,
-                maxSimultaneousRequests : httpStatus.maxSimultaneousRequests
+                maxSimultaneousRequests : httpStatus.maxSimultaneousRequests,
+                nbReqInQueue: httpStatus.nbReqInQueue
             });
         });
     }
