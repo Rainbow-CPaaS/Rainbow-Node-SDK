@@ -106,7 +106,7 @@ class ConversationEventHandler extends GenericHandler {
 
     }
 
-    async onChatMessageReceived (msg, stanza) {
+    async onChatMessageReceived (msg, stanza: Element) {
         let that = this;
         try {
             that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
@@ -138,6 +138,9 @@ class ConversationEventHandler extends GenericHandler {
             let toJid = stanza.attrs.to;
             let id = stanza.attrs.id;
             let children = stanza.children;
+
+            let mentions = [];
+
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "sent":
@@ -484,6 +487,35 @@ class ConversationEventHandler extends GenericHandler {
                     case "attention":
                         attention = true;
                         break;
+                    case "mention": {
+                            // stanzaData.mentions = [];
+                            const mentionJidElem = node.find("jid");
+                            if (Array.isArray(mentionJidElem)) {
+                                mentionJidElem.forEach((content) => {
+
+                                    const mention = {};
+                                    mention['jid'] = content.text();
+                                    mention['pos'] = parseInt(content.attr("pos"), 10);
+                                    mention['size'] = parseInt(content.attr("size"), 10);
+
+                                    if (mention['jid'] && mention['size']) {
+                                        mentions.push(mention);
+                                    }
+                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                });
+                            } else {
+                                const mention = {};
+                                mention['jid'] = mentionJidElem.text();
+                                mention['pos'] = parseInt(mentionJidElem.attr("pos"), 10);
+                                mention['size'] = parseInt(mentionJidElem.attr("size"), 10);
+
+                                if (mention['jid'] && mention['size']) {
+                                    mentions.push(mention);
+                                }
+                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                            }
+                        }
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
                         that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
@@ -563,7 +595,8 @@ class ConversationEventHandler extends GenericHandler {
                     "answeredMsg": undefined,
                     "answeredMsgId": answeredMsgId,
                     "answeredMsgDate": answeredMsgDate,
-                    "answeredMsgStamp": answeredMsgStamp
+                    "answeredMsgStamp": answeredMsgStamp,
+                    mentions
                 };
 
                 if (stanza.attrs.type === TYPE_GROUPCHAT) {
@@ -578,6 +611,10 @@ class ConversationEventHandler extends GenericHandler {
                     }
                     if (attention) {
                         data.attention = attention;
+                    } 
+                    
+                    if (mentions.length>0) {
+                        data.mentions = mentions;
                     }
                     if (confOwnerId) {
                         data.confOwnerId = confOwnerId;

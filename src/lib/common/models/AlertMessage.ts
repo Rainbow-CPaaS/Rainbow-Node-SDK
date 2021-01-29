@@ -2,132 +2,239 @@
 
 export {};
 
+/**
+ * @class
+ * @name AlertMessage
+ * @description
+ *      This class represents an Alert Message received from server on an Alert Device. <br>
+ */
 class AlertMessage
 {
-
-    /// <summary>
-    /// <see cref="string"/> - Xmpp Id of the alert message
-    /// </summary>
     public id : string;
-
-    /// <summary>
-    /// <see cref="string"/> - The JID of the recipient of this alert message
-    /// </summary>
     public toJid : string;
-
-    /// <summary>
-    /// <see cref="string"/> - The JID (without the resource) of the user who sent this alert message.
-    /// </summary>
     public fromJid : string;
-
-    /// <summary>
-    /// <see cref="string"/> - The resource of the user who sent this message
-    /// </summary>
     public fromResource : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Identifier of the alert message (alertId). It's the one to use in <see cref="T:Alerts.SendAlertFeedback(string, string, Action{SdkResult{bool}})"/>
-    /// </summary>
     public identifier : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Sender of the alert message
-    /// </summary>
     public sender : string;
-
-    /// <summary>
-    /// <see cref="DateTime"/> - Date time when sent
-    /// </summary>
     public sent : string;
-
-    /// <summary>
-    /// <see cref="String"/> - Status ("Actual" or "Test")
-    /// </summary>
     public status : string;
-
-    /// <summary>
-    /// <see cref="String"/> - Msg Type ("Alert", "Cancel", "Update")
-    /// </summary>
     public msgType : string;
-
-    /// <summary>
-    /// <see cref="String"/> - The group listing identifying earlier message(s) referenced by the alert message. The extended message identifier(s) (in the form "sender,identifier,sent")
-    /// </summary>
     public references : string;
-
-    /// <summary>
-    /// <see cref="String"/> - scope
-    /// </summary>
     public scope : string;
+    public info : AlertMessageInfo;
 
-    /// <summary>
-    /// <see cref="AlertMessageInfo"/> - Info
-    /// </summary>
-    public  info : AlertMessageInfo;
+    constructor( id? : string, toJid? : string, fromJid? : string, fromResource? : string, identifier? : string, sender? : string, sent? : string, status? : string, msgType? : string, references? : string, scope? : string,  info? : AlertMessageInfo) {
+        /**
+         * @public
+         * @readonly
+         * @property {string} id The ID of the AlertMessage
+         * @instance
+         */
+        this.id = id;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} toJid The JID of the recipient of this alert message
+         * @instance
+         */
+        this.toJid = toJid;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} fromJid The JID (without the resource) of the user who sent this alert message.
+         * @instance
+         */
+        this.fromJid = fromJid;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} fromResource The resource of the user who sent this message
+         * @instance
+         */
+        this.fromResource = fromResource;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} identifier The Identifier of the alert message (alertId). It's the one to use in <see cref="T:Alerts.SendAlertFeedback(string, string, Action{SdkResult{bool}})"/>
+         * @instance
+         */
+        this.identifier = identifier;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} sender The Sender of the alert message
+         * @instance
+         */
+        this.sender = sender;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} sent The Date time when sent
+         * @instance
+         */
+        this.sent = sent;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} status The Status ("Actual" or "Test")
+         * @instance
+         */
+        this.status = status;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} msgType The Msg Type ("Alert", "Cancel", "Update")
+         * @instance
+         */
+        this.msgType = msgType;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} references The The group listing identifying earlier message(s) referenced by the alert message. The extended message identifier(s) (in the form "sender,identifier,sent")
+         * @instance
+         */
+        this.references = references;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} id The scope of the AlertMessage
+         * @instance
+         */
+        this.scope = scope;
+
+        /**
+         * @public
+         * @readonly
+         * @property {AlertMessageInfo} info The Info of the AlertMessage
+         * @instance
+         */
+        this.info = info;
+
+    }
 }
 
-/// <summary>
-/// Alert Message Info object describing an Alert message sent or received
-///
-/// Cf: CAP V1.2 - http://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2-os.html
-/// </summary>
+/**
+ * @class
+ * @name AlertMessageInfo
+ * @description
+ *      This class represents an  Alert Message Info object describing an Alert message sent or received. <br>
+ *      <br>
+ *          Cf: CAP V1.2 - http://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2-os.html . <br>
+ */
 class AlertMessageInfo
 {
-
-    /// <summary>
-    /// <see cref="string"/> - Category
-    /// </summary>
     public category : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Event
-    /// </summary>
     public event : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Urgency
-    /// </summary>
     public urgency : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Certainty
-    /// </summary>
     public certainty : string;
-
-    /// <summary>
-    /// <see cref="DateTime"/> - Expires
-    /// </summary>
     public expires : string;
-
-    /// <summary>
-    /// <see cref="string"/> - SenderName
-    /// </summary>
     public senderName : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Headline
-    /// </summary>
     public headline : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Description
-    /// </summary>
     public description : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Description Mime Type
-    /// </summary>
     public descriptionMimeType : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Instruction
-    /// </summary>
     public instruction : string;
-
-    /// <summary>
-    /// <see cref="string"/> - Contact
-    /// </summary>
     public contact : string;
+
+    constructor(category? : string, event? : string, urgency? : string, certainty? : string, expires? : string, senderName? : string, headline? : string, description? : string, descriptionMimeType? : string, instruction? : string, contact? : string) {
+        /**
+         * @public
+         * @readonly
+         * @property {string} id The Category of the AlertMessageInfo
+         * @instance
+         */
+        this.category = category;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} event The Event of the AlertMessageInfo
+         * @instance
+         */
+        this.event = event;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} urgency The Urgency of the AlertMessageInfo
+         * @instance
+         */
+        this.urgency = urgency;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} certainty The Certainty of the AlertMessageInfo
+         * @instance
+         */
+        this.certainty = certainty;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} expires The Expires of the AlertMessageAlertMessageInfo
+         * @instance
+         */
+        this.expires = expires;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} senderName The SenderName of the AlertMessageInfo
+         * @instance
+         */
+        this.senderName = senderName;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} headline The Headline of the AlertMessageInfo
+         * @instance
+         */
+        this.headline = headline;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} description The Description of the AlertMessageInfo
+         * @instance
+         */
+        this.description = description;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} descriptionMimeType The Description Mime Type of the AlertMessageInfo
+         * @instance
+         */
+        this.descriptionMimeType = descriptionMimeType;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} instruction The Instruction of the AlertMessageInfo
+         * @instance
+         */
+        this.instruction = instruction;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} contact The Contact of the AlertMessageInfo
+         * @instance
+         */
+        this.contact = contact;
+
+    }
 }
 
 module.exports = {AlertMessage, AlertMessageInfo};

@@ -108,6 +108,27 @@ class BubblesManager {
         });
     }
 
+    async reset(): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(reset) We clear the Bubbles from poolBubbleAlreadyJoined, poolBubbleJoinInProgress, poolBubbleToJoin.");
+            that.lock(() => {
+                // Treatment in the lock
+                that.poolBubbleAlreadyJoined.clear();
+                that.poolBubbleJoinInProgress.clear();
+                that.poolBubbleToJoin.clear();
+                that.nbBubbleAdded = 0;
+                return "reseted";
+            }).then((result) => {
+                that._logger.log("internal", LOG_ID + "(reset) Succeed - result : ", result);
+                resolve(result);
+            }).catch((result) => {
+                that._logger.log("internal", LOG_ID + "(reset) Failed - result : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+    
     //region Lock
 
     lock(fn) {

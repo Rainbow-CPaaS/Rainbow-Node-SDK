@@ -14,10 +14,12 @@ import {isStarted} from "../common/Utils";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
-import {Dictionary} from "ts-generic-collections-linq";
-import {AlertDevice} from "../common/models/AlertDevice";
-import {AlertTemplate} from "../common/models/AlertTemplate";
-import {AlertFilter} from "../common/models/AlertFilter";
+import {Dictionary, List} from "ts-generic-collections-linq";
+import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice";
+import {AlertTemplate, AlertTemplatesData} from "../common/models/AlertTemplate";
+import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
+import {resolveAny} from "dns";
+import {isArray} from "util";
 
 const LOG_ID = "ALERTS/SVCE - ";
 
@@ -151,16 +153,6 @@ class AlertsService {
         }
         that._alertHandlerToken = [];
 
-        /*this.$log.info('Stopping');
-        if (this._xmppManagementHandler) {
-            this.xmppService.deleteHandler(this._xmppManagementHandler);
-            this._xmppManagementHandler = null;
-        }
-        this.$log.info('Stopped');
-
-         */
-
-
         this.ready = false;
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
@@ -182,21 +174,6 @@ class AlertsService {
             PubSub.subscribe( that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_HEADLINE, that._alertEventHandler.onHeadlineMessageReceived.bind(that._alertEventHandler)),
             PubSub.subscribe(that._xmpp.hash + "." + that._alertEventHandler.MESSAGE_ERROR, that._alertEventHandler.onErrorMessageReceived.bind(that._alertEventHandler))
         ];
-
-        /*
-        if (this._xmppManagementHandler) { this.xmppService.deleteHandler(this._xmppManagementHandler); }
-        this._xmppManagementHandler = this.xmppService.addHandler((stanza) => { this.onXmppEvent(stanza); return true; }, null, "message", "management");
-
-         */
-
-        /*
-        //if reconnection, update the call-logs
-        if (that.started && that.lastTimestamp) {
-            $interval(function () {
-                that.getCallLogHistoryPage(that.lastTimestamp);
-            }, 1000, 1, true);
-        }
-        // */
     }
 
 
@@ -311,7 +288,7 @@ class AlertsService {
         return this.createOrUpdateDevice(false, device);
     }
 
-    private createOrUpdateDevice(create: boolean, device: AlertDevice): Promise<any> {
+    private createOrUpdateDevice(create: boolean, device: AlertDevice): Promise<AlertDevice> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -340,27 +317,26 @@ class AlertsService {
             };
 
             if (create) {
-                that._rest.createDevice(body).then(function (json) {
+                that._rest.createDevice(body).then(function (json: any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
-                    resolve(json);
-// TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
-                    /*
-                     String body = Util.GetJsonStringFromDictionary(bodyDico);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let type: string= json.type
+                    let userId: string = json.userId;
+                    let companyId: string = json.companyId;
+                    let jid_im: string = json.jid_im;
+                    let jid_resource: string = json.jid_resource;
+                    let creationDate: string = json.creationDate;
+                    let ipAddresses: List<string> = json.ipAddresses;
+                    let macAddresses: List<string> = json.macAddresses;
+                    let tags: List<string> = json.tags;
+                    let geolocation: string = json.geolocation;
+                    
+                    let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
 
-            restClient.ExecuteAsync<AlertDeviceData>(restRequest).ContinueWith(task => {
-                //Do we have a correct answer
-                if (task.Result.IsSuccessful)
-                    callback?.Invoke(new SdkResult<AlertDevice>(task.Result.Data.Data));
-                else {
-                    String
-                    str = Sdk.ErrorFromResponse(task.Result).ToString();
-                    callback?.Invoke(new SdkResult<AlertDevice>(str));
-                    log.Warn("[createOrUpdateDevice] - error:[{0}]", str);
-                }
-            });
-                     */
-
+                    resolve(deviceCreated);
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
                     that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
@@ -369,27 +345,26 @@ class AlertsService {
             } else {
                 // resource = rest.GetResource("notificationsadmin", $"devices/{device.Id}");
                 // restRequest = rest.GetRestRequest(resource, Method.PUT);
-                that._rest.updateDevice(device.id, body).then(function (json) {
+                that._rest.updateDevice(device.id, body).then(function (json : any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
-                    resolve(json);
-// TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
-                    /*
-                     String body = Util.GetJsonStringFromDictionary(bodyDico);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let type: string= json.type
+                    let userId: string = json.userId;
+                    let companyId: string = json.companyId;
+                    let jid_im: string = json.jid_im;
+                    let jid_resource: string = json.jid_resource;
+                    let creationDate: string = json.creationDate;
+                    let ipAddresses: List<string> = json.ipAddresses;
+                    let macAddresses: List<string> = json.macAddresses;
+                    let tags: List<string> = json.tags;
+                    let geolocation: string = json.geolocation;
 
-            restClient.ExecuteAsync<AlertDeviceData>(restRequest).ContinueWith(task => {
-                //Do we have a correct answer
-                if (task.Result.IsSuccessful)
-                    callback?.Invoke(new SdkResult<AlertDevice>(task.Result.Data.Data));
-                else {
-                    String
-                    str = Sdk.ErrorFromResponse(task.Result).ToString();
-                    callback?.Invoke(new SdkResult<AlertDevice>(str));
-                    log.Warn("[createOrUpdateDevice] - error:[{0}]", str);
-                }
-            });
-                     */
+                    let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
 
+                    resolve(deviceCreated);
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
                     that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
@@ -411,7 +386,7 @@ class AlertsService {
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
-    deleteDevice(device: AlertDevice): Promise<any> {
+    deleteDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -430,9 +405,28 @@ class AlertsService {
                 return;
             }
 
-            that._rest.deleteDevice(device.id).then(function (json) {
+            that._rest.deleteDevice(device.id).then(function (json: any) {
                 that._logger.log("info", LOG_ID + "(deleteDevice) delete successfull");
-                resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let type: string= json.type
+                let userId: string = json.userId;
+                let companyId: string = json.companyId;
+                let jid_im: string = json.jid_im;
+                let jid_resource: string = json.jid_resource;
+                let creationDate: string = json.creationDate;
+                let ipAddresses: List<string> = json.ipAddresses;
+                let macAddresses: List<string> = json.macAddresses;
+                let tags: List<string> = json.tags;
+                let geolocation: string = json.geolocation;
+
+                let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice deleted : ", deviceDeleted);
+
+                resolve(deviceDeleted);
+
+                //resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(deleteDevice) error.");
                 that._logger.log("internalerror", LOG_ID + "(deleteDevice) error : ", err);
@@ -440,29 +434,6 @@ class AlertsService {
             });
 
         });
-        /*    if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("notificationsadmin", $"devices/{deviceId}");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.DELETE);
-
-        restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(task.Result)));
-
-        });
-        // */
     }
 
     /**
@@ -495,10 +466,27 @@ class AlertsService {
                 return;
             }
 
-            that._rest.getDevice(deviceId).then(function (json) {
+            that._rest.getDevice(deviceId).then(function (json : any) {
                 that._logger.log("info", LOG_ID + "(getDevice) get successfull");
-// TODO : make the AlertDevice with the result.
-                resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let type: string= json.type
+                let userId: string = json.userId;
+                let companyId: string = json.companyId;
+                let jid_im: string = json.jid_im;
+                let jid_resource: string = json.jid_resource;
+                let creationDate: string = json.creationDate;
+                let ipAddresses: List<string> = json.ipAddresses;
+                let macAddresses: List<string> = json.macAddresses;
+                let tags: List<string> = json.tags;
+                let geolocation: string = json.geolocation;
+
+                let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", deviceDeleted);
+                resolve(deviceDeleted);
+
+                // resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getDevice) error.");
                 that._logger.log("internalerror", LOG_ID + "(getDevice) error : ", err);
@@ -506,31 +494,6 @@ class AlertsService {
             });
 
         });
-
-        /* if (!application.Restrictions.AlertMessage)
-            {
-                callback?.Invoke(new SdkResult<AlertDevice>("AlertMessage has not been allowed in Application.Restrictions object"));
-                return;
-            }
-
-            RestClient restClient = rest.GetClient();
-            string resource = rest.GetResource("notificationsadmin", $"devices/{deviceId}");
-
-            RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-            restClient.ExecuteAsync<AlertDeviceData>(restRequest).ContinueWith(task =>
-            {
-                //Do we have a correct answer
-                if (task.Result.IsSuccessful)
-                {
-                    callback?.Invoke(new SdkResult<AlertDevice>(task.Result.Data.Data));
-                }
-                else
-                    callback?.Invoke(new SdkResult<AlertDevice>(Sdk.ErrorFromResponse(task.Result)));
-
-            });
-
-         // */
     }
 
     /**
@@ -550,64 +513,43 @@ class AlertsService {
      * @return {Promise<any>} the result of the operation.
      * @category async
      */
-    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<any> {
+    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
         let that = this;
         return new Promise((resolve, reject) => {
 
-            that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(function (json) {
+            that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(async function (json) {
                 that._logger.log("info", LOG_ID + "(getDevices) get successfull");
-// TODO : make a Data typed with the result.
-                resolve(json);
+                let alertDevices = new AlertDevicesData(1000);
+                if (Array.isArray( json)) {
+                    for (const optionsKey in json) {
+                        let id: string = json[optionsKey].id;
+                        let name: string = json[optionsKey].name;
+                        let type: string = json[optionsKey].type
+                        let userId: string = json[optionsKey].userId;
+                        let companyId: string = json[optionsKey].companyId;
+                        let jid_im: string = json[optionsKey].jid_im;
+                        let jid_resource: string = json[optionsKey].jid_resource;
+                        let creationDate: string = json[optionsKey].creationDate;
+                        let ipAddresses: List<string> = json[optionsKey].ipAddresses;
+                        let macAddresses: List<string> = json[optionsKey].macAddresses;
+                        let tags: List<string> = json[optionsKey].tags;
+                        let geolocation: string = json[optionsKey].geolocation;
+
+                        let alertDevice = new AlertDevice(id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
+                        //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                        that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", alertDevice);
+                        await alertDevices.addAlertDevice(alertDevice);
+                    }
+                }
+                resolve(alertDevices);
+                
+                //resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getDevices) error.");
                 that._logger.log("internalerror", LOG_ID + "(getDevices) error : ", err);
                 return reject(err);
             });
-
         });
-
-        /*   if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<AlertDevicesData>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("notificationsadmin", "devices");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-        if (!String.IsNullOrEmpty(companyId))
-            restRequest.AddQueryParameter("companyId", companyId);
-
-        if (!String.IsNullOrEmpty(userId))
-            restRequest.AddQueryParameter("userId", userId);
-
-        if (!String.IsNullOrEmpty(deviceName))
-            restRequest.AddQueryParameter("name", deviceName);
-
-        if (!String.IsNullOrEmpty(type))
-            restRequest.AddQueryParameter("type", type);
-
-        if (!String.IsNullOrEmpty(tag))
-            restRequest.AddQueryParameter("tags", tag);
-
-        restRequest.AddQueryParameter("limit", limit.ToString());
-        restRequest.AddQueryParameter("offset", offset.ToString());
-        restRequest.AddQueryParameter("format", "full");
-
-        restClient.ExecuteAsync<AlertDevicesData>(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                callback?.Invoke(new SdkResult<AlertDevicesData>(task.Result.Data));
-            }
-            else
-                callback?.Invoke(new SdkResult<AlertDevicesData>(Sdk.ErrorFromResponse(task.Result)));
-        });
-
-        // */
     }
 
     /**
@@ -634,47 +576,7 @@ class AlertsService {
                 that._logger.log("internalerror", LOG_ID + "(getDevices) error : ", err);
                 return reject(err);
             });
-
         });
-
-
-        /*  if (!application.Restrictions.AlertMessage)
-      {
-          callback?.Invoke(new SdkResult<List<String>>("AlertMessage has not been allowed in Application.Restrictions object"));
-          return;
-      }
-
-      RestClient restClient = rest.GetClient();
-      string resource = rest.GetResource("notificationsadmin", "devices/tags");
-
-      RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-      if (!String.IsNullOrEmpty(companyId))
-          restRequest.AddQueryParameter("companyId", companyId);
-
-      restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-      {
-          //Do we have a correct answer
-          if (task.Result.IsSuccessful)
-          {
-              List<String> tags = new List<string>();
-              var json = JsonConvert.DeserializeObject<dynamic>(task.Result.Content);
-              JObject jObject = json["data"];
-              if (jObject != null)
-              {
-                  if (jObject["tags"] != null)
-                  {
-                      JArray jArray = (JArray)jObject.GetValue("tags");
-                      if (jArray != null)
-                          tags = jArray.ToObject<List<String>>();
-                  }
-              }
-              callback?.Invoke(new SdkResult<List<String>>(tags));
-          }
-          else
-              callback?.Invoke(new SdkResult<List<String>>(Sdk.ErrorFromResponse(task.Result)));
-      });
-      // */
     }
 
 //endregion DEVICE
@@ -744,101 +646,75 @@ class AlertsService {
             };
 
             if (create) {
-                that._rest.createTemplate(body).then(function (json) {
+                that._rest.createTemplate(body).then(function (json:any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
-                    resolve(json);
-// TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
+                    //resolve(json);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let companyId: string = json.companyId;
+                    let event: string = json.event;
+                    let description: string = json.description;
+                    let mimeType: string = json.mimeType;
+                    let senderName: string = json.senderName;
+                    let headline: string = json.headline;
+                    let instruction: string = json.instruction;
+                    let contact: string = json.contact;
+                    let type: string = json.type;
+                    let status: string = json.status;
+                    let scope: string = json.scope;
+                    let category: string = json.category;
+                    let urgency: string = json.urgency;
+                    let severity: string = json.severity;
+                    let certainty: string = json.certainty;
 
+
+                    let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
+                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+
+                    resolve(templateCreated);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
+                    that._logger.log("error", LOG_ID + "(createOrUpdateTemplate) error.");
+                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateTemplate) error : ", err);
                     return reject(err);
                 });
             } else {
-                that._rest.updateTemplate(template.id, body).then(function (json) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
-                    resolve(json);
-// TODO : make the AlertDevice with the result. And maybe the AlertDeviceData.
+                that._rest.updateTemplate(template.id, body).then(function (json : any) {
+                    that._logger.log("info", LOG_ID + "(createOrUpdateTemplate) create successfull");
+                    // resolve(json);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let companyId: string = json.companyId;
+                    let event: string = json.event;
+                    let description: string = json.description;
+                    let mimeType: string = json.mimeType;
+                    let senderName: string = json.senderName;
+                    let headline: string = json.headline;
+                    let instruction: string = json.instruction;
+                    let contact: string = json.contact;
+                    let type: string = json.type;
+                    let status: string = json.status;
+                    let scope: string = json.scope;
+                    let category: string = json.category;
+                    let urgency: string = json.urgency;
+                    let severity: string = json.severity;
+                    let certainty: string = json.certainty;
+
+
+                    let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
+                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+
+                    resolve(templateCreated);
 
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
+                    that._logger.log("error", LOG_ID + "(createOrUpdateTemplate) error.");
+                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateTemplate) error : ", err);
                     return reject(err);
                 });
             }
 
         });
-
-
-        /*
-            if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<AlertTemplate>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        if (template == null)
-        {
-            callback?.Invoke(new SdkResult<AlertTemplate>("AlertTemplate object is null"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource;
-        RestRequest restRequest;
-
-        if (create)
-        {
-            resource = rest.GetResource("notificationsadmin", "templates");
-            restRequest = rest.GetRestRequest(resource, Method.POST);
-        }
-        else
-        {
-            resource = rest.GetResource("notificationsadmin", $"templates/{template.Id}");
-            restRequest = rest.GetRestRequest(resource, Method.PUT);
-        }
-
-        Dictionary<string, object> bodyDico = new Dictionary<string, object>
-        {
-        { "event", template.Event},
-        { "companyId", template.CompanyId},
-
-        { "name", template.Name},
-        { "senderName", template.SenderName},
-        { "contact", template.Contact},
-
-        { "description", template.Description},
-        { "mimeType", String.IsNullOrEmpty(template.MimeType) ? "text/plain" : template.MimeType},
-
-        { "headline", template.Headline},
-        { "instruction ", template.Instruction},
-
-        { "type", String.IsNullOrEmpty(template.Type) ? "cap" : template.Type},
-        { "status", String.IsNullOrEmpty(template.Status) ? "Actual" : template.Status},
-        { "scope", String.IsNullOrEmpty(template.Scope) ? "Public" : template.Scope},
-        { "category", String.IsNullOrEmpty(template.Category) ? "Safety" : template.Category},
-        { "urgency", String.IsNullOrEmpty(template.Urgency) ? "Immediate" : template.Urgency},
-        { "severity", String.IsNullOrEmpty(template.Severity) ? "Severe" : template.Severity},
-        { "certainty", String.IsNullOrEmpty(template.Certainty) ? "Observed" : template.Certainty}
-        };
-
-        String body = Util.GetJsonStringFromDictionary(bodyDico);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync<AlertTemplateData>(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-                callback?.Invoke(new SdkResult<AlertTemplate>(task.Result.Data.Data));
-            else
-            {
-                String str = Sdk.ErrorFromResponse(task.Result).ToString();
-                callback?.Invoke(new SdkResult<AlertTemplate>(str));
-                log.Warn("[CreateOrUpdateTemplate] - error:[{0}]", str);
-            }
-        });
-
-        // */
     }
 
     /**
@@ -871,39 +747,39 @@ class AlertsService {
                 return;
             }
 
-            that._rest.deleteTemplate(template.id).then(function (json) {
+            that._rest.deleteTemplate(template.id).then(function (json:any) {
                 that._logger.log("info", LOG_ID + "(deleteTemplate) delete successfull");
-                resolve(json);
+                // resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let companyId: string = json.companyId;
+                let event: string = json.event;
+                let description: string = json.description;
+                let mimeType: string = json.mimeType;
+                let senderName: string = json.senderName;
+                let headline: string = json.headline;
+                let instruction: string = json.instruction;
+                let contact: string = json.contact;
+                let type: string = json.type;
+                let status: string = json.status;
+                let scope: string = json.scope;
+                let category: string = json.category;
+                let urgency: string = json.urgency;
+                let severity: string = json.severity;
+                let certainty: string = json.certainty;
+
+
+                let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
+                // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+
+                resolve(templateCreated);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(deleteTemplate) error.");
                 that._logger.log("internalerror", LOG_ID + "(deleteTemplate) error : ", err);
                 return reject(err);
             });
-
-        });
-        /* if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("notificationsadmin", $"templates/{templateId}");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.DELETE);
-
-    restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            callback?.Invoke(new SdkResult<Boolean>(true));
-        }
-        else
-            callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(task.Result)));
-
-    });
-    // */
+        });      
     }
 
     /**
@@ -936,10 +812,33 @@ class AlertsService {
                 return;
             }
 
-            that._rest.getTemplate(templateId).then(function (json) {
+            that._rest.getTemplate(templateId).then(function (json:any) {
                 that._logger.log("info", LOG_ID + "(getTemplate) get successfull");
-// TODO : make the AlertTemplate with the result.
-                resolve(json);
+                // resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let companyId: string = json.companyId;
+                let event: string = json.event;
+                let description: string = json.description;
+                let mimeType: string = json.mimeType;
+                let senderName: string = json.senderName;
+                let headline: string = json.headline;
+                let instruction: string = json.instruction;
+                let contact: string = json.contact;
+                let type: string = json.type;
+                let status: string = json.status;
+                let scope: string = json.scope;
+                let category: string = json.category;
+                let urgency: string = json.urgency;
+                let severity: string = json.severity;
+                let certainty: string = json.certainty;
+
+
+                let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
+                // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+
+                resolve(templateCreated);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getTemplate) error.");
                 that._logger.log("internalerror", LOG_ID + "(getTemplate) error : ", err);
@@ -947,30 +846,6 @@ class AlertsService {
             });
 
         });
-        /*
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<AlertTemplate>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("notificationsadmin", $"templates/{templateId}");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-    restClient.ExecuteAsync<AlertTemplateData>(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            callback?.Invoke(new SdkResult<AlertTemplate>(task.Result.Data.Data));
-        }
-        else
-            callback?.Invoke(new SdkResult<AlertTemplate>(Sdk.ErrorFromResponse(task.Result)));
-
-    });
-    // */
     }
 
     /**
@@ -990,47 +865,45 @@ class AlertsService {
         let that = this;
         return new Promise((resolve, reject) => {
 
-            that._rest.getTemplates(companyId, offset, limit).then(function (json) {
+            that._rest.getTemplates(companyId, offset, limit).then(async function (json) {
                 that._logger.log("info", LOG_ID + "(getTemplates) get successfull");
-// TODO : make a Data typed with the result.
-                resolve(json);
+                // resolve(json);
+                let alertTemplatesData = new AlertTemplatesData(1000);
+                if (Array.isArray( json)) {
+                    for (const optionsKey in json) {
+                        let id: string = json[optionsKey].id;
+                        let name: string = json[optionsKey].name;
+                        let companyId: string = json[optionsKey].companyId;
+                        let event: string = json[optionsKey].event;
+                        let description: string = json[optionsKey].description;
+                        let mimeType: string = json[optionsKey].mimeType;
+                        let senderName: string = json[optionsKey].senderName;
+                        let headline: string = json[optionsKey].headline;
+                        let instruction: string = json[optionsKey].instruction;
+                        let contact: string = json[optionsKey].contact;
+                        let type: string = json[optionsKey].type;
+                        let status: string = json[optionsKey].status;
+                        let scope: string = json[optionsKey].scope;
+                        let category: string = json[optionsKey].category;
+                        let urgency: string = json[optionsKey].urgency;
+                        let severity: string = json[optionsKey].severity;
+                        let certainty: string = json[optionsKey].certainty;
+
+
+                        let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
+                        // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                        that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+
+                        await alertTemplatesData.addAlertTemplate(templateCreated);
+                    }
+                }
+                resolve(alertTemplatesData);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getTemplates) error.");
                 that._logger.log("internalerror", LOG_ID + "(getTemplates) error : ", err);
                 return reject(err);
             });
-
         });
-        /*
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<AlertTemplatesData>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("notificationsadmin", "templates");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-    if (!String.IsNullOrEmpty(companyId))
-        restRequest.AddQueryParameter("companyId", companyId);
-
-    restRequest.AddQueryParameter("limit", limit.ToString());
-    restRequest.AddQueryParameter("offset", offset.ToString());
-    restRequest.AddQueryParameter("format", "full");
-
-    restClient.ExecuteAsync<AlertTemplatesData>(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            callback?.Invoke(new SdkResult<AlertTemplatesData>(task.Result.Data));
-        }
-        else
-            callback?.Invoke(new SdkResult<AlertTemplatesData>(Sdk.ErrorFromResponse(task.Result)));
-    });
-    // */
     }
 
 //endregion TEMPLATE
@@ -1067,7 +940,7 @@ class AlertsService {
         return this.createOrUpdateFilter(false, filter);
     }
 
-    createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<any> {
+    createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -1089,22 +962,34 @@ class AlertsService {
              }
 
             if (create) {
-                that._rest.createFilter(body).then(function (json) {
+                that._rest.createFilter(body).then(function (json: any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateFilter) create successfull");
-                    resolve(json);
-// TODO : make the AlertFilter with the result. And maybe the AlertDeviceData.
+                 //   resolve(json);
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let companyId: string = json.companyId;
+                    let tags: List<string> = json.tags;
 
+                    let alertFilter = new AlertFilter(id, name, companyId, tags);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'filter' AlertFilter retrieved : ", alertFilter);
+                    resolve(alertFilter);
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(createOrUpdateFilter) error.");
                     that._logger.log("internalerror", LOG_ID + "(createOrUpdateFilter) error : ", err);
                     return reject(err);
                 });
             } else {
-                that._rest.updateFilter(filter.id, body).then(function (json) {
+                that._rest.updateFilter(filter.id, body).then(function (json : any) {
                     that._logger.log("info", LOG_ID + "(createOrUpdateFilter) create successfull");
-                    resolve(json);
-// TODO : make the AlertFilter with the result. And maybe the AlertDeviceData.
+                    let id: string = json.id;
+                    let name: string = json.name;
+                    let companyId: string = json.companyId;
+                    let tags: List<string> = json.tags;
 
+                    let alertFilter = new AlertFilter(id, name, companyId, tags);
+                    that._logger.log("internal", LOG_ID + "(createOrUpdateFilter) 'filter' AlertFilter retrieved : ", alertFilter);
+                    resolve(alertFilter);
+                    //resolve(json);
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(createOrUpdateFilter) error.");
                     that._logger.log("internalerror", LOG_ID + "(createOrUpdateFilter) error : ", err);
@@ -1113,61 +998,6 @@ class AlertsService {
             }
 
         });
-
-
-        /*
-    if (filter == null)
-    {
-        callback?.Invoke(new SdkResult<AlertFilter>("Filter object is null"));
-        return;
-    }
-
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<AlertFilter>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource;
-    RestRequest restRequest;
-
-    if (create)
-    {
-        resource = rest.GetResource("notificationsadmin", "filters");
-        restRequest = rest.GetRestRequest(resource, Method.POST);
-    }
-    else
-    {
-        resource = rest.GetResource("notificationsadmin", $"filters/{filter.Id}");
-        restRequest = rest.GetRestRequest(resource, Method.PUT);
-    }
-
-    Dictionary<string, object> bodyDico = new Dictionary<string, object>
-    {
-    { "name", filter.Name},
-    { "companyId", filter.CompanyId},
-    { "tags", filter.Tags}
-    };
-
-    String body = Util.GetJsonStringFromDictionary(bodyDico);
-    restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-    restClient.ExecuteAsync<AlertFilterData>(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            callback?.Invoke(new SdkResult<AlertFilter>(task.Result.Data.Data));
-        }
-        else
-        {
-            String str = Sdk.ErrorFromResponse(task.Result).ToString();
-            callback?.Invoke(new SdkResult<AlertFilter>(str));
-            log.Warn("[CreateOrUpdateAlert] - error:[{0}]", str);
-        }
-    });
-    // */
     }
 
     /**
@@ -1200,9 +1030,17 @@ class AlertsService {
                 return;
             }
 
-            that._rest.deleteFilter(filter.id).then(function (json) {
+            that._rest.deleteFilter(filter.id).then(function (json:any) {
                 that._logger.log("info", LOG_ID + "(deleteFilter) delete successfull");
-                resolve(json);
+                // resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let companyId: string = json.companyId;
+                let tags: List<string> = json.tags;
+
+                let alertFilter = new AlertFilter(id, name, companyId, tags);
+                that._logger.log("internal", LOG_ID + "(deleteFilter) 'filter' AlertFilter retrieved : ", alertFilter);
+                resolve(alertFilter);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(deleteFilter) error.");
                 that._logger.log("internalerror", LOG_ID + "(deleteFilter) error : ", err);
@@ -1210,31 +1048,6 @@ class AlertsService {
             });
 
         });
-
-        /*
-if (!application.Restrictions.AlertMessage)
-{
-    callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
-    return;
-}
-
-RestClient restClient = rest.GetClient();
-String resource = rest.GetResource("notificationsadmin", $"filters/{filterId}");
-
-RestRequest restRequest = rest.GetRestRequest(resource, Method.DELETE);
-
-restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-{
-    //Do we have a correct answer
-    if (task.Result.IsSuccessful)
-    {
-        callback?.Invoke(new SdkResult<Boolean>(true));
-    }
-    else
-        callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(task.Result)));
-
-});
-// */
     }
 
     /**
@@ -1267,44 +1080,25 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 return;
             }
 
-            that._rest.getFilter(filterId).then(function (json) {
+            that._rest.getFilter(filterId).then(function (json:any) {
                 that._logger.log("info", LOG_ID + "(getFilter) get successfull");
-// TODO : make the AlertTemplate with the result.
-                resolve(json);
+                //resolve(json);
+                let id: string = json.id;
+                let name: string = json.name;
+                let companyId: string = json.companyId;
+                let tags: List<string> = json.tags;
+
+                let alertFilter = new AlertFilter(id, name, companyId, tags);
+                that._logger.log("internal", LOG_ID + "(getFilter) 'filter' AlertFilter retrieved : ", alertFilter);
+                resolve(alertFilter);
+
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getFilter) error.");
                 that._logger.log("internalerror", LOG_ID + "(getFilter) error : ", err);
                 return reject(err);
             });
 
-        });
-        /*
-        if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<AlertFilter>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        String resource = rest.GetResource("notificationsadmin", $"filters/{filterId}");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-        restClient.ExecuteAsync<AlertFilterData>(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                callback?.Invoke(new SdkResult<AlertFilter>(task.Result.Data.Data));
-            }
-            else
-            {
-                String str = Sdk.ErrorFromResponse(task.Result).ToString();
-                callback?.Invoke(new SdkResult<AlertFilter>(str));
-                log.Warn("[CreateOrUpdateAlert] - error:[{0}]", str);
-            }
-        });
-        // */
+        });      
     }
 
     /**
@@ -1323,45 +1117,32 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
         let that = this;
         return new Promise((resolve, reject) => {
 
-            that._rest.getFilters(offset, limit).then(function (json) {
+            that._rest.getFilters(offset, limit).then(async function (json:any) {
                 that._logger.log("info", LOG_ID + "(getFilters) get successfull");
-// TODO : make a Data typed with the result.
-                resolve(json);
+                that._logger.log("internal", LOG_ID + "(getFilters) get successfull : ", json);
+                //resolve(json);
+
+                let alertFilters = new AlertFiltersData(1000);
+                if (Array.isArray( json)) {
+                    for (const optionsKey in json) {
+                        let id: string = json[optionsKey].id;
+                        let name: string = json[optionsKey].name;
+                        let companyId: string = json[optionsKey].companyId;
+                        let tags: List<string> = json[optionsKey].tags;
+
+                        let alertFilter = new AlertFilter(id, name, companyId, tags);
+                        that._logger.log("internal", LOG_ID + "(getFilters) 'filter' AlertFilter retrieved : ", alertFilter);
+                        await alertFilters.addAlertFilter(alertFilter);
+                    }
+                }
+                resolve(alertFilters);
+
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getFilters) error.");
                 that._logger.log("internalerror", LOG_ID + "(getFilters) error : ", err);
                 return reject(err);
             });
-
         });
-
-        /*
-                if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<AlertFiltersData>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        String resource = rest.GetResource("notificationsadmin", $"filters");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-        restRequest.AddQueryParameter("limit", limit.ToString());
-        restRequest.AddQueryParameter("offset", offset.ToString());
-        restRequest.AddQueryParameter("format", "full");
-
-        restClient.ExecuteAsync<AlertFiltersData>(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                callback?.Invoke(new SdkResult<AlertFiltersData>(task.Result.Data));
-            }
-            else
-                callback?.Invoke(new SdkResult<AlertFiltersData>(Sdk.ErrorFromResponse(task.Result)));
-        });
-        // */
     }
 
 //endregion FILTERS
@@ -1415,6 +1196,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
             }
 
             try {
+                
                 let date: Date = alert.startDate ? new Date(alert.startDate) : new Date();
 
                 let expirationDate: Date = new Date();
@@ -1424,7 +1206,15 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 }
 
                 let body: any = {};
+                
+                if (alert.name){
+                    body.name = alert.name;
+                }
 
+                if (alert.description){
+                    body.description = alert.description;
+                }
+                
                 if (alert.companyId) {
                     body.companyId = alert.companyId;
                 }
@@ -1470,106 +1260,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 return reject(err);
             }
         });
-
-
-        /*
-                if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<Alert>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        if (alert == null)
-        {
-            callback?.Invoke(new SdkResult<Alert>("Alert object is null"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource;
-        RestRequest restRequest;
-
-        if (create)
-        {
-            resource = rest.GetResource("notifications", "notifications");
-            restRequest = rest.GetRestRequest(resource, Method.POST);
-        }
-        else
-        {
-            resource = rest.GetResource("notifications", $"notifications/{alert.Id}");
-            restRequest = rest.GetRestRequest(resource, Method.PUT);
-        }
-
-        Dictionary<string, object> bodyDico = new Dictionary<string, object>
-        {
-        { "companyId", alert.CompanyId },
-
-        { "notificationTemplateId", alert.TemplateId },
-        { "notificationFilterId", alert.FilterId },
-
-        { "startDate", alert.StartDate.ToString("o") },
-        { "expirationDate", alert.ExpirationDate.ToString("o") }
-        };
-
-        String body = Util.GetJsonStringFromDictionary(bodyDico);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                var json = JsonConvert.DeserializeObject<dynamic>(task.Result.Content);
-                JObject jObject = json["data"];
-
-                Alert newAlert = GetAlertFromJObject(jObject);
-                callback?.Invoke(new SdkResult<Alert>(newAlert));
-            }
-            else
-            {
-                String str = Sdk.ErrorFromResponse(task.Result).ToString();
-                callback?.Invoke(new SdkResult<Alert>(str));
-                log.Warn("[CreateOrUpdateAlert] - error:[{0}]", str);
-            }
-        });
-        // */
     }
-
-    /*
-    private Alert GetAlertFromJObject(JObject jObject)
-    {
-    Alert newAlert = new Alert();
-    if (jObject != null)
-    {
-        newAlert.Id = jObject.GetValue("id").ToString();
-        newAlert.CompanyId = jObject.GetValue("companyId")?.ToString();
-        newAlert.Status = jObject.GetValue("status")?.ToString();
-        newAlert.FilterId = jObject.GetValue("notificationFilterId")?.ToString();
-
-        JArray jArray = (JArray)jObject["history"];
-        if(jArray != null)
-        {
-            // Get always the last entry
-            JObject jHistory = (JObject)jArray[jArray.Count - 1];
-            if (jHistory != null)
-            {
-                newAlert.TemplateId = jHistory.GetValue("notificationTemplateId")?.ToString();
-
-                DateTime date = DateTime.MinValue;
-                if (jHistory["sentDate"] != null)
-                    DateTime.TryParse(jHistory.GetValue("sentDate").ToString(), out date);
-                newAlert.StartDate = date;
-
-                date = DateTime.MinValue;
-                if (jHistory["expirationDate"] != null)
-                    DateTime.TryParse(jHistory.GetValue("expirationDate").ToString(), out date);
-                newAlert.ExpirationDate = date;
-            }
-        }
-    }
-    return newAlert;
-    }
-    // */
 
     /**
      * @public
@@ -1610,33 +1301,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 that._logger.log("internalerror", LOG_ID + "(deleteAlert) error : ", err);
                 return reject(err);
             });
-
         });
-
-        /*
-            if (!application.Restrictions.AlertMessage)
-        {
-            callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        String resource = rest.GetResource("notifications", $"notifications/{alertId}");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.DELETE);
-
-        restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-        {
-            //Do we have a correct answer
-            if (task.Result.IsSuccessful)
-            {
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(task.Result)));
-
-        });
-        // */
     }
 
     /**
@@ -1677,36 +1342,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 that._logger.log("internalerror", LOG_ID + "(getAlert) error : ", err);
                 return reject(err);
             });
-
         });
-        /*
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<Alert>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    String resource = rest.GetResource("notifications", $"notifications/{alertId}");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-    restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            var json = JsonConvert.DeserializeObject<dynamic>(task.Result.Content);
-            JObject jObject = json["data"];
-
-            Alert newAlert = GetAlertFromJObject(jObject);
-            callback?.Invoke(new SdkResult<Alert>(newAlert));
-        }
-        else
-            callback?.Invoke(new SdkResult<Alert>(Sdk.ErrorFromResponse(task.Result)));
-
-    });
-    // */
     }
 
     /**
@@ -1734,53 +1370,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 that._logger.log("internalerror", LOG_ID + "(getAlerts) error : ", err);
                 return reject(err);
             });
-
-        });
-        /*
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<AlertsData>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    String resource = rest.GetResource("notifications", $"notifications");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-    restRequest.AddQueryParameter("limit", limit.ToString());
-    restRequest.AddQueryParameter("offset", offset.ToString());
-    restRequest.AddQueryParameter("format", "full");
-
-    restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            AlertsData alertsData = new AlertsData();
-            var json = JsonConvert.DeserializeObject<dynamic>(task.Result.Content);
-
-            alertsData.Total = json.GetValue("total").ToObject<int>();
-            alertsData.Limit = json.GetValue("limit").ToObject<int>();
-            alertsData.Offset = json.GetValue("offset").ToObject<int>();
-
-            alertsData.Data = new List<Alert>();
-            if (json["data"] != null)
-            {
-                Alert newAlert;
-                JArray jArray = (JArray)json["data"];
-                foreach(JToken jToken in jArray)
-                {
-                    newAlert = GetAlertFromJObject((JObject)jToken);
-                    alertsData.Data.Add(newAlert);
-                }
-            }
-            callback?.Invoke(new SdkResult<AlertsData>(alertsData));
-        }
-        else
-            callback?.Invoke(new SdkResult<AlertsData>(Sdk.ErrorFromResponse(task.Result)));
-    });
-    // */
+        });      
     }
 
     /**
@@ -1836,34 +1426,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
                 return reject(err);
             });
-        });
-
-        /*
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource;
-    RestRequest restRequest;
-
-    resource = rest.GetResource("notifications", $"notifications/{alertId}/feedback");
-    restRequest = rest.GetRestRequest(resource, Method.POST);
-
-    string body = string.Format(@"{{ ""deviceId"": ""{0}"", ""data"": {{ ""answerId"": ""{1}"" }} }}", deviceId, answerId);
-    restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-    restClient.ExecuteAsync(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-            callback?.Invoke(new SdkResult<Boolean>(true));
-        else
-            callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(task.Result)));
-    });
-    // */
+        });        
     }
 
 //endregion CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
@@ -1900,33 +1463,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 that._logger.log("internalerror", LOG_ID + "(getReportSummary) error : ", err);
                 return reject(err);
             });
-
         });
-
-        /*
-    if (!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<List<AlertReportSummary>>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("notificationsreport", $"/notifications/{alertId}/reports/summary");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-    restClient.ExecuteAsync<AlertReportSummaryData>(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            callback?.Invoke(new SdkResult<List<AlertReportSummary>>(task.Result.Data.Data));
-        }
-        else
-            callback?.Invoke(new SdkResult<List<AlertReportSummary>>(Sdk.ErrorFromResponse(task.Result)));
-
-    });
-    // */
     }
 
     /**
@@ -1959,33 +1496,7 @@ restClient.ExecuteAsync(restRequest).ContinueWith(task =>
                 that._logger.log("internalerror", LOG_ID + "(getReportDetails) error : ", err);
                 return reject(err);
             });
-
-        });
-
-        /*
-    if(!application.Restrictions.AlertMessage)
-    {
-        callback?.Invoke(new SdkResult<List<AlertReportDetails>>("AlertMessage has not been allowed in Application.Restrictions object"));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("notificationsreport", $"/notifications/{alertId}/reports/details");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-
-    restClient.ExecuteAsync<AlertReportDetailsData>(restRequest).ContinueWith(task =>
-    {
-        //Do we have a correct answer
-        if (task.Result.IsSuccessful)
-        {
-            callback?.Invoke(new SdkResult<List<AlertReportDetails>>(task.Result.Data.Data));
-        }
-        else
-            callback?.Invoke(new SdkResult<List<AlertReportDetails>>(Sdk.ErrorFromResponse(task.Result)));
-
-    });
-    // */
+        });        
     }
 
 //endregion REPORTS

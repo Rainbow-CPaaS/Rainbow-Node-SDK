@@ -168,6 +168,7 @@ class Bubbles {
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 // */
                 that.ready = false;
+                that.bubblesManager.reset();
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
@@ -1873,7 +1874,7 @@ class Bubbles {
      * @method setBubbleName
      * @instance
      * @param {Bubble} bubble The Bubble
-     * @param {string} topic Bubble's name
+     * @param {string} name Bubble's name
      * @description
      *  Set the Bubble's name <br/>
      * @async
