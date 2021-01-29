@@ -1730,6 +1730,44 @@ function testSetBubbleCustomData() {
         //});
     });
 }
+
+    function testSetBubbleName() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let that = this;
+            let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+            let bubble;
+            if (activesBubbles && activesBubbles.length > 0) {
+                //bubble = Object.assign(new Bubble(), activesBubbles[0]);
+                bubble = Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
+            }
+            //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
+            logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
+            //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
+            let now = new Date().getTime();
+            let bubbleUpdated = yield rainbowSDK.bubbles.setBubbleName(bubble, "TestName_" + now);
+            logger.log("debug", "MAIN - testSetBubbleName, bubbleUpdated : ", bubbleUpdated);
+        });
+    }
+
+    function testSetBubbleTopic() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let that = this;
+            let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+            let bubble;
+            if (activesBubbles && activesBubbles.length > 0) {
+                //bubble = Object.assign(new Bubble(), activesBubbles[0]);
+                bubble = Bubble_1.Bubble.BubbleFactory()(activesBubbles[0], rainbowSDK.contacts);
+            }
+            //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
+            logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
+            //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
+            let now = new Date().getTime();
+            let bubbleUpdated = yield rainbowSDK.bubbles.setBubbleTopic(bubble, "TestTopic_" + now);
+            logger.log("debug", "MAIN - testSetBubbleTopic, bubbleUpdated : ", bubbleUpdated);
+        });
+    }
+
+
 function testDeletebubble() {
     return __awaiter(this, void 0, void 0, function* () {
         let bubbleId = "5cde768d424fb13186b9e6d4";
