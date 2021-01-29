@@ -4,6 +4,7 @@ build:
 	yarn && \
 	grunt ts && \
 	grunt
+	grunt delivery
 
 doc:
 	grunt nodesheets
