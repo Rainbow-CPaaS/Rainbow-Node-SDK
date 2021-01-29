@@ -127,7 +127,8 @@ safeJsonParse(str) {
         nbHttpAdded: number,
         httpQueueSize: number,
         nbRunningReq: number,
-        maxSimultaneousRequests : number
+        maxSimultaneousRequests : number,
+        nbReqInQueue : number
     }> {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
@@ -135,12 +136,14 @@ safeJsonParse(str) {
             nbHttpAdded: number,
             httpQueueSize: number,
             nbRunningReq: number,
-            maxSimultaneousRequests : number
+            maxSimultaneousRequests : number,
+            nbReqInQueue : number
         } = {
             nbHttpAdded : 0,
             httpQueueSize : 0,
             nbRunningReq : 0,
-            maxSimultaneousRequests : 0
+            maxSimultaneousRequests : 0,
+            nbReqInQueue : 0
         };
 
         try {

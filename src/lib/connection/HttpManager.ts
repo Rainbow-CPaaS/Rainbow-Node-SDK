@@ -105,7 +105,8 @@ class HttpManager {
         nbHttpAdded: number,
         httpQueueSize: number,
         nbRunningReq: number,
-        maxSimultaneousRequests : number
+        maxSimultaneousRequests : number,
+        nbReqInQueue: number
     }> {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
@@ -113,12 +114,14 @@ class HttpManager {
             nbHttpAdded: number,
             httpQueueSize: number,
             nbRunningReq: number,
-            maxSimultaneousRequests : number
+            maxSimultaneousRequests : number,
+            nbReqInQueue: number
         } = {
             nbHttpAdded : 0,
             httpQueueSize : 0,
             nbRunningReq : 0,
-            maxSimultaneousRequests : 0
+            maxSimultaneousRequests : 0,
+            nbReqInQueue: 0
         };
 
         try {
@@ -126,6 +129,7 @@ class HttpManager {
             httpStatus.httpQueueSize = that.httpList.length;
             httpStatus.nbRunningReq = that.nbRunningReq;
             httpStatus.maxSimultaneousRequests = that.MaxSimultaneousRequests;
+            httpStatus.nbReqInQueue = that.httpList.length;
             that._logger.log("debug", LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
         } catch (err) {
             that._logger.log("debug", LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);

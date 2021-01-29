@@ -6,6 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.83.0-dotnet.2] - 2021-01-29
+-   Update getConnectionStatus api to add in the return a value of `nbReqInQueue` the number of requests waiting for being treated by the HttpManager.
+
+## [1.83.0-dotnet.1] - 2021-01-29
+
 ## [1.83.0-dotnet.0] - 2021-01-29
 -   Use of `AlertFilter`, `AlertFiltersData`, `AlertTemplate`, `AlertTemplatesData`, `AlertFilter`, `AlertFiltersData`, types of result of API in `AlertsService`.
 -   Update of `rainbow_onmessagereceived` event with the `mentions` tab. It is to indicate the contacts mentioned in the message.
