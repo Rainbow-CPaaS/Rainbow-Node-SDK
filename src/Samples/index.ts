@@ -1738,7 +1738,7 @@ function testSetBubbleCustomData() {
             let bubble;
             if (activesBubbles && activesBubbles.length > 0) {
                 //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
+                bubble = yield Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
             }
             //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
             logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
@@ -1756,7 +1756,7 @@ function testSetBubbleCustomData() {
             let bubble;
             if (activesBubbles && activesBubbles.length > 0) {
                 //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = Bubble_1.Bubble.BubbleFactory()(activesBubbles[0], rainbowSDK.contacts);
+                bubble = yield Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
             }
             //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
             logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
