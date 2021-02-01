@@ -325,6 +325,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             }
                         }); */
 
+                        conversation.historyComplete = true;
                         conversation.historyDefered.resolve(conversation);
                     }
 
