@@ -8,7 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {isNullOrEmpty, logEntryExit, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {AlertEventHandler} from '../connection/XMPPServiceHandler/alertEventHandler';
-import {Alert} from '../common/models/Alert';
+import {Alert, AlertsData} from '../common/models/Alert';
 import {ErrorManager} from "../common/ErrorManager";
 import {isStarted} from "../common/Utils";
 import {EventEmitter} from "events";
@@ -262,10 +262,10 @@ class AlertsService {
      *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br/>
      *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br/>
      *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertDevice>} the result of the operation.
      * @category async
      */
-    createDevice(device: AlertDevice): Promise<any> {
+    createDevice(device: AlertDevice): Promise<AlertDevice> {
         return this.createOrUpdateDevice(true, device);
     }
 
@@ -281,10 +281,10 @@ class AlertsService {
      *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br/>    
      *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br/>    
      *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br/>
-     * @return {Promise<any>} the result of the operation.   <br/>
+     * @return {Promise<AlertDevice>} the result of the operation.   <br/>
      * @category async
      */
-    updateDevice(device: AlertDevice): Promise<any> {
+    updateDevice(device: AlertDevice): Promise<AlertDevice> {
         return this.createOrUpdateDevice(false, device);
     }
 
@@ -383,7 +383,7 @@ class AlertsService {
      * @param {AlertDevice} device Device to delete.
      * @description
      *    Delete a device (using its id) <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertDevice>} the result of the operation.
      * @category async
      */
     deleteDevice(device: AlertDevice): Promise<AlertDevice> {
@@ -444,10 +444,10 @@ class AlertsService {
      * @param {string} deviceId Id of the device.
      * @description
      *    Get a device using its Id <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertDevice>} the result of the operation.
      * @category async
      */
-    getDevice(deviceId: string): Promise<any> {
+    getDevice(deviceId: string): Promise<AlertDevice> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -510,7 +510,7 @@ class AlertsService {
      * @param {number} limit Allow to specify the number of devices to retrieve.
      * @description
      *    Get list of devices   <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertDevicesData>} the result of the operation.
      * @category async
      */
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
@@ -541,8 +541,7 @@ class AlertsService {
                         await alertDevices.addAlertDevice(alertDevice);
                     }
                 }
-                resolve(alertDevices);
-                
+                resolve(alertDevices);                
                 //resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getDevices) error.");
@@ -591,10 +590,10 @@ class AlertsService {
      * @param {AlertTemplate} template Template to create.
      * @description
      *    Create a template <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertTemplate>} the result of the operation.
      * @category async
      */
-    createTemplate(template: AlertTemplate): Promise<any> {
+    createTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         return this.createOrUpdateTemplate(true, template);
     }
 
@@ -606,14 +605,14 @@ class AlertsService {
      * @param {AlertTemplate} template Template to Update.
      * @description
      *    Update a template  <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertTemplate>} the result of the operation.
      * @category async
      */
-    updateTemplate(template: AlertTemplate): Promise<any> {
+    updateTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         return this.createOrUpdateTemplate(false, template);
     }
 
-    private createOrUpdateTemplate(create: boolean, template: AlertTemplate): Promise<any> {
+    private createOrUpdateTemplate(create: boolean, template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -725,10 +724,10 @@ class AlertsService {
      * @param {AlertTemplate} template Template to Delete.
      * @description
      *    Delete a template <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertTemplate>} the result of the operation.
      * @category async
      */
-    deleteTemplate(template: AlertTemplate): Promise<any> {
+    deleteTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -790,10 +789,10 @@ class AlertsService {
      * @param {string} templateId Id of the template.
      * @description
      *    Get an template by id <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertTemplate>} the result of the operation.
      * @category async
      */
-    getTemplate(templateId: string): Promise<any> {
+    getTemplate(templateId: string): Promise<AlertTemplate> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -858,10 +857,10 @@ class AlertsService {
      * @param {number} limit Limit of templates to retrieve (100 by default).
      * @description
      *    Get templates <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertTemplatesData>} the result of the operation.
      * @category async
      */
-    getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<any> {
+    getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<AlertTemplatesData> {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -918,10 +917,10 @@ class AlertsService {
      * @param {AlertFilter} filter Filter to create.
      * @description
      *    Create a filter <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertFilter>} the result of the operation.
      * @category async
      */
-    createFilter(filter: AlertFilter): Promise<any> {
+    createFilter(filter: AlertFilter): Promise<AlertFilter> {
         return this.createOrUpdateFilter(true, filter);
     }
 
@@ -933,10 +932,10 @@ class AlertsService {
      * @param {AlertFilter} filter Filter to Update.
      * @description
      *    Update a filter <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertFilter>} the result of the operation.
      * @category async
      */
-    updateFilter(filter: AlertFilter) {
+    updateFilter(filter: AlertFilter) : Promise<AlertFilter> {
         return this.createOrUpdateFilter(false, filter);
     }
 
@@ -1008,10 +1007,10 @@ class AlertsService {
      * @param {AlertFilter} filter Filter to Delete.
      * @description
      *    Delete a filter <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertFilter>} the result of the operation.
      * @category async
      */
-    deleteFilter(filter: AlertFilter): Promise<any> {
+    deleteFilter(filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -1058,10 +1057,10 @@ class AlertsService {
      * @param {string} filterId Id of the Filter.
      * @description
      *    Get an filter by id <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertFilter>} the result of the operation.
      * @category async
      */
-    getFilter(filterId: string): Promise<any> {
+    getFilter(filterId: string): Promise<AlertFilter> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -1110,10 +1109,10 @@ class AlertsService {
      * @param {number} limit Limit of filters to retrieve (100 by default).
      * @description
      *    Get filters : have required role(s) superadmin, admin <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertFiltersData>} the result of the operation.
      * @category async
      */
-    getFilters(offset: number = 0, limit: number = 100): Promise<any> {
+    getFilters(offset: number = 0, limit: number = 100): Promise<AlertFiltersData> {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -1159,10 +1158,10 @@ class AlertsService {
      *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
      *    The alert will be received by devices according the filter id and the company id used.   <br/>
      *    The content of the alert is based on the template id.   <br/>
-     * @return {Promise<any>} the result of the operation.  
+     * @return {Promise<Alert>} the result of the operation.  
      * @category async
      */
-    createAlert(alert: Alert): Promise<any> {
+    createAlert(alert: Alert): Promise<Alert> {
         return this.createOrUpdateAlert(true, alert);
     }
 
@@ -1177,14 +1176,14 @@ class AlertsService {
      *    The alert will be received by devices according the filter id and the company id used.   <br/>
      *    The content of the alert is based on the template id.   <br/>
      *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br/>  
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<Alert>} the result of the operation.
      * @category async
      */
-    updateAlert(alert: Alert): Promise<any> {
+    updateAlert(alert: Alert): Promise<Alert> {
         return this.createOrUpdateAlert(false, alert);
     }
 
-    createOrUpdateAlert(create: boolean, alert: Alert): Promise<any> {
+    createOrUpdateAlert(create: boolean, alert: Alert): Promise<Alert> {
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -1233,21 +1232,44 @@ class AlertsService {
                 that._logger.log("info", LOG_ID + "(createOrUpdateAlert) body : ", body);
 
                 if (create) {
-                    that._rest.createAlert(body).then(function (json) {
+                    that._rest.createAlert(body).then(function (json : any) {
                         that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
-                        resolve(json);
-                        // TODO : make the Alert with the result. And maybe the AlertDeviceData.
+                        let  id: string = json.id;
+                        let  name: string = json.name;
+                        let  description: string = json.description;
+                        let  status: string = json.status;
+                        let  templateId: string = json.templateId;
+                        let  filterId: string = json.filterId;
+                        let  companyId: string = json.companyId;
+                        let  startDate: string = json.startDate;
+                        let  expirationDate: string = json.expirationDate;
+
+                        let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
+                        alert.id = id;
+                        that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert created : ", alert);
+                        resolve(alert);                            
                     }).catch(function (err) {
                         that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
                         that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
                         return reject(err);
                     });
                 } else {
-                    that._rest.updateAlert(alert.id, body).then(function (json) {
+                    that._rest.updateAlert(alert.id, body).then(function (json : any) {
                         that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
-                        resolve(json);
-// TODO : make the Alert with the result. And maybe the AlertDeviceData.
+                        let  id: string = json.id;
+                        let  name: string = json.name;
+                        let  description: string = json.description;
+                        let  status: string = json.status;
+                        let  templateId: string = json.templateId;
+                        let  filterId: string = json.filterId;
+                        let  companyId: string = json.companyId;
+                        let  startDate: string = json.startDate;
+                        let  expirationDate: string = json.expirationDate;
 
+                        let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
+                        alert.id = id;
+                        that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert updated : ", alert);
+                        resolve(alert);
                     }).catch(function (err) {
                         that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
                         that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
@@ -1271,10 +1293,10 @@ class AlertsService {
      * @description
      *    Delete an alert   <br/>
      *    All the data related to this notification are deleted, including the reports <br/>  
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<Alert>} the result of the operation.
      * @category async
      */
-    deleteAlert(alert: Alert): Promise<any> {
+    deleteAlert(alert: Alert): Promise<Alert> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -1293,9 +1315,22 @@ class AlertsService {
                 return;
             }
 
-            that._rest.deleteAlert(alert.id).then(function (json) {
+            that._rest.deleteAlert(alert.id).then(function (json : any) {
                 that._logger.log("info", LOG_ID + "(deleteAlert) delete successfull");
-                resolve(json);
+                let  id: string = json.id;
+                let  name: string = json.name;
+                let  description: string = json.description;
+                let  status: string = json.status;
+                let  templateId: string = json.templateId;
+                let  filterId: string = json.filterId;
+                let  companyId: string = json.companyId;
+                let  startDate: string = json.startDate;
+                let  expirationDate: string = json.expirationDate;
+
+                let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
+                alert.id = id;
+                that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert deleted : ", alert);
+                resolve(alert);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(deleteAlert) error.");
                 that._logger.log("internalerror", LOG_ID + "(deleteAlert) error : ", err);
@@ -1312,10 +1347,10 @@ class AlertsService {
      * @param {string} alertId Id of the alert.
      * @description
      *    Get an alert by id <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<Alert>} the result of the operation.
      * @category async
      */
-    getAlert(alertId: string): Promise<any> {
+    getAlert(alertId: string): Promise<Alert> {
         let that = this;
         return new Promise((resolve, reject) => {
             /*
@@ -1333,10 +1368,22 @@ class AlertsService {
                 return;
             }
 
-            that._rest.getAlert(alertId).then(function (json) {
+            that._rest.getAlert(alertId).then(function (json: any) {
                 that._logger.log("info", LOG_ID + "(getAlert) get successfull");
-// TODO : make the Alert with the result.
-                resolve(json);
+                let  id: string = json.id;
+                let  name: string = json.name;
+                let  description: string = json.description;
+                let  status: string = json.status;
+                let  templateId: string = json.templateId;
+                let  filterId: string = json.filterId;
+                let  companyId: string = json.companyId;
+                let  startDate: string = json.startDate;
+                let  expirationDate: string = json.expirationDate;
+
+                let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
+                alert.id = id;
+                that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert created : ", alert);
+                resolve(alert);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getAlert) error.");
                 that._logger.log("internalerror", LOG_ID + "(getAlert) error : ", err);
@@ -1354,17 +1401,38 @@ class AlertsService {
      * @param {number} limit Limit of Alerts to retrieve (100 by default).
      * @description
      *    Get alerts : required role(s) superadmin,support,admin <br/>
-     * @return {Promise<any>} the result of the operation.
+     * @return {Promise<AlertsData>} the result of the operation.
      * @category async
      */
-    getAlerts(offset: number = 0, limit: number = 100): Promise<any> {
+    getAlerts(offset: number = 0, limit: number = 100): Promise<AlertsData> {
         let that = this;
         return new Promise((resolve, reject) => {
 
-            that._rest.getAlerts(offset, limit).then(function (json) {
+            that._rest.getAlerts(offset, limit).then(async function (json : any) {
                 that._logger.log("info", LOG_ID + "(getAlerts) get successfull");
-// TODO : make a Data typed with the result.
-                resolve(json);
+
+                let alerts : AlertsData = new AlertsData(json.limit);
+                alerts.offset = json.offset;
+                alerts.total = json.total;
+                if (Array.isArray( json.data)) {
+                    for (const optionsKey in json.data) {
+                        let  id: string = json.data[optionsKey].id;
+                        let  name: string = json.data[optionsKey].name;
+                        let  description: string = json.data[optionsKey].description;
+                        let  status: string = json.data[optionsKey].status;
+                        let  templateId: string = json.data[optionsKey].templateId;
+                        let  filterId: string = json.data[optionsKey].filterId;
+                        let  companyId: string = json.data[optionsKey].companyId;
+                        let  startDate: string = json.data[optionsKey].startDate;
+                        let  expirationDate: string = json.data[optionsKey].expirationDate;
+
+                        let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
+                        alert.id = id;
+                        that._logger.log("internal", LOG_ID + "(getAlerts) 'alert' Alert retrieved : ", alert);
+                        await alerts.addAlert(alert);
+                    }
+                }
+                resolve(alerts);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getAlerts) error.");
                 that._logger.log("internalerror", LOG_ID + "(getAlerts) error : ", err);

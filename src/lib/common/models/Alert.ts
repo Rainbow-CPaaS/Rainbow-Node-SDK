@@ -1,5 +1,8 @@
 "use strict";
-import {List} from "ts-generic-collections-linq";
+
+const AsyncLock = require('async-lock');
+import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 
 export {};
 
@@ -51,7 +54,7 @@ class Alert {
          * @property {string} status State of the Alert ('active', 'failed', 'completed', 'expired', 'canceled')
          * @instance
          */
-        this.status = description;
+        this.status = status;
 
         /**
          * @public
@@ -102,19 +105,41 @@ class Alert {
  *      Structure used when retrieving severals Alerts from server. <br>
  */
 class AlertsData {
-    public data: List<Alert>;
-    public total: number;
-    public limit: number
-    public offset: number
+    get size(): number {
+        this._size = this._alerts.length;
+        return this._size;
+    }
 
-    constructor( data: List<Alert>, total: number = 0, limit: number = 0, offset: number = 0){
+    set size(value: number) {
+        this._size = value;
+    }
+    get alerts(): IDictionary<string, Alert> {
+        return this._alerts;
+    }
+
+    set alerts(value: IDictionary<string, Alert>) {
+        this._alerts = value;
+    }
+    private _alerts: IDictionary<string, Alert> = new Dictionary();
+    public total: number;
+    public limit: number;
+    public offset: number;
+    
+    private _size: number;
+
+    private lockEngine: any;
+    private lockKey = "LOCK_ALERT";
+
+    constructor(limit: number = 0) {
+        this.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
+
         /**
          * @public
          * @readonly
-         * @property {List<Alert>} id The List of Alerts retrieved
+         * @property {List<string>} data The List of Alert found
          * @instance
          */
-        this.data = data;
+        // this.data = new List<Alert>();
 
         /**
          * @public
@@ -122,12 +147,12 @@ class AlertsData {
          * @property {number} total The Total number of items available
          * @instance
          */
-        this.total = total;
+        this.total = 0;
 
         /**
          * @public
          * @readonly
-         * @property {number} limit The number of items asked
+         * @property {number} limit The Number of items asked
          * @instance
          */
         this.limit = limit;
@@ -138,9 +163,138 @@ class AlertsData {
          * @property {number} offset The Offset used
          * @instance
          */
-        this.offset = offset;
-
+        this.offset = 0;
     }
+
+    //region Lock
+
+    lock(fn) {
+        let that = this;
+        let opts = undefined;
+        return that.lockEngine.acquire(that.lockKey,
+                async function () {
+                    // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
+                    //that._logger.log("internal", LOG_ID + "(lock) lock the ", that.lockKey);
+                    return await fn(); // async work
+                }, opts).then((result) => {
+            // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
+            //that._logger.log("internal", LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
+            return result;
+        });
+    }
+
+    //endregion
+
+    // region Add/get/first/last/remove Alert
+
+    addAlert (alert : Alert) : Promise<Alert> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                if ( (!that._alerts.containsKey(alert.id)) )
+                {
+                    that.total++;
+                    //that._logger.log("debug", LOG_ID + "(addBubbleToJoin) We add the Bubble in the pool poolBubbleToJoin to join it as soon as possible - Jid : ", roomJid,", nbBubbleAdded : ", that.nbBubbleAdded);
+                    that._alerts.add(alert.id, alert);
+                    //needToAsk = true;
+                    return alert;
+                }
+                return ;
+            }).then((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Succeed - Jid : ", result);
+                return resolve(result);
+            }).catch((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Failed - Jid : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+
+    async removeBubbleToJoin(alert: Alert): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                if ( (that._alerts.containsKey(alert.id)) )
+                {
+                    //that._logger.log("debug", LOG_ID + "(removeBubbleToJoin) We remove the Bubble from poolBubbleToJoin - Jid : ", roomJid);
+                    that._alerts.remove((item: KeyValuePair<string, Alert>) => {
+                        return alert.id === item.key;
+                    });
+                    //needToAsk = true;
+                }
+            }).then((result) => {
+                //that._logger.log("internal", LOG_ID + "(removeBubbleToJoin) Succeed - Jid : ", result);
+                resolve(result);
+            }).catch((result) => {
+                //that._logger.log("internal", LOG_ID + "(removeBubbleToJoin) Failed - Jid : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+
+    async getAlert() : Promise<Alert>{
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                let item: KeyValuePair<string, Alert> = that._alerts.elementAt(0);
+                if (!item) return ;
+                let id = item.key;
+                let alert = item.value;
+                //that._logger.log("debug", LOG_ID + "(getBubbleToJoin) We retrieved the Bubble from poolBubbleToJoin - Jid : ", roomJid);
+
+                //that._logger.log("debug", LOG_ID + "(getBubbleToJoin) We remove the Bubble from poolBubbleToJoin - Jid : ", roomJid);
+                that._alerts.remove((item: KeyValuePair<string, Alert>) => {
+                    return id === item.key;
+                });
+                return alert;
+            }).then((result) => {
+                // that._logger.log("internal", LOG_ID + "(getBubbleToJoin) Succeed - bubble : ", result);
+                resolve(result);
+            }).catch((result) => {
+                // that._logger.log("internal", LOG_ID + "(getBubbleToJoin) Failed - bubble : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+
+    first () : Promise<Alert>{
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                let item: KeyValuePair<string, Alert> = that._alerts.elementAt(0);
+                return item.value;
+            }).then((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Succeed - Jid : ", result);
+                return resolve(result);
+            }).catch((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Failed - Jid : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+
+    last () : Promise<Alert> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.lock(() => {
+                // Treatment in the lock
+                let item: KeyValuePair<string, Alert> = that._alerts.elementAt(that.total);
+                return item.value;
+            }).then((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Succeed - Jid : ", result);
+                return resolve(result);
+            }).catch((result) => {
+                //that._logger.log("internal", LOG_ID + "(addBubbleToJoin) Failed - Jid : ", result);
+                resolve(undefined);
+            });
+        });
+    }
+
+    //endregion
 }
 
 module.exports = {Alert, AlertsData};
