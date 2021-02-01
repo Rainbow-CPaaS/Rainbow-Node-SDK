@@ -8,6 +8,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.83.0-dotnet.2] - 2021-01-29
 -   Update getConnectionStatus api to add in the return a value of `nbReqInQueue` the number of requests waiting for being treated by the HttpManager.
+-   Fix getHistory when the conversation contain no message.
+-   Use of `Alert`, `AlertsData` types of result of API in `AlertsService`.
 
 ## [1.83.0-dotnet.1] - 2021-01-29
 
