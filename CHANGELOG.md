@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.83.0-dotnet.2] - 2021-01-29
+## [1.83.0-dotnet.2] - 2021-02-01
 -   Update getConnectionStatus api to add in the return a value of `nbReqInQueue` the number of requests waiting for being treated by the HttpManager.
 -   Fix getHistory when the conversation contain no message.
 -   Use of `Alert`, `AlertsData` types of result of API in `AlertsService`.
