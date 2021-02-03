@@ -1678,6 +1678,100 @@ function testgetAllConversations() {
     }
 }
 
+async function testgetMyProfiles() {
+    //let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+    //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+    /*
+    rainbowSDK.admin.retrieveUserSubscriptions(connectedUser.id).then(async function (result) {
+        logger.log("debug", "MAIN - testretrieveUserSubscriptions - retrieveUserSubscriptions, result : ", result);
+    });
+    // */
+
+    let result = rainbowSDK.profiles.getMyProfiles()
+    logger.log("debug", "MAIN - testretrieveUserSubscriptions - getMyProfiles, result : ", result);
+}
+
+//region BUBBLES CONTAINERS
+    async function testgetAllBubblesContainers() {
+        rainbowSDK.bubbles.getAllBubblesContainers().then(async function (result) {
+            logger.log("debug", "MAIN - testgetAllBubblesContainers - getAllBubblesContainers, result : ", result);
+        });
+    }
+    
+    async function testgetAllBubblesContainersByName() {
+        rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
+            logger.log("debug", "MAIN - testgetAllBubblesContainers - getAllBubblesContainers, result : ", result);
+        });
+    }
+
+    async function testgetABubblesContainersById() {
+        rainbowSDK.bubbles.getAllBubblesContainers().then(async function (result) {
+            logger.log("debug", "MAIN - testgetAllBubblesContainers - getAllBubblesContainers, result : ", result);
+            rainbowSDK.bubbles.getABubblesContainersById(result[0].id).then(async function (result2) {
+                logger.log("debug", "MAIN - testgetAllBubblesContainers - getABubblesContainersById, result2 : ", result2);
+                
+            });            
+        });
+    }
+
+    async function testaddBubblesToContainerById() {
+        rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
+            logger.log("debug", "MAIN - testaddBubblesToContainerById - getAllBubblesContainers, result : ", result);
+            let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+            let bubble = bubbles.find(element => element.name === "bubble2")
+            let bubblesToMove = [];
+            bubblesToMove.push(bubble.id);
+            rainbowSDK.bubbles.addBubblesToContainerById(result[0].id, bubblesToMove).then(async function (result2) {
+                logger.log("debug", "MAIN - testaddBubblesToContainerById - addBubblesToContainerById, result2 : ", result2);
+
+            });
+        });
+    }
+
+    async function testupdateBubbleContainersNameAndDescriptionById() {
+        let name = "containers1"
+        rainbowSDK.bubbles.getAllBubblesContainers(name).then(async function (result) {
+            logger.log("debug", "MAIN - testupdateBubbleContainersNameAndDescriptionById - getAllBubblesContainers, result : ", result);
+            let utc = new Date().toJSON().replace(/-/g, "_");
+            name += "_" + utc; 
+            let description = "description_" + utc;
+            rainbowSDK.bubbles.updateBubbleContainersNameAndDescriptionById(result[0].id, name, description).then(async function (result2) {
+                logger.log("debug", "MAIN - testupdateBubbleContainersNameAndDescriptionById - addBubblesToContainersById, result2 : ", result2);
+            });
+        });
+    }
+
+    async function testcreateBubbleContainer() {
+        let name = "containersNew"
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        name += "_" + utc;
+        let description = "description_" + utc;
+        rainbowSDK.bubbles.createBubbleContainer(name, description).then(async function (result) {
+            logger.log("debug", "MAIN - testcreateBubbleContainer - createBubbleContainer, result : ", result);
+            rainbowSDK.bubbles.deleteBubbleContainer(result.id).then((result2) => {
+                logger.log("debug", "MAIN - testcreateBubbleContainer - deleteBubbleContainer, result2 : ", result2);
+            });
+        });
+    }
+
+    async function testaddBubblesAndRemoveToContainersById() {
+        rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
+            logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - getAllBubblesContainers, result : ", result);
+            let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+            let bubble = bubbles.find(element => element.name === "bubble2")
+            let bubblesToMove = [];
+            bubblesToMove.push(bubble.id);
+            rainbowSDK.bubbles.addBubblesToContainerById(result[0].id, bubblesToMove).then(async function (result2) {
+                logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - addBubblesToContainerById, result2 : ", result2);
+                rainbowSDK.bubbles.removeBubblesFromContainer(result[0].id, bubblesToMove).then(async function (result3) {
+                    logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - removeBubblesFromContainer, result3 : ", result3);
+                });
+            });
+        });
+    }
+    
+//endregion BUBBLES CONTAINERS
+
 //utils.setTimeoutPromised(1).then(()=> {
 //    rainbowSDK.start();
 //});

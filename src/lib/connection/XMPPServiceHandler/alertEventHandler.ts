@@ -366,8 +366,21 @@ class AlertEventHandler extends GenericHandler {
                     case "channel-subscription":
                     case "channel":
                         break;
+                    case "userinvite":
+                        // treated also in conversationEventHandler
+                        // treated also in invitationEventHandler
+                        break;
+                    case "openinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "favorite":
+                        // treated in favoriteEventHandler
+                        break;
                     case "notification":
                         that.onNotificationManagementMessageReceived(node);
+                        break;
+                    case "roomscontainer":
+                        // treated in conversationEventHandler
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());

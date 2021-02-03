@@ -76,6 +76,8 @@ class Bubble {
     public avatar: String;
     public organizers: Array<any>;
     public members: Array<any>;
+    public containerId: string;
+    public containerName: string;
 
 
     public static RoomUserStatus = {
@@ -133,7 +135,7 @@ class Bubble {
     public tags: Array<any>;
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: String = "") {
+                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: String = "", _containerId: string = null, _containerName: string = null) {
 
         /**
          * @public
@@ -206,6 +208,7 @@ class Bubble {
          * @instance
          */
         this.organizers = [];
+        
         /**
          * @public
          * @readonly
@@ -213,7 +216,6 @@ class Bubble {
          * @instance
          */
         this.members = [];
-
 
         /**
          * @public
@@ -240,30 +242,77 @@ class Bubble {
         this.customData = _customData;
 
         /**
-         *
-         * @type {boolean}
-         */
+         * @public
+         * @readonly
+         * @property {string} id The ID of the Bubble
+         * @instance
+         */        
         this.isActive = _isActive;
 
         /**
-         * @private
-         * @property {string} lastActivityDate The date of the last activity in this bubble
+         * @public
          * @readonly
+         * @property {string} lastActivityDate The date of the last activity in this bubble
+         * @instance
          */
         this.lastActivityDate = _lastActivityDate;
 
+        /**
+         * @public
+         * @readonly
+         * @property {any} conference The conference of the bubble.
+         * @instance
+         */
         this.conference = _conference
 
+        /**
+         * @public
+         * @readonly
+         * @property {boolean} disableNotifications The enablement notification of the bubble.
+         * @instance
+         */
         this.disableNotifications = _disableNotifications;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} lastAvatarUpdateDate The date of the last modification of the avatar of the bubble.
+         * @instance
+         */
         this.lastAvatarUpdateDate = _lastAvatarUpdateDate;
+
+        /**
+         * @public
+         * @readonly
+         * @property {[string]} guestEmails The list of the guests user's emails in the bubble.
+         * @instance
+         */
         this.guestEmails = _guestEmails;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} confEndpoints The End point of the conference of the bubble.
+         * @instance
+         */
         this.confEndpoints = _confEndpoints;
+
+        /**
+         * @public
+         * @readonly
+         * @property {number} activeUsersCounter The count of active users in the bubble.
+         * @instance
+         */
         this.activeUsersCounter = _activeUsersCounter;
 
         /**
+         * @public
+         * @readonly
          * @property {string} avatar This is the URL to download the avatar of the bubble. Note that it is an unavailable url if no avatar has been setted.
+         * @instance
          */
         this.avatar = _avatarDomain + "/api/room-avatar/" + _id + "?size=512&rand=" + randomString();
+        
         /**
          * @public
          * @readonly
@@ -281,19 +330,43 @@ class Bubble {
          */
         this.autoRegister = _autoRegister;
 
+        /**
+         * @public
+         * @readonly
+         * @property {boolean} owner Is the connected user is the owner of the bubble.
+         * @instance
+         */
         this.owner = false;
 
         /**
-         * @description auto acceptation of the bubble.
+         * @public
+         * @readonly
+         * @property {boolean} auto acceptation of the bubble.
+         * @instance
          */
         this.autoAcceptInvitation = _autoAcceptInvitation;
 
         /**
-         * @description Tags about the bubble.
+         * @public
+         * @readonly
+         * @property {[string]} tags Tags Array about the bubble.
+         * @instance
          */
         this.tags = _tags;
 
+        /**
+         * @public
+         * @property {string} containerId The id of the container in this bubble
+         * @readonly
+         */
+        this.containerId = _containerId;
 
+        /**
+         * @public
+         * @property {string} containerName The name of the container in this bubble
+         * @readonly
+         */
+        this.containerName = _containerName;
     }
 
     /**
@@ -398,7 +471,9 @@ class Bubble {
                 data.lastActivityDate,
                 data.autoAcceptInvitation,
                 data.tags,
-                avatarDomain
+                avatarDomain,
+                data.containerId, 
+                data.containerName
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);

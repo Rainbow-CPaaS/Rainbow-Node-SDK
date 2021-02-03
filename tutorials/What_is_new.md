@@ -6,6 +6,38 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.83 - February 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Add containerId and containerName in Bulle type. It is the folder where the bubble is stored in.
+-   Update getConnectionStatus api to add in the return a value of `nbReqInQueue` the number of requests waiting for being treated by the HttpManager.
+
+**Others Changes**
+
+-   Add events `rainbow_onbubblescontainercreated` `rainbow_onbubblescontainerupdated` `rainbow_onbubblescontainerdeleted` fired when a container of bubbles event is received.
+-   Add API in BubblesService for managing containers and add/remove bubbles in it (`getAllBubblesContainers`, `getABubblesContainersById`, `addBubblesToContainerById`, `updateBubbleContainerNameAndDescriptionById`, `createBubbleContainer`, `deleteBubbleContainer`, `removeBubblesFromContainer`).
+-   Add `GenericHandler::getJsonFromXML` method to get JSON from xml server's events. It provided ability to decode events in JSON in insteadOf manually decode XML.
+-   Fix `contactsService::getRosters` method to reset the _contacts list before getting the list from server, to avoid multiple additional of a contact.  
+-   Fix getHistory when the conversation contain no message.
+-   Use of `Alert`, `AlertsData` types of result of API in `AlertsService`.
+-   Use of `AlertFilter`, `AlertFiltersData`, `AlertTemplate`, `AlertTemplatesData`, `AlertFilter`, `AlertFiltersData`, types of result of API in `AlertsService`.
+-   Update of `rainbow_onmessagereceived` event with the `mentions` tab. It is to indicate the contacts mentioned in the message.
+-   Fix of initial bubble presence when the SDK is restarted.
+-   Fix build in Makefile for the docs of the HUB.
+
 ### SDK for Node.JS 1.82 - January 2021
 
 ---
