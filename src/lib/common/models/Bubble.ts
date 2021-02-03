@@ -284,7 +284,7 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {[string]} guestEmails The list of the guests user's emails in the bubble.
+         * @property {Array<string>} guestEmails The list of the guests user's emails in the bubble.
          * @instance
          */
         this.guestEmails = _guestEmails;
@@ -349,7 +349,7 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {[string]} tags Tags Array about the bubble.
+         * @property {Array<string>} tags Tags Array about the bubble.
          * @instance
          */
         this.tags = _tags;

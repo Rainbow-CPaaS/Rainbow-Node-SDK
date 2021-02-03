@@ -2076,6 +2076,8 @@ declare module 'lib/common/models/Bubble' {
 	    avatar: String;
 	    organizers: Array<any>;
 	    members: Array<any>;
+	    containerId: string;
+	    containerName: string;
 	    static RoomUserStatus: {
 	        INVITED: string;
 	        ACCEPTED: string;
@@ -2125,7 +2127,7 @@ declare module 'lib/common/models/Bubble' {
 	    owner: boolean;
 	    autoAcceptInvitation: boolean;
 	    tags: Array<any>;
-	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _autoAcceptInvitation?: boolean, _tags?: Array<any>, _avatarDomain?: String);
+	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _autoAcceptInvitation?: boolean, _tags?: Array<any>, _avatarDomain?: String, _containerId?: string, _containerName?: string);
 	    /**
 	     * Method helper to know if room is a meeting
 	     * @private
@@ -3162,6 +3164,15 @@ declare module 'lib/services/BubblesService' {
 	    _onbubblepresencechanged(bubbleInfo: any): Promise<void>;
 	    /**
 	     * @private
+	     * @method _onBubblesContainerReceived
+	     * @instance
+	     * @param {Object} infos contains informations about a bubbles container
+	     * @description
+	     *      Method called when receiving an create/update/delete event of the bubbles container <br/>
+	     */
+	    _onBubblesContainerReceived(infos: any): Promise<void>;
+	    /**
+	     * @private
 	     * @method getInfoForPublicUrlFromOpenInvite
 	     * @since 1.72
 	     * @instance
@@ -3422,6 +3433,100 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Promise<any>}
 	     */
 	    deleteTagOnABubble(bubbles: Array<Bubble>, tag: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getAllBubblesContainers
+	     * @instance
+	     * @async
+	     * @param {string} name name The name of a rooms container created by the logged in user. </BR>
+	     * Two way to search containers are available:</BR>
+	     * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..</BR>
+	     * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)</BR>
+	     * @description
+	     *      retrieve the containers of bubbles from server. <br/>
+	     *      A filter can be provided for the search by a name. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    getAllBubblesContainers(name?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getABubblesContainersById
+	     * @instance
+	     * @param {string} id The id of the container of bubbles to retreive from server.
+	     * @async
+	     * @description
+	     *       retrieve a containers of bubbles from server by it's id. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    getABubblesContainersById(id?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method addBubblesToContainerById
+	     * @instance
+	     * @param {string} containerId The id of the container of bubbles to retreive from server.
+	     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
+	     * @async
+	     * @description
+	     *       Add a list of bubbles to a containers of bubbles on server by it's id. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    addBubblesToContainerById(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateBubbleContainerNameAndDescriptionById
+	     * @instance
+	     * @param {string} containerId The id of the container of bubbles to retreive from server.
+	     * @param {string} name The name of the container.
+	     * @param {string} description The description of the container.
+	     * @async
+	     * @description
+	     *       Change one rooms container name or description from server by it's id. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createBubbleContainer
+	     * @instance
+	     * @param {string} name The name of the container.
+	     * @param {string} description The description of the container.
+	     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
+	     * @async
+	     * @description
+	     *       Create one rooms container with name or description. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteBubbleContainer
+	     * @instance
+	     * @param {string} containerId The id of the container of bubbles to delete from server.
+	     * @async
+	     * @description
+	     *       delete one container by id. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    deleteBubbleContainer(containerId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method removeBubblesFromContainer
+	     * @instance
+	     * @param {string} containerId The id of the container.
+	     * @param {Array<string>} bubbleIds List of the bubbles Id to remove from the container.
+	     * @async
+	     * @description
+	     *       remove rooms from a container by id. <br/>
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
 	}
 	export { Bubbles as BubblesService };
 
@@ -3462,6 +3567,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    onUnmuteManagementMessageReceived(node: any): void;
 	    onFileManagementMessageReceived(node: any): Promise<void>;
 	    onThumbnailManagementMessageReceived(node: any): void;
+	    onRoomsContainerManagementMessageReceived(node: any): Promise<void>;
 	    onReceiptMessageReceived(msg: any, stanza: any): void;
 	    onErrorMessageReceived(msg: any, stanza: any): void;
 	    onCloseMessageReceived(msg: any, stanza: any): void;
@@ -5430,6 +5536,7 @@ declare module 'lib/connection/HttpManager' {
 	        httpQueueSize: number;
 	        nbRunningReq: number;
 	        maxSimultaneousRequests: number;
+	        nbReqInQueue: number;
 	    }>;
 	    lock(fn: any): any;
 	    locknbRunningReq(fn: any): any;
@@ -5467,6 +5574,7 @@ declare module 'lib/connection/HttpService' {
 	        httpQueueSize: number;
 	        nbRunningReq: number;
 	        maxSimultaneousRequests: number;
+	        nbReqInQueue: number;
 	    }>;
 	    /**
 	     *
@@ -5692,6 +5800,13 @@ declare module 'lib/connection/RESTService' {
 	    setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
 	    deleteAvatarRoom(roomId: any): Promise<unknown>;
 	    getBubblesConsumption(): Promise<unknown>;
+	    getAllBubblesContainers(name?: string): Promise<unknown>;
+	    getABubblesContainersById(id?: string): Promise<unknown>;
+	    addBubblesToContainerById(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
+	    updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string): Promise<unknown>;
+	    createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
+	    deleteBubbleContainer(containerId: any): Promise<unknown>;
+	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
 	    /**
 	     * Method retrieveWebConferences
 	     * @public
@@ -8694,7 +8809,7 @@ declare module 'lib/connection/XMPPServiceHandler/alertEventHandler' {
 
 }
 declare module 'lib/common/models/Alert' {
-	import { List } from 'ts-generic-collections-linq';
+	import { IDictionary } from 'ts-generic-collections-linq';
 	export {}; class Alert {
 	    id: string;
 	    name: string;
@@ -8707,11 +8822,24 @@ declare module 'lib/common/models/Alert' {
 	    expirationDate: string;
 	    constructor(name?: string, description?: string, status?: string, templateId?: string, filterId?: string, companyId?: string, startDate?: string, expirationDate?: string);
 	} class AlertsData {
-	    data: List<Alert>;
+	    get size(): number;
+	    set size(value: number);
+	    get alerts(): IDictionary<string, Alert>;
+	    set alerts(value: IDictionary<string, Alert>);
+	    private _alerts;
 	    total: number;
 	    limit: number;
 	    offset: number;
-	    constructor(data: List<Alert>, total?: number, limit?: number, offset?: number);
+	    private _size;
+	    private lockEngine;
+	    private lockKey;
+	    constructor(limit?: number);
+	    lock(fn: any): any;
+	    addAlert(alert: Alert): Promise<Alert>;
+	    removeBubbleToJoin(alert: Alert): Promise<any>;
+	    getAlert(): Promise<Alert>;
+	    first(): Promise<Alert>;
+	    last(): Promise<Alert>;
 	}
 	export { Alert, AlertsData };
 
@@ -8818,12 +8946,12 @@ declare module 'lib/services/AlertsService' {
 	/// <reference types="node" />
 	import { Logger } from 'lib/common/Logger';
 	export {};
-	import { Alert } from 'lib/common/models/Alert';
+	import { Alert, AlertsData } from 'lib/common/models/Alert';
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
 	import { AlertDevice, AlertDevicesData } from 'lib/common/models/AlertDevice';
-	import { AlertTemplate } from 'lib/common/models/AlertTemplate';
-	import { AlertFilter } from 'lib/common/models/AlertFilter'; class AlertsService {
+	import { AlertTemplate, AlertTemplatesData } from 'lib/common/models/AlertTemplate';
+	import { AlertFilter, AlertFiltersData } from 'lib/common/models/AlertFilter'; class AlertsService {
 	    private _eventEmitter;
 	    private _logger;
 	    private started;
@@ -8897,10 +9025,10 @@ declare module 'lib/services/AlertsService' {
 	     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br/>
 	     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br/>
 	     *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertDevice>} the result of the operation.
 	     * @category async
 	     */
-	    createDevice(device: AlertDevice): Promise<any>;
+	    createDevice(device: AlertDevice): Promise<AlertDevice>;
 	    /**
 	     * @public
 	     * @method updateDevice
@@ -8913,10 +9041,10 @@ declare module 'lib/services/AlertsService' {
 	     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br/>
 	     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br/>
 	     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br/>
-	     * @return {Promise<any>} the result of the operation.   <br/>
+	     * @return {Promise<AlertDevice>} the result of the operation.   <br/>
 	     * @category async
 	     */
-	    updateDevice(device: AlertDevice): Promise<any>;
+	    updateDevice(device: AlertDevice): Promise<AlertDevice>;
 	    private createOrUpdateDevice;
 	    /**
 	     * @public
@@ -8926,7 +9054,7 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertDevice} device Device to delete.
 	     * @description
 	     *    Delete a device (using its id) <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertDevice>} the result of the operation.
 	     * @category async
 	     */
 	    deleteDevice(device: AlertDevice): Promise<AlertDevice>;
@@ -8938,10 +9066,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {string} deviceId Id of the device.
 	     * @description
 	     *    Get a device using its Id <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertDevice>} the result of the operation.
 	     * @category async
 	     */
-	    getDevice(deviceId: string): Promise<any>;
+	    getDevice(deviceId: string): Promise<AlertDevice>;
 	    /**
 	     * @public
 	     * @method getDevices
@@ -8956,7 +9084,7 @@ declare module 'lib/services/AlertsService' {
 	     * @param {number} limit Allow to specify the number of devices to retrieve.
 	     * @description
 	     *    Get list of devices   <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertDevicesData>} the result of the operation.
 	     * @category async
 	     */
 	    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset?: number, limit?: number): Promise<AlertDevicesData>;
@@ -8980,10 +9108,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertTemplate} template Template to create.
 	     * @description
 	     *    Create a template <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertTemplate>} the result of the operation.
 	     * @category async
 	     */
-	    createTemplate(template: AlertTemplate): Promise<any>;
+	    createTemplate(template: AlertTemplate): Promise<AlertTemplate>;
 	    /**
 	     * @public
 	     * @method updateTemplate
@@ -8992,10 +9120,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertTemplate} template Template to Update.
 	     * @description
 	     *    Update a template  <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertTemplate>} the result of the operation.
 	     * @category async
 	     */
-	    updateTemplate(template: AlertTemplate): Promise<any>;
+	    updateTemplate(template: AlertTemplate): Promise<AlertTemplate>;
 	    private createOrUpdateTemplate;
 	    /**
 	     * @public
@@ -9005,10 +9133,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertTemplate} template Template to Delete.
 	     * @description
 	     *    Delete a template <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertTemplate>} the result of the operation.
 	     * @category async
 	     */
-	    deleteTemplate(template: AlertTemplate): Promise<any>;
+	    deleteTemplate(template: AlertTemplate): Promise<AlertTemplate>;
 	    /**
 	     * @public
 	     * @method getTemplate
@@ -9017,10 +9145,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {string} templateId Id of the template.
 	     * @description
 	     *    Get an template by id <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertTemplate>} the result of the operation.
 	     * @category async
 	     */
-	    getTemplate(templateId: string): Promise<any>;
+	    getTemplate(templateId: string): Promise<AlertTemplate>;
 	    /**
 	     * @public
 	     * @method getTemplates
@@ -9031,10 +9159,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {number} limit Limit of templates to retrieve (100 by default).
 	     * @description
 	     *    Get templates <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertTemplatesData>} the result of the operation.
 	     * @category async
 	     */
-	    getTemplates(companyId: string, offset?: number, limit?: number): Promise<any>;
+	    getTemplates(companyId: string, offset?: number, limit?: number): Promise<AlertTemplatesData>;
 	    /**
 	     * @public
 	     * @method createFilter
@@ -9043,10 +9171,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertFilter} filter Filter to create.
 	     * @description
 	     *    Create a filter <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertFilter>} the result of the operation.
 	     * @category async
 	     */
-	    createFilter(filter: AlertFilter): Promise<any>;
+	    createFilter(filter: AlertFilter): Promise<AlertFilter>;
 	    /**
 	     * @public
 	     * @method updateFilter
@@ -9055,7 +9183,7 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertFilter} filter Filter to Update.
 	     * @description
 	     *    Update a filter <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertFilter>} the result of the operation.
 	     * @category async
 	     */
 	    updateFilter(filter: AlertFilter): Promise<AlertFilter>;
@@ -9068,10 +9196,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {AlertFilter} filter Filter to Delete.
 	     * @description
 	     *    Delete a filter <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertFilter>} the result of the operation.
 	     * @category async
 	     */
-	    deleteFilter(filter: AlertFilter): Promise<any>;
+	    deleteFilter(filter: AlertFilter): Promise<AlertFilter>;
 	    /**
 	     * @public
 	     * @method getFilter
@@ -9080,10 +9208,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {string} filterId Id of the Filter.
 	     * @description
 	     *    Get an filter by id <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertFilter>} the result of the operation.
 	     * @category async
 	     */
-	    getFilter(filterId: string): Promise<any>;
+	    getFilter(filterId: string): Promise<AlertFilter>;
 	    /**
 	     * @public
 	     * @method getFilters
@@ -9093,10 +9221,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {number} limit Limit of filters to retrieve (100 by default).
 	     * @description
 	     *    Get filters : have required role(s) superadmin, admin <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertFiltersData>} the result of the operation.
 	     * @category async
 	     */
-	    getFilters(offset?: number, limit?: number): Promise<any>;
+	    getFilters(offset?: number, limit?: number): Promise<AlertFiltersData>;
 	    /**
 	     * @public
 	     * @method createAlert
@@ -9107,10 +9235,10 @@ declare module 'lib/services/AlertsService' {
 	     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>
 	     *    The alert will be received by devices according the filter id and the company id used.   <br/>
 	     *    The content of the alert is based on the template id.   <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<Alert>} the result of the operation.
 	     * @category async
 	     */
-	    createAlert(alert: Alert): Promise<any>;
+	    createAlert(alert: Alert): Promise<Alert>;
 	    /**
 	     * @public
 	     * @method updateAlert
@@ -9122,11 +9250,11 @@ declare module 'lib/services/AlertsService' {
 	     *    The alert will be received by devices according the filter id and the company id used.   <br/>
 	     *    The content of the alert is based on the template id.   <br/>
 	     *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<Alert>} the result of the operation.
 	     * @category async
 	     */
-	    updateAlert(alert: Alert): Promise<any>;
-	    createOrUpdateAlert(create: boolean, alert: Alert): Promise<any>;
+	    updateAlert(alert: Alert): Promise<Alert>;
+	    createOrUpdateAlert(create: boolean, alert: Alert): Promise<Alert>;
 	    /**
 	     * @public
 	     * @method deleteAlert
@@ -9136,10 +9264,10 @@ declare module 'lib/services/AlertsService' {
 	     * @description
 	     *    Delete an alert   <br/>
 	     *    All the data related to this notification are deleted, including the reports <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<Alert>} the result of the operation.
 	     * @category async
 	     */
-	    deleteAlert(alert: Alert): Promise<any>;
+	    deleteAlert(alert: Alert): Promise<Alert>;
 	    /**
 	     * @public
 	     * @method getAlert
@@ -9148,10 +9276,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {string} alertId Id of the alert.
 	     * @description
 	     *    Get an alert by id <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<Alert>} the result of the operation.
 	     * @category async
 	     */
-	    getAlert(alertId: string): Promise<any>;
+	    getAlert(alertId: string): Promise<Alert>;
 	    /**
 	     * @public
 	     * @method getAlerts
@@ -9161,10 +9289,10 @@ declare module 'lib/services/AlertsService' {
 	     * @param {number} limit Limit of Alerts to retrieve (100 by default).
 	     * @description
 	     *    Get alerts : required role(s) superadmin,support,admin <br/>
-	     * @return {Promise<any>} the result of the operation.
+	     * @return {Promise<AlertsData>} the result of the operation.
 	     * @category async
 	     */
-	    getAlerts(offset?: number, limit?: number): Promise<any>;
+	    getAlerts(offset?: number, limit?: number): Promise<AlertsData>;
 	    /**
 	     * @public
 	     * @method sendAlertFeedback
@@ -9281,6 +9409,7 @@ declare module 'lib/Core' {
 	        httpQueueSize: number;
 	        nbRunningReq: number;
 	        maxSimultaneousRequests: number;
+	        nbReqInQueue: number;
 	    }>;
 	    get settings(): SettingsService;
 	    get presence(): PresenceService;
@@ -9328,7 +9457,8 @@ declare module 'lib/NodeSDK' {
 	import { PresenceService } from 'lib/services/PresenceService';
 	import { ConversationsService } from 'lib/services/ConversationsService';
 	import { ContactsService } from 'lib/services/ContactsService';
-	import { AlertsService } from 'lib/services/AlertsService'; class NodeSDK {
+	import { AlertsService } from 'lib/services/AlertsService';
+	import { ProfilesService } from 'lib/services/ProfilesService'; class NodeSDK {
 	    _core: Core;
 	    startTime: Date;
 	    static NodeSDK: any;
@@ -9570,6 +9700,15 @@ declare module 'lib/NodeSDK' {
 	     */
 	    get admin(): AdminService;
 	    /**
+	     * @public
+	     * @property {Object} profiles
+	     * @instance
+	     * @description
+	     *    Get access to the Profiles module
+	     * @return {AdminService}
+	     */
+	    get profiles(): ProfilesService;
+	    /**
 	     * @private
 	     * @property {Object} rest
 	     * @instance
@@ -9693,6 +9832,7 @@ declare module 'lib/NodeSDK' {
 	     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue.
 	     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
 	     * maxSimultaneousRequests : number, the number of request which can be launch at a same time.
+	     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.
 	     * }
 	     * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number}>}
 	     * @category async

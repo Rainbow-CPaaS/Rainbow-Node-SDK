@@ -60,27 +60,27 @@ Admin : Promise.any : unSubscribeCompanyToOfferById(string, string)
 Admin : Promise.any : subscribeUserToSubscription(string, string)
 Admin : Promise.any : unSubscribeUserToSubscription(string, string)
 AlertsService : Promise.any : markAlertMessageAsRead(string, string)
-AlertsService : Promise.any : createDevice(AlertDevice)
-AlertsService : Promise.any : updateDevice(AlertDevice)
-AlertsService : Promise.any : deleteDevice(AlertDevice)
-AlertsService : Promise.any : getDevice(string)
-AlertsService : Promise.any : getDevices(string, string, string, string, string, number, number)
+AlertsService : Promise.AlertDevice : createDevice(AlertDevice)
+AlertsService : Promise.AlertDevice : updateDevice(AlertDevice)
+AlertsService : Promise.AlertDevice : deleteDevice(AlertDevice)
+AlertsService : Promise.AlertDevice : getDevice(string)
+AlertsService : Promise.AlertDevicesData : getDevices(string, string, string, string, string, number, number)
 AlertsService : Promise.any : getDevicesTags(string)
-AlertsService : Promise.any : createTemplate(AlertTemplate)
-AlertsService : Promise.any : updateTemplate(AlertTemplate)
-AlertsService : Promise.any : deleteTemplate(AlertTemplate)
-AlertsService : Promise.any : getTemplate(string)
-AlertsService : Promise.any : getTemplates(string, number, number)
-AlertsService : Promise.any : createFilter(AlertFilter)
-AlertsService : Promise.any : updateFilter(AlertFilter)
-AlertsService : Promise.any : deleteFilter(AlertFilter)
-AlertsService : Promise.any : getFilter(string)
-AlertsService : Promise.any : getFilters(number, number)
-AlertsService : Promise.any : createAlert(Alert)
-AlertsService : Promise.any : updateAlert(Alert)
-AlertsService : Promise.any : deleteAlert(Alert)
-AlertsService : Promise.any : getAlert(string)
-AlertsService : Promise.any : getAlerts(number, number)
+AlertsService : Promise.AlertTemplate : createTemplate(AlertTemplate)
+AlertsService : Promise.AlertTemplate : updateTemplate(AlertTemplate)
+AlertsService : Promise.AlertTemplate : deleteTemplate(AlertTemplate)
+AlertsService : Promise.AlertTemplate : getTemplate(string)
+AlertsService : Promise.AlertTemplatesData : getTemplates(string, number, number)
+AlertsService : Promise.AlertFilter : createFilter(AlertFilter)
+AlertsService : Promise.AlertFilter : updateFilter(AlertFilter)
+AlertsService : Promise.AlertFilter : deleteFilter(AlertFilter)
+AlertsService : Promise.AlertFilter : getFilter(string)
+AlertsService : Promise.AlertFiltersData : getFilters(number, number)
+AlertsService : Promise.Alert : createAlert(Alert)
+AlertsService : Promise.Alert : updateAlert(Alert)
+AlertsService : Promise.Alert : deleteAlert(Alert)
+AlertsService : Promise.Alert : getAlert(string)
+AlertsService : Promise.AlertsData : getAlerts(number, number)
 AlertsService : Promise.any : sendAlertFeedback(string, string, string)
 AlertsService : Promise.any : getReportSummary(string)
 AlertsService : Promise.any : getReportDetails(string)
@@ -133,6 +133,13 @@ Bubbles : Promise.any : conferenceStop(string)
 Bubbles : Promise.Bubble : retrieveAllBubblesByTags(string[])
 Bubbles : Promise.any : setTagsOnABubble(Bubble, Object[])
 Bubbles : Promise.any : deleteTagOnABubble(Bubble, string, Bubble[], string)
+Bubbles : Promise.any : getAllBubblesContainers(string)
+Bubbles : Promise.any : getABubblesContainersById(string)
+Bubbles : Promise.any : addBubblesToContainerById(string, string[])
+Bubbles : Promise.any : updateBubbleContainerNameAndDescriptionById(string, string, string)
+Bubbles : Promise.any : createBubbleContainer(string, string, string[])
+Bubbles : Promise.any : deleteBubbleContainer(string)
+Bubbles : Promise.any : removeBubblesFromContainer(string, string[])
 CallsLog : CallLog[] : getAll()
 CallsLog : Number : getMissedCallLogCounter()
 CallsLog : void : deleteOneCallLog(String)
@@ -319,6 +326,7 @@ NodeSDK : Object : bubbles
 NodeSDK : Object : groups
 NodeSDK : Object : events
 NodeSDK : Object : admin
+NodeSDK : Object : profiles
 NodeSDK : Object : settings
 NodeSDK : String : state
 NodeSDK : String : version
@@ -391,6 +399,9 @@ Events ::event : rainbow_onfavoritecreated
 Events ::event : rainbow_onfavoritedeleted
 Events ::event : rainbow_onxmpperror
 Events ::event : rainbow_onalertmessagereceived
+Events ::event : rainbow_onbubblescontainercreated
+Events ::event : rainbow_onbubblescontainerupdated
+Events ::event : rainbow_onbubblescontainerdeleted
 Events : Object : onLog(string, function)
 Events : Object : removeLogListener(string, function)
 Events : Object : on(string, function)
@@ -415,7 +426,21 @@ Bubble : string : members
 Bubble : string : creationDate
 Bubble : string : visibility
 Bubble : Object : customData
+Bubble : string : isActive
+Bubble : string : lastActivityDate
+Bubble : any : conference
+Bubble : boolean : disableNotifications
+Bubble : string : lastAvatarUpdateDate
+Bubble : string[] : guestEmails
+Bubble : string : confEndpoints
+Bubble : number : activeUsersCounter
+Bubble : string : avatar
 Bubble : String : autoRegister
+Bubble : boolean : owner
+Bubble : boolean : autoAcceptInvitation
+Bubble : string[] : tags
+Bubble : string : containerId
+Bubble : string : containerName
 Bubble : String : Privilege
 Bubble : String : History
 Call : Object : status
