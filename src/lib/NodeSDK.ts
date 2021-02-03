@@ -25,6 +25,7 @@ import {PresenceService} from "./services/PresenceService";
 import {ConversationsService} from "./services/ConversationsService";
 import {ContactsService} from "./services/ContactsService";
 import {AlertsService} from "./services/AlertsService";
+import {ProfilesService} from "./services/ProfilesService";
 
 /**
  * @enum { String }
@@ -569,6 +570,18 @@ class NodeSDK {
      */
     get admin() : AdminService{
         return this._core.admin;
+    }
+
+    /**
+     * @public
+     * @property {Object} profiles
+     * @instance
+     * @description
+     *    Get access to the Profiles module
+     * @return {AdminService}
+     */
+    get profiles() : ProfilesService{
+        return this._core.profiles;
     }
 
     /**

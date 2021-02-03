@@ -764,8 +764,21 @@ class ConversationEventHandler extends GenericHandler {
                     case "channel":
                         //treated in channelEventHandler::onFavoriteManagementMessageReceived(node);
                         break;
+                    case "userinvite":
+                        // treated also in conversationEventHandler
+                        // treated also in invitationEventHandler
+                        break;
+                    case "openinvite":
+                        // treated in invitationEventHandler
+                        break;
                     case "favorite":
                         // treated in favoriteEventHandler
+                        break;
+                    case "notification":
+                        // treated in alertEventHandler
+                        break;
+                    case "roomscontainer":
+                        that.onRoomsContainerManagementMessageReceived(node);
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
@@ -1250,6 +1263,83 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    async onRoomsContainerManagementMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onRoomsContainerManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) JSON : ", jsonNode);
+            let roomscontainer = jsonNode["roomscontainer"];
+            that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) roomscontainer : ", roomscontainer);
+            let containerId = roomscontainer["$attrs"]["containerid"];
+            let containerName = roomscontainer.$attrs.name;
+            let containerDescription = roomscontainer.$attrs.description?roomscontainer.$attrs.description:"";
+            let bubblesIdAdded = roomscontainer["added"]? roomscontainer["added"].roomid : undefined;
+            let bubblesIdRemoved = roomscontainer["removed"]? roomscontainer["removed"].roomid : undefined;
+
+            
+            
+            if (roomscontainer.$attrs.xmlns==="jabber:iq:configuration") {
+                let action = roomscontainer.$attrs.action;
+                that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) action.");
+                that.eventEmitter.emit("evt_internal_roomscontainer", {action, containerName, containerId, containerDescription, bubblesIdAdded, bubblesIdRemoved});
+                /*
+                switch (roomscontainer.$attrs.action) {
+                    case "create": {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) create action.");
+                        that.eventEmitter.emit("evt_internal_bubblescontainercreated", {containerName, containerId, bubblesIdAdded, bubblesIdRemoved});
+                    }
+                        break;
+                    case "update": {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) update action.");
+                        that.eventEmitter.emit("evt_internal_bubblescontainerupdated",  {containerName, containerId, bubblesIdAdded, bubblesIdRemoved});
+                    }
+                        break;
+                    case "delete": {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) delete action.");
+                        that.eventEmitter.emit("evt_internal_bubblescontainerdeleted", {containerName, containerId, bubblesIdAdded, bubblesIdRemoved});
+                    }
+                        break;
+                    default: {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) unknown action.");
+                    }
+                        break;
+                }
+                // */
+            } // */
+            /*
+            if (node.attrs.xmlns==="jabber:iq:configuration") {
+                switch (node.attrs.action) {
+                    case "create": {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) create action.");
+                        let add = node.getChild('added');
+                        let removed = node.getChild('removed');
+                        that.eventEmitter.emit("evt_internal_bubblescontainercreated", {});
+                    }
+                        break;
+                    case "update": {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) update action.");
+                        that.eventEmitter.emit("evt_internal_bubblescontainerupdated", {});
+                    }
+                        break;
+                    case "delete": {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) delete action.");
+                        that.eventEmitter.emit("evt_internal_bubblescontainerdeleted", {});
+                    }
+                        break;
+                    default: {
+                        that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) unknown action.");
+                    }
+                        break;
+                }
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

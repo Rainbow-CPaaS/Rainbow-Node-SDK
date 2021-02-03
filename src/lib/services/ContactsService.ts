@@ -221,6 +221,7 @@ class Contacts {
         return new Promise((resolve, reject) => {
             that._rest.getContacts().then((listOfContacts: any) => {
 
+                that._contacts = [];
                 listOfContacts.forEach((contactData: any) => {
                     // Create the contact object
                     let contact = new Contact();

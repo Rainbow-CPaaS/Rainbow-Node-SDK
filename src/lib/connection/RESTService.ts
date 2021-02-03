@@ -1627,6 +1627,161 @@ Request Method: PUT
         });
     }
 
+    //region CONTAINERS (Bubble Folder)
+
+    // Get all rooms containers
+    getAllBubblesContainers (name: string = null) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            
+            let url = "/api/rainbow/enduser/v1.0/rooms/containers";
+            if (name) {
+                url += "?name=" + name;
+            }
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllBubblesContainers) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBubblesContainers) received : ", json );
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBubblesContainers) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBubblesContainers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Get one rooms container
+    getABubblesContainersById (id: string = null) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+
+            let url = "/api/rainbow/enduser/v1.0/rooms/containers";
+            if (id) {
+                url += "/" + id;
+            }
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getABubblesContainersById) successfull");
+                that.logger.log("internal", LOG_ID + "(getABubblesContainersById) received : ", json );
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getABubblesContainersById) error");
+                that.logger.log("internalerror", LOG_ID, "(getABubblesContainersById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Add some rooms to the container
+    addBubblesToContainerById(containerId: string , bubbleIds : Array<string> ) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {
+                "rooms": bubbleIds
+            };
+            
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId + "/add", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(addBubblesToContainersById) successfull");
+                that.logger.log("internal", LOG_ID + "(addBubblesToContainersById) REST return : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(addBubblesToContainersById) error");
+                that.logger.log("internalerror", LOG_ID, "(addBubblesToContainersById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    // Change one rooms container name or description
+    updateBubbleContainerNameAndDescriptionById(containerId: string , name : string, description? : string ) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {
+                "name": name
+            };
+
+            if (description) {
+                data.description = description;
+            }
+
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId , that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateBubbleContainersNameAndDescriptionById) successfull");
+                that.logger.log("internal", LOG_ID + "(updateBubbleContainersNameAndDescriptionById) REST return : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateBubbleContainersNameAndDescriptionById) error");
+                that.logger.log("internalerror", LOG_ID, "(updateBubbleContainersNameAndDescriptionById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Create a rooms container
+    createBubbleContainer(name : string, description? : string, bubbleIds? : Array<string> ) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {
+                "name": name
+            };
+
+            if (description) {
+                data.description = description;
+            }
+
+            if (bubbleIds) {
+                data.rooms = bubbleIds;
+            }
+
+            that.http.post("/api/rainbow/enduser/v1.0/rooms/containers/", that.getRequestHeader("application/json"), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createBubbleContainer) successfull");
+                that.logger.log("internal", LOG_ID + "(createBubbleContainer) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createBubbleContainer) error");
+                that.logger.log("internalerror", LOG_ID, "(createBubbleContainer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Delete one rooms container
+    deleteBubbleContainer(containerId) {
+        return new Promise((resolve, reject) => {
+            let that = this;
+
+            that.http.delete("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId, that.getRequestHeader()).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteBubbleContainer) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteBubbleContainer) REST deletion : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(deleteBubbleContainer) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteBubbleContainer) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+    
+    // Remove some rooms from the container
+    removeBubblesFromContainer(containerId: string , bubbleIds : Array<string> ) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {
+                "rooms": bubbleIds
+            };
+
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId + "/remove", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(removeBubblesFromContainer) successfull");
+                that.logger.log("internal", LOG_ID + "(removeBubblesFromContainer) REST return : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(removeBubblesFromContainer) error");
+                that.logger.log("internalerror", LOG_ID, "(removeBubblesFromContainer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion CONTAINERS
+    
     //endregion BUBBLES
 
     /**

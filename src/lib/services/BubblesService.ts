@@ -115,6 +115,7 @@ class Bubbles {
         this._eventEmitter.on("evt_internal_namechanged", this._onNameChanged.bind(this));
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
         this._eventEmitter.on("evt_internal_privilegechanged", this._onPrivilegeBubbleChanged.bind(this));
+        this._eventEmitter.on("evt_internal_roomscontainer", this._onBubblesContainerReceived.bind(this));
 
     }
 
@@ -2455,6 +2456,138 @@ class Bubbles {
 
         // that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
     }
+    
+    /**
+     * @private
+     * @method _onBubblesContainerReceived
+     * @instance
+     * @param {Object} infos contains informations about a bubbles container
+     * @description
+     *      Method called when receiving an create/update/delete event of the bubbles container <br/>
+     */
+    async _onBubblesContainerReceived(infos) {
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) infos : ", infos);
+
+        let action = infos.action;
+        let containerName = infos.containerName;
+        let containerId = infos.containerId;
+        let containerDescription = infos.containerDescription;
+        let bubblesAdded = [];
+        let bubblesIdAdded = infos.bubblesIdAdded;
+        let bubblesRemoved = [];
+        let bubblesIdRemoved = infos.bubblesIdRemoved;
+        
+        if (bubblesIdAdded) {
+            if (Array.isArray(bubblesIdAdded)) {
+                for (let i = 0; i < bubblesIdAdded.length; i++) {
+                    let bubbleId = bubblesIdAdded[i];
+
+                    that._bubbles.forEach((bubble : Bubble) => {
+                        if (bubble.id === bubbleId) {
+                            bubble.containerId = containerId;
+                            bubble.containerName = containerName;
+                        }
+                    });
+                    
+                    await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
+                        that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble.");
+                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble : ", bubbleUpdated);
+                        bubblesAdded.push(bubbleUpdated);
+                    }).catch((err) => {
+                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                    });
+                };
+            } else {
+                let bubbleId = bubblesIdAdded;
+
+                that._bubbles.forEach((bubble : Bubble) => {
+                    if (bubble.id === bubbleId) {
+                        bubble.containerId = containerId;
+                        bubble.containerName = containerName;
+                    }
+                });
+
+                await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
+                    that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to add.");
+                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to add : ", bubbleUpdated);
+                    bubblesAdded.push(bubbleUpdated);
+                }).catch((err) => {
+                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                });
+            }
+        }
+
+        if (bubblesIdRemoved) {
+            if (Array.isArray(bubblesIdRemoved)) {
+                for (let i = 0; i < bubblesIdRemoved.length; i++) {
+                    let bubbleId = bubblesIdRemoved[i];
+
+                    that._bubbles.forEach((bubble : Bubble) => {
+                        if (bubble.id === bubbleId) {
+                            bubble.containerId = undefined;
+                            bubble.containerName = undefined;
+                        }
+                    });
+                    
+                    await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
+                        that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to remove.");
+                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to remove : ", bubbleUpdated);
+                        bubblesAdded.push(bubbleUpdated);
+                    }).catch((err) => {
+                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                    });
+                };
+            } else {
+                let bubbleId = bubblesIdRemoved;
+                that._bubbles.forEach((bubble : Bubble) => {
+                    if (bubble.id === bubbleId) {
+                        bubble.containerId = undefined;
+                        bubble.containerName = undefined;
+                    }
+                });
+
+                await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
+                    that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble.");
+                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble : ", bubbleUpdated);
+                    bubblesRemoved.push(bubbleUpdated);
+                }).catch((err) => {
+                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                });
+            }
+        }
+        
+        let eventInfo =  {containerName, containerId, containerDescription, bubblesAdded, bubblesRemoved};
+
+        switch (action) {
+            case "create": {
+                that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) create action.");
+                that._eventEmitter.emit("evt_internal_bubblescontainercreated", eventInfo);
+            }
+                break;
+            case "update": {
+                that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) update action.");
+                that._eventEmitter.emit("evt_internal_bubblescontainerupdated", eventInfo);
+            }
+                break;
+            case "delete": {
+                that._bubbles.forEach((bubble : Bubble) => {
+                    if (bubble.containerId === containerId) {
+                        bubble.containerId = undefined;
+                        bubble.containerName = undefined;
+                    }
+                });
+                that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) delete action.");
+                that._eventEmitter.emit("evt_internal_bubblescontainerdeleted", eventInfo);
+            }
+                break;
+            default: {
+                that._logger.log("warn", LOG_ID + "(_onBubblesContainerReceived) unknown action : ", action);
+            }
+                break;
+        }
+
+    }
 
 //region PUBLIC URL
 
@@ -4355,7 +4488,277 @@ getAllActiveBubbles
 
 //endregion tags
 
+    //region CONTAINERS (Bubble Folder)
 
+    // Get all rooms containers
+    /**
+     * @public
+     * @method getAllBubblesContainers
+     * @instance
+     * @async
+     * @param {string} name name The name of a rooms container created by the logged in user. </BR>
+     * Two way to search containers are available:</BR>
+     * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..</BR>
+     * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)</BR>
+     * @description
+     *      retrieve the containers of bubbles from server. <br/>
+     *      A filter can be provided for the search by a name. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    getAllBubblesContainers (name: string = null) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getAllBubblesContainers) containers name  " + name);
+
+            return that._rest.getAllBubblesContainers(name).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getAllBubblesContainers) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    // Get one rooms container
+    /**
+     * @public
+     * @method getABubblesContainersById
+     * @instance
+     * @param {string} id The id of the container of bubbles to retreive from server.
+     * @async
+     * @description
+     *       retrieve a containers of bubbles from server by it's id. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    getABubblesContainersById (id: string = null) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getABubblesContainersById) containers id " + id);
+
+            return that._rest.getABubblesContainersById(id).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getABubblesContainersById) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    // Add some rooms to the container
+    /**
+     * @public
+     * @method addBubblesToContainerById
+     * @instance
+     * @param {string} containerId The id of the container of bubbles to retreive from server.
+     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container. 
+     * @async
+     * @description
+     *       Add a list of bubbles to a containers of bubbles on server by it's id. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    addBubblesToContainerById (containerId: string , bubbleIds : Array<string> ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) containers containerId : " + containerId, ", bubbleIds : ", bubbleIds);
+            
+            if (!containerId) {
+                that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) bad or empty 'containerId' parameter", containerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!bubbleIds) {
+                that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) bad or empty 'bubbleIds' parameter", bubbleIds);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            
+            return that._rest.addBubblesToContainerById(containerId, bubbleIds).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(addBubblesToContainerById) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    // Change one rooms container name or description
+    /**
+     * @public
+     * @method updateBubbleContainerNameAndDescriptionById
+     * @instance
+     * @param {string} containerId The id of the container of bubbles to retreive from server.
+     * @param {string} name The name of the container.
+     * @param {string} description The description of the container.
+     * @async
+     * @description
+     *       Change one rooms container name or description from server by it's id. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    updateBubbleContainerNameAndDescriptionById (containerId: string , name : string, description? : string ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) containers containerId : " + containerId, ", name : ", name);
+
+            if (!containerId) {
+                that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'containerId' parameter", containerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!name) {
+                that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'name' parameter", name);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.updateBubbleContainerNameAndDescriptionById(containerId, name, description).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    // Create a rooms container
+    /**
+     * @public
+     * @method createBubbleContainer
+     * @instance
+     * @param {string} name The name of the container.
+     * @param {string} description The description of the container.
+     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
+     * @async
+     * @description
+     *       Create one rooms container with name or description. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    createBubbleContainer (name : string, description? : string, bubbleIds? : Array<string> ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(createBubbleContainer) containers bubbleIds : " + bubbleIds, ", name : ", name);
+
+            if (!name) {
+                that._logger.log("debug", LOG_ID + "(createBubbleContainer) bad or empty 'name' parameter", name);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.createBubbleContainer( name, description, bubbleIds).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(createBubbleContainer) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    // Delete one rooms container
+    /**
+     * @public
+     * @method deleteBubbleContainer
+     * @instance
+     * @param {string} containerId The id of the container of bubbles to delete from server.
+     * @async
+     * @description
+     *       delete one container by id. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    deleteBubbleContainer (containerId : string ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) containers containerId : " + containerId);
+
+            if (!containerId) {
+                that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) bad or empty 'name' parameter", containerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.deleteBubbleContainer( containerId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(deleteBubbleContainer) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    // Remove some rooms from the container
+    /**
+     * @public
+     * @method removeBubblesFromContainer
+     * @instance
+     * @param {string} containerId The id of the container.
+     * @param {Array<string>} bubbleIds List of the bubbles Id to remove from the container.
+     * @async
+     * @description
+     *       remove rooms from a container by id. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    removeBubblesFromContainer (containerId : string, bubbleIds : Array<string> ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) containers bubbleIds : " + bubbleIds, ", containerId : ", containerId);
+
+            if (!containerId) {
+                that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bad or empty 'containerId' parameter", containerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!bubbleIds) {
+                that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bad or empty 'bubbleIds' parameter", bubbleIds);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.removeBubblesFromContainer(containerId, bubbleIds ).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(removeBubblesFromContainer) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion CONTAINERS
+    
 }
 
 module.exports.BubblesService = Bubbles;

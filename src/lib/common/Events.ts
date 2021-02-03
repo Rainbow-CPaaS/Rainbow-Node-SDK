@@ -147,6 +147,9 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogackupdated
  * @fires Events#rainbow_onfavoritecreated
  * @fires Events#rainbow_onfavoritedeleted
+ * @fires Events#rainbow_onbubblescontainercreated
+ * @fires Events#rainbow_onbubblescontainerupdated
+ * @fires Events#rainbow_onbubblescontainerdeleted
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -923,6 +926,54 @@ class Events {
              *      Fired when an Alert events happens.
              */
             that.publishEvent("alertmessagereceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubblescontainercreated", function (data) {
+            /**
+             * @event Events#rainbow_onbubblescontainercreated
+             * @public
+             * @param { Object } data informations about container and bubbles linked
+             * containerName: string The name of the container.
+             * containerId: string The id of the container.
+             * containerDescription: string The description of the container.
+             * bubblesAdded: Array<Bubble> list of bubbles added
+             * bubblesRemoved: Array<Bubble> list of bubbles removed
+             * @description
+             *      Fired when a container of bubbles created event is received
+             */
+            that.publishEvent("bubblescontainercreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubblescontainerupdated", function (data) {
+            /**
+             * @event Events#rainbow_onbubblescontainerupdated
+             * @public
+             * @param { Object } data informations about container and bubbles linked
+             * containerName: string, The name of the container.
+             * containerId: string, The id of the container.
+             * containerDescription: string The description of the container.
+             * bubblesAdded: Array<Bubble> list of bubbles added
+             * bubblesRemoved: Array<Bubble> list of bubbles removed
+             * @description
+             *      Fired when a container of bubbles updated event is received
+             */
+            that.publishEvent("bubblescontainerupdated", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubblescontainerdeleted", function (data) {
+            /**
+             * @event Events#rainbow_onbubblescontainerdeleted
+             * @public
+             * @param { Object } data informations about container and bubbles linked
+             * containerName: string, The name of the container.
+             * containerId: string, The id of the container.
+             * containerDescription: string The description of the container.
+             * bubblesAdded: Array<Bubble> list of bubbles added
+             * bubblesRemoved: Array<Bubble> list of bubbles removed
+             * @description
+             *      Fired when a container of bubbles deleted event is received
+             */
+            that.publishEvent("bubblescontainerdeleted", data);
         });
 
     }
