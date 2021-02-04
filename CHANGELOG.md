@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.84.0-dotnet.0] - 2021-02-XX
+-     Add treatment of Urgency messages
+
 ## [1.83.0] - 2021-02-03
 -   Add containerId and containerName in Bulle type. It is the folder where the bubble is stored in.
 -   Add events `rainbow_onbubblescontainercreated` `rainbow_onbubblescontainerupdated` `rainbow_onbubblescontainerdeleted` fired when a container of bubbles event is received.

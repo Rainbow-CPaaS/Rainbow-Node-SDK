@@ -132,6 +132,7 @@ class ConversationEventHandler extends GenericHandler {
             let answeredMsgId = undefined;
             let answeredMsgStamp = undefined;
             let answeredMsgDate = undefined;
+            let urgency = "std";
 
             let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
             let resource = xu.getResourceFromFullJID(stanza.attrs.from);
@@ -516,6 +517,24 @@ class ConversationEventHandler extends GenericHandler {
                             }
                         }
                         break;
+                    case "headers": {
+                        const headersElem = node.find("headers");
+                        if (headersElem && headersElem.length > 0) {
+                            const urgencyElem = headersElem.find("header");
+                            if (urgencyElem.length===1) {
+                                if (urgencyElem.attrs.name=='Urgency') {
+                                    urgency = urgencyElem.text();
+                                }
+                            } else {
+                                for (let i = 0; i < urgencyElem.length; i++) {
+                                    if (urgencyElem[i].attrs.name=='Urgency') {
+                                        urgency = urgencyElem.text();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
                         that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
@@ -596,6 +615,7 @@ class ConversationEventHandler extends GenericHandler {
                     "answeredMsgId": answeredMsgId,
                     "answeredMsgDate": answeredMsgDate,
                     "answeredMsgStamp": answeredMsgStamp,
+                    urgency,
                     mentions
                 };
 
