@@ -7,7 +7,9 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.84.0-dotnet.0] - 2021-02-XX
--     Add treatment of Urgency messages
+-   Add treatment of Urgency messages Events
+-   Move property "concurrentRequests" from options.rainbow to options level.
+-   Set the limit of the number of request to be send in queue to 1000000)
 
 ## [1.83.0] - 2021-02-03
 -   Add containerId and containerName in Bulle type. It is the folder where the bubble is stored in.
