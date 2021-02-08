@@ -224,9 +224,14 @@ class HttpManager {
                     that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded, ", nbRunningReq : ", that.nbRunningReq, ", that.httpList.length : ", that.httpList.length);
                     req.resolve = resolve;
                     req.reject = reject;
-                    that.httpList.add(req);
-                    //needToAsk = true;
-                    return {label:"OK" , "id" : req.id};
+                    if (that.httpList.length < 1000000) {
+                        that.httpList.add(req);
+                        //needToAsk = true;
+                        return {label: "OK", "id": req.id};
+                    } else {
+                        req.reject({code:-1, label: "Can not send the HTTP request because too mutch request in queue."});
+                        return {label: "FAILED", id: req.id}
+                    }
                 //}
                 //return ;
             }).then((result) => {

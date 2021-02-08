@@ -278,8 +278,8 @@ class Options {
 
         let concurrentRequests = config.concurrentRequests;
 
-        if ("rainbow" in this._options && "concurrentRequests" in this._options.rainbow) {
-            concurrentRequests = this._options.rainbow.concurrentRequests;
+        if ("rainbow" in this._options && "concurrentRequests" in this._options) {
+            concurrentRequests = this._options.concurrentRequests;
         }
         return concurrentRequests;
     }

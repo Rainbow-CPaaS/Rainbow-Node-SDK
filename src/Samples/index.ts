@@ -143,6 +143,7 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
+    "concurrentRequests": 50,
     "testOutdatedVersion": false,
     // IM options
     "im": {
