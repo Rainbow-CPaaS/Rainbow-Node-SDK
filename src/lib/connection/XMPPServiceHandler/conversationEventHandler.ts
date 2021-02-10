@@ -1371,7 +1371,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
 
             if (stanza.getChild('no-store') != undefined){
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 let err = {
                     "id": stanza.attrs.id,
                     "body": stanza.getChild('body').text(),
