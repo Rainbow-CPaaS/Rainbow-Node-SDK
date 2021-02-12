@@ -20,6 +20,7 @@ import {List} from "ts-generic-collections-linq";
 import {AlertTemplate} from "../lib/common/models/AlertTemplate";
 import {Alert} from "../lib/common/models/Alert";
 import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
+import {Contact} from "../lib/common/models/Contact";
 
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
@@ -143,8 +144,12 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
-    "concurrentRequests": 50,
     "testOutdatedVersion": false,
+    "requestsRate":{
+        "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
+    },
     // IM options
     "im": {
         "sendReadReceipt": true,
@@ -155,9 +160,12 @@ let options = {
         "copyMessage": true,
         "nbMaxConversations": 15,
         "rateLimitPerHour": 100000,
+//        "messagesDataStore": DataStoreType.NoStore,
         "messagesDataStore": DataStoreType.StoreTwinSide,
         "autoInitialBubblePresence": true,
         "autoLoadConversations": true,
+        // "autoInitialBubblePresence": false,
+        // "autoLoadConversations": false,
         "autoLoadContacts": true
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
@@ -498,6 +506,19 @@ function testgetContactByLoginEmail_NotInRoster() {
         logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
     }).catch((err) => {
         logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+    });
+}
+
+function multiple_testgetContactByLoginEmail_NotInRoster() {
+    let usershouldbeUnkown = "vincent02@vbe.test.openrainbow.net"; // "WRONG6ac069e5eb4741e2af64a8beac59406f@openrainbow.net"
+    rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then( (contact: Contact) => {
+        for (let i = 0; i < 20; i++) {
+            let prom = rainbowSDK._core._rest.getContactInformationByJID(contact.jid ).then((_contactFromServer: any) => {
+                logger.log("debug", "MAIN - [getContactInformationByJID    ] ::  _contactFromServer : ", _contactFromServer);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [getContactInformationByJID    ] :: catch reject contact : ", err);
+            });
+        }
     });
 }
 

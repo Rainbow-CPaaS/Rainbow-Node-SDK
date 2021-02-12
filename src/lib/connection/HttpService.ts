@@ -65,12 +65,6 @@ class HTTPService {
         this.httpManager = new HttpManager(_evtEmitter,_logger);
         let that = this;
 
-
-        that.httpManager.init(that._options,that._core).then(() => {
-            that.httpManager.treatHttp();
-        }).catch((err)=>{
-        });
-
         function debugHandler(request, options?, cb?): any {
             options = typeof options === "string" ? urlParse(options) : options;
 
@@ -180,7 +174,11 @@ safeJsonParse(str) {
         return new Promise((resolve, reject) => {
             that.logger.log("debug", LOG_ID + "(start) host used", that._host);
             that.logger.log("info", LOG_ID + "(start) REST URL", that.serverURL);
-            that.httpManager.treatHttp();
+            
+            that.httpManager.init(that._options,that._core).then(() => {            
+            }).catch((err)=>{
+            });
+
             resolve(undefined);
         });
     }

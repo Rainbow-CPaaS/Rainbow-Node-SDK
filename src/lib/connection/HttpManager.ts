@@ -15,6 +15,12 @@ let AsyncLock = require('async-lock');
 import {FibonacciStrategy} from "backoff";
 import {Logger} from "../common/Logger";
 //let backoff = require("backoff");
+// @ ts-ignore
+ import RequestRateLimiter, {BackoffError} from "./request-rate-limiter";
+// const RequestRateLimiter = require("request-rate-limiter").RequestRateLimiter;  
+// const BackoffError = require("request-rate-limiter").BackoffError; 
+        
+        //, { BackoffError } from ;
 
 export{};
 
@@ -27,11 +33,41 @@ class RequestForQueue {
     id : string; // id to identify the request in queue
     method : Function; // the pointer to the function with the treatment of the request. Note : do not forget to bind the function to the right object to set the correct this inside it.
     params : IArguments; // The list of arguments of the function of the treatment.
-    resolve : Function; // Internal for the queue engine, Pointer to the function which resolve the promise waited by the caller when the treatment successfully ended.
-    reject : Function; // Internal for the queue engine, Pointer to the function which reject the promise waited by the caller when the treatment failed ended.
+//    resolve : Function; // Internal for the queue engine, Pointer to the function which resolve the promise waited by the caller when the treatment successfully ended.
+//    reject : Function; // Internal for the queue engine, Pointer to the function which reject the promise waited by the caller when the treatment failed ended.
     label: string; // A label to give a human readable log about the request.
     constructor(){
 
+    }
+}
+
+class MyRequestHandler {
+    private httpManager : HttpManager;
+    
+
+    constructor (_httpManager: HttpManager) {
+        this.httpManager = _httpManager;
+    }
+    // this method is th eonly required interface to implement
+    // it gets passed the request onfig that is passed by the 
+    // user to the request method of the limiter. The mehtod msut
+    // return an instance of the BackoffError when the limiter 
+    // needs to back off
+    async request(req : RequestForQueue) {
+        let nbRunningReq = await this.httpManager.incNbRunningReq();
+        this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req will run nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+        const response = req.method(...req.params).then((result) => {
+            this.httpManager.decNbRunningReq();
+            this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req method call SUCCEED. nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+            return result;
+        }).catch((err) => {
+            this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req method call FAILED. nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+            throw err;
+        })        
+        // */
+
+        if (response.statusCode === 429) throw new BackoffError(`Need to nack off guys!`);
+        else return response;
     }
 }
 
@@ -40,26 +76,18 @@ class RequestForQueue {
  *
  */
 class HttpManager {
-    private _logger: Logger;
+    public _logger: Logger;
     private _eventEmitter: EventEmitter;
     private _imOptions: any;
     private _options: any;
-    private fibonacciStrategy: FibonacciStrategy = new FibonacciStrategy({
-        randomisationFactor: 0.4,
-        initialDelay: RECONNECT_INITIAL_DELAY,
-        maxDelay: RECONNECT_MAX_DELAY
-    }); // */
-    //private poolBubbleToJoin: IDictionary<string, any> = new Dictionary();
-    private httpList: List<any> = new List();
     private lockEngine: any;
-    private lockKey = "LOCK_HTTP_MANAGER";
+    //private lockKey = "LOCK_HTTP_MANAGER";
     private lockKeyNbHttpAdded = "LOCK_HTTP_MANAGER_NbHttpAdded";
-    private nbHttpAdded : number = 0;
-    private delay: number = 15000;
-    private nbRunningReq = 0;
+    public nbHttpAdded : number = 0;
+    public nbRunningReq = 0;
     started: boolean;
 
-    private MaxSimultaneousRequests = 5;
+    public limiter: RequestRateLimiter;
 
     static getClassName() {
         return 'HttpManager';
@@ -74,14 +102,10 @@ class HttpManager {
         that._options = {};
         that._logger = _logger;
         that._eventEmitter = _eventEmitter;
-        //this._imOptions = _imOptions;
+        
         that.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
 
-
-        //this._eventEmitter.on("evt_internal_affiliationdetailschanged", this._onAffiliationDetailsChanged.bind(this));
-//        this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
-
-        that._logger.log("debug", LOG_ID + "(constructor) HttpManager created successfull");
+        that._logger.log("debug", LOG_ID + "(constructor) HttpManager created successfull.");
         that._logger.log("internal", LOG_ID + "(constructor) HttpManager created successfull nbHttpAdded : ", that.nbHttpAdded);
     }
 
@@ -89,11 +113,22 @@ class HttpManager {
         let that = this;
         return new Promise(function (resolve, reject) {
             try {
-                that._options = _options;
-                that.MaxSimultaneousRequests = _options.concurrentRequests;
-                that._logger.log("debug", LOG_ID + "(constructor) HttpManager initialized successfull");
-                that._logger.log("internal", LOG_ID + "(constructor) HttpManager initialized successfull");
+                that.limiter = new RequestRateLimiter({
+                    backoffTime: 10,
+                    requestRate: _options.requestsRate.maxReqByIntervalForRequestRate,
+                    interval: _options.requestsRate.intervalForRequestRate, // Seconds
+                    timeout: _options.requestsRate.timeoutRequestForRequestRate // Seconds
+                });
 
+
+                that.limiter.setRequestHandler(new MyRequestHandler(that));
+
+                that.nbHttpAdded = 0;
+                that._options = _options;
+                that._logger.log("debug", LOG_ID + "(constructor) HttpManager initialized successfull.");
+                //that._logger.log("internal", LOG_ID + "(constructor) HttpManager initialized successfull");
+                
+                that.started = true;
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
@@ -126,10 +161,10 @@ class HttpManager {
 
         try {
             httpStatus.nbHttpAdded = that.nbHttpAdded;
-            httpStatus.httpQueueSize = that.httpList.length;
+            httpStatus.httpQueueSize = that.limiter.bucket.length;
             httpStatus.nbRunningReq = that.nbRunningReq;
-            httpStatus.maxSimultaneousRequests = that.MaxSimultaneousRequests;
-            httpStatus.nbReqInQueue = that.httpList.length;
+            httpStatus.maxSimultaneousRequests = that.limiter.bucket.capacity;
+            httpStatus.nbReqInQueue = that.limiter.bucket.length;
             that._logger.log("debug", LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
         } catch (err) {
             that._logger.log("debug", LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);
@@ -140,7 +175,7 @@ class HttpManager {
 
     //region Lock
 
-    lock(fn) {
+   /* lock(fn) {
         let that = this;
         let opts = undefined;
         return that.lockEngine.acquire(that.lockKey,
@@ -154,6 +189,7 @@ class HttpManager {
             return result;
         });
     }
+    // */
 
     locknbRunningReq(fn) {
         let that = this;
@@ -176,217 +212,46 @@ class HttpManager {
 
     incNbRunningReq(){
         let that = this;
-        that.locknbRunningReq(() => {
+        return that.locknbRunningReq(() => {
             that.nbRunningReq++;
             // that._logger.log("debug", LOG_ID + "(incNbRunningReq) nbRunningReq : ", that.nbRunningReq);
+            return that.nbRunningReq;
         });
     }
 
     decNbRunningReq(){
         let that = this;
-        that.locknbRunningReq(() => {
+        return that.locknbRunningReq(() => {
             that.nbRunningReq--;
             // that._logger.log("debug", LOG_ID + "(decNbRunningReq) nbRunningReq : ", that.nbRunningReq);
+            return that.nbRunningReq;
         });
-    }
-
-    isNbRunningReqAuthorized(){
-        let res = false;
-        let that = this;
-        that.locknbRunningReq(() => {
-            // that._logger.log("debug", LOG_ID + "(decNbRunningReq) nbRunningReq : ", that.nbRunningReq, ", MaxSimultaneousRequests : ", MaxSimultaneousRequests);
-            res = that.nbRunningReq < that.MaxSimultaneousRequests;
-        });
-        return res;
     }
 
     //endregion nbRunningReq
-
-    //region Queue Management
 
     /**
      *
      * @param {} req {id, method, params, resolve, reject}
      * @return {Promise<any>}
      */
-    async add(req : any): Promise<any> {
+    async add(req : RequestForQueue): Promise<any> {
         let that = this;
-        return new Promise((resolve, reject) => {
-            that.lock(() => {
-                // Treatment in the lock
-                /*if ( (!that.poolBubbleToJoin.containsKey(roomJid)) && (!that.poolBubbleAlreadyJoined.containsKey(roomJid)) ){ */
-                    if (that.nbHttpAdded > (Number.MAX_SAFE_INTEGER - 1)) {
-                        that.nbHttpAdded = 0;
-                    } else {
-                        that.nbHttpAdded++;
-                    }
-                    req.id = new Date().getTime() + "_" + that.nbHttpAdded;
-                    that._logger.log("debug", LOG_ID + "(add) We add the req.id : ", req.id, ", req.label : ", req.label, ", nbHttpAdded : ", that.nbHttpAdded, ", nbRunningReq : ", that.nbRunningReq, ", that.httpList.length : ", that.httpList.length);
-                    req.resolve = resolve;
-                    req.reject = reject;
-                    if (that.httpList.length < 1000000) {
-                        that.httpList.add(req);
-                        //needToAsk = true;
-                        return {label: "OK", "id": req.id};
-                    } else {
-                        req.reject({code:-1, label: "Can not send the HTTP request because too mutch request in queue."});
-                        return {label: "FAILED", id: req.id}
-                    }
-                //}
-                //return ;
-            }).then((result) => {
-                that._logger.log("internal", LOG_ID + "(add) Succeed - Wait for treatment to resolve it : ", result);
-               // return resolve(result);
-            }).catch((result) => {
-                that._logger.log("internal", LOG_ID + "(add) Failed - failed to add the request : ", result);
-                resolve(undefined);
-            });
-        });
-    }
-
-    async remove(req): Promise<any> {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.lock(() => {
-                // Treatment in the lock
-                    that._logger.log("debug", LOG_ID + "(remove) We remove the req from pool.");
-                    that.httpList.remove((item: any) => {
-                        return item ? req.id == item.id : false;
-                    });
-            }).then((result) => {
-                that._logger.log("internal", LOG_ID + "(remove) Succeed : ", result);
-                resolve(result);
-            }).catch((result) => {
-                that._logger.log("internal", LOG_ID + "(remove) Failed : ", result);
-                resolve(undefined);
-            });
-        });
-    }
-
-    async treatHttp() {
-        let that = this;
-        if (that.started) {
-            that._logger.log("debug", LOG_ID + "(treatHttp) Already running, so do not start the treatment.");
-            return Promise.resolve(undefined);
+        if (that.nbHttpAdded > (Number.MAX_SAFE_INTEGER - 1)) {
+            that.nbHttpAdded = 0;
+        } else {
+            that.nbHttpAdded++;
         }
-        if (!that.MaxSimultaneousRequests) {
-            that._logger.log("debug", LOG_ID + "(treatHttp) that.MaxSimultaneousRequests not define so force set it to 10.");
-            that.MaxSimultaneousRequests = 10;
-        }
-        that.started = true;
-
-        return new Promise(async (resolve, reject) => {
-            that._logger.log("internal", LOG_ID + "(treatHttp) start with nbHttpAdded : ", that.nbHttpAdded, ", that.httpList.length : ", that.httpList.length, ", MaxSimultaneousRequests : ", that.MaxSimultaneousRequests);
-            while (that.started == true) {
-                let req : RequestForQueue = undefined;
-
-                that.lock(() => {
-                    // Treatment in the lock
-                    // that._logger.log("debug", LOG_ID + "(treatHttp) We will get the req to treat from pool.");
-                    req = that.httpList.elementAt(0);
-                    if (req) {
-                        that.incNbRunningReq();
-                        that._logger.log("debug", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req.id, ", label : ", req.label,", that.httpList.length : ", that.httpList.length, ", that.nbRunningReq : ", that.nbRunningReq);
-                        //that._logger.log("internal", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req);
-                        that._logger.log("debug", LOG_ID + "(treatHttp) Remove the element treated id : ", req.id);
-                        that.httpList.remove((item: any) => {
-                            return item ? req.id == item.id : false;
-                        });
-                    } else {
-                        // that._logger.log("warn", LOG_ID + "(treatHttp) We did not found the req to treat from pool.");
-                    }
-                }).then((result) => {
-                    //that._logger.log("internal", LOG_ID + "(treatHttp) pop req Succeed : ", result);
-                    if (req) {
-                        that._logger.log("debug", LOG_ID + "(treatHttp) Treat the req : ", req.id);
-                        //that._logger.log("internal", LOG_ID + "(treatHttp) We getted the req to treat from pool : ", req);
-                        // {id, method, params, resolve, reject}
-                        req.method(...req.params).then((result) => {
-                            that._logger.log("debug", LOG_ID + "(treatHttp) The req method call SUCCEED. req.id : ", req.id, ", req.label : ", req.label);
-                            that.decNbRunningReq();
-                            req.resolve(result);
-                        }).catch((err) => {
-                            that._logger.log("error", LOG_ID + "(treatHttp) The req method call failed : ", err, ", req.id : ", req.id, ", req.label : ", req.label);
-                            that.decNbRunningReq();
-                            req.reject(err);
-                        })
-                    } else {
-                      //  that._logger.log("warn", LOG_ID + "(treatHttp) We did not found the req to treat from pool.");
-                    }
-                }).catch((result) => {
-                    that._logger.log("internalerror", LOG_ID + "(treatHttp) Failed : ", result, ", req.id : ", req.id, ", req.label : ", req.label);
-                    //that._logger.log("debug", LOG_ID + "(treatHttp) nbRunningReq-- : ", nbRunningReq--);
-                });
-
-
-                await until(() => { return  (this.isNbRunningReqAuthorized() || that.httpList.length == 0) ;}, "wait the " + that.MaxSimultaneousRequests + " simultaneous request to be reached! that.nbRunningReq : " + that.nbRunningReq + ", that.httpList.length : " + that.httpList.length,150000).catch((err) => {
-                    that._logger.log("internalerror", LOG_ID + "(treatHttp) until Failed : ", err);
-                });
-                if (that.httpList.length == 0) {
-                    //that._logger.log("internal", LOG_ID + "(treatHttp) pause.");
-                    await pause(50);
-                }
-                /*
-                if (that.poolBubbleToJoin.length > 0 && that.poolBubbleJoinInProgress.length == 0) {
-                    let start = true;
-                    that.fibonacciStrategy.reset();
-                    that.delay = that.fibonacciStrategy.getInitialDelay();
-
-                    while ((that.poolBubbleToJoin.length > 0 || that.poolBubbleJoinInProgress.length > 0 ) || start == true) {
-                        that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) START with pause value : ", that.delay, "  treat a group of 10 bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                        start = false;
-                        for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < 11 && iterBubbleToJoin < 10; iterBubbleToJoin++) {
-                            let bubble = await that.getBubbleToJoin();
-                            if ( bubble ) {
-                                that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", for the initial presence to bubble : ", bubble);
-                                await that.addBubbleToJoinInProgress(bubble); // poolBubbleJoinInProgress.add(bubble.jid, bubble);
-                                let test = false;
-                                if (getRandomInt(2) == 1 || !test) {
-                                    that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubble : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresence(bubble);
-                                } else {
-                                    that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", because of random test do not send the initial presence to bubble : ", bubble.jid);
-                                }
-                            } else {
-                                that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble undefined at ", iterBubbleToJoin, ", so do not send the initial presence to bubble : ", bubble);
-                            }
-                        }
-                        await until(() => {
-                            return (that.poolBubbleJoinInProgress.length == 0 );
-                        }, "Wait treat group of 10 bubbles to join from poolBubbleJoinInProgress.", 30000).then(() => {
-                            that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) SUCCEED to send the poolBubbleJoinInProgress pool.");
-                            that.fibonacciStrategy.reset();
-                            that.delay = that.fibonacciStrategy.getInitialDelay();
-                        }).catch(async (err) => {
-                            that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of 10 bubbles to join from poolBubbleJoinInProgress, before pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", error : ", err);
-                            await pause(that.delay);
-                            that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of 10 bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                            await that.resetBubbleFromJoinInProgressToBubbleToJoin();
-                            that.delay = that.fibonacciStrategy.next();
-                        });
-                        that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) END treat group of 10 bubbles to join from poolBubbleJoinInProgress, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                    }
-                    await until(() => {
-                        return (that.poolBubbleJoinInProgress.length == 0 && that.poolBubbleToJoin.length == 0);
-                    }, "Wait for the Bubbles from that.poolBubbleToJoin to be joined.", 120000).catch((err) => {
-                        that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) FAILED wait for the bubbles to be joined, it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", it left that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", error : ", err);
-                    });
-                    that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                } else {
-                    that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) FAILED join already in progress.");
-                }
-                // */
-                //resolve("done");
-            }
-            resolve(undefined);
-        });
+        req.id = new Date().getTime() + "_" + that.nbHttpAdded;
+        this._logger.log("internal", LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+        return this.limiter.request(req);
     }
 
-    //endregion
     stop() {
         let that = this;
         that._logger.log("info", LOG_ID + "(stop) stopping.");
         that.started = false;
+        that.limiter.bucket.end();
     }
 }
 

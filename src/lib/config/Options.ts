@@ -23,6 +23,7 @@ class Options {
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
     private _concurrentRequests: number;
+    private _requestsRate: any;
 
     constructor(_options, _logger) {
         this._logger = _logger;
@@ -81,6 +82,7 @@ class Options {
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
         this._concurrentRequests = this._getConcurrentRequestsOption();
+        this._requestsRate = this._getRequestsRateOption();
     }
 
     get testOutdatedVersion(): boolean {
@@ -145,6 +147,13 @@ class Options {
 
     get concurrentRequests(): number {
         return this._concurrentRequests;
+    }
+
+    get requestsRate(): { 
+        "maxReqByIntervalForRequestRate": number, 
+        "intervalForRequestRate": number, 
+        "timeoutRequestForRequestRate": number } {
+        return this._requestsRate;
     }
 
     _gettestOutdatedVersion() {
@@ -278,10 +287,19 @@ class Options {
 
         let concurrentRequests = config.concurrentRequests;
 
-        if ("rainbow" in this._options && "concurrentRequests" in this._options) {
-            concurrentRequests = this._options.concurrentRequests;
+        if ("rainbow" in this._options && "concurrentRequests" in this._options.rainbow) {
+            concurrentRequests = this._options.rainbow.concurrentRequests;
         }
         return concurrentRequests;
+    }
+
+    _getRequestsRateOption() {
+        let requestsRate = config.requestsRate;
+
+        if ("rainbow" in this._options && "requestsRate" in this._options) {
+            requestsRate = this._options.requestsRate;
+        }
+        return requestsRate;
     }
 
     _getProxyOptions() {
