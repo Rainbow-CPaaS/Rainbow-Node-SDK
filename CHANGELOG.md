@@ -8,8 +8,13 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.84.0-dotnet.0] - 2021-02-XX
 -   Add treatment of Urgency messages Events
--   Move property "concurrentRequests" from options.rainbow to options level.
--   Set the limit of the number of request to be send in queue to 1000000)
+-   Refactor the way the HTTP requests are limited. Now use the `request-rate-limiter` library which is a simple leaky-bucket based request rate limiter.
+-   Add a `requestsRate` section in SDK's Options for the configuration of the `request-rate-limiter`. Defaults values :
+-   "requestsRate":{ </br>    
+        "maxReqByIntervalForRequestRate": 600, // nb requests during the interval. </br>  
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit. </br>  
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full. </br>  
+    },   </br>  
 
 ## [1.83.0] - 2021-02-03
 -   Add containerId and containerName in Bulle type. It is the folder where the bubble is stored in.
