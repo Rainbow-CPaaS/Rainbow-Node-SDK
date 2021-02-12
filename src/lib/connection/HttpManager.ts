@@ -16,7 +16,7 @@ import {FibonacciStrategy} from "backoff";
 import {Logger} from "../common/Logger";
 //let backoff = require("backoff");
 // @ ts-ignore
- import RequestRateLimiter, {BackoffError} from "./request-rate-limiter";
+ import RequestRateLimiter, {BackoffError} from "./request-rate-limiter/index";
 // const RequestRateLimiter = require("request-rate-limiter").RequestRateLimiter;  
 // const BackoffError = require("request-rate-limiter").BackoffError; 
         
