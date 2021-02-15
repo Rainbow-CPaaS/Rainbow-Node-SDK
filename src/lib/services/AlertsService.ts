@@ -313,7 +313,8 @@ class AlertsService {
                 "macAddresses": device.macAddresses,
                 "geolocation ": device.geolocation,
                 "type": (!device.type || device.type === "") ? "desktop" : device.type,
-                "jid_resource": that._xmpp.resourceId
+                "jid_resource": that._xmpp.resourceId,
+                "domainUsername": device.domainUsername 
             };
 
             if (create) {
