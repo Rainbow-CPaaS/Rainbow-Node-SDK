@@ -15,6 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit. </br>  
         "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full. </br>  
     },   </br>  
+-   Add property `AlertDevice::domainUsername` for filtering alerts by domain username of the device. 
 
 ## [1.83.0] - 2021-02-03
 -   Add containerId and containerName in Bulle type. It is the folder where the bubble is stored in.
