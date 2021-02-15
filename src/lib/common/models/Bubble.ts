@@ -195,7 +195,7 @@ class Bubble {
             // need to order the users by date
             this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
             // dev-code //
-            console.log("users ordered in bubble (" + this.id + ") : ", this.users);
+            //console.log("users ordered in bubble (" + this.id + ") : ", this.users);
             // end-dev-code //
         } else {
             this.users = _users;
