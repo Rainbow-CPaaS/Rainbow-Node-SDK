@@ -804,7 +804,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessage(message, jid, lang, content, subject, answeredMsg) {
+    sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -856,6 +856,11 @@ class XMPPService {
                 }, content.message));
             }
 
+            // Handle urgency
+            if (urgency && urgency !== 'std') {
+                stanza.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+            }
+            
             that.logger.log("internal", LOG_ID + "(sendChatMessage) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
@@ -871,7 +876,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention) {
+    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
 
@@ -921,6 +926,11 @@ class XMPPService {
                 }, content.message));
             }
 
+            // Handle urgency
+            if (urgency && urgency !== 'std') {
+                stanza.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+            }
+            
             if (attention) {
                 if (Array.isArray(attention) && attention.length > 0) {
                     let mentions = xml("mention", {"xmlns": NameSpacesLabels.AttentionNS}, undefined);
@@ -965,7 +975,7 @@ class XMPPService {
 
     }
 
-    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang) {
+    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, urgency: string = null) {
         let that = this;
 //        $log.info("[Conversation] >sendCorrectedChatMessage: origMsgId=" + origMsgId)
 
@@ -1003,6 +1013,12 @@ class XMPPService {
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
         }
+
+        // Handle urgency
+        if (urgency && urgency !== 'std') {
+            xmppMessage.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+        }
+
 
         // message = this.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
         if (!originalMessage) {

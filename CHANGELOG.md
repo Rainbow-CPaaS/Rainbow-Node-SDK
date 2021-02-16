@@ -8,6 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.84.0-dotnet.0] - 2021-02-XX
 -   Add treatment of Urgency messages Events
+-   Add parameter urgency of the message sent in API Methods `ImsService::sendMessageToJid` `ImsService::sendMessageToJidAnswer` `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` `ImsService::sendMessageToContact` `ImsService::sendMessageToConversation` . The urgence of the message value can be : 'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message.
 -   Refactor the way the HTTP requests are limited. Now use the `request-rate-limiter` library which is a simple leaky-bucket based request rate limiter.
 -   Add a `requestsRate` section in SDK's Options for the configuration of the `request-rate-limiter`. Defaults values :
 -   "requestsRate":{ </br>    
@@ -15,7 +16,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit. </br>  
         "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full. </br>  
     },   </br>  
--   Add property `AlertDevice::domainUsername` for filtering alerts by domain username of the device. 
+-   Add property `AlertDevice::domainUsername` for filtering alerts by domain username of the device.
+-   Add ConversationsService::getContactsMessagesFromConversationId method to retrieve messages exchanged by contacts in a conversation. The result is the messages without event type.  
 
 ## [1.83.0] - 2021-02-03
 -   Add containerId and containerName in Bulle type. It is the folder where the bubble is stored in.

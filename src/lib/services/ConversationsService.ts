@@ -486,6 +486,41 @@ class Conversations {
         });
     }
 
+    /**
+     *
+     * @public
+     * @method getContactsMessagesFromConversationId
+     * @instance
+     * @description
+     *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br/>
+     * @param {string} conversationId : Id of the conversation
+     * @async
+     * @return {Promise<any>}
+     */
+    getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
+        let that = this;
+
+        if (!conversationId) {
+            that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) bad or empty 'conversationId' parameter : ", conversationId);
+            return null;
+        }
+
+        let conversation = that.getConversationById(conversationId);
+        if (!conversation) {
+            return null;
+        }
+        that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) conversation found, conversation.id: ", conversation.id);
+
+        if (!conversation.messages) {
+            that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' undefined!");
+            return null;
+        }
+
+        return conversation.messages.filter((msg) => {
+            return !msg.isEvent ;   
+        });
+    }
+
     async searchMessageArchivedFromServer(conversation: Conversation, messageId: string, stamp: string) {
         let that = this;
         /*

@@ -6,6 +6,38 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.84 - February 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Add parameter urgency of the message sent in API Methods `ImsService::sendMessageToJid` `ImsService::sendMessageToJidAnswer` `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` `ImsService::sendMessageToContact` `ImsService::sendMessageToConversation` . The urgence of the message value can be : 'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message.
+-   Add property `AlertDevice::domainUsername` for filtering alerts by domain username of the device.
+
+**Others Changes**
+
+-   Add treatment of Urgency messages Events
+-   Refactor the way the HTTP requests are limited. Now use the `request-rate-limiter` library which is a simple leaky-bucket based request rate limiter.
+-   Add a `requestsRate` section in SDK's Options for the configuration of the `request-rate-limiter`. Defaults values :
+-   "requestsRate":{ </br>    
+        "maxReqByIntervalForRequestRate": 600, // nb requests during the interval. </br>  
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit. </br>  
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full. </br>  
+    },   </br>  
+-   Add ConversationsService::getContactsMessagesFromConversationId method to retrieve messages exchanged by contacts in a conversation. The result is the messages without event type.  
+
+
 ### SDK for Node.JS 1.83 - February 2021
 
 ---
@@ -37,6 +69,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Update of `rainbow_onmessagereceived` event with the `mentions` tab. It is to indicate the contacts mentioned in the message.
 -   Fix of initial bubble presence when the SDK is restarted.
 -   Fix build in Makefile for the docs of the HUB.
+
 
 ### SDK for Node.JS 1.82 - January 2021
 

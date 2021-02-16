@@ -521,6 +521,22 @@ function multiple_testgetContactByLoginEmail_NotInRoster() {
         }
     });
 }
+    function testgetContactsMessagesFromConversationId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            //let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            //let now = new Date().getTime();
+            // get messages which are not events
+            let msgNotEvents = yield rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+             logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+        });
+    }
 
 function testremoveAllMessages() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -566,6 +582,7 @@ function testsendMessageToContact() {
         for (let i = 1; i <= nbMsgToSend; i++) {
             let now = new Date().getTime();
             // Send message
+            //let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
             let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
@@ -1244,6 +1261,29 @@ function testCreateBubbles() {
     //    let utc = new Date().toJSON().replace(/-/g, '/');
 }
 
+async function testCreateBubbleAndSendMessage() {
+    let loginEmail = "vincent02@vbe.test.openrainbow.net";
+    let appointmentRoom = "testBot";
+    //let botappointment = "vincent01@vbe.test.openrainbow.net";
+    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+        if (contact) {
+            logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+            let utc = new Date().toJSON().replace(/-/g, "/");
+            await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble) => {
+                logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
+                    let message = "message de test";
+                    await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                        "type": "text/markdown",
+                        "message": message
+                    }, "subject", undefined, "middle");
+                });
+            });
+        }
+    }); // */
+    //    let utc = new Date().toJSON().replace(/-/g, '/');
+}
+
 async function testCreate50BubblesAndArchiveThem() {
     let loginEmail = "vincent02@vbe.test.openrainbow.net";
     let appointmentRoom = "testBot";
@@ -1257,7 +1297,7 @@ async function testCreate50BubblesAndArchiveThem() {
                     logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async() => {
                         let message = "message de test";
-                        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
+                        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject", undefined, "middle");
                         /*await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject"); // */
                         rainbowSDK.bubbles.archiveBubble(bubble).then(() => {
@@ -1334,7 +1374,7 @@ function testCreateBubblesAndInviteContactsByEmails() {
             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                 "type": "text/markdown",
                 "message": message
-            }, "subject");
+            }, "subject", undefined,"middle");
         });
     });
     //    let utc = new Date().toJSON().replace(/-/g, '/');
