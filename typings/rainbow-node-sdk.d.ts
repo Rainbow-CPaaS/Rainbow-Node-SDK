@@ -390,6 +390,11 @@ declare module 'lib/config/config' {
 	    };
 	    mode: string;
 	    concurrentRequests: number;
+	    requestsRate: {
+	        maxReqByIntervalForRequestRate: number;
+	        intervalForRequestRate: number;
+	        timeoutRequestForRequestRate: number;
+	    };
 	    debug: boolean;
 	    permitSearchFromPhoneBook: boolean;
 	    displayOrder: string;
@@ -728,9 +733,9 @@ declare module 'lib/connection/XMPPService' {
 	    handleXMPPConnection(headers: any): void;
 	    setPresence(show: any, status: any): Promise<unknown>;
 	    enableCarbon(): Promise<unknown>;
-	    sendChatMessage(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any): Promise<unknown>;
-	    sendChatMessageToBubble(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, attention: any): Promise<unknown>;
-	    sendCorrectedChatMessage(conversation: any, originalMessage: any, data: any, origMsgId: any, lang: any): Promise<string>;
+	    sendChatMessage(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
+	    sendChatMessageToBubble(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, attention: any, urgency?: string): Promise<unknown>;
+	    sendCorrectedChatMessage(conversation: any, originalMessage: any, data: any, origMsgId: any, lang: any, urgency?: string): Promise<string>;
 	    markMessageAsRead(message: any, conversationType?: string, span?: number): Promise<unknown>;
 	    markMessageAsReceived(message: any, conversationType: string, span?: number): Promise<unknown>;
 	    sendChatExistingFSMessage(message: any, jid: any, lang: any, fileDescriptor: any): Promise<unknown>;
@@ -3848,6 +3853,18 @@ declare module 'lib/services/ConversationsService' {
 	     * @return {Promise<any>}
 	     */
 	    getOneMessageFromConversationId(conversationId: string, messageId: string, stamp: string): Promise<Message>;
+	    /**
+	     *
+	     * @public
+	     * @method getContactsMessagesFromConversationId
+	     * @instance
+	     * @description
+	     *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br/>
+	     * @param {string} conversationId : Id of the conversation
+	     * @async
+	     * @return {Promise<any>}
+	     */
+	    getContactsMessagesFromConversationId(conversationId: string): Promise<Message>;
 	    searchMessageArchivedFromServer(conversation: Conversation, messageId: string, stamp: string): Promise<any>;
 	    /**
 	     * @private
@@ -5499,34 +5516,283 @@ declare module 'lib/services/PresenceService' {
 	export { PresenceService };
 
 }
+declare module 'lib/connection/request-rate-limiter/src/leakybucket' {
+	export default class LeakyBucket {
+	    private queue;
+	    private totalCost;
+	    private currentCapacity;
+	    private lastRefill;
+	    private refillRate;
+	    private timer;
+	    private emptyPromiseResolver;
+	    private emptyPromise;
+	    private capacity;
+	    private maxCapacity;
+	    private timeout;
+	    private interval;
+	    /**
+	     * Sets up the leaky bucket. The bucket is designed so that it can
+	     * burst by the capacity it is given. after that items can be queued
+	     * until a timeout of n seonds is reached.
+	     *
+	     * example: throttle 10 actions per minute that have each a cost of 1, reject
+	     * everything theat is overflowing. there will no more than 10 items queued
+	     * at any time
+	     *   capacity: 10
+	     *   interval: 60
+	     *   timeout: 60
+	     *
+	     * example: throttle 100 actions per minute that have a cost of 1, reject
+	     * items that have to wait more thatn 2 minutes. there will be no more thatn
+	     * 200 items queued at any time. of those 200 items 100 will be bursted within
+	     * a minute, the rest will be executed evenly spread over a mintue.
+	     *   capacity: 100
+	     *   interval: 60
+	     *   timeout: 120
+	     *
+	     * @param {number} capacity the capacity the bucket has per interval
+	     * @param {number} timeout the total time items are allowed to wait for execution
+	     * @param {number} interval the interval for the capacity in seconds
+	     */
+	    constructor({ capacity, timeout, interval, }?: {
+	        capacity?: number;
+	        timeout?: number;
+	        interval?: number;
+	    });
+	    get length(): number;
+	    /**
+	     * dthe throttle method is used to throttle things. it is async and will resolve either
+	     * immediatelly, if there is space in the bucket, than can be bursted, or it will wait
+	     * until there is enough capacity left to execute the item with the given cost. if the
+	     * bucket is overflowing, and the item cannot be executed within the timeout of the bucket,
+	     * the call will be rejected with an error.
+	     *
+	     * @param {number} cost=1 the cost of the item to be throttled. is the cost is unknown,
+	     *                        the cost can be payed after execution using the pay method.
+	     *                        defaults to 1.
+	     * @param {boolean} append = true set to false if the item needs ot be added to the
+	     *                                beginning of the queue
+	     * @param {boolean} isPause = false defines if the element is a pause elemtn, if yes, it
+	     *                                  will not be cleaned off of the queue when checking
+	     *                                  for overflowing elements
+	     * @returns {promise} resolves when the item can be executed, rejects if the item cannot
+	     *                    be executed in time
+	     */
+	    throttle(cost?: number, append?: boolean, isPause?: boolean): Promise<unknown>;
+	    /**
+	     * either executes directly when enough capacity is present or delays the
+	     * execution until enough capacity is available.
+	     *
+	     * @private
+	     */
+	    startTimer(): void;
+	    /**
+	     * removes the first item in the queue, resolves the promise that indicated
+	     * that the bucket is empty and no more items are waiting
+	     *
+	     * @private
+	     */
+	    shiftQueue(): void;
+	    /**
+	     * is resolved as soon as the bucket is empty. is basically an event
+	     * that is emitted
+	     */
+	    isEmpty(): Promise<any>;
+	    /**
+	     * ends the bucket. The bucket may be recycled after this call
+	     */
+	    end(): void;
+	    /**
+	     * removes all items from the queue, does not stop the timer though
+	     *
+	     * @privae
+	     */
+	    clear(): void;
+	    /**
+	     * can be used to pay costs for items where the cost is clear after exection
+	     * this will devcrease the current capacity availabe on the bucket.
+	     *
+	     * @param {number} cost the ost to pay
+	     */
+	    pay(cost: any): void;
+	    /**
+	     * stops the running times
+	     *
+	     * @private
+	     */
+	    stopTimer(): void;
+	    /**
+	     * refills the bucket with capacity which has become available since the
+	     * last refill. starts to refill after a call has started using capacity
+	     *
+	     * @private
+	     */
+	    refill(): void;
+	    /**
+	     * gets the currenlty avilable max capacity, respecintg
+	     * the capacity that is already used in the moment
+	     *
+	     * @private
+	     */
+	    getCurrentMaxCapacity(): number;
+	    /**
+	     * removes all items that cannot be executed in time due to items
+	     * that were added in front of them in the queue (mostly pause items)
+	     *
+	     * @private
+	     */
+	    cleanQueue(): void;
+	    /**
+	     * returns the first item from the queue
+	     *
+	     * @private
+	     */
+	    getFirstItem(): any;
+	    /**
+	     * pasue the bucket for the given cost. means that an item is added in the
+	     * front of the queue with the cost passed to this method
+	     *
+	     * @param {number} cost the cost to pasue by
+	     */
+	    pauseByCost(cost: any): void;
+	    /**
+	     * pause the bucket for n seconds. means that an item with the cost for one
+	     * second is added at the beginning of the queue
+	     *
+	     * @param {number} seconds the number of seconds to pause the bucket by
+	     */
+	    pause(seconds?: number): void;
+	    /**
+	     * drains the bucket, so that nothing can be exuted at the moment
+	     *
+	     * @private
+	     */
+	    drain(): void;
+	    /**
+	     * set the timeout value for the bucket. this is the amount of time no item
+	     * may longer wait for.
+	     *
+	     * @param {number} timeout in seonds
+	     */
+	    setTimeout(timeout: any): this;
+	    /**
+	     * set the interval within whch the capacity can be used
+	     *
+	     * @param {number} interval in seonds
+	     */
+	    setInterval(interval: any): this;
+	    /**
+	     * set the capacity of the bucket. this si the capacity that can be used per interval
+	     *
+	     * @param {number} capacity
+	     */
+	    setCapacity(capacity: any): this;
+	    /**
+	     * claculates the values of some frequently used variables on the bucket
+	     *
+	     * @private
+	     */
+	    updateVariables(): void;
+	}
+
+}
+declare module 'lib/connection/request-rate-limiter/src/BackoffError' {
+	export default class BackoffError extends Error {
+	}
+
+}
+declare module 'lib/connection/request-rate-limiter/src/RequestRateLimiter' {
+	export default class RequestRateLimiter {
+	    private backoffTime;
+	    private requestRate;
+	    private interval;
+	    private timeout;
+	    bucket: any;
+	    private requestHandler;
+	    /**
+	     * The constructor accepts 4 additional options, which can be used to configure the behaviour of the limiter:
+	     * backoffTime: how many seconds to back off when the remote end indicates to back off
+	     * requestRate: how many requests can be sent within the interval
+	     * interval: the interval within which all requests of the requestRate should be executed
+	     * timeout: no request will stay in the queue any longer than the timeout. if the queue is full, the requst will be rejected
+	     *
+	    */
+	    constructor({ backoffTime, requestRate, interval, timeout, }?: {
+	        backoffTime?: number;
+	        requestRate?: number;
+	        interval?: number;
+	        timeout?: number;
+	    });
+	    /**
+	    * promise that resolves when the rate limited becomes idle
+	    * once resolved, the call to this method must be repeated
+	    * in order to become notified again.
+	    */
+	    idle(): Promise<any>;
+	    /**
+	    * enqueue a request
+	    */
+	    request(requestConfig: any): Promise<any>;
+	    /**
+	    * actually execute the requests
+	    */
+	    executeRequest(requestConfig: any): Promise<any>;
+	    /**
+	    * set the reuqest handler that shall be used to handle the requests
+	    */
+	    setRequestHandler(requestHandler: any): void;
+	}
+
+}
+declare module 'lib/connection/request-rate-limiter/src/RequestRequestHandler' {
+	export default class RequestRequestHandler {
+	    private backoffHTTPCode;
+	    constructor({ backoffHTTPCode, }?: {
+	        backoffHTTPCode?: number;
+	    });
+	    request(requestConfig: any): Promise<unknown>;
+	}
+
+}
+declare module 'lib/connection/request-rate-limiter/src/MockRequestHandler' {
+	export default class MockRequestHandler {
+	    request(requestConfig: any): Promise<{
+	        status: string;
+	    }>;
+	}
+
+}
+declare module 'lib/connection/request-rate-limiter/index' {
+	import RequestRateLimiter from 'lib/connection/request-rate-limiter/src/RequestRateLimiter';
+	import BackoffError from 'lib/connection/request-rate-limiter/src/BackoffError';
+	import RequestRequestHandler from 'lib/connection/request-rate-limiter/src/RequestRequestHandler';
+	import MockRequestHandler from 'lib/connection/request-rate-limiter/src/MockRequestHandler';
+	export { BackoffError, RequestRequestHandler, MockRequestHandler, RequestRateLimiter as default };
+
+}
 declare module 'lib/connection/HttpManager' {
 	/// <reference types="node" />
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
 	import { Logger } from 'lib/common/Logger';
+	import RequestRateLimiter from 'lib/connection/request-rate-limiter/index';
 	export {}; class RequestForQueue {
 	    id: string;
 	    method: Function;
 	    params: IArguments;
-	    resolve: Function;
-	    reject: Function;
 	    label: string;
 	    constructor();
 	} class HttpManager {
-	    private _logger;
+	    _logger: Logger;
 	    private _eventEmitter;
 	    private _imOptions;
 	    private _options;
-	    private fibonacciStrategy;
-	    private httpList;
 	    private lockEngine;
-	    private lockKey;
 	    private lockKeyNbHttpAdded;
-	    private nbHttpAdded;
-	    private delay;
-	    private nbRunningReq;
+	    nbHttpAdded: number;
+	    nbRunningReq: number;
 	    started: boolean;
-	    private MaxSimultaneousRequests;
+	    limiter: RequestRateLimiter;
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(_eventEmitter: EventEmitter, _logger: Logger);
@@ -5538,19 +5804,15 @@ declare module 'lib/connection/HttpManager' {
 	        maxSimultaneousRequests: number;
 	        nbReqInQueue: number;
 	    }>;
-	    lock(fn: any): any;
 	    locknbRunningReq(fn: any): any;
-	    incNbRunningReq(): void;
-	    decNbRunningReq(): void;
-	    isNbRunningReqAuthorized(): boolean;
+	    incNbRunningReq(): any;
+	    decNbRunningReq(): any;
 	    /**
 	     *
 	     * @param {} req {id, method, params, resolve, reject}
 	     * @return {Promise<any>}
 	     */
-	    add(req: any): Promise<any>;
-	    remove(req: any): Promise<any>;
-	    treatHttp(): Promise<any>;
+	    add(req: RequestForQueue): Promise<any>;
 	    stop(): void;
 	}
 	export { RequestForQueue, HttpManager };
@@ -6099,12 +6361,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToConversation(conversation: any, message: any, lang: any, content: any, subject: any): Promise<any>;
+	    sendMessageToConversation(conversation: any, message: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendMessageToContact
@@ -6118,12 +6381,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToContact(message: any, contact: any, lang: any, content: any, subject: any): Promise<any>;
+	    sendMessageToContact(message: any, contact: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
 	     * @private
 	     * @description
@@ -6153,12 +6417,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.type=text/markdown] The content message type
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToJid(message: any, jid: any, lang: any, content: any, subject: any): Promise<any>;
+	    sendMessageToJid(message: any, jid: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendMessageToJidAnswer
@@ -6173,12 +6438,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {String} [answeredMsg] The message answered
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any): Promise<unknown>;
+	    sendMessageToJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubble
@@ -6193,12 +6459,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubble(message: any, bubble: any, lang: any, content: any, subject: any, mentions: any): Promise<unknown>;
+	    sendMessageToBubble(message: any, bubble: any, lang: any, content: any, subject: any, mentions: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubbleJid
@@ -6213,12 +6480,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions: any): Promise<unknown>;
+	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubbleJidAnswer
@@ -6234,12 +6502,13 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [subject] The message subject
 	     * @param {String} [answeredMsg] The message answered
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubbleJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, mentions: any): Promise<unknown>;
+	    sendMessageToBubbleJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, mentions: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendIsTypingStateInBubble
@@ -8687,6 +8956,7 @@ declare module 'lib/config/Options' {
 	    _servicesToStart: any;
 	    private _testOutdatedVersion;
 	    private _concurrentRequests;
+	    private _requestsRate;
 	    constructor(_options: any, _logger: any);
 	    parse(): void;
 	    get testOutdatedVersion(): boolean;
@@ -8705,6 +8975,11 @@ declare module 'lib/config/Options' {
 	    get useCLIMode(): any;
 	    get credentials(): any;
 	    get concurrentRequests(): number;
+	    get requestsRate(): {
+	        "maxReqByIntervalForRequestRate": number;
+	        "intervalForRequestRate": number;
+	        "timeoutRequestForRequestRate": number;
+	    };
 	    _gettestOutdatedVersion(): any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
@@ -8725,6 +9000,11 @@ declare module 'lib/config/Options' {
 	    };
 	    _getModeOption(): string;
 	    _getConcurrentRequestsOption(): number;
+	    _getRequestsRateOption(): {
+	        maxReqByIntervalForRequestRate: number;
+	        intervalForRequestRate: number;
+	        timeoutRequestForRequestRate: number;
+	    };
 	    _getProxyOptions(): {
 	        protocol: string;
 	        host: string;
@@ -8859,7 +9139,8 @@ declare module 'lib/common/models/AlertDevice' {
 	    macAddresses: List<string>;
 	    tags: List<string>;
 	    geolocation: string;
-	    constructor(id?: string, name?: string, type?: string, userId?: string, companyId?: string, jid_im?: string, jid_resource?: string, creationDate?: string, ipAddresses?: List<string>, macAddresses?: List<string>, tags?: List<string>, geolocation?: string);
+	    domainUsername: string;
+	    constructor(id?: string, name?: string, type?: string, userId?: string, companyId?: string, jid_im?: string, jid_resource?: string, creationDate?: string, ipAddresses?: List<string>, macAddresses?: List<string>, tags?: List<string>, geolocation?: string, domainUsername?: string);
 	} class AlertDevicesData {
 	    private alertDevices;
 	    total: number;
@@ -9522,9 +9803,9 @@ declare module 'lib/NodeSDK' {
 	     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
 	     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
 	     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.<br>
-	     *       "autoInitialBubblePresence" to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
-	     *       "autoLoadConversations" to activate the retrieve of conversations from the server. The default value is true.
-	     *       "autoLoadContacts" to activate the retrieve of contacts from roster from the server. The default value is true.
+	     *       "autoInitialBubblePresence" to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true. </br>
+	     *       "autoLoadConversations" to activate the retrieve of conversations from the server. The default value is true. </br>
+	     *       "autoLoadContacts" to activate the retrieve of contacts from roster from the server. The default value is true. </br>
 	     *   },<br>
 	     *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
 	     *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -9565,10 +9846,10 @@ declare module 'lib/NodeSDK' {
 	     * @instance
 	     * @param {String} token a valid token to login without login/password.
 	     * @description
-	     *    Start the SDK
-	     *    Note :
-	     *    The token must be empty to signin with credentials.
-	     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)
+	     *    Start the SDK </br>
+	     *    Note :</br>
+	     *    The token must be empty to signin with credentials.</br>
+	     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)</br>
 	     * @memberof NodeSDK
 	     */
 	    start(token: any): Promise<unknown>;
@@ -9821,20 +10102,20 @@ declare module 'lib/NodeSDK' {
 	     * @method getConnectionStatus
 	     * @instance
 	     * @description
-	     *    Get connections status of each low layer services, and also the full SDK state.
-	     *
-	     * {
-	     * restStatus: boolean, The status of the REST connection authentication to rainbow server.
-	     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server.
-	     * s2sStatus: boolean, The status of the S2S Connection to rainbow server.
-	     * state: SDKSTATUSENUM The state of the SDK.
-	     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value.
-	     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue.
-	     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it.
-	     * maxSimultaneousRequests : number, the number of request which can be launch at a same time.
-	     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.
-	     * }
-	     * @return {Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number}>}
+	     *    Get connections status of each low layer services, and also the full SDK state. </br>
+	     * </br>
+	     * { </br>
+	     * restStatus: boolean, The status of the REST connection authentication to rainbow server. </br>
+	     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server. </br>
+	     * s2sStatus: boolean, The status of the S2S Connection to rainbow server. </br>
+	     * state: SDKSTATUSENUM The state of the SDK. </br>
+	     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value. </br>
+	     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue. </br>
+	     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it. </br>
+	     * maxSimultaneousRequests : number, the number of request which can be launch at a same time. </br>
+	     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.  </br>
+	     * } </br>
+	     * @return {Promise<{ restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number }>}
 	     * @category async
 	     */
 	    getConnectionStatus(): Promise<{
