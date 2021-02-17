@@ -758,7 +758,7 @@ class NodeSDK {
      * maxSimultaneousRequests : number, the number of request which can be launch at a same time. </br>
      * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.  </br>
      * } </br>
-     * @return {Promise<{ </br>restStatus: boolean, </br> xmppStatus: boolean, </br> s2sStatus: boolean, </br> state: SDKSTATUSENUM, </br> nbHttpAdded: number, </br> httpQueueSize: number, </br> nbRunningReq: number, </br> maxSimultaneousRequests : number </br>}>}
+     * @return {Promise<{ restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number }>}
      * @category async
      */
     getConnectionStatus () : Promise<{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number}> {
