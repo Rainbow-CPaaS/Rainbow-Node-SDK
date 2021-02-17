@@ -6,6 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.84.0-dotnet.1] - 2021-02-XX
+-   Update method `channelsService::fetchMyChannels` with a new `force` parameter to allow the force of getting the channels informations from server. 
+-   Update method `channelsService::fetchChannelItems` with a new parameters `maxMessages`=100 : number of messages to get, 100 by default. `beforeDate` [optional] : show items before a specific timestamp (ISO 8601 format), `afterDate` : show items after a specific timestamp (ISO 8601 format).
+-   Fix method `channelsService::fetchChannelItems` to realy return the last posted messages if the channels contents more than maxMessages. 
+
 ## [1.84.0-dotnet.0] - 2021-02-17
 -   Add treatment of Urgency messages Events
 -   Add parameter urgency of the message sent in API Methods `ImsService::sendMessageToJid` `ImsService::sendMessageToJidAnswer` `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` `ImsService::sendMessageToContact` `ImsService::sendMessageToConversation` . The urgence of the message value can be : 'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message.

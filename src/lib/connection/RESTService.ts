@@ -19,6 +19,7 @@ import {error} from "winston";
 import {ROOMROLE} from "../services/S2SService";
 import {urlencoded} from "body-parser";
 import {Core} from "../Core";
+import {Channel} from "../common/models/Channel";
 
 const jwt : any = jwtDecode;
 
@@ -2645,7 +2646,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(fetchMyChannels) successfull");
-                that.logger.log("internal", LOG_ID + "(fetchMyChannels) received channels");
+                that.logger.log("internal", LOG_ID + "(fetchMyChannels) received channels : ", json);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(fetchMyChannels) error");
@@ -2918,10 +2919,17 @@ Request Method: PUT
     }
 
     // Update a collection of channel users
-    getChannelMessages(channelId) {
+    getChannelMessages(channelId, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items", that.getRequestHeader(), {"max": "100"}, undefined).then(function (json) {
+            let params : any = { max: maxMessages}
+            if (beforeDate) {
+                params.before = beforeDate;
+            }
+            if (afterDate) {
+                params.after = afterDate; 
+            }
+            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items", that.getRequestHeader(), params, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getChannelMessages) successfull");
                 that.logger.log("internal", LOG_ID + "(getChannelMessages) REST channels messages received : ", json.data.items.length);
                 resolve(json.data);
