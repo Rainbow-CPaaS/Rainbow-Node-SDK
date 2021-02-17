@@ -543,15 +543,16 @@ class Channels {
      * @method fetchMyChannels
      * @since 1.38
      * @instance
+     * @param {boolean} force Boolean to force the get of channels's informations from server. 
      * @description
      *    Get the channels you own, are subscribed to, are publisher<br/>
      *    Return a promise. <br/>
      * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
      */
-    fetchMyChannels() : Promise<[Channel]>{
+    fetchMyChannels(force? : boolean) : Promise<[Channel]>{
         let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
-                this.fetchChannel(id).then((channel) => {
+                this.fetchChannel(id, force).then((channel) => {
                     resolve(channel);
                 }).catch((err) => {
                     this._logger.log("error", LOG_ID + "(fetchMyChannels) error fetchChannel ");
@@ -1616,11 +1617,14 @@ class Channels {
      * @instance
      * @async
      * @param {Channel} channel The channel
+     * @param {number} maxMessages=100 [optional] number of messages to get, 100 by default
+     * @param {Date} beforeDate [optional] - show items before a specific timestamp (ISO 8601 format)
+     * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
      * @return {Promise<Object[]>} The list of messages received
      * @description
-     *  Retrieve the last messages from a channel <br/>
+     *  Retrieve the last maxMessages messages from a channel <br/>  
      */
-    public fetchChannelItems (channel : Channel) : Promise<Array<any>>{
+    public fetchChannelItems (channel : Channel, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) : Promise<Array<any>>{
         if (!channel || !channel.id) {
             this._logger.log("warn", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter");
             this._logger.log("internalerror", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", channel);
@@ -1628,8 +1632,11 @@ class Channels {
         }
 
         return new Promise( (resolve, reject) => {
+            if (!beforeDate) {
+                beforeDate = new Date();                
+            }
 
-            this._rest.getChannelMessages(channel.id).then((res : any) => {
+            this._rest.getChannelMessages(channel.id, maxMessages, beforeDate, afterDate).then((res : any) => {
                 this._logger.log("info", LOG_ID + "(fetchChannelItems) messages retrieved", res);
 
                 let messages = res.items;

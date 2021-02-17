@@ -6,7 +6,7 @@
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
-import {setTimeoutPromised, until} from "../lib/common/Utils";
+import {pause, setTimeoutPromised, until} from "../lib/common/Utils";
 import {getRandomInt} from "../lib/common/Utils";
 import set = Reflect.set;
 import {DataStoreType} from "../lib/config/config";
@@ -873,18 +873,18 @@ function testChannelImage() {
         }
     });
 }
-function testPublishChannel() {
+async function testPublishChannel() {
     let mychannels = rainbowSDK.channels.getAllOwnedChannel();
-    let mychannel = mychannels ? mychannels[0] : null;
+    let mychannel = mychannels ? mychannels[0]:null;
     if (mychannel) {
-        for (let i = 0; i < 1; i++) {
+        for (let i = 0; i < 100; i++) {
             let now = new Date().getTime();
-            rainbowSDK.channels.createItem(mychannel, "-- message : " + i + " : " + now, "title", null, null).then((res) => {
+            await rainbowSDK.channels.createItem(mychannel, "-- message : " + i + " : " + now, "title_" + i, null, null).then((res) => {
                 logger.log("debug", "MAIN - createItem - res : ", res);
             });
+            pause(300);
         }
-    }
-    else {
+    } else {
         logger.log("debug", "MAIN - createItem - getAllOwnedChannel mychannel is empty, so can not publish.");
     }
 }
@@ -908,6 +908,37 @@ async function testgetDetailedAppreciationsChannel() {
         logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
     }
 }
+
+async function testfetchChannelItems() {
+    //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
+    let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+    let mychannel = mychannels ? mychannels[0] : null;
+    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
+    if (mychannel) {
+        for (let i = 0; i < 1; i++) {
+            let now = new Date().getTime();
+            let itemId = "";
+            let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
+            logger.log("debug", "MAIN - testgetDetailedAtestfetchChannelItemsppreciationsChannel - items.length : ", items.length);
+
+            logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", items[0]);
+            logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", items[items.length - 1]);
+            
+            /*itemId = items[0].id;
+            rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+            });
+            itemId = items[items.length - 1].id;
+            rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+            }); // */
+        }
+    }
+    else {
+        logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+    }
+}
+
 function testcreateChannel() {
     return __awaiter(this, void 0, void 0, function* () {
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();

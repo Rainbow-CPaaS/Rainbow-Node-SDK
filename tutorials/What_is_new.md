@@ -24,6 +24,9 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Add parameter urgency of the message sent in API Methods `ImsService::sendMessageToJid` `ImsService::sendMessageToJidAnswer` `ImsService::sendMessageToBubble` `ImsService::sendMessageToBubbleJid` `ImsService::sendMessageToBubbleJidAnswer` `ImsService::sendMessageToContact` `ImsService::sendMessageToConversation` . The urgence of the message value can be : 'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message.
 -   Add property `AlertDevice::domainUsername` for filtering alerts by domain username of the device.
+-   Update method channelsService::fetchMyChannels with a new `force` parameter to allow the force of getting the channels informations from server. 
+-   Update method channelsService::fetchChannelItems with a new parameters `maxMessages`=100 : number of messages to get, 100 by default. `beforeDate` [optional] : show items before a specific timestamp (ISO 8601 format), `afterDate` : show items after a specific timestamp (ISO 8601 format). 
+-   Fix method `channelsService::fetchChannelItems` to realy return the last posted messages if the channels contents more than maxMessages. 
 
 **Others Changes**
 
