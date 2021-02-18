@@ -2514,11 +2514,13 @@ async function testgetConnectionStatus() {
     }
 
     async function testdeleteDevice() {
-        let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
+        let result : AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
         logger.log("debug", "MAIN - testgetDevices - result : ", result);
-        for (let i = 0 ; i < result.length ; i++)
+        let alertDevices = result.getAlertDevices().toArray();
+        for (let i = 0 ; i < alertDevices.length ; i++)
         {
-            await rainbowSDK.alerts.deleteDevice(result[i]);
+            logger.log("debug", "MAIN - testgetDevices - alertDevices[" + i + "] : ", alertDevices[i].value);
+            await rainbowSDK.alerts.deleteDevice(alertDevices[i].value);
         }
     }
 
@@ -2578,13 +2580,20 @@ async function testdeleteDevice_createDevice() {
     // Use alertDemoWestworld@vbe.test.openrainbow.net
     let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id);
     logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
-    for (let i = 0 ; i < result.length ; i++)
+    let alertDevices = result.getAlertDevices().toArray();
+    for (let i = 0 ; i < alertDevices.length ; i++)
     {
-        await rainbowSDK.alerts.deleteDevice(result[i]);
+        logger.log("debug", "MAIN - testgetDevices - alertDevices[" + i + "] : ", alertDevices[i].value);
+        await rainbowSDK.alerts.deleteDevice(alertDevices[i].value);
     }
     let alertDevice: AlertDevice = new AlertDevice();
     alertDevice.name = "MyNodeDevice";
     alertDevice.jid_im = rainbowSDK._core._xmpp.fullJid;
+    alertDevice.tags = new List();
+    alertDevice.tags.add("tag1");
+    alertDevice.tags.add("tag2");
+    alertDevice.tags.add("tag3");
+    alertDevice.tags.add("tag4");
     result = await rainbowSDK.alerts.createDevice(alertDevice);
     logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
 
@@ -2641,6 +2650,42 @@ async function testcreateAlert() {
             let result2 = await rainbowSDK.alerts.getDevice((await result.first()).id);
             logger.log("debug", "MAIN - testgetDevices - AlertDevice : ", result2);
         }
+        //});
+    }
+
+    async function testgetDevicesTags() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
+        logger.log("debug", "MAIN - testgetDevicesTags - result : ", result);
+        //});
+    }
+
+    async function testrenameDevicesTags() {
+        let newTagName : string;
+        let tag: string;
+        let companyId: string = connectedUser.companyId;
+        let tags = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
+        tag = tags.tags[0]
+        newTagName = "tag1_" + new Date().getTime();
+        let result = await rainbowSDK.alerts.renameDevicesTags(newTagName, tag, companyId);
+        logger.log("debug", "MAIN - testrenameDevicesTags - result : ", result);
+        //});
+    }
+
+    async function testdeleteDevicesTags() {
+        let tag: string;
+        let companyId: string = connectedUser.companyId;
+        let tags = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
+        tag = tags.tags[(tags.tags.length - 1)];    
+        let result = await rainbowSDK.alerts.deleteDevicesTags(tag, companyId);
+        logger.log("debug", "MAIN - testdeleteDevicesTags - result : ", result);
+        //});
+    }
+
+    async function testgetstatsTags() {
+        let companyId: string = connectedUser.companyId;
+        let result = await rainbowSDK.alerts.getstatsTags(companyId);
+        logger.log("debug", "MAIN - testgetstatsTags - result : ", result);
         //});
     }
 

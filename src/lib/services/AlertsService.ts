@@ -308,7 +308,7 @@ class AlertsService {
             }
             let body = {
                 "name": device.name,
-                "tags": device.tags,
+                "tags": device.tags.toArray(),
                 "ipAddresses": device.ipAddresses,
                 "macAddresses": device.macAddresses,
                 "geolocation ": device.geolocation,
@@ -568,12 +568,121 @@ class AlertsService {
         return new Promise((resolve, reject) => {
 
             that._rest.getDevicesTags(companyId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getDevices) get successfull");
+                that._logger.log("info", LOG_ID + "(getDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getDevices) error.");
-                that._logger.log("internalerror", LOG_ID + "(getDevices) error : ", err);
+                that._logger.log("error", LOG_ID + "(getDevicesTags) error.");
+                that._logger.log("internalerror", LOG_ID + "(getDevicesTags) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method renameDevicesTags
+     * @instance
+     * @async
+     * @param {string} tag 	tag to rename.
+     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
+     * @param {string} newTagName New tag name. (Body Parameters)
+     * @description
+     * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    renameDevicesTags(newTagName : string, tag: string, companyId: string) {
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            if (newTagName === null) {
+                that._logger.log("warn", LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter");
+                that._logger.log("internalerror", LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter : ", newTagName);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            if (tag === null) {
+                that._logger.log("warn", LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter");
+                that._logger.log("internalerror", LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter : ", tag);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            
+            that._rest.renameDevicesTags(newTagName, tag, companyId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(renameDevicesTags) get successfull");
+// TODO : make a Data typed with the result.
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(renameDevicesTags) error.");
+                that._logger.log("internalerror", LOG_ID + "(renameDevicesTags) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteDevicesTags
+     * @instance
+     * @async
+     * @param {string} tag 	tag to rename.
+     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
+     * @description
+     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    deleteDevicesTags(tag: string, companyId: string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            if (tag == null) {
+                that._logger.log("warn", LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter");
+                that._logger.log("internalerror", LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter : ", tag);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.deleteDevicesTags( tag, companyId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(deleteDevicesTags) get successfull");
+// TODO : make a Data typed with the result.
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(deleteDevicesTags) error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteDevicesTags) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getstatsTags
+     * @instance
+     * @async
+     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
+     * @description
+     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    getstatsTags(companyId: string) {
+        // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            that._rest.getstatsTags( companyId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(getstatsTags) get successfull");
+// TODO : make a Data typed with the result.
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getstatsTags) error.");
+                that._logger.log("internalerror", LOG_ID + "(getstatsTags) error : ", err);
                 return reject(err);
             });
         });

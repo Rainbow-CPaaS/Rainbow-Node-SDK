@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.84.0-dotnet.2] - 2021-02-XX
+-   Add API methods `AlertsService::renameDevicesTags` `AlertsService::deleteDevicesTags` `AlertsService::getstatsTags` to manage Tags in Alerts.
+
 ## [1.84.0-dotnet.1] - 2021-02-18
 -   Update method `channelsService::fetchMyChannels` with a new `force` parameter to allow the force of getting the channels informations from server. 
 -   Update method `channelsService::fetchChannelItems` with a new parameters `maxMessages`=100 : number of messages to get, 100 by default. `beforeDate` [optional] : show items before a specific timestamp (ISO 8601 format), `afterDate` : show items after a specific timestamp (ISO 8601 format).
