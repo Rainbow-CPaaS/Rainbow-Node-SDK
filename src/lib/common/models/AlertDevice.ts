@@ -314,6 +314,11 @@ class AlertDevicesData {
         });
     }
     
+    getAlertDevices (): IDictionary<string, AlertDevice> {
+        let that = this;
+        return that.alertDevices
+    }
+    
     //endregion
 }
 

@@ -4729,6 +4729,120 @@ Request Method: PUT
         });
     }
 
+    /**
+     * @method renameDevicesTags
+     * @param {string} tag 	tag to rename.
+     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
+     * @param {string} newTagName New tag name. (Body Parameters) 
+     * @description
+     * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
+     */
+    renameDevicesTags(newTagName : string, tag: string, companyId: string) {
+        // - Rename a tag for all assigned devices PUT /api/rainbow/notificationsadmin/v1.0/devices/tags
+        // Example: PUT https://openrainbow.com/api/rainbow/notificationsadmin/v1.0/devices/tags?tag=1rst%20floor&companyId=5703d0d49ccf39843c7ef897
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags";
+
+            let getParams = "";
+            if (companyId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "companyId=" + companyId ; //? companyId : that.account.companyId;
+            }
+            
+            if (tag) {
+                getParams += getParams ? "&" : "?";
+                getParams += "tag=" + tag ;
+            }
+            
+            let params = {newTagName};
+
+            that.http.put(url + getParams , that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(renameDevicesTags) successfull");
+                that.logger.log("internal", LOG_ID + "(renameDevicesTags) REST bubble created : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(renameDevicesTags) error");
+                that.logger.log("internalerror", LOG_ID, "(renameDevicesTags) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @method deleteDevicesTags
+     * @param {string} tag 	tag to rename.
+     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
+     * @description
+     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
+     */
+    deleteDevicesTags(tag: string, companyId: string) {
+        // Remove a given tag from all the devices DELETE /api/rainbow/notificationsadmin/v1.0/devices/tags
+        // Example: DELETE https://openrainbow.com/api/rainbow/notificationsadmin/v1.0/devices/tags?tag=a_tag?companyId=5703d0d49ccf39843c7ef897
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(deleteDevicesTags) REST tag : ", tag);
+            let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags";
+
+            let getParams = "";
+            if (companyId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "companyId=" + companyId ;//? companyId : that.account.companyId;
+            }
+
+            if (tag) {
+                getParams += getParams ? "&" : "?";
+                getParams += "tag=" + tag ;
+            }
+
+            that.http.delete(url + getParams , that.getPostHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteDevicesTags) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteDevicesTags) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteDevicesTags) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteDevicesTags) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @method getstatsTags
+     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
+     * @description
+     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
+     */
+    getstatsTags(companyId: string) {
+        // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags/stats";
+
+            let getParams = "";
+            if (companyId) {
+                getParams += getParams ? "&" : "?";
+                getParams += "companyId=" + companyId ;//? companyId : that.account.companyId;
+            }
+
+            that.logger.log("internal", LOG_ID + "(getstatsTags) REST companyId : ", companyId);
+
+            that.http.get(url + getParams, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getstatsTags) successfull");
+                that.logger.log("internal", LOG_ID + "(getstatsTags) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getstatsTags) error");
+                that.logger.log("internalerror", LOG_ID, "(getstatsTags) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
     createTemplate(data : Object) {
         // /api/rainbow/notificationsadmin/v1.0/devices
 
