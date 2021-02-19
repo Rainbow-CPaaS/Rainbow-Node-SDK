@@ -308,14 +308,29 @@ class AlertsService {
             }
             let body = {
                 "name": device.name,
-                "tags": device.tags.toArray(),
-                "ipAddresses": device.ipAddresses.toArray(),
-                "macAddresses": device.macAddresses.toArray(),
+                "tags": [],
+                "ipAddresses": [],
+                "macAddresses": [],
                 "geolocation ": device.geolocation,
                 "type": (!device.type || device.type === "") ? "desktop" : device.type,
                 "jid_resource": that._xmpp.resourceId,
                 "domainUsername": device.domainUsername 
             };
+            if (Array.isArray(device.tags)) { 
+                body.tags = device.tags;
+            } else {
+                body.tags = device.tags ? device.tags.toArray():[];
+            }
+            if (Array.isArray(device.ipAddresses)) 
+            { body.ipAddresses = device.ipAddresses;
+            } else {
+                body.ipAddresses = device.ipAddresses ? device.ipAddresses.toArray():[];
+            }
+            if (Array.isArray(device.macAddresses)) { 
+                body.macAddresses = device.macAddresses;
+            } else {
+                body.macAddresses = device.macAddresses ? device.macAddresses.toArray():[];
+            }
 
             if (create) {
                 that._rest.createDevice(body).then(function (json: any) {

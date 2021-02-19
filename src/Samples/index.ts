@@ -2655,6 +2655,7 @@ async function testcreateAlert() {
 
     async function testgetDevicesTags() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testgetDevicesTags. ");
         let result = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
         logger.log("debug", "MAIN - testgetDevicesTags - result : ", result);
         //});
