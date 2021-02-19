@@ -48,7 +48,7 @@ class AlertFilter {
          * @property {List<string>} tags The tag's list to apply
          * @instance
          */
-        this.tags = tags;
+        this.tags = tags?tags:new List<string>();
     }
 }
 

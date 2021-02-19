@@ -98,7 +98,7 @@ class AlertDevice {
          * @property {List<string>} ipAddresses The List of the IP Adresses
          * @instance
          */
-        this.ipAddresses = ipAddresses;
+        this.ipAddresses = ipAddresses ? ipAddresses : new List<string>();
 
         /**
          * @public
@@ -106,7 +106,7 @@ class AlertDevice {
          * @property {List<string>} macAddresses The Mac Addresses
          * @instance
          */
-        this.macAddresses = macAddresses;
+        this.macAddresses = macAddresses ? macAddresses : new List<string>();
 
         /**
          * @public
@@ -114,7 +114,7 @@ class AlertDevice {
          * @property {List<string>} tags The An Array of free tags associated to the device. (max 5 tags. Each 64 characters max)
          * @instance
          */
-        this.tags = tags;
+        this.tags = tags ? tags : new List<string>();
 
         /**
          * @public
