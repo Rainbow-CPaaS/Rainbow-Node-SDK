@@ -329,11 +329,17 @@ class AlertsService {
                     let jid_resource: string = json.jid_resource;
                     let creationDate: string = json.creationDate;
                     let ipAddresses: List<string> = new List<string>();
-                    ipAddresses.addRange(json.ipAddresses);
+                    if (json.ipAddresses && Array.isArray(json.ipAddresses)) {
+                        ipAddresses.addRange(json.ipAddresses);
+                    }
                     let macAddresses: List<string> = new List<string>();
-                    macAddresses.addRange(json.macAddresses);
+                    if (json.macAddresses && Array.isArray(json.macAddresses)) {
+                        macAddresses.addRange(json.macAddresses);
+                    }
                     let tags: List<string> = new List<string>();
-                    tags.addRange(json.tags);
+                    if (json.tags && Array.isArray(json.tags)) {
+                        tags.addRange(json.tags);
+                    }
                     let geolocation: string = json.geolocation;
                     
                     let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -360,11 +366,17 @@ class AlertsService {
                     let jid_resource: string = json.jid_resource;
                     let creationDate: string = json.creationDate;
                     let ipAddresses: List<string> = new List<string>();
-                    ipAddresses.addRange(json.ipAddresses);
+                    if (json.ipAddresses && Array.isArray(json.ipAddresses)) {
+                        ipAddresses.addRange(json.ipAddresses);
+                    }
                     let macAddresses: List<string> = new List<string>();
-                    macAddresses.addRange(json.macAddresses);
+                    if (json.macAddresses && Array.isArray(json.macAddresses)) {
+                        macAddresses.addRange(json.macAddresses);
+                    }
                     let tags: List<string> = new List<string>();
-                    tags.addRange(json.tags);
+                    if (json.tags && Array.isArray(json.tags)) {
+                        tags.addRange(json.tags);
+                    }
                     let geolocation: string = json.geolocation;
 
                     let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -423,11 +435,17 @@ class AlertsService {
                 let jid_resource: string = json.jid_resource;
                 let creationDate: string = json.creationDate;
                 let ipAddresses: List<string> = new List<string>();
-                ipAddresses.addRange(json.ipAddresses);
+                if (json.ipAddresses && Array.isArray(json.ipAddresses)) {
+                    ipAddresses.addRange(json.ipAddresses);
+                }
                 let macAddresses: List<string> = new List<string>();
-                macAddresses.addRange(json.macAddresses);
+                if (json.macAddresses && Array.isArray(json.macAddresses)) {
+                    macAddresses.addRange(json.macAddresses);
+                }
                 let tags: List<string> = new List<string>();
-                tags.addRange(json.tags);
+                if (json.tags && Array.isArray(json.tags)) {
+                    tags.addRange(json.tags);
+                }
                 let geolocation: string = json.geolocation;
 
                 let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -487,11 +505,17 @@ class AlertsService {
                 let jid_resource: string = json.jid_resource;
                 let creationDate: string = json.creationDate;
                 let ipAddresses: List<string> = new List<string>();
-                ipAddresses.addRange(json.ipAddresses);
+                if (json.ipAddresses && Array.isArray(json.ipAddresses)) {
+                    ipAddresses.addRange(json.ipAddresses);
+                }
                 let macAddresses: List<string> = new List<string>();
-                macAddresses.addRange(json.macAddresses);
+                if (json.macAddresses && Array.isArray(json.macAddresses)) {
+                    macAddresses.addRange(json.macAddresses);
+                }
                 let tags: List<string> = new List<string>();
-                tags.addRange(json.tags);
+                if (json.tags && Array.isArray(json.tags)) {
+                    tags.addRange(json.tags);
+                }
                 let geolocation: string = json.geolocation;
 
                 let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -544,11 +568,17 @@ class AlertsService {
                         let jid_resource: string = json[optionsKey].jid_resource;
                         let creationDate: string = json[optionsKey].creationDate;
                         let ipAddresses: List<string> = new List<string>();
-                        ipAddresses.addRange(json[optionsKey].ipAddresses);
+                        if (json[optionsKey].ipAddresses && Array.isArray(json[optionsKey].ipAddresses)) {
+                            ipAddresses.addRange(json[optionsKey].ipAddresses);
+                        }
                         let macAddresses: List<string> = new List<string>();
-                        macAddresses.addRange(json[optionsKey].macAddresses);
+                        if (json[optionsKey].macAddresses && Array.isArray(json[optionsKey].macAddresses)) {
+                            macAddresses.addRange(json[optionsKey].macAddresses);
+                        }
                         let tags: List<string> = new List<string>();
-                        tags.addRange(json[optionsKey].tags);
+                        if (json[optionsKey].tags && Array.isArray(json[optionsKey].tags)) {
+                            tags.addRange(json[optionsKey].tags);
+                        }
                         let geolocation: string = json[optionsKey].geolocation;
 
                         let alertDevice = new AlertDevice(id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
