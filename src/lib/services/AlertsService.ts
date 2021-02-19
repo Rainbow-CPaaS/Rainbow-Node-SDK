@@ -309,8 +309,8 @@ class AlertsService {
             let body = {
                 "name": device.name,
                 "tags": device.tags.toArray(),
-                "ipAddresses": device.ipAddresses,
-                "macAddresses": device.macAddresses,
+                "ipAddresses": device.ipAddresses.toArray(),
+                "macAddresses": device.macAddresses.toArray(),
                 "geolocation ": device.geolocation,
                 "type": (!device.type || device.type === "") ? "desktop" : device.type,
                 "jid_resource": that._xmpp.resourceId,
@@ -328,9 +328,12 @@ class AlertsService {
                     let jid_im: string = json.jid_im;
                     let jid_resource: string = json.jid_resource;
                     let creationDate: string = json.creationDate;
-                    let ipAddresses: List<string> = json.ipAddresses;
-                    let macAddresses: List<string> = json.macAddresses;
-                    let tags: List<string> = json.tags;
+                    let ipAddresses: List<string> = new List<string>();
+                    ipAddresses.addRange(json.ipAddresses);
+                    let macAddresses: List<string> = new List<string>();
+                    macAddresses.addRange(json.macAddresses);
+                    let tags: List<string> = new List<string>();
+                    tags.addRange(json.tags);
                     let geolocation: string = json.geolocation;
                     
                     let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -356,9 +359,12 @@ class AlertsService {
                     let jid_im: string = json.jid_im;
                     let jid_resource: string = json.jid_resource;
                     let creationDate: string = json.creationDate;
-                    let ipAddresses: List<string> = json.ipAddresses;
-                    let macAddresses: List<string> = json.macAddresses;
-                    let tags: List<string> = json.tags;
+                    let ipAddresses: List<string> = new List<string>();
+                    ipAddresses.addRange(json.ipAddresses);
+                    let macAddresses: List<string> = new List<string>();
+                    macAddresses.addRange(json.macAddresses);
+                    let tags: List<string> = new List<string>();
+                    tags.addRange(json.tags);
                     let geolocation: string = json.geolocation;
 
                     let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -416,9 +422,12 @@ class AlertsService {
                 let jid_im: string = json.jid_im;
                 let jid_resource: string = json.jid_resource;
                 let creationDate: string = json.creationDate;
-                let ipAddresses: List<string> = json.ipAddresses;
-                let macAddresses: List<string> = json.macAddresses;
-                let tags: List<string> = json.tags;
+                let ipAddresses: List<string> = new List<string>();
+                ipAddresses.addRange(json.ipAddresses);
+                let macAddresses: List<string> = new List<string>();
+                macAddresses.addRange(json.macAddresses);
+                let tags: List<string> = new List<string>();
+                tags.addRange(json.tags);
                 let geolocation: string = json.geolocation;
 
                 let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -477,9 +486,12 @@ class AlertsService {
                 let jid_im: string = json.jid_im;
                 let jid_resource: string = json.jid_resource;
                 let creationDate: string = json.creationDate;
-                let ipAddresses: List<string> = json.ipAddresses;
-                let macAddresses: List<string> = json.macAddresses;
-                let tags: List<string> = json.tags;
+                let ipAddresses: List<string> = new List<string>();
+                ipAddresses.addRange(json.ipAddresses);
+                let macAddresses: List<string> = new List<string>();
+                macAddresses.addRange(json.macAddresses);
+                let tags: List<string> = new List<string>();
+                tags.addRange(json.tags);
                 let geolocation: string = json.geolocation;
 
                 let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -531,9 +543,12 @@ class AlertsService {
                         let jid_im: string = json[optionsKey].jid_im;
                         let jid_resource: string = json[optionsKey].jid_resource;
                         let creationDate: string = json[optionsKey].creationDate;
-                        let ipAddresses: List<string> = json[optionsKey].ipAddresses;
-                        let macAddresses: List<string> = json[optionsKey].macAddresses;
-                        let tags: List<string> = json[optionsKey].tags;
+                        let ipAddresses: List<string> = new List<string>();
+                        ipAddresses.addRange(json[optionsKey].ipAddresses);
+                        let macAddresses: List<string> = new List<string>();
+                        macAddresses.addRange(json[optionsKey].macAddresses);
+                        let tags: List<string> = new List<string>();
+                        tags.addRange(json[optionsKey].tags);
                         let geolocation: string = json[optionsKey].geolocation;
 
                         let alertDevice = new AlertDevice(id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
@@ -1237,7 +1252,8 @@ class AlertsService {
                         let id: string = json[optionsKey].id;
                         let name: string = json[optionsKey].name;
                         let companyId: string = json[optionsKey].companyId;
-                        let tags: List<string> = json[optionsKey].tags;
+                        let tags: List<string> = new List<string>();
+                        tags.addRange(json[optionsKey].tags);
 
                         let alertFilter = new AlertFilter(id, name, companyId, tags);
                         that._logger.log("internal", LOG_ID + "(getFilters) 'filter' AlertFilter retrieved : ", alertFilter);
