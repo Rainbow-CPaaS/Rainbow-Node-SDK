@@ -39,6 +39,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
         "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full. </br>  
     },   </br>  
 -   Add ConversationsService::getContactsMessagesFromConversationId method to retrieve messages exchanged by contacts in a conversation. The result is the messages without event type.  
+-   Add API methods `AlertsService::renameDevicesTags` `AlertsService::deleteDevicesTags` `AlertsService::getstatsTags` to manage Tags in Alerts.
 
 
 ### SDK for Node.JS 1.83 - February 2021
