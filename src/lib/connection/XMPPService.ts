@@ -1790,6 +1790,7 @@ class XMPPService {
             this.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");
         }
     }
+// region Alerts
 
     public acceptProposition(callId, to){
         let that = this;
@@ -1874,6 +1875,7 @@ class XMPPService {
         let that = this;
         this.logger.log("debug", LOG_ID + "(sendStore) _entering_ ");
         this.logger.log("internal", LOG_ID + "(sendStore) _entering_ : to : ", to);
+
 
         let id = that.xmppUtils.getUniqueMessageId();
 
