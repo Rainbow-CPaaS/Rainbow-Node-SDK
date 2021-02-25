@@ -7,6 +7,9 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.84.0-dotnet.2] - 2021-02-XX
+-   Fix ContactsService::getRosters api to not reset the contacts cache, but to update contacts from data received from server. 
+
+## [1.84.0] - 2021-02-22
 -   Add API methods `AlertsService::renameDevicesTags` `AlertsService::deleteDevicesTags` `AlertsService::getstatsTags` to manage Tags in Alerts.
 
 ## [1.84.0-dotnet.1] - 2021-02-18

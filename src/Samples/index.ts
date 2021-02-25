@@ -58,7 +58,7 @@ const jwt =  require("jwt-decode");
     input: process.stdin,
     output: process.stdout
 }); // */
-//let rainbowMode = "s2s" ;
+// let rainbowMode = "s2s" ;
 let rainbowMode =  "xmpp" ;
 
 const ngrok = require('ngrok');
@@ -129,6 +129,7 @@ let options = {
         "enableFileLogs": false,
         "enableEventsLogs": false,
         "color": true,
+        //"level": "info",
         "level": "debug",
         "customLabel": "RainbowSample",
         "system-dev": {

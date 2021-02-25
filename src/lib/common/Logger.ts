@@ -278,7 +278,21 @@ class Logger {
                                 that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
                                 that.emit(level, that._logger.customLabel + datatolog);
                             }
+                            /* */
                         // end-dev-code //
+                        /*
+                        if ( level === "internal") {
+                            level = "debug";
+                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
+                            that.emit(level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments))));
+                        }
+                        else
+                            if (level === "internalerror") {
+                                level = "error";
+                                that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
+                                that.emit(level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments))));
+                            }
+                        // */
                     }
                 } else {
                     if (logInternals) {
