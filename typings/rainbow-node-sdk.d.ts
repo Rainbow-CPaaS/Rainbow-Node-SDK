@@ -6129,7 +6129,7 @@ declare module 'lib/connection/RESTService' {
 	    getChannelUsers(channelId: any, options: any): Promise<unknown>;
 	    deleteAllUsersFromChannel(channelId: any): Promise<unknown>;
 	    updateChannelUsers(channelId: any, users: any): Promise<unknown>;
-	    getChannelMessages(channelId: any): Promise<unknown>;
+	    getChannelMessages(channelId: any, maxMessages?: number, beforeDate?: Date, afterDate?: Date): Promise<unknown>;
 	    likeItem(channelId: any, itemId: any, appreciation: any): Promise<unknown>;
 	    getDetailedAppreciations(channelId: any, itemId: any): Promise<unknown>;
 	    /**
@@ -6253,6 +6253,33 @@ declare module 'lib/connection/RESTService' {
 	    getDevice(deviceId: string): Promise<unknown>;
 	    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number, limit: number): Promise<unknown>;
 	    getDevicesTags(companyId: string): Promise<unknown>;
+	    /**
+	     * @method renameDevicesTags
+	     * @param {string} tag 	tag to rename.
+	     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+	     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
+	     * @param {string} newTagName New tag name. (Body Parameters)
+	     * @description
+	     * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
+	     */
+	    renameDevicesTags(newTagName: string, tag: string, companyId: string): Promise<unknown>;
+	    /**
+	     * @method deleteDevicesTags
+	     * @param {string} tag 	tag to rename.
+	     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+	     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
+	     * @description
+	     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
+	     */
+	    deleteDevicesTags(tag: string, companyId: string): Promise<unknown>;
+	    /**
+	     * @method getstatsTags
+	     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+	     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
+	     * @description
+	     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
+	     */
+	    getstatsTags(companyId: string): Promise<unknown>;
 	    createTemplate(data: Object): Promise<unknown>;
 	    updateTemplate(templateId: any, params: Object): Promise<unknown>;
 	    deleteTemplate(templateId: string): Promise<unknown>;
@@ -6819,12 +6846,13 @@ declare module 'lib/services/ChannelsService' {
 	     * @method fetchMyChannels
 	     * @since 1.38
 	     * @instance
+	     * @param {boolean} force Boolean to force the get of channels's informations from server.
 	     * @description
 	     *    Get the channels you own, are subscribed to, are publisher<br/>
 	     *    Return a promise. <br/>
 	     * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
 	     */
-	    fetchMyChannels(): Promise<[Channel]>;
+	    fetchMyChannels(force?: boolean): Promise<[Channel]>;
 	    /**
 	     * @public
 	     * @method getAllChannels
@@ -7225,11 +7253,14 @@ declare module 'lib/services/ChannelsService' {
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel
+	     * @param {number} maxMessages=100 [optional] number of messages to get, 100 by default
+	     * @param {Date} beforeDate [optional] - show items before a specific timestamp (ISO 8601 format)
+	     * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
 	     * @return {Promise<Object[]>} The list of messages received
 	     * @description
-	     *  Retrieve the last messages from a channel <br/>
+	     *  Retrieve the last maxMessages messages from a channel <br/>
 	     */
-	    fetchChannelItems(channel: Channel): Promise<Array<any>>;
+	    fetchChannelItems(channel: Channel, maxMessages?: number, beforeDate?: Date, afterDate?: Date): Promise<Array<any>>;
 	    /**
 	     * @public
 	     * @method deleteMessageFromChannel
@@ -9126,7 +9157,7 @@ declare module 'lib/common/models/Alert' {
 }
 declare module 'lib/common/models/AlertDevice' {
 	export {};
-	import { List } from 'ts-generic-collections-linq'; class AlertDevice {
+	import { IDictionary, List } from 'ts-generic-collections-linq'; class AlertDevice {
 	    id: string;
 	    name: string;
 	    type: string;
@@ -9155,6 +9186,7 @@ declare module 'lib/common/models/AlertDevice' {
 	    getAlertDevice(): Promise<AlertDevice>;
 	    first(): Promise<AlertDevice>;
 	    last(): Promise<AlertDevice>;
+	    getAlertDevices(): IDictionary<string, AlertDevice>;
 	}
 	export { AlertDevice, AlertDevicesData };
 
@@ -9381,6 +9413,48 @@ declare module 'lib/services/AlertsService' {
 	     * @category async
 	     */
 	    getDevicesTags(companyId: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method renameDevicesTags
+	     * @instance
+	     * @async
+	     * @param {string} tag 	tag to rename.
+	     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+	     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
+	     * @param {string} newTagName New tag name. (Body Parameters)
+	     * @description
+	     * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    renameDevicesTags(newTagName: string, tag: string, companyId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteDevicesTags
+	     * @instance
+	     * @async
+	     * @param {string} tag 	tag to rename.
+	     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+	     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
+	     * @description
+	     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    deleteDevicesTags(tag: string, companyId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getstatsTags
+	     * @instance
+	     * @async
+	     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+	     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
+	     * @description
+	     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
+	     * @return {Promise<any>} the result of the operation.
+	     * @category async
+	     */
+	    getstatsTags(companyId: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method createTemplate
