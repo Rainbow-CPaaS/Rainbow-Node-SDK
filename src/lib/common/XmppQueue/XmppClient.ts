@@ -469,6 +469,4 @@ Element.prototype.attr = function (attrName) {
 
 module.exports.getXmppClient = getXmppClient;
 module.exports.XmppClient = XmppClient;
-export {getXmppClient , XmppClient};
-
 export {getXmppClient, XmppClient};

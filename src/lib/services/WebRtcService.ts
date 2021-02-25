@@ -3,7 +3,8 @@ import {config, error} from "winston";
 
 export {};
 
-import * as uuidv4 from 'uuid/v4';
+//import * as uuidv4 from 'uuid/dist/v4';
+import { v4 as uuidv4 } from 'uuid';
 import * as options from "../connection/WebRtc/serverwebrtc";
 import {RTCIceCandidate} from "wrtc";
 

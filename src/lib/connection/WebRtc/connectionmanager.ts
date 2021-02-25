@@ -2,7 +2,9 @@
 
 import {publicDecrypt} from "crypto";
 
-const uuidv4 = require('uuid/v4');
+//const uuidv4 = require('uuid/v4');
+//import * as uuidv4 from 'uuid/dist/v4';
+import { v4 as uuidv4 } from 'uuid';
 
 const DefaultConnection = require('./connectionwebrtc');
 
