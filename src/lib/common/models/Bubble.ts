@@ -188,9 +188,10 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {Object[]} users The list of users of that Bubble with their status and privilege. Note : Only 100 users are return by the server. So if there are more than this limit, you have to retrieve them with the method BubblesService::getUsersFromBubble
+         * @property {Array<Contact>} users The list of users of that Bubble with their status and privilege. Note : Only 100 users are return by the server. So if there are more than this limit, you have to retrieve them with the method BubblesService::getUsersFromBubble
          * @instance
          */
+        this.users = [];
         if (_users) {
             // need to order the users by date
             this.users = orderByFilter(_users, getUserAdditionDate, false, sortUsersByDate);
@@ -204,7 +205,7 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {string} organizers of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
+         * @property {Array<string>} organizers of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
          * @instance
          */
         this.organizers = [];
@@ -212,7 +213,7 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {string} members of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
+         * @property {Array<string>} members of the bubble, built from users property. It is affected by the limit of 100 (splitted between organizers and members).
          * @instance
          */
         this.members = [];

@@ -28,6 +28,7 @@
     ],
     //, "dom"
     "moduleResolution": "Node"
+    //"checkJs": true
   },
   "buildOnSave": true,
   "compileOnSave": true,
