@@ -2607,6 +2607,16 @@ declare module 'lib/services/BubblesService' {
 	    deleteAllBubbles(): void;
 	    /**
 	     * @public
+	     * @method
+	     * @instance
+	     * @description
+	     *    Delete all existing owned bubbles <br/>
+	     *    Return a promise <br/>
+	     * @return {Object} Nothing or an error object depending on the result
+	     */
+	    closeAnddeleteAllBubbles(): void;
+	    /**
+	     * @public
 	     * @method deleteBubble
 	     * @instance
 	     * @param {Bubble} bubble  The bubble to delete
@@ -3536,89 +3546,22 @@ declare module 'lib/services/BubblesService' {
 	export { Bubbles as BubblesService };
 
 }
-declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
-	import { Element } from 'ltx';
-	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
-	    private _conversationService;
-	    eventEmitter: any;
-	    findAttrs: any;
-	    findChildren: any;
-	    private _fileStorageService;
-	    private _fileServerService;
-	    private _bubbleService;
-	    private _contactsService;
-	    static getClassName(): string;
-	    getClassName(): string;
-	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
+declare module 'lib/common/models/GeoLoc' {
+	 class GeoLoc {
+	    datum: string;
+	    latitude: string;
+	    longitude: string;
+	    altitude: string;
+	    static create(datum: string, latitude: string, longitude: string, altitude: string): GeoLoc;
 	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
-	    _onMessageReceived(conversationId: any, data: any): Promise<void>;
-	    onRoomAdminMessageReceived(msg: any, stanza: any): void;
-	    onFileMessageReceived(msg: any, stanza: any): void;
-	    onWebRTCMessageReceived(msg: any, stanza: any): void;
-	    onManagementMessageReceived(msg: any, stanza: any): void;
-	    onRoomManagementMessageReceived(node: any): void;
-	    onUserSettingsManagementMessageReceived(node: any): void;
-	    onUserInviteManagementMessageReceived(node: any): void;
-	    onGroupManagementMessageReceived(node: any): void;
-	    onConversationManagementMessageReceived(node: Element): Promise<void>;
-	    onMuteManagementMessageReceived(node: any): void;
-	    onUnmuteManagementMessageReceived(node: any): void;
-	    onFileManagementMessageReceived(node: any): Promise<void>;
-	    onThumbnailManagementMessageReceived(node: any): void;
 	    onRoomsContainerManagementMessageReceived(node: any): Promise<void>;
-	    onReceiptMessageReceived(msg: any, stanza: any): void;
-	    onErrorMessageReceived(msg: any, stanza: any): void;
-	    onCloseMessageReceived(msg: any, stanza: any): void;
 	}
-	export { ConversationEventHandler };
+	export { GeoLoc };
 
 }
 declare module 'lib/common/models/Message' {
+	import { GeoLoc } from 'lib/common/models/GeoLoc';
 	export {}; class Message {
-	    id: any;
-	    fromJid: any;
-	    side: any;
-	    resource: any;
-	    date: any;
-	    toJid: any;
-	    type: any;
-	    content: any;
-	    status: any;
-	    receiptStatus: any;
-	    lang: any;
-	    fileId: any;
-	    cc: any;
-	    cctype: any;
-	    isEvent: any;
-	    event: any;
-	    alternativeContent: any;
-	    isMarkdown: any;
-	    subject: any;
-	    oob: any;
-	    fromBubbleJid: any;
-	    fromBubbleUserJid: any;
-	    /**
-	     * @public
-	     * @property {string} answeredMsgId The Id of the message answered
-	     * @readonly
-	     */
-	    answeredMsgId: string;
-	    answeredMsg: Message;
-	    /**
-	     * @public
-	     * @property {string} answeredMsgDate The Date of the message answered
-	     * @readonly
-	     */
-	    answeredMsgDate: string;
-	    answeredMsgStamp: string;
-	    fileTransfer: any;
 	    /**
 	     * @public
 	     * @enum {number}
@@ -3630,25 +3573,222 @@ declare module 'lib/common/models/Message' {
 	     * @enum {number}
 	     * @readonly
 	     */
-	    static ReceiptStatus: any;
+	    static ReceiptStatus: {
+	        /** No receipt received yet */
+	        NONE: number;
+	        /** No receipt received after a while (The server doesn't answer) */
+	        ERROR: number;
+	        /** Receipt in progress */
+	        IN_PROGRESS: number;
+	        /** The server has confirmed the reception of the message */
+	        SENT: number;
+	        /** The message has been received but not read */
+	        UNREAD: number;
+	        /** The message has been read */
+	        READ: number;
+	    };
+	    /**
+	     * @private
+	     */
+	    static ReceiptStatusText: string[];
 	    /**
 	     * @public
 	     * @enum {string}
 	     * @readonly
 	     */
-	    static Side: any;
+	    static Side: {
+	        /** Message is from a recipient */
+	        LEFT: string;
+	        /** Message is from me */
+	        RIGHT: string;
+	        /** Specific admin message */
+	        ADMIN: string;
+	    };
 	    /**
 	     * @private
+	     * @readonly
 	     */
-	    static ReceiptStatusText: string[];
-	    attention: boolean;
-	    constructor(id: any, type: any, date: any, from: any, side: any, data: any, status: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, fileId?: any, isMarkdown?: any, subject?: any, attention1?: boolean);
+	    serverAckTimer: any;
+	    /**
+	     * @private
+	     * @readonly
+	     */
+	    private index;
+	    /**
+	     * @public
+	     * @property {string} id The message ID
+	     * @readonly
+	     */
+	    id: string;
+	    /**
+	     * @public
+	     * @property {Type} type The type of the message (could be CHAT, FILE, FT or WEBRTC)
+	     * @link Type
+	     * @readonly
+	     */
+	    type: any;
+	    /**
+	     * @public
+	     * @property {Date} date The creation date of the message
+	     * @readonly
+	     */
+	    date: Date;
+	    /**
+	     * @public
+	     * @property {Contact} from The initiator of the message
+	     * @link Contact
+	     * @readonly
+	     */
+	    from: any;
+	    /**
+	     * @public
+	     * @property {Side} side The message originator
+	     * @link Side
+	     * @since 1.21
+	     * @readonly
+	     */
+	    side: string;
+	    /**
+	     * @public
+	     * @property {string} data The content of the message
+	     * @readonly
+	     */
+	    data: string;
+	    /**
+	     * @private
+	     * @readonly
+	     */
+	    status: string;
+	    /**
+	     * @public
+	     * @property {ReceiptStatus} receiptStatus The state of the receipt
+	     * @readonly
+	     */
+	    receiptStatus: number;
+	    /**
+	     * @public
+	     * @property {string} fileId An attached file Id (if exists)
+	     *@readonly
+	     */
+	    fileId: string;
+	    /**
+	     * @public
+	     * @property {string} fileName An attached file Name (if exists)
+	     * @readonly
+	     */
+	    fileName: string;
+	    /**
+	     * @public
+	     * @property {boolean} isMarkdown If the message is a markdown type message
+	     * @readonly
+	     */
+	    isMarkdown: boolean;
+	    /**
+	     * @public
+	     * @property {string} subject The subject of the message displayed in notifs
+	     * @readonly
+	     */
+	    subject: string;
+	    /**
+	     * @public
+	     * @property {string} answeredMsgId The Id of the message answered
+	     * @readonly
+	     */
+	    answeredMsgId: string;
+	    /**
+	     * @public
+	     * @property {string} answeredMsgDate The Date of the message answered
+	     * @readonly
+	     */
+	    /**
+	     * @public
+	     * @property {geoloc} geoloc
+	     * @readonly
+	     */
+	    geoloc: GeoLoc;
+	    /**
+	     * @public
+	     * @property {any} voiceMessage
+	     * @readonly
+	     */
+	    voiceMessage: any;
+	    /**
+	     * @public
+	     * @property {object} alternativeContent
+	     * @readonly
+	     */
+	    alternativeContent: any;
+	    /**
+	     * @public
+	     * @property {object} attention
+	     * @readonly
+	     */
+	    attention: any;
+	    /**
+	     * @public
+	     * @property {string} urgency the urgency of message ('std', 'low', 'middle', 'high')
+	     * @readonly
+	     */
+	    urgency: string;
+	    urgencyAck: boolean;
+	    urgencyHandler: any;
+	    translatedText: string;
+	    isMerged: boolean;
+	    historyIndex: string;
+	    showCorrectedMessages: boolean;
+	    replaceMsgs: any[];
+	    fileErrorMsg: string;
+	    attachedMsgId: string;
+	    attachIndex: number;
+	    attachNumber: number;
+	    fromJid: any;
+	    resource: any;
+	    toJid: any;
+	    content: any;
+	    lang: any;
+	    cc: any;
+	    cctype: any;
+	    isEvent: any;
+	    event: any;
+	    oob: {
+	        url: string;
+	        mime: string;
+	        filename: string;
+	        filesize: string;
+	    };
+	    fromBubbleJid: any;
+	    fromBubbleUserJid: any;
+	    /**
+	     * @public
+	     * @property {string} answeredMsgId The Id of the message answered
+	     * @readonly
+	     */
+	    answeredMsg: Message;
+	    /**
+	     * @public
+	     * @property {string} answeredMsgDate The Date of the message answered
+	     * @readonly
+	     */
+	    answeredMsgDate: string;
+	    answeredMsgStamp: string;
+	    fileTransfer: any;
+	    eventJid: string;
+	    originalMessageReplaced: Message;
+	    confOwnerId: string;
+	    confOwnerDisplayName: string;
+	    confOwnerJid: string;
+	    constructor(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, status: string, receiptStatus: number, isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, translatedText: string, isMerged: boolean, historyIndex: string, showCorrectedMessages: boolean, replaceMsgs: any[], attachedMsgId: string, attachIndex: number, attachNumber: number, resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
+	        url: string;
+	        mime: string;
+	        filename: string;
+	        filesize: string;
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string);
 	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     */
-	    static create(id: any, date: any, from: any, side: any, data: any, status: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, isMarkdown?: any, subject?: any): Message;
+	    static create(id: any, type: any, date: any, from: any, side: any, data: any, status: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, isMarkdown?: any, subject?: any, attention?: any, geoloc?: GeoLoc, alternativeContent?: any): Message;
 	    /**
 	     * @private
 	     * @method
@@ -3689,7 +3829,7 @@ declare module 'lib/common/models/Message' {
 	     * @memberof Conversation
 	     */
 	    static extractFileIdFromUrl(url: any): any;
-	    updateBubble(data: any): this;
+	    updateMessage(data: any): this;
 	    /**
 	     * @function
 	     * @public
@@ -3700,6 +3840,49 @@ declare module 'lib/common/models/Message' {
 	    static MessageFactory(): (data: any) => Message;
 	}
 	export { Message };
+
+}
+declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
+	import { Element } from 'ltx';
+	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
+	    MESSAGE_CHAT: any;
+	    MESSAGE_GROUPCHAT: any;
+	    MESSAGE_WEBRTC: any;
+	    MESSAGE_MANAGEMENT: any;
+	    MESSAGE_ERROR: any;
+	    MESSAGE_HEADLINE: any;
+	    MESSAGE_CLOSE: any;
+	    private _conversationService;
+	    eventEmitter: any;
+	    findAttrs: any;
+	    findChildren: any;
+	    private _fileStorageService;
+	    private _fileServerService;
+	    private _bubbleService;
+	    private _contactsService;
+	    static getClassName(): string;
+	    getClassName(): string;
+	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
+	    onChatMessageReceived(msg: any, stanza: any): Promise<void>;
+	    _onMessageReceived(conversationId: any, data: any): Promise<void>;
+	    onRoomAdminMessageReceived(msg: any, stanza: any): void;
+	    onFileMessageReceived(msg: any, stanza: any): void;
+	    onWebRTCMessageReceived(msg: any, stanza: any): void;
+	    onManagementMessageReceived(msg: any, stanza: any): void;
+	    onRoomManagementMessageReceived(node: any): void;
+	    onUserSettingsManagementMessageReceived(node: any): void;
+	    onUserInviteManagementMessageReceived(node: any): void;
+	    onGroupManagementMessageReceived(node: any): void;
+	    onConversationManagementMessageReceived(node: Element): Promise<void>;
+	    onMuteManagementMessageReceived(node: any): void;
+	    onUnmuteManagementMessageReceived(node: any): void;
+	    onFileManagementMessageReceived(node: any): Promise<void>;
+	    onThumbnailManagementMessageReceived(node: any): void;
+	    onReceiptMessageReceived(msg: any, stanza: any): void;
+	    onErrorMessageReceived(msg: any, stanza: any): void;
+	    onCloseMessageReceived(msg: any, stanza: any): void;
+	}
+	export { ConversationEventHandler };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/conversationHistoryHandler' {
@@ -6158,6 +6341,7 @@ declare module 'lib/connection/RESTService' {
 	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
 	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
 	    getRainbowNodeSdkPackagePublishedInfos(): Promise<unknown>;
+	    getNpmPackagePublishedInfos(packageName?: string): Promise<unknown>;
 	    getServerConversations(format?: String): Promise<unknown>;
 	    createServerConversation(conversation: any): Promise<unknown>;
 	    deleteServerConversation(conversationId: any): Promise<unknown>;
@@ -8256,6 +8440,48 @@ declare module 'lib/services/AdminService' {
 	     * @category async
 	     */
 	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllUsersByCompanyId
+	     * @instance
+	     * @description
+	     *      Get all users for a given admin in a company <br/>
+	     * @async
+	     * @param {string} format Allows to retrieve more or less user details in response.
+	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
+	     *   full: all user fields
+	     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+	     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
+	     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+	     * @param {string} companyId the id company the users are in. If not provided, then the companyId of the connected user is used.
+	     });
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
+	     * @category async
+	     */
+	    getAllUsersByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllUsersBySearchEmailByCompanyId
+	     * @instance
+	     * @description
+	     *      Get all users for a given admin in a company by a search of string in email<br/>
+	     * @async
+	     * @param {string} format Allows to retrieve more or less user details in response.
+	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
+	     *   full: all user fields
+	     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+	     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
+	     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+	     * @param {string} companyId the id company the users are in.
+	     * @param {string} searchEmail the string to to filter users list on the loginEmail field using the word provided in this option..
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
+	     * @category async
+	     */
+	    getAllUsersBySearchEmailByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string, searchEmail: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getAllUsersByCompanyId

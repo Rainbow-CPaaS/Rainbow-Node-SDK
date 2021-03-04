@@ -3123,12 +3123,17 @@ Request Method: PUT
 
     getRainbowNodeSdkPackagePublishedInfos() {
         let that = this;
+        return that.getNpmPackagePublishedInfos();
+    }
+
+    getNpmPackagePublishedInfos(packageName: string = "rainbow-node-sdk") {
+        let that = this;
         return new Promise((resolve, reject) => {
             let headers = {
                 "Accept": "application/json"
             };
 
-            that.http.getUrl("https://api.npms.io/v2/search?q=rainbow-node-sdk", headers, undefined).then(function (json) {
+            that.http.getUrl("https://api.npms.io/v2/search?q=" + packageName, headers, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) successfull");
                 that.logger.log("internal", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) received ", json);
                 resolve(json);

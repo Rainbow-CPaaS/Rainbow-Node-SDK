@@ -1,13 +1,14 @@
 "use strict";
 
 import {XMPPService} from "../XMPPService";
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPUTils, xu} from "../../common/XMPPUtils";
 import {ConversationEventHandler} from "./conversationEventHandler";
 
 export {};
 
 
 const moment = require("moment");
+const prettydata = require("../pretty-data").pd;
 
 // @ts-ignore
 global.window = {};
@@ -24,8 +25,12 @@ import {Message} from "../../common/models/Message";
 import {logEntryExit} from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {ContactsService} from "../../services/ContactsService";
+import {stringify} from "querystring";
 
-const LOG_ID = "XMPP/HNDL/CONVERSATIONS - ";
+const LOG_ID = "XMPP/HNDL/HIST/CONV - ";
+
+const TYPE_CHAT = "chat";
+const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
 class ConversationHistoryHandler  extends GenericHandler {
@@ -82,6 +87,7 @@ class ConversationHistoryHandler  extends GenericHandler {
         // Handle response
         try {
             var conversation = null;
+            that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
             var queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (queryId) {
@@ -117,7 +123,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     if (!fromJid) {
-                        that.logger.log("warn", LOG_ID + "[conversationService] onHistoryMessageReceived - Receive message without valid fromJid information");
+                        that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) - Receive message without valid fromJid information");
                         return true;
                     }
 
@@ -138,21 +144,41 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let date = new Date(stanzaForwarded.getChild("delay").getAttr("stamp"));
                         let body = stanzaMessage.getChild("body").text();
                         let ack = stanzaMessage.getChild("ack");
-                        let oob = stanzaMessage.getChild("x", "jabber:x:oob");
+                        let oobElmt = stanzaMessage.getChild("x", "jabber:x:oob");
                         let conference = stanzaMessage.getChild("x", "jabber:x:audioconference");
                         let content = stanzaMessage.getChild("content", "urn:xmpp:content");
                         let answeredMsg: Message ;
                         let answeredMsgId: string;
                         let answeredMsgDate: string;
                         let answeredMsgStamp: string;
+                        let subject : string;
+                        let attention: boolean;
+                        let urgency : string = "std";
+                        let urgencyAck : boolean = false;
+                        let urgencyHandler : any = undefined;
+                        let attachedMsgId : string;
+                        let attachIndex : number;
+                        let attachNumber : number;
+                        let resource : string;
+                        let toJid : string = "";
+                        let lang : string = "";                        
+                        let event : string = "";
+                        let eventJid :string = "";
+                        let isEvent : boolean = false;
+                        let oob: any;
+                        let originalMessageReplaced : any = null;
+                        let isForwarded : boolean = false;
+                        let forwardedMsg : any;
+                        let mentions : Array<Object> = [];
 
-                        that.logger.log("info", LOG_ID + "[Conversation] onHistoryMessageReceived message - before treat answeredMsg.");
+
+                        that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
                         if (stanzaMessage.getChild( "answeredMsg")) {
                             answeredMsgId = stanzaMessage.getChild("answeredMsg").text();
                             answeredMsgStamp = stanzaMessage.getChild("answeredMsg").getAttr("stamp");
                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
 
-                            that.logger.log("info", LOG_ID + "[Conversation] onHistoryMessageReceived message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                            that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
 
 /*
                             if (answeredMsgId) {
@@ -170,13 +196,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                         }
 
                         if (!from) {
-                            that.logger.log("warn", LOG_ID + "[Conversation] onHistoryMessageReceived missing contact for jid : " + fromJid + ", ignore message");
+                            that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) missing contact for jid : " + fromJid + ", ignore message");
                             //create basic contact
                             from = that._contactsService.createEmptyContactContact(fromJid);
                         }
 
                         if (roomEvent) {
-                            that.logger.log("internal", LOG_ID + "[Conversation] (" + conversation.id + ") add Room admin event message " + roomEvent);
+                            that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", add Room admin event message " + roomEvent);
                             type = "admin";
 
                             // Ignore meeting events
@@ -198,7 +224,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let message = conversation.getMessageById(messageId);
                         if (!message) { message = conversation.historyMessages.find((item) => { return item.id === messageId; }); }
                         if (message) {
-                            that.logger.log("info", LOG_ID + "[Conversation] (" + conversation.id + ") try to add an already stored message with id " + message.id);
+                            that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", try to add an already stored message with id " + message.id);
                         }
                         else {
                             // Create new message
@@ -211,32 +237,247 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent);
                                     break;
                                 default:
-                                    if (oob && oob.children.length) {
-                                        let url = oob.getChild("url").text();
-                                        let mime = oob.getChild("mime").text();
-                                        let filename = oob.getChild("filename").text();
-                                        let filesize = oob.getChild("size").text();
-                                        let fileId = Message.extractFileIdFromUrl(url);
+                                    /*  if (oob && oob.children.length) {
+                                          let url = oob.getChild("url").text();
+                                          let mime = oob.getChild("mime").text();
+                                          let filename = oob.getChild("filename").text();
+                                          let filesize = oob.getChild("size").text();
+                                          let fileId = Message.extractFileIdFromUrl(url);
+  
+                                          attachIndex = oob.attrs.index;
+                                          attachNumber = oob.attrs.count;
+  
+                                          // TODO later - let fileDescriptor = fileStorageService.getFileDescriptorById(fileId);
+  
+                                          let shortFileDescriptor = {
+                                              id: fileId,
+                                              url: url,
+                                              mime: mime,
+                                              filename: filename,
+                                              filesize: filesize,
+                                              previewBlob: null,
+                                              // TODO later - status: ( fileDescriptor )?fileDescriptor.state:"deleted"
+                                          };
+  
+                                          message = Message.createFileSharingMessage(messageId, date, from, side, body, false, shortFileDescriptor);
+  
+                                      } else {*/
+                                    let isMarkdown = content && content.getAttr("type")==="text/markdown";
+                                    body = isMarkdown ? content.text():body;
+                                    subject = stanzaMessage.find("subject").text();
+                                    attention = stanzaMessage.find("attention").text()==="true" ? true:false;
 
-                                        // TODO later - let fileDescriptor = fileStorageService.getFileDescriptorById(fileId);
-
-                                        let shortFileDescriptor = {
-                                            id: fileId,
-                                            url: url,
-                                            mime: mime,
-                                            filename: filename,
-                                            filesize: filesize,
-                                            previewBlob: null,
-                                            // TODO later - status: ( fileDescriptor )?fileDescriptor.state:"deleted"
-                                        };
-
-                                        message = Message.createFileSharingMessage(messageId, date, from, side, body, false, shortFileDescriptor);
-
-                                    } else {
-                                        let isMarkdown = content && content.getAttr("type") === "text/markdown";
-                                        body = isMarkdown ? content.text() : body;
-                                        message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
+                                    const headersElem = stanzaMessage.find("headers");
+                                    if (headersElem && headersElem.length > 0) {
+                                        const urgencyElem = headersElem.find("header");
+                                        if (urgencyElem.length===1) {
+                                            if (urgencyElem.attrs.name=='Urgency') {
+                                                urgency = urgencyElem.text();
+                                            }
+                                        } else {
+                                            for (let i = 0; i < urgencyElem.length; i++) {
+                                                if (urgencyElem[i].attrs.name=='Urgency') {
+                                                    urgency = urgencyElem.text();
+                                                }
+                                            }
+                                        }
+                                        urgencyAck = true;
                                     }
+
+                                    let attachTo = stanzaMessage.find("attach-to");
+                                    if (attachTo && attachTo.length > 0 && attachTo.attrs.xmlns==="urn:xmpp:message-attaching:1") {
+                                        attachedMsgId = attachTo.attrs.id;
+                                    } else {
+                                        that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) message - unknown attachedMsgId : ", attachedMsgId);
+                                    }
+
+                                    resource = xu.getResourceFromFullJID(stanzaMessage.attrs.from);
+                                    toJid = stanzaMessage.attrs.to;
+
+                                    if (stanzaMessage.attrs["xml:lang"]) { // in <body>
+                                        lang = stanzaMessage.attrs["xml:lang"];
+                                    } /*else if (content.parent.attrs["xml:lang"]) { // in <message>
+                                        lang = content.parent.attrs["xml:lang"];
+                                    }*/ else {
+                                        lang = "en";
+                                    }
+                                    that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
+                                    let eventElmt = stanzaMessage.find("event");
+                                    if (eventElmt.length > 0) {
+                                        event = eventElmt.attrs.name;
+                                        eventJid = eventElmt.attrs.jid;
+                                        isEvent = true;
+                                    }
+
+                                    if (oobElmt) {
+                                        attachIndex = oobElmt.attrs.index;
+                                        attachNumber = oobElmt.attrs.count;
+                                        oob = {
+                                            url: oobElmt.getChild("url").getText(),
+                                            mime: oobElmt.getChild("mime").getText(),
+                                            filename: oobElmt.getChild("filename").getText(),
+                                            filesize: oobElmt.getChild("size").getText()
+                                        };
+                                        that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) oob received");
+                                    }
+
+                                    let fromBubbleJid = "";
+                                    let fromBubbleUserJid = "";
+                                    if (stanza.attrs.type===TYPE_GROUPCHAT) {
+                                        fromBubbleJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
+                                        fromBubbleUserJid = xu.getResourceFromFullJID(stanza.attrs.from);
+                                        resource = xu.getResourceFromFullJID(fromBubbleUserJid);
+                                    }
+
+                                    let outgoingMessage = that._contactsService.isUserContactJid(fromJid);
+                                    let conversationId = outgoingMessage ? toJid:(stanza.attrs.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
+
+                                    let replaceElmt = stanzaMessage.find("replace");
+                                    if (replaceElmt.length > 0) {
+
+                                        let replaceMessageId = replaceElmt.attrs.id;
+
+                                        if (replaceMessageId) {
+                                            //data.replaceMessageId = replaceMessageId;
+                                            let conversation = that._conversationService.getConversationById(conversationId);
+                                            if (conversation) {
+                                                originalMessageReplaced = conversation.getMessageById(replaceMessageId);
+                                            } else {
+                                                that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) This is a replace msg but no conversation found for the original msg id. So store an empty msg to avoid the lost of information.", replaceMessageId);
+                                                originalMessageReplaced = {};
+                                                originalMessageReplaced.id = replaceMessageId;
+                                            }
+                                            //data.originalMessageReplaced.replacedByMessage = data;
+                                        }
+                                    }
+
+                                    let forwardedElmt = stanzaMessage.find("forwarded");
+                                    if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt.attrs.xmlns === "urn:xmpp:forward:0") {
+                                        isForwarded = true;
+                                        let msg = forwardedElmt.getChild("message");
+                                        forwardedMsg = {
+                                            "origMsgId" : msg.attrs.id,
+                                            "fromJid": msg.attrs.from,
+                                            "to" : msg.attrs.to,
+                                            "type" : msg.attrs.type,
+                                            "body" : msg.getChild("body").text(),
+                                            "lang" : msg.getChild("body").attrs["xml:lang"]
+                                        };                                        
+                                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
+                                    }
+
+                                    let mentionElmt = stanzaMessage.find("mention");
+                                    // stanzaData.mentions = [];
+                                        
+                                    if (mentionElmt.length > 0) {
+                                        const mentionJidElem = mentionElmt.find("jid");
+                                        if (Array.isArray(mentionJidElem)) {
+                                            mentionJidElem.forEach((content) => {
+
+                                                const mention = {};
+                                                mention['jid'] = content.text();
+                                                mention['pos'] = parseInt(content.attr("pos"), 10);
+                                                mention['size'] = parseInt(content.attr("size"), 10);
+
+                                                if (mention['jid'] && mention['size']) {
+                                                    mentions.push(mention);
+                                                }
+                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                            });
+                                        } else {
+                                            const mention = {};
+                                            mention['jid'] = mentionJidElem.text();
+                                            mention['pos'] = parseInt(mentionJidElem.attr("pos"), 10);
+                                            mention['size'] = parseInt(mentionJidElem.attr("size"), 10);
+
+                                            if (mention['jid'] && mention['size']) {
+                                                mentions.push(mention);
+                                            }
+                                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                        }
+                                    }
+                                    //message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
+                                    //a.isMarkdown = data.alternativeContent ? (data.alternativeContent[0]).type === "text/markdown" : false;
+
+                                    //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, data.side, data.content, null, data.answeredMsg, data.answererdMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.);
+                                    // let dataMessage : Message = await Message.create(
+                                    //         messageId, 
+                                    //         type, 
+                                    //         date, 
+                                    //         from, 
+                                    //         side, 
+                                    //         body, 
+                                    //         false, 
+                                    //         answeredMsg, 
+                                    //         answeredMsgId, 
+                                    //         answeredMsgDate, 
+                                    //         answeredMsgStamp, 
+                                    //         isMarkdown, 
+                                    //         "",
+                                    //         /*data.subject, */ 
+                                    //         "",
+                                    //         /*data.attention, */
+                                    //         null,
+                                    //         /* data.geoloc, */
+                                    //         {},
+                                    //         /* data.alternativeContent, */
+                                    // );
+                                    let dataMessage: Message = await Message.create(
+                                            null,
+                                            null,
+                                            messageId,
+                                            type,
+                                            date,
+                                            from,
+                                            side,
+                                            null,
+                                            Message.ReceiptStatus.NONE,
+                                            isMarkdown,
+                                            subject,
+                                            null, //data.geoloc,
+                                            null, //data.voiceMessage,
+                                            body, // data.alternativeContent,
+                                            attention,
+                                            mentions,
+                                            urgency,
+                                            urgencyAck,
+                                            urgencyHandler,
+                                            //data.translatedText,
+                                            //data.isMerged,
+                                            messageId,
+                                            //data.showCorrectedMessages,
+                                            //data.replaceMsgs,
+                                            attachedMsgId,
+                                            attachIndex,
+                                            attachNumber,
+                                            resource,
+                                            toJid,
+                                            body, //data.content,
+                                            lang,
+                                            false, //data.cc,
+                                            "", //data.cctype,
+                                            isEvent,
+                                            event,
+                                            oob,
+                                            fromBubbleJid,
+                                            fromBubbleUserJid,
+                                            answeredMsg,
+                                            answeredMsgId,
+                                            answeredMsgDate,
+                                            answeredMsgStamp,
+                                            eventJid,
+                                            originalMessageReplaced,
+                                            null, //data.confOwnerId,
+                                            null, //data.confOwnerDisplayName,
+                                            null,  //data.confOwnerJid,
+                                            isForwarded,
+                                            forwardedMsg
+                                    );
+
+                                    that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) with dataMessage Message : ", dataMessage);
+
+                                    message = dataMessage;
+                                    // }
                                     break;
                             }
                             // console.error("message "+ JSON.stringify(message.date));
@@ -246,6 +487,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                             // 	message.receiptStatus = 3;
                             // }
 
+                            // message.updateMessage(message);
+                            // that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", message);
                             conversation.historyMessages.push(message);
                             return Promise.resolve(undefined);
                         }
@@ -255,6 +498,9 @@ class ConversationHistoryHandler  extends GenericHandler {
             }
 
             else {
+
+                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) queryId not defined. Treat 'fin' history xml tag.");
+
                 // Get associated conversation
                 queryId = stanza.getChild("fin").getAttr("queryid");
                 conversation = that._conversationService.getConversationById(queryId);
@@ -303,7 +549,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             conversation.messages.forEach(async (message)=> {
                                 if (message.answeredMsgId) {
                                     //let conversation = that._conversationService.getConversationById(conversation.id);
-                                    that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
+                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
                                     //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
                                     message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
                                 }
@@ -334,8 +580,8 @@ class ConversationHistoryHandler  extends GenericHandler {
 
             return true;
         } catch (error) {
-            that.logger.log("error", LOG_ID + "[Conversation] onHistoryMessageReceived error ");
-            that.logger.log("internalerror", LOG_ID + "[Conversation] onHistoryMessageReceived error : ", error);
+            that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error ");
+            that.logger.log("internalerror", LOG_ID + "(onHistoryMessageReceived) error : ", error);
             return true;
         }
     }
