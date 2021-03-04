@@ -9,6 +9,8 @@ import {FileServerService} from "../../services/FileServerService";
 import {Bubble} from "../../common/models/Bubble";
 import {BubblesService} from "../../services/BubblesService";
 import {ContactsService} from "../../services/ContactsService";
+import {Message} from "../../common/models/Message";
+import {GeoLoc} from "../../common/models/GeoLoc";
 
 export {};
 
@@ -21,7 +23,7 @@ const xml = require("@xmpp/xml");
 
 const prettydata = require("../pretty-data").pd;
 
-const LOG_ID = "XMPP/HNDL/CONV - ";
+const LOG_ID = "XMPP/HNDL/EVENT/CONV - ";
 
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
@@ -112,9 +114,9 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let content = "";
             let lang = "";
-            let alternativeContent = [];
+            let alternativeContent : Array<{ "message": string, "type": string }> = [];
             let subject = "";
-            let event = "";
+            let event = undefined;
             let eventJid = "";
             let hasATextMessage = false;
             let oob = null;
@@ -133,6 +135,15 @@ class ConversationEventHandler extends GenericHandler {
             let answeredMsgStamp = undefined;
             let answeredMsgDate = undefined;
             let urgency = "std";
+            let urgencyAck : boolean = false;
+            let urgencyHandler : any = undefined;
+            let voiceMessage = undefined;
+            let isForwarded : boolean = false;
+            let forwardedMsg : any = undefined;
+            let historyIndex : string;
+            let attachedMsgId : string;
+            let attachIndex : number;
+            let attachNumber : number;
 
             let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
             let resource = xu.getResourceFromFullJID(stanza.attrs.from);
@@ -141,7 +152,9 @@ class ConversationEventHandler extends GenericHandler {
             let children = stanza.children;
 
             let mentions = [];
-
+            
+            voiceMessage = stanza.find("voicemessage").text();
+            historyIndex = id;
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "sent":
@@ -339,6 +352,28 @@ class ConversationEventHandler extends GenericHandler {
                         });
                         hasATextMessage = true;
                         break;
+                    case "attach-to":
+                        if (node.attrs.xmlns === "urn:xmpp:message-attaching:1") {
+                            attachedMsgId = node.attrs.id;
+                        } else {
+                            that.logger.log("warn", LOG_ID + "(onChatMessageReceived) message - unknown attachedMsgId : ", attachedMsgId);
+                        }
+                        break;
+                    case "forwarded":
+                        if (node.attrs.xmlns === "urn:xmpp:forward:0") {
+                            isForwarded = true;
+                            let msg = node.getChild("message");
+                            forwardedMsg = {
+                                "origMsgId" : msg.attrs.id,
+                                "fromJid": msg.attrs.from,                                
+                                "to" : msg.attrs.to, 
+                                "type" : msg.attrs.type,
+                                "body" : msg.getChild("body").text(),
+                                "lang" : msg.getChild("body").attrs["xml:lang"]
+                            };
+                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
+                        }
+                        break;
                     case "request":
                         that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - asked for receipt");
                         // Acknowledge 'received'
@@ -395,6 +430,8 @@ class ConversationEventHandler extends GenericHandler {
                             }
                                 break;
                             case "jabber:x:oob" : {
+                                attachIndex = node.attrs.index;
+                                attachNumber = node.attrs.count;
                                 oob = {
                                     url: node.getChild("url").getText(),
                                     mime: node.getChild("mime").getText(),
@@ -532,6 +569,7 @@ class ConversationEventHandler extends GenericHandler {
                                     }
                                 }
                             }
+                            urgencyAck = true;
                         }
                     }
                         break;
@@ -567,7 +605,7 @@ class ConversationEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
                     break;
                 default:
-                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) no treatment of event ", msg, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
+                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) no treatment of event ", msg, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
             }
 
             let fromBubbleJid = "";
@@ -584,7 +622,9 @@ class ConversationEventHandler extends GenericHandler {
                 timestamp = stanza.getChildren("archived").length &&
                 stanza.getChildren("archived")[0] &&
                 stanza.getChildren("archived")[0].attrs.stamp ?
-                    new Date(stanza.getChildren("archived")[0].attrs.stamp) : new Date();
+                        new Date(stanza.getChildren("archived")[0].attrs.stamp):new Date();
+
+                //Message.create(stanza.attrs.id,timestamp,fromJid,)
 
                 let data = {
                     "fromJid": fromJid,
@@ -600,6 +640,7 @@ class ConversationEventHandler extends GenericHandler {
                     "isEvent": false,
                     "oob": oob,
                     "geoloc": geoloc,
+                    "voiceMessage": voiceMessage,
                     "date": timestamp,
                     "fromBubbleJid": null,
                     "fromBubbleUserJid": null,
@@ -616,10 +657,19 @@ class ConversationEventHandler extends GenericHandler {
                     "answeredMsgDate": answeredMsgDate,
                     "answeredMsgStamp": answeredMsgStamp,
                     urgency,
-                    mentions
+                    urgencyAck,
+                    urgencyHandler,
+                    "isMarkdown": false,
+                    mentions,
+                    isForwarded,
+                    forwardedMsg,
+                    historyIndex,
+                    attachedMsgId,
+                    attachIndex,
+                    attachNumber,
                 };
 
-                if (stanza.attrs.type === TYPE_GROUPCHAT) {
+                if (stanza.attrs.type===TYPE_GROUPCHAT) {
                     data.fromBubbleJid = fromBubbleJid;
                     data.fromBubbleUserJid = fromBubbleUserJid;
                     data.fromJid = xu.getRoomJIDFromFullJID(stanza.attrs.from);
@@ -631,9 +681,9 @@ class ConversationEventHandler extends GenericHandler {
                     }
                     if (attention) {
                         data.attention = attention;
-                    } 
-                    
-                    if (mentions.length>0) {
+                    }
+
+                    if (mentions.length > 0) {
                         data.mentions = mentions;
                     }
                     if (confOwnerId) {
@@ -649,12 +699,12 @@ class ConversationEventHandler extends GenericHandler {
                 }
 
                 let outgoingMessage = that._contactsService.isUserContactJid(fromJid);
-                let conversationId = outgoingMessage ? data.toJid : (stanza.attrs.type === TYPE_GROUPCHAT ? fromBubbleJid : data.fromJid);
+                let conversationId = outgoingMessage ? data.toJid:(stanza.attrs.type===TYPE_GROUPCHAT ? fromBubbleJid:data.fromJid);
 
                 if (answeredMsgId) {
 
                     let conversation = that._conversationService.getConversationById(conversationId);
-                    that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
                     if (conversation) {
                         data.answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //conversation.getMessageById(answeredMsgId);
                     }
@@ -672,7 +722,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
-                    if (!hasATextMessage) {
+                    if (!hasATextMessage && !isForwarded) {
                         that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
                         return;
                     } else {
@@ -680,9 +730,74 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
 
-                this._onMessageReceived(conversationId, data);
+                data.isMarkdown = false;
+                if (data.alternativeContent && data.alternativeContent.length > 0) {
+                    data.isMarkdown = (data.alternativeContent[0]).type==="text/markdown";
+                }
+                ;
+
+                //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, data.side, data.content, null, data.answeredMsg, data.answererdMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.);
+                //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, Message.Side.LEFT, data.content, null, data.answeredMsg, data.answeredMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.isMarkdown, data.subject, data.attention, data.geoloc, data.alternativeContent);
+                let dataMessage: Message = await Message.create(
+                        null,
+                        null, 
+                        data.id,
+                        data.type,
+                        data.date,
+                        data.fromJid,
+                        Message.Side.LEFT,                        
+                        null,
+                        Message.ReceiptStatus.NONE,
+                        data.isMarkdown, 
+                        data.subject,                         
+                        data.geoloc,
+                        data.voiceMessage,
+                        data.alternativeContent,
+                        data.attention,
+                        data.mentions,
+                        data.urgency,
+                        data.urgencyAck,
+                        data.urgencyHandler,
+                        //data.translatedText,
+                        //data.isMerged,
+                        data.historyIndex,
+                        //data.showCorrectedMessages,
+                        //data.replaceMsgs,
+                        data.attachedMsgId,
+                        data.attachIndex,
+                        data.attachNumber,
+                        data.resource,
+                        data.toJid,
+                        data.content,
+                        data.lang,
+                        data.cc,
+                        data.cctype,
+                        data.isEvent,
+                        data.event,
+                        data.oob,
+                        data.fromBubbleJid,
+                        data.fromBubbleUserJid,
+                        data.answeredMsg,
+                        data.answeredMsgId,
+                        data.answeredMsgDate,
+                        data.answeredMsgStamp,
+                        data.eventJid,
+                        data.originalMessageReplaced,
+                        data.confOwnerId,
+                        data.confOwnerDisplayName,
+                        data.confOwnerJid,
+                        data.isForwarded,
+                        data.forwardedMsg
+                );
+                that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage Message : ", dataMessage);
+                dataMessage.updateMessage(data);
+                that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", dataMessage);
+
+                that._onMessageReceived(conversationId, dataMessage);
+                //that._onMessageReceived(conversationId, data);
             } else {
                 that.logger.log("debug", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it.");
+                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza );
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH Error !!! ");

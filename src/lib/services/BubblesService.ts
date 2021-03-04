@@ -301,6 +301,31 @@ class Bubbles {
 
     /**
      * @public
+     * @method
+     * @instance
+     * @description
+     *    Delete all existing owned bubbles <br/>
+     *    Return a promise <br/>
+     * @return {Object} Nothing or an error object depending on the result
+     */
+    closeAnddeleteAllBubbles() {
+        let that = this;
+        let deleteallBubblePromiseQueue = createPromiseQueue(that._logger);
+
+        let bubbles = that.getAll();
+
+        bubbles.forEach(function (bubble) {
+            let deleteBubblePromise = function () {
+                return that.closeAndDeleteBubble(bubble);
+            };
+            deleteallBubblePromiseQueue.add(deleteBubblePromise);
+        });
+
+        return deleteallBubblePromiseQueue.execute();
+    };
+
+    /**
+     * @public
      * @method deleteBubble
      * @instance
      * @param {Bubble} bubble  The bubble to delete

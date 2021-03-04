@@ -181,11 +181,13 @@ class Core {
                                     self._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
 
                                     //self.events.publish("rainbowversionwarning", error);
+                                } else {
+                                    self.logger.log("error", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
                                 }
                             }
                         });
                     }).catch((error) => {
-                        self.logger.log("error", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
+                        self.logger.log("debug", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
                         // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
                     });
                 }

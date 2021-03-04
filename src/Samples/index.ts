@@ -145,7 +145,7 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
-    "testOutdatedVersion": false,
+    "testOutdatedVersion": true,
     "requestsRate":{
         "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
@@ -568,7 +568,7 @@ function testremoveAllMessages() {
     });
 }
 
-function testsendMessageToContact() {
+function testsendMessageToConversationForContact() {
     return __awaiter(this, void 0, void 0, function* () {
         //let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
@@ -588,13 +588,47 @@ function testsendMessageToContact() {
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendMessageToContact - wait for message to be in conversation : ", msgSent);
+            logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
             yield Utils.until(() => {
                 return conversation.getMessageById(msgSent.id) !== undefined;
             }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = yield rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
         }
         // let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
-        // logger.log("debug", "MAIN - testsendMessageToContact - conversation with messages removed : ", conversationWithMessagesRemoved);
+        // logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
+    });
+}
+
+function testsendMessageToJid() {
+    return __awaiter(this, void 0, void 0, function* () {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        //let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            let msgSent = yield rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
+            /*yield Utils.until(() => {
+                return conversation.getMessageById(msgSent.id) !== undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = yield rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testsendMessageToJid - deleted in conversation the message : ", msgDeleted);
+            // */
+        }
+        // let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
+        // logger.log("debug", "MAIN - testsendMessageToJid - conversation with messages removed : ", conversationWithMessagesRemoved);
     });
 }
 
@@ -1416,6 +1450,17 @@ function testCreateBubblesOnly() {
     let utc = new Date().toJSON().replace(/-/g, "/");
     rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble) => {
         logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
+    });
+    //    let utc = new Date().toJSON().replace(/-/g, '/');
+}
+
+function testCreateBubble_closeAndDeleteBubble() {
+    let utc = new Date().toJSON().replace(/-/g, "/");
+    rainbowSDK.bubbles.createBubble("testCreateBubble_closeAndDeleteBubble" + utc, "testCreateBubble_closeAndDeleteBubble" + utc, true).then((bubble) => {
+        logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: createBubble request ok, bubble : ", bubble);
+        rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((result) => {
+            logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: closeAndDeleteBubble request ok, result : ", result);
+        });
     });
     //    let utc = new Date().toJSON().replace(/-/g, '/');
 }

@@ -1,4 +1,9 @@
 "use strict";
+import {GeoLoc} from "./GeoLoc";
+import {stringify} from "querystring";
+import {xu} from "../XMPPUtils";
+import {Conversation} from "./Conversation";
+
 export {};
 
 
@@ -10,88 +15,34 @@ export {};
  *      A message is exchanged when discussing in One-to-One or in a Bubble.
  */
 class Message {
-    public id: any;
-    public fromJid: any;
-    public side: any;
-    public resource: any;
-    public date: any;
-    public toJid: any;
-    public type: any;
-    public content: any;
-    public status: any;
-    public receiptStatus: any;
-    public lang: any;
-    public fileId: any;
-    public cc: any;
-    public cctype: any;
-    public isEvent: any;
-    public event: any;
-    public alternativeContent: any;
-    public isMarkdown: any;
-    public subject: any;
-    public oob: any;
-    public fromBubbleJid: any;
-    public fromBubbleUserJid: any;
-    /**
-     * @public
-     * @property {string} answeredMsgId The Id of the message answered
-     * @readonly
-     */
-    public answeredMsgId: string;
-    public answeredMsg: Message;
 
-    /**
-     * @public
-     * @property {string} answeredMsgDate The Date of the message answered
-     * @readonly
-     */
-    public answeredMsgDate: string;
-    public answeredMsgStamp: string;
-    fileTransfer: any;
-    /*static ReceiptStatus: any;
-    static Type: any;
-    static Side: any;
-    static ReceiptStatusText: string[];
-    // */
 
     /**
      * @public
      * @enum {number}
      * @readonly
      */
-    static Type :any = {
+    public static Type: any = {
         /** A chat message */
-        CHAT: {
-            key: 0,
-            value: "Chat"
-        },
+        CHAT: { key: 0, value: "Chat" },
         /** A file message */
-        FILE: {
-            key: 1,
-            value: "File"
-        },
+        FILE: { key: 1, value: "File" },
         /** A file message */
-        FS: {
-            key: 2,
-            value: "FileSharing"
-        },
+        FS: { key: 2, value: "FileSharing" },
         /** A WebRTC message */
-        WEBRTC: {
-            key: 3,
-            value: "WebRTC CAll"
-        },
+        WEBRTC: { key: 4, value: "WebRTC CAll" },
         /** A Recording message */
-        RECORDING: {
-            key: 4,
-            value: "Recording"
-        }
+        RECORDING: { key: 5, value: "Recording" },
+        /** A Form message */
+        FORM: { key: 6, value: "FORM" }
     };
+
     /**
      * @public
      * @enum {number}
      * @readonly
      */
-    static ReceiptStatus : any = {
+    public static ReceiptStatus = {
         /** No receipt received yet */
         NONE: 0,
         /** No receipt received after a while (The server doesn't answer) */
@@ -107,11 +58,16 @@ class Message {
     };
 
     /**
+     * @private
+     */
+    public static ReceiptStatusText = ["close", "info", "calllog", "check", "done", "read"];
+
+    /**
      * @public
      * @enum {string}
      * @readonly
      */
-    static Side : any = {
+    public static Side = {
         /** Message is from a recipient */
         LEFT: "L",
         /** Message is from me */
@@ -119,20 +75,152 @@ class Message {
         /** Specific admin message */
         ADMIN: "ADMIN"
     };
-    /**
-     * @private
-     */
-    static ReceiptStatusText : string []= [
-        "none",
-        "ko",
-        "inProgress",
-        "sent",
-        "received",
-        "read"
-    ];
-    public attention: boolean;
 
-    constructor(id, type, date, from, side, data, status, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, fileId?, isMarkdown?, subject?, attention1 = false) {
+    public serverAckTimer: any;
+    private index: any;
+    public id: string;
+    public type: any;
+    public date: Date;
+    public from: any;
+    public side: string;
+    //public data: string;
+    public status: string;
+    public receiptStatus: number;
+    public fileId: string;
+    public fileName: string;
+    public isMarkdown: boolean;
+    public subject: string;
+    public geoloc: GeoLoc;
+    public voiceMessage: any;
+    public alternativeContent: any;
+    public attention: any;
+    public mentions: any;
+    public urgency: string;
+    public urgencyAck: boolean = false;
+    public urgencyHandler: any = null;
+    //public translatedText: string = null;
+
+    // private rxSubject: Subject<any>;
+    //public isMerged: boolean;
+
+    public historyIndex: string = null;
+    //public showCorrectedMessages: boolean;
+    //public replaceMsgs: any[];
+    public fileErrorMsg: string = null;
+
+    // Message Attachment Part
+    public attachedMsgId: string = null;
+    public attachIndex: number;
+    public attachNumber: number;
+
+
+    public fromJid: any;
+    public resource: any;
+    public toJid: any;
+    public content: any;
+    public lang: any;
+    public cc: any;
+    public cctype: any;
+    public isEvent: any;
+    public event: any;
+    public oob: {
+        url: string,
+        mime: string,
+        filename: string,
+        filesize: string
+    };
+    public fromBubbleJid: any;
+    public fromBubbleUserJid: any;
+
+    public answeredMsgId: string;
+    public answeredMsg: Message;
+
+    public answeredMsgDate: string;
+    public answeredMsgStamp: string;
+    fileTransfer: any;
+
+    public eventJid: string;
+    public originalMessageReplaced: Message;
+    public confOwnerId: string;
+    public confOwnerDisplayName: string;
+    public confOwnerJid: string;
+    public conversation: Conversation;
+    public isForwarded : boolean;
+    public forwardedMsg : any;
+
+
+    constructor(serverAckTimer: any, 
+                index: any, 
+                id: string, 
+                type: any, 
+                date: Date, 
+                from: any, 
+                side: string, 
+              //  data: string, 
+                status: string, 
+                receiptStatus: number, 
+                // fileId: string, 
+                // fileName: string, 
+                isMarkdown: boolean, 
+                subject: string,
+                geoloc: GeoLoc, 
+                voiceMessage: any, 
+                alternativeContent: any, 
+                attention: any,
+                mentions: any, 
+                urgency: string, 
+                urgencyAck: boolean = false, 
+                urgencyHandler: any = null, 
+                /* translatedText: string = null, */ 
+                // isMerged: boolean, 
+                historyIndex: string = null, 
+                //showCorrectedMessages: boolean, 
+                //replaceMsgs: any[], 
+                // fileErrorMsg: string = null, 
+                attachedMsgId: string = null, 
+                attachIndex: number, 
+                attachNumber: number, 
+                // fromJid: any, 
+                resource: any, 
+                toJid: any, 
+                content: any, 
+                lang: any, 
+                cc: any,
+                cctype: any, 
+                isEvent: any, 
+                event: any, 
+                oob: {
+                    url: string,
+                    mime: string,
+                    filename: string,
+                    filesize: string
+                }, 
+                fromBubbleJid: any,
+                fromBubbleUserJid: any,
+                answeredMsg: Message,
+                answeredMsgId: string,
+                answeredMsgDate: string,
+                answeredMsgStamp: string,
+                // fileTransfer: any,     
+                eventJid: string, 
+                originalMessageReplaced: Message, 
+                confOwnerId: string, 
+                confOwnerDisplayName: string, 
+                confOwnerJid: string,
+                isForwarded:boolean,
+                forwardedMsg: any) {
+        
+        /**
+         * @private
+         * @readonly
+         */
+        this.serverAckTimer = null;
+
+        /**
+         * @private
+         * @readonly
+         */
+        this.index = index;
 
         /**
          * @public
@@ -141,9 +229,31 @@ class Message {
          * @instance
          */
         this.id = id;
+
+        // Answer message.
+        /**
+         * @public
+         * @property {string} answeredMsg The answered message of the message answered
+         * @readonly
+         */
         this.answeredMsg = answeredMsg;
+        /**
+         * @public
+         * @property {string} answeredMsgId The Id of the message answered
+         * @readonly
+         */
         this.answeredMsgId = answeredMsgId;
+        /**
+         * @public
+         * @property {string} answeredMsgDate The Date of the message answered
+         * @readonly
+         */
         this.answeredMsgDate = answeredMsgDate;
+        /**
+         * @public
+         * @property {string} answeredMsgStamp The Stamp of the message answered
+         * @readonly
+         */
         this.answeredMsgStamp = answeredMsgStamp;
 
         /**
@@ -153,6 +263,7 @@ class Message {
          * @instance
          */
         this.fromJid = from && from.jid_im;
+        this.from = from;
 
         /**
          * @public
@@ -200,7 +311,7 @@ class Message {
          * @property {string} content The content of this message (text)
          * @instance
          */
-        this.content = data;
+        this.content = content;
 
         /**
          * @private
@@ -231,7 +342,7 @@ class Message {
          * @instance
          * @readonly
          */
-        this.fileId = fileId;
+        //this.fileId = fileId;
 
         /**
          * @public
@@ -320,11 +431,161 @@ class Message {
 
         /**
          * @public
+         * @property {geoloc} geoloc
+         * @readonly
+         */
+        this.geoloc = geoloc;
+
+        /**
+         * @public
          * @property {object} attention Boolean to indicate if the current logged user is mentionned in the message.
          * @readonly
          * @instance
          */
-        this.attention = attention1;
+        this.attention = attention;
+
+        /**
+         * @public
+         * @property {Array<any>} mentions Array of contacts mentionned in the message.
+         * @readonly
+         * @instance
+         */
+        this.mentions = mentions;
+        
+        /**
+         * @public
+         * @property {any} voiceMessage
+         * @readonly
+         */
+        this.voiceMessage = voiceMessage;
+
+        /**
+         * @public
+         * @property {string} urgency the urgency of message ('std', 'low', 'middle', 'high')
+         * @readonly
+         */
+        this.urgency = urgency;
+
+        /**
+         * @private
+         * @readonly
+         */
+        this.urgencyAck = urgencyAck;
+
+        /**
+         * @private
+         * @readonly
+         */
+        this.urgencyHandler = urgencyHandler;
+
+        /**
+         * @public
+         * @property {string} translatedText the translation of the message.
+         * @readonly
+         */
+        //this.translatedText = translatedText;
+
+        /**
+         * used to know if merged cell when it's webrtc or SFU message or ADMIN message
+         * @private
+         * @readonly
+         */
+        // this.isMerged = isMerged;
+
+        /**
+         * @public
+         * @property {Array<any>} historyIndex the historyIndex of the message.
+         * @readonly
+         */
+        this.historyIndex =  historyIndex;
+
+        /**
+         * @public
+         * @property {boolean} showCorrectedMessages the showCorrectedMessages of the message.
+         * @readonly
+         */
+        //this.showCorrectedMessages = showCorrectedMessages;
+
+        /**
+         * @public
+         * @property {string} replaceMsgs the replaceMsgs of the message.
+         * @readonly
+         */
+        //this.replaceMsgs = replaceMsgs;
+
+        // Message Attachment Part
+        /**
+         * @public
+         * @property {string} attachedMsgId the attachedMsgId of the message.
+         * @readonly
+         */
+        this.attachedMsgId = attachedMsgId;
+        /**
+         * @public
+         * @property {string} attachIndex the attachIndex of the message.
+         * @readonly
+         */
+        this.attachIndex = attachIndex;
+        /**
+         * @public
+         * @property {string} attachNumber the attachNumber of the message.
+         * @readonly
+         */
+        this.attachNumber = attachNumber;
+
+        /**
+         * @public
+         * @property {string} eventJid the eventJid of the message.
+         * @readonly
+         */
+        this.eventJid = eventJid;
+        
+        /**
+         * @public
+         * @property {Message} originalMessageReplaced the originalMessageReplaced of the message.
+         * @readonly
+         */
+        this.originalMessageReplaced = originalMessageReplaced;
+        
+        /**
+         * @public
+         * @property {string} confOwnerId the confOwnerId of the message.
+         * @readonly
+         */
+        this.confOwnerId = confOwnerId;
+        /**
+         * @public
+         * @property {string} confOwnerDisplayName the confOwnerDisplayName of the message.
+         * @readonly
+         */
+        this.confOwnerDisplayName = confOwnerDisplayName;
+        /**
+         * @public
+         * @property {string} confOwnerJid the confOwnerJid of the message.
+         * @readonly
+         */
+        this.confOwnerJid = confOwnerJid;
+
+        /**
+         * @public
+         * @readonly
+         * @property {Conversation} conversation The Conversation the message belongs to (if provided)
+         */
+        this.conversation = undefined;
+
+        /**
+         * @public
+         * @property {boolean} isForwarded the message has been forwarded.
+         * @readonly
+         */
+        this.isForwarded = isForwarded;
+
+        /**
+         * @public
+         * @property {any} forwardedMsg original message that has been forwarded.
+         * @readonly
+         */
+        this.forwardedMsg = forwardedMsg;
 
     }
 
@@ -333,26 +594,68 @@ class Message {
      * @method
      * @instance
      */
-    static create(id, date, from, side, data, status,answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, isMarkdown?, subject?) {
+    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any) {
         // convert emojione from unicode to short
         //let message = $filter("emojiUnicodeToShort")(data);
-        const message = data;
-        //return new Message(id, Message.Type.CHAT, date, from, side, message, status, null, isMarkdown, subject);
+        //const message = data;
+        // return new Message(id, Message.Type.CHAT, date, from, side, message, status, null, isMarkdown, subject);
+        // constructor(id: string, type: any, date: any, from: any, side: string, data:string , status: string, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, fileId?, isMarkdown? : boolean , subject?, attention1 = false, additionalContent: any = null, fileName: string = null, geoloc: GeoLoc = null, alternativeContent: any = null) {
         return Message.MessageFactory()({
-            id,
-            type: Message.Type.CHAT,
-            date,
-            from,
-            side,
-            data: message,
+            serverAckTimer, 
+            index, 
+            id, 
+            type, 
+            date, 
+            from, 
+            side, 
+            /*  data: string ,*/ 
             status,
+            receiptStatus,
+            /* fileId: string, */
+            /* fileName: string, */
+            isMarkdown,
+            subject,
+            geoloc, 
+            voiceMessage,
+            alternativeContent,
+            attention,
+            mentions,
+            urgency,
+            urgencyAck,
+            urgencyHandler,
+           // translatedText,
+            //isMerged,
+            historyIndex,
+            //showCorrectedMessages,
+            //replaceMsgs,
+            /* fileErrorMsg: string = null, */ 
+            attachedMsgId, 
+            attachIndex, 
+            attachNumber, 
+            /* fromJid: any, */
+            resource, 
+            toJid,
+            content,
+            lang,
+            cc, 
+            cctype,
+            isEvent,
+            event,
+            oob,
+            fromBubbleJid, 
+            fromBubbleUserJid,
             answeredMsg,
             answeredMsgId,
             answeredMsgDate,
             answeredMsgStamp,
-            fileId: null,
-            isMarkdown,
-            subject
+            /* fileTransfer: any,*/
+            eventJid,
+            originalMessageReplaced,
+            confOwnerId,
+            confOwnerDisplayName,
+            confOwnerJid,
+            isForwarded,
+            forwardedMsg
         });
     }
 
@@ -443,23 +746,23 @@ class Message {
         return fileDescriptorId;
     }
 
-    updateBubble(data) {
+    updateMessage(data) {
         let that = this;
         if (data) {
 
-            let bubbleproperties = Object.getOwnPropertyNames(that);
+            let messageproperties = Object.getOwnPropertyNames(that);
             //console.log("updateBubble update Bubble with : ", data["id"]);
             Object.getOwnPropertyNames(data).forEach(
                 (val, idx, array) => {
                     //console.log(val + " -> " + data[val]);
-                    if (bubbleproperties.find((el) => {
+                    if (messageproperties.find((el) => {
                         return val == el;
                     })) {
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class : ", val, " -> ", data[val]);
                         that[val] = data[val];
                     } else {
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ");
+                        //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val, " -> ", data[val]);
+                        console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val);
                     }
                 });
         }
@@ -478,13 +781,65 @@ class Message {
         //constructor(id, type, date, from, side, data, status, fileId?, isMarkdown?, subject?) {
         return (data: any): Message => {
 
-            let message = new Message(data.id, data.type, data.date, data.from, data.side, data.data, data.status, data.answeredMsg, data.answeredMsgId, data.answeredMsgDate, data.answeredMsgStamp, data.fileId, data.isMarkdown, data.subject, data.attention);
+            let geoloc = data.geoloc ? GeoLoc.create(data.geoloc.datum, data.geoloc.latitude, data.geoloc.longitude, data.geoloc.altitude) : null;
+            let message = new Message(
+                    null, 
+                    null,  
+                    data.id, 
+                    data.type, 
+                    data.date, 
+                    data.from, 
+                    data.side, 
+                    data.status, 
+                    Message.ReceiptStatus.NONE, 
+                    data.isMarkdown, 
+                    data.subject, 
+                    geoloc, 
+                    data.voiceMessage, 
+                    data.alternativeContent, 
+                    data.attention, 
+                    data.mentions,
+                    data.urgency, 
+                    data.urgencyAck, 
+                    data.urgencyHandler,
+                    //data.translatedText,
+                    //data.isMerged,
+                    data.historyIndex,
+                    //data.showCorrectedMessages, 
+                    //data.replaceMsgs,
+                    data.attachedMsgId,
+                    data.attachIndex,
+                    data.attachNumber,
+                    // fromJid: any, 
+                    data.resource,
+                    data.toJid,
+                    data.content,
+                    data.lang,
+                    data.cc,
+                    data.cctype,
+                    data.isEvent,
+                    data.event,
+                    data.oob,
+                    data.fromBubbleJid,
+                    data.fromBubbleUserJid,
+                    data.answeredMsg,
+                    data.answeredMsgId,
+                    data.answeredMsgDate,
+                    data.answeredMsgStamp,
+                    // fileTransfer: any,     
+                    data.eventJid,
+                    data.originalMessageReplaced,
+                    data.confOwnerId,
+                    data.confOwnerDisplayName,
+                    data.confOwnerJid,
+                    data.isForwarded,
+                    data.forwardedMsg);
             if (data) {
-                let bubbleproperties = Object.getOwnPropertyNames(message);
+                let messageproperties = Object.getOwnPropertyNames(message);
                 Object.getOwnPropertyNames(data).forEach(
                     (val, idx, array) => {
                         //console.log(val + " -> " + data[val]);
-                        if (!bubbleproperties.find((el) => {
+                        if (!messageproperties.find((el) => {
                             return val == el;
                         })) {
                             //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
