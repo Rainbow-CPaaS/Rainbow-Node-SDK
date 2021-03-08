@@ -61,6 +61,11 @@ let options = {
          }
     },
     "testOutdatedVersion": true, //Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+     "requestsRate":{ // rate limit of the http requests to server.
+            "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
+            "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+            "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
+        },
     // IM options
     "im": {
         "sendReadReceipt": true, // If it is setted to true (default value), the 'read' receipt is sent automatically to the sender when the message is received so that the sender knows that the message as been read.
@@ -75,6 +80,10 @@ let options = {
                               // DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
                               // DataStoreType.StoreTwinSide The messages are fully stored.<br>
                               // DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour. 
+                              
+        "autoInitialBubblePresence": true, // Define if the presence should be sent automatically to bubbles. This allows to receive the messages from the bubbles.
+        "autoLoadConversations": true, // Define if the existing conversations on server side should be downloaded at startup. On bot with lot of contacts exchange it can slower the startup. 
+        "autoLoadContacts": true // Define if the contacts from the network (the roster) should be loaded at startup. 
     },
 
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
