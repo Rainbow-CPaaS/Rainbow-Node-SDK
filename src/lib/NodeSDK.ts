@@ -133,6 +133,11 @@ class NodeSDK {
      *       }<br>
      *   },<br>
      *   "testOutdatedVersion": true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
+     *   "requestsRate":{ // rate limit of the http requests to server.<br>
+     *       "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.<br>
+     *       "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.<br>
+     *       "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.<br>
+     *   },<br>
      *   // IM options<br>
      *   "im": {<br>
      *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
