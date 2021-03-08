@@ -91,76 +91,55 @@ class NodeSDK {
      * @method constructor
      * @public
      * @description
-     *      The entry point of the Rainbow Node SDK
-     * @param {{rainbow: {host: string}, application: {appID: string, appSecret: string}, im: {sendReadReceipt: boolean, sendMessageToConnectedUser: boolean, conversationsRetrievedFormat: string, copyMessage: boolean, storeMessages: boolean, messageMaxLength: number}, credentials: {password: string, login: string}, logs: {file: {zippedArchive: boolean, path: string, customFileName: string}, color: boolean, level: string, "system-dev": {http: boolean, internals: boolean}, enableFileLogs: boolean, customLabel: string, enableConsoleLogs: boolean}, servicesToStart: {favorites: {start_up: boolean}, fileStorage: {start_up: boolean}, webrtc: {start_up: boolean, optional: boolean}, channels: {start_up: boolean}, calllog: {start_up: boolean}, telephony: {start_up: boolean}, admin: {start_up: boolean}, bubbles: {start_up: boolean}, fileServer: {start_up: boolean}}}} options : The options provided to manage the SDK behavior <br>
-     *   "rainbow": {<br>
-     *       "host": "official", // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
-     *       "mode": "xmpp" // The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`)
-     *    },<br>
-     *   "s2s": {
-     *      "hostCallback": "http://3d260881.ngrok.io", // S2S Callback URL used to receive events on internet
-     *      "locallistenningport": "4000" // Local port where the events must be forwarded from S2S Callback Web server.
-    *    },
-     *   "credentials": {<br>
-     *       "login": "user@xxxx.xxx",  // The Rainbow email account to use<br>
-     *       "password": "XXXXX",<br>
-     *   },<br>
-     *   // Application identifier<br>
-     *   "application": {<br>
-     *       "appID": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Identifier<br>
-     *       "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret<br>
-     *   },<br>
-     *   // Proxy configuration<br>
-     *   "proxy": {<br>
-     *       "host": "xxx.xxx.xxx.xxx",<br>
-     *       "port": xxxx,<br>
-     *       "protocol": "http",<br>
-     *       "user": "proxyuser",<br>
-     *       "password": "XXXXX",<br>
-     *   },<br>
-     *   // Logs options<br>
-     *   "logs": {<br>
-     *       "enableConsoleLogs": false, Activate logs on the console<br>
-     *       "enableFileLogs": false, Activate the logs in a file<br>
-     *       "enableEventsLogs": false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.<br>>
-     *       "color": true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)) <br>
-     *       "level": "info", The level of logs. The value can be "info", "debug", "warn", "error"<br>
-     *       "customLabel": "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.<br>
-     *       "file": {<br>
-     *           "path": "c:/temp/", Path to the log file<br>
-     *           "customFileName": "R-SDK-Node-MyRBProject", A label inserted in the name of the log file<br>
-     *           "zippedArchive": false Can activate a zip of file. It needs CPU process, so avoid it.<br>
-     *       }<br>
-     *   },<br>
-     *   "testOutdatedVersion": true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
-     *   "requestsRate":{ // rate limit of the http requests to server.<br>
-     *       "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.<br>
-     *       "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.<br>
-     *       "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.<br>
-     *   },<br>
-     *   // IM options<br>
-     *   "im": {<br>
-     *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
-     *       "messageMaxLength": 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.<br>
-     *       "sendMessageToConnectedUser": false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.<br>
-     *       "conversationsRetrievedFormat": "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`<br>
-     *       @ deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
-     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.<br>
-     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.<br>
-     *       "messagesDataStore": Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
+     *      The entry point of the Rainbow Node SDK.
+     * @param {Object} options SDK Startup options.
+     * @param {string} options.rainbow.host "official", Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO.
+     * @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
+     * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
+     * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
+     * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
+     * @param {string} options.credentials.password "XXXXX", The password.
+     * @param {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
+     * @param {string} options.application.appSecret "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Secret.
+     * @param {string} options.proxy.host "xxx.xxx.xxx.xxx", The proxy address.
+     * @param {string} options.proxy.port xxxx, The proxy port.
+     * @param {string} options.proxy.protocol "http", The proxy protocol (note http is used to https also).
+     * @param {string} options.proxy.user "proxyuser", The proxy username.
+     * @param {string} options.proxy.password "XXXXX", The proxy password.
+     * @param {string} options.logs.enableConsoleLogs false, Activate logs on the console.
+     * @param {string} options.logs.enableFileLogs false, Activate the logs in a file.
+     * @param {string} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
+     * @param {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)). 
+     * @param {string} options.logs.level "info", The level of logs. The value can be "info", "debug", "warn", "error".
+     * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
+     * @param {string} options.logs.file.path "c:/temp/", Path to the log file.
+     * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
+     * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
+     * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+     * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
+     * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
+     * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
+     * @param {string} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
+     * @param {string} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+     * @param {string} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
+     * @param {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
+     * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
+     * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+     * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+     * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).</br>
      *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
      *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
      *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
-     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.<br>
-     *       "autoInitialBubblePresence" to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true. </br>
-     *       "autoLoadConversations" to activate the retrieve of conversations from the server. The default value is true. </br>
-     *       "autoLoadContacts" to activate the retrieve of contacts from roster from the server. The default value is true. </br>
-     *   },<br>
-     *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
-     *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
-     *   // By default all the services are started. Events received from server are not yet filtered.<br>
-     *   // So this feature is realy risky, and should be used with much more cautions.<br>
-     *   "servicesToStart": {<br>
+     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+     * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true. 
+     * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
+     * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.   
+     * @param {Object} options.servicesToStart <br>
+     *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
+     *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
+     *    By default all the services are started. Events received from server are not yet filtered.<br>
+     *    So this feature is realy risky, and should be used with much more cautions.<br>
+     *        {<br>
      *       "bubbles": {<br>
      *           "start_up": true,<br>
      *       },<br>
@@ -184,9 +163,7 @@ class NodeSDK {
      *       },<br>
      *       "favorites": {<br>
      *           "start_up": true,<br>
-     *       }<br>
-     *   }<br>
-     * }<br>
+     *               
      */
     constructor(options) {
         /*
