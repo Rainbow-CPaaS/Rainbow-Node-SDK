@@ -182,7 +182,7 @@ class Core {
 
                                     //self.events.publish("rainbowversionwarning", error);
                                 } else {
-                                    self.logger.log("error", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
+                                    self.logger.log("info", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
                                 }
                             }
                         });

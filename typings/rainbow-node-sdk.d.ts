@@ -3553,14 +3553,13 @@ declare module 'lib/common/models/GeoLoc' {
 	    longitude: string;
 	    altitude: string;
 	    static create(datum: string, latitude: string, longitude: string, altitude: string): GeoLoc;
-	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
-	    onRoomsContainerManagementMessageReceived(node: any): Promise<void>;
 	}
 	export { GeoLoc };
 
 }
 declare module 'lib/common/models/Message' {
 	import { GeoLoc } from 'lib/common/models/GeoLoc';
+	import { Conversation } from 'lib/common/models/Conversation';
 	export {}; class Message {
 	    /**
 	     * @public
@@ -3604,139 +3603,28 @@ declare module 'lib/common/models/Message' {
 	        /** Specific admin message */
 	        ADMIN: string;
 	    };
-	    /**
-	     * @private
-	     * @readonly
-	     */
 	    serverAckTimer: any;
-	    /**
-	     * @private
-	     * @readonly
-	     */
 	    private index;
-	    /**
-	     * @public
-	     * @property {string} id The message ID
-	     * @readonly
-	     */
 	    id: string;
-	    /**
-	     * @public
-	     * @property {Type} type The type of the message (could be CHAT, FILE, FT or WEBRTC)
-	     * @link Type
-	     * @readonly
-	     */
 	    type: any;
-	    /**
-	     * @public
-	     * @property {Date} date The creation date of the message
-	     * @readonly
-	     */
 	    date: Date;
-	    /**
-	     * @public
-	     * @property {Contact} from The initiator of the message
-	     * @link Contact
-	     * @readonly
-	     */
 	    from: any;
-	    /**
-	     * @public
-	     * @property {Side} side The message originator
-	     * @link Side
-	     * @since 1.21
-	     * @readonly
-	     */
 	    side: string;
-	    /**
-	     * @public
-	     * @property {string} data The content of the message
-	     * @readonly
-	     */
-	    data: string;
-	    /**
-	     * @private
-	     * @readonly
-	     */
 	    status: string;
-	    /**
-	     * @public
-	     * @property {ReceiptStatus} receiptStatus The state of the receipt
-	     * @readonly
-	     */
 	    receiptStatus: number;
-	    /**
-	     * @public
-	     * @property {string} fileId An attached file Id (if exists)
-	     *@readonly
-	     */
 	    fileId: string;
-	    /**
-	     * @public
-	     * @property {string} fileName An attached file Name (if exists)
-	     * @readonly
-	     */
 	    fileName: string;
-	    /**
-	     * @public
-	     * @property {boolean} isMarkdown If the message is a markdown type message
-	     * @readonly
-	     */
 	    isMarkdown: boolean;
-	    /**
-	     * @public
-	     * @property {string} subject The subject of the message displayed in notifs
-	     * @readonly
-	     */
 	    subject: string;
-	    /**
-	     * @public
-	     * @property {string} answeredMsgId The Id of the message answered
-	     * @readonly
-	     */
-	    answeredMsgId: string;
-	    /**
-	     * @public
-	     * @property {string} answeredMsgDate The Date of the message answered
-	     * @readonly
-	     */
-	    /**
-	     * @public
-	     * @property {geoloc} geoloc
-	     * @readonly
-	     */
 	    geoloc: GeoLoc;
-	    /**
-	     * @public
-	     * @property {any} voiceMessage
-	     * @readonly
-	     */
 	    voiceMessage: any;
-	    /**
-	     * @public
-	     * @property {object} alternativeContent
-	     * @readonly
-	     */
 	    alternativeContent: any;
-	    /**
-	     * @public
-	     * @property {object} attention
-	     * @readonly
-	     */
 	    attention: any;
-	    /**
-	     * @public
-	     * @property {string} urgency the urgency of message ('std', 'low', 'middle', 'high')
-	     * @readonly
-	     */
+	    mentions: any;
 	    urgency: string;
 	    urgencyAck: boolean;
 	    urgencyHandler: any;
-	    translatedText: string;
-	    isMerged: boolean;
 	    historyIndex: string;
-	    showCorrectedMessages: boolean;
-	    replaceMsgs: any[];
 	    fileErrorMsg: string;
 	    attachedMsgId: string;
 	    attachIndex: number;
@@ -3758,17 +3646,8 @@ declare module 'lib/common/models/Message' {
 	    };
 	    fromBubbleJid: any;
 	    fromBubbleUserJid: any;
-	    /**
-	     * @public
-	     * @property {string} answeredMsgId The Id of the message answered
-	     * @readonly
-	     */
+	    answeredMsgId: string;
 	    answeredMsg: Message;
-	    /**
-	     * @public
-	     * @property {string} answeredMsgDate The Date of the message answered
-	     * @readonly
-	     */
 	    answeredMsgDate: string;
 	    answeredMsgStamp: string;
 	    fileTransfer: any;
@@ -3777,18 +3656,26 @@ declare module 'lib/common/models/Message' {
 	    confOwnerId: string;
 	    confOwnerDisplayName: string;
 	    confOwnerJid: string;
-	    constructor(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, status: string, receiptStatus: number, isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, translatedText: string, isMerged: boolean, historyIndex: string, showCorrectedMessages: boolean, replaceMsgs: any[], attachedMsgId: string, attachIndex: number, attachNumber: number, resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
+	    conversation: Conversation;
+	    isForwarded: boolean;
+	    forwardedMsg: any;
+	    constructor(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, status: string, receiptStatus: number, isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, historyIndex: string, attachedMsgId: string, attachIndex: number, attachNumber: number, resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
 	        url: string;
 	        mime: string;
 	        filename: string;
 	        filesize: string;
-	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string);
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any);
 	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     */
-	    static create(id: any, type: any, date: any, from: any, side: any, data: any, status: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, isMarkdown?: any, subject?: any, attention?: any, geoloc?: GeoLoc, alternativeContent?: any): Message;
+	    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, /* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string, /*showCorrectedMessages: boolean,*/ /* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string, attachIndex: number, attachNumber: number, /* fromJid: any, */ resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
+	        url: string;
+	        mime: string;
+	        filename: string;
+	        filesize: string;
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any): Message;
 	    /**
 	     * @private
 	     * @method
@@ -3863,7 +3750,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
-	    onChatMessageReceived(msg: any, stanza: any): Promise<void>;
+	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
 	    _onMessageReceived(conversationId: any, data: any): Promise<void>;
 	    onRoomAdminMessageReceived(msg: any, stanza: any): void;
 	    onFileMessageReceived(msg: any, stanza: any): void;
@@ -3878,6 +3765,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    onUnmuteManagementMessageReceived(node: any): void;
 	    onFileManagementMessageReceived(node: any): Promise<void>;
 	    onThumbnailManagementMessageReceived(node: any): void;
+	    onRoomsContainerManagementMessageReceived(node: any): Promise<void>;
 	    onReceiptMessageReceived(msg: any, stanza: any): void;
 	    onErrorMessageReceived(msg: any, stanza: any): void;
 	    onCloseMessageReceived(msg: any, stanza: any): void;
@@ -5695,6 +5583,7 @@ declare module 'lib/services/PresenceService' {
 	     *      Method called when receiving an update on user presence <br/>
 	     */
 	    _onMyPresenceChanged(user: any): void;
+	    getCalendarState(): Promise<unknown>;
 	}
 	export { PresenceService };
 
@@ -6482,6 +6371,7 @@ declare module 'lib/connection/RESTService' {
 	    sendAlertFeedback(alertId: string, data: Object): Promise<unknown>;
 	    getReportSummary(alertId: string): Promise<unknown>;
 	    getReportDetails(alertId: string): Promise<unknown>;
+	    getCalendarState(): Promise<unknown>;
 	}
 	export { RESTService, MEDIATYPE, GuestParams };
 
@@ -8484,48 +8374,6 @@ declare module 'lib/services/AdminService' {
 	    getAllUsersBySearchEmailByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string, searchEmail: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method getAllUsersByCompanyId
-	     * @instance
-	     * @description
-	     *      Get all users for a given admin in a company <br/>
-	     * @async
-	     * @param {string} format Allows to retrieve more or less user details in response.
-	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
-	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
-	     *   full: all user fields
-	     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-	     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
-	     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
-	     * @param {string} companyId the id company the users are in. If not provided, then the companyId of the connected user is used.
-	     });
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
-	     * @category async
-	     */
-	    getAllUsersByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getAllUsersBySearchEmailByCompanyId
-	     * @instance
-	     * @description
-	     *      Get all users for a given admin in a company by a search of string in email<br/>
-	     * @async
-	     * @param {string} format Allows to retrieve more or less user details in response.
-	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
-	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
-	     *   full: all user fields
-	     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-	     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
-	     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
-	     * @param {string} companyId the id company the users are in.
-	     * @param {string} searchEmail the string to to filter users list on the loginEmail field using the word provided in this option..
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
-	     * @category async
-	     */
-	    getAllUsersBySearchEmailByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string, searchEmail: string): Promise<unknown>;
-	    /**
-	     * @public
 	     * @method getContactInfos
 	     * @instance
 	     * @description
@@ -10047,71 +9895,55 @@ declare module 'lib/NodeSDK' {
 	     * @method constructor
 	     * @public
 	     * @description
-	     *      The entry point of the Rainbow Node SDK
-	     * @param {{rainbow: {host: string}, application: {appID: string, appSecret: string}, im: {sendReadReceipt: boolean, sendMessageToConnectedUser: boolean, conversationsRetrievedFormat: string, copyMessage: boolean, storeMessages: boolean, messageMaxLength: number}, credentials: {password: string, login: string}, logs: {file: {zippedArchive: boolean, path: string, customFileName: string}, color: boolean, level: string, "system-dev": {http: boolean, internals: boolean}, enableFileLogs: boolean, customLabel: string, enableConsoleLogs: boolean}, servicesToStart: {favorites: {start_up: boolean}, fileStorage: {start_up: boolean}, webrtc: {start_up: boolean, optional: boolean}, channels: {start_up: boolean}, calllog: {start_up: boolean}, telephony: {start_up: boolean}, admin: {start_up: boolean}, bubbles: {start_up: boolean}, fileServer: {start_up: boolean}}}} options : The options provided to manage the SDK behavior <br>
-	     *   "rainbow": {<br>
-	     *       "host": "official", // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO<br>
-	     *       "mode": "xmpp" // The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`)
-	     *    },<br>
-	     *   "s2s": {
-	     *      "hostCallback": "http://3d260881.ngrok.io", // S2S Callback URL used to receive events on internet
-	     *      "locallistenningport": "4000" // Local port where the events must be forwarded from S2S Callback Web server.
-	    *    },
-	     *   "credentials": {<br>
-	     *       "login": "user@xxxx.xxx",  // The Rainbow email account to use<br>
-	     *       "password": "XXXXX",<br>
-	     *   },<br>
-	     *   // Application identifier<br>
-	     *   "application": {<br>
-	     *       "appID": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Identifier<br>
-	     *       "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret<br>
-	     *   },<br>
-	     *   // Proxy configuration<br>
-	     *   "proxy": {<br>
-	     *       "host": "xxx.xxx.xxx.xxx",<br>
-	     *       "port": xxxx,<br>
-	     *       "protocol": "http",<br>
-	     *       "user": "proxyuser",<br>
-	     *       "password": "XXXXX",<br>
-	     *   },<br>
-	     *   // Logs options<br>
-	     *   "logs": {<br>
-	     *       "enableConsoleLogs": false, Activate logs on the console<br>
-	     *       "enableFileLogs": false, Activate the logs in a file<br>
-	     *       "enableEventsLogs": false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.<br>>
-	     *       "color": true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)) <br>
-	     *       "level": "info", The level of logs. The value can be "info", "debug", "warn", "error"<br>
-	     *       "customLabel": "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.<br>
-	     *       "file": {<br>
-	     *           "path": "c:/temp/", Path to the log file<br>
-	     *           "customFileName": "R-SDK-Node-MyRBProject", A label inserted in the name of the log file<br>
-	     *           "zippedArchive": false Can activate a zip of file. It needs CPU process, so avoid it.<br>
-	     *       }<br>
-	     *   },<br>
-	     *   "testOutdatedVersion": true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.<br>
-	     *   // IM options<br>
-	     *   "im": {<br>
-	     *       "sendReadReceipt": true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.<br>
-	     *       "messageMaxLength": 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.<br>
-	     *       "sendMessageToConnectedUser": false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.<br>
-	     *       "conversationsRetrievedFormat": "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`<br>
-	     *       @deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
-	     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.<br>
-	     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.<br>
-	     *       "messagesDataStore": Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
+	     *      The entry point of the Rainbow Node SDK.
+	     *     @param {Object} options SDK Startup options.
+	     *     @param {string} options.rainbow.host "official", Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO.
+	     *     @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
+	     *     @param {string} s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
+	     *     @param {string} s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
+	     *     @param {string} credentials.login "user@xxxx.xxx", The Rainbow email account to use.
+	     *     @param {string} credentials.password "XXXXX", The password.
+	     *     @param {string} application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
+	     *     @param {string} application.appSecret "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Secret.
+	     *     @param {string} proxy.host "xxx.xxx.xxx.xxx", The proxy address.
+	     *     @param {string} proxy.port xxxx, The proxy port.
+	     *     @param {string} proxy.protocol "http", The proxy protocol (note http is used to https also).
+	     *     @param {string} proxy.user "proxyuser", The proxy username.
+	     *     @param {string} proxy.password "XXXXX", The proxy password.
+	     *     @param {string} logs.enableConsoleLogs false, Activate logs on the console.
+	     *     @param {string} logs.enableFileLogs false, Activate the logs in a file.
+	     *     @param {string} logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
+	     *     @param {string} logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)).
+	     *     @param {string} logs.level "info", The level of logs. The value can be "info", "debug", "warn", "error".
+	     *     @param {string} logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
+	     *     @param {string} logs.file.path "c:/temp/", Path to the log file.
+	     *     @param {string} logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
+	     *     @param {string} logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
+	     *     @param {string} "testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+	     *     @param {string} requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
+	     *     @param {string} requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
+	     *     @param {string} requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
+	     *     @param {string} im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
+	     *     @param {string} im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+	     *     @param {string} im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
+	     *     @param {string} im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
+	     *     @param {string} im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
+	     *     @param {string} im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+	     *     @param {string} im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+	     *     @param {string} im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).</br>
 	     *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
 	     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
 	     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
-	     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.<br>
-	     *       "autoInitialBubblePresence" to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true. </br>
-	     *       "autoLoadConversations" to activate the retrieve of conversations from the server. The default value is true. </br>
-	     *       "autoLoadContacts" to activate the retrieve of contacts from roster from the server. The default value is true. </br>
-	     *   },<br>
-	     *   // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
-	     *   // Take care, severals services are linked, so disabling a service can disturb an other one.<br>
-	     *   // By default all the services are started. Events received from server are not yet filtered.<br>
-	     *   // So this feature is realy risky, and should be used with much more cautions.<br>
-	     *   "servicesToStart": {<br>
+	     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+	     *     @param {string} im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+	     *     @param {string} im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
+	     *     @param {string} im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+	     *     @param {Object} servicesToStart <br>
+	     *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
+	     *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
+	     *    By default all the services are started. Events received from server are not yet filtered.<br>
+	     *    So this feature is realy risky, and should be used with much more cautions.<br>
+	     *        {<br>
 	     *       "bubbles": {<br>
 	     *           "start_up": true,<br>
 	     *       },<br>
@@ -10135,9 +9967,7 @@ declare module 'lib/NodeSDK' {
 	     *       },<br>
 	     *       "favorites": {<br>
 	     *           "start_up": true,<br>
-	     *       }<br>
-	     *   }<br>
-	     * }<br>
+	     *
 	     */
 	    constructor(options: any);
 	    /**
@@ -10381,19 +10211,17 @@ declare module 'lib/NodeSDK' {
 	    get s2s(): S2SService;
 	    /**
 	     * @public
-	     * @property {Object} alerts
-	     * @instance
+	     * @property {AlertsService} alerts
 	     * @description
 	     *    Get access to the alerts module
-	     * @return {S2SService}
+	     * @return {ChannelsService}
 	     */
 	    get alerts(): AlertsService;
 	    /**
 	     * @public
 	     * @property {Object} DataStoreType
-	     * @return {*}
 	     * @description
-	     *    Get access to the s2s module
+	     *    Get access to the DataStoreType type
 	     * @return {ChannelsService}
 	     */
 	    get DataStoreType(): typeof DataStoreType;
@@ -10428,6 +10256,14 @@ declare module 'lib/NodeSDK' {
 	        nbRunningReq: number;
 	        maxSimultaneousRequests: number;
 	    }>;
+	    /**
+	     * @public
+	     * @method Appreciation
+	     * @static
+	     * @description
+	     *    Get connections Appreciation type. </br>
+	     * @return {Appreciation}
+	     */
 	    static get Appreciation(): typeof Appreciation;
 	}
 	export { NodeSDK as NodeSDK };
@@ -10475,17 +10311,6 @@ declare module 'lib/common/models/ConferencePhoneNumber' {
 	    ToString(): string;
 	}
 	export { ConferencePhoneNumber };
-
-}
-declare module 'lib/common/models/GeoLoc' {
-	 class GeoLoc {
-	    datum: string;
-	    latitude: string;
-	    longitude: string;
-	    altitude: string;
-	    static create(datum: string, latitude: string, longitude: string, altitude: string): GeoLoc;
-	}
-	export { GeoLoc };
 
 }
 declare module 'lib/common/models/Settings' {
