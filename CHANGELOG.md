@@ -6,8 +6,20 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.84.0-dotnet.2] - 2021-02-XX
--   Fix ContactsService::getRosters api to not reset the contacts cache, but to update contacts from data received from server. 
+## [1.85.0-dotnet.0] - 2021-02-XX
+-   Fix ContactsService::getRosters api to not reset the contacts cache, but to update contacts from data received from server.
+-   Update events `rainbow_onpresencechanged` and `rainbow_oncontactpresencechanged`  with new properties `until` and `delay`.
+-   Add `until` propertie in the presence event of contacts to give the validity date of the calendar presence.
+-   Add PATCH verb in HttpService
+-   Add `PresenceService::getCalendarState` Allow to get the calendar presence of the connected user.
+-   Add `PresenceService::getCalendarStates`  Allow to get the calendar presence of severals users.
+-   Add `PresenceService::setCalendarRegister` Register a new calendar.
+-   Add `PresenceService::getCalendarAutomaticReplyStatus` Allow to retrieve the calendar automatic reply status.
+-   Add `PresenceService::enableCalendar` Allow to enable the calendar.
+-   Add `PresenceService::disableCalendar` Allow to disable the calendar.
+-   Offline presence of contacts in the roster.
+-   Update methods `ProfilesService::init` to return a succeed event if the requests to server failed. To avoid the start to failed. 
+ 
 
 ## [1.84.0] - 2021-02-22
 -   Add API methods `AlertsService::renameDevicesTags` `AlertsService::deleteDevicesTags` `AlertsService::getstatsTags` to manage Tags in Alerts.

@@ -11,7 +11,7 @@ import {RESTService} from "../connection/RESTService";
 import {ROOMROLE, S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
-import {PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
+import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
 
 export {};
 
@@ -481,6 +481,238 @@ class PresenceService {
 
         //}
     }
+
+    //region calendar
+
+    /**
+     * @public
+     * @method getCalendarState
+     * @instance
+     * @description
+     *    Allow to get the calendar presence of the connected user <br/>
+     *    return promise with {  <br/>
+     *    busy: boolean, // Does the connected user is busy ? <br/>
+     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/> 
+     *    subject: string, // The meeting subject. <br/>
+     *    since: string, // The meeting since date. <br/>
+     *    until: string // Date until the current presence is valid <br/> 
+     *    }  <br/>
+     *    <br/>
+     * @async
+     * @return {Promise<ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     * @category async
+     */
+    getCalendarState() {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.getCalendarState().then((calendarInfo : any) => {
+                that._logger.log("info", LOG_ID + "(getCalendarState) calendarInfo : ", calendarInfo);
+                //let presenceCalendar = new PresenceCalendar();
+                resolve(calendarInfo);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(getCalendarState) error");
+                that._logger.log("internalerror", LOG_ID + "(getCalendarState) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to get calendar presence.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method getCalendarStates
+     * @instance
+     * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
+     * @description
+     *    Allow to get the calendar presence of severals users <br/>
+     *    return promise with {  
+     *    usersIdentifier : { // List of calendar user states. <br/>
+     *    busy: boolean, // Does the connected user is busy ? <br/>
+     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/> 
+     *    subject: string, // The meeting subject. <br/>
+     *    since: string, // The meeting since date. <br/>
+     *    until: string // Date until the current presence is valid <br/> 
+     *    }  <br/>
+     *    <br/>
+     * @async
+     * @return {Promise<ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     * @category async
+     */
+    getCalendarStates(users : Array<string> = [undefined]) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.getCalendarStates(users).then((calendarInfo : any) => {
+                that._logger.log("info", LOG_ID + "(getCalendarStates) calendarInfo : ", calendarInfo);
+                resolve(calendarInfo);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(getCalendarStates) error");
+                that._logger.log("internalerror", LOG_ID + "(getCalendarStates) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to get calendar presence.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method setCalendarRegister
+     * @instance
+     * @param {string} type Calendar type. Default : office365, Authorized values : office365, google
+     * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page. Default : false.
+     * @param {string} callback Redirect URL to the requesting client.
+     * @description
+     *    Register a new calendar.<br/>
+     *    return promise with {  
+     *    "url" : string // Calendar provider's OAuth URL <br/>
+     *    } <br/>
+     * @async
+     * @return {Promise<ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     * @category async
+     */
+    setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.setCalendarRegister(type,  redirect, callbackUrl).then((calendarInfo : any) => {
+                that._logger.log("info", LOG_ID + "(setCalendarRegister) calendarInfo : ", calendarInfo);
+                resolve(calendarInfo);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(setCalendarRegister) error");
+                that._logger.log("internalerror", LOG_ID + "(setCalendarRegister) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to set calendar register.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getCalendarAutomaticReplyStatus
+     * @instance
+     * @param {string} userId The id of user to retrieve the calendar automatic reply status.
+     * @description
+     *    Allow to retrieve the calendar automatic reply status <br/>
+     *    return promise with { <br/>
+     *    enabled : string, // 	its status <br/>
+     *    start : string, // its start date <br/>
+     *    end : string, // its end date <br/>
+     *    message_text : string, // its message as plain text <br/>
+     *    message_thtml : string, // its message as html <br/> 
+     *    }  <br/>
+     *    <br/>
+     * @async
+     * @return {Promise<ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     * @category async
+     */
+    getCalendarAutomaticReplyStatus(userId? : string ) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.getCalendarAutomaticReplyStatus(userId).then((automaticReplyStatus : any) => {
+                that._logger.log("info", LOG_ID + "(getCalendarAutomaticReplyStatus) automaticReplyStatus : ", automaticReplyStatus);
+                resolve(automaticReplyStatus);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(getCalendarAutomaticReplyStatus) error");
+                that._logger.log("internalerror", LOG_ID + "(getCalendarAutomaticReplyStatus) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to get calendar presence.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method enableCalendar
+     * @instance
+     * @description
+     *    Allow to enable the calendar. <br/>
+     *    return promise with { <br/>
+     *       Status : string // Operation status ("enabled" or "disabled") <br/>
+     *    }  <br/>
+     *    <br/>
+     * @async
+     * @return {Promise<ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     * @category async
+     */
+    enableCalendar( ) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.enableOrNotCalendar(false).then((result : any) => {
+                that._logger.log("info", LOG_ID + "(enableCalendar) result : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(enableCalendar) error");
+                that._logger.log("internalerror", LOG_ID + "(enableCalendar) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to enable calendar.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method disableCalendar
+     * @instance
+     * @description
+     *    Allow to disable the calendar. <br/>
+     *    return promise with { <br/>
+     *       Status : string // Operation status ("enabled" or "disabled") <br/>
+     *    }  <br/>
+     *    <br/>
+     * @async
+     * @return {Promise<ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     * @category async
+     */
+    disableCalendar( ) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.enableOrNotCalendar(true).then((result : any) => {
+                that._logger.log("info", LOG_ID + "(disableCalendar) result : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(disableCalendar) error");
+                that._logger.log("internalerror", LOG_ID + "(disableCalendar) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to disable calendar.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+    
+    // endregion
 }
 
 module.exports.PresenceService = PresenceService;

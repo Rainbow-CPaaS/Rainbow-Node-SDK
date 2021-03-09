@@ -21,6 +21,7 @@ class Call
 class Bubble
 class Events
 class NodeSDK
+class SDK
 class Telephony
 class s2s
 class PresenceService
@@ -284,6 +285,7 @@ InvitationsService : Object : acceptInvitation(Invitation)
 InvitationsService : Object : declineInvitation(Invitation)
 PresenceService : Promise.ErrorManager : setPresenceTo(String)
 PresenceService : void : getUserConnectedPresence()
+PresenceService : Promise.ErrorManager : getCalendarState()
 s2s : Promise.Object, ErrorManager : listConnectionsS2S()
 s2s : Promise.Object, ErrorManager : checkS2Sconnection()
 s2s : Promise.Object, ErrorManager : deleteAllConnectionsS2S()
@@ -318,7 +320,7 @@ Telephony : Promise : logon(String, String, String, String)
 Telephony : Promise : logoff(String, String, String, String)
 Telephony : Promise : withdrawal(String, String, String)
 Telephony : Promise : wrapup(String, String, String, String)
-NodeSDK : void : constructor(Object)
+SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, Object)
 NodeSDK : void : start(String)
 NodeSDK : void : stop()
 NodeSDK : Object : im
@@ -340,9 +342,11 @@ NodeSDK : Object : calllog
 NodeSDK : Object : favorites
 NodeSDK : Object : invitations
 NodeSDK : Object : s2s
-NodeSDK : Object : alerts
+NodeSDK [1] --> [1] AlertsService
+NodeSDK : AlertsService : alerts
 NodeSDK : Object : DataStoreType
-NodeSDK : Promise.{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number} : getConnectionStatus()
+SDK : Promise.{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number} : getConnectionStatus()
+SDK : Appreciation : Appreciation()
 Events ::event : rainbow_onmessageserverreceiptreceived
 Events ::event : rainbow_onmessagereceiptreceived
 Events ::event : rainbow_onmessagereceiptreadreceived
@@ -424,6 +428,7 @@ Bubble : string : topic
 Bubble : string : jid
 Bubble : string : creator
 Bubble : string : history
+Bubble : Contact[] : users
 Bubble : string[] : organizers
 Bubble : string[] : members
 Bubble : string : creationDate
@@ -575,6 +580,10 @@ Invitation : string : type
 Invitation : string : defaultAvatar
 Invitation : boolean : inviteToJoinMeeting
 Message : string : id
+Message : string : answeredMsg
+Message : string : answeredMsgId
+Message : string : answeredMsgDate
+Message : string : answeredMsgStamp
 Message : string : fromJid
 Message : Side : side
 Message : string : resource
@@ -594,7 +603,25 @@ Message : string : subject
 Message : Object : oob
 Message : string : fromBubbleJid
 Message : string : fromBubbleUserJid
-Message : object : serverAckTimer
+Message : geoloc : geoloc
+Message : object : attention
+Message : any[] : mentions
+Message : any : voiceMessage
+Message : string : urgency
+Message : any[] : historyIndex
+Message : string : attachedMsgId
+Message : string : attachIndex
+Message : string : attachNumber
+Message : string : eventJid
+Message [1] --> [1] Message
+Message : Message : originalMessageReplaced
+Message : string : confOwnerId
+Message : string : confOwnerDisplayName
+Message : string : confOwnerJid
+Message [1] --> [1] Conversation
+Message : Conversation : conversation
+Message : boolean : isForwarded
+Message : any : forwardedMsg
 Message : number : Type
 Message : number : ReceiptStatus
 Message : string : Side

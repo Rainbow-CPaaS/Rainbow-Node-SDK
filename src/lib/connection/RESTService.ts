@@ -5181,6 +5181,119 @@ Request Method: PUT
     }
 
     //endregion
+    
+    //region calendar
+
+    getCalendarState() {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getReportDetails) REST params : ", params);
+
+            that.http.get("/api/rainbow/calendar/v1.0", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCalendarState) successfull");
+                that.logger.log("internal", LOG_ID + "(getCalendarState) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCalendarState) error");
+                that.logger.log("internalerror", LOG_ID, "(getCalendarState) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCalendarStates(users : Array<string> = [undefined]) {
+        // /api/rainbow/calendar/v1.0/states
+        let that = this;
+        
+        let params = {
+            users
+        };
+        
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/calendar/v1.0/states", that.getRequestHeader(), params, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getCalendarStates) successfull");
+                that.logger.log("internal", LOG_ID + "(getCalendarStates) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCalendarStates) error");
+                that.logger.log("internalerror", LOG_ID, "(getCalendarStates) error", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
+        // /api/rainbow/calendar/v1.0/register
+        let that = this;
+        
+        let params = {
+            type,
+            redirect,
+            callback : callbackUrl
+        };
+        
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/calendar/v1.0/register", that.getRequestHeader(), params, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(setCalendarRegister) successfull");
+                that.logger.log("internal", LOG_ID + "(setCalendarRegister) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(setCalendarRegister) error");
+                that.logger.log("internalerror", LOG_ID, "(setCalendarRegister) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCalendarAutomaticReplyStatus(userid?: string) {
+        // /api/rainbow/calendar/v1.0/automatic_reply
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/calendar/v1.0/automatic_reply";
+            if (userid ) {
+                url += "?userid =" + userid;
+            } 
+            
+            that.logger.log("internal", LOG_ID + "(getReportDetails) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCalendarAutomaticReplyStatus) successfull");
+                that.logger.log("internal", LOG_ID + "(getCalendarAutomaticReplyStatus) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCalendarAutomaticReplyStatus) error");
+                that.logger.log("internalerror", LOG_ID, "(getCalendarAutomaticReplyStatus) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    enableOrNotCalendar(disable : boolean) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {
+                disable 
+            };
+
+            that.logger.log("internal", LOG_ID + "(enableOrNotCalendar) REST params : ", params);
+
+            that.http.patch("/api/rainbow/calendar/v1.0", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(enableOrNotCalendar) successfull");
+                that.logger.log("internal", LOG_ID + "(enableOrNotCalendar) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(enableOrNotCalendar) error");
+                that.logger.log("internalerror", LOG_ID, "(enableOrNotCalendar) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion
 }
 
 export {RESTService, MEDIATYPE, GuestParams};
