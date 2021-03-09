@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.85.0-dotnet.0] - 2021-02-XX
+## [1.85.0-dotnet.0] - 2021-03-09
 -   Fix ContactsService::getRosters api to not reset the contacts cache, but to update contacts from data received from server.
 -   Update events `rainbow_onpresencechanged` and `rainbow_oncontactpresencechanged`  with new properties `until` and `delay`.
 -   Add `until` propertie in the presence event of contacts to give the validity date of the calendar presence.
