@@ -238,7 +238,8 @@ class ProfilesService {
                 .catch(function (error) {
                     that._logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
                     that._logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
-                    return reject(error);
+                    resolve(undefined);
+                    //return reject(error);
                 });
         });
     }

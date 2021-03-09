@@ -271,29 +271,35 @@ rainbowSDK.events.onLog("debug", (log) => {
 });
 rainbowSDK.events.on("rainbow_onready", () => {
     // do something when the SDK is ready to be used
-    logger.log("debug", "MAIN - rainbow_onready - rainbow onready");
-    /*let list = rainbowSDK.contacts.getAll();
+    logger.log("debug", "MAIN - (rainbow_onready) - rainbow onready");
+    /*let contacts = rainbowSDK.contacts.getAll().filter(contact => contact.roster);
+    console.log("Contacts : ",contacts.length);
+    contacts.forEach(contact => {
+        console.log(contact.displayName, " - ",contact.presence, " - ",contact.id);
+    }) // */
+    
+    let list = rainbowSDK.contacts.getAll().filter(contact => contact.roster);
     if (list) {
         list.forEach((contact) => {
-            logger.log("debug", "MAIN - rainbow_onready [start    " + countStop + "] :: getAll contact : ", contact);
+            logger.log("debug", "MAIN - (rainbow_onready) contact.displayName : ",contact.displayName, " - ", contact.presence, " - ", contact.id, " - ", contact.loginEmail);
         });
     } else {
-        logger.log("debug", "MAIN - rainbow_onready [start    " + countStop + "] :: contacts list empty");
+        logger.log("debug", "MAIN - (rainbow_onready) [start    " + countStop + "] :: contacts list empty");
     }
  // */
     //rainbowSDK.stop();
 });
 rainbowSDK.events.on("rainbow_onstarted", () => {
     // do something when the SDK has been started
-    logger.log("debug", "MAIN - rainbow_onstarted - rainbow onstarted");
+    logger.log("debug", "MAIN - (rainbow_onstarted) - rainbow onstarted");
 });
 rainbowSDK.events.on("rainbow_oncallupdated", (data) => {
     try {
         if (data.contact) {
-            logger.log("debug", "MAIN - rainbow_oncallupdated - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", displayName : " + data.contact.displayName, data);
+            logger.log("debug", "MAIN - (rainbow_oncallupdated) - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", displayName : " + data.contact.displayName, data);
         }
         else {
-            logger.log("debug", "MAIN - rainbow_oncallupdated - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", ", data);
+            logger.log("debug", "MAIN - (rainbow_oncallupdated) - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", ", data);
         }
     }
     catch (err) {
@@ -301,12 +307,12 @@ rainbowSDK.events.on("rainbow_oncallupdated", (data) => {
     saveCall(data);
 });
 rainbowSDK.events.on("rainbow_onvoicemessageupdated", (data) => {
-    logger.log("debug", "MAIN - rainbow_onvoicemessageupdated - rainbow voice message updated.", data);
+    logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
 });
 
 let bubbleInvitationReceived = null;
 rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", (bubble) => {
-    logger.log("debug", "MAIN - rainbow_onbubbleinvitationreceived - rainbow event received.", bubble);
+    logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
     bubbleInvitationReceived = bubble;
 });
 
@@ -323,25 +329,25 @@ function acceptReceivedInvitation() {
 }
 
 rainbowSDK.events.on("rainbow_onownbubbledeleted", (bubble) => {
-    logger.log("debug", "MAIN - rainbow_onownbubbledeleted - rainbow event received.", bubble);
+    logger.log("debug", "MAIN - (rainbow_onownbubbledeleted) - rainbow event received.", bubble);
     let bubbles = rainbowSDK.bubbles.getAll();
-    logger.log("debug", "MAIN - rainbow_onownbubbledeleted - bubbles.", bubbles);
+    logger.log("debug", "MAIN - (rainbow_onownbubbledeleted) - bubbles.", bubbles);
 });
 rainbowSDK.events.on("rainbow_onmessagereceiptreceived", (data) => {
-    logger.log("debug", "MAIN - rainbow_onmessagereceiptreceived - rainbow event received.", data);
+    logger.log("debug", "MAIN - (rainbow_onmessagereceiptreceived) - rainbow event received.", data);
 });
 rainbowSDK.events.on("rainbow_onchannelmessagereceived", (data) => {
-    logger.log("debug", "MAIN - rainbow_onchannelmessagereceived - rainbow event received.", data);
+    logger.log("debug", "MAIN - (rainbow_onchannelmessagereceived) - rainbow event received.", data);
 });
 rainbowSDK.events.on("rainbow_onchannelcreated", (data) => {
-    logger.log("debug", "MAIN - rainbow_onchannelcreated - rainbow event received.", data);
+    logger.log("debug", "MAIN - (rainbow_onchannelcreated) - rainbow event received.", data);
     /*rainbowSDK.channels.deleteChannel(data).then((result2) => {
         logger.log("debug", "MAIN - testcreateChannel deleteChannel result : ", JSON.stringify(result2)); //logger.colors.green(JSON.stringify(result)));
 
     }); */
     rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net").then((vincent01) => {
         let tab = [vincent01];
-        logger.log("debug", "MAIN - rainbow_onchannelcreated rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
+        logger.log("debug", "MAIN - (rainbow_onchannelcreated) rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
         rainbowSDK.channels.addMembersToChannel(data, tab).then((chnl) => {
             logger.log("debug", "MAIN - rainbow_onchannelcreated - addMembersToChannel rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
             logger.log("debug", "MAIN - rainbow_onchannelcreated addMembersToChannel result : ", chnl);
@@ -349,40 +355,40 @@ rainbowSDK.events.on("rainbow_onchannelcreated", (data) => {
     });
 });
 rainbowSDK.events.on("rainbow_onchanneldeleted", (data) => {
-    logger.log("debug", "MAIN - rainbow_onchanneldeleted - rainbow event received.", data);
+    logger.log("debug", "MAIN - (rainbow_onchanneldeleted) - rainbow event received.", data);
 });
 rainbowSDK.events.on("rainbow_onuseraddedingroup", (group, contact) => {
-    logger.log("debug", "MAIN - rainbow_onuseraddedingroup - rainbow event received. group", group);
-    logger.log("debug", "MAIN - rainbow_onuseraddedingroup - rainbow event received. contact", contact);
+    logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. group", group);
+    logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. contact", contact);
 });
 rainbowSDK.events.on("rainbow_oncalllogupdated", (calllogs) => {
-    logger.log("debug", "MAIN - rainbow_oncalllogupdated - rainbow event received. ");
+    logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - rainbow event received. ");
     mycalllogs = calllogs;
     if (calllogs) {
         if (calllogs.callLogs) {
-            logger.log("debug", "MAIN - rainbow_oncalllogupdated - calllogs.callLogs.length : ", calllogs.callLogs.length);
+            logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - calllogs.callLogs.length : ", calllogs.callLogs.length);
             calllogs.orderByDateCallLogs.forEach((callL) => {
-                logger.log("debug", "MAIN - rainbow_oncalllogupdated - one call logged in calllogs.orderByDateCallLogs : ", ", id : ", callL.id, ", date : ", callL.date);
+                logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - one call logged in calllogs.orderByDateCallLogs : ", ", id : ", callL.id, ", date : ", callL.date);
             });
             // */
         }
     }
     else {
-        logger.log("error", "MAIN - rainbow_oncalllogupdated - rainbow event received. empty calllogs", calllogs);
+        logger.log("error", "MAIN - (rainbow_oncalllogupdated) - rainbow event received. empty calllogs", calllogs);
     }
 });
 rainbowSDK.events.on("rainbow_oncalllogackupdated", (calllogs) => {
-    logger.log("debug", "MAIN - rainbow_oncalllogackupdated - rainbow event received. ");
+    logger.log("debug", "MAIN - (rainbow_oncalllogackupdated) - rainbow event received. ");
     if (calllogs) {
         if (calllogs.callLogs) {
-            logger.log("debug", "MAIN - rainbow_oncalllogackupdated - rainbow event received. calllogs.callLogs.length", calllogs.callLogs.length);
+            logger.log("debug", "MAIN - (rainbow_oncalllogackupdated) - rainbow event received. calllogs.callLogs.length", calllogs.callLogs.length);
         }
     }
     mycalllogs = calllogs;
 });
 // Later in the code
 rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
-    logger.log("debug", "MAIN - rainbow_onmessagereceived - rainbow event received. message", message);
+    logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
     // send manually a 'read' receipt to the sender
     //rainbowSDK.im.markMessageAsRead(message);
     let that = this;
@@ -402,7 +408,7 @@ rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
     } // */
 });
 rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
-    logger.log("debug", "MAIN - rainbow_onmessageserverreceiptreceived - rainbow event received. data", data);
+    logger.log("debug", "MAIN - (rainbow_onmessageserverreceiptreceived) - rainbow event received. data", data);
     /*rainbowSDK.conversations.getConversations().then(() => {
        sdfsdf
     }); // */
@@ -410,29 +416,29 @@ rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
     // rainbowSDK.im.markMessageAsRead(data);
 });
 rainbowSDK.events.on("rainbow_onuserinvitereceived", (data) => __awaiter(void 0, void 0, void 0, function* () {
-    logger.log("debug", "MAIN - rainbow_onuserinvitereceived - rainbow event received. data", data);
+    logger.log("debug", "MAIN - (rainbow_onuserinvitereceived) - rainbow event received. data", data);
     let acceptInvitationResult = yield rainbowSDK.contacts.acceptInvitation(data);
     logger.log("debug", "Main - rainbow_onuserinvitereceived, acceptInvitation - result : ", acceptInvitationResult);
 }));
 rainbowSDK.events.on("rainbow_onfileupdated", (data) => {
-    logger.log("debug", "MAIN - rainbow_onfileupdated - rainbow event received. data", data);
+    logger.log("debug", "MAIN - (rainbow_onfileupdated) - rainbow event received. data", data);
     let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
-    logger.log("debug", "Main - rainbow_onfileupdated, getFileDescriptorFromId - result : ", fileDescriptorsReceived);
+    logger.log("debug", "Main - (rainbow_onfileupdated), getFileDescriptorFromId - result : ", fileDescriptorsReceived);
     rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceivedOwned) => {
-        logger.log("debug", "Main - rainbow_onfileupdated, retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceivedOwned);
+        logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceivedOwned);
         for (let fileReceived of fileDescriptorsReceivedOwned) {
-            logger.log("debug", "Main - rainbow_onfileupdated - file - ", fileReceived);
+            logger.log("debug", "Main - (rainbow_onfileupdated) - file - ", fileReceived);
         }
     });
 });
 rainbowSDK.events.on("rainbow_onfilecreated", (data) => {
-    logger.log("debug", "MAIN - rainbow_onfilecreated - rainbow event received. data", data);
+    logger.log("debug", "MAIN - (rainbow_onfilecreated) - rainbow event received. data", data);
     let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
-    logger.log("debug", "Main - rainbow_onfilecreated, getFileDescriptorFromId - result : ", fileDescriptorsReceived);
+    logger.log("debug", "Main - (rainbow_onfilecreated), getFileDescriptorFromId - result : ", fileDescriptorsReceived);
 });
 let countStop = 0;
 rainbowSDK.events.on("rainbow_onerror", (data) => {
-    logger.log("debug", "MAIN - rainbow_onerror  - rainbow event received. data", data, " destroy and recreate the SDK.");
+    logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
     until(()=>{ return stopped == true ; },"Waiting for the stop event after the rainbow_onerror event.",10000).then(()=>{
         rainbowSDK = undefined;
         stopped = false;
@@ -464,9 +470,9 @@ let stopped = false;
 rainbowSDK.events.on("rainbow_onstopped", (data) => {
     countStop++;
     stopped = true;
-    logger.log("debug", "MAIN - rainbow_onstopped " + countStop + " - rainbow event received. data", data);
+    logger.log("debug", "MAIN - (rainbow_onstopped) " + countStop + " - rainbow event received. data", data);
     //setTimeout(() => {
-    logger.log("debug", "MAIN - rainbow_onstopped rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
+    logger.log("debug", "MAIN - (rainbow_onstopped) rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
     //rainbowSDK.start();
     //        rainbowSDK.start().then(()=>{
     /*logger.log("debug", "MAIN - rainbow_onstopped rainbow SDK started " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
@@ -1285,7 +1291,7 @@ function testCreateBubbles() {
 
                     rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {
                         // do something when the SDK has been started
-                        logger.log("debug", "MAIN - rainbow_onbubbleaffiliationchanged - affiliationchanged : ");
+                        logger.log("debug", "MAIN - (rainbow_onbubbleaffiliationchanged) - affiliationchanged : ");
                         if (bubbleAffiliated && bubbleAffiliated.users.filter((user) => {
                             let res = false;
                             if (user.userId === contact.id && user.status === "accepted") {
@@ -1688,13 +1694,23 @@ function testupdateContactInfos() {
 //This is the event handler to detect change of a contact's presence and output in console contact name and new status
 rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
     //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-    logger.log("debug", "MAIN - Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
+    if(contact.presence != "Unknown"){
+        return false;
+    }
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ",contact.displayName,"(",contact.jid,")", " - ",contact.presence);
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ",contact.displayName);
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ",contact.presence);
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status",contact.status);
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ",contact.resources);
+    logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
     //getLastMessageOfConversation(contact);
 });
 
 rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
     //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-    logger.log("debug", "MAIN - Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence);
+    logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence);
     //getLastMessageOfConversation(contact);
 });
 
@@ -2768,6 +2784,54 @@ async function testcreateAlert() {
 
 //endregion Alerts
 
+//region Calendar
+    
+    async function testgetCalendarState() {
+        // To use with vincent.berder on Official
+        let result = await rainbowSDK.presence.getCalendarState();
+        logger.log("debug", "MAIN - testgetCalendarState - result : ", result);
+    }
+
+    async function testgetCalendarStates() {
+        // To use with vincent.berder on Official
+        let contacts = rainbowSDK.contacts.getAll();
+        logger.log("debug", "MAIN - testgetCalendarState - contacts : ", contacts);
+        let contactsIdentifier = contacts.map(elt => elt.loginEmail ) ;
+        //let contactsIdentifier = contacts.map(elt => elt.id ) ;
+        logger.log("debug", "MAIN - testgetCalendarState - contactsIdentifier : ", contactsIdentifier);
+        /*let usersIds = [];
+        usersIds.push(contactsIdentifier[0]);
+        usersIds.push(contactsIdentifier[1]);
+        usersIds.push(contactsIdentifier[2]); 
+        let result = await rainbowSDK.presence.getCalendarStates(usersIds);
+        // */
+        let result = await rainbowSDK.presence.getCalendarStates(contactsIdentifier);
+        logger.log("debug", "MAIN - testgetCalendarStates - result : ", result);
+    }
+
+    async function testgetCalendarAutomaticReplyStatus() {
+        // To use with vincent.berder on Official
+        let result = await rainbowSDK.presence.getCalendarAutomaticReplyStatus();
+        logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - result : ", result);
+
+        let contacts = rainbowSDK.contacts.getAll();
+        logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contacts : ", contacts);
+
+        let result2 = await rainbowSDK.presence.getCalendarAutomaticReplyStatus(contacts[0].id);
+        logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contact : ", contacts[0], ", result2 : ", result2);
+    }
+    
+     async function testenableDisableCalendar() {
+        // To use with vincent.berder on Official
+        let result = await rainbowSDK.presence.disableCalendar();
+        logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
+
+        let result2 = await rainbowSDK.presence.enableCalendar();
+        logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
+    }
+    
+//endregion    
+    
 function commandLineInteraction() {
     let questions = [
         {

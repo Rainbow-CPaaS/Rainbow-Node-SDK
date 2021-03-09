@@ -65,6 +65,8 @@ class PresenceEventHandler extends GenericHandler {
                     }
                 }
                 let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
+                let until = stanza.getChild("until") ? stanza.getChild("until").text() : "";
+                let delay = stanza.attrs.stamp ? stanza.attrs.stamp : "";
 
                 let isContactInformationChanged = false;
                 let children = stanza.children;
@@ -94,7 +96,14 @@ class PresenceEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_oncontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                 }
                 //let contact: Contact = await that._contacts.getContactByJid(from, false);
-
+                let typeResource =  xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
+                        "phone" :
+                        xmppUtils.isFromMobile(from) ?
+                                "mobile" :
+                                xmppUtils.isFromNode(from) ?
+                                        "node" :
+                                        "desktopOrWeb"
+                
                 that.eventEmitter.emit("evt_internal_presencechanged", {
                     "fulljid": from,
                     "jid": xmppUtils.getBareJIDFromFullJID(from),
@@ -105,14 +114,9 @@ class PresenceEventHandler extends GenericHandler {
                     value: {
                         "show": show,
                         "status": status,
-
-                        "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
-                            "phone" :
-                            xmppUtils.isFromMobile(from) ?
-                                "mobile" :
-                                xmppUtils.isFromNode(from) ?
-                                    "node" :
-                                    "desktopOrWeb"
+                        delay,
+                        until, // The validity date of the calendar presence.
+                        "type": typeResource
                     }
                 });
             } else if (from.includes("room_")) {
@@ -204,6 +208,7 @@ class PresenceEventHandler extends GenericHandler {
                 let show = "";
                 let delay = "";
                 let status = "";
+                let until = "";
                 if (stanza.attrs.type === "unavailable") {
                     show = PresenceShow.Offline; //"unavailable";
                 } else {
@@ -216,6 +221,9 @@ class PresenceEventHandler extends GenericHandler {
                                     break;
                                 case "show":
                                     show = node.getText() || "online";
+                                    break;
+                                case "until":
+                                    until = node.getText() || "";
                                     break;
                                 case "delay":
                                     delay = node.attrs.stamp || "";
@@ -240,24 +248,26 @@ class PresenceEventHandler extends GenericHandler {
                     });
                 }
 
+                let typeResource =  xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
+                        "phone" :
+                        xmppUtils.isFromMobile(from) ?
+                                "mobile" :
+                                xmppUtils.isFromNode(from) ?
+                                        "node" :
+                                        "desktopOrWeb"
                 let evtParam = {
                     fulljid: from,
                     jid: xmppUtils.getBareJIDFromFullJID(from),
                     resource: xmppUtils.getResourceFromFullJID(from),
                     value: {
-                        priority: priority,
+                        priority,
                         //show: show || "",
-                        delay: delay,
+                        delay,
                         //status: status || "",
-                        show: show,
-                        status: status,
-                        "type": xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
-                            "phone" :
-                            xmppUtils.isFromMobile(from) ?
-                                "mobile" :
-                                xmppUtils.isFromNode(from) ?
-                                    "node" :
-                                    "desktopOrWeb"
+                        until, // The validity date of the calendar presence. 
+                        show,
+                        status,
+                        "type":typeResource
                     }
                 };
                 that.eventEmitter.emit("evt_internal_onrosterpresence", evtParam);

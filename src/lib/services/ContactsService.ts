@@ -246,7 +246,7 @@ class Contacts {
                             });
 
                             let contact = null;
-                            that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+                            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
 
                             if (contactIndex!== -1) {
                                 contact = that._contacts[contactIndex];
@@ -1335,7 +1335,11 @@ class Contacts {
                             auto_away = true;
                         } else if (resource.show==="unavailable" || resource.show===PresenceShow.Offline) {
                             is_offline = true;
-                        }
+                        } /*else if (resource.type!=="calendar") {
+                            if (resource.show = "chat") { 
+                                
+                            } 
+                        } // */
                     } else {
                         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource.type === \"phone\" : ", resource.type);
                         if ((resource.status==="EVT_SERVICE_INITIATED" || resource.status==="EVT_ESTABLISHED") && resource.show===PresenceShow.Chat) {
@@ -1429,7 +1433,7 @@ class Contacts {
                     /*contact.presence = "unknown";
                     contact.status = "";
                     // */
-                    newPresenceRainbow.presenceLevel = PresenceLevel.Unknown
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Offline
                     newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString
                 }
 

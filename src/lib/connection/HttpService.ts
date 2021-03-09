@@ -724,6 +724,128 @@ safeJsonParse(str) {
         });
     }
 
+    patch(url, headers: any = {}, data, type): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._patch.bind(this);
+        req.params = arguments;
+        req.label = "patch url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _patch(url, headers: any = {}, data, type): Promise<any> {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = that.serverURL + url;
+
+            headers["user-agent"] = USER_AGENT;
+            that.logger.log("internal", LOG_ID + "(patch) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
+
+            let body = data;
+            if (type) {
+                //request.type(type);
+                headers["Content-Type"] = type;
+            } else {
+                //request.type("json");
+                if (!headers["Content-Type"]) {
+                    headers["Content-Type"] = "application/json";
+                    body = JSON.stringify(data);
+                }
+            } // */
+            Request({
+                method: 'PATCH',
+                preambleCRLF: true,
+                postambleCRLF: true,
+                url: urlEncoded,
+                headers: headers,
+                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                agentOptions: {
+                    secureProtocol: that.proxy.secureProtocol
+                },
+                body: body
+            }, (error, response, body) => {
+                if (error) {
+                    that.logger.log("internalerror", LOG_ID + "(patch) patch failed:", error, ', url : ', urlEncoded);
+                    return reject("patch failed");
+                } else {
+                    if (response) {
+                        if (response.statusCode) {
+                            that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
+                            if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                    let json = {};
+                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
+                                        json = JSON.parse(response.body);
+                                        resolve(json);
+                                    } else {
+                                        resolve(response.body);
+                                    }
+                                } else {
+                                    return reject({
+                                        code: -1,
+                                        url: urlEncoded,
+                                        msg: "Bad content, please check your host",
+                                        details: ""
+                                    });
+                                }
+                            } else {
+                                let bodyjs: any = {};
+                                if (that.hasJsonStructure(response.body)) {
+                                    bodyjs = JSON.parse(response.body);
+                                } else {
+                                    bodyjs.errorMsg = response.body;
+                                }
+                                that.logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
+                                that.logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
+                                let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
+                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
+
+                                that.tokenExpirationControl(bodyjs);
+                                return reject({
+                                    code: response.statusCode,
+                                    url: urlEncoded,
+                                    msg: msg,
+                                    details: errorMsgDetail,
+                                    error: bodyjs
+                                });
+                            }
+                        } else {
+                            if (response.error && response.error.reason) {
+                                that.logger.log("error", LOG_ID + "(patch) HTTP security issue", response.error.reason);
+                                return reject({
+                                    code: -1,
+                                    url: urlEncoded,
+                                    msg: response.error.reason,
+                                    details: ""
+                                });
+                            } else {
+                                that.logger.warn("warn", LOG_ID + "(patch) HTTP other issue ");
+                                that.logger.warn("internalerror", LOG_ID + "(patch) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                that.logger.log("internal", LOG_ID + "(patch) HTTP other issue", response);
+                                return reject({
+                                    code: -1,
+                                    url: urlEncoded,
+                                    msg: "Unknown error",
+                                    details: response
+                                });
+                            }
+                        }
+                    } else {
+                        return reject({
+                            code: -1,
+                            url: urlEncoded,
+                            msg: "ErrorManager while requesting",
+                            details: "error"
+                        });
+                    }
+                }
+            });
+        });
+    }
+
     put(url, headers: any = {}, data, type): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
