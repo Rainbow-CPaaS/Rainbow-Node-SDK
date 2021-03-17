@@ -1,7 +1,7 @@
 'use strict';
-import {DataStoreType} from "../../config/config";
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
+import {DataStoreType} from "../../config/config";
 
 export {};
 
@@ -208,7 +208,7 @@ class XmppClient  {
                     //that.logger.log("debug", LOG_ID + "(send) this.client.websocket : ", this.client.Socket);
 
                     if (that.socketClosed) {
-                        that.logger.log("debug", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                        that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
                         return Promise.reject("Error the socket is close, so do not send data on it.")
                     }
 
@@ -248,6 +248,7 @@ class XmppClient  {
                             "label": "error number of sent messages is over the rate limit.",
                             "sendArgs": args
                         };
+                        that.logger.log("error", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
                         that.logger.log("internalerror", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
                         return reject2(error);
                     }
@@ -256,7 +257,7 @@ class XmppClient  {
                         that.nbMessagesSentThisHour++;
                         resolve2({"code": 1, "label":"OK"});
                     }).catch(async (err) => {
-                        that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
+                        that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
                         //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                         return reject2(err);
                         /*
@@ -292,7 +293,7 @@ class XmppClient  {
             that.logger.log("debug", LOG_ID + "(send) _exiting_ return promise");
             return promiseToreturn;
         }).catch(async(err) => {
-            that.logger.log("debug", LOG_ID + "(send) catch an error during sending! ", err);
+            that.logger.log("error", LOG_ID + "(send) catch an error during sending! ", err);
 
             // if the error is the exceed of maximum message by a time laps then do not reconnecte
             if (err && err.errorCode === -1 ) {
@@ -305,7 +306,7 @@ class XmppClient  {
             await that.restartConnect().then((res) => {
                 that.logger.log("debug", LOG_ID + "(send) restartConnect result : ", res);
             }).catch((errr) => {
-                that.logger.log("debug", LOG_ID + "(send) restartConnect catch : ", errr);
+                that.logger.log("error", LOG_ID + "(send) restartConnect catch : ", errr);
             });
             /*
             .then(() => {
@@ -324,7 +325,7 @@ class XmppClient  {
     sendIq(...args){
         let that = this;
         that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (args.length > 0) {
                 let prom = this.xmppQueue.addPromise(this.client.send(...args).catch((err) => {
                     that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at super.send", err);
@@ -337,7 +338,7 @@ class XmppClient  {
                     // Wait a few time between requests to avoid burst with lot of it.
                     setTimeout(() => {
                         //that.logger.log("debug", LOG_ID + "(send) setTimeout resolve");
-                        resolve(prom.then(() => { return result;})) ;
+                        resolve(prom.then(() => { return result;}).catch(() => { reject( result);})) ;
                     }, that.timeBetweenXmppRequests);
                 }
 

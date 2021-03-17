@@ -23,8 +23,6 @@ import {Conference} from "../common/models/Conference";
 import {BubblesManager} from "../common/BubblesManager";
 
 export {};
-const Jimp = require('jimp');
-//import Jimp from "jimp";
 
 const LOG_ID = "BUBBLES/SVCE - ";
 
@@ -51,8 +49,8 @@ class Bubbles {
     private _xmpp: XMPPService;
     private _rest: RESTService;
     private _bubbles: Bubble[];
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
+    private readonly _eventEmitter: EventEmitter;
+    private readonly _logger: Logger;
     public ready: boolean;
     private readonly _startConfig: {
         start_up: boolean,
@@ -75,9 +73,9 @@ class Bubbles {
     private _linkConferenceAndBubble: IDictionary<string, string> = new Dictionary(); // <Conference Id, Bubble Id>
     private _webrtcConferenceId: string;
     _webConferenceRoom: any;
-    private _protocol: string = null;
-    private _host: string = null;
-    private _port: string = null;
+    private readonly _protocol: string = null;
+    private readonly _host: string = null;
+    private readonly _port: string = null;
     private bubblesManager : BubblesManager;
 
     get startConfig(): { start_up: boolean; optional: boolean } {
@@ -87,7 +85,10 @@ class Bubbles {
     static getClassName(){ return 'Bubbles'; }
     getClassName(){ return Bubbles.getClassName(); }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig) {
+    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this.ready = false;
         this._xmpp = null;
         this._rest = null;
@@ -266,11 +267,7 @@ class Bubbles {
                 return user.status === "invited" || user.status === "accepted";
             });
 
-            if (activeUser) {
-                return false;
-            }
-
-            return true;
+            return !activeUser;            
         }
     }
 
@@ -516,7 +513,6 @@ class Bubbles {
     archiveBubble(bubble) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            let otherModerator = null;
 
             if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter");
@@ -1247,7 +1243,7 @@ class Bubbles {
         if (bubbleFoundindex != -1) {
             this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
             //this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
-            this._bubbles[bubbleFoundindex].updateBubble(bubble, that._contacts);
+            await this._bubbles[bubbleFoundindex].updateBubble(bubble, that._contacts);
             //this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
             this.refreshMemberAndOrganizerLists(this._bubbles[bubbleFoundindex]);
             //this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
@@ -1585,14 +1581,13 @@ class Bubbles {
 
         let that = this;
 
-        let pendingBubbles = this._bubbles.filter((bubble) => {
+        return this._bubbles.filter((bubble) => {
 
             let invitation = bubble.users.filter((user) => {
-                return (user.userId === that._rest.userId && user.status === "invited");
+                return (user.userId===that._rest.userId && user.status==="invited");
             });
             return invitation.length > 0;
         });
-        return pendingBubbles;
     }
 
     /**
@@ -1607,15 +1602,12 @@ class Bubbles {
     getAllActiveBubbles() {
         let that = this;
 
-        let activeBubbles = this._bubbles.filter((bubble) => {
+        return this._bubbles.filter((bubble) => {
 
-            let amIActive = bubble.users.find((user) => {
-                return (user.userId === that._rest.userId && user.status === "accepted");
+            return bubble.users.find((user) => {
+                return (user.userId===that._rest.userId && user.status==="accepted");
             });
-
-            return amIActive;
         });
-        return activeBubbles;
     }
 
     /**
@@ -1630,15 +1622,12 @@ class Bubbles {
     getAllClosedBubbles() {
         let that = this;
 
-        let closedBubbles = this._bubbles.filter((bubble) => {
+        return this._bubbles.filter((bubble) => {
 
-            let amIAway = bubble.users.find((user) => {
-                return (user.userId === that._rest.userId && user.status === "unsubscribed");
+            return bubble.users.find((user) => {
+                return (user.userId===that._rest.userId && user.status==="unsubscribed");
             });
-
-            return amIAway;
         });
-        return closedBubbles;
     }
 
     /**
@@ -2198,9 +2187,8 @@ class Bubbles {
 
             that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
         }).catch((err) => {
-            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation);
-        });
-        ;
+            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+        });        
     }
 
     /**
@@ -2235,7 +2223,7 @@ class Bubbles {
 
             that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
         }).catch((err) => {
-            that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation);
+            that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", err : ", err);
         });
     }
 
@@ -2269,7 +2257,7 @@ class Bubbles {
                             if (that._options._imOptions.autoInitialBubblePresence) {
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                                    that._presence.sendInitialBubblePresence(bubble);
+                                    await that._presence.sendInitialBubblePresence(bubble);
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -2288,7 +2276,7 @@ class Bubbles {
                         if (that._options._imOptions.autoInitialBubblePresence) {
                             if (bubble.isActive ) {
                                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                                that._presence.sendInitialBubblePresence(bubble);
+                                await that._presence.sendInitialBubblePresence(bubble);
                             } else {
                                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                             }
@@ -2520,9 +2508,9 @@ class Bubbles {
                         that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble : ", bubbleUpdated);
                         bubblesAdded.push(bubbleUpdated);
                     }).catch((err) => {
-                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", err : ", err);
                     });
-                };
+                }
             } else {
                 let bubbleId = bubblesIdAdded;
 
@@ -2538,7 +2526,7 @@ class Bubbles {
                     that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to add : ", bubbleUpdated);
                     bubblesAdded.push(bubbleUpdated);
                 }).catch((err) => {
-                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", err : ", err);
                 });
             }
         }
@@ -2560,9 +2548,9 @@ class Bubbles {
                         that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to remove : ", bubbleUpdated);
                         bubblesAdded.push(bubbleUpdated);
                     }).catch((err) => {
-                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                        that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", err : ", err);
                     });
-                };
+                }
             } else {
                 let bubbleId = bubblesIdRemoved;
                 that._bubbles.forEach((bubble : Bubble) => {
@@ -2577,7 +2565,7 @@ class Bubbles {
                     that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) container received found bubble : ", bubbleUpdated);
                     bubblesRemoved.push(bubbleUpdated);
                 }).catch((err) => {
-                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos);
+                    that._logger.log("internal", LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", : ", err);
                 });
             }
         }
@@ -2920,7 +2908,7 @@ class Bubbles {
         let openInviteId = content.openInviteId;
 
         if (openInviteId) {
-            let strPort = "";
+            let strPort: string;
             if (((that._protocol == "https") && (that._port === "443")) || ((that._protocol == "http") && (that._port === "80")))
                 strPort = "";
             else
@@ -3041,7 +3029,7 @@ getAllActiveBubbles
             }
 
             let endpoint = await that._rest.retrieveWebConferences(mediaType);
-            let confEndPoints = null;
+            let confEndPoints: Array<any>;
             confEndPoints = endpoint;
             let confEndPointId = null;
             if (confEndPoints.length === 1 && confEndPoints[0].mediaType === MEDIATYPE.WEBRTC) {
@@ -3134,7 +3122,7 @@ getAllActiveBubbles
      * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
      * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
      * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
-     * @returns {ng.IPromise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
+     * @returns {Promise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
      * @memberof ConferenceService
      */
     public retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any> {
@@ -3180,6 +3168,8 @@ getAllActiveBubbles
                     }
                 }
                 resolve(result);
+            }).catch(()=>{
+                resolve(undefined);
             });
             /*
             this.$http({
@@ -3257,7 +3247,7 @@ getAllActiveBubbles
         that._webrtcConferenceId = that.getWebRtcConfEndpointId();
         if (that._webrtcConferenceId) {
             this._rest.getRoomByConferenceEndpointId(that._webrtcConferenceId).then(async (roomData: any) => {
-                let conferenceRoom = null;
+                let conferenceRoom: any;
                 if (roomData.length) {
                     conferenceRoom = await that.getBubbleById(roomData[0].id);
                     if (conferenceRoom) {
@@ -3334,10 +3324,10 @@ getAllActiveBubbles
      */
     async conferenceStart(bubble, conferenceId: string): Promise<any> {
         let that = this;
-        let bubbleId = null;
+       /* let bubbleId = null;
         if (bubble) {
             bubbleId = bubble.id;
-        }
+        }*/
         // Cf. https://api.openrainbow.org/conference/#api-conference-Start_conference
 
         let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;
@@ -3450,10 +3440,10 @@ getAllActiveBubbles
         // Cf. https://api.openrainbow.org/conference/#api-conference-Join_conference
 
         let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;
-        let roomId = null;
+/*        let roomId = null;
         if (mediaType === MEDIATYPE.WEBRTC) {
             roomId = that.getBubbleIdByConferenceIdFromCache(conferenceId);
-        }
+        }*/
         return that._rest.conferenceJoin(conferenceId, mediaType, asModerator, muted, phoneNumber, country);
 
         /*
@@ -3502,7 +3492,7 @@ getAllActiveBubbles
     conferenceMuteOrUnmute(conferenceId: string, mute: boolean)//, Action<SdkResult<Boolean>> callback = null)
     {
         let that = this;
-        that.conferenceModeratorAction(conferenceId, mute ? "mute" : "unmute");
+        return that.conferenceModeratorAction(conferenceId, mute ? "mute" : "unmute");
     }
 
 /// <summary>
@@ -3516,7 +3506,7 @@ getAllActiveBubbles
 /// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
     conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean) {
         let that = this;
-        that.conferenceModeratorActionOnParticipant(conferenceId, participantId, mute ? "mute" : "unmute");
+        return that.conferenceModeratorActionOnParticipant(conferenceId, participantId, mute ? "mute" : "unmute");
     }
 
 /// <summary>
@@ -4468,11 +4458,9 @@ getAllActiveBubbles
      * @async
      * @description
      *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned. <br/>
-     * @param {Bubble} bubble The on which the tags must be setted.
-     * @param {string} tags The tag to be removed on the selected bubbles.
+     * @param {Array<Bubble>} bubbles The bubbles on which the tags must be deleted.
+     * @param {string} tag The tag to be removed on the selected bubbles.
      * @return {Promise<any>} return a promise with a Bubble's tags infos.
-     * @param {Array<Bubble>} bubbles
-     * @param {string} tag
      * @return {Promise<any>}
      */
     deleteTagOnABubble(bubbles : Array<Bubble>, tag: string): Promise<any> {

@@ -96,6 +96,7 @@ class HTTPService {
 
         if (that.logger.logHttp) {
             debugHttp(debugHandler);
+            Request.debug = true;
         }
 
     }

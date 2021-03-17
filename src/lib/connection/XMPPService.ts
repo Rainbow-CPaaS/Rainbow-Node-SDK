@@ -4,12 +4,12 @@ import * as util from "util";
 import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
-import {DataStoreType} from "../config/config";
 import {XMPPUTils} from "../common/XMPPUtils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 import {XmppClient} from "../common/XmppQueue/XmppClient";
 import { AlertMessage } from "../common/models/AlertMessage";
+import {DataStoreType} from "../config/config";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -220,7 +220,8 @@ class XMPPService {
         let that = this;
         return new Promise(function (resolve) {
             that.IQEventHandlerToken = [];
-            that.eventEmitter.once("xmppconnected", function fn_xmppconnected() {
+            that.eventEmitter.once("xmppconnected", function fn_xmppconnected(info) {
+                that.logger.log("info", LOG_ID + "(signin) (xmppconnected) received : ", info);
                 that.eventEmitter.removeListener("xmppconnected", fn_xmppconnected);
                 resolve(undefined);
             });

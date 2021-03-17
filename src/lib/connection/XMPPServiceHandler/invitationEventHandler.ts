@@ -23,7 +23,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class InvitationEventHandler extends GenericHandler {
+class InvitationEventHandler extends GenericHandler.GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
     public MESSAGE_WEBRTC: any;

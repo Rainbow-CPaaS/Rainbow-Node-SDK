@@ -21,7 +21,7 @@ class ProxyImpl {
         this._protocol = config.protocol;
         this._host = config.host;
         this._port = config.port;
-        this._activated = this._host.length > 0;
+        this._activated = Boolean(this._host);
 
         this._user = config.user;
         this._password = config.password;

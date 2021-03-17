@@ -47,7 +47,7 @@ function CallLogsBean() : ICallLogsBean {
 @isStarted([])
 /**
 * @module
-* @name CallsLog
+* @name CallLogService
  * @version SDKVERSION
 * @public
 * @description
@@ -105,7 +105,10 @@ function CallLogsBean() : ICallLogsBean {
     getClassName(){ return CallLogService.getClassName(); }
 
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -345,7 +348,7 @@ function CallLogsBean() : ICallLogsBean {
      * @description
      *    Delete a call log from it's id<br/>
      *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
-     * @param {String} id The call log id to remove
+     * @param {string} id The call log id to remove
      * @return Nothing
      */
     deleteOneCallLog(id) {
@@ -362,7 +365,7 @@ function CallLogsBean() : ICallLogsBean {
      * @description
      *    Delete all calls log items associated to a contact's given jid<br/>
      *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
-     * @param {String} jid The call log id to remove
+     * @param {string} jid The call log id to remove
      * @return Nothing
      */
     deleteCallLogsForContact(jid) {
@@ -395,7 +398,7 @@ function CallLogsBean() : ICallLogsBean {
      * @description
      *    Mark a call log item as read<br/>
      *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
-     * @param {String} id The call log id
+     * @param {string} id The call log id
      * @return Nothing
      */
     markCallLogAsRead(id) {

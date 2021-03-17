@@ -1,5 +1,5 @@
 "use strict";
-import {Observable, Subject, Subscriber} from "rxjs";
+import {Observable, Subscriber} from "rxjs";
 
 export {};
 
@@ -14,14 +14,13 @@ import {Deferred, logEntryExit, pause} from "../common/Utils";
 import {ErrorManager} from "../common/ErrorManager";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
-import * as streamBuffers from 'stream-buffers';
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
-import {constants} from "zlib";
+import {FileDescriptor} from "../common/models/fileDescriptor";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -64,7 +63,10 @@ class FileServer {
     static getClassName(){ return 'FileServer'; }
     getClassName(){ return FileServer.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;
@@ -141,7 +143,9 @@ class FileServer {
         let that = this;
 
         return new Promise((resolve, reject)=> {
-            let capa = that.capabilities;
+            let capa = that.capabilities.catch(()=>{
+                resolve(null);
+            });
             resolve(capa);
         });
     }
@@ -157,11 +161,11 @@ class FileServer {
      * @returns {Object} structure containing the response data from server and the index
      *
      */
-    getPartialDataFromServer(url, minRange, maxRange, index) {
+    getPartialDataFromServer(url: string, minRange: number, maxRange: number, index: number) {
         return this._rest.getPartialDataFromServer(url, minRange, maxRange, index);
     }
 
-    getPartialBufferFromServer(url, minRange, maxRange, index) {
+    getPartialBufferFromServer(url: string, minRange:number, maxRange: number, index: number) {
         return this._rest.getPartialBufferFromServer(url, minRange, maxRange, index);
     }
 
@@ -172,10 +176,11 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} uploadedDate
      * @returns {Buffer} Buffer created from data received from server
      *
      */
-    getBufferFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate) {
+    getBufferFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string) {
         let that = this;
         if (fileSize === void 0) {
             fileSize = 0;
@@ -245,7 +250,7 @@ class FileServer {
      * @returns {Buffer} Buffer created from data received from server
      *
      */
-    getFileFromUrlWithOptimization(destFile, url, mime, fileSize, fileName, uploadedDate) {
+    getFileFromUrlWithOptimization(destFile: string, url : string, mime: string, fileSize : number, fileName : string, uploadedDate: string) {
         let that = this;
         if (fileSize === void 0) {
             fileSize = 0;
@@ -370,12 +375,13 @@ class FileServer {
      *
      * @private
      * @param {string} fileId [required] file descriptor ID of file to be sent
-     * @param {File} file [required] file to be sent
+     * @param {string} fileId [required] file to be sent
+     * @param {string} filePath [required] file path to file to be sent
      * @param {string} mime [required] mime type of file
      * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
      *
      */
-    _uploadAFile(fileId, filePath, mime) {
+    _uploadAFile(fileId : string, filePath : string, mime : string) {
         let that = this;
         return new Promise((resolve, reject) => {
             let fileDescriptor = that._fileStorageService.getFileDescriptorById(fileId);
@@ -436,15 +442,12 @@ class FileServer {
      *
      * @private
      * @param {string} fileId [required] file descriptor ID of file to be sent
-     * @param {Blob} file [required] file to be sent
-     * @param {number} initialSize [required] initial size of whole file to be sent before partition
-     * @param {number} minRange [requied] minimum value of range
-     * @param {number} maxRange [required] maximum value of range
+     * @param {Buffer} file [required] file to be sent
      * @param {number} index [required] index of the part. Used to indicate the part number to the server
      * @returns {Promise<{}>} file descriptor data received as response from server or http error response
      *
      */
-    _sendPartialDataToServer(fileId, file, index) {
+    _sendPartialDataToServer(fileId : string, file : Buffer, index : number) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.sendPartialDataToServer(fileId, file, index).then(
@@ -473,12 +476,12 @@ class FileServer {
      *
      * @private
      * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
-     * @param {File} file [required] filePath of the file to be sent
+     * @param {string} filePath [required] filePath of the file to be sent
 //     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
      * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
      *
      */
-    async uploadAFileByChunk(fileDescriptor, filePath /*, progressCallback */) {
+    async uploadAFileByChunk(fileDescriptor : FileDescriptor, filePath : string /*, progressCallback */) {
         let that = this;
 
         let promiseQueue = createPromiseQueue(that._logger);
@@ -603,20 +606,25 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
-     * @returns {Promise<Blob>} Blob created from data received from server
-     *
+     * @param {string} uploadedDate
+     * @returns {Promise<{
+     *                          buffer : Array<any>,
+     *                           type: string, // mime type
+     *                           fileSize: number,
+     *                           fileName: string
+     *                       }>} Object created from data received from server.
      */
-    async getBlobFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate ) {
+    async getBlobFromUrlWithOptimization(url : string, mime : string, fileSize : number, fileName : string, uploadedDate:string ) {
         let that = this;
-        if (fileSize == null || fileSize == undefined) {
+        if (fileSize==null) {
             fileSize = 0;
         }
 
-        if (fileName == null || fileName == undefined) {
+        if (fileName==null) {
             fileName = "";
         }
 
-        if (uploadedDate == null || uploadedDate == undefined) {
+        if (uploadedDate==null) {
             uploadedDate = "";
         }
 
@@ -712,20 +720,21 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
-     * @returns {Observer} Observer returning a Blob created from data received from server
+     * @param {string} uploadedDate
+     * @returns {Promise<Observable<any>} Observer returning a Blob created from data received from server
      *
      */
-    async getBlobFromUrlWithOptimizationObserver(url, mime, fileSize, fileName, uploadedDate ) : Promise<Observable<any>> {
+    async getBlobFromUrlWithOptimizationObserver(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string ) : Promise<Observable<any>> {
         let that = this;
-        if (fileSize == null || fileSize == undefined) {
+        if (fileSize==null) {
             fileSize = 0;
         }
 
-        if (fileName == null || fileName == undefined) {
+        if (fileName==null) {
             fileName = "";
         }
 
-        if (uploadedDate == null || uploadedDate == undefined) {
+        if (uploadedDate==null) {
             uploadedDate = "";
         }
 
@@ -843,10 +852,14 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [required] size of file to be retrieved
      * @param {string} fileName [required] name of file to be downloaded
-     * @returns {Promise<Blob>} Blob created from data received from server
-     *
+     * @returns {Promise<{
+     *                          buffer : Array<any>,
+     *                           type: string, // mime type
+     *                           fileSize: number,
+     *                           fileName: string
+     *                       }>} Blob created from data received from server
      */
-     getBlobFromUrl(url, mime, fileSize, fileName) {
+     getBlobFromUrl(url: string, mime: string, fileSize: number, fileName: string) {
          let that = this;
         that._logger.log("info", LOG_ID + "(getBlobFromUrl)" );
         that._logger.log("internal", LOG_ID + "(getBlobFromUrl) : " + url);
@@ -895,12 +908,12 @@ class FileServer {
         });
     }
 
-/**
-* Method retrieves user quota (capabilities) for user
-*
-* @returns {Capabilities} user quota for user
-*
-*/
+    /**
+    * Method retrieves user quota (capabilities) for user
+    *
+    * @returns {Object} user quota for user
+    *
+    */
     getServerCapabilities() {
         return this._rest.getServerCapabilities();
     }

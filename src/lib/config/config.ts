@@ -1,3 +1,7 @@
+// Desactivated option because it is a preference one, so it impacted every ressources.
+// DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+// NoStoreBotSide = "nostorebotside",
+
 /**
  * @enum
  * @name DataStoreType
@@ -9,15 +13,11 @@
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  */
 enum DataStoreType {
-  NoStore = "no-store",
-  NoPermanentStore = "no-permanent-store",
-  StoreTwinSide = "storetwinside",
-  UsestoreMessagesField = "OldstoreMessagesUsed"
+    NoStore = "no-store",
+    NoPermanentStore = "no-permanent-store",
+    StoreTwinSide = "storetwinside",
+    UsestoreMessagesField = "OldstoreMessagesUsed"
 }
-
-// Desactivated option because it is a preference one, so it impacted every ressources.
-// DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
-// NoStoreBotSide = "nostorebotside",
 
 let conf =  {
     sandbox: {
@@ -198,7 +198,7 @@ let conf =  {
     }
 
 };
-
 module.exports.config = conf;
+//module.exports.OptionsType = OptionsType;
 module.exports.DataStoreType = DataStoreType;
-export {conf as config, DataStoreType};
+export {conf as config , DataStoreType};

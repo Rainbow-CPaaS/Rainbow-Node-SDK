@@ -10,7 +10,6 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
-import {resolve} from "dns";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -60,7 +59,10 @@ class Admin {
     static getClassName(){ return 'Admin'; }
     getClassName(){ return Admin.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -872,35 +874,35 @@ class Admin {
      *      Set informations about a user <br/>
      * @param {string} userId The id of the user
      * @param {Object} infos The infos of the user : <br/>
-     * {String{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
+     * {string{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
      * <br/> Must be unique (409 error is returned if a user already exists with the same email address). <br/>
-     *  {String{8..64}}   [infos.password]        User password. <br/>
+     *  {string{8..64}}   [infos.password]        User password. <br/>
      * <br/> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br/>
-     * {String{1..255}}  [infos.firstName]     User first name <br/>
-     * {String{1..255}}  [infos.lastName]      User last name <br/>
-     * {String{1..255}}  [infos.nickName]      User nickName <br/>
-     * {String{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
-     * {String{1..255}}  [infos.jobTitle]      User job title <br/>
-     * {String[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
+     * {string{1..255}}  [infos.firstName]     User first name <br/>
+     * {string{1..255}}  [infos.lastName]      User last name <br/>
+     * {string{1..255}}  [infos.nickName]      User nickName <br/>
+     * {string{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
+     * {string{1..255}}  [infos.jobTitle]      User job title <br/>
+     * {string[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
      * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br/>
      * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br/>
      * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br/>
      * the search API to search the user based on his tags. <br/>
      * {Object[]}           [infos.emails]        Array of user emails addresses objects <br/>
-     * {String{3..255}}          [infos.emails.email]    User email address <br/>
-     * {String=home,work,other}  [infos.emails.type]     User email type <br/>
+     * {string{3..255}}          [infos.emails.email]    User email address <br/>
+     * {string=home,work,other}  [infos.emails.type]     User email type <br/>
      * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br/>
      * <br/>
      * <br/><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br/>
      * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br/>
-     * {String{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
-     * {String{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
+     * {string{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
+     * {string{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
      * <br/>
      * <br/>If not provided, user country is used by default. <br/>
-     * {String=home,work,other}              phoneNumbers.type           Phone number type <br/>
-     * {String=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
-     * {String{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
-     * {String=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
+     * {string=home,work,other}              phoneNumbers.type           Phone number type <br/>
+     * {string=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
+     * {string{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
+     * {string=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
      * <br/> USA states code list: <br/>
      * <li> <code>AA</code>:"Armed Forces America", <br/>
      * <li> <code>AE</code>:"Armed Forces", <br/>
@@ -973,16 +975,16 @@ class Admin {
      * <li> <code>QC</code>: "Quebec", <br/>
      * <li> <code>SK</code>: "Saskatchewan", <br/>
      * <li> <code>YT</code>: "Yukon" <br/>
-     * {String="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
+     * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
      * <br/> 
      * <br/> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br/>
      * <br/> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br/>
      * <br/> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br/>
-     * {String}          [infos.timezone]      User timezone name <br/>
+     * {string}          [infos.timezone]      User timezone name <br/>
      * <br/> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br/>
      * <br/> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br/>
-     * {String=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
-     * {String[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
+     * {string=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
+     * {string[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
      * <br/>
      * <br/>The general rule is that a user must have the roles that the wants to assign to someone else. <br/>
      * <br/>Examples: <br/>
@@ -1000,12 +1002,12 @@ class Admin {
      * <li>Only <code>superadmin</code> can set <code>superadmin</code> and <code>support</code> roles to a user.</li>
      * <li>A user with admin rights (admin, bp_admin, superadmin) can't change his own roles, except for roles related to channels (<code>all_company_channels_admin</code>, <code>public_channels_admin</code> and <code>closed_channels_admin</code>).</li>
      * </ul>
-     * {String=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
-     * {String}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
+     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
+     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
      * <br/> companyName field is automatically filled on server side based on companyId. <br/>
      * {Boolean} [infos.isActive=true]         Is user active <br/>
      * {Boolean} [infos.isInitialized=false]   Is user initialized <br/>
-     * {String=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
+     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
      * </br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br/>
      * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
      * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
@@ -1018,13 +1020,13 @@ class Admin {
      * Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
      * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br/>
      * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br/>
-     * {String=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
-     * {String{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-     * {String{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-     * {String} selectedTheme Set the selected theme for the user. <br/>
+     * {string=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
+     * {string{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+     * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+     * {string} selectedTheme Set the selected theme for the user. <br/>
      * {Object} customData  User's custom data. <br/>
-     *    key1 	String User's custom data key1. <br/>
-     *    key2 	String Company's custom data key2. <br/>
+     *    key1 	string User's custom data key1. <br/>
+     *    key2 	string Company's custom data key2. <br/>
      *  customData can only be created/updated by: <br/>
      *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br/> 
      *   Restrictions on customData Object: <br/>

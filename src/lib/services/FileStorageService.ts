@@ -80,7 +80,10 @@ class FileStorage {
     static getClassName(){ return 'FileStorage'; }
     getClassName(){ return FileStorage.getClassName(); }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    start_up:boolean,
+    optional:boolean
+}) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;
@@ -173,8 +176,9 @@ class FileStorage {
                     resolve(undefined);
                 })
                 .catch((error) => {
-                    that._logger.log("debug", LOG_ID + "(init) === STARTING === failure -- " + error.message);
-                    reject(error);
+                    that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
+                    resolve(undefined);
+                    //reject(error);
                 });
         });
     }

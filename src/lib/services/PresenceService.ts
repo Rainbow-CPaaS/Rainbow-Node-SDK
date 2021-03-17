@@ -62,7 +62,10 @@ class PresenceService {
     static getClassName(){ return 'PresenceService'; }
     getClassName(){ return PresenceService.getClassName(); }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         let that = this;
         this._startConfig = _startConfig;
 
@@ -499,7 +502,13 @@ class PresenceService {
      *    }  <br/>
      *    <br/>
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise<{  
+     *    busy: boolean, 
+     *    status: string,  
+     *    subject: string, 
+     *    since: string, 
+     *    until: string  
+     *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      * @category async
      */
@@ -541,7 +550,13 @@ class PresenceService {
      *    }  <br/>
      *    <br/>
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise< { 
+     *    busy: boolean, 
+     *    status: string, 
+     *    subject: string,
+     *    since: string,
+     *    until: string 
+     *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      * @category async
      */
@@ -578,7 +593,9 @@ class PresenceService {
      *    "url" : string // Calendar provider's OAuth URL <br/>
      *    } <br/>
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise<{  
+     *    "url" : string
+     *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      * @category async
      */
@@ -614,11 +631,17 @@ class PresenceService {
      *    start : string, // its start date <br/>
      *    end : string, // its end date <br/>
      *    message_text : string, // its message as plain text <br/>
-     *    message_thtml : string, // its message as html <br/> 
+     *    message_thtml : string // its message as html <br/> 
      *    }  <br/>
      *    <br/>
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise<{ 
+     *    enabled : string,
+     *    start : string,
+     *    end : string,
+     *    message_text : string,
+     *    message_thtml : string 
+     *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      * @category async
      */
@@ -653,7 +676,9 @@ class PresenceService {
      *    }  <br/>
      *    <br/>
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise< { 
+     *       Status : string 
+     *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      * @category async
      */
@@ -688,7 +713,9 @@ class PresenceService {
      *    }  <br/>
      *    <br/>
      * @async
-     * @return {Promise<ErrorManager>}
+     * @return {Promise< { 
+     *       Status : string 
+     *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      * @category async
      */

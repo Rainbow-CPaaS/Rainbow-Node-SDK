@@ -3,7 +3,7 @@ export {};
 
 
 const MD5 = require("md5");
-import {config, DataStoreType} from "../../config/config";
+import {config} from "../../config/config";
 //const config = require("../../config/config");
 
 /*************************************************************/

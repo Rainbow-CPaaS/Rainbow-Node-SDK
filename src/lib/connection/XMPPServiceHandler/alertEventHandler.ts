@@ -206,7 +206,7 @@ private void Xmpp_AlertMessageReceived(object sender, Sharp.Xmpp.Im.MessageEvent
     }
 // */
 @logEntryExit(LOG_ID)
-class AlertEventHandler extends GenericHandler {
+class AlertEventHandler extends GenericHandler.GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
     public MESSAGE_WEBRTC: any;

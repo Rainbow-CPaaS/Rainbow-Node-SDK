@@ -7,6 +7,13 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [1.85.0-dotnet.0] - 2021-03-09
+-   Update methods `groups.getGroups()`, `BubblesService::getBubbles()`, `FileServerService::init`, `FileStorageService::init` to return a succeed event if the requests to server failed. To avoid the start to failed.
+-   Update of the `dependencies`.
+-   Fix XmppClient when sent iq failed at re-startup.
+-   Activate DEBUG of `request` library when "logs.system-dev.http" is setted to true. It is only available on rainbow-node-sdk from sources or from debug npm package.
+-   Fix Return types in documentation. 
+
+## [1.85.0-dotnet.0] - 2021-03-09
 -   Fix ContactsService::getRosters api to not reset the contacts cache, but to update contacts from data received from server.
 -   Update events `rainbow_onpresencechanged` and `rainbow_oncontactpresencechanged`  with new properties `until` and `delay`.
 -   Add `until` propertie in the presence event of contacts to give the validity date of the calendar presence.

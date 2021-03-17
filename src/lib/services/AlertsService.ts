@@ -5,7 +5,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import {isNullOrEmpty, logEntryExit, setTimeoutPromised} from "../common/Utils";
+import {isNullOrEmpty, logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {AlertEventHandler} from '../connection/XMPPServiceHandler/alertEventHandler';
 import {Alert, AlertsData} from '../common/models/Alert';
@@ -14,12 +14,10 @@ import {isStarted} from "../common/Utils";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
-import {Dictionary, List} from "ts-generic-collections-linq";
+import {List} from "ts-generic-collections-linq";
 import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice";
 import {AlertTemplate, AlertTemplatesData} from "../common/models/AlertTemplate";
 import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
-import {resolveAny} from "dns";
-import {isArray} from "util";
 
 const LOG_ID = "ALERTS/SVCE - ";
 
@@ -49,29 +47,18 @@ class AlertsService {
     private _alertEventHandler: AlertEventHandler;
     private _alertHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
-    private alerts: Alert[] = [];
-
-    private readonly timerFactor = 1; // Used in debug mode to ensure to avoid timeout
-    private currentContactId: string = "";
-    private currentContactJid: string = "";
-
-    //private readonly Object lockAlertMessagesReceivedPool = new Object();
-    private readonly alertsMessagePoolReceived: Dictionary<string, [Date, String]>;      // Store Alert Messages using "AlertMessage.Identifier" as key - Tuple:<AlertMessage.Sent, AlertMessage.MsgType>
-
-    //private readonly Object lockAlertMessagesSentPool = new Object();
-    private readonly alertsMessagePoolSent: Dictionary<string, [String, String, Date]>;          // Store Alert Messages using "AlertMessage.Identifier" as key - Tuple:<AlertMessage.Identifier, AlertMessage.Sender, AlertMessage.Sent>
+    //private alerts: Alert[] = [];
 
     private readonly delayToSendReceiptReceived: number; // TimeSpan;
     private readonly delayToSendReceiptRead: number; // TimeSpan;
     private delayInfoLoggued: boolean = false;
 
-
-    private _xmppManagementHandler: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up: boolean,
         optional: boolean
     };
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -84,7 +71,10 @@ class AlertsService {
         return AlertsService.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig) {
+    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -1294,10 +1284,14 @@ class AlertsService {
                 let alertFilters = new AlertFiltersData(1000);
                 if (Array.isArray( json)) {
                     for (const optionsKey in json) {
+                        // noinspection JSUnfilteredForInLoop
                         let id: string = json[optionsKey].id;
+                        // noinspection JSUnfilteredForInLoop
                         let name: string = json[optionsKey].name;
+                        // noinspection JSUnfilteredForInLoop
                         let companyId: string = json[optionsKey].companyId;
                         let tags: List<string> = new List<string>();
+                        // noinspection JSUnfilteredForInLoop
                         tags.addRange(json[optionsKey].tags);
 
                         let alertFilter = new AlertFilter(id, name, companyId, tags);
@@ -1587,14 +1581,23 @@ class AlertsService {
                 alerts.total = json.total;
                 if (Array.isArray( json.data)) {
                     for (const optionsKey in json.data) {
+                        // noinspection JSUnfilteredForInLoop
                         let  id: string = json.data[optionsKey].id;
+                        // noinspection JSUnfilteredForInLoop
                         let  name: string = json.data[optionsKey].name;
+                        // noinspection JSUnfilteredForInLoop
                         let  description: string = json.data[optionsKey].description;
+                        // noinspection JSUnfilteredForInLoop
                         let  status: string = json.data[optionsKey].status;
+                        // noinspection JSUnfilteredForInLoop
                         let  templateId: string = json.data[optionsKey].templateId;
+                        // noinspection JSUnfilteredForInLoop
                         let  filterId: string = json.data[optionsKey].filterId;
+                        // noinspection JSUnfilteredForInLoop
                         let  companyId: string = json.data[optionsKey].companyId;
+                        // noinspection JSUnfilteredForInLoop
                         let  startDate: string = json.data[optionsKey].startDate;
+                        // noinspection JSUnfilteredForInLoop
                         let  expirationDate: string = json.data[optionsKey].expirationDate;
 
                         let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);

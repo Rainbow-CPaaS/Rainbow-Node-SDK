@@ -5,7 +5,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import {logEntryExit, setTimeoutPromised} from "../common/Utils";
+import {logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
 import { Favorite } from '../common/models/Favorite';
@@ -45,7 +45,6 @@ class FavoritesService {
     private _favoriteHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
     private favorites: Favorite[] = [];
-    private _xmppManagementHandler: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -58,7 +57,10 @@ class FavoritesService {
     static getClassName(){ return 'FavoritesService'; }
     getClassName(){ return FavoritesService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -143,7 +145,7 @@ class FavoritesService {
 
     public async init () {
         let that = this;
-        await this.getServerFavorites();
+        await that.getServerFavorites().catch();
         /*await setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
             that.getCallLogHistoryPage()
@@ -299,7 +301,12 @@ class FavoritesService {
         if (favorite) { conversation.isFavorite = true; favorite.conv = conversation; }
     }
 
-    private async getFavorite(peerId: string) {
+    /**
+     * @description
+     * get favorite from cach by Id.
+     * @param {string} peerId The id of the favorite.
+     */
+    public async getFavorite(peerId: string) {
         let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
         //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
         //return await convGetter;
@@ -407,11 +414,11 @@ class FavoritesService {
      * @instance
      * @description
      *   Add conversation/bubble/bot to Favorites Array <br/>
-     * @param {String} id of the conversation/bubble
-     * @param {String} type of Favorite (can be 'user' or 'bubble')
+     * @param {string} id of the conversation/bubble
+     * @param {string} type of Favorite (can be 'user' or 'bubble')
      * @return {Promise<Favorite>} A Favorite object
      */
-    public async createFavorite(id, type) : Promise<Favorite> {
+    public async createFavorite(id : string, type : string) : Promise<Favorite> {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -454,10 +461,10 @@ class FavoritesService {
      * @instance
      * @description
      *   Delete conversation/bubble/bot from Favorites Array <br/>
-     * @param {String} id of the Favorite item
+     * @param {string} id of the Favorite item
      * @return {Favorite[]} A Favorite object
      */
-    async deleteFavorite(id) : Promise<any>{
+    async deleteFavorite(id : string) : Promise<any>{
         let that = this;
         return new Promise((resolve, reject) => {
             if (!id) {
