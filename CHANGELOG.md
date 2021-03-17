@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.85.0-dotnet.0] - 2021-03-09
+## [1.85.0-dotnet.1] - 2021-03-17
 -   Update methods `groups.getGroups()`, `BubblesService::getBubbles()`, `FileServerService::init`, `FileStorageService::init` to return a succeed event if the requests to server failed. To avoid the start to failed.
 -   Update of the `dependencies`.
 -   Fix XmppClient when sent iq failed at re-startup.
