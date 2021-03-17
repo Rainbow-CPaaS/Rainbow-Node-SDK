@@ -15,6 +15,7 @@ import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow";
+import {Invitation} from "../common/models/Invitation";
 
 export {};
 
@@ -24,7 +25,7 @@ const LOG_ID = "CONTACTS/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @name Contacts
+ * @name ContactsService
  * @version SDKVERSION
  * @public
  * @description
@@ -35,7 +36,7 @@ const LOG_ID = "CONTACTS/SVCE - ";
  *      - Get the network _contacts (roster) <br>
  *      - Get and search _contacts by Id, JID or loginEmail <br>
  */
-class Contacts {
+class ContactsService {
     private avatarDomain: any;
     private _xmpp: XMPPService;
     private _options: any;
@@ -61,14 +62,17 @@ class Contacts {
     }
 
     static getClassName() {
-        return 'Contacts';
+        return 'ContactsService';
     }
 
     getClassName() {
-        return Contacts.getClassName();
+        return ContactsService.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig) {
+    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length===2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port:_http.protocol + "://" + _http.host + ":" + _http.port;
         this._xmpp = null;
@@ -187,7 +191,8 @@ class Contacts {
             Promise.all([userInfo]).then(() => {
                 resolve(undefined);
             }).catch(() => {
-                return reject();
+                resolve(undefined);
+                //return reject();
             });
         });
     }
@@ -197,11 +202,11 @@ class Contacts {
      * @method getDisplayName
      * @instance
      * @param {Contact} contact  The contact to get display name
-     * @return {String} The contact first name and last name
+     * @return {string} The contact first name and last name
      * @description
      *      Get the display name of a contact <br/>
      */
-    getDisplayName(contact) {
+    getDisplayName(contact : Contact) {
         return contact.firstName + " " + contact.lastName;
     }
 
@@ -239,9 +244,8 @@ class Contacts {
                     that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
                         that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server");
                         that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
-                        let contactIndex = -1;
-                        // Update or Add contact
-                            contactIndex = that._contacts.findIndex((_contact: any) => {
+                            // Update or Add contact
+                            let contactIndex = that._contacts.findIndex((_contact: any) => {
                                 return _contact.jid_im===_contactFromServer.jid_im;
                             });
 
@@ -308,7 +312,7 @@ class Contacts {
      * @description
      *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
      */
-    getAll() {
+    getAll() : Array<Contact>{
         return this._contacts;
     }
 
@@ -327,7 +331,8 @@ class Contacts {
 
     getContact(jid, phoneNumber) {
         let that = this;
-        let contact = null;
+        let contact: any;
+        contact = null;
         let contactId = jid ? jid:phoneNumber;
         if (that.isUserContactJid(contactId)) {
             // Create the contact object
@@ -461,7 +466,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactByJid(jid, forceServerSearch = false): Promise<Contact> {
+    getContactByJid(jid : string, forceServerSearch : boolean = false): Promise<Contact> {
 
         let that = this;
 
@@ -535,7 +540,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    getContactById(id, forceServerSearch = false): Promise<Contact> {
+    getContactById(id : string, forceServerSearch: boolean = false): Promise<Contact> {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!id) {
@@ -611,7 +616,7 @@ class Contacts {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    async getContactByLoginEmail(loginEmail): Promise<Contact> {
+    async getContactByLoginEmail(loginEmail : string): Promise<Contact> {
 
         let that = this;
 
@@ -698,11 +703,11 @@ class Contacts {
      *      if missing or null in case where no avatar available a local module file is provided instead of URL
      * @description
      *  Get a contact avatar by his contact id <br/>
-     * @return {String} Contact avatar URL or file
+     * @return {string} Contact avatar URL or file
      */
-    getAvatarByContactId(id, lastUpdate) {
-        if (lastUpdate) {
-            return this.avatarDomain + "/api/avatar/" + id + "?update=" + md5(lastUpdate);
+    getAvatarByContactId(id : string, lastAvatarUpdateDate : string) {
+        if (lastAvatarUpdateDate) {
+            return this.avatarDomain + "/api/avatar/" + id + "?update=" + md5(lastAvatarUpdateDate);
         }
         return path.resolve(__dirname, "../resources/unknownContact.png");
     }
@@ -887,10 +892,10 @@ class Contacts {
      * @instance
      * @description
      *    Get an invite by its id <br/>
-     * @param {String} strInvitationId the id of the invite to retrieve
+     * @param {string} strInvitationId the id of the invite to retrieve
      * @return {Invitation} The invite if found
      */
-    async getInvitationById(strInvitationId) {
+    async getInvitationById(strInvitationId : string) {
         if (!strInvitationId) {
             this._logger.log("warn", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
             this._logger.log("internalerror", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter : ", strInvitationId);
@@ -914,7 +919,7 @@ class Contacts {
      * @param {Invitation} invitation The invitation to accept
      * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
      */
-    async acceptInvitation(invitation) {
+    async acceptInvitation(invitation : Invitation) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
         if (!invitation) {
@@ -939,7 +944,7 @@ class Contacts {
      * @param {Invitation} invitation The invitation to decline
      * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
      */
-    declineInvitation(invitation) {
+    declineInvitation(invitation : Invitation) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(declineInvitation) intivation : ", invitation);
         if (!invitation) {
@@ -956,8 +961,8 @@ class Contacts {
 
     /**
      * @typedef {Object} joinContactsResult
-     * @property {String[]} success List of succeed joined users
-     * @property {String[]} failed List of failed to joined users
+     * @property {string[]} success List of succeed joined users
+     * @property {string[]} failed List of failed to joined users
      */
 
     /**
@@ -969,13 +974,13 @@ class Contacts {
      * @description
      *    As admin, add _contacts to a user roster <br/>
      * @param {Contact} contact The contact object to subscribe
-     * @param {String[]} contactIds List of contactId to add to the user roster
+     * @param {Array<string>} contactIds List of contactId to add to the user roster
      * @async
-     * @return {Promise<joinContactsResult, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>}
      * @fulfil {joinContactsResult} - Join result or an error object depending on the result
      * @category async
      */
-    joinContacts(contact: Contact, contactIds) {
+    joinContacts(contact: Contact, contactIds : Array<string>) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -1020,7 +1025,7 @@ class Contacts {
      * @description
      *      Method called when the presence of a contact changed <br/>
      */
-    _onPresenceChanged(presence) {
+    _onPresenceChanged(presence : any) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence : ", presence);
 
@@ -1278,7 +1283,7 @@ class Contacts {
      * @description
      *      Method called when the presence of a contact changed <br/>
      */
-    _onRosterPresenceChanged(presence) {
+    _onRosterPresenceChanged(presence : any) {
         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
 
         try {
@@ -1479,13 +1484,12 @@ class Contacts {
      * @description
      *     Method called when an roster user information are updated <br/>
      */
-    _onContactInfoChanged(jid) {
+    _onContactInfoChanged(jid : string) {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
             that._logger.log("info", LOG_ID + "(getContactByJid) contact found on the server");
             that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server : ", util.inspect(_contactFromServer));
-            let contactIndex = -1;
             let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
 
             if (jid === connectedUser.jid) {
@@ -1508,7 +1512,7 @@ class Contacts {
      * @description
      *     Method called when an roster user information are updated <br/>
      */
-    _onRosterContactInfoChanged(jid) {
+    _onRosterContactInfoChanged(jid : string) {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
@@ -1666,5 +1670,5 @@ class Contacts {
 
 }
 
-module.exports.Contacts = Contacts;
-export {Contacts as ContactsService};
+module.exports.Contacts = ContactsService;
+export {ContactsService as ContactsService};

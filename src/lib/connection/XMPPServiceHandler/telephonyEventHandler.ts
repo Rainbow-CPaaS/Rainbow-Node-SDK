@@ -20,7 +20,7 @@ const PromiseQueue = require("../../common/promiseQueue");
 const prettydata = require("../pretty-data").pd;
 
 //const config = require("../../config/config");
-import {config, DataStoreType} from "../../config/config";
+import {config} from "../../config/config";
 
 const LOG_ID = "XMPP/HNDL/TEL - ";
 
@@ -34,7 +34,7 @@ const CallFailureLabels = {
 };
 
 @logEntryExit(LOG_ID)
-class TelephonyEventHandler extends GenericHandler {
+class TelephonyEventHandler extends GenericHandler.GenericHandler {
 	public MESSAGE: any;
 	public IQ_RESULT: any;
 	public IQ_ERROR: any;

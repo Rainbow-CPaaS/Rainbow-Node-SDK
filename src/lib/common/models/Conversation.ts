@@ -312,8 +312,8 @@ class Conversation {
         this.muted = false;
 
         //message ID
-        var randomBase = this.generateRandomID();
-        var messageId = 0;
+        let randomBase = this.generateRandomID();
+        let messageId = 0;
     }
 
     /**
@@ -381,7 +381,7 @@ class Conversation {
 
     static createBubbleConversation(bubble) {
         // Create the conversation object
-        var conversation = new Conversation(bubble.jid);
+        let conversation = new Conversation(bubble.jid);
         conversation.type = Conversation.Type.ROOM;
         conversation.bubble = bubble;
         // TODO ? conversation.filterName =

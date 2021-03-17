@@ -22,12 +22,11 @@ import {FileServerService} from "./FileServerService";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {Contact} from "../common/models/Contact";
-import {rejects} from "assert";
-import {error} from "winston";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {Message} from "../common/models/Message";
+import {Bubble} from "../common/models/Bubble";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -35,7 +34,7 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @name Conversations
+ * @name ConversationsService
  * @version SDKVERSION
  * @public
  * @description
@@ -48,7 +47,7 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
  *   - Retrieve all information linked to that conversation, <br/>
  * <br/>
  *   */
-class Conversations {
+class ConversationsService {
     private _xmpp: XMPPService;
     private _rest: RESTService;
     private _options: any;
@@ -83,16 +82,19 @@ class Conversations {
         optional:boolean
     };
     private conversationsRetrievedFormat: string = "small";
-    private nbMaxConversations: any;
-    private autoLoadConversations: any;
+    private nbMaxConversations: number;
+    private autoLoadConversations: boolean;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
 
-    static getClassName(){ return 'Conversations'; }
-    getClassName(){ return Conversations.getClassName(); }
+    static getClassName(){ return 'ConversationsService'; }
+    getClassName(){ return ConversationsService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig, _conversationsRetrievedFormat, _nbMaxConversations,_autoLoadConversations) {
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -235,8 +237,8 @@ class Conversations {
         let bLast = bb.lastModification;
         let bCreation = bb.creationDate;
 
-        let aDate = aCreation;
-        let bDate = bCreation;
+        let aDate: any;
+        let bDate: any;
 
         //get the most recent of the creation date or the last message date
         if (!aLast && aCreation) {
@@ -261,14 +263,14 @@ class Conversations {
     /**
      * @public
      * @method sendIsTypingState
-     * @instance Conversations
+     * @instance ConversationsService
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return a promise with no success parameter
      */
-    sendIsTypingState(conversation, status) {
+    sendIsTypingState(conversation : Conversation, status : string) {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!conversation) {
@@ -281,9 +283,8 @@ class Conversations {
                 conversation = conversation.id ? that.getConversationById(conversation.id) : null;
                 if (!conversation) {
                     return reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
-                } else {
-                    that._xmpp.sendIsTypingState(conversation, status);
-                    resolve(undefined);
+                } else {                    
+                    resolve(that._xmpp.sendIsTypingState(conversation, status));
                 }
             }
         });
@@ -355,7 +356,7 @@ class Conversations {
      * @instance
      * @description
      *    Mark all unread messages in the conversation as read. <br/>
-     * @param {String} ID of the conversation (dbId field)
+     * @param {string} conversationDbId ID of the conversation (dbId field)
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -597,7 +598,7 @@ class Conversations {
 
             // Add message in messages array
             let fileExtension = file.name.split(".").pop();
-            let fileMimeType = file.type;
+            //let fileMimeType = file.type;
             let viewers = [];
             //let message = typeof (data) === "object" ? data : undefined;
             let message = data;
@@ -714,12 +715,14 @@ class Conversations {
      * @public
      * @method sendExistingMessage
      * @instance
-     * @param {string} data The text message to send
      * @description
      *    Send a message to this conversation <br/>
      * @return {Message} The message sent
+     * @param {Conversation} conversation
+     * @param {string} message
+     * @param {any} fileDescriptor
      */
-     sendExistingFSMessage(conversation, message, fileDescriptor) {
+     sendExistingFSMessage(conversation : Conversation, message : string, fileDescriptor : any) {
 
          let that = this;
         //conversation.sendAckReadMessages();
@@ -747,11 +750,13 @@ class Conversations {
      * @description
      *   Send an existing file sharing message <br/>
      */
-    sendEFSMessage(conversation, fileDescriptor, data) {
+/*
+    sendEFSMessage(conversation: Conversation, fileDescriptor, data) {
         let message = conversation.sendEFSMessage(fileDescriptor, data);
         this.storePendingMessage(conversation, message);
         return message;
     }
+*/
 
     /**
      * @private
@@ -761,13 +766,16 @@ class Conversations {
      *    Send a instant message to a conversation <br/>
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
      * @param {Conversation} conversation The conversation to clean
-     * @param {String} data Test message to send
+     * @param {string} data Test message to send
+     * @param answeredMsg
      */
-    sendChatMessage(conversation, data, answeredMsg) {
+/*
+    sendChatMessage(conversation : Conversation, data : string, answeredMsg) {
         let message = conversation.sendChatMessage(data, answeredMsg);
         this.storePendingMessage(conversation, message);
         return message;
     }
+*/
 
     /**
      * SEND CORRECTED MESSAGE
@@ -782,12 +790,12 @@ class Conversations {
      *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend. <br/>
      *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend. <br/>
      *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message. <br/>
-     * @param conversation
-     * @param data
-     * @param origMsgId
-     * @returns {Promise<String>} message the message new correction message sent. Throw an error if the send fails.
+     * @param {Conversation} conversation
+     * @param {string} data The message string corrected
+     * @param {string} origMsgId The id of the original corrected message.
+     * @returns {Promise<string>} message the message new correction message sent. Throw an error if the send fails.
      */
-    async sendCorrectedChatMessage(conversation, data, origMsgId) {
+    async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string) {
         let that = this;
 
         if (!conversation) {
@@ -795,7 +803,7 @@ class Conversations {
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        if (data == undefined || data == null) {
+        if (data==undefined) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter : ", data);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -854,10 +862,10 @@ class Conversations {
      * @description
      *    Delete a message by sending an empty string in a correctedMessage <br/>
      * @param {Conversation} conversation The conversation object
-     * @param {String} messageId The id of the message to be deleted
+     * @param {string} messageId The id of the message to be deleted
      * @return {Message} - message object with updated replaceMsgs property
      */
-    async deleteMessage (conversation, messageId) : Promise<any> {
+    async deleteMessage (conversation : Conversation, messageId : string) : Promise<any> {
         let that = this;
 
         if (!conversation) {
@@ -871,9 +879,7 @@ class Conversations {
         }
 
         let messageOrig = conversation.getMessageById(messageId);
-
-        let correctedMsg = await that.sendCorrectedChatMessage(conversation, "", messageId);
-
+        await that.sendCorrectedChatMessage(conversation, "", messageId);
         return messageOrig;
     }
 
@@ -889,7 +895,7 @@ class Conversations {
      * @param {Conversation} conversation The conversation object
      * @return {Message} - message object with updated replaceMsgs property
      */
-    deleteAllMessageInOneToOneConversation (conversation) {
+    deleteAllMessageInOneToOneConversation (conversation : Conversation) {
         let that = this;
         if (!conversation) {
             this._logger.log("error", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter.");
@@ -947,7 +953,7 @@ class Conversations {
      * @fulfil {} Return nothing in case success
      * @category async
      */
-    removeAllMessages(conversation) {
+    removeAllMessages(conversation : Conversation) {
         let that = this;
         return new Promise((resolve) => {
             if (!conversation) {
@@ -1002,12 +1008,14 @@ class Conversations {
      *    Remove a specific range of message in a conversation<br/>
      *    This method returns a promise <br/>
      * @param {Conversation} conversation The conversation to clean
+     * @param {Date} date The date since when the message should be deleted.
+     * @param {number} number max number of messages to delete.
      * @async
      * @return {Promise}
      * @fulfil {} Return nothing in case success
      * @category async
      */
-    removeMessagesFromConversation(conversation, date, number) {
+    removeMessagesFromConversation(conversation : Conversation, date : Date, number : number) {
         let that = this;
         return new Promise((resolve) => {
             that._logger.log("info", LOG_ID + " removeMessagesFromConversation " + conversation.id);
@@ -1079,7 +1087,7 @@ class Conversations {
      * @param {Contact} contact The contact involved in the conversation
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
-    openConversationForContact (contact): Promise<Conversation> {
+    openConversationForContact (contact : Contact): Promise<Conversation> {
         let that = this;
         return new Promise(function (resolve, __reject) {
 
@@ -1117,7 +1125,7 @@ class Conversations {
      * @param {Bubble} bubble The bubble involved in this conversation
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
-    openConversationForBubble(bubble) {
+    openConversationForBubble(bubble : Bubble) {
         let that = this;
         return new Promise(function (resolve, __reject) {
 
@@ -1152,7 +1160,7 @@ class Conversations {
      * @param {string} conversationId The id of the conversation to find.
      * @return {Conversation} The conversation (created or retrieved) or null in case of error
      */
-    getS2SServerConversation(conversationId) {
+    getS2SServerConversation(conversationId : string) {
         let that = this;
         return new Promise(function (resolve, __reject) {
 
@@ -1198,10 +1206,10 @@ class Conversations {
      * @instance
      * @description
      *    Allow to delete a conversation on server (p2p and bubbles) <br/>
-     * @param {String} conversationId of the conversation (id field)
+     * @param {string} conversationId of the conversation (id field)
      * @return {Promise}
      */
-    deleteServerConversation(conversationId) {
+    deleteServerConversation(conversationId : string) {
         let that = this;
 
         that._logger.log("info", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
@@ -1235,7 +1243,7 @@ class Conversations {
      * @description
      *    Allow to mute notification in a conversations (p2p and bubbles) <br/>
      *    When a conversation is muted/unmuted, all user's resources will receive the notification <br/>
-     * @param {String} ID of the conversation (dbId field)
+     * @param {string} conversationId ID of the conversation (dbId field)
      * @param {Boolean} mute mutation state
      * @return {Promise}
      */
@@ -1255,7 +1263,7 @@ class Conversations {
      *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br/>
      *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br/>
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br/>
-     * @param {String} ID of the conversation (dbId field)
+     * @param {string} conversationDbId ID of the conversation (dbId field)
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -1323,10 +1331,10 @@ class Conversations {
      * @instance
      * @description
      *      Get a p2p conversation by id <br/>
-     * @param {String} conversationId Conversation id of the conversation to clean
+     * @param {string} conversationId Conversation id of the conversation to clean
      * @return {Conversation} The conversation to retrieve
      */
-    getConversationById(conversationId) {
+    getConversationById(conversationId : string) {
         let that = this;
         that._logger.log("debug", LOG_ID + " (getConversationById) conversationId : ", conversationId);
         if (!this.conversations) {
@@ -1342,10 +1350,10 @@ class Conversations {
      * @instance
      * @description
      *      Get a conversation by db id <br/>
-     * @param {String} dbId db id of the conversation to retrieve
+     * @param {string} dbId db id of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
-    getConversationByDbId(dbId) {
+    getConversationByDbId(dbId : string) {
         let that = this;
         if (that.conversations) {
             for (let key in that.conversations) {
@@ -1363,10 +1371,10 @@ class Conversations {
      * @instance
      * @description
      *      Get a bubble conversation by bubble id <br/>
-     * @param {String} bubbleId Bubble id of the conversation to retrieve
+     * @param {string} bubbleId Bubble id of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
-    async getConversationByBubbleId(bubbleId) {
+    async getConversationByBubbleId(bubbleId : string) {
         if (this.conversations) {
             for (let key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.id === bubbleId) {
@@ -1383,10 +1391,10 @@ class Conversations {
      * @instance
      * @description
      *      Get a bubble conversation by bubble id <br/>
-     * @param {String} bubbleJid Bubble jid of the conversation to retrieve
+     * @param {string} bubbleJid Bubble jid of the conversation to retrieve
      * @return {Conversation} The conversation to retrieve
      */
-    getConversationByBubbleJid(bubbleJid) {
+    getConversationByBubbleJid(bubbleJid : string) {
         if (this.conversations) {
             for (let key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.jid === bubbleJid) {
@@ -1403,21 +1411,21 @@ class Conversations {
      * @instance
      * @description
      *    Get a conversation associated to a bubble (using the bubble ID to retrieve it) <br/>
-     * @param {String} bubbleJid JID of the bubble (dbId field)
-     * @param conversationDbId
-     * @param lastModification
-     * @param lastMessageText
-     * @param missedIMCounter
-     * @param noError
-     * @param muted
-     * @param creationDate
-     * @param lastMessageSender
+     * @param {string} bubbleJid JID of the bubble (dbId field)
+     * @param {string} conversationDbId
+     * @param {Date} lastModification
+     * @param {string} lastMessageText
+     * @param {number} missedIMCounter
+     * @param {boolean} noError
+     * @param {boolean} muted
+     * @param {Date} creationDate
+     * @param {string} lastMessageSender
      * @async
      * @return {Promise<Conversation>}
      * @fulfil {Conversation} - Conversation object or null if not found
      * @category async
      */
-    getBubbleConversation(bubbleJid, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, noError?, muted?, creationDate?, lastMessageSender?) : Promise<any> {
+    getBubbleConversation(bubbleJid : string, conversationDbId? : string, lastModification? : Date, lastMessageText? : string, missedIMCounter? : number, noError? : boolean, muted? : boolean, creationDate? : Date, lastMessageSender? : string) : Promise<any> {
         let that = this;
 
         that._logger.log("internal", LOG_ID + "getBubbleConversation bubbleJib : ", bubbleJid);
@@ -1529,7 +1537,7 @@ class Conversations {
      * @fulfil {} Return nothing in case success
      * @category async
      */
-    closeConversation(conversation) {
+    closeConversation(conversation : Conversation) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("info", LOG_ID + "closeConversation " + conversation.id);
@@ -1556,7 +1564,7 @@ class Conversations {
      *    This method returns a promise <br/>
      * @param {Conversation} conversation The conversation to remove
      */
-    removeConversation(conversation) {
+    removeConversation(conversation : Conversation) {
         let that = this;
         that._logger.log("info", LOG_ID + "remove conversation " + conversation.id);
 
@@ -1642,7 +1650,7 @@ class Conversations {
                 that._logger.log("debug", LOG_ID + "getServerConversations conversations.length retrieved : ", conversations.length);
                 conversations.forEach(function (conversationData : any) {
                     let missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
-                    let conversationPromise = null;
+                    let conversationPromise: Promise<Conversation>;
                     let muted = (conversationData.mute === true);
                     //that._logger.log("debug", LOG_ID + "getServerConversations conversationData retrieved : ", conversationData);
                     if (conversationData.type === "user") {
@@ -1691,10 +1699,10 @@ class Conversations {
      * @instance
      * @description
      *    Allow to create a conversations on server (p2p and bubbles) <br/>
-     * @param {String} conversation of the conversation (dbId field)
+     * @param {Conversation} conversation of the conversation (dbId field)
      * @return {Conversation} Created conversation object
      */
-    createServerConversation(conversation) {
+    createServerConversation(conversation : Conversation) {
         let that = this;
         // Ignore already stored existing conversation
         if (conversation.dbId) { return Promise.resolve(conversation); }
@@ -1824,6 +1832,7 @@ class Conversations {
     /**
      * @private
      */
+/*
     onRoomAdminMessageEvent(__event, roomJid, userJid, type, msgId) {
         this._logger.log("info", LOG_ID + " onRoomAdminMessageEvent");
 
@@ -1847,6 +1856,7 @@ class Conversations {
         }
     }
 
+*/
     //endregion EVENTS
 
     /*********************************************************************/
@@ -1914,5 +1924,5 @@ class Conversations {
     }
 }
 
-module.exports.ConversationsService = Conversations;
-export {Conversations as ConversationsService};
+module.exports.ConversationsService = ConversationsService;
+export {ConversationsService as ConversationsService};

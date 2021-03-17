@@ -24,8 +24,8 @@ class XmppQueue {
         this.requestsToSend = this.requestsToSend.then(() => {
             that.logger.log("debug", LOG_ID + "(addPromise) promise storing");
             return promiseFactory;
-        }).catch(() => {
-            that.logger.log("error", LOG_ID + "(addPromise) Catch Error, but promise storing.", promiseFactory);
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(addPromise) Catch Error, but promise storing. promiseFactory : ", promiseFactory, ", error : ", error);
             return promiseFactory;
         });
         return this.requestsToSend;

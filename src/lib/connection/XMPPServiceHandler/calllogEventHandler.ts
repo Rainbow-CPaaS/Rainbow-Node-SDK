@@ -21,7 +21,7 @@ const prettydata = require("../pretty-data").pd;
 const orderByFilter = require("../../common/Utils").orderByFilter;
 
 //const config = require("../../config/config");
-import {config, DataStoreType} from "../../config/config";
+import {config} from "../../config/config";
 
 const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 
@@ -30,7 +30,7 @@ const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 /*********************************************************************/
 
 @logEntryExit(LOG_ID)
-class CallLogEventHandler extends GenericHandler {
+class CallLogEventHandler extends GenericHandler.GenericHandler {
 	public MESSAGE: any;
 	public IQ_RESULT: any;
 	public IQ_ERROR: any;

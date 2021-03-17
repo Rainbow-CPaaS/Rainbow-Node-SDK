@@ -217,7 +217,7 @@ class Core {
                         }).then(() => {
                             return that._channels.fetchMyChannels();
                         }).then(() => {
-                            return that._groups.getGroups();
+                            return that._groups.getGroups().catch(()=>{});
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);
@@ -285,7 +285,7 @@ class Core {
                         }).then(() => {
                             return that._channels.fetchMyChannels();
                         }).then(() => {
-                            return that._groups.getGroups();
+                            return that._groups.getGroups().catch(()=>{});
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);

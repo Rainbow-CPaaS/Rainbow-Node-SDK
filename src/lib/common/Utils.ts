@@ -1,7 +1,6 @@
 "use strict";
 
 
-
 const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
@@ -433,6 +432,29 @@ function stackTrace() {
     return err.stack;
 }
 
+export let objToExport = {
+    makeId,
+    createPassword,
+    isAdmin,
+    anonymizePhoneNumber,
+    equalIgnoreCase,
+    isNullOrEmpty,
+    Deferred,
+    isSuperAdmin,
+    setTimeoutPromised,
+    until,
+    orderByFilter,
+    isStart_upService,
+    isStarted,
+    logEntryExit,
+    resizeImage,
+    getBinaryData,
+    getRandomInt,
+    pause,
+    stackTrace
+};
+
+module.exports = objToExport;
 export {
     makeId,
     createPassword,
@@ -453,4 +475,4 @@ export {
     getRandomInt,
     pause,
     stackTrace
-    };
+};

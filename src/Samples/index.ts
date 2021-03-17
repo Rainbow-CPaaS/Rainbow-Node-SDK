@@ -9,7 +9,6 @@
 import {pause, setTimeoutPromised, until} from "../lib/common/Utils";
 import {getRandomInt} from "../lib/common/Utils";
 import set = Reflect.set;
-import {DataStoreType} from "../lib/config/config";
 import {url} from "inspector";
 import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
@@ -21,6 +20,7 @@ import {AlertTemplate} from "../lib/common/models/AlertTemplate";
 import {Alert} from "../lib/common/models/Alert";
 import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
 import {Contact} from "../lib/common/models/Contact";
+import {DataStoreType} from "../lib/config/config";
 
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
@@ -77,7 +77,7 @@ let urlS2S;
     }
 
 // Define your configuration
-let options = {
+let options : any = {
     "rainbow": {
          "host": "sandbox",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
    //      "host": "openrainbow.net",
@@ -85,6 +85,12 @@ let options = {
         "mode": rainbowMode,
         //"mode": "xmpp"
        // "concurrentRequests" : 20
+    },
+    "xmpp": {
+        "host": "",
+        "port": "443",
+        "protocol": "wss",
+        "timeBetweenXmppRequests": "20"
     },
     "s2s": {
         "hostCallback": urlS2S,
@@ -102,15 +108,15 @@ let options = {
 
     },
     // */
-    /*
+    
         // Proxy configuration
         proxy: {
-            host: "",
+            host: undefined,
             port: 8080,
-            protocol: "http",
-            user: "",
-            password: "",
-            secureProtocol: "SSLv3_method"
+            protocol: undefined,
+            user: undefined,
+            password: undefined,
+            secureProtocol: undefined //"SSLv3_method"
         }, // */
     // Proxy configuration
 

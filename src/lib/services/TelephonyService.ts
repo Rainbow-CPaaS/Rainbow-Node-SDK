@@ -90,7 +90,10 @@ class Telephony {
     static getClassName(){ return 'Telephony'; }
     getClassName(){ return Telephony.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         let that = this;
         this._startConfig = _startConfig;
         this._xmpp = null;

@@ -16,7 +16,7 @@ const prettydata = require("../pretty-data").pd;
 const LOG_ID = "XMPP/HNDL/PRES - ";
 
 @logEntryExit(LOG_ID)
-class PresenceEventHandler extends GenericHandler {
+class PresenceEventHandler extends GenericHandler.GenericHandler {
 	public PRESENCE: any;
 	// public onPresenceReceived: any;
 	private _contacts : ContactsService;

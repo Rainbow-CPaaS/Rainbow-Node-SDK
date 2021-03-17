@@ -33,7 +33,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class ConversationHistoryHandler  extends GenericHandler {
+class ConversationHistoryHandler  extends GenericHandler.GenericHandler {
 	public MESSAGE_MAM: any;
 	public FIN_MAM: any;
 	public _conversationService: ConversationsService;

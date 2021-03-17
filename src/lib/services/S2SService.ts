@@ -4,13 +4,15 @@ import * as util from "util";
 import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
-import {DataStoreType} from "../config/config";
 import {XMPPUTils} from "../common/XMPPUtils";
 import {NameSpacesLabels, XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
 import {S2SServiceEventHandler} from "../connection/S2S/S2SServiceEventHandler";
+import {EventEmitter} from "events";
+import {Logger} from "../common/Logger";
+import {ProxyImpl} from "../ProxyImpl";
 const express = require( "express" );
 
 const LOG_ID = "S2S - ";
@@ -70,7 +72,7 @@ class S2SService {
     static getClassName(){ return 'S2SService'; }
     getClassName(){ return S2SService.getClassName(); }
 
-    constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy, _startConfig) {
+    constructor(_s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
         this.hostCallback = _s2s.hostCallback;

@@ -302,6 +302,102 @@ declare module 'lib/common/models/Conversation' {
 	export { Conversation };
 
 }
+declare module 'lib/connection/RestServices/RESTTelephony' {
+	 class RESTTelephony {
+	    http: any;
+	    logger: any;
+	    _logger: any;
+	    evtEmitter: any;
+	    static getClassName(): string;
+	    getClassName(): string;
+	    constructor(evtEmitter: any, logger: any);
+	    start(http: any): Promise<unknown>;
+	    makeCall(requestHeader: any, contact: any, phoneInfo: any): Promise<unknown>;
+	    releaseCall(requestHeader: any, call: any): Promise<unknown>;
+	    makeConsultationCall(requestHeader: any, callId: any, contact: any, phoneInfo: any): Promise<unknown>;
+	    answerCall(requestHeader: any, call: any): Promise<unknown>;
+	    holdCall(requestHeader: any, call: any): Promise<unknown>;
+	    retrieveCall(requestHeader: any, call: any): Promise<unknown>;
+	    deflectCallToVM(requestHeader: any, call: any, VMInfos: any): Promise<unknown>;
+	    deflectCall(requestHeader: any, call: any, VMInfos: any): Promise<unknown>;
+	    transfertCall(requestHeader: any, activeCall: any, heldCall: any): Promise<unknown>;
+	    conferenceCall(requestHeader: any, activeCall: any, heldCall: any): Promise<unknown>;
+	    forwardToDevice(requestHeader: any, contact: any, phoneInfo: any): Promise<unknown>;
+	    getForwardStatus(requestHeader: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method sendDtmf
+	     * @description
+	     *      send dtmf to the remote party
+	     * @param requestHeader
+	     * @param callId
+	     * @param deviceId
+	     * @param data
+	     */
+	    sendDtmf(requestHeader: any, callId: any, deviceId: any, data: any): Promise<unknown>;
+	    getNomadicStatus(requestHeader: any): Promise<unknown>;
+	    nomadicLogin(requestHeader: any, data: any): Promise<unknown>;
+	    logon(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    logoff(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
+	    withdrawal(requestHeader: any, agentId: any, groupId: any, status: any): Promise<unknown>;
+	    wrapup(requestHeader: any, agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
+	}
+	export { RESTTelephony };
+
+}
+declare module 'lib/common/XMPPUtils' {
+	export class XMPPUTils {
+	    messageId: any;
+	    static xmppUtils: XMPPUTils;
+	    constructor();
+	    static getXMPPUtils(): XMPPUTils;
+	    generateRandomID(): string;
+	    getUniqueMessageId(): string;
+	    getUniqueId(suffix: any): string;
+	    generateRandomFullJidForNode(jid: any, generatedRandomId: any): string;
+	    generateRandomFullJidForS2SNode(jid: any, generatedRandomId: any): string;
+	    getBareJIDFromFullJID(fullJid: any): any;
+	    getRoomJIDFromFullJID(fullJid: any): any;
+	    getDomainFromFullJID(fullJid: any): string;
+	    findChild(element: any, nodeNameToFind: any): any;
+	    isFromMobile(fullJid: any): boolean;
+	    isFromNode(fullJid: any): boolean;
+	    isFromS2S(fullJid: any): boolean;
+	    isFromTelJid(fullJid: any): boolean;
+	    isFromCalendarJid(fullJid: any): boolean;
+	    getResourceFromFullJID(fullJid: any): any;
+	    /** Function: getBareJidFromJid
+	     *  Get the bare JID from a JID String.
+	     *
+	     *  Parameters:
+	     *    (String) jid - A JID.
+	     *
+	     *  Returns:
+	     *    A String containing the bare JID.
+	     */
+	    getBareJidFromJid(jid: any): any;
+	}
+	export let xu: XMPPUTils;
+
+}
+declare module 'lib/connection/XMPPServiceHandler/iqEventHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService'; const GenericHandler: any; class IQEventHandler extends GenericHandler.GenericHandler {
+	    IQ_GET: any;
+	    IQ_SET: any;
+	    IQ_RESULT: any;
+	    IQ_ERROR: any;
+	    static getClassName(): string;
+	    getClassName(): string;
+	    constructor(xmppService: XMPPService);
+	    onIqGetSetReceived(msg: any, stanza: any): void;
+	    onIqResultReceived(msg: any, stanza: any): void;
+	    _onIqGetPbxAgentStatusReceived(stanza: any, node: any): void;
+	    _onIqGetPingReceived(stanza: any, node: any): void;
+	    _onIqGetQueryReceived(stanza: any, node: any): void;
+	}
+	export { IQEventHandler };
+
+}
 declare module 'lib/config/config' {
 	 enum DataStoreType {
 	    NoStore = "no-store",
@@ -475,102 +571,6 @@ declare module 'lib/config/config' {
 	    };
 	};
 	export { conf as config, DataStoreType };
-
-}
-declare module 'lib/connection/RestServices/RESTTelephony' {
-	 class RESTTelephony {
-	    http: any;
-	    logger: any;
-	    _logger: any;
-	    evtEmitter: any;
-	    static getClassName(): string;
-	    getClassName(): string;
-	    constructor(evtEmitter: any, logger: any);
-	    start(http: any): Promise<unknown>;
-	    makeCall(requestHeader: any, contact: any, phoneInfo: any): Promise<unknown>;
-	    releaseCall(requestHeader: any, call: any): Promise<unknown>;
-	    makeConsultationCall(requestHeader: any, callId: any, contact: any, phoneInfo: any): Promise<unknown>;
-	    answerCall(requestHeader: any, call: any): Promise<unknown>;
-	    holdCall(requestHeader: any, call: any): Promise<unknown>;
-	    retrieveCall(requestHeader: any, call: any): Promise<unknown>;
-	    deflectCallToVM(requestHeader: any, call: any, VMInfos: any): Promise<unknown>;
-	    deflectCall(requestHeader: any, call: any, VMInfos: any): Promise<unknown>;
-	    transfertCall(requestHeader: any, activeCall: any, heldCall: any): Promise<unknown>;
-	    conferenceCall(requestHeader: any, activeCall: any, heldCall: any): Promise<unknown>;
-	    forwardToDevice(requestHeader: any, contact: any, phoneInfo: any): Promise<unknown>;
-	    getForwardStatus(requestHeader: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method sendDtmf
-	     * @description
-	     *      send dtmf to the remote party
-	     * @param requestHeader
-	     * @param callId
-	     * @param deviceId
-	     * @param data
-	     */
-	    sendDtmf(requestHeader: any, callId: any, deviceId: any, data: any): Promise<unknown>;
-	    getNomadicStatus(requestHeader: any): Promise<unknown>;
-	    nomadicLogin(requestHeader: any, data: any): Promise<unknown>;
-	    logon(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
-	    logoff(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
-	    withdrawal(requestHeader: any, agentId: any, groupId: any, status: any): Promise<unknown>;
-	    wrapup(requestHeader: any, agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
-	}
-	export { RESTTelephony };
-
-}
-declare module 'lib/common/XMPPUtils' {
-	export class XMPPUTils {
-	    messageId: any;
-	    static xmppUtils: XMPPUTils;
-	    constructor();
-	    static getXMPPUtils(): XMPPUTils;
-	    generateRandomID(): string;
-	    getUniqueMessageId(): string;
-	    getUniqueId(suffix: any): string;
-	    generateRandomFullJidForNode(jid: any, generatedRandomId: any): string;
-	    generateRandomFullJidForS2SNode(jid: any, generatedRandomId: any): string;
-	    getBareJIDFromFullJID(fullJid: any): any;
-	    getRoomJIDFromFullJID(fullJid: any): any;
-	    getDomainFromFullJID(fullJid: any): string;
-	    findChild(element: any, nodeNameToFind: any): any;
-	    isFromMobile(fullJid: any): boolean;
-	    isFromNode(fullJid: any): boolean;
-	    isFromS2S(fullJid: any): boolean;
-	    isFromTelJid(fullJid: any): boolean;
-	    isFromCalendarJid(fullJid: any): boolean;
-	    getResourceFromFullJID(fullJid: any): any;
-	    /** Function: getBareJidFromJid
-	     *  Get the bare JID from a JID String.
-	     *
-	     *  Parameters:
-	     *    (String) jid - A JID.
-	     *
-	     *  Returns:
-	     *    A String containing the bare JID.
-	     */
-	    getBareJidFromJid(jid: any): any;
-	}
-	export let xu: XMPPUTils;
-
-}
-declare module 'lib/connection/XMPPServiceHandler/iqEventHandler' {
-	import { XMPPService } from 'lib/connection/XMPPService'; const GenericHandler: any; class IQEventHandler extends GenericHandler {
-	    IQ_GET: any;
-	    IQ_SET: any;
-	    IQ_RESULT: any;
-	    IQ_ERROR: any;
-	    static getClassName(): string;
-	    getClassName(): string;
-	    constructor(xmppService: XMPPService);
-	    onIqGetSetReceived(msg: any, stanza: any): void;
-	    onIqResultReceived(msg: any, stanza: any): void;
-	    _onIqGetPbxAgentStatusReceived(stanza: any, node: any): void;
-	    _onIqGetPingReceived(stanza: any, node: any): void;
-	    _onIqGetQueryReceived(stanza: any, node: any): void;
-	}
-	export { IQEventHandler };
 
 }
 declare module 'lib/common/XmppQueue/XmppClient' {
@@ -1193,7 +1193,7 @@ declare module 'lib/common/models/Contact' {
 
 }
 declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
-	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler {
+	export {}; const GenericHandler: any; class FavoriteEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE_CHAT: any;
 	    MESSAGE_GROUPCHAT: any;
 	    MESSAGE_WEBRTC: any;
@@ -1230,7 +1230,7 @@ declare module 'lib/common/models/Favorite' {
 
 }
 declare module 'lib/connection/XMPPServiceHandler/invitationEventHandler' {
-	export {}; const GenericHandler: any; class InvitationEventHandler extends GenericHandler {
+	export {}; const GenericHandler: any; class InvitationEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE_CHAT: any;
 	    MESSAGE_GROUPCHAT: any;
 	    MESSAGE_WEBRTC: any;
@@ -1376,7 +1376,8 @@ declare module 'lib/services/FileServerService' {
 	export {};
 	import { Logger } from 'lib/common/Logger';
 	import { EventEmitter } from 'events';
-	import { Core } from 'lib/Core'; class FileServer {
+	import { Core } from 'lib/Core';
+	import { FileDescriptor } from 'lib/common/models/fileDescriptor'; class FileServer {
 	    private _eventEmitter;
 	    private _logger;
 	    private _capabilities;
@@ -1397,7 +1398,10 @@ declare module 'lib/services/FileServerService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    get capabilities(): Promise<any>;
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
@@ -1413,8 +1417,8 @@ declare module 'lib/services/FileServerService' {
 	     * @returns {Object} structure containing the response data from server and the index
 	     *
 	     */
-	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
-	    getPartialBufferFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
+	    getPartialDataFromServer(url: string, minRange: number, maxRange: number, index: number): Promise<unknown>;
+	    getPartialBufferFromServer(url: string, minRange: number, maxRange: number, index: number): Promise<unknown>;
 	    /**
 	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
 	     *
@@ -1422,10 +1426,11 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} mime [required] Mime type of the blob to be created
 	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
 	     * @param {string} fileName [optional] name of file to be downloaded
+	     * @param {string} uploadedDate
 	     * @returns {Buffer} Buffer created from data received from server
 	     *
 	     */
-	    getBufferFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
+	    getBufferFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<unknown>;
 	    /**
 	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
 	     *
@@ -1438,7 +1443,7 @@ declare module 'lib/services/FileServerService' {
 	     * @returns {Buffer} Buffer created from data received from server
 	     *
 	     */
-	    getFileFromUrlWithOptimization(destFile: any, url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
+	    getFileFromUrlWithOptimization(destFile: string, url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<unknown>;
 	    /***
 	     * @private
 	     * @param fileDescriptor
@@ -1450,26 +1455,24 @@ declare module 'lib/services/FileServerService' {
 	     *
 	     * @private
 	     * @param {string} fileId [required] file descriptor ID of file to be sent
-	     * @param {File} file [required] file to be sent
+	     * @param {string} fileId [required] file to be sent
+	     * @param {string} filePath [required] file path to file to be sent
 	     * @param {string} mime [required] mime type of file
 	     * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
 	     *
 	     */
-	    _uploadAFile(fileId: any, filePath: any, mime: any): Promise<unknown>;
+	    _uploadAFile(fileId: string, filePath: string, mime: string): Promise<unknown>;
 	    /**
 	     * Method sends data to server using range request mecanism (RFC7233)
 	     *
 	     * @private
 	     * @param {string} fileId [required] file descriptor ID of file to be sent
-	     * @param {Blob} file [required] file to be sent
-	     * @param {number} initialSize [required] initial size of whole file to be sent before partition
-	     * @param {number} minRange [requied] minimum value of range
-	     * @param {number} maxRange [required] maximum value of range
+	     * @param {Buffer} file [required] file to be sent
 	     * @param {number} index [required] index of the part. Used to indicate the part number to the server
 	     * @returns {Promise<{}>} file descriptor data received as response from server or http error response
 	     *
 	     */
-	    _sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
+	    _sendPartialDataToServer(fileId: string, file: Buffer, index: number): Promise<unknown>;
 	    /**
 	     * Upload File ByChunk progressCallback callback is displayed as part of the Requester class.
 	     * @callback uploadAFileByChunk~progressCallback
@@ -1480,12 +1483,12 @@ declare module 'lib/services/FileServerService' {
 	     *
 	     * @private
 	     * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
-	     * @param {File} file [required] filePath of the file to be sent
+	     * @param {string} filePath [required] filePath of the file to be sent
 	//     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
 	     * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
 	     *
 	     */
-	    uploadAFileByChunk(fileDescriptor: any, filePath: any): Promise<any>;
+	    uploadAFileByChunk(fileDescriptor: FileDescriptor, filePath: string): Promise<any>;
 	    isTransferInProgress(): any;
 	    cancelAllTransfers(): void;
 	    /**
@@ -1495,10 +1498,15 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} mime [required] Mime type of the blob to be created
 	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
 	     * @param {string} fileName [optional] name of file to be downloaded
-	     * @returns {Promise<Blob>} Blob created from data received from server
-	     *
+	     * @param {string} uploadedDate
+	     * @returns {Promise<{
+	     *                          buffer : Array<any>,
+	     *                           type: string, // mime type
+	     *                           fileSize: number,
+	     *                           fileName: string
+	     *                       }>} Object created from data received from server.
 	     */
-	    getBlobFromUrlWithOptimization(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<unknown>;
+	    getBlobFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<unknown>;
 	    /**
 	     * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
 	     *
@@ -1506,10 +1514,11 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} mime [required] Mime type of the blob to be created
 	     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
 	     * @param {string} fileName [optional] name of file to be downloaded
-	     * @returns {Observer} Observer returning a Blob created from data received from server
+	     * @param {string} uploadedDate
+	     * @returns {Promise<Observable<any>} Observer returning a Blob created from data received from server
 	     *
 	     */
-	    getBlobFromUrlWithOptimizationObserver(url: any, mime: any, fileSize: any, fileName: any, uploadedDate: any): Promise<Observable<any>>;
+	    getBlobFromUrlWithOptimizationObserver(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<Observable<any>>;
 	    /**
 	     * Method creates blob from a file retrieved from server
 	     *
@@ -1518,14 +1527,18 @@ declare module 'lib/services/FileServerService' {
 	     * @param {string} mime [required] Mime type of the blob to be created
 	     * @param {number} fileSize [required] size of file to be retrieved
 	     * @param {string} fileName [required] name of file to be downloaded
-	     * @returns {Promise<Blob>} Blob created from data received from server
-	     *
+	     * @returns {Promise<{
+	     *                          buffer : Array<any>,
+	     *                           type: string, // mime type
+	     *                           fileSize: number,
+	     *                           fileName: string
+	     *                       }>} Blob created from data received from server
 	     */
-	    getBlobFromUrl(url: any, mime: any, fileSize: any, fileName: any): Promise<unknown>;
+	    getBlobFromUrl(url: string, mime: string, fileSize: number, fileName: string): Promise<unknown>;
 	    /**
 	    * Method retrieves user quota (capabilities) for user
 	    *
-	    * @returns {Capabilities} user quota for user
+	    * @returns {Object} user quota for user
 	    *
 	    */
 	    getServerCapabilities(): Promise<unknown>;
@@ -1534,8 +1547,11 @@ declare module 'lib/services/FileServerService' {
 
 }
 declare module 'lib/services/FileStorageService' {
+	/// <reference types="node" />
 	export {};
 	import { Observable } from 'rxjs';
+	import { EventEmitter } from 'events';
+	import { Logger } from 'lib/common/Logger';
 	import { Core } from 'lib/Core'; class FileStorage {
 	    private _rest;
 	    private _xmpp;
@@ -1569,7 +1585,10 @@ declare module 'lib/services/FileStorageService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
@@ -2225,7 +2244,10 @@ declare module 'lib/services/ProfilesService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    /*********************************************************************/
 	    /** LIFECYCLE STUFF                                                 **/
 	    /*********************************************************************/
@@ -2538,8 +2560,8 @@ declare module 'lib/services/BubblesService' {
 	    private _xmpp;
 	    private _rest;
 	    private _bubbles;
-	    private _eventEmitter;
-	    private _logger;
+	    private readonly _eventEmitter;
+	    private readonly _logger;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    private avatarDomain;
@@ -2557,9 +2579,9 @@ declare module 'lib/services/BubblesService' {
 	    private _linkConferenceAndBubble;
 	    private _webrtcConferenceId;
 	    _webConferenceRoom: any;
-	    private _protocol;
-	    private _host;
-	    private _port;
+	    private readonly _protocol;
+	    private readonly _host;
+	    private readonly _port;
 	    private bubblesManager;
 	    get startConfig(): {
 	        start_up: boolean;
@@ -2567,7 +2589,10 @@ declare module 'lib/services/BubblesService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -3329,7 +3354,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
 	     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
 	     * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
-	     * @returns {ng.IPromise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
+	     * @returns {Promise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
 	     * @memberof ConferenceService
 	     */
 	    retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any>;
@@ -3382,8 +3407,8 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceStop(conferenceId: string): Promise<unknown>;
 	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
-	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): void;
-	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): void;
+	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
+	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
 	    conferenceDropParticipant(conferenceId: string, participantId: string): Promise<unknown>;
 	    personalConferenceAllowed(): boolean;
 	    personalConferenceGetId(): string;
@@ -3440,11 +3465,9 @@ declare module 'lib/services/BubblesService' {
 	     * @async
 	     * @description
 	     *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned. <br/>
-	     * @param {Bubble} bubble The on which the tags must be setted.
-	     * @param {string} tags The tag to be removed on the selected bubbles.
+	     * @param {Array<Bubble>} bubbles The bubbles on which the tags must be deleted.
+	     * @param {string} tag The tag to be removed on the selected bubbles.
 	     * @return {Promise<any>} return a promise with a Bubble's tags infos.
-	     * @param {Array<Bubble>} bubbles
-	     * @param {string} tag
 	     * @return {Promise<any>}
 	     */
 	    deleteTagOnABubble(bubbles: Array<Bubble>, tag: string): Promise<any>;
@@ -3731,7 +3754,7 @@ declare module 'lib/common/models/Message' {
 }
 declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	import { Element } from 'ltx';
-	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler {
+	export {}; const GenericHandler: any; class ConversationEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE_CHAT: any;
 	    MESSAGE_GROUPCHAT: any;
 	    MESSAGE_WEBRTC: any;
@@ -3777,7 +3800,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationHistoryHandler' {
 	import { XMPPService } from 'lib/connection/XMPPService';
 	export {}; const GenericHandler: any;
 	import { ConversationsService } from 'lib/services/ConversationsService';
-	import { ContactsService } from 'lib/services/ContactsService'; class ConversationHistoryHandler extends GenericHandler {
+	import { ContactsService } from 'lib/services/ContactsService'; class ConversationHistoryHandler extends GenericHandler.GenericHandler {
 	    MESSAGE_MAM: any;
 	    FIN_MAM: any;
 	    _conversationService: ConversationsService;
@@ -3803,8 +3826,10 @@ declare module 'lib/services/ConversationsService' {
 	import { Conversation } from 'lib/common/models/Conversation';
 	import { Logger } from 'lib/common/Logger';
 	import { EventEmitter } from 'events';
+	import { Contact } from 'lib/common/models/Contact';
 	import { Core } from 'lib/Core';
-	import { Message } from 'lib/common/models/Message'; class Conversations {
+	import { Message } from 'lib/common/models/Message';
+	import { Bubble } from 'lib/common/models/Bubble'; class ConversationsService {
 	    private _xmpp;
 	    private _rest;
 	    private _options;
@@ -3844,7 +3869,10 @@ declare module 'lib/services/ConversationsService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any, _conversationsRetrievedFormat: any, _nbMaxConversations: any, _autoLoadConversations: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    }, _conversationsRetrievedFormat: string, _nbMaxConversations: number, _autoLoadConversations: boolean);
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
@@ -3853,14 +3881,14 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method sendIsTypingState
-	     * @instance Conversations
+	     * @instance ConversationsService
 	     * @description
 	     *    Switch the "is typing" state in a conversation<br>
 	     * @param {Conversation} conversation The conversation recipient
 	     * @param {boolean} status The status, true for setting "is Typing", false to remove it
 	     * @return a promise with no success parameter
 	     */
-	    sendIsTypingState(conversation: any, status: any): Promise<unknown>;
+	    sendIsTypingState(conversation: Conversation, status: string): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
@@ -3886,7 +3914,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @instance
 	     * @description
 	     *    Mark all unread messages in the conversation as read. <br/>
-	     * @param {String} ID of the conversation (dbId field)
+	     * @param {string} conversationDbId ID of the conversation (dbId field)
 	     * @async
 	     * @return {Promise<Conversation[]>}
 	     * @fulfil {Conversation[]} - Array of Conversation object
@@ -3949,12 +3977,14 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method sendExistingMessage
 	     * @instance
-	     * @param {string} data The text message to send
 	     * @description
 	     *    Send a message to this conversation <br/>
 	     * @return {Message} The message sent
+	     * @param {Conversation} conversation
+	     * @param {string} message
+	     * @param {any} fileDescriptor
 	     */
-	    sendExistingFSMessage(conversation: any, message: any, fileDescriptor: any): Promise<unknown>;
+	    sendExistingFSMessage(conversation: Conversation, message: string, fileDescriptor: any): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
@@ -3962,7 +3992,6 @@ declare module 'lib/services/ConversationsService' {
 	     * @description
 	     *   Send an existing file sharing message <br/>
 	     */
-	    sendEFSMessage(conversation: any, fileDescriptor: any, data: any): any;
 	    /**
 	     * @private
 	     * @method
@@ -3971,9 +4000,9 @@ declare module 'lib/services/ConversationsService' {
 	     *    Send a instant message to a conversation <br/>
 	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
 	     * @param {Conversation} conversation The conversation to clean
-	     * @param {String} data Test message to send
+	     * @param {string} data Test message to send
+	     * @param answeredMsg
 	     */
-	    sendChatMessage(conversation: any, data: any, answeredMsg: any): any;
 	    /**
 	     * SEND CORRECTED MESSAGE
 	     */
@@ -3987,12 +4016,12 @@ declare module 'lib/services/ConversationsService' {
 	     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend. <br/>
 	     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend. <br/>
 	     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message. <br/>
-	     * @param conversation
-	     * @param data
-	     * @param origMsgId
-	     * @returns {Promise<String>} message the message new correction message sent. Throw an error if the send fails.
+	     * @param {Conversation} conversation
+	     * @param {string} data The message string corrected
+	     * @param {string} origMsgId The id of the original corrected message.
+	     * @returns {Promise<string>} message the message new correction message sent. Throw an error if the send fails.
 	     */
-	    sendCorrectedChatMessage(conversation: any, data: any, origMsgId: any): Promise<any>;
+	    sendCorrectedChatMessage(conversation: Conversation, data: string, origMsgId: string): Promise<any>;
 	    /**
 	     * @public
 	     * @since 1.58
@@ -4002,10 +4031,10 @@ declare module 'lib/services/ConversationsService' {
 	     * @description
 	     *    Delete a message by sending an empty string in a correctedMessage <br/>
 	     * @param {Conversation} conversation The conversation object
-	     * @param {String} messageId The id of the message to be deleted
+	     * @param {string} messageId The id of the message to be deleted
 	     * @return {Message} - message object with updated replaceMsgs property
 	     */
-	    deleteMessage(conversation: any, messageId: any): Promise<any>;
+	    deleteMessage(conversation: Conversation, messageId: string): Promise<any>;
 	    /**
 	     *
 	     * @public
@@ -4018,7 +4047,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {Conversation} conversation The conversation object
 	     * @return {Message} - message object with updated replaceMsgs property
 	     */
-	    deleteAllMessageInOneToOneConversation(conversation: any): Promise<unknown>;
+	    deleteAllMessageInOneToOneConversation(conversation: Conversation): Promise<unknown>;
 	    /**
 	     * @private
 	     * @description
@@ -4049,7 +4078,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @fulfil {} Return nothing in case success
 	     * @category async
 	     */
-	    removeAllMessages(conversation: any): Promise<unknown>;
+	    removeAllMessages(conversation: Conversation): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method removeMessagesFromConversation
@@ -4058,12 +4087,14 @@ declare module 'lib/services/ConversationsService' {
 	     *    Remove a specific range of message in a conversation<br/>
 	     *    This method returns a promise <br/>
 	     * @param {Conversation} conversation The conversation to clean
+	     * @param {Date} date The date since when the message should be deleted.
+	     * @param {number} number max number of messages to delete.
 	     * @async
 	     * @return {Promise}
 	     * @fulfil {} Return nothing in case success
 	     * @category async
 	     */
-	    removeMessagesFromConversation(conversation: any, date: any, number: any): Promise<unknown>;
+	    removeMessagesFromConversation(conversation: Conversation, date: Date, number: number): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getAllConversations
@@ -4093,7 +4124,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {Contact} contact The contact involved in the conversation
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
-	    openConversationForContact(contact: any): Promise<Conversation>;
+	    openConversationForContact(contact: Contact): Promise<Conversation>;
 	    /**
 	     * @public
 	     * @method openConversationForBubble
@@ -4106,7 +4137,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {Bubble} bubble The bubble involved in this conversation
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
-	    openConversationForBubble(bubble: any): Promise<unknown>;
+	    openConversationForBubble(bubble: Bubble): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method getS2SServerConversation
@@ -4118,17 +4149,17 @@ declare module 'lib/services/ConversationsService' {
 	     * @param {string} conversationId The id of the conversation to find.
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
-	    getS2SServerConversation(conversationId: any): Promise<unknown>;
+	    getS2SServerConversation(conversationId: string): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     * @description
 	     *    Allow to delete a conversation on server (p2p and bubbles) <br/>
-	     * @param {String} conversationId of the conversation (id field)
+	     * @param {string} conversationId of the conversation (id field)
 	     * @return {Promise}
 	     */
-	    deleteServerConversation(conversationId: any): Promise<unknown>;
+	    deleteServerConversation(conversationId: string): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
@@ -4136,7 +4167,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @description
 	     *    Allow to mute notification in a conversations (p2p and bubbles) <br/>
 	     *    When a conversation is muted/unmuted, all user's resources will receive the notification <br/>
-	     * @param {String} ID of the conversation (dbId field)
+	     * @param {string} conversationId ID of the conversation (dbId field)
 	     * @param {Boolean} mute mutation state
 	     * @return {Promise}
 	     */
@@ -4149,7 +4180,7 @@ declare module 'lib/services/ConversationsService' {
 	     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br/>
 	     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br/>
 	     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br/>
-	     * @param {String} ID of the conversation (dbId field)
+	     * @param {string} conversationDbId ID of the conversation (dbId field)
 	     * @async
 	     * @return {Promise<Conversation[]>}
 	     * @fulfil {Conversation[]} - Array of Conversation object
@@ -4168,61 +4199,61 @@ declare module 'lib/services/ConversationsService' {
 	     * @instance
 	     * @description
 	     *      Get a p2p conversation by id <br/>
-	     * @param {String} conversationId Conversation id of the conversation to clean
+	     * @param {string} conversationId Conversation id of the conversation to clean
 	     * @return {Conversation} The conversation to retrieve
 	     */
-	    getConversationById(conversationId: any): Conversation;
+	    getConversationById(conversationId: string): any;
 	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     * @description
 	     *      Get a conversation by db id <br/>
-	     * @param {String} dbId db id of the conversation to retrieve
+	     * @param {string} dbId db id of the conversation to retrieve
 	     * @return {Conversation} The conversation to retrieve
 	     */
-	    getConversationByDbId(dbId: any): Conversation;
+	    getConversationByDbId(dbId: string): Conversation;
 	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     * @description
 	     *      Get a bubble conversation by bubble id <br/>
-	     * @param {String} bubbleId Bubble id of the conversation to retrieve
+	     * @param {string} bubbleId Bubble id of the conversation to retrieve
 	     * @return {Conversation} The conversation to retrieve
 	     */
-	    getConversationByBubbleId(bubbleId: any): Promise<Conversation>;
+	    getConversationByBubbleId(bubbleId: string): Promise<Conversation>;
 	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     * @description
 	     *      Get a bubble conversation by bubble id <br/>
-	     * @param {String} bubbleJid Bubble jid of the conversation to retrieve
+	     * @param {string} bubbleJid Bubble jid of the conversation to retrieve
 	     * @return {Conversation} The conversation to retrieve
 	     */
-	    getConversationByBubbleJid(bubbleJid: any): Conversation;
+	    getConversationByBubbleJid(bubbleJid: string): Conversation;
 	    /**
 	     * @public
 	     * @method getBubbleConversation
 	     * @instance
 	     * @description
 	     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it) <br/>
-	     * @param {String} bubbleJid JID of the bubble (dbId field)
-	     * @param conversationDbId
-	     * @param lastModification
-	     * @param lastMessageText
-	     * @param missedIMCounter
-	     * @param noError
-	     * @param muted
-	     * @param creationDate
-	     * @param lastMessageSender
+	     * @param {string} bubbleJid JID of the bubble (dbId field)
+	     * @param {string} conversationDbId
+	     * @param {Date} lastModification
+	     * @param {string} lastMessageText
+	     * @param {number} missedIMCounter
+	     * @param {boolean} noError
+	     * @param {boolean} muted
+	     * @param {Date} creationDate
+	     * @param {string} lastMessageSender
 	     * @async
 	     * @return {Promise<Conversation>}
 	     * @fulfil {Conversation} - Conversation object or null if not found
 	     * @category async
 	     */
-	    getBubbleConversation(bubbleJid: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, noError?: any, muted?: any, creationDate?: any, lastMessageSender?: any): Promise<any>;
+	    getBubbleConversation(bubbleJid: string, conversationDbId?: string, lastModification?: Date, lastMessageText?: string, missedIMCounter?: number, noError?: boolean, muted?: boolean, creationDate?: Date, lastMessageSender?: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method closeConversation
@@ -4236,7 +4267,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @fulfil {} Return nothing in case success
 	     * @category async
 	     */
-	    closeConversation(conversation: any): Promise<unknown>;
+	    closeConversation(conversation: Conversation): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
@@ -4246,7 +4277,7 @@ declare module 'lib/services/ConversationsService' {
 	     *    This method returns a promise <br/>
 	     * @param {Conversation} conversation The conversation to remove
 	     */
-	    removeConversation(conversation: any): void;
+	    removeConversation(conversation: Conversation): void;
 	    /**
 	     * @public
 	     * @method cleanConversations
@@ -4273,10 +4304,10 @@ declare module 'lib/services/ConversationsService' {
 	     * @instance
 	     * @description
 	     *    Allow to create a conversations on server (p2p and bubbles) <br/>
-	     * @param {String} conversation of the conversation (dbId field)
+	     * @param {Conversation} conversation of the conversation (dbId field)
 	     * @return {Conversation} Created conversation object
 	     */
-	    createServerConversation(conversation: any): Promise<any>;
+	    createServerConversation(conversation: Conversation): Promise<Conversation>;
 	    removeOlderConversations(conversations?: []): Promise<unknown>;
 	    /**
 	     * @private
@@ -4288,7 +4319,6 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @private
 	     */
-	    onRoomAdminMessageEvent(__event: any, roomJid: any, userJid: any, type: any, msgId: any): void;
 	    /*********************************************************************/
 	    /** Remove the conversation history                                 **/
 	    /*********************************************************************/
@@ -4302,7 +4332,7 @@ declare module 'lib/services/ConversationsService' {
 	    /*********************************************************************/
 	    unlockWaitingBotConversations(isBotServiceReady?: any): void;
 	}
-	export { Conversations as ConversationsService };
+	export { ConversationsService as ConversationsService };
 
 }
 declare module 'lib/connection/S2S/S2SServiceEventHandler' {
@@ -4345,8 +4375,31 @@ declare module 'lib/connection/S2S/S2SServiceEventHandler' {
 	export { S2SServiceEventHandler };
 
 }
+declare module 'lib/ProxyImpl' {
+	export {}; class ProxyImpl {
+	    _logger: any;
+	    _protocol: any;
+	    _host: any;
+	    _port: any;
+	    _activated: any;
+	    _proxyURL: any;
+	    private _user;
+	    private _password;
+	    private _secureProtocol;
+	    constructor(config: any, _logger: any);
+	    get proxyURL(): any;
+	    get isProxyConfigured(): any;
+	    get secureProtocol(): string;
+	    set secureProtocol(value: string);
+	}
+	export { ProxyImpl };
+
+}
 declare module 'lib/services/S2SService' {
-	 class S2SService {
+	/// <reference types="node" />
+	import { EventEmitter } from 'events';
+	import { Logger } from 'lib/common/Logger';
+	import { ProxyImpl } from 'lib/ProxyImpl'; class S2SService {
 	    private serverURL;
 	    private host;
 	    private eventEmitter;
@@ -4379,7 +4432,13 @@ declare module 'lib/services/S2SService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_s2s: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _startConfig: any);
+	    constructor(_s2s: {
+	        hostCallback: string;
+	        locallistenningport: string;
+	    }, _im: any, _application: any, _eventEmitter: EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: any): Promise<unknown>;
 	    /**
 	     * @private
@@ -4557,7 +4616,6 @@ declare module 'lib/services/FavoritesService' {
 	    private _favoriteEventHandler;
 	    private _favoriteHandlerToken;
 	    private favorites;
-	    private _xmppManagementHandler;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -4566,7 +4624,10 @@ declare module 'lib/services/FavoritesService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
 	    init(): Promise<void>;
@@ -4577,7 +4638,12 @@ declare module 'lib/services/FavoritesService' {
 	    private removeServerFavorite;
 	    private toggleFavorite;
 	    private updateFavorites;
-	    private getFavorite;
+	    /**
+	     * @description
+	     * get favorite from cach by Id.
+	     * @param {string} peerId The id of the favorite.
+	     */
+	    getFavorite(peerId: string): Promise<void>;
 	    private createFavoriteObj;
 	    private onXmppEvent;
 	    /**
@@ -4597,11 +4663,11 @@ declare module 'lib/services/FavoritesService' {
 	     * @instance
 	     * @description
 	     *   Add conversation/bubble/bot to Favorites Array <br/>
-	     * @param {String} id of the conversation/bubble
-	     * @param {String} type of Favorite (can be 'user' or 'bubble')
+	     * @param {string} id of the conversation/bubble
+	     * @param {string} type of Favorite (can be 'user' or 'bubble')
 	     * @return {Promise<Favorite>} A Favorite object
 	     */
-	    createFavorite(id: any, type: any): Promise<Favorite>;
+	    createFavorite(id: string, type: string): Promise<Favorite>;
 	    /**
 	     * @public
 	     * @since 1.56
@@ -4609,10 +4675,10 @@ declare module 'lib/services/FavoritesService' {
 	     * @instance
 	     * @description
 	     *   Delete conversation/bubble/bot from Favorites Array <br/>
-	     * @param {String} id of the Favorite item
+	     * @param {string} id of the Favorite item
 	     * @return {Favorite[]} A Favorite object
 	     */
-	    deleteFavorite(id: any): Promise<any>;
+	    deleteFavorite(id: string): Promise<any>;
 	    onFavoriteCreated(fav: {
 	        id: string;
 	        peerId: string;
@@ -4675,7 +4741,10 @@ declare module 'lib/services/GroupsService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -5116,7 +5185,8 @@ declare module 'lib/services/ContactsService' {
 	import { EventEmitter } from 'events';
 	import { Logger } from 'lib/common/Logger';
 	import { Core } from 'lib/Core';
-	export {}; class Contacts {
+	import { Invitation } from 'lib/common/models/Invitation';
+	export {}; class ContactsService {
 	    private avatarDomain;
 	    private _xmpp;
 	    private _options;
@@ -5139,7 +5209,10 @@ declare module 'lib/services/ContactsService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
@@ -5148,11 +5221,11 @@ declare module 'lib/services/ContactsService' {
 	     * @method getDisplayName
 	     * @instance
 	     * @param {Contact} contact  The contact to get display name
-	     * @return {String} The contact first name and last name
+	     * @return {string} The contact first name and last name
 	     * @description
 	     *      Get the display name of a contact <br/>
 	     */
-	    getDisplayName(contact: any): string;
+	    getDisplayName(contact: Contact): string;
 	    /**
 	     * @public
 	     * @method getRosters
@@ -5173,7 +5246,7 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
 	     */
-	    getAll(): any;
+	    getAll(): Array<Contact>;
 	    createEmptyContactContact(jid: any): Contact;
 	    getContact(jid: any, phoneNumber: any): any;
 	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
@@ -5191,7 +5264,7 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
 	     * @category async
 	     */
-	    getContactByJid(jid: any, forceServerSearch?: boolean): Promise<Contact>;
+	    getContactByJid(jid: string, forceServerSearch?: boolean): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getContactById
@@ -5205,7 +5278,7 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
 	     * @category async
 	     */
-	    getContactById(id: any, forceServerSearch?: boolean): Promise<Contact>;
+	    getContactById(id: string, forceServerSearch?: boolean): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getContactByLoginEmail
@@ -5218,7 +5291,7 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
 	     * @category async
 	     */
-	    getContactByLoginEmail(loginEmail: any): Promise<Contact>;
+	    getContactByLoginEmail(loginEmail: string): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getAvatarByContactId
@@ -5228,9 +5301,9 @@ declare module 'lib/services/ContactsService' {
 	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
 	     * @description
 	     *  Get a contact avatar by his contact id <br/>
-	     * @return {String} Contact avatar URL or file
+	     * @return {string} Contact avatar URL or file
 	     */
-	    getAvatarByContactId(id: any, lastUpdate: any): string;
+	    getAvatarByContactId(id: string, lastAvatarUpdateDate: string): string;
 	    isTelJid(jid: any): boolean;
 	    getImJid(jid: any): any;
 	    getRessourceFromJid(jid: any): string;
@@ -5292,10 +5365,10 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @description
 	     *    Get an invite by its id <br/>
-	     * @param {String} strInvitationId the id of the invite to retrieve
+	     * @param {string} strInvitationId the id of the invite to retrieve
 	     * @return {Invitation} The invite if found
 	     */
-	    getInvitationById(strInvitationId: any): Promise<any>;
+	    getInvitationById(strInvitationId: string): Promise<any>;
 	    /**
 	     * @public
 	     * @since 1.17
@@ -5308,7 +5381,7 @@ declare module 'lib/services/ContactsService' {
 	     * @param {Invitation} invitation The invitation to accept
 	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
+	    acceptInvitation(invitation: Invitation): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.17
@@ -5321,11 +5394,11 @@ declare module 'lib/services/ContactsService' {
 	     * @param {Invitation} invitation The invitation to decline
 	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
 	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
+	    declineInvitation(invitation: Invitation): Promise<unknown>;
 	    /**
 	     * @typedef {Object} joinContactsResult
-	     * @property {String[]} success List of succeed joined users
-	     * @property {String[]} failed List of failed to joined users
+	     * @property {string[]} success List of succeed joined users
+	     * @property {string[]} failed List of failed to joined users
 	     */
 	    /**
 	     * @public
@@ -5336,13 +5409,13 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *    As admin, add _contacts to a user roster <br/>
 	     * @param {Contact} contact The contact object to subscribe
-	     * @param {String[]} contactIds List of contactId to add to the user roster
+	     * @param {Array<string>} contactIds List of contactId to add to the user roster
 	     * @async
-	     * @return {Promise<joinContactsResult, ErrorManager>}
+	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
 	     * @category async
 	     */
-	    joinContacts(contact: Contact, contactIds: any): Promise<unknown>;
+	    joinContacts(contact: Contact, contactIds: Array<string>): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method _onPresenceChanged
@@ -5369,7 +5442,7 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *     Method called when an roster user information are updated <br/>
 	     */
-	    _onContactInfoChanged(jid: any): void;
+	    _onContactInfoChanged(jid: string): void;
 	    /**
 	     * @private
 	     * @method _onRosterContactInfoChanged
@@ -5378,7 +5451,7 @@ declare module 'lib/services/ContactsService' {
 	     * @description
 	     *     Method called when an roster user information are updated <br/>
 	     */
-	    _onRosterContactInfoChanged(jid: any): void;
+	    _onRosterContactInfoChanged(jid: string): void;
 	    /**
 	     * @private
 	     * @method _onUserInviteReceived
@@ -5413,13 +5486,13 @@ declare module 'lib/services/ContactsService' {
 	     */
 	    _onRostersUpdate(contacts: any): void;
 	}
-	export { Contacts as ContactsService };
+	export { ContactsService as ContactsService };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/presenceEventHandler' {
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { ContactsService } from 'lib/services/ContactsService';
-	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler {
+	export {}; const GenericHandler: any; class PresenceEventHandler extends GenericHandler.GenericHandler {
 	    PRESENCE: any;
 	    private _contacts;
 	    private _xmpp;
@@ -5453,7 +5526,10 @@ declare module 'lib/services/SettingsService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -5479,6 +5555,9 @@ declare module 'lib/services/SettingsService' {
 
 }
 declare module 'lib/services/PresenceService' {
+	/// <reference types="node" />
+	import { Logger } from 'lib/common/Logger';
+	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
 	import { PresenceLevel, PresenceRainbow } from 'lib/common/models/PresenceRainbow';
 	export {}; class PresenceService {
@@ -5508,7 +5587,10 @@ declare module 'lib/services/PresenceService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: any, _logger: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -5598,11 +5680,128 @@ declare module 'lib/services/PresenceService' {
 	     *    }  <br/>
 	     *    <br/>
 	     * @async
-	     * @return {Promise<ErrorManager>}
+	     * @return {Promise<{
+	     *    busy: boolean,
+	     *    status: string,
+	     *    subject: string,
+	     *    since: string,
+	     *    until: string
+	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
 	     * @category async
 	     */
 	    getCalendarState(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCalendarStates
+	     * @instance
+	     * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
+	     * @description
+	     *    Allow to get the calendar presence of severals users <br/>
+	     *    return promise with {
+	     *    usersIdentifier : { // List of calendar user states. <br/>
+	     *    busy: boolean, // Does the connected user is busy ? <br/>
+	     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/>
+	     *    subject: string, // The meeting subject. <br/>
+	     *    since: string, // The meeting since date. <br/>
+	     *    until: string // Date until the current presence is valid <br/>
+	     *    }  <br/>
+	     *    <br/>
+	     * @async
+	     * @return {Promise< {
+	     *    busy: boolean,
+	     *    status: string,
+	     *    subject: string,
+	     *    since: string,
+	     *    until: string
+	     *    }, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+	     * @category async
+	     */
+	    getCalendarStates(users?: Array<string>): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setCalendarRegister
+	     * @instance
+	     * @param {string} type Calendar type. Default : office365, Authorized values : office365, google
+	     * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page. Default : false.
+	     * @param {string} callback Redirect URL to the requesting client.
+	     * @description
+	     *    Register a new calendar.<br/>
+	     *    return promise with {
+	     *    "url" : string // Calendar provider's OAuth URL <br/>
+	     *    } <br/>
+	     * @async
+	     * @return {Promise<{
+	     *    "url" : string
+	     *    }, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+	     * @category async
+	     */
+	    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCalendarAutomaticReplyStatus
+	     * @instance
+	     * @param {string} userId The id of user to retrieve the calendar automatic reply status.
+	     * @description
+	     *    Allow to retrieve the calendar automatic reply status <br/>
+	     *    return promise with { <br/>
+	     *    enabled : string, // 	its status <br/>
+	     *    start : string, // its start date <br/>
+	     *    end : string, // its end date <br/>
+	     *    message_text : string, // its message as plain text <br/>
+	     *    message_thtml : string // its message as html <br/>
+	     *    }  <br/>
+	     *    <br/>
+	     * @async
+	     * @return {Promise<{
+	     *    enabled : string,
+	     *    start : string,
+	     *    end : string,
+	     *    message_text : string,
+	     *    message_thtml : string
+	     *    }, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+	     * @category async
+	     */
+	    getCalendarAutomaticReplyStatus(userId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method enableCalendar
+	     * @instance
+	     * @description
+	     *    Allow to enable the calendar. <br/>
+	     *    return promise with { <br/>
+	     *       Status : string // Operation status ("enabled" or "disabled") <br/>
+	     *    }  <br/>
+	     *    <br/>
+	     * @async
+	     * @return {Promise< {
+	     *       Status : string
+	     *    }, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+	     * @category async
+	     */
+	    enableCalendar(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method disableCalendar
+	     * @instance
+	     * @description
+	     *    Allow to disable the calendar. <br/>
+	     *    return promise with { <br/>
+	     *       Status : string // Operation status ("enabled" or "disabled") <br/>
+	     *    }  <br/>
+	     *    <br/>
+	     * @async
+	     * @return {Promise< {
+	     *       Status : string
+	     *    }, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+	     * @category async
+	     */
+	    disableCalendar(): Promise<unknown>;
 	}
 	export { PresenceService };
 
@@ -5948,6 +6147,8 @@ declare module 'lib/connection/HttpService' {
 	    _post(url: any, headers: any, data: any, contentType: any): Promise<any>;
 	    head(url: any, headers?: any): Promise<any>;
 	    _head(url: any, headers?: any): Promise<any>;
+	    patch(url: any, headers: any, data: any, type: any): Promise<any>;
+	    _patch(url: any, headers: any, data: any, type: any): Promise<any>;
 	    put(url: any, headers: any, data: any, type: any): Promise<any>;
 	    _put(url: any, headers: any, data: any, type: any): Promise<any>;
 	    putBuffer(url: any, headers: any, buffer: any): Promise<any>;
@@ -6267,7 +6468,7 @@ declare module 'lib/connection/RESTService' {
 	    post(url: any, token: any, data: any, contentType: any): Promise<unknown>;
 	    put(url: any, token: any, data: any): Promise<unknown>;
 	    delete(url: any, token: any): Promise<unknown>;
-	    checkEveryPortals(): Promise<[void, void, void, void, void, void] | {
+	    checkEveryPortals(): Promise<[void, void, void, void, void, never] | {
 	        status: string;
 	    }>;
 	    checkPortalHealth(currentAttempt: any): Promise<unknown>;
@@ -6391,6 +6592,10 @@ declare module 'lib/connection/RESTService' {
 	    getReportSummary(alertId: string): Promise<unknown>;
 	    getReportDetails(alertId: string): Promise<unknown>;
 	    getCalendarState(): Promise<unknown>;
+	    getCalendarStates(users?: Array<string>): Promise<unknown>;
+	    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string): Promise<unknown>;
+	    getCalendarAutomaticReplyStatus(userid?: string): Promise<unknown>;
+	    enableOrNotCalendar(disable: boolean): Promise<unknown>;
 	}
 	export { RESTService, MEDIATYPE, GuestParams };
 
@@ -6423,7 +6628,10 @@ declare module 'lib/services/ImsService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _imOptions: any, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _imOptions: any, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -6685,7 +6893,7 @@ declare module 'lib/services/ImsService' {
 
 }
 declare module 'lib/connection/XMPPServiceHandler/channelEventHandler' {
-	export {}; const GenericHandler: any; class ChannelEventHandler extends GenericHandler {
+	export {}; const GenericHandler: any; class ChannelEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE_CHAT: any;
 	    MESSAGE_GROUPCHAT: any;
 	    MESSAGE_WEBRTC: any;
@@ -6711,11 +6919,12 @@ declare module 'lib/connection/XMPPServiceHandler/channelEventHandler' {
 }
 declare module 'lib/services/ChannelsService' {
 	/// <reference types="node" />
-	export {};
+	import { Contact } from 'lib/common/models/Contact';
 	import { Appreciation, Channel } from 'lib/common/models/Channel';
 	import { EventEmitter } from 'events';
 	import { Logger } from 'lib/common/Logger';
-	import { Core } from 'lib/Core'; class Channels {
+	import { Core } from 'lib/Core';
+	export {}; class ChannelsService {
 	    private _xmpp;
 	    private _rest;
 	    private _options;
@@ -6778,7 +6987,10 @@ declare module 'lib/services/ChannelsService' {
 	        PUBLISHER: string;
 	        MEMBER: string;
 	    };
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
@@ -6793,7 +7005,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *  Create a new public channel with a visibility limited to my company <br/>
 	     */
-	    createChannel(name: any, channelTopic: any): Promise<Channel>;
+	    createChannel(name: string, channelTopic: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method createPublicChannel
@@ -6801,12 +7013,12 @@ declare module 'lib/services/ChannelsService' {
 	     * @async
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
-	     * @param {String} [category=""] The category of the channel
+	     * @param {string} [category=""] The category of the channel
 	     * @return {Promise<Channel>} New Channel
 	     * @description
 	     *  Create a new public channel with a visibility limited to my company <br/>
 	     */
-	    createPublicChannel(name: any, channelTopic: any, category: any): Promise<Channel>;
+	    createPublicChannel(name: string, channelTopic: string, category: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method createClosedChannel (ex: createPrivateChannel)
@@ -6821,7 +7033,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *  Create a new private channel <br/>
 	     */
-	    createPrivateChannel(name: any, description: any): Promise<Channel>;
+	    createPrivateChannel(name: string, description: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method createClosedChannel (ex: createPrivateChannel)
@@ -6829,30 +7041,30 @@ declare module 'lib/services/ChannelsService' {
 	     * @async
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [description]  The description of the channel to create (max-length=255)
-	     * @param {String} [category=""] The category of the channel
+	     * @param {string} [category=""] The category of the channel
 	     * @return {Promise<Channel>} New Channel
 	     * @description
 	     *  Create a new closed channel <br/>
 	     */
-	    createClosedChannel(name: any, description: any, category: any): Promise<Channel>;
+	    createClosedChannel(name: string, description: string, category: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method deleteChannel
 	     * @instance
 	     * @async
 	     * @param {Channel} channel  The channel to delete
-	     * @return {Promise<CHannel>} Promise object represents The channel deleted
+	     * @return {Promise<Channel>} Promise object represents The channel deleted
 	     * @description
 	     *  Delete a owned channel <br/>
 	     */
-	    deleteChannel(channel: any): Promise<Channel>;
+	    deleteChannel(channel: Channel): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method findChannelsByName
 	     * @instance
 	     * @async
-	     * @param {String} name Search this provided substring in the channel name (case insensitive).
-	     * @return {Promise<Channel[]>} Channels found
+	     * @param {string} name Search this provided substring in the channel name (case insensitive).
+	     * @return {Promise<Array<Channel>>} ChannelsService found
 	     * @description
 	     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
 	     */
@@ -6862,8 +7074,8 @@ declare module 'lib/services/ChannelsService' {
 	     * @method findChannelsByTopic
 	     * @instance
 	     * @async
-	     * @param {String} topic Search this provided substring in the channel topic (case insensitive).
-	     * @return {Promise<Channel[]>} Channels found
+	     * @param {string} topic Search this provided substring in the channel topic (case insensitive).
+	     * @return {Promise<Array<Channel>>} ChannelsService found
 	     * @description
 	     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
 	     */
@@ -6881,25 +7093,25 @@ declare module 'lib/services/ChannelsService' {
 	     * @deprecated [#1] since version 1.55 [#2].
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the fetchChannel method instead,
-	     * @param {String} id The id of the channel)
+	     * @param {string} id The id of the channel)
 	     * @param {boolean} [force=false] True to force a request to the server
 	     * @return {Promise<Channel>} The channel found
 	     * @description
 	     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
 	     */
-	    getChannelById(id: any, force?: any): Promise<Channel>;
+	    getChannelById(id: string, force?: boolean): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method fetchChannel
 	     * @instance
 	     * @async
-	     * @param {String} id The id of the channel)
+	     * @param {string} id The id of the channel)
 	     * @param {boolean} [force=false] True to force a request to the server
 	     * @return {Promise<Channel>} The channel found
 	     * @description
 	     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
 	     */
-	    fetchChannel(id: any, force?: any): Promise<Channel>;
+	    fetchChannel(id: string, force?: boolean): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method fetchChannelsByFilter
@@ -6910,11 +7122,11 @@ declare module 'lib/services/ChannelsService' {
 	     *    Result may be filtered with result limit, offet and sortField or SortOrder <br/>
 	     *    Return a promise. <br/>
 	     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined <br/>
-	     *      {String} [filter.name] search by channel names (case insensitive substring). <br/>
-	     *      {String} [filter.topic] search by channel topics (case insensitive substring). <br/>
+	     *      {string} [filter.name] search by channel names (case insensitive substring). <br/>
+	     *      {string} [filter.topic] search by channel topics (case insensitive substring). <br/>
 	     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve. <br/>
 	     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned. <br/>
-	     *      {String} [filter.sortField="name"] sort channel list based on the given field. <br/>
+	     *      {string} [filter.sortField="name"] sort channel list based on the given field. <br/>
 	     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending. <br/>
 	     * @return {Promise<Channel[]>} Result of the find with <br/>
 	     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count } <br/>
@@ -7012,32 +7224,32 @@ declare module 'lib/services/ChannelsService' {
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel where to publish the message
-	     * @param {String} message Message content
-	     * @param {String} [title = "", limit=256] Message title
-	     * @param {String} [url = ""] An URL
-	     * @param {id[]} [imagesIds = null] An Array of ids of the files stored in Rainbow
-	     * @param {String} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+	     * @param {string} message Message content
+	     * @param {string} [title = "", limit=256] Message title
+	     * @param {string} [url = ""] An URL
+	     * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
+	     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
 	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
 	     * @description
 	     *  Publish to a channel <br/>
 	     */
-	    publishMessageToChannel(channel: any, message: any, title: any, url: any, imagesIds: any, type: any): Promise<{}>;
+	    publishMessageToChannel(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string): Promise<{}>;
 	    /**
 	     * @public
 	     * @method createItem
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel where to publish the message
-	     * @param {String} message Message content
-	     * @param {String} [title = "", limit=256] Message title
-	     * @param {String} [url = ""] An URL
-	     * @param {id[]} [imagesIds = null] An Array of ids of the files stored in Rainbow
-	     * @param {String} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+	     * @param {string} message Message content
+	     * @param {string} [title = "", limit=256] Message title
+	     * @param {string} [url = ""] An URL
+	     * @param {any} imagesIds An Array of ids of the files stored in Rainbow
+	     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
 	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
 	     * @description
 	     *  Publish to a channel <br/>
 	     */
-	    createItem(channel: any, message: any, title: any, url: any, imagesIds: any, type: any): Promise<{}>;
+	    createItem(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string): Promise<{}>;
 	    /**
 	     * @public
 	     * @method subscribeToChannel
@@ -7057,21 +7269,21 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *    Subscribe to a channel using its id<br/>
 	     *    Return a promise. <br/>
-	     * @param {String} id The id of the channel
+	     * @param {string} id The id of the channel
 	     * @return {Object} Nothing or an error object depending on the result
 	     */
-	    subscribeToChannelById(id: any): Promise<unknown>;
+	    subscribeToChannelById(id: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method unsubscribeFromChannel
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel to unsubscribe
-	     * @return {Promise<String>} The status of the unsubscribe.
+	     * @return {Promise<string>} The status of the unsubscribe.
 	     * @description
 	     *  Unsubscribe from a public channel <br/>
 	     */
-	    unsubscribeFromChannel(channel: Channel): Promise<String>;
+	    unsubscribeFromChannel(channel: Channel): Promise<string>;
 	    /**
 	     * @public
 	     * @method updateChannelTopic
@@ -7083,7 +7295,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *  TODO
 	     */
-	    updateChannelTopic(channel: any, description: any): Promise<Channel>;
+	    updateChannelTopic(channel: Channel, description: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method updateChannelDescription
@@ -7095,7 +7307,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *  TODO
 	     */
-	    updateChannelDescription(channel: any, description: any): Promise<Channel>;
+	    updateChannelDescription(channel: Channel, description: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method
@@ -7105,10 +7317,10 @@ declare module 'lib/services/ChannelsService' {
 	     *    Update a channel name<br/>
 	     *    Return a promise. <br/>
 	     * @param {Channel} channel The channel to update
-	     * @param {String} channelName The name of the channel
+	     * @param {string} channelName The name of the channel
 	     * @return {Channel} Return the channel updated or an error
 	     */
-	    updateChannelName(channel: any, channelName: any): Promise<unknown>;
+	    updateChannelName(channel: Channel, channelName: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method
@@ -7119,16 +7331,16 @@ declare module 'lib/services/ChannelsService' {
 	     *      May be updated: name, topic, visibility, max_items and max_payload<br/>
 	     *      Please put null to not update a property.<br/>
 	     *    Return a promise. <br/>
-	     * @param {String} id The id of the channel
-	     * @param {String} [channelTopic=""] The topic of the channel
-	     * @param {String} [visibility=public] public/company/closed group visibility for search
+	     * @param {string} id The id of the channel
+	     * @param {string} [channelTopic=""] The topic of the channel
+	     * @param {string} [visibility=public] public/company/closed group visibility for search
 	     * @param {Number} [max_items=30] max # of items to persist in the channel
 	     * @param {Number} [max_payload_size=60000] max # of items to persist in the channel
-	     * @param {String} [channelName=""] The name of the channel
-	     * @param {String} [category=""] The category of the channel
+	     * @param {string} [channelName=""] The name of the channel
+	     * @param {string} [category=""] The category of the channel
 	     * @return {Promise<Channel>} Return the channel created or an error
 	     */
-	    updateChannel(id: any, channelTopic: any, visibility: any, max_items: any, max_payload_size: any, channelName: any, category: any): Promise<unknown>;
+	    updateChannel(id: string, channelTopic: string, visibility: string, max_items: Number, max_payload_size: Number, channelName: string, category: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateChannelVisibility
@@ -7137,11 +7349,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *    Update a channel visibility<br/>
 	     *    Return a promise. <br/>
-	     * @param {String} channel The channel to update
-	     * @param {String} visibility  The new channel visibility (closed or company)
+	     * @param {Channel} channel The channel to update
+	     * @param {string} visibility  The new channel visibility (closed or company)
 	     * @return {Promise<Channel>} Return the channel updated or an error
 	     */
-	    updateChannelVisibility(channel: any, visibility: any): Promise<unknown>;
+	    updateChannelVisibility(channel: Channel, visibility: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateChannelVisibilityToPublic
@@ -7150,10 +7362,10 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *    Set the channel visibility to company (visible for users in that company)<br/>
 	     *    Return a promise. <br/>
-	     * @param {String} channel The channel to update
+	     * @param {Channel} channel The channel to update
 	     * @return {Channel} Return the channel updated or an error
 	     */
-	    updateChannelVisibilityToPublic(channel: any): Promise<unknown>;
+	    updateChannelVisibilityToPublic(channel: Channel): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateChannelVisibilityToClosed
@@ -7162,10 +7374,10 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *    Set the channel visibility to closed (not visible by users)<br/>
 	     *    Return a promise. <br/>
-	     * @param {String} channel The channel to update
+	     * @param {Channel} channel The channel to update
 	     * @return {Channel} Return the channel updated or an error
 	     */
-	    updateChannelVisibilityToClosed(channel: any): Promise<unknown>;
+	    updateChannelVisibilityToClosed(channel: Channel): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method
@@ -7178,7 +7390,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {string} urlAvatar  The avatar Url.  It must be resized to 512 pixels before calling this API.
 	     * @return {Channel} Return the channel updated or an error
 	     */
-	    updateChannelAvatar(channel: any, urlAvatar: any): Promise<unknown>;
+	    updateChannelAvatar(channel: Channel, urlAvatar: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method
@@ -7190,7 +7402,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {Channel} channel The channel to update
 	     * @return {Channel} Return the channel updated or an error
 	     */
-	    deleteChannelAvatar(channel: any): Promise<unknown>;
+	    deleteChannelAvatar(channel: Channel): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method fetchChannelUsers
@@ -7205,11 +7417,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {Number} [options.limit=100] Number of results per page (max 1000)
 	     * @param {Boolean} [options.onlyPublishers=false] Filter to publishers only
 	     * @param {Boolean} [options.onlyOwners=false] Filter to owners only
-	     * @return {Promise<Users[]>} An array of users who belong to this channel
+	     * @return {Promise<Array<any>>} An array of users who belong to this channel
 	     * @description
 	     *  Get a pagined list of users who belongs to a channel <br/>
 	     */
-	    getUsersFromChannel(channel: any, options: any): Promise<{}[]>;
+	    getUsersFromChannel(channel: Channel, options: any): Promise<{}[]>;
 	    /**
 	     * @public
 	     * @method fetchChannelUsers
@@ -7221,11 +7433,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {Number} [options.limit=100] Number of results per page (max 1000)
 	     * @param {Boolean} [options.onlyPublishers=false] Filter to publishers only
 	     * @param {Boolean} [options.onlyOwners=false] Filter to owners only
-	     * @return {Promise<Users[]>} An array of users who belong to this channel
+	     * @return {Promise<Array<any>>} An array of users who belong to this channel
 	     * @description
 	     *  Get a pagined list of users who belongs to a channel <br/>
 	     */
-	    fetchChannelUsers(channel: any, options: any): Promise<Array<{}>>;
+	    fetchChannelUsers(channel: Channel, options: any): Promise<Array<{}>>;
 	    /**
 	     * @public
 	     * @method removeAllUsersFromChannel
@@ -7234,71 +7446,71 @@ declare module 'lib/services/ChannelsService' {
 	     * @deprecated [#1] since version 1.55 [#2]. <br/>
 	     * [#3] Will be deleted in future version <br/>
 	     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br/>
-	     * @param {String} channel The channel
+	     * @param {Channel} channel The channel
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Remove all users from a channel <br/>
 	     */
-	    removeAllUsersFromChannel(channel: any): Promise<Channel>;
+	    removeAllUsersFromChannel(channel: Channel): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method deleteAllUsersFromChannel
 	     * @instance
 	     * @async
-	     * @param {String} channel The channel
+	     * @param {Channel} channel The channel
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Remove all users from a channel <br/>
 	     */
-	    deleteAllUsersFromChannel(channel: any): Promise<Channel>;
+	    deleteAllUsersFromChannel(channel: Channel): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method updateChannelUsers
 	     * @instance
 	     * @async
-	     * @param {String} channelId The Id of the channel
-	     * @param {ChannelUser[]} users The users of the channel
+	     * @param {Channel} channel The channel
+	     * @param {Array<any>} users The users of the channel
 	     * @return {Promise<Channel>} Update Channel Users status
 	     * @description
-	     *  TODO
+	     *  Update a collection of channel users
 	     */
-	    updateChannelUsers(channel: any, users: any): Promise<Channel>;
+	    updateChannelUsers(channel: Channel, users: Array<any>): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method addOwnersToChannel
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel
-	     * @param owners
+	     * @param {Array<any>}owners
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Add a list of owners to the channel <br/>
 	     */
-	    addOwnersToChannel(channel: Channel, owners: any): Promise<Channel>;
+	    addOwnersToChannel(channel: Channel, owners: any[]): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method addPublishersToChannel
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel
-	     * @param {User[]} users An array of users to add
+	     * @param {Array<Contact>} publishers The list of Contacts to add as publisher to channel.
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Add a list of publishers to the channel <br/>
 	     */
-	    addPublishersToChannel(channel: Channel, publishers: any): Promise<Channel>;
+	    addPublishersToChannel(channel: Channel, publishers: Array<Contact>): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method addMembersToChannel
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel
-	     * @param {User[]} users An array of users to add
+	     * @param {Array<Contact>} members array of users to add
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Add a list of members to the channel <br/>
 	     */
-	    addMembersToChannel(channel: any, members: any): Promise<Channel>;
+	    addMembersToChannel(channel: Channel, members: Array<Contact>): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method removeUsersFromChannel1
@@ -7308,24 +7520,24 @@ declare module 'lib/services/ChannelsService' {
 	     * [#3] Will be deleted in future version <br/>
 	     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br/>
 	     * @param {Channel} channel The channel
-	     * @param {User[]} users An array of users to remove
+	     * @param {Array<Contact>} users An array of users to remove
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Remove a list of users from a channel <br/>
 	     */
-	    removeUsersFromChannel1(channel: any, users: any): Promise<Channel>;
+	    removeUsersFromChannel1(channel: Channel, users: Array<Contact>): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method deleteUsersFromChannel
 	     * @instance
 	     * @async
 	     * @param {Channel} channel The channel
-	     * @param {User[]} users An array of users to remove
+	     * @param {Array<Contact>} users An array of users to remove
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
 	     *  Remove a list of users from a channel <br/>
 	     */
-	    deleteUsersFromChannel(channel: Channel, users: any): Promise<Channel>;
+	    deleteUsersFromChannel(channel: Channel, users: Array<Contact>): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method getMessagesFromChannel
@@ -7339,7 +7551,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @description
 	     *  Retrieve the last messages from a channel <br/>
 	     */
-	    getMessagesFromChannel(channel: any): Promise<any[]>;
+	    getMessagesFromChannel(channel: Channel): Promise<any[]>;
 	    /**
 	     * @public
 	     * @method fetchChannelItems
@@ -7362,25 +7574,25 @@ declare module 'lib/services/ChannelsService' {
 	     * @deprecated [#1] since version 1.55 [#2]. <br/>
 	     * [#3] Will be deleted in future version <br/>
 	     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br/>
-	     * @param  {String} channelId The Id of the channel
-	     * @param  {String} messageId The Id of the message
+	     * @param  {string} channelId The Id of the channel
+	     * @param  {string} messageId The Id of the message
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Delete a message from a channel <br/>
 	     */
-	    deleteMessageFromChannel(channelId: any, messageId: any): Promise<Channel>;
+	    deleteMessageFromChannel(channelId: string, messageId: string): Promise<Channel>;
 	    /**
 	     * @public
 	     * @method deleteItemFromChannel
 	     * @instance
 	     * @async
-	     * @param  {String} channelId The Id of the channel
-	     * @param  {String} itemId The Id of the item
+	     * @param  {string} channelId The Id of the channel
+	     * @param  {string} itemId The Id of the item
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
 	     *  Delete a message from a channel <br/>
 	     */
-	    deleteItemFromChannel(channelId: any, itemId: any): Promise<Channel>;
+	    deleteItemFromChannel(channelId: string, itemId: string): Promise<Channel>;
 	    _onChannelMessageReceived(message: any): void;
 	    _onChannelMyAppreciationReceived(my_appreciation: any): void;
 	    /**
@@ -7396,25 +7608,25 @@ declare module 'lib/services/ChannelsService' {
 	     * @instance
 	     * @async
 	     * @param  {Channel} channel The channel where the item must be liked.
-	     * @param  {String} itemId The Id of the item
+	     * @param  {string} itemId The Id of the item
 	     * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
 	     * @return {Promise<any>}
 	     * @description
 	     *  To like an Channel Item with the specified appreciation <br/>
 	     */
-	    likeItem(channel: any, itemId: any, appreciation: Appreciation): Promise<any>;
+	    likeItem(channel: Channel, itemId: string, appreciation: Appreciation): Promise<any>;
 	    /**
 	     * @public
 	     * @method getDetailedAppreciations
 	     * @instance
 	     * @async
 	     * @param  {Channel} channel The channel where the item appreciations must be retrieved.
-	     * @param  {String} itemId The Id of the item
+	     * @param  {string} itemId The Id of the item
 	     * @return {Promise<any>}
 	     * @description
 	     *  To know in details apprecations given on a channel item (by userId the apprecation given) <br/>
 	     */
-	    getDetailedAppreciations(channel: any, itemId: any): Promise<any>;
+	    getDetailedAppreciations(channel: Channel, itemId: string): Promise<any>;
 	    /**
 	     * @private
 	     * @param channelId
@@ -7443,7 +7655,7 @@ declare module 'lib/services/ChannelsService' {
 	    private onUserSubscribeEvent;
 	    private onUserUnsubscribeEvent;
 	}
-	export { Channels as ChannelsService };
+	export { ChannelsService as ChannelsService };
 
 }
 declare module 'lib/common/models/VoiceMail' {
@@ -7504,7 +7716,7 @@ declare module 'lib/common/models/VoiceMail' {
 declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	import { XMPPService } from 'lib/connection/XMPPService';
 	export {}; const GenericHandler: any;
-	import { Call } from 'lib/common/models/Call'; class TelephonyEventHandler extends GenericHandler {
+	import { Call } from 'lib/common/models/Call'; class TelephonyEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE: any;
 	    IQ_RESULT: any;
 	    IQ_ERROR: any;
@@ -7676,7 +7888,10 @@ declare module 'lib/services/TelephonyService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
@@ -8156,7 +8371,10 @@ declare module 'lib/services/AdminService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    /**
@@ -8412,35 +8630,35 @@ declare module 'lib/services/AdminService' {
 	     *      Set informations about a user <br/>
 	     * @param {string} userId The id of the user
 	     * @param {Object} infos The infos of the user : <br/>
-	     * {String{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
+	     * {string{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
 	     * <br/> Must be unique (409 error is returned if a user already exists with the same email address). <br/>
-	     *  {String{8..64}}   [infos.password]        User password. <br/>
+	     *  {string{8..64}}   [infos.password]        User password. <br/>
 	     * <br/> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br/>
-	     * {String{1..255}}  [infos.firstName]     User first name <br/>
-	     * {String{1..255}}  [infos.lastName]      User last name <br/>
-	     * {String{1..255}}  [infos.nickName]      User nickName <br/>
-	     * {String{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
-	     * {String{1..255}}  [infos.jobTitle]      User job title <br/>
-	     * {String[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
+	     * {string{1..255}}  [infos.firstName]     User first name <br/>
+	     * {string{1..255}}  [infos.lastName]      User last name <br/>
+	     * {string{1..255}}  [infos.nickName]      User nickName <br/>
+	     * {string{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
+	     * {string{1..255}}  [infos.jobTitle]      User job title <br/>
+	     * {string[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
 	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br/>
 	     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br/>
 	     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br/>
 	     * the search API to search the user based on his tags. <br/>
 	     * {Object[]}           [infos.emails]        Array of user emails addresses objects <br/>
-	     * {String{3..255}}          [infos.emails.email]    User email address <br/>
-	     * {String=home,work,other}  [infos.emails.type]     User email type <br/>
+	     * {string{3..255}}          [infos.emails.email]    User email address <br/>
+	     * {string=home,work,other}  [infos.emails.type]     User email type <br/>
 	     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br/>
 	     * <br/>
 	     * <br/><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br/>
 	     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br/>
-	     * {String{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
-	     * {String{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
+	     * {string{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
+	     * {string{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
 	     * <br/>
 	     * <br/>If not provided, user country is used by default. <br/>
-	     * {String=home,work,other}              phoneNumbers.type           Phone number type <br/>
-	     * {String=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
-	     * {String{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
-	     * {String=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
+	     * {string=home,work,other}              phoneNumbers.type           Phone number type <br/>
+	     * {string=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
+	     * {string{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
+	     * {string=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
 	     * <br/> USA states code list: <br/>
 	     * <li> <code>AA</code>:"Armed Forces America", <br/>
 	     * <li> <code>AE</code>:"Armed Forces", <br/>
@@ -8513,16 +8731,16 @@ declare module 'lib/services/AdminService' {
 	     * <li> <code>QC</code>: "Quebec", <br/>
 	     * <li> <code>SK</code>: "Saskatchewan", <br/>
 	     * <li> <code>YT</code>: "Yukon" <br/>
-	     * {String="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
+	     * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
 	     * <br/>
 	     * <br/> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br/>
 	     * <br/> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br/>
 	     * <br/> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br/>
-	     * {String}          [infos.timezone]      User timezone name <br/>
+	     * {string}          [infos.timezone]      User timezone name <br/>
 	     * <br/> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br/>
 	     * <br/> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br/>
-	     * {String=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
-	     * {String[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
+	     * {string=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
+	     * {string[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
 	     * <br/>
 	     * <br/>The general rule is that a user must have the roles that the wants to assign to someone else. <br/>
 	     * <br/>Examples: <br/>
@@ -8540,12 +8758,12 @@ declare module 'lib/services/AdminService' {
 	     * <li>Only <code>superadmin</code> can set <code>superadmin</code> and <code>support</code> roles to a user.</li>
 	     * <li>A user with admin rights (admin, bp_admin, superadmin) can't change his own roles, except for roles related to channels (<code>all_company_channels_admin</code>, <code>public_channels_admin</code> and <code>closed_channels_admin</code>).</li>
 	     * </ul>
-	     * {String=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
-	     * {String}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
+	     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
+	     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
 	     * <br/> companyName field is automatically filled on server side based on companyId. <br/>
 	     * {Boolean} [infos.isActive=true]         Is user active <br/>
 	     * {Boolean} [infos.isInitialized=false]   Is user initialized <br/>
-	     * {String=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
+	     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
 	     * </br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br/>
 	     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
 	     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
@@ -8558,13 +8776,13 @@ declare module 'lib/services/AdminService' {
 	     * Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
 	     * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br/>
 	     * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br/>
-	     * {String=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
-	     * {String{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-	     * {String{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-	     * {String} selectedTheme Set the selected theme for the user. <br/>
+	     * {string=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
+	     * {string{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+	     * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+	     * {string} selectedTheme Set the selected theme for the user. <br/>
 	     * {Object} customData  User's custom data. <br/>
-	     *    key1 	String User's custom data key1. <br/>
-	     *    key2 	String Company's custom data key2. <br/>
+	     *    key1 	string User's custom data key1. <br/>
+	     *    key2 	string Company's custom data key2. <br/>
 	     *  customData can only be created/updated by: <br/>
 	     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br/>
 	     *   Restrictions on customData Object: <br/>
@@ -8786,7 +9004,7 @@ declare module 'lib/common/StateManager' {
 }
 declare module 'lib/connection/XMPPServiceHandler/calllogEventHandler' {
 	import { XMPPService } from 'lib/connection/XMPPService';
-	export {}; const GenericHandler: any; class CallLogEventHandler extends GenericHandler {
+	export {}; const GenericHandler: any; class CallLogEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE: any;
 	    IQ_RESULT: any;
 	    IQ_ERROR: any;
@@ -8867,7 +9085,10 @@ declare module 'lib/services/CallLogService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
 	    init(): Promise<void>;
@@ -8904,7 +9125,7 @@ declare module 'lib/services/CallLogService' {
 	     * @description
 	     *    Delete a call log from it's id<br/>
 	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
-	     * @param {String} id The call log id to remove
+	     * @param {string} id The call log id to remove
 	     * @return Nothing
 	     */
 	    deleteOneCallLog(id: any): Promise<unknown>;
@@ -8915,7 +9136,7 @@ declare module 'lib/services/CallLogService' {
 	     * @description
 	     *    Delete all calls log items associated to a contact's given jid<br/>
 	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
-	     * @param {String} jid The call log id to remove
+	     * @param {string} jid The call log id to remove
 	     * @return Nothing
 	     */
 	    deleteCallLogsForContact(jid: any): Promise<unknown>;
@@ -8936,7 +9157,7 @@ declare module 'lib/services/CallLogService' {
 	     * @description
 	     *    Mark a call log item as read<br/>
 	     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
-	     * @param {String} id The call log id
+	     * @param {string} id The call log id
 	     * @return Nothing
 	     */
 	    markCallLogAsRead(id: any): Promise<unknown>;
@@ -9062,9 +9283,10 @@ declare module 'lib/common/Events' {
 
 }
 declare module 'lib/config/Options' {
+	import { Logger } from 'lib/common/Logger';
 	export {};
 	import { DataStoreType } from 'lib/config/config'; class Options {
-	    _logger: any;
+	    _logger: Logger;
 	    _options: any;
 	    _hasCredentials: any;
 	    _hasApplication: any;
@@ -9081,7 +9303,7 @@ declare module 'lib/config/Options' {
 	    private _testOutdatedVersion;
 	    private _concurrentRequests;
 	    private _requestsRate;
-	    constructor(_options: any, _logger: any);
+	    constructor(_options: any, _logger: Logger);
 	    parse(): void;
 	    get testOutdatedVersion(): boolean;
 	    set testOutdatedVersion(value: boolean);
@@ -9123,7 +9345,6 @@ declare module 'lib/config/Options' {
 	        locallistenningport: string;
 	    };
 	    _getModeOption(): string;
-	    _getConcurrentRequestsOption(): number;
 	    _getRequestsRateOption(): {
 	        maxReqByIntervalForRequestRate: number;
 	        intervalForRequestRate: number;
@@ -9159,30 +9380,10 @@ declare module 'lib/config/Options' {
 	export { Options };
 
 }
-declare module 'lib/ProxyImpl' {
-	export {}; class ProxyImpl {
-	    _logger: any;
-	    _protocol: any;
-	    _host: any;
-	    _port: any;
-	    _activated: any;
-	    _proxyURL: any;
-	    private _user;
-	    private _password;
-	    private _secureProtocol;
-	    constructor(config: any, _logger: any);
-	    get proxyURL(): any;
-	    get isProxyConfigured(): any;
-	    get secureProtocol(): string;
-	    set secureProtocol(value: string);
-	}
-	export { ProxyImpl };
-
-}
 declare module 'lib/connection/XMPPServiceHandler/alertEventHandler' {
 	export {}; const GenericHandler: any;
 	import { XMPPService } from 'lib/connection/XMPPService';
-	import { AlertsService } from 'lib/services/AlertsService'; class AlertEventHandler extends GenericHandler {
+	import { AlertsService } from 'lib/services/AlertsService'; class AlertEventHandler extends GenericHandler.GenericHandler {
 	    MESSAGE_CHAT: any;
 	    MESSAGE_GROUPCHAT: any;
 	    MESSAGE_WEBRTC: any;
@@ -9370,16 +9571,9 @@ declare module 'lib/services/AlertsService' {
 	    private _useS2S;
 	    private _alertEventHandler;
 	    private _alertHandlerToken;
-	    private alerts;
-	    private readonly timerFactor;
-	    private currentContactId;
-	    private currentContactJid;
-	    private readonly alertsMessagePoolReceived;
-	    private readonly alertsMessagePoolSent;
 	    private readonly delayToSendReceiptReceived;
 	    private readonly delayToSendReceiptRead;
 	    private delayInfoLoggued;
-	    private _xmppManagementHandler;
 	    ready: boolean;
 	    private readonly _startConfig;
 	    get startConfig(): {
@@ -9388,7 +9582,10 @@ declare module 'lib/services/AlertsService' {
 	    };
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: any);
+	    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
 	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
 	    init(): Promise<void>;
@@ -9885,7 +10082,6 @@ declare module 'lib/Core' {
 declare module 'lib/NodeSDK' {
 	import { Core } from 'lib/Core';
 	import { Appreciation } from 'lib/common/models/Channel';
-	import { DataStoreType } from 'lib/config/config';
 	import { IMService } from 'lib/services/ImsService';
 	import { ChannelsService } from 'lib/services/ChannelsService';
 	import { S2SService } from 'lib/services/S2SService';
@@ -9906,7 +10102,8 @@ declare module 'lib/NodeSDK' {
 	import { ConversationsService } from 'lib/services/ConversationsService';
 	import { ContactsService } from 'lib/services/ContactsService';
 	import { AlertsService } from 'lib/services/AlertsService';
-	import { ProfilesService } from 'lib/services/ProfilesService'; class NodeSDK {
+	import { ProfilesService } from 'lib/services/ProfilesService';
+	import { DataStoreType } from 'lib/config/config'; class NodeSDK {
 	    _core: Core;
 	    startTime: Date;
 	    static NodeSDK: any;
@@ -9915,7 +10112,7 @@ declare module 'lib/NodeSDK' {
 	     * @public
 	     * @description
 	     *      The entry point of the Rainbow Node SDK.
-	     * @param {Object} options SDK Startup options.
+	     * @param {Object} options SDK Startup options of constructor.
 	     * @param {string} options.rainbow.host "official", Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO.
 	     * @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
 	     * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
@@ -9988,7 +10185,7 @@ declare module 'lib/NodeSDK' {
 	     *           "start_up": true,<br>
 	     *
 	     */
-	    constructor(options: any);
+	    constructor(options: Object);
 	    /**
 	     * @public
 	     * @method start
@@ -10158,7 +10355,7 @@ declare module 'lib/NodeSDK' {
 	    get settings(): SettingsService;
 	    /**
 	     * @public
-	     * @property {String} state
+	     * @property {SDKSTATUSENUM} state
 	     * @instance
 	     * @description
 	     *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
@@ -10171,7 +10368,7 @@ declare module 'lib/NodeSDK' {
 	     * @instance
 	     * @description
 	     *      Return the version of the SDK
-	     * @return {any}
+	     * @return {String}
 	     */
 	    get version(): any;
 	    /**
@@ -10233,7 +10430,7 @@ declare module 'lib/NodeSDK' {
 	     * @property {AlertsService} alerts
 	     * @description
 	     *    Get access to the alerts module
-	     * @return {ChannelsService}
+	     * @return {AlertsService}
 	     */
 	    get alerts(): AlertsService;
 	    /**
@@ -10241,7 +10438,7 @@ declare module 'lib/NodeSDK' {
 	     * @property {Object} DataStoreType
 	     * @description
 	     *    Get access to the DataStoreType type
-	     * @return {ChannelsService}
+	     * @return {DataStoreType}
 	     */
 	    get DataStoreType(): typeof DataStoreType;
 	    /**
@@ -10396,8 +10593,26 @@ declare module 'lib/common/models/Settings' {
 declare function pp(): void;
 declare function isSubquery(str: any, parenthesisLevel: any): number;
 declare function split_sql(str: any, tab: any): any;
-declare module 'lib/connection/XMPPServiceHandler/genericHandler' {
+declare module 'lib/connection/XMPPServiceHandler/GenericHandler' {
 	export {};
+	import { XMPPService } from 'lib/connection/XMPPService'; class GenericHandler {
+	    xmppService: XMPPService;
+	    constructor(xmppService: any);
+	    getJsonFromXML(xml: string): Promise<any>;
+	    get jid_im(): any;
+	    get jid_tel(): any;
+	    get jid_password(): any;
+	    get fullJid(): any;
+	    get jid(): any;
+	    get userId(): any;
+	    get applicationId(): any;
+	    get xmppClient(): import("../../common/XmppQueue/XmppClient").XmppClient;
+	    get eventEmitter(): any;
+	    get logger(): any;
+	} const _default: {
+	    GenericHandler: typeof GenericHandler;
+	};
+	export = _default;
 
 }
 declare module 'lib/connection/plugins/mam/index' {
