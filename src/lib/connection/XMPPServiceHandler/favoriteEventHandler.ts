@@ -6,7 +6,7 @@ export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 
-const GenericHandler = require("./genericHandler");
+const GenericHandler = require("./GenericHandler");
 import {Conversation} from "../../common/models/Conversation";
 import {Channel} from "../../common/models/Channel";
 import {logEntryExit} from "../../common/Utils";

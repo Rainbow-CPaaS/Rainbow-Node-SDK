@@ -8,7 +8,7 @@ import {ContactsService} from "../../services/ContactsService";
 
 export {};
 
-const GenericHandler = require("./genericHandler");
+const GenericHandler = require("./GenericHandler");
 const xml = require("@xmpp/xml");
 
 const prettydata = require("../pretty-data").pd;
