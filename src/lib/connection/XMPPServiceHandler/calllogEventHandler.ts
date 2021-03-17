@@ -7,7 +7,7 @@ export {};
 
 
 const Utils = require("../../common/Utils");
-const GenericHandler = require("./genericHandler");
+const GenericHandler = require("./GenericHandler");
 //const Conversation = require("../../common/models/Conversation");
 //const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 const moment = require("moment");

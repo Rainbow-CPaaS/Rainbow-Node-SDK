@@ -6,7 +6,7 @@ export {};
 
 
 const Utils = require("../../common/Utils");
-const GenericHandler = require("./genericHandler");
+const GenericHandler = require("./GenericHandler");
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call";

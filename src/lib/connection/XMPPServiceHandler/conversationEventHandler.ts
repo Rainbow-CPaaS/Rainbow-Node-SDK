@@ -15,7 +15,7 @@ import {GeoLoc} from "../../common/models/GeoLoc";
 export {};
 
 
-const GenericHandler = require("./genericHandler");
+const GenericHandler = require("./GenericHandler");
 
 const util = require('util');
 

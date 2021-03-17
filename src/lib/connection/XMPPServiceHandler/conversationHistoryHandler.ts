@@ -19,7 +19,7 @@ momentDurationFormatSetup(moment);
 // @ts-ignore
 global.window = undefined;
 
-const GenericHandler = require("./genericHandler");
+const GenericHandler = require("./GenericHandler");
 const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
 import {logEntryExit} from "../../common/Utils";
