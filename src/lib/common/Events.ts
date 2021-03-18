@@ -107,6 +107,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleaffiliationchanged
  * @fires Events#rainbow_onbubbleownaffiliationchanged
  * @fires Events#rainbow_onbubbleinvitationreceived
+ * @fires Events#rainbow_onbubbleconferencestartedreceived
+ * @fires Events#rainbow_onbubbleconferencestoppedreceived
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
@@ -146,13 +148,24 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogackupdated
  * @fires Events#rainbow_onfavoritecreated
  * @fires Events#rainbow_onfavoritedeleted
+ * @fires Events#rainbow_onbubblescontainercreated
+ * @fires Events#rainbow_onbubblescontainerupdated
+ * @fires Events#rainbow_onbubblescontainerdeleted
 */
 class Events {
+    get logEmitter(): EventEmitter {
+        return this._logEmitter;
+    }
+
+    set logEmitter(value: EventEmitter) {
+        this._logEmitter = value;
+    }
 	public _logger: Logger;
 	public _filterCallback: Function;
 	public _evReceiver: EventEmitter;
 	public _evPublisher: EventEmitter;
 	public _core: Core;
+    private _logEmitter: EventEmitter;
 
     constructor( _logger : Logger, _filterCallback : Function) {
         let that = this;
@@ -163,6 +176,8 @@ class Events {
         this._evReceiver = new Emitter(this._logger);
 
         this._evPublisher = new EventEmitter();
+
+        this._logEmitter = new EventEmitter();
 
         /*
         this._evReceiver.on('evt_internal_on*', function(...args: any[]) {
@@ -286,7 +301,8 @@ class Events {
             that.publishEvent("contactpresencechanged", contact);
         });
 
-        this._evReceiver.on("evt_internal_presencechanged", function(presence) {
+        //this._evReceiver.on("evt_internal_presencechanged", function(presence) {
+        this._evReceiver.on("evt_internal_mypresencechanged", function(presence) {
 
             /**
              * @event Events#rainbow_onpresencechanged
@@ -294,12 +310,13 @@ class Events {
              * @param {Object} presence The presence object updated (jid, status, message, stamp)
              * @description
              *      This event is fired when the presence of the connected user changes <br/>
-             *      status may be <br/>
+             *      presence may be <br/>
              *          + "unknow",<br/>
-             *          + "online" (with message "" | "mode=auto"),<br/>
-             *          + "away" (with message "" ),<br/>
-             *          + "xa" (with message ""| "away"),<br/>
-             *          + "dnd" (with message "" | "audio" | "video" | "sharing" | "presentation")<br/>
+             *          + "online" (with status "" | "mode=auto"),<br/>
+             *          + "away" (with status "" | "away"),<br/>
+             *          + "offline" (with status ""),<br/>
+             *          + "invisible" (with status ""),<br/>
+             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br/>
              *      This event is also a confirmation from the server that the new presence value has been set
              */
             that.publishEvent("presencechanged", presence);
@@ -364,6 +381,18 @@ class Events {
              *      This event is fired when a conversation has been removed
              */
             that.publishEvent("contactinformationchanged", contact);
+        });
+
+        this._evReceiver.on("evt_internalinformationchanged", function(contact) {
+
+            /**
+             * @public
+             * @event Events#rainbow_onuserinformationchanged
+             * @param { Contact } contact The connected user
+             * @description
+             *      This event is fired when a conversation has been removed
+             */
+            that.publishEvent("userinformationchanged", contact);
         });
 
         this._evReceiver.on("evt_internal_userinvitereceived", function(invitation) {
@@ -461,11 +490,15 @@ class Events {
         this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
             try {
                 if (bubble && bubble.users) {
-                    bubble.users.forEach((user) => {
-                        if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
-                            // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                            //that._core.bubbles._sendInitialBubblePresence(bubble);
-                            that._core._presence.sendInitialBubblePresence(bubble);
+                    bubble.users.forEach(async (user) => {
+                        if (that._core.options._imOptions.autoInitialBubblePresence) {
+                            if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                                // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                await that._core._presence.sendInitialBubblePresence(bubble);
+                            }
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
                         }
                     });
                 }
@@ -480,6 +513,28 @@ class Events {
              *      Fired when an invitation to join a bubble is received
              */
             that.publishEvent("bubbleinvitationreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencestartedreceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencestartedreceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference started.
+             * @description
+             *      Fired when an event conference start in a bubble is received
+             */
+            that.publishEvent("bubbleconferencestartedreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencestoppedreceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencestoppedreceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference stopped.
+             * @description
+             *      Fired when an event conference stop in a bubble is received
+             */
+            that.publishEvent("bubbleconferencestoppedreceived", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {
@@ -527,7 +582,6 @@ class Events {
             that.publishEvent("bubbleavatarchanged", bubble);
         });
 
-
         this._evReceiver.on("evt_internal_bubblenamechanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubblenamechanged
@@ -537,6 +591,17 @@ class Events {
              *      Fired when the name of a bubble has changed
              */
             that.publishEvent("bubblenamechanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_openinvitationUpdate", function(openInvite) {
+            /**
+             * @event Events#rainbow_onopeninvitationupdate
+             * @public
+             * @param { Object } openInvite The informations about the a management event on a public URL share of a bubble.
+             * @description
+             *      Fired when a management event on a public URL share of a bubble has changed
+             */
+            that.publishEvent("openinvitationupdate", openInvite);
         });
 
         this._evReceiver.on("evt_internal_groupcreated", function(group) {
@@ -853,6 +918,65 @@ class Events {
             that.publishEvent("xmpperror", data);
         });
 
+        this._evReceiver.on("evt_internal_alertmessagereceived", function (data) {
+            /**
+             * @event Events#rainbow_onalertmessagereceived
+             * @public
+             * @param { AlertMessage } Alert received.
+             * @description
+             *      Fired when an Alert events happens.
+             */
+            that.publishEvent("alertmessagereceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubblescontainercreated", function (data) {
+            /**
+             * @event Events#rainbow_onbubblescontainercreated
+             * @public
+             * @param { Object } data informations about container and bubbles linked
+             * containerName: string The name of the container.
+             * containerId: string The id of the container.
+             * containerDescription: string The description of the container.
+             * bubblesAdded: Array<Bubble> list of bubbles added
+             * bubblesRemoved: Array<Bubble> list of bubbles removed
+             * @description
+             *      Fired when a container of bubbles created event is received
+             */
+            that.publishEvent("bubblescontainercreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubblescontainerupdated", function (data) {
+            /**
+             * @event Events#rainbow_onbubblescontainerupdated
+             * @public
+             * @param { Object } data informations about container and bubbles linked
+             * containerName: string, The name of the container.
+             * containerId: string, The id of the container.
+             * containerDescription: string The description of the container.
+             * bubblesAdded: Array<Bubble> list of bubbles added
+             * bubblesRemoved: Array<Bubble> list of bubbles removed
+             * @description
+             *      Fired when a container of bubbles updated event is received
+             */
+            that.publishEvent("bubblescontainerupdated", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubblescontainerdeleted", function (data) {
+            /**
+             * @event Events#rainbow_onbubblescontainerdeleted
+             * @public
+             * @param { Object } data informations about container and bubbles linked
+             * containerName: string, The name of the container.
+             * containerId: string, The id of the container.
+             * containerDescription: string The description of the container.
+             * bubblesAdded: Array<Bubble> list of bubbles added
+             * bubblesRemoved: Array<Bubble> list of bubbles removed
+             * @description
+             *      Fired when a container of bubbles deleted event is received
+             */
+            that.publishEvent("bubblescontainerdeleted", data);
+        });
+
     }
 
     get iee(): EventEmitter {
@@ -861,6 +985,36 @@ class Events {
 
     get eee(): EventEmitter {
         return this._evPublisher;
+    }
+
+    /**
+     * @method onLog
+     * @public
+     * @memberof Events
+     * @instance
+     * @param {string} event The event name to subscribe
+     * @param {function} callback The function called when the even is fired
+     * @return {Object} The events instance to be able to chain subscriptions
+     * @description
+     *      Subscribe to an event raised when a log is done.
+     */
+    onLog(event, callback): EventEmitter {
+        return this._logEmitter.on(event, callback);
+    }
+
+    /**
+     * @method removeLogListener
+     * @public
+     * @memberof Events
+     * @instance
+     * @param {string} event The event name to unsubscribe
+     * @param {function} callback The function called when the even is fired
+     * @return {Object} The events instance to be able to chain subscriptions
+     * @description
+     *      Unsubscribe to an event raised when a log is done.
+     */
+    removeLogListener(event, callback){
+        return this._logEmitter.removeListener(event, callback);
     }
 
     /**

@@ -1,17 +1,19 @@
 "use strict";
 
 import * as util from "util";
-import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
+import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
-import {DataStoreType} from "../config/config";
 import {XMPPUTils} from "../common/XMPPUtils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
+import {XmppClient} from "../common/XmppQueue/XmppClient";
+import { AlertMessage } from "../common/models/AlertMessage";
+import {DataStoreType} from "../config/config";
 
 const packageVersion = require("../../package");
 const url = require('url');
-
+const prettydata = require("./pretty-data").pd;
 
 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
 let ws_options = null;
@@ -60,6 +62,7 @@ const BIND_EVENT = "bind";
 const AUTHENTICATE_EVENT = "authenticate";
 const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
+const TYPE_HEADLINE = "headline";
 
 const RECONNECT_INITIAL_DELAY = 5000;
 const RECONNECT_MAX_DELAY = 60000;
@@ -91,7 +94,8 @@ const NameSpacesLabels = {
     "CallService1NameSpace" : "urn:xmpp:pbxagent:callservice:1",
     "MamNameSpace" : "urn:xmpp:mam:1",
     "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
-    "AttentionNS" : "urn:xmpp:attention:0"
+    "AttentionNS" : "urn:xmpp:attention:0",
+    "IncidentCap" : "http://www.incident.com/cap/1.0"
 };
 
 @logEntryExit(LOG_ID)
@@ -107,8 +111,9 @@ class XMPPService {
 	public fullJid: any;
 	public jid: any;
 	public userId: any;
+	public resourceId: any;
 	public initialPresence: any;
-	public xmppClient: any;
+	public xmppClient: XmppClient;
 	public logger: any;
 	public proxy: any;
 	public shouldSendReadReceipt: any;
@@ -122,10 +127,8 @@ class XMPPService {
 	public applicationId: any;
 	public generatedRandomId: any;
 	public hash: any;
-	public handleXMPPConnection: any;
 	public reconnect: any;
 	public fibonacciStrategy: any;
-	public serverUR: any;
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
 	public xmppUtils : XMPPUTils;
@@ -143,6 +146,10 @@ class XMPPService {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'XMPPService'; }
+    getClassName(){ return XMPPService.getClassName(); }
+
+
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
         this.host = _xmpp.host;
@@ -154,6 +161,7 @@ class XMPPService {
         this.fullJid = "";
         this.jid = "";
         this.userId = "";
+        this.resourceId = "";
         this.initialPresence = true;
         this.xmppClient = null;
         this.logger = _logger;
@@ -184,945 +192,6 @@ class XMPPService {
 
         this.hash = makeId(8);
 
-
-        this.handleXMPPConnection = (headers) => {
-
-            let that = this;
-
-            let domain = that.xmppUtils.getDomainFromFullJID(this.fullJid);
-
-            let options = {agent: null};
-            Object.assign(options, headers);
-            let opt = url.parse(this.proxy.proxyURL);
-            if (this.proxy.isProxyConfigured) {
-                if (this.proxy.secureProtocol) {
-                    opt.secureProxy = true;
-                }
-                // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-                options.agent = new HttpsProxyAgent(opt);
-                //options.agent = new HttpsProxyAgent(this.proxy.proxyURL);
-                ws_options = options;
-            }
-
-            /*
-            this.xmppClient = new Client({
-                "jid": this.fullJid,
-                "password": this.jid_password,
-                "host": this.host,
-                "websocket": {
-                    "url": this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
-                    "options": options
-                }
-            }); // */
-
-            //"domain": {enter(node) {
-            //}, exit(node){}},
-
-            this.xmppClient = new Client({
-                "service": this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
-                "domain": domain,
-             //   "resource": "nodesdk",
-                "username": this.fullJid,
-                "password": this.jid_password,
-                "options": options,
-                "mechanism": "PLAIN"
-            }); //"domain": domain,
-// */
-
-            this.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore);
-
-            //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
-            this.reconnect = this.xmppClient.reconnect;
-
-            this.reconnect.delay = RECONNECT_INITIAL_DELAY;
-
-            this.fibonacciStrategy = new backoff.FibonacciStrategy({
-                randomisationFactor: 0.4,
-                initialDelay: RECONNECT_INITIAL_DELAY,
-                maxDelay: RECONNECT_MAX_DELAY
-            });
-
-            //const sasl = this.xmppClient.plugins.sasl;
-            /*const sasl = this.xmppClient.sasl;
-            sasl.getMechanism = mechs => {
-                return "PLAIN"; // Force plain sasl
-            }; // */
-            this.xmppClient.setgetMechanism((mechs) => {
-                return "PLAIN"; // Force plain sasl
-            });
-
-
-            /*
-            this.xmppClient.handle(AUTHENTICATE_EVENT, authenticate => {
-                return authenticate(this.fullJid, this.jid_password);
-            });
-
-            this.xmppClient.handle(BIND_EVENT, (bind) => {
-                return bind(that.xmppUtils.getResourceFromFullJID(this.fullJid));
-            }); // */
-
-            this.xmppClient.on("input", (packet) => {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(packet));
-                that.startOrResetIdleTimer(true);
-            });
-
-            this.xmppClient.on("output", (packet) => {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(packet));
-                that.startOrResetIdleTimer(false);
-            });
-
-            this.xmppClient.on(ONLINE_EVENT, (msg) => {
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " |", msg);
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
-
-                if (!that.isReconnecting) {
-                    that.eventEmitter.emit("xmppconnected");
-                }
-            });
-
-            this.xmppClient.on(STATUS_EVENT, msg => {
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " |", msg);
-                /* if (msg === "closing") {
-                     that.xmppClient.restartConnect().then((res) => {
-                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) restartConnect result : ", res);
-                     }).catch((err) => {
-                         that.logger.log("error", LOG_ID + "(handleXMPPConnection) restartConnect error : ", err);
-                     }).then(() => {
-                         that.logger.log("debug", LOG_ID + "on STATUS_EVENT ");
-                     });
-                 } // */
-            });
-
-            this.xmppClient.on(STANZA_EVENT, (stanza) => {
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " |", stanza.toString());
-
-                let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
-                let delivered = PubSub.publish(eventId, stanza);
-
-                stanza.children.forEach((child) => {
-                    delivered |= PubSub.publish(that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : ""), stanza);
-                });
-
-                if (!delivered) {
-                    that.logger.log("error", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed |", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));
-                }
-
-                switch (stanza.getName()) {
-                    case "iq":
-                        // let children = stanza.children;
-                        // children.forEach((node) => {
-                        //     switch (node.getName()) {
-                        //         case "ping":
-                        //             let stanzaResponse = xml("iq", {
-                        //                 "to": stanza.attrs.from,
-                        //                 "id": stanza.attrs.id,
-                        //                 "xmlns": stanza.getNS(),
-                        //                 "type": "result"
-                        //             });
-                        //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) answered - 'stanza'", stanzaResponse.toString());
-                        //             that.xmppClient.send(stanzaResponse);
-                        //             break;
-                        //         case "query":
-                        //             if (stanza.attrs.type === "result" || stanza.attrs.type === "set") {
-                        //                 if (node.attrs.xmlns === NameSpacesLabels.RosterNameSpace) {
-                        //                     let contacts = [];
-                        //                     let subchildren = node.children;
-                        //                     subchildren.forEach(function(item) {
-                        //                         if (item.attrs.jid.substr(0, 3) !== "tel") {
-                        //                             contacts.push({
-                        //                                 jid: item.attrs.jid,
-                        //                                 subscription: item.attrs.subscription,
-                        //                                 ask: item.attrs.ask || ""
-                        //                             });
-                        //                         }
-                        //                     });
-                        //                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) XMPP Rosters received", contacts.length);
-                        //                     that.eventEmitter.emit("evt_internal_onrosters", contacts);
-                        //                 }
-                        //             }
-                        //             break;
-                        //         case "default":
-                        //             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza'", node.getName());
-                        //             break;
-                        //         default:
-                        //             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) child not managed for iq - 'stanza'", node.getName());
-                        //             break;
-                        //     }
-                        // });
-                        // if (stanza.attrs.type && stanza.attrs.type === "result") {
-                        //     if (stanza.attrs.id === "enable_xmpp_carbon") {
-                        //         that.eventEmitter.emit("rainbow_oncarbonactivated");
-                        //     }
-                        // }
-                        break;
-                    case "message":
-                        let content = "";
-                        let lang = "";
-                        let alternativeContent = [];
-                        let subject = "";
-                        let event = "";
-                        let eventJid = "";
-                        let hasATextMessage = false;
-                        let oob = null;
-                        let messageType = stanza.attrs.type;
-                        if (messageType === TYPE_CHAT || messageType === TYPE_GROUPCHAT) {
-
-                            // let fromJid = that.xmppUtils.getBareJIDFromFullJID(stanza.attrs.from);
-                            // let resource = that.xmppUtils.getResourceFromFullJID(stanza.attrs.from);
-                            // let toJid = stanza.attrs.to;
-                            // let id = stanza.attrs.id;
-                            // let children = stanza.children;
-                            // children.forEach((node) => {
-                            //     switch (node.getName()) {
-                            //         case "sent":
-                            //             if (node.attrs.xmlns === NameSpacesLabels.Carbon2NameSpace) {
-                            //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' received");
-                            //                 let forwarded = node.children[0];
-                            //                 if (forwarded && forwarded.getName() === "forwarded") {
-                            //                     let message = forwarded.children[0];
-                            //                     if (message && message.getName() === "message") {
-                            //                         fromJid = that.xmppUtils.getBareJIDFromFullJID(message.attrs.from);
-                            //                         resource = that.xmppUtils.getResourceFromFullJID(message.attrs.from);
-                            //                         toJid = message.attrs.to;
-                            //                         id = message.attrs.id;
-                            //                         let childs = message.children;
-                            //                         if (childs) {
-                            //                             childs.forEach((nodeChild) => {
-                            //                                 if (nodeChild.getName() === "body") {
-                            //                                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' of type chat received ");
-
-                            //                                     let data = {
-                            //                                         "fromJid": fromJid,
-                            //                                         "resource": resource,
-                            //                                         "toJid": toJid,
-                            //                                         "type": messageType,
-                            //                                         "content": nodeChild.getText(),
-                            //                                         "id": id,
-                            //                                         "lang": nodeChild.attrs["xml:lang"],
-                            //                                         "cc": true,
-                            //                                         "cctype": "sent",
-                            //                                         "isEvent": false
-                            //                                     };
-
-                            //                                     that.eventEmitter.emit("evt_internal_onmessagereceived", data);
-
-                            //                                 }
-                            //                             });
-                            //                         }
-                            //                     }
-                            //                 }
-                            //             }
-                            //             break;
-                            //         case "received":
-                            //             if (node.attrs.xmlns === NameSpacesLabels.Carbon2NameSpace) {
-                            //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' received");
-                            //                 let forwarded = node.children[0];
-                            //                 if (forwarded && forwarded.getName() === "forwarded") {
-                            //                     let message = forwarded.children[0];
-                            //                     if (message && message.getName() === "message") {
-                            //                         fromJid = that.xmppUtils.getBareJIDFromFullJID(message.attrs.from);
-                            //                         resource = that.xmppUtils.getResourceFromFullJID(message.attrs.from);
-                            //                         toJid = message.attrs.to;
-                            //                         id = message.attrs.id;
-                            //                         let childs = message.children;
-                            //                         if (childs) {
-                            //                             childs.forEach(function (nodeChild) {
-                            //                                 if (nodeChild.getName() === "body") {
-                            //                                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - CC message 'sent' of type chat received ");
-
-                            //                                     let data = {
-                            //                                         "fromJid": fromJid,
-                            //                                         "resource": resource,
-                            //                                         "toJid": toJid,
-                            //                                         "type": messageType,
-                            //                                         "content": nodeChild.getText(),
-                            //                                         "id": id,
-                            //                                         "lang": nodeChild.attrs["xml:lang"],
-                            //                                         "cc": true,
-                            //                                         "cctype": "sent",
-                            //                                         "isEvent": false
-                            //                                     };
-
-                            //                                     that.eventEmitter.emit("evt_internal_onmessagereceived", data);
-
-                            //                                 }
-                            //                             });
-                            //                         }
-                            //                     }
-                            //                 }
-                            //             }
-                            //             else {
-                            //                 let receipt = {
-                            //                     event: node.attrs.event,
-                            //                     entity: node.attrs.entity,
-                            //                     type: messageType,
-                            //                     id: node.attrs.id,
-                            //                     fromJid: fromJid,
-                            //                     resource: resource
-                            //                 };
-                            //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - receipt received");
-                            //                 that.eventEmitter.emit("evt_internal_onreceipt", receipt);
-                            //             }
-                            //             break;
-                            //         case "active":
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - someone is active");
-                            //             break;
-                            //         case "inactive":
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - someone is inactive");
-                            //             break;
-                            //         case "composing":
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - someone is writing");
-                            //             break;
-                            //         case "archived":
-                            //             break;
-                            //         case "stanza-id":
-                            //             break;
-                            //         case "subject":
-                            //             subject = node.getText();
-                            //             break;
-                            //         case "event":
-                            //             event = node.attrs.name;
-                            //             eventJid = node.attrs.jid;
-                            //             break;
-                            //         case "body":
-                            //             content = node.getText();
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - content", "***");
-                            //             if (node.attrs["xml:lang"]) { // in <body>
-                            //                 lang = node.attrs["xml:lang"];
-                            //             } else if (node.parent.attrs["xml:lang"]) { // in <message>
-                            //                 lang = node.parent.attrs["xml:lang"];
-                            //             } else {
-                            //                 lang = "en";
-                            //             }
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - lang", lang);
-                            //             hasATextMessage = true;
-                            //             break;
-                            //         case "content":
-                            //             alternativeContent.push( {
-                            //                 "message": node.getText(),
-                            //                 "type": node.getAttr("type")
-                            //             });
-                            //             break;
-                            //         case "request":
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - asked for receipt");
-                            //             // Acknowledge 'received'
-                            //             let stanzaReceived = xml("message", {
-                            //                 "to": fromJid,
-                            //                 "from": toJid,
-                            //                 "type": messageType
-                            //             }, xml("received", {
-                            //                 "xmlns": NameSpacesLabels.ReceiptsNameSpace,
-                            //                 "event": "received",
-                            //                 "entity": "client",
-                            //                 "id": stanza.attrs.id
-                            //                 })
-                            //             );
-
-                            //             that.logger.log("info", LOG_ID + "(handleXMPPConnection) answered - send receipt 'received'", stanzaReceived.root().toString());
-                            //             that.xmppClient.send(stanzaReceived);
-
-                            //             //Acknowledge 'read'
-                            //             if (that.shouldSendReadReceipt || (messageType === TYPE_GROUPCHAT && that.xmppUtils.getResourceFromFullJID(stanza.attrs.from) === that.fullJid)) {
-
-                            //                 let stanzaRead = xml("message", {
-                            //                     "to": fromJid,
-                            //                     "from": toJid,
-                            //                     "type": messageType
-                            //                 }, xml("received", {
-                            //                         "xmlns": NameSpacesLabels.ReceiptsNameSpace,
-                            //                         "event": "read",
-                            //                         "entity": "client",
-                            //                         "id": stanza.attrs.id
-                            //                     })
-                            //                 );
-                            //                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) answered - send receipt 'read'", stanzaRead.root().toString());
-                            //                 that.xmppClient.send(stanzaRead);
-                            //             }
-                            //             break;
-                            //         case "x":
-                            //             {
-                            //                 let xmlns = node.attrs.xmlns;
-                            //                 switch ( xmlns) {
-                            //                    case "jabber:x:conference": {
-                            //                         let invitation = {
-                            //                             event: "invitation",
-                            //                             bubbleId: node.attrs.thread,
-                            //                             bubbleJid: node.attrs.jid,
-                            //                             fromJid: fromJid,
-                            //                             resource: resource
-                            //                         };
-                            //                         that.logger.log("info", LOG_ID + "(handleXMPPConnection) invitation received");
-                            //                         that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
-                            //                     }
-                            //                     break;
-                            //                     case NameSpacesLabels.OobNameSpace : {
-                            //                         oob = {
-                            //                             url: node.getChild("url").getText(),
-                            //                             mime: node.getChild("mime").getText(),
-                            //                             filename: node.getChild("filename").getText(),
-                            //                             filesize: node.getChild("size").getText()
-                            //                         };
-                            //                         that.logger.log("info", LOG_ID + "(handleXMPPConnection) oob received");
-                            //                         break;
-                            //                     }
-                            //                     default:
-                            //                         break;
-                            //                 }
-                            //                 break;
-                            //             }
-                            //         default:
-                            //             break;
-                            //     }
-                            // });
-
-                            // let fromBubbleJid = "";
-                            // let fromBubbleUserJid = "";
-                            // if (stanza.attrs.type === TYPE_GROUPCHAT) {
-                            //     fromBubbleJid = that.xmppUtils.getBareJIDFromFullJID(stanza.attrs.from);
-                            //     fromBubbleUserJid = that.xmppUtils.getResourceFromFullJID(stanza.attrs.from);
-                            //     resource = that.xmppUtils.getResourceFromFullJID(fromBubbleUserJid);
-                            // }
-
-                            // if (hasATextMessage && ((messageType === TYPE_GROUPCHAT && fromBubbleUserJid !== that.fullJid) || (messageType === TYPE_CHAT && fromJid !== that.fullJid))) {
-                            //     that.logger.log("info", LOG_ID + "(handleXMPPConnection) message - chat message received");
-
-                            //     let data = {
-                            //         "fromJid": fromJid,
-                            //         "resource": resource,
-                            //         "toJid": toJid,
-                            //         "type": messageType,
-                            //         "content": content,
-                            //         "alternativeContent": alternativeContent,
-                            //         "id": stanza.attrs.id,
-                            //         "lang": lang,
-                            //         "cc": false,
-                            //         "cctype": "",
-                            //         "isEvent": false,
-                            //         "oob": oob
-                            //     };
-
-                            //     if (stanza.attrs.type === TYPE_GROUPCHAT) {
-                            //         data.fromBubbleJid = fromBubbleJid;
-                            //         data.fromBubbleUserJid = fromBubbleUserJid;
-                            //         data.fromJid = that.xmppUtils.getRoomJIDFromFullJID(stanza.attrs.from);
-
-                            //         if(event) {
-                            //             data.event = event;
-                            //             data.eventJid = eventJid;
-                            //             data.isEvent = true;
-                            //         }
-                            //     }
-
-                            //     that.eventEmitter.emit("evt_internal_onmessagereceived", data);
-                            // }
-                        } else if (stanza.attrs.type === "management") {
-                            // let children = stanza.children;
-                            // children.forEach(function (node) {
-                            //     switch (node.getName()) {
-                            //         case "room":
-                            //             if (node.attrs.xmlns === "jabber:iq:configuration") {
-
-                            //                 // Affiliation changed (my own or for a member)
-                            //                 if (node.attrs.status) {
-                            //                     if (node.attrs.userjid === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
-                            //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble management received for own.");
-                            //                         that.eventEmitter.emit("evt_internal_ownaffiliationchanged", {
-                            //                             "bubbleId": node.attrs.roomid,
-                            //                             "bubbleJid": node.attrs.roomjid,
-                            //                             "userJid": node.attrs.userjid,
-                            //                             "status": node.attrs.status,
-                            //                         });
-                            //                     } else {
-                            //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble affiliation received");
-                            //                         that.eventEmitter.emit("evt_internal_affiliationchanged", {
-                            //                             "bubbleId": node.attrs.roomid,
-                            //                             "bubbleJid": node.attrs.roomjid,
-                            //                             "userJid": node.attrs.userjid,
-                            //                             "status": node.attrs.status,
-                            //                         });
-                            //                     }
-                            //                 }
-                            //                 // Custom data changed
-                            //                 else if (node.attrs.customData) {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble custom-data changed");
-                            //                     that.eventEmitter.emit("evt_internal_customdatachanged", {
-                            //                         "bubbleId": node.attrs.roomid,
-                            //                         "bubbleJid": node.attrs.roomjid,
-                            //                         "customData": node.attrs.customData
-                            //                     });
-                            //                 }
-                            //                 // Topic changed
-                            //                 else if (node.attrs.topic) {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble topic changed");
-                            //                     that.eventEmitter.emit("evt_internal_topicchanged", {
-                            //                         "bubbleId": node.attrs.roomid,
-                            //                         "bubbleJid": node.attrs.roomjid,
-                            //                         "topic": node.attrs.topic
-                            //                     });
-                            //                 }
-                            //                 // Name changed
-                            //                 else if (node.attrs.name) {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) bubble name changed");
-                            //                     that.eventEmitter.emit("evt_internal_namechanged", {
-                            //                         "bubbleId": node.attrs.roomid,
-                            //                         "bubbleJid": node.attrs.roomjid,
-                            //                         "name": node.attrs.name
-                            //                     });
-                            //                 }
-                            //             }
-                            //             break;
-                            //         case "usersettings":
-                            //             if (node.attrs.xmlns === "jabber:iq:configuration") {
-                            //                 switch (node.attrs.action) {
-                            //                     case "update":
-                            //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) usersettings updated");
-                            //                         that.eventEmitter.emit("evt_internal_usersettingschanged");
-                            //                         break;
-                            //                     default:
-                            //                         break;
-                            //                 }
-                            //             }
-                            //             break;
-                            //         case "userinvite":
-                            //             if (node.attrs.xmlns === "jabber:iq:configuration") {
-                            //                 switch (node.attrs.action) {
-                            //                     case "create":
-                            //                         if (node.attrs.type === "received" && node.attrs.status === "pending") {
-                            //                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user invite received");
-                            //                             that.eventEmitter.emit("evt_internal_userinvitereceived", {
-                            //                                 invitationId: node.attrs.id
-                            //                             });
-                            //                         }
-                            //                     case "update":
-                            //                         if( node.attrs.type === "sent" && node.attrs.status === "canceled" ) {
-                            //                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user invite canceled");
-                            //                             that.eventEmitter.emit("evt_internal_userinvitecanceled", {
-                            //                                 invitationId: node.attrs.id
-                            //                             });
-                            //                         } else if( node.attrs.type === "sent" && node.attrs.status === "accepted" ) {
-                            //                             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user invite accepted");
-                            //                             that.eventEmitter.emit("evt_internal_userinviteaccepted", {
-                            //                                 invitationId: node.attrs.id
-                            //                             });
-                            //                         }
-                            //                         break;
-                            //                     default:
-                            //                         break;
-                            //                 }
-                            //             }
-                            //         case "group":
-                            //             if (node.attrs.xmlns === "jabber:iq:configuration") {
-                            //                 let action = node.attrs.action;
-                            //                 let scope = node.attrs.scope;
-
-                            //                 if (action === "create" && scope === "group") {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group created");
-                            //                     that.eventEmitter.emit("evt_internal_groupcreated", {
-                            //                         "groupId": node.attrs.id
-                            //                     });
-                            //                 } else if (action === "create" && scope === "user" && node.attrs.userId) {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user added in group");
-                            //                     that.eventEmitter.emit("evt_internal_useraddedingroup", {
-                            //                         "groupId": node.attrs.id,
-                            //                         "userId": node.attrs.userId
-                            //                     });
-                            //                 } else if (action === "delete" && scope === "group") {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group deleted");
-                            //                     that.eventEmitter.emit("evt_internal_groupdeleted", {
-                            //                         "groupId": node.attrs.id
-                            //                     });
-                            //                 } else if (action === "delete" && scope === "user" && node.attrs.userId) {
-                            //                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) user removed from group");
-                            //                     that.eventEmitter.emit("evt_internal_userremovedfromgroup", {
-                            //                         "groupId": node.attrs.id,
-                            //                         "userId": node.attrs.userId
-                            //                     });
-                            //                 } else if (action === "update" && scope === "group") {
-                            //                     if (node.attrs.name || node.attrs.comment || node.attrs.isFavorite) {
-                            //                         that.logger.log("debug", LOG_ID + "(handleXMPPConnection) group updated");
-                            //                         that.eventEmitter.emit("evt_internal_groupupdated", {
-                            //                             "groupId": node.attrs.id
-                            //                         });
-                            //                     }
-                            //                 }
-                            //             }
-                            //             break;
-                            //         default:
-                            //             break;
-                            //     }
-                            // });
-                        } else if (stanza.attrs.type === "error") {
-                            //that.logger.log("error", LOG_ID + "(handleXMPPConnection) something goes wrong...");
-                        } else if (stanza.attrs.type === "headline") {
-
-                            // that.logger.log("info", LOG_ID + "(handleXMPPConnection) channel message received");
-
-                            // let eventNode = stanza.children[0];
-                            // let items = eventNode.children[0];
-                            // let item = items.children[0];
-                            // let entry = item.children[0];
-
-                            // let message = {
-                            //     "messageId": item.attrs.id,
-                            //     "channelId": entry.attrs.channelId,
-                            //     "fromJid": entry.attrs.from,
-                            //     "message": entry.getChild("message").getText() || "",
-                            //     "title": entry.getChild("title").getText() ||  "",
-                            //     "url": entry.getChild("url").getText() ||  "",
-                            //     "date": new Date(entry.attrs.timestamp)
-                            // };
-
-                            // that.eventEmitter.emit("rainbow_onchannelmessagereceived", message);
-
-                        } else {
-                            let children = stanza.children;
-
-                            children.forEach(function (node) {
-                                switch (node.getName()) {
-                                    case "received":
-                                        let receipt = {
-                                            event: node.attrs.event,
-                                            entity: node.attrs.entity,
-                                            type: null,
-                                            id: node.attrs.id
-                                        };
-                                        //that.logger.log("info", LOG_ID + "(handleXMPPConnection) server receipt received");
-                                        that.eventEmitter.emit("evt_internal_onreceipt", receipt);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            });
-                        }
-                        break;
-                    case "presence":
-                        // let from = stanza.attrs.from;
-                        // if (from === that.fullJid || that.xmppUtils.getBareJIDFromFullJID(from) === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
-                        //     // My presence changes (coming from me or another resource)
-                        //     that
-                        //         .eventEmitter
-                        //         .emit("evt_internal_presencechanged", {
-                        //             fulljid: from,
-                        //             jid: that.xmppUtils.getBareJIDFromFullJID(from),
-                        //             resource: that.xmppUtils.getResourceFromFullJID(from),
-                        //             show: stanza.attrs.show || "online",
-                        //             status: stanza.attrs.status || "",
-                        //             type: that.xmppUtils.isFromTelJid(from)
-                        //                 ? "phone"
-                        //                 : that.xmppUtils.isFromMobile(from)
-                        //                     ? "mobile"
-                        //                     : that.xmppUtils.isFromNode(from)
-                        //                         ? "node"
-                        //                         : "desktopOrWeb"
-                        //         });
-                        // } else if (from.includes("room_")) {
-
-                        //     let children = stanza.children;
-                        //     children.forEach(function (node) {
-                        //         switch (node.getName()) {
-                        //             case "x":
-                        //                 let items = node.children;
-                        //                 items.forEach(function (item) {
-                        //                     switch (item.getName()) {
-                        //                         case "item":
-                        //                             break;
-                        //                         case "status":
-                        //                             break;
-                        //                         default:
-                        //                             break;
-                        //                     }
-                        //                 });
-                        //                 break;
-                        //             default:
-                        //                 break;
-                        //         }
-                        //     });
-
-                        //     // A presence in a room changes
-                        //     let fullJid = that.xmppUtils.getResourceFromFullJID(from);
-                        //     if (that.xmppUtils.getBareJIDFromFullJID(fullJid) === that.xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
-                        //         // My presence (node or other resources) in the room changes
-                        //         that
-                        //             .eventEmitter
-                        //             .emit("evt_internal_bubblepresencechanged", {
-                        //                 fulljid: from,
-                        //                 jid: that.xmppUtils.getBareJIDFromFullJID(from),
-                        //                 resource: that.xmppUtils.getResourceFromFullJID(from)
-                        //             });
-                        //     } else {
-                        //         // Presence of a participants of the room changes
-                        //         that
-                        //             .eventEmitter
-                        //             .emit("rainbow_onbubblerosterpresencechanged", {
-                        //                 fulljid: from,
-                        //                 jid: that.xmppUtils.getBareJIDFromFullJID(from),
-                        //                 resource: that.xmppUtils.getResourceFromFullJID(from)
-                        //             });
-                        //     }
-
-                        // } else {
-                        //     // Presence of a contact changes
-                        //     let priority = 5;
-                        //     let show = "";
-                        //     let delay = "";
-                        //     let status = "";
-                        //     if (stanza.attrs.type === "unavailable") {
-                        //         show = "unavailable";
-                        //     } else {
-                        //         let children = stanza.children;
-                        //         children.forEach(function (node) {
-                        //             if (node && typeof node !== "string") {
-                        //                 switch (node.getName()) {
-                        //                     case "priority":
-                        //                         priority = node.getText() || 5;
-                        //                         break;
-                        //                     case "show":
-                        //                         show = node.getText() || "online";
-                        //                         break;
-                        //                     case "delay":
-                        //                         delay = node.attrs.stamp || "";
-                        //                         break;
-                        //                     case "status":
-                        //                         status = node.getText() || "";
-                        //                         break;
-                        //                     default:
-                        //                         break;
-                        //                 }
-                        //             }
-                        //         });
-                        //     }
-
-                        //     that.eventEmitter.emit("evt_internal_onrosterpresence", {
-                        //         fulljid: from,
-                        //         jid: that.xmppUtils.getBareJIDFromFullJID(from),
-                        //         resource: that.xmppUtils.getResourceFromFullJID(from),
-                        //         value: {
-                        //             priority: priority,
-                        //             show: show || "",
-                        //             delay: delay,
-                        //             status: status || "",
-                        //             type: that.xmppUtils.isFromTelJid(from) ? "phone" : that.xmppUtils.isFromMobile(from) ? "mobile" : that.xmppUtils.isFromNode(from) ? "node" : "desktopOrWeb"
-                        //         }
-                        //     });
-                        // }
-                        break;
-                    case "close":
-                        break;
-                    default:
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza'", stanza.getName());
-                        break;
-                }
-            });
-
-            this.xmppClient.on(ERROR_EVENT, async (err) => {
-                if (err.code === "HPE_INVALID_CONSTANT") {
-                    return;
-                }
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " |", util.inspect(err.condition || err));
-                that.stopIdleTimer();
-                if (that.reconnect && err) {
-                    // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
-                    switch (err.condition) {
-                        // Conditions which need a reconnection
-                        case "remote-connection-failed":
-                        case "reset":
-                        case "resource-constraint":
-                        case "connection-timeout":
-                        case "system-shutdown":
-                            let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
-                            await setTimeoutPromised(waitime);
-                            if (!that.isReconnecting) {
-                                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                                await that.reconnect.reconnect();
-                            } else {
-                                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
-                            }
-                            break;
-                        // Conditions which need to only raise an event to inform up layer.
-                        case "bad-format":
-                        case "bad-namespace-prefix":
-                        case "host-gone":
-                        case "host-unknown":
-                        case "improper-addressing":
-                        case "internal-server-error":
-                        case "invalid-from":
-                        case "invalid-namespace":
-                        case "invalid-xml":
-                        case "not-authorized":
-                        case "not-well-formed":
-                        case "policy-violation":
-                        case "restricted-xml":
-                        case "undefined-condition":
-                        case "unsupported-encoding":
-                        case "unsupported-feature":
-                        case "unsupported-stanza-type":
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
-                            that.eventEmitter.emit("evt_internal_xmpperror", err);
-                            break;
-                        // Conditions which are fatal errors and then need to stop the SDK.
-                        case "see-other-host":
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : condition : ", err.condition, " is not supported the SDK");
-                        case "conflict":
-                        case "unsupported-version":
-                        default:
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : no reconnection for condition : ", err.condition);
-                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
-                            break;
-                    }
-                } else {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
-                }
-            });
-
-            this.xmppClient.on(OFFLINE_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " |" + msg);
-            });
-
-            this.xmppClient.on(CONNECT_EVENT, () => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
-            });
-
-            this.xmppClient.on(RECONNECT_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECT_EVENT : " + RECONNECT_EVENT + " |" + msg);
-            });
-
-            this.xmppClient.on(DISCONNECT_EVENT, async () => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " |", {'reconnect': that.reconnect});
-                that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
-                let waitime = 11 + Math.floor(Math.random() * Math.floor(15));
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
-                await setTimeoutPromised(waitime);
-                if (that.reconnect) {
-                    if (!that.isReconnecting) {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : try to reconnect...");
-                        await that.reconnect.reconnect();
-                    } else {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
-                    }
-                } else {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
-                }
-            });
-
-            this.xmppClient.on(CLOSE_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " |" + msg);
-            });
-
-            this.xmppClient.on(END_EVENT, (msg) => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " |" + msg);
-            });
-
-            this.reconnect.on(RECONNECTING_EVENT, () => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
-                if (that.reconnect) {
-                    that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
-                    if (!that.isReconnecting) {
-                        that.reconnect.delay = that.fibonacciStrategy.next();
-                        that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT update reconnect delay - ${that.reconnect.delay} ms`);
-
-                        that.eventEmitter.emit("rainbow_xmppreconnectingattempt");
-                        this.isReconnecting = true;
-                    } else {
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - RECONNECTING_EVENT : Do nothing, already trying to reconnect...");
-                    }
-                } else {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECTING_EVENT : reconnection disabled so no reconnect");
-                    this.isReconnecting = false;
-                }
-            });
-
-            this.reconnect.on(RECONNECTED_EVENT, () => {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTED_EVENT : " + RECONNECTED_EVENT);
-                that.fibonacciStrategy.reset();
-                that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
-                that.isReconnecting = false;
-                that.initialPresence = true;
-                that.eventEmitter.emit("rainbow_xmppreconnected");
-            });
-
-
-            this.xmppClient.start({
-                uri: this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
-                domain: domain
-            }).then((jid) => {
-                /* <iq type='get'
-                    from='romeo@montague.net/orchard'
-                    to='plays.shakespeare.lit'
-                    id='info1'>
-                        <query xmlns='http://jabber.org/protocol/disco#info'/>
-                        </iq> // */
-
-                /*
-                // Iq to discover the services provided by rainbow xmpp server
-                let stanza = xml("iq", {
-                    //to: that.jid_im + "/" + that.fullJid,
-                    "type": "get",
-                    "to": domain,
-                    "id": that.xmppUtils.getUniqueMessageId()
-                }, xml("query", {"xmlns": "http://jabber.org/protocol/disco#info"}));
-
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ discover : ", stanza.root().toString());
-                return that.xmppClient.send(stanza);
-                // */
-
-//                if (that.messagesDataStore === DataStoreType.NoStoreBotSide) {
-                    /*<iq type='set' id='juliet2'>
-                    <prefs xmlns='urn:xmpp:mam:tmp' default='roster'>
-                        <always>
-                            <jid>romeo@montague.lit</jid>
-                    </always>
-                    <never>
-                    <jid>montague@montague.lit</jid>
-                    </never>
-                    </prefs>
-                    </iq> // */
-                    // Iq to discover the services provided by rainbow xmpp server
-//                     let stanzaPrefs = xml("iq", {
-//                             //to: that.jid_im + "/" + that.fullJid,
-//                             "id": that.xmppUtils.getUniqueMessageId(),
-//                             "type": "set"
-//                         },
-//                         xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace , "default": 'always' },
-//                         //xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
-//                             /* xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
-//                               xml("never", {},
-//                                xml("jid", {}, that.jid_im)
-//                                )
-//                                )
-//                                //*/
-//
-//                               xml("auto", {"save" : false}, undefined)
-//                             , undefined)
-//                             // */
-// /*
-//                             undefined
-//                         )
-//                         , undefined
-//                         // */
-//                     );
-
-//                    that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ prefs : ", stanzaPrefs.root().toString());
-//                    return that.xmppClient.send(stanzaPrefs);
-//                }
-                // */
-            }) // */
-            /*
-            this.xmppClient.start().then((jid) => {
-                that.logger.log("info", "started", jid.toString());
-            })// */
-                .catch(err => {
-                    // rejects for any error before online
-                    if (err.code === "HPE_INVALID_CONSTANT") {
-                        that.logger.log("error", LOG_ID + "start reconnect ", err);
-                        that.reconnect.reconnect();
-                        return;
-                    }
-
-                    that.logger.log("error", LOG_ID + "start failed", err);
-                });
-        };
     }
 
     start(withXMPP) {
@@ -1133,14 +202,14 @@ class XMPPService {
             try {
                 if (withXMPP) {
                     that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
-                    that.logger.log("info", LOG_ID + "(start) XMPP URL : ", that.serverUR);
+                    that.logger.log("info", LOG_ID + "(start) XMPP URL : ", that.serverURL);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) XMPP connection blocked by configuration");
                 }
                 that.isReconnecting = false;
                 that.useXMPP = withXMPP;
                 that.ready = that.useXMPP; // Put not ready state when the XMPP is disabled in SDK config options, then methods become unavailable with @isStarted decorator.
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -1151,9 +220,10 @@ class XMPPService {
         let that = this;
         return new Promise(function (resolve) {
             that.IQEventHandlerToken = [];
-            that.eventEmitter.once("xmppconnected", function fn_xmppconnected() {
+            that.eventEmitter.once("xmppconnected", function fn_xmppconnected(info) {
+                that.logger.log("info", LOG_ID + "(signin) (xmppconnected) received : ", info);
                 that.eventEmitter.removeListener("xmppconnected", fn_xmppconnected);
-                resolve();
+                resolve(undefined);
             });
             if (that.useXMPP) {
                 that.jid_im = account.jid_im;
@@ -1161,6 +231,8 @@ class XMPPService {
                 that.jid_password = account.jid_password;
                 that.userId = account.id;
                 that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
+                //that.resourceId =  "/node_" + that.generatedRandomId ;
+                that.resourceId =  "node_" + that.generatedRandomId ;
                 that.jid = account.jid_im;
 
                 that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
@@ -1168,19 +240,19 @@ class XMPPService {
                 that.IQEventHandler = new IQEventHandler(that);
 
                 that.IQEventHandlerToken = [
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetReceived),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetReceived),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived)
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
+                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived.bind(that.IQEventHandler))
                 ];
 
                 that.handleXMPPConnection(headers);
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
                 that.startOrResetIdleTimer();
-                //resolve();
+                //resolve(undefined);
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     }
@@ -1218,36 +290,39 @@ class XMPPService {
                     // Disconnect the xmpp connection
                     if (that.xmppClient) {
                         let stanza = xml("presence", {
-                            //to: that.jid_im + "/" + that.fullJid,
+                            //from to : that.jid_im + "/" + that.fullJid,
+                            //to: that.jid_im ,
                             type: "unavailable"
-                        }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
-                        stanza.append(xml("show", {}, "away"));
-                        stanza.append(xml("status", {}, "away"));
+                        //}, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
+                        }, null);
+                         // stanza.append(xml("show", {}, "away"));
+                         // stanza.append(xml("status", {}, "away"));
 
-                        that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         that.xmppClient.send(stanza);
 
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
                             that.xmppClient = null;
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("debug", LOG_ID + "(stop) error received");
                             that.logger.log("internalerror", LOG_ID + "(stop) error received : ", err);
-                            resolve();
+                            resolve(undefined);
                         });
                     } else {
-                        that.logger.log("debug", LOG_ID + "(stop) nothing to stop");
-                        resolve();
+                        that.logger.log("debug", LOG_ID + "(stop) nothing to stop that.xmppClient : ", that.xmppClient);
+                        resolve(undefined);
                     }
                 } else {
-                    that.logger.log("debug", LOG_ID + "(stop) nothing to stop");
-                    resolve();
+                    that.logger.log("debug", LOG_ID + "(stop) nothing to stop, that.useXMPP : ", that.useXMPP, ", forceStop : ", forceStop) ;
+                    resolve(undefined);
                 }
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) error received");
                 that.logger.log("internalerror", LOG_ID + "(stop) error received : ", err);
-                resolve();
+                resolve(undefined);
             }
         });
     }
@@ -1259,7 +334,7 @@ class XMPPService {
         this.stopIdleTimer();
         if (!this.forceClose) {
             this.idleTimer = setTimeout(() => {
-                this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
+                this.logger.log("internal", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;
@@ -1279,6 +354,399 @@ class XMPPService {
             clearTimeout(this.pingTimer);
             this.pingTimer = null;
         }
+    }
+
+    handleXMPPConnection (headers) {
+
+        let that = this;
+
+        let domain = that.xmppUtils.getDomainFromFullJID(this.fullJid);
+
+        let options = {agent: null};
+        Object.assign(options, headers);
+        let opt = url.parse(this.proxy.proxyURL);
+        if (this.proxy.isProxyConfigured) {
+            if (this.proxy.secureProtocol) {
+                opt.secureProxy = true;
+            }
+            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+            options.agent = new HttpsProxyAgent(opt);
+            //options.agent = new HttpsProxyAgent(this.proxy.proxyURL);
+            ws_options = options;
+        }
+
+        /*
+        this.xmppClient = new Client({
+            "jid": this.fullJid,
+            "password": this.jid_password,
+            "host": this.host,
+            "websocket": {
+                "url": this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+                "options": options
+            }
+        }); // */
+
+        //"domain": {enter(node) {
+        //}, exit(node){}},
+        let xmppLinkOptions = {
+            "service": that.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+            "domain": domain,
+            "resource": that.resourceId,
+            "username": that.fullJid,
+            "password": that.jid_password,
+            "options": options,
+            "mechanism": "PLAIN"
+        };
+
+        that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", " xmppLinkOptions : ", xmppLinkOptions);
+
+        that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
+// */
+
+        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore);
+
+        //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
+        that.reconnect = this.xmppClient.reconnect;
+
+        that.reconnect.delay = RECONNECT_INITIAL_DELAY;
+
+        that.fibonacciStrategy = new backoff.FibonacciStrategy({
+            randomisationFactor: 0.4,
+            initialDelay: RECONNECT_INITIAL_DELAY,
+            maxDelay: RECONNECT_MAX_DELAY
+        });
+
+        //const sasl = this.xmppClient.plugins.sasl;
+        /*const sasl = this.xmppClient.sasl;
+        sasl.getMechanism = mechs => {
+            return "PLAIN"; // Force plain sasl
+        }; // */
+        this.xmppClient.setgetMechanism((mechs) => {
+            return "PLAIN"; // Force plain sasl
+        });
+
+
+        /*
+        this.xmppClient.handle(AUTHENTICATE_EVENT, authenticate => {
+            return authenticate(this.fullJid, this.jid_password);
+        });
+
+        this.xmppClient.handle(BIND_EVENT, (bind) => {
+            return bind(that.xmppUtils.getResourceFromFullJID(this.fullJid));
+        }); // */
+
+        that.xmppClient.on("input", function fn_input (packet) {
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(prettydata.xml(packet)));
+            that.startOrResetIdleTimer(true);
+        });
+
+        that.xmppClient.on("output", function fn_output (packet) {
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(prettydata.xml(packet)));
+            that.startOrResetIdleTimer(false);
+        });
+
+        that.xmppClient.on(ONLINE_EVENT, function fn_ONLINE_EVENT (msg) {
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
+
+            if (!that.isReconnecting) {
+                that.eventEmitter.emit("xmppconnected");
+            }
+        });
+
+        that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (msg) {
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", msg);
+            /* if (msg === "closing") {
+                 that.xmppClient.restartConnect().then((res) => {
+                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) restartConnect result : ", res);
+                 }).catch((err) => {
+                     that.logger.log("error", LOG_ID + "(handleXMPPConnection) restartConnect error : ", err);
+                 }).then(() => {
+                     that.logger.log("debug", LOG_ID + "on STATUS_EVENT ");
+                 });
+             } // */
+        });
+
+        that.xmppClient.on(STANZA_EVENT, function fn_STANZA_EVENT (stanza) {
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
+
+            let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
+            let delivered = PubSub.publish(eventId, stanza);
+
+            stanza.children.forEach((child) => {
+                delivered |= PubSub.publish(that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : ""), stanza);
+            });
+
+            if (!delivered) {
+                that.logger.log("error", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed | ", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));
+            }
+
+            switch (stanza.getName()) {
+                case "iq":
+                    break;
+                case "message":
+                    let content = "";
+                    let lang = "";
+                    let alternativeContent = [];
+                    let subject = "";
+                    let event = "";
+                    let eventJid = "";
+                    let hasATextMessage = false;
+                    let oob = null;
+                    let messageType = stanza.attrs.type;
+                    if (messageType === TYPE_CHAT || messageType === TYPE_GROUPCHAT) {
+
+                    } else if (stanza.attrs.type === "management") {
+                    } else if (stanza.attrs.type === "error") {
+                        //that.logger.log("error", LOG_ID + "(handleXMPPConnection) something goes wrong...");
+                    } else if (stanza.attrs.type === "headline") {
+
+                        // that.logger.log("info", LOG_ID + "(handleXMPPConnection) channel message received");
+
+                    } else {
+                        let children = stanza.children;
+
+                        children.forEach(function (node) {
+                            switch (node.getName()) {
+                                case "received":
+                                    let receipt = {
+                                        event: node.attrs.event,
+                                        entity: node.attrs.entity,
+                                        type: null,
+                                        id: node.attrs.id
+                                    };
+                                    //that.logger.log("info", LOG_ID + "(handleXMPPConnection) server receipt received");
+                                    that.eventEmitter.emit("evt_internal_onreceipt", receipt);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
+                    break;
+                case "presence":
+                    break;
+                case "close":
+                    break;
+                default:
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza'", stanza.getName());
+                    break;
+            }
+        });
+
+        that.xmppClient.on(ERROR_EVENT, async function fn_ERROR_EVENT (err) {
+            if (err.code === "HPE_INVALID_CONSTANT") {
+                return;
+            }
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
+            //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
+            that.stopIdleTimer();
+            if (that.reconnect && err) {
+                // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
+                switch (err.condition) {
+                    // Conditions which need a reconnection
+                    case "remote-connection-failed":
+                    case "reset":
+                    case "resource-constraint":
+                    case "connection-timeout":
+                    case "system-shutdown":
+                        let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
+                        await setTimeoutPromised(waitime);
+                        if (!that.isReconnecting) {
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
+                            await that.reconnect.reconnect();
+                        } else {
+                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
+                        }
+                        break;
+                    // Conditions which need to only raise an event to inform up layer.
+                    case "bad-format":
+                    case "bad-namespace-prefix":
+                    case "host-gone":
+                    case "host-unknown":
+                    case "improper-addressing":
+                    case "internal-server-error":
+                    case "invalid-from":
+                    case "invalid-namespace":
+                    case "invalid-xml":
+                    case "not-authorized":
+                    case "not-well-formed":
+                    case "policy-violation":
+                    case "restricted-xml":
+                    case "undefined-condition":
+                    case "unsupported-encoding":
+                    case "unsupported-feature":
+                    case "unsupported-stanza-type":
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
+                        that.eventEmitter.emit("evt_internal_xmpperror", err);
+                        break;
+                    // Conditions which are fatal errors and then need to stop the SDK.
+                    case "see-other-host":
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
+                    case "conflict":
+                    case "unsupported-version":
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
+                        that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                        break;
+                    // Default condition, we do not know what to do, so to avoir wrong stop of SDK, we ignore it.
+                    default:
+                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
+                        that.eventEmitter.emit("evt_internal_xmpperror", err);
+                        break;
+                }
+            } else {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
+            }
+        });
+
+        that.xmppClient.on(OFFLINE_EVENT, function fn_OFFLINE_EVENT (msg) {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
+        });
+
+        that.xmppClient.on(CONNECT_EVENT, function fn_CONNECT_EVENT () {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
+        });
+
+        that.xmppClient.on(RECONNECT_EVENT, function fn_RECONNECT_EVENT (msg) {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECT_EVENT : " + RECONNECT_EVENT + " | " + msg);
+        });
+
+        that.xmppClient.on(DISCONNECT_EVENT, async function fn_DISCONNECT_EVENT () {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " | ", {'reconnect': that.reconnect});
+            that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
+            let waitime = 11 + Math.floor(Math.random() * Math.floor(15));
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
+            await setTimeoutPromised(waitime);
+            if (that.reconnect) {
+                if (!that.isReconnecting) {
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : It is not already reconnecting, so try to reconnect...");
+                    await that.reconnect.reconnect();
+                } else {
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
+                }
+            } else {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
+            }
+        });
+
+        that.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
+        });
+
+        that.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " | " + msg);
+        });
+
+        that.reconnect.on(RECONNECTING_EVENT, function fn_RECONNECTING_EVENT () {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
+            if (that.reconnect) {
+                that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
+                if (!that.isReconnecting) {
+                    that.reconnect.delay = that.fibonacciStrategy.next();
+                    that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT update reconnect delay - ${that.reconnect.delay} ms`);
+
+                    that.eventEmitter.emit("rainbow_xmppreconnectingattempt");
+                    that.isReconnecting = true;
+                } else {
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - RECONNECTING_EVENT : Do nothing, already trying to reconnect...");
+                }
+            } else {
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECTING_EVENT : reconnection disabled so no reconnect");
+                that.isReconnecting = false;
+            }
+        });
+
+        that.reconnect.on(RECONNECTED_EVENT, function fn_RECONNECTED_EVENT () {
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTED_EVENT : " + RECONNECTED_EVENT);
+            that.fibonacciStrategy.reset();
+            that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
+            that.isReconnecting = false;
+            that.initialPresence = true;
+            that.eventEmitter.emit("rainbow_xmppreconnected");
+        });
+
+
+        that.xmppClient.start({
+            uri: this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+            domain: domain
+        }).then((jid) => {
+            /* <iq type='get'
+                from='romeo@montague.net/orchard'
+                to='plays.shakespeare.lit'
+                id='info1'>
+                    <query xmlns='http://jabber.org/protocol/disco#info'/>
+                    </iq> // */
+
+
+            // Iq to discover the services provided by rainbow xmpp server
+            let stanza = xml("iq", {
+                //to: that.jid_im + "/" + that.fullJid,
+                "type": "get",
+                "to": domain,
+                "id": that.xmppUtils.getUniqueMessageId()
+            }, xml("query", {"xmlns": "http://jabber.org/protocol/disco#info"}));
+
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ discover : ", stanza.root().toString());
+            return that.xmppClient.send(stanza);
+            // */
+
+//                if (that.messagesDataStore === DataStoreType.NoStoreBotSide) {
+            /*<iq type='set' id='juliet2'>
+            <prefs xmlns='urn:xmpp:mam:tmp' default='roster'>
+                <always>
+                    <jid>romeo@montague.lit</jid>
+            </always>
+            <never>
+            <jid>montague@montague.lit</jid>
+            </never>
+            </prefs>
+            </iq> // */
+            // Iq to discover the services provided by rainbow xmpp server
+//                     let stanzaPrefs = xml("iq", {
+//                             //to: that.jid_im + "/" + that.fullJid,
+//                             "id": that.xmppUtils.getUniqueMessageId(),
+//                             "type": "set"
+//                         },
+//                         xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace , "default": 'always' },
+//                         //xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
+//                             /* xml("prefs", {"xmlns": NameSpacesLabels.MamNameSpace, "default": 'always'},
+//                               xml("never", {},
+//                                xml("jid", {}, that.jid_im)
+//                                )
+//                                )
+//                                //*/
+//
+//                               xml("auto", {"save" : false}, undefined)
+//                             , undefined)
+//                             // */
+// /*
+//                             undefined
+//                         )
+//                         , undefined
+//                         // */
+//                     );
+
+//                    that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ prefs : ", stanzaPrefs.root().toString());
+//                    return that.xmppClient.send(stanzaPrefs);
+//                }
+            // */
+        }) // */
+            /*
+            this.xmppClient.start().then((jid) => {
+                that.logger.log("info", "started", jid.toString());
+            })// */
+            .catch(async err => {
+                // rejects for any error before online
+                if (err.code === "HPE_INVALID_CONSTANT") {
+                    that.logger.log("error", LOG_ID + "start reconnect ", err);
+                    await that.reconnect.reconnect();
+                    return;
+                }
+
+                that.logger.log("error", LOG_ID + "start failed", err);
+            });
     }
 
     setPresence(show, status) {
@@ -1310,7 +778,7 @@ class XMPPService {
             return this.xmppClient.send(stanza);
         } else {
             this.logger.log("warn", LOG_ID + "(setPresence) No XMPP connection...");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 
@@ -1326,7 +794,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
                     that.logger.log("debug", LOG_ID + "(enableCarbon) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     return reject(err);
                 });
@@ -1337,7 +805,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessage(message, jid, lang, content, subject, answeredMsg) {
+    sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -1389,6 +857,11 @@ class XMPPService {
                 }, content.message));
             }
 
+            // Handle urgency
+            if (urgency && urgency !== 'std') {
+                stanza.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+            }
+            
             that.logger.log("internal", LOG_ID + "(sendChatMessage) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
@@ -1404,7 +877,7 @@ class XMPPService {
         return Promise.resolve(null);
     }
 
-    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention) {
+    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
 
@@ -1454,6 +927,11 @@ class XMPPService {
                 }, content.message));
             }
 
+            // Handle urgency
+            if (urgency && urgency !== 'std') {
+                stanza.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+            }
+            
             if (attention) {
                 if (Array.isArray(attention) && attention.length > 0) {
                     let mentions = xml("mention", {"xmlns": NameSpacesLabels.AttentionNS}, undefined);
@@ -1498,7 +976,7 @@ class XMPPService {
 
     }
 
-    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang) {
+    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, urgency: string = null) {
         let that = this;
 //        $log.info("[Conversation] >sendCorrectedChatMessage: origMsgId=" + origMsgId)
 
@@ -1537,6 +1015,12 @@ class XMPPService {
             );
         }
 
+        // Handle urgency
+        if (urgency && urgency !== 'std') {
+            xmppMessage.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+        }
+
+
         // message = this.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
         if (!originalMessage) {
             return null;
@@ -1557,14 +1041,26 @@ class XMPPService {
         return messageToSendID;
     }
 
-    markMessageAsRead(message) {
+    markMessageAsRead(message, conversationType: string = "chat", span : number = 0) {
         let that = this;
         if (this.useXMPP) {
+
+            let type = TYPE_CHAT;
+            if (equalIgnoreCase(conversationType,"chat") )
+                type = TYPE_CHAT;
+            else if (equalIgnoreCase(conversationType,"headline"))
+                type = TYPE_HEADLINE;
+            else
+                type = TYPE_GROUPCHAT;
+
             let stanzaRead = xml("message", {
                 "to": message.fromJid,
                 //"from": message.toJid + "ERROR",
-                "type": TYPE_CHAT
-            }, xml("received", {
+                "type": type
+            }, xml("timestamp", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace,
+                "value": new Date().toJSON(),
+            }), xml("received", {
                 "xmlns": NameSpacesLabels.ReceiptsNameSpace,
                 "event": "read",
                 "entity": "client",
@@ -1575,7 +1071,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     that.logger.log("error", LOG_ID + "(markMessageAsRead) error ");
                     that.logger.log("internalerror", LOG_ID + "(markMessageAsRead) error : ", err);
@@ -1587,6 +1083,105 @@ class XMPPService {
         that.logger.log("warn", LOG_ID + "(markMessageAsRead) No XMPP connection...");
         return Promise.resolve(null);
     }
+
+    markMessageAsReceived(message, conversationType : string , span : number = 0)
+    {
+        /*
+        Sharp.Xmpp.Im.MessageType type;
+        if (conversationType == Conversation.ConversationType.User)
+        type = Sharp.Xmpp.Im.MessageType.Chat;
+        else if (conversationType == "Headline")
+        type = Sharp.Xmpp.Im.MessageType.Headline;
+        else
+        type = Sharp.Xmpp.Im.MessageType.Groupchat;
+
+        Task task = new Task(() => {
+            if (xmppClient != null)
+                xmppClient.MarkMessageAsReceive(jid, messageId, type);
+        });
+
+        if (span == default)
+        task.Start();
+        else
+        Task.Delay(span).ContinueWith(t => task.Start());
+        // */
+
+
+        /*
+        <message
+        from='kingrichard@royalty.england.lit/throne'
+        id='bi29sg183b4v'
+        to='northumberland@shakespeare.lit/westminster'>
+      <received xmlns='urn:xmpp:receipts' id='richard2-4.1.247'/>
+    </message>
+         */
+        /* C#
+        Message message = new Message(jid);
+        message.Type = messageType;
+
+        XmlElement e = message.Data;
+
+        XmlElement timestamp = e.OwnerDocument.CreateElement("timestamp", "urn:xmpp:receipts");
+        timestamp.SetAttribute("value", DateTime.UtcNow.ToString("o"));
+        e.AppendChild(timestamp);
+
+        XmlElement received = e.OwnerDocument.CreateElement("received", "urn:xmpp:receipts");
+        received.SetAttribute("entity", "client");
+        received.SetAttribute("event", "received");
+        received.SetAttribute("id", messageId);
+        e.AppendChild(received);
+
+        im.SendMessage(message);
+    // */
+        /* otliteclient-sdk
+        let msg = $msg({ "to": to, "from": from, "type": "chat" }).c("received", { "xmlns": Conversation.ReceiptNS, "event": "received", "entity": "client", "id": message.id });
+
+        if (this.type !== Conversation.Type.ONE_TO_ONE) {
+            msg = $msg({ "to": to, "from": from, "type": "groupchat" }).c("received", { "xmlns": Conversation.ReceiptNS, "event": "received", "entity": "client", "type": "muc", "id": message.id });
+        } // */
+
+        let that = this;
+        if (this.useXMPP) {
+
+            let type = TYPE_CHAT;
+            if (equalIgnoreCase(conversationType,"chat") )
+                type = TYPE_CHAT;
+            else if (equalIgnoreCase(conversationType,"headline"))
+                type = TYPE_HEADLINE;
+            else
+                type = TYPE_GROUPCHAT;
+
+            let stanzaRead = xml("message", {
+                "to": message.fromJid,
+                //"from": message.toJid + "ERROR",
+                type
+            }, xml("timestamp", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace,
+                "value": new Date().toJSON(),
+            }), xml("received", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace,
+                "event": "received",
+                "entity": "client",
+                "id": message.id
+            }));
+
+            this.logger.log("internal", LOG_ID + "(markMessageAsReceived) send - 'message'", stanzaRead.root().toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanzaRead).then(() => {
+                    that.logger.log("debug", LOG_ID + "(markMessageAsRead) sent");
+                    resolve(undefined);
+                }).catch((err) => {
+                    that.logger.log("error", LOG_ID + "(markMessageAsRead) error ");
+                    that.logger.log("internalerror", LOG_ID + "(markMessageAsRead) error : ", err);
+                    return reject(err);
+                });
+            });
+        }
+
+        that.logger.log("warn", LOG_ID + "(markMessageAsReceived) No XMPP connection...");
+        return Promise.resolve(null);
+    }
+
 
     sendChatExistingFSMessage(message, jid, lang, fileDescriptor) {
         let that = this;
@@ -1731,7 +1326,7 @@ class XMPPService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
                     that.logger.log("debug", LOG_ID + "(sendIsTypingState) sent");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err) => {
                     return reject(err);
                 });
@@ -1811,7 +1406,7 @@ class XMPPService {
             return this.xmppClient.send(stanza);
         } else {
             this.logger.log("warn", LOG_ID + "(sendInitialBubblePresence) No XMPP connection...");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 
@@ -1846,7 +1441,7 @@ class XMPPService {
 
 
                 this.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
-                this.xmppClient.sendIq(stanza).then((data) => {
+                this.xmppClient.sendIq(stanza).then((data : any) => {
                     let pbxagentstatus = {
                         "phoneapi": "",
                         "xmppagent": "",
@@ -1980,7 +1575,7 @@ class XMPPService {
             //xmppService.sendIQ(msg);
         } else {
             this.logger.log("warn", LOG_ID + "(deleteAllCallLogs) No XMPP connection...");
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 
@@ -2176,7 +1771,7 @@ class XMPPService {
         });
     }
 
-    sendPing() {
+    sendPing() : Promise<any>{
         let that = this;
         if (this.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -2186,16 +1781,172 @@ class XMPPService {
             }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
             this.logger.log("internal", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
-            this.xmppClient.send(stanza).catch((error) => {
+            return this.xmppClient.send(stanza).catch((error) => {
                 this.logger.log("error", LOG_ID + "(sendPing) error ");
                 this.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
+                return error;
             });
         } else {
             this.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");
         }
     }
+// region Alerts
 
-    // Mam
+    async SendAlertMessage(alertMessage : AlertMessage) {
+
+        let that = this;
+        let uniqMessageId = that.xmppUtils.getUniqueMessageId();
+        let uniqId = that.xmppUtils.getUniqueId(undefined);
+
+
+        if (this.xmppClient != null) {
+            // Create IM Message
+            /* Sharp.Xmpp.Im.Message imMessage = new Sharp.Xmpp.Im.Message(alertMessage.ToJid, body, subject, null, Sharp.Xmpp.Im.MessageType.Headline);
+             imMessage.Id = alertMessage.Id;
+             imMessage.From = new Jid(alertMessage.FromJid + "/" + alertMessage.FromResource);
+             // */
+
+            let body = "text of the body";
+
+            // Get 'root' XML node
+            let root = xml("message", {
+                //"from": this.fullJid,
+                //"from": alertMessage.FromJid + "/" + alertMessage.FromResource,
+                "to": alertMessage.toJid,
+                "xmlns": NameSpacesLabels.ClientNameSpace,
+                "type": TYPE_HEADLINE,
+                "id": uniqMessageId
+            }, xml("body", {}, body), xml("request", {
+                    "xmlns": NameSpacesLabels.ReceiptsNameSpace
+                }, xml("active", {
+                    "xmlns": NameSpacesLabels.ChatestatesNameSpace
+                })
+            ));
+
+            // let root = imMessage.Data;
+
+            let elm;
+            let subElm;
+
+            // Create 'alert' node
+            let xmlAlertElement = xml("alert", "http://www.incident.com/cap/1.0");
+
+            if (!isNullOrEmpty(alertMessage.identifier)) {
+                elm = xml("identifier").Text(alertMessage.identifier);
+                xmlAlertElement.append(elm);
+            }
+
+            if (!isNullOrEmpty(alertMessage.sender)) {
+                elm = xml("sender").Text(alertMessage.sender);
+                xmlAlertElement.append(elm);
+            }
+
+//if (!isNullOrEmpty(alertMessage.Sent))
+//{
+            elm = xml("sent").Text(alertMessage.sent); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
+            xmlAlertElement.append(elm);
+//}
+
+            if (!isNullOrEmpty(alertMessage.status)) {
+                elm = xml("status").Text(alertMessage.status);
+                xmlAlertElement.append(elm);
+            }
+
+            if (!isNullOrEmpty(alertMessage.msgType)) {
+                elm = xml("msgType").Text(alertMessage.msgType);
+                xmlAlertElement.append(elm);
+            }
+
+            if (!isNullOrEmpty(alertMessage.references)) {
+                elm = xml("references").Text(alertMessage.references);
+                xmlAlertElement.append(elm);
+            }
+
+            if (!isNullOrEmpty(alertMessage.scope)) {
+                elm = xml("scope").Text(alertMessage.scope);
+                xmlAlertElement.append(elm);
+            }
+
+// Create 'info' node
+            let xmlInfoElement = xml("info");
+
+            if ((alertMessage.info != null) && (alertMessage.msgType != "Cancel")) {
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("category").Text(alertMessage.info.category);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("event").Text(alertMessage.info.event);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("urgency").Text(alertMessage.info.urgency);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("certainty").Text(alertMessage.info.certainty);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("senderName").Text(alertMessage.info.senderName);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("description").Text(alertMessage.info.description);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.category)) {
+                    elm = xml("instruction").Text(alertMessage.info.instruction);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.contact)) {
+                    elm = xml("contact").Text(alertMessage.info.contact);
+                    xmlInfoElement.append(elm);
+                }
+
+                if (!isNullOrEmpty(alertMessage.info.headline)) {
+                    elm = xml("headline").Text(alertMessage.info.headline);
+                    xmlInfoElement.append(elm);
+                }
+
+                elm = xml("expires").Text(alertMessage.info.expires); //.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss-00:00"));
+                xmlInfoElement.append(elm);
+
+                // Add resource node
+                if (isNullOrEmpty(alertMessage.info.descriptionMimeType))
+                    alertMessage.info.descriptionMimeType = "text/plain";
+
+                elm = xml("resource");
+
+                subElm = xml("mimeType").Text(alertMessage.info.descriptionMimeType);
+                elm.append(subElm);
+
+                subElm = xml("uri").Text("about:blank");
+                elm.append(subElm);
+
+                xmlInfoElement.append(elm);
+
+                xmlAlertElement.append(xmlInfoElement);
+            }
+            root.append(xmlAlertElement);
+
+// Send ImMessage
+//xmppClient.SendMessage(imMessage);
+            return await this.xmppClient.sendIq(root);
+        }
+// */
+    }
+
+// enregion Alerts
+
+//region Mam
     mamQuery( jid, options) {
         let that = this;
 
@@ -2337,7 +2088,7 @@ class XMPPService {
              }
         });
     }
-
+//endregion mam
     // Voice Messages
     voiceMessageQuery(jid) {
         let that = this;
@@ -2368,7 +2119,6 @@ class XMPPService {
             });
         });
     }
-
 
 }
 

@@ -20,11 +20,11 @@ const LOG_ID = "SETT/SVCE - ";
  * @name Settings
  * @version SDKVERSION
  * @description
- *      This module manages the settings of the connected user.
+ *      This module manages the settings of the connected user. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
- *      - Get user settings
- *      - Update user settings
+ *      - Get user settings <br/>
+ *      - Update user settings <br/>
  */
 class Settings {
     private _xmpp: XMPPService;
@@ -44,7 +44,13 @@ class Settings {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
+    static getClassName(){ return 'Settings'; }
+    getClassName(){ return Settings.getClassName(); }
+
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -73,7 +79,7 @@ class Settings {
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that.ready = true;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject();
             }
@@ -87,7 +93,7 @@ class Settings {
                 that._xmpp = null;
                 that._rest = null;
                 that.ready = false;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject();
@@ -100,7 +106,7 @@ class Settings {
      * @method getUserSettings
      * @instance
      * @description
-     *  Get current User Settings
+     *  Get current User Settings <br/>
      * @return {Promise<UserSettings>} A promise containing the result
      */
     getUserSettings() {
@@ -123,7 +129,7 @@ class Settings {
      * @method updateUserSettings
      * @instance
      * @description
-     *  Update current User Settings
+     *  Update current User Settings <br/>
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
      */
     updateUserSettings(settings) {

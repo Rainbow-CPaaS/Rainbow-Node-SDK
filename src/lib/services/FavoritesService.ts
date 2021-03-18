@@ -5,7 +5,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import {logEntryExit, setTimeoutPromised} from "../common/Utils";
+import {logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
 import { Favorite } from '../common/models/Favorite';
@@ -25,7 +25,7 @@ const LOG_ID = "FAVTE/SVCE - ";
  * @version SDKVERSION
  * @public
 * @description
-*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots.
+*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots. <br/>
 *      The main methods and events proposed in that service allow to: <br>
 *      - Create or delete a Rainbow Favorite (one-to-one, bubble or bot), <br/>
 *      - Retrieve all information linked to that Favorite, <br>
@@ -44,8 +44,7 @@ class FavoritesService {
     private _favoriteEventHandler: FavoriteEventHandler;
     private _favoriteHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
-    private favorites: any[] = [];
-    private _xmppManagementHandler: any;
+    private favorites: Favorite[] = [];
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -55,7 +54,13 @@ class FavoritesService {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+    static getClassName(){ return 'FavoritesService'; }
+    getClassName(){ return FavoritesService.getClassName(); }
+
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -140,7 +145,7 @@ class FavoritesService {
 
     public async init () {
         let that = this;
-        await this.getServerFavorites();
+        await that.getServerFavorites().catch();
         /*await setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
             that.getCallLogHistoryPage()
@@ -168,8 +173,8 @@ class FavoritesService {
 
         that._favoriteEventHandler = new FavoriteEventHandler(that._xmpp, that);
         that._favoriteHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived),
-            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived)
+            PubSub.subscribe(that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_MANAGEMENT, that._favoriteEventHandler.onManagementMessageReceived.bind(that._favoriteEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._favoriteEventHandler.MESSAGE_ERROR, that._favoriteEventHandler.onErrorMessageReceived.bind(that._favoriteEventHandler))
         ];
 
         /*
@@ -201,8 +206,8 @@ class FavoritesService {
             let that = this;
             return new Promise(async (resolve, reject) => {
                 this._rest.getServerFavorites().then(async (favorite : []) => {
-                    that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                     if (favorite) {
+                        that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
                             return this.createFavoriteObj(data.id, data.peerId, data.type);
                         });
@@ -211,6 +216,8 @@ class FavoritesService {
                             return favorite !== null;
                         });
                         that._logger.log("info", LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
+                    } else {
+                        that._logger.log("info", LOG_ID + "(getServerFavorites) favorite return by REST service is null.");
                     }
                     resolve(this.favorites);
                 }).catch((err) => {
@@ -294,7 +301,12 @@ class FavoritesService {
         if (favorite) { conversation.isFavorite = true; favorite.conv = conversation; }
     }
 
-    private async getFavorite(peerId: string) {
+    /**
+     * @description
+     * get favorite from cach by Id.
+     * @param {string} peerId The id of the favorite.
+     */
+    public async getFavorite(peerId: string) {
         let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
         //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
         //return await convGetter;
@@ -374,7 +386,7 @@ class FavoritesService {
      * @method fetchAllFavorites()
      * @instance
      * @description
-     *   Fetch all the Favorites from the server in a form of an Array
+     *   Fetch all the Favorites from the server in a form of an Array <br/>
      * @return {Conversation[]} An array of Favorite objects
      */
     public async fetchAllFavorites() {
@@ -401,12 +413,12 @@ class FavoritesService {
      * @method createFavorite()
      * @instance
      * @description
-     *   Add conversation/bubble/bot to Favorites Array
-     * @param {String} id of the conversation/bubble
-     * @param {String} type of Favorite (can be 'user' or 'bubble')
+     *   Add conversation/bubble/bot to Favorites Array <br/>
+     * @param {string} id of the conversation/bubble
+     * @param {string} type of Favorite (can be 'user' or 'bubble')
      * @return {Promise<Favorite>} A Favorite object
      */
-    public async createFavorite(id, type) : Promise<Favorite> {
+    public async createFavorite(id : string, type : string) : Promise<Favorite> {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -448,11 +460,11 @@ class FavoritesService {
      * @method deleteFavorite()
      * @instance
      * @description
-     *   Delete conversation/bubble/bot from Favorites Array
-     * @param {String} id of the Favorite item
+     *   Delete conversation/bubble/bot from Favorites Array <br/>
+     * @param {string} id of the Favorite item
      * @return {Favorite[]} A Favorite object
      */
-    async deleteFavorite(id) : Promise<any>{
+    async deleteFavorite(id : string) : Promise<any>{
         let that = this;
         return new Promise((resolve, reject) => {
             if (!id) {

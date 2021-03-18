@@ -14,6 +14,7 @@ jsdoc/cheatsheet/node/nodesheets.nodesheets.html
 lib/common/models/fileDescriptor.js.map
 lib/common/models/fileDescriptor.js
 .idea/
+.idea.OLD/
 package-lock.json
 /Samples/index.js
 lib/common
@@ -272,3 +273,6 @@ fabric.properties
 /lib/NodeSDK.js.map
 /lib/ProxyImpl.d.ts
 /Samples/index.d.ts
+/tasks/generateFoss.d.ts
+/tasks/generateFoss.js
+/tasks/generateFoss.js.map

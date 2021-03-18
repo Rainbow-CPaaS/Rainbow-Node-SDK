@@ -1,5 +1,6 @@
 "use strict";
 export {};
+import {PresenceLevel, PresenceRainbow} from "./PresenceRainbow";
 
 
 /**
@@ -7,12 +8,12 @@ export {};
  * @readonly
  * @enum {string}
  */
-let RainbowPresence = {
+/*let RainbowPresence = {
     ONLINE: "online",
     AWAY: "away",
     INVISIBLE: "invisible",
     DND: "dnd"
-};
+}; // */
 
 /**
  * @class
@@ -22,21 +23,22 @@ let RainbowPresence = {
  *		Settings contains several informations stored and shared by application clients.<br>
  */
 class Settings {
-	public presence: any;
+	public presence: PresenceRainbow;
+    public status : string ;
 	public displayNameOrderFirstNameFirst: any;
 	public activeAlarm: any;
 	public activeNotif: any;
 
     constructor() {
-        
+
         /**
          * @public
          * @readonly
-         * @property {RainbowPresence} presence Setting for manual user presence (used to go back to this presence when user logs in, instead of default (online))
+         * @property {PresenceRainbow} presence Setting for manual user presence (used to go back to this presence when user logs in, instead of default (online))
          * @instance
          */
-        this.presence = RainbowPresence.ONLINE;
-        
+        this.presence = new PresenceRainbow(PresenceLevel.Online);
+
         /**
          * @public
          * @readonly
@@ -66,7 +68,6 @@ class Settings {
 }
 
 module.exports = {
-    Settings: Settings,
-    RainbowPresence: RainbowPresence
+    Settings: Settings
 };
-export {Settings, RainbowPresence};
+export {Settings};

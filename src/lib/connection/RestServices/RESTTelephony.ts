@@ -15,6 +15,9 @@ class RESTTelephony {
 	public _logger: any;
 	public evtEmitter: any;
 
+    static getClassName(){ return 'RESTTelephony'; }
+    getClassName(){ return RESTTelephony.getClassName(); }
+
     constructor(evtEmitter, logger) {
         let that = this;
         that.evtEmitter = evtEmitter;
@@ -26,7 +29,7 @@ class RESTTelephony {
         return new Promise( (resolve)=> {
             let that = this;
             that.http = http;
-            resolve();
+            resolve(undefined);
         }) ;
     }
 

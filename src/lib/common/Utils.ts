@@ -1,7 +1,6 @@
 "use strict";
 
 
-
 const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
@@ -76,19 +75,42 @@ let anonymizePhoneNumber = function (number) {
     return result;
 };
 
-let setTimeoutPromised = function(time) {
+let equalIgnoreCase = function(s1: string, s2: string) {
+    let regex = new RegExp('^' + s1 + '$', 'i');
+    if (regex.test(s2)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+let isNullOrEmpty = function(value) {
+    let _isNullOrEmpty = true;
+    if (value) {
+        if (typeof (value) == 'string') {
+            if (value.length > 0)
+                _isNullOrEmpty = false;
+        }
+    }
+    return _isNullOrEmpty;
+}
+
+let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
           try {
-              resolve();
+              resolve(undefined);
           } catch (err) {
               return reject(err);
           }
-      }, time);
+      }, timeOutMs);
     });
 };
 
-
+let pause = setTimeoutPromised;
+/*let pause = function (timeToWaitMS) : Promise<any> {
+    return setTimeoutPromised(timeToWaitMS);
+} // */
 
 /*
 myFunction() in the original question can be modified as follows
@@ -111,7 +133,7 @@ async function myFunction(number) {
 /**
  * @description
  * function to wait for a condition for a few time before it is resolved of rejected.
- * To be used with asunchrone function :
+ * To be used with asynchrone function :
  * myFunction() is the code using until function.
  *
  * async function myFunction(number) {
@@ -137,7 +159,7 @@ function until(conditionFunction : Function, labelOfWaitingCondition : string, w
     let end = new Date(now.getTime() + waitMsTimeBeforeReject);
     const poll = (resolve, reject) => {
         if (conditionFunction()) {
-            resolve();
+            resolve(undefined);
         } else  {
             if (new Date() > end ) {
                 labelOfWaitingCondition  = labelOfWaitingCondition ? labelOfWaitingCondition : "";
@@ -220,7 +242,7 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers"] ;
+                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers", "getClassName"] ;
                 methodsToIgnoreStartedState = methodsToIgnoreStartedState.concat(_methodsToIgnoreStartedState[0]);
                 let ignoreTheStartedState : boolean = (methodsToIgnoreStartedState.find((elt) => { return elt === propertyName; } ) != undefined);
                 if (this == null) {
@@ -283,13 +305,16 @@ function logEntryExit(LOG_ID) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                if (this == null) {
+                if (this == null || originalMethod.name === "getClassName" || propertyName === "getClassName") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
+                   /* if (!this.getClassName) {
+                        this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
+                    } // */
                     let logger = this.logger ? this.logger : this._logger ? this._logger : {};
-                    logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
+                    logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
                     returnValue = originalMethod.apply(this, args);
-                    logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
+                    logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" +  propertyName + "(...) _exiting_"));
                 }
                 // Return back the value to the execution stack
                 return returnValue;
@@ -391,11 +416,29 @@ function getBinaryData (image) {
     return { type: imageType, data: bytes };
 }
 
-export {
+/**
+ *
+ * @param max The greater number which can be generated. If not defined the default value is 10.
+ * @description
+ *      generate an integer number between 1 and max value param.
+ * @return {number} Return an integer number between 1 and max value param.
+ */
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max?max:10));
+}
+
+function stackTrace() {
+    var err = new Error();
+    return err.stack;
+}
+
+export let objToExport = {
     makeId,
     createPassword,
     isAdmin,
     anonymizePhoneNumber,
+    equalIgnoreCase,
+    isNullOrEmpty,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -405,5 +448,31 @@ export {
     isStarted,
     logEntryExit,
     resizeImage,
-    getBinaryData
-    };
+    getBinaryData,
+    getRandomInt,
+    pause,
+    stackTrace
+};
+
+module.exports = objToExport;
+export {
+    makeId,
+    createPassword,
+    isAdmin,
+    anonymizePhoneNumber,
+    equalIgnoreCase,
+    isNullOrEmpty,
+    Deferred,
+    isSuperAdmin,
+    setTimeoutPromised,
+    until,
+    orderByFilter,
+    isStart_upService,
+    isStarted,
+    logEntryExit,
+    resizeImage,
+    getBinaryData,
+    getRandomInt,
+    pause,
+    stackTrace
+};

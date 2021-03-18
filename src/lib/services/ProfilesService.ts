@@ -52,7 +52,9 @@ const FeaturesEnum = {
     TELEPHONY_CALL_SUBJECT: "CALL_SUBJECT",
     CHANNEL_CREATE: "CHANNEL_CREATE",
     CHANNEL_CREATE_ADMIN_ROLE_BYPASS: "CHANNEL_CREATE_ADMIN_ROLE_BYPASS",
-    CHANNEL_ACTIVATED: "CHANNEL_ACTIVATED"
+    CHANNEL_ACTIVATED: "CHANNEL_ACTIVATED",
+    PERSONAL_CONFERENCE_ALLOWED:"CONFERENCE_ALLOWED",
+    ALERT_NOTIFICATIONS_ALLOWED:"ALERT_NOTIFICATIONS_ALLOWED"
 
     /*COMPANY_ADMIN_COUNT: "COMPANY_ADMIN_COUNT",
     COMPANY_LOGO_MODIFICATION: "COMPANY_LOGO_MODIFICATION",
@@ -93,7 +95,7 @@ const FeaturesEnum = {
  * @version SDKVERSION
  * @private
  * @description
- *  This module is the service used to retrieve profiles from server.
+ *  This module is the service used to retrieve profiles from server. <br/>
 */
 class ProfilesService {
     private _xmpp: XMPPService;
@@ -121,7 +123,13 @@ class ProfilesService {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
+    static getClassName(){ return 'ProfilesService'; }
+    getClassName(){ return ProfilesService.getClassName(); }
+
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -195,7 +203,7 @@ class ProfilesService {
         that.started = false;
         that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
         this.ready = false;
-        return Promise.resolve();
+        return Promise.resolve(undefined);
     }
 
     restart () {
@@ -228,12 +236,13 @@ class ProfilesService {
                     // NED TO BE PORTED !!!!!!!
                     // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
 
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch(function (error) {
                     that._logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
                     that._logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
-                    return reject(error);
+                    resolve(undefined);
+                    //return reject(error);
                 });
         });
     }
@@ -268,7 +277,7 @@ class ProfilesService {
                         }
                     });
                     that.mainOffers.sort(offerManager.offerComparator);
-                    resolve();
+                    resolve(undefined);
                 },
                 function error(response) {
                     let errorMessage = "(getServerProfiles) failure: no server response";
@@ -300,7 +309,7 @@ class ProfilesService {
                             that.features[featureData.featureUniqueRef] = featureData;
                         }
                     });
-                    resolve();
+                    resolve(undefined);
                 },
                 function error(response) {
                     let errorMessage = "(getServerProfilesFeatures) failure : no server response";
@@ -349,11 +358,7 @@ class ProfilesService {
      */
     isFeatureEnabled (featureUniqueRef) {
         let that = this;
-        if (that.started &&
-            that.features.hasOwnProperty(featureUniqueRef) &&
-            that.features[featureUniqueRef].hasOwnProperty("featureType") &&
-            that.features[featureUniqueRef].featureType === "boolean" &&
-            that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
+        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
             let enabled = that.features[featureUniqueRef].isEnabled;
             that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
             return enabled;
@@ -364,11 +369,7 @@ class ProfilesService {
 
     getFeatureLimitMax (featureUniqueRef) {
         let that = this ;
-        if (that.started &&
-            that.features.hasOwnProperty(featureUniqueRef) &&
-            that.features[featureUniqueRef].hasOwnProperty("featureType") &&
-            that.features[featureUniqueRef].featureType === "number" &&
-            that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
+        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
             let limitMax = that.features[featureUniqueRef].limitMax;
             that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
             return limitMax;
@@ -379,11 +380,7 @@ class ProfilesService {
 
     getFeatureLimitMin (featureUniqueRef) {
         let that = this ;
-        if (that.started &&
-            that.features.hasOwnProperty(featureUniqueRef) &&
-            that.features[featureUniqueRef].hasOwnProperty("featureType") &&
-            that.features[featureUniqueRef].featureType === "number" &&
-            that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
+        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
             let limitMin = that.features[featureUniqueRef].limitMin;
             that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
             return limitMin;

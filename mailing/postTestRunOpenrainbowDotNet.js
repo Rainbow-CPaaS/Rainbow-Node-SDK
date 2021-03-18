@@ -192,4 +192,7 @@ rainbowSDK.start(undefined).then(async(result) => {
     rainbowSDK.stop().then(() => {
         process.exit(0);
     });
+}).catch(() => {
+    logger.log("error", "failed to start the  SDK.");
+    process.exit(0);
 });

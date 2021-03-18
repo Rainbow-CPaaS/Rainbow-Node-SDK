@@ -4,13 +4,15 @@ import * as util from "util";
 import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
-import {DataStoreType} from "../config/config";
 import {XMPPUTils} from "../common/XMPPUtils";
 import {NameSpacesLabels, XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
 import {S2SServiceEventHandler} from "../connection/S2S/S2SServiceEventHandler";
+import {EventEmitter} from "events";
+import {Logger} from "../common/Logger";
+import {ProxyImpl} from "../ProxyImpl";
 const express = require( "express" );
 
 const LOG_ID = "S2S - ";
@@ -23,7 +25,7 @@ const LOG_ID = "S2S - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This module handles the s2s API's methods to Rainbow.
+     *      This module handles the s2s API's methods to Rainbow. <br/>
      *      <br><br>
      *      The main methods proposed in that module allow to: <br>
      *      - Signin in s2s mode <br>
@@ -67,7 +69,10 @@ class S2SService {
         return this._startConfig;
     }
 
-    constructor(_s2s, _im, _application, _eventEmitter, _logger, _proxy, _startConfig) {
+    static getClassName(){ return 'S2SService'; }
+    getClassName(){ return S2SService.getClassName(); }
+
+    constructor(_s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
         this.hostCallback = _s2s.hostCallback;
@@ -130,7 +135,7 @@ class S2SService {
                     //that.logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) S2S connection blocked by configuration");
-                    return resolve();
+                    return resolve(undefined);
                 }
                 that.app.use(express.json());
                 that.app.listen(that.locallistenningport, function () {
@@ -160,7 +165,7 @@ class S2SService {
                 });
 
                 this.ready = true;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -204,10 +209,11 @@ class S2SService {
             that.jid_password = "";
             that.fullJid = "";
             that.userId = "";
+            that.logger.log("debug", LOG_ID + "(stop)" );
             if (that.useS2S || forceStop) {
                 resolve(that.deleteAllConnectionsS2S());
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     }
@@ -217,7 +223,7 @@ class S2SService {
      * @method listConnectionsS2S
      * @instance
      * @description
-     *      List all the connected user's connexions.
+     *      List all the connected user's connexions. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -237,17 +243,41 @@ class S2SService {
     }
 
     /**
+     * @public
+     * @method checkS2Sconnection
+     * @instance
+     * @description
+     *      check the S2S connection with a head request. <br/>
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     * @category async
+     */
+    async checkS2Sconnection() {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(checkS2Sconnection) check the cnx S2S");
+        return that._rest.checkS2Sconnection()
+            .then( response => {
+                that.logger.log("debug", LOG_ID + "(checkS2Sconnection) worked." );
+                //console.log( response.data )
+                //connectionInfo = response.data.data
+                that.logger.log("internal", LOG_ID + "(checkS2Sconnection) connexions S2S OK : ", response );
+                return response;
+            } );
+    }
+
+    /**
      * @private
      * @method sendS2SPresence
      * @instance
-     * @param {Object} obj Object {show, status} describing the presence :
-     *  To put presence to cases :
-     * "online":     {show = undefined, status = "mode=auto"}
-     * "away": {show = "xa", status = "away"}
-     * "dnd": {show = "dnd", status = ""}
-     * "invisible": {show = "xa", status = ""}
+     * @param {Object} obj Object {show, status} describing the presence : <br/>
+     *  To put presence to cases : <br/>
+     * "online":     {show = undefined, status = "mode=auto"} <br/>
+     * "away": {show = "xa", status = "away"} <br/>
+     * "dnd": {show = "dnd", status = ""} <br/>
+     * "invisible": {show = "xa", status = ""} <br/>
      * @description
-     *      set the presence of the connected user with s2s api .
+     *      set the presence of the connected user with s2s api . <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -272,7 +302,7 @@ class S2SService {
      * @instance
      * @param {Array} connexions a List of connections S2S to delete
      * @description
-     *      Delete one by one a list of S2S connections of the connected user.
+     *      Delete one by one a list of S2S connections of the connected user. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -304,7 +334,7 @@ class S2SService {
      * @method deleteAllConnectionsS2S
      * @instance
      * @description
-     *      Delete all the connected user's S2S connexions.
+     *      Delete all the connected user's S2S connexions. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -327,7 +357,7 @@ class S2SService {
      * @instance
      * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
      * @description
-     *      Login to S2S event server the already connected user to REST API server.
+     *      Login to S2S event server the already connected user to REST API server. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -344,7 +374,7 @@ class S2SService {
                 //console.log( response.data )
                 //connectionInfo = response.data.data
                 that.logger.log("internal", LOG_ID + "(loginS2S) connexions S2S : ", response );
-                return Promise.resolve(response.data);
+                return Promise.resolve(response);
             } );
     }
 
@@ -354,7 +384,7 @@ class S2SService {
      * @instance
      * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
      * @description
-     *      Get informations about a S2S connexions.
+     *      Get informations about a S2S connexions. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -390,22 +420,22 @@ class S2SService {
      * @method sendMessageInConversation
      * @instance
      * @param {String} conversationId
-     * @param {String} msg The message object to send.
-     * {
-     *   "message": {
-     *   "subject": "Greeting",
-     *   "lang": "en",
-     *   "contents": [
-     *     {
-     *       "type": "text/markdown",
-     *       "data": "## Hello Bob"
-     *     }
-     *   ],
-     *   "body": "Hello world"
-     *   }
-     * }
+     * @param {String} msg The message object to send. <br/>
+     * { <br/>
+     *   "message": { <br/>
+     *   "subject": "Greeting", <br/>
+     *   "lang": "en", <br/>
+     *   "contents": [ <br/>
+     *     { <br/>
+     *       "type": "text/markdown", <br/>
+     *       "data": "## Hello Bob" <br/>
+     *     } <br/>
+     *   ], <br/>
+     *   "body": "Hello world" <br/>
+     *   } <br/>
+     * } <br/>
      * @description
-     *      Send a message in a conversation. Note, corrected message is not yet supported.
+     *      Send a message in a conversation. Note, corrected message is not yet supported. <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -430,7 +460,7 @@ class S2SService {
      * @param {string} role Enum: "member" "moderator" of your role in this room
      * @instance
      * @description
-     *      send presence in S2S to join a bubble conversation
+     *      send presence in S2S to join a bubble conversation <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result

@@ -57,6 +57,7 @@ function client(options = {}) {
   // Stream features - order matters and define priority
   const starttls = _starttls({streamFeatures});
   const sasl = _sasl({streamFeatures}, credentials || {username, password});
+  //console.log("resourceBinding, iqCaller : ", iqCaller, ", streamFeatures :", streamFeatures, ", resource : ", resource)
   const resourceBinding = _resourceBinding({iqCaller, streamFeatures}, resource);
   const sessionEstablishment = _sessionEstablishment({iqCaller, streamFeatures});
   // SASL mechanisms - order matters and define priority

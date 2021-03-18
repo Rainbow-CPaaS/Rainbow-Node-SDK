@@ -1,7 +1,7 @@
 'use strict';
-import {DataStoreType} from "../../config/config";
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
+import {DataStoreType} from "../../config/config";
 
 export {};
 
@@ -36,8 +36,8 @@ class XmppClient  {
 	public restartConnectEnabled: any;
 	public client: any;
 	public iqGetEventWaiting: any;
-	public onIqErrorReceived: any;
-	public onIqResultReceived: any;
+	// public onIqErrorReceived: any;
+	// public onIqResultReceived: any;
 	public logger: any;
 	public xmppQueue: any;
 	public timeBetweenXmppRequests: any;
@@ -51,6 +51,7 @@ class XmppClient  {
     timeBetweenReset: number;
     messagesDataStore: DataStoreType;
     private iqSetEventRoster: any;
+    public socket = undefined;
 
     constructor(...args) {
         //super(...args);
@@ -64,61 +65,13 @@ class XmppClient  {
             return {};
         };
         this.client = client(...args);
+        this.socket = client.socket;
         this.client.getQuery('urn:xmpp:ping', 'ping', ctx => { return {} });
         this.client.setQuery('jabber:iq:roster', 'query', this.iqSetEventRoster);
 
         this.nbMessagesSentThisHour = 0;
         this.timeBetweenReset = 1000 * 60 * 60 ; // */
 
-
-        this.onIqErrorReceived = (msg, stanza) => {
-            //let children = stanza.children;
-            let iqId = stanza.attrs.id;
-            let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
-            that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, msg, errorMsg);
-            // reject and delete the waiting iq.
-            if (typeof that.iqGetEventWaiting[iqId] === "function") {
-                that.iqGetEventWaiting[iqId](stanza);
-            } else {
-                delete that.iqGetEventWaiting[iqId];
-            }
-        };
-
-        this.onIqResultReceived = (msg, stanza) => {
-            //let children = stanza.children;
-            let iqId = stanza.attrs.id;
-            that.logger.log("warn", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
-            if (that.iqGetEventWaiting[iqId]) {
-                // The result iq correspond to a stored promise from our request, so resolve it to allow sendIq to get back a result.
-                if (typeof that.iqGetEventWaiting[iqId] === "function") {
-                    that.iqGetEventWaiting[iqId](stanza);
-                } else {
-                    delete that.iqGetEventWaiting[iqId];
-                }
-            } else {
-            }
-            /*            children.forEach((node) => {
-                            switch (node.getName()) {
-                                case "query":
-                                    that._onIqGetQueryReceived(stanza, node);
-                                    break;
-                                case "pbxagentstatus":
-                                    // The treatment is in telephonyEventHandler
-                                    //that._onIqGetPbxAgentStatusReceived(stanza, node);
-                                    break;
-                                case "default":
-                                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) not managed - 'stanza'", node.getName());
-                                    break;
-                                default:
-                                    that
-                                        .logger
-                                        .log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) child not managed for iq - 'stanza'", node.getName());
-                            }
-                        });
-                        if (stanza.attrs.id === "enable_xmpp_carbon") {
-                            that.eventEmitter.emit("rainbow_oncarbonactivated");
-                        } */
-        };
 
     }
 
@@ -178,6 +131,58 @@ class XmppClient  {
         setInterval(that.resetnbMessagesSentThisHour.bind(this), that.timeBetweenReset);
     }
 
+    onIqErrorReceived (msg, stanza) {
+        let that = this;
+        //let children = stanza.children;
+        let iqId = stanza.attrs.id;
+        let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
+        that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, msg, errorMsg);
+        // reject and delete the waiting iq.
+        if (typeof that.iqGetEventWaiting[iqId] === "function") {
+            that.iqGetEventWaiting[iqId](stanza);
+        } else {
+            delete that.iqGetEventWaiting[iqId];
+        }
+    };
+
+    onIqResultReceived (msg, stanza) {
+        let that = this;
+        //let children = stanza.children;
+        let iqId = stanza.attrs.id;
+        that.logger.log("info", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
+        if (that.iqGetEventWaiting[iqId]) {
+            // The result iq correspond to a stored promise from our request, so resolve it to allow sendIq to get back a result.
+            if (typeof that.iqGetEventWaiting[iqId] === "function") {
+                that.iqGetEventWaiting[iqId](stanza);
+            } else {
+                delete that.iqGetEventWaiting[iqId];
+            }
+        } else {
+        }
+        /*            children.forEach((node) => {
+                        switch (node.getName()) {
+                            case "query":
+                                that._onIqGetQueryReceived(stanza, node);
+                                break;
+                            case "pbxagentstatus":
+                                // The treatment is in telephonyEventHandler
+                                //that._onIqGetPbxAgentStatusReceived(stanza, node);
+                                break;
+                            case "default":
+                                that.logger.log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) not managed - 'stanza'", node.getName());
+                                break;
+                            default:
+                                that
+                                    .logger
+                                    .log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) child not managed for iq - 'stanza'", node.getName());
+                        }
+                    });
+                    if (stanza.attrs.id === "enable_xmpp_carbon") {
+                        that.eventEmitter.emit("rainbow_oncarbonactivated");
+                    } */
+    };
+
+
     resetnbMessagesSentThisHour(){
         let that = this;
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _entering_");
@@ -203,7 +208,7 @@ class XmppClient  {
                     //that.logger.log("debug", LOG_ID + "(send) this.client.websocket : ", this.client.Socket);
 
                     if (that.socketClosed) {
-                        that.logger.log("debug", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                        that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
                         return Promise.reject("Error the socket is close, so do not send data on it.")
                     }
 
@@ -243,15 +248,16 @@ class XmppClient  {
                             "label": "error number of sent messages is over the rate limit.",
                             "sendArgs": args
                         };
+                        that.logger.log("error", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
                         that.logger.log("internalerror", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
                         return reject2(error);
                     }
 
                     return this.client.send(...args).then(() => {
                         that.nbMessagesSentThisHour++;
-                        resolve2();
+                        resolve2({"code": 1, "label":"OK"});
                     }).catch(async (err) => {
-                        that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
+                        that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
                         //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                         return reject2(err);
                         /*
@@ -261,8 +267,9 @@ class XmppClient  {
                         // */
                     });
                 })
-            ).then(() => {
+            ).then((result) => {
                 that.logger.log("debug", LOG_ID + "(send) sent");
+                return (result);
             }).catch((errr) => {
                 that.logger.log("error", LOG_ID + "(send) error in send promise : ", errr);
                 that.logger.log("internalerror", LOG_ID + "(send) error in send promise : ", errr);
@@ -286,11 +293,11 @@ class XmppClient  {
             that.logger.log("debug", LOG_ID + "(send) _exiting_ return promise");
             return promiseToreturn;
         }).catch(async(err) => {
-            that.logger.log("debug", LOG_ID + "(send) catch an error during sending! ", err);
+            that.logger.log("error", LOG_ID + "(send) catch an error during sending! ", err);
 
             // if the error is the exceed of maximum message by a time laps then do not reconnecte
             if (err && err.errorCode === -1 ) {
-                //return Promise.resolve();
+                //return Promise.resolve(undefined);
                 throw  err;
                 //return ;
             }
@@ -299,7 +306,7 @@ class XmppClient  {
             await that.restartConnect().then((res) => {
                 that.logger.log("debug", LOG_ID + "(send) restartConnect result : ", res);
             }).catch((errr) => {
-                that.logger.log("debug", LOG_ID + "(send) restartConnect catch : ", errr);
+                that.logger.log("error", LOG_ID + "(send) restartConnect catch : ", errr);
             });
             /*
             .then(() => {
@@ -317,13 +324,13 @@ class XmppClient  {
 
     sendIq(...args){
         let that = this;
-        that.logger.log("debug", LOG_ID + "(send) _entering_");
-        return new Promise((resolve) => {
+        that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
+        return new Promise((resolve, reject) => {
             if (args.length > 0) {
                 let prom = this.xmppQueue.addPromise(this.client.send(...args).catch((err) => {
-                    that.logger.log("debug", LOG_ID + "(send) _catch error_ at super.send", err);
+                    that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at super.send", err);
                 })).then(() => {
-                    that.logger.log("debug", LOG_ID + "(send) sent");
+                    that.logger.log("debug", LOG_ID + "(sendIq) sent");
                 });
 
                 // callback to be called when the IQ Get result event is received from server.
@@ -331,7 +338,7 @@ class XmppClient  {
                     // Wait a few time between requests to avoid burst with lot of it.
                     setTimeout(() => {
                         //that.logger.log("debug", LOG_ID + "(send) setTimeout resolve");
-                        resolve(prom.then(() => { return result;})) ;
+                        resolve(prom.then(() => { return result;}).catch(() => { reject( result);})) ;
                     }, that.timeBetweenXmppRequests);
                 }
 
@@ -349,7 +356,7 @@ class XmppClient  {
                 resolve(Promise.resolve());
             }
         }).then((promiseToreturn) => {
-            that.logger.log("debug", LOG_ID + "(send) _exiting_ return promise");
+            that.logger.log("debug", LOG_ID + "(sendIq) _exiting_ return promise");
             return promiseToreturn;
         });
     }
@@ -443,6 +450,9 @@ Element.prototype.find = function (name) { // Warning do not put an Array functi
         result = children[0];
         result.length = 1;
     } else if (children.length > 1) {
+        // Fake the get of an attribute if the result is a tab.
+        children.attr = () => {return undefined;};
+        children.attrs = {};
         result = children;
     }
     return result;
@@ -461,3 +471,4 @@ Element.prototype.attr = function (attrName) {
 module.exports.getXmppClient = getXmppClient;
 module.exports.XmppClient = XmppClient;
 
+export {getXmppClient, XmppClient};

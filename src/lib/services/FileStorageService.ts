@@ -1,9 +1,12 @@
 "use strict";
+import {createWriteStream} from "fs";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import * as fileapi from "file-api";
+import {Observable} from 'rxjs';
 import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
 import {fileDescriptorFactory} from "../common/models/fileDescriptor";
 import {Conversation} from "../common/models/Conversation";
@@ -18,6 +21,8 @@ import {ConversationsService} from "./ConversationsService";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {setInterval} from "timers";
+import {isMainThread} from "worker_threads";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -36,7 +41,7 @@ const LOG_ID = "FileStorage/SVCE - ";
  *      - To be notified when a file has been successfully uploaded when there is an error when uploading or downloading a file in a conversation or a bubble<br/>
  *      - Get the list of files send or received in a one-to-one conversation <br/>
  *      - Get the list of files send or received in a bubble conversation <br/>
- *      - Get the connected user quota and consumption
+ *      - Get the connected user quota and consumption <br/>
  */
 class FileStorage {
     private _rest: RESTService;
@@ -72,7 +77,13 @@ class FileStorage {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter, _logger, _startConfig) {
+    static getClassName(){ return 'FileStorage'; }
+    getClassName(){ return FileStorage.getClassName(); }
+
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    start_up:boolean,
+    optional:boolean
+}) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;
@@ -125,7 +136,7 @@ class FileStorage {
                 that.consumptionData = {};
                 this.ready = true;
 
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 reject(err);
@@ -140,7 +151,7 @@ class FileStorage {
                 that.started = false;
             }
             this.ready = false;
-            resolve();
+            resolve(undefined);
         });
     }
 
@@ -162,11 +173,12 @@ class FileStorage {
                     let startDuration = Math.round(Date.now() - that.startDate);
 
                     that._logger.log("debug", LOG_ID + "(init) === STARTED (" + startDuration + " ms) ===");
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch((error) => {
-                    that._logger.log("debug", LOG_ID + "(init) === STARTING === failure -- " + error.message);
-                    reject(error);
+                    that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
+                    resolve(undefined);
+                    //reject(error);
                 });
         });
     }
@@ -179,8 +191,8 @@ class FileStorage {
      * @method
      * @instance
      * @description
-     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation
-     *    Return a promise
+     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br/>
+     *    Return a promise <br/>
      * @return {Message} Return the message sent
      */
     _addFileToConversation(conversation, file, data) {
@@ -244,6 +256,8 @@ class FileStorage {
 
                     that._conversations.sendFSMessage(conversation, _file, data).then(function(message) {
                         resolve(message);
+                    }).catch((err)=> {
+                        return reject(err);
                     });
                 }
             });
@@ -261,9 +275,9 @@ class FileStorage {
      * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @param {String} strMessage   An optional message to add with the file
      * @description
-     *    Allow to add a file to an existing conversation (ie: conversation with a contact)
-     *    Return the promise
-     * @return {Message} Return the message sent
+     *    Allow to add a file to an existing conversation (ie: conversation with a contact) <br/>
+     *    Return the promise <br/>
+     * @return {Message} Return the message sent <br/>
      */
     uploadFileToConversation(conversation, file, strMessage) {
         let that = this;
@@ -316,9 +330,9 @@ class FileStorage {
      * @param {File} file The file to add
      * @param {String} strMessage   An optional message to add with the file
      * @description
-     *    Allow to add a file to an existing Bubble conversation
-     *    Return a promise
-     * @return {Message} Return the message sent
+     *    Allow to add a file to an existing Bubble conversation <br/>
+     *    Return a promise <br/>
+     * @return {Message} Return the message sent <br/>
      */
     uploadFileToBubble(bubble, file, strMessage) {
         let that = this;
@@ -382,7 +396,7 @@ class FileStorage {
      * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @instance
      * @description
-     *   Send a file in user storage
+     *   Send a file in user storage <br/>
      */
     uploadFileToStorage( file) {
         let that = this;
@@ -504,13 +518,14 @@ class FileStorage {
      * @method downloadFile
      * @instance
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
+     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
      * @description
-     *    Allow to download a file from the server)
-     *    Return a promise
-     * @return {} Object with : buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
+     *    Allow to download a file from the server) <br/>
+     *    Return a promise <br/>
+     * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    downloadFile(fileDescriptor) {
-    let that = this;
+    downloadFile(fileDescriptor, path: string) {
+        let that = this;
         return new Promise(function(resolve, reject) {
 
 
@@ -524,21 +539,24 @@ class FileStorage {
                 }); // */
             } else {
 
-                that._logger.log("internal", LOG_ID + "[getFile    ] ::  Try to get a file " + fileDescriptor.filename);
+                that._logger.log("internal", LOG_ID + "(downloadFile) Try to get a file " + fileDescriptor.filename + "/" + fileDescriptor.fileName );
 
                 let urlObj = url.parse(fileDescriptor.url);
 
                 let fileToDownload = {
                     "url": urlObj.pathname || "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id,
-                    "mime": fileDescriptor.mime || fileDescriptor.typeMime,
+                    "mime": fileDescriptor.mime || fileDescriptor.typeMime || fileDescriptor.typeMIME,
                     "filesize": fileDescriptor.filesize || fileDescriptor.size,
                     "filename": fileDescriptor.filename || fileDescriptor.fileName
                 };
 
-                that._fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob) {
-                    that._logger.log("debug", LOG_ID + "[getFile    ] ::  file downloaded");
+                that._fileServerService.getBlobFromUrlWithOptimization(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined).then(function(blob : ArrayBuffer) {
+                    that._logger.log("internal", LOG_ID + "(downloadFile) File downloaded : ", fileToDownload);
+                    that._logger.log("debug", LOG_ID + "(downloadFile) File downloaded");
                     resolve(blob);
                 }).catch(function(err) {
+                    that._logger.log("error", LOG_ID + "(downloadFile) !!! Catch Error while downloaded");
+                    that._logger.log("internalerror", LOG_ID + "(downloadFile) !!! Catch Error while downloaded : ", fileToDownload, ", error : ", err);
                     reject(err);
                 });
             }
@@ -547,12 +565,133 @@ class FileStorage {
 
     /**
      * @public
+     * @since 1.79.0
+     * @method downloadFileInPath
+     * @instance
+     * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
+     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
+     * @description
+     *    Allow to download a file from the server and store it in provided path. <br/>
+     *    Return a promise <br/>
+     * @return {Observable<any>} Return an Observable object to see the completion of the download/save. <br/>
+     * It returns a percentage of downloaded data Values are between 0 and 100 (include). <br/>
+     * The last one value is the description and content of the file : <br/>
+     *  { <br/>
+     *      buffer : blobArray, // the buffer with the content of the file. <br/>
+     *      type: mime, // The mime type of the encoded file <br/>
+     *      fileSize: fileSize, // The size in octects of the file <br/>
+     *      fileName: fileName // The file saved. <br/>
+     *  } <br/>
+     *  Warning !!! : <br/>
+     *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br/>
+     */
+    async downloadFileInPath(fileDescriptor, path: string): Promise<Observable<any>> {
+        let that = this;
+
+        if (!fileDescriptor) {
+            let errorMessage = "Parameter 'fileDescriptor' is missing or null";
+            that._logger.log("error", LOG_ID + "(downloadFileInPath) " + errorMessage);
+            // return(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+            return (Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage)));
+        } else {
+
+            that._logger.log("internal", LOG_ID + "(downloadFileInPath) Try to get a file name : " + fileDescriptor.filename + " or " + fileDescriptor.fileName);
+
+            let urlObj = url.parse(fileDescriptor.url);
+
+            let fileToDownload = {
+                "url": urlObj.pathname || "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id,
+                "mime": fileDescriptor.mime || fileDescriptor.typeMime || fileDescriptor.typeMIME,
+                "filesize": fileDescriptor.filesize || fileDescriptor.size,
+                "filename": fileDescriptor.filename || fileDescriptor.fileName
+            };
+
+            let getBlobObsrv$ = await that._fileServerService.getBlobFromUrlWithOptimizationObserver(fileToDownload.url, fileToDownload.mime, fileToDownload.filesize, fileToDownload.filename, undefined);
+            let previousValue :any = 0;
+            let currentValue :any = 0;
+            let completed = false;
+            getBlobObsrv$.subscribe({
+                next(value) {
+                    if (value < 101)
+                    {
+                        currentValue = value;
+                        that._logger.log("internal", LOG_ID + "(downloadFileInPath) % : ", value);
+                    } else {
+                        that._logger.log("internal", LOG_ID + "(downloadFileInPath) value !< 101 : File downloaded : ", currentValue?currentValue.fileName:"");
+                        that._logger.log("debug", LOG_ID + "(downloadFileInPath) File downloaded");
+                        currentValue = value;
+                    }
+                 },
+                complete() {
+                    that._logger.log("internal", LOG_ID + "C'est fini!");
+                    that._logger.log("internal", LOG_ID + "(downloadFileInPath) File downloaded : ", currentValue?currentValue.fileName:"");
+                    that._logger.log("debug", LOG_ID + "(downloadFileInPath) File downloaded");
+                    if (currentValue && path) {
+                        try {
+                            let blobArray = currentValue.buffer;
+
+                            let writeStream = createWriteStream(path + currentValue.fileName);
+
+                            writeStream.on('error', () => {
+                                that._logger.log("debug", LOG_ID + "(downloadFileInPath) - [RecordsService] WriteStream error event");
+                            });
+                            writeStream.on('drain', () => {
+                                that._logger.log("debug", LOG_ID + "(downloadFileInPath) - [RecordsService] WriteStream drain event");
+                            });
+
+                            for (let index = 0; index < blobArray.length; index++) {
+                                if (blobArray[index]) {
+                                    that._logger.log("debug", LOG_ID + "(downloadFileInPath) >writeAvailableChunksInDisk : Blob " + index + " available");
+                                    //fd.chunkWrittenInDisk = index;
+                                    writeStream.write(new Buffer(blobArray[index]));
+                                    blobArray[index] = null;
+                                } else {
+                                    that._logger.log("debug", LOG_ID + "(downloadFileInPath) >writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                    break;
+                                }
+                            }
+                            that._logger.log("debug", LOG_ID + `(downloadFileInPath) - The file ${currentValue.fileName} was saved!`);
+                        } catch (e) {
+                            that._logger.log("debug", LOG_ID + `(downloadFileInPath) - Error saving file ${currentValue.fileName} from Rainbow`, e);
+                        }
+                    } else {
+                        that._logger.log("info", LOG_ID + `(downloadFileInPath) - Do not write the downloaded file ${currentValue.fileName}`);
+                    }
+                    completed = true;
+                },
+                error() {
+                    completed=true;
+                }
+            });
+
+            let myObservable$ = Observable.create(subject => {
+                let intervalId = setInterval(() => {
+                    if (previousValue != currentValue) {
+                        that._logger.log("debug", "(downloadFileInPath) >myObservable next.");
+                        previousValue = currentValue;
+                        subject.next(Math.ceil(currentValue));
+                    }//subject.complete();}, 1000);
+                    if (completed) {
+                        that._logger.log("debug", "(downloadFileInPath) >myObservable complete.");
+                        subject.complete();
+                        clearInterval(intervalId);
+                    }
+                },50);
+            });
+            //that._logger.log("internal", LOG_ID + "(downloadFile) File downloaded : ", fileToDownload);
+            //that._logger.log("debug", LOG_ID + "(downloadFile) File downloaded");
+            return (Promise.resolve(myObservable$));
+        }
+    };
+
+    /**
+     * @public
      * @since 1.47.1
      * @method getUserQuotaConsumption
      * @instance
      * @description
-     *    Get the current file storage quota and consumption for the connected user
-     *    Return a promise
+     *    Get the current file storage quota and consumption for the connected user <br/>
+     *    Return a promise <br/>
      * @return {Object} Return an object containing the user quota and consumption
      */
     /*getUserQuotaConsumption() {
@@ -568,8 +707,8 @@ class FileStorage {
      * @instance
      * @param {FileDescriptor} fileDescriptor   The description of the file to remove (short file descriptor)
      * @description
-     *    Remove an uploaded file
-     *    Return a promise
+     *    Remove an uploaded file <br/>
+     *    Return a promise <br/>
      * @return {Object} Return a SDK OK Object or a SDK error object depending the result
      */
     removeFile(fileDescriptor) {
@@ -643,7 +782,7 @@ class FileStorage {
      * @instance
      * @param {String} id   The file id
      * @description
-     *    Get the file descriptor the user own by it's id
+     *    Get the file descriptor the user own by it's id <br/>
      * @return {FileDescriptor} Return a file descriptors found or null if no file descriptor has been found
      */
     getFileDescriptorFromId(id) {
@@ -657,8 +796,8 @@ class FileStorage {
      * @instance
      * @param {Conversation} conversation   The conversation where to get the files
      * @description
-     *    Get the list of all files received in a conversation with a contact
-     *    Return a promise
+     *    Get the list of all files received in a conversation with a contact <br/>
+     *    Return a promise <br/>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesReceivedInConversation(conversation) {
@@ -700,8 +839,8 @@ class FileStorage {
      * @instance
      * @param {Bubble} bubble   The bubble where to get the files
      * @description
-     *    Get the list of all files received in a bubble
-     *    Return a promise
+     *    Get the list of all files received in a bubble <br/>
+     *    Return a promise <br/>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesReceivedInBubble(bubble) {
@@ -738,7 +877,7 @@ class FileStorage {
     /**
      * @private
      * @description
-     * Method returns a file descriptor with full contact object in viewers'list by requesting server
+     * Method returns a file descriptor with full contact object in viewers'list by requesting server <br/>
      *
      * @param {string} fileId [required] Identifier of file descriptor
      * @return {Promise<FileDescriptor>} file descriptor
@@ -917,7 +1056,7 @@ class FileStorage {
     /**
      * @private
      * @description
-     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors)
+     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors) <br/>
      *
      * @param {string} name [required] name of file for which file descriptor has to be created
      * @param {string} extension [required] extension of file
@@ -981,7 +1120,7 @@ class FileStorage {
             }
 
             let fd =  fileDescriptorFactory()(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
-                data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation);
+                data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation, data.md5sum, data.applicationId );
 
             return fd;
         }
@@ -992,7 +1131,7 @@ class FileStorage {
      * @private
      * @description
      *
-     * Method request deletion of a file descriptor on the server and removes it from local storage
+     * Method request deletion of a file descriptor on the server and removes it from local storage <br/>
      * @param {string} id [required] file descriptor id to be destroyed
      * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
      */
@@ -1017,7 +1156,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method request deletion of all files on the server and removes them from local storage
+     * Method request deletion of all files on the server and removes them from local storage <br/>
      * @return {Promise<{}>} ???
      */
     deleteAllFileDescriptor() {
@@ -1037,7 +1176,7 @@ class FileStorage {
 
             Promise.all(promiseArray)
                 .then(() => {
-                    resolve();
+                    resolve(undefined);
                 })
                 .catch((errorResponse) => {
                     ///let error = that._errorHelperService.handleError(errorResponse, "deleteAllFileDescriptor");
@@ -1050,7 +1189,7 @@ class FileStorage {
      * @public
      *
      * @description
-     * Method retrieve full list of files belonging to user making the request
+     * Method retrieve full list of files belonging to user making the request <br/>
      *
      * @return {Promise<FileDescriptor[]>}
      *
@@ -1064,7 +1203,7 @@ class FileStorage {
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
-                        resolve();
+                        resolve(undefined);
                     }
 
                     // Check if we have received all fileDescriptors
@@ -1120,7 +1259,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method retrieve a list of [limit] files belonging to user making the request begining with offset
+     * Method retrieve a list of [limit] files belonging to user making the request begining with offset <br/>
      *
      * @return {Promise<FileDescriptor[]>}
      *
@@ -1134,7 +1273,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation)
+     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation) <br/>
      *
      * @param {string} userId [required] dbId of user making the request
      * @param {string} peerId [required] dbId of peer user in the conversation
@@ -1170,7 +1309,7 @@ class FileStorage {
      * @public
      *
      * @description
-     * Method request for the list of files sent to a given peer (i.e. inside a given conversation)
+     * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br/>
      *
      * @param {string} peerId [required] id of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
@@ -1205,7 +1344,7 @@ class FileStorage {
      * @public
      *
      * @description
-     * Method request for the list of files received in a room
+     * Method request for the list of files received in a room <br/>
      *
      * @param {string} bubbleId [required] Id of the room
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
@@ -1218,7 +1357,7 @@ class FileStorage {
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
-                        resolve();
+                        resolve(undefined);
                     }
 
                     let result = [];
@@ -1247,7 +1386,7 @@ class FileStorage {
      * @public
      *
      * @description
-     * Method request for the list of files received by a user
+     * Method request for the list of files received by a user <br/>
      *
      * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
@@ -1260,7 +1399,7 @@ class FileStorage {
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
-                        resolve();
+                        resolve(undefined);
                         return;
                     }
 
@@ -1297,8 +1436,8 @@ class FileStorage {
      * @instance
      * @param {Conversation} conversation   The conversation where to get the files
      * @description
-     *    Get the list of all files sent in a conversation with a contact
-     *    Return a promise
+     *    Get the list of all files sent in a conversation with a contact <br/>
+     *    Return a promise <br/>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesSentInConversation(conversation) {
@@ -1342,8 +1481,8 @@ class FileStorage {
      * @instance
      * @param {Bubble} bubble   The bubble where to get the files
      * @description
-     *    Get the list of all files sent in a bubble
-     *    Return a promise
+     *    Get the list of all files sent in a bubble <br/>
+     *    Return a promise <br/>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesSentInBubble(bubble) {
@@ -1379,8 +1518,8 @@ class FileStorage {
      * @method
      * @instance
      * @description
-     *    Get the current file storage quota and consumption for the connected user
-     *    Return a promise
+     *    Get the current file storage quota and consumption for the connected user <br/>
+     *    Return a promise <br/>
      * @return {Object} Return an object containing the user quota and consumption
      */
     getUserQuotaConsumption() {
@@ -1399,7 +1538,7 @@ class FileStorage {
      * @method getAllFilesSent
      * @instance
      * @description
-     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles.
+     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles. <br/>
      * @return {FileDescriptor[]} Return an array containing the list of FileDescriptor objects representing the files sent
      */
     getAllFilesSent() {
@@ -1413,7 +1552,7 @@ class FileStorage {
      * @method getAllFilesReceived
      * @instance
      * @description
-     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles.
+     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles. <br/>
      * @return {FileDescriptor[]} Return an array containing a list of FileDescriptor objects representing the files received
      */
      getAllFilesReceived() {
@@ -1426,7 +1565,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method retrieve the data usage of a given user
+     * Method retrieve the data usage of a given user <br/>
      *
      * @return {Promise<{}>} : object data with the following properties:
      *                  - feature {string} : The feature key belonging to the user's profile
@@ -1456,7 +1595,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method deletes a viewer from the list of viewer of a given file
+     * Method deletes a viewer from the list of viewer of a given file <br/>
      *
      * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
      * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
@@ -1483,7 +1622,7 @@ class FileStorage {
                             fd.viewers.splice(index, 1);
                         }
                     }
-                    resolve();
+                    resolve(undefined);
                 },
                 (errorResponse) => {
                     //let error = that._errorHelperService.handleError(errorResponse, "deleteFileViewer");
@@ -1554,10 +1693,11 @@ class FileStorage {
     }
 
     /**
-     * @private
-     *
+     * @public
+     * @method retrieveOneFileDescriptor
+     * @instance
      * @description
-     * Method retrieve a specific file descriptor from server
+     * Method retrieve a specific file descriptor from server <br/>
      *
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved
@@ -1585,7 +1725,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new)
+     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new) <br/>
      *
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
@@ -1787,7 +1927,7 @@ class FileStorage {
      * @private
      *
      * @description
-     * Method extract fileId part of URL
+     * Method extract fileId part of URL <br/>
      *
      * @param {string} url
      * @return {string}

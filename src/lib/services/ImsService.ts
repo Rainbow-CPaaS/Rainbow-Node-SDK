@@ -25,11 +25,11 @@ const LOG_ID = "IM/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @name IMService
+ * @name Im
  * @version SDKVERSION
  * @public
  * @description
- *      This module manages Instant Messages. It allows to send messages to a user or a bubble.
+ *      This module manages Instant Messages. It allows to send messages to a user or a bubble. <br/>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Send a message to a user <br>
@@ -60,7 +60,13 @@ class IMService {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions, _startConfig) {
+    static getClassName(){ return 'IMService'; }
+    getClassName(){ return IMService.getClassName(); }
+
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -95,7 +101,7 @@ class IMService {
                 that._fileStorage = _core.fileStorage;
                 that._presence = _core.presence;
                 that.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject(err);
@@ -109,7 +115,7 @@ class IMService {
             try {
                 that._xmpp = null;
                 that.ready = false;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject(err);
@@ -231,7 +237,7 @@ class IMService {
      * @instance
      * @description
      *    <b>(beta)</b> Send a instant message to a conversation<br>
-     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation
+     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br/>
      * @param {Conversation} conversation The conversation recipient
      * @param {String} message The message to send
      * @param {String} [lang=en] The content language used
@@ -239,12 +245,13 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToConversation(conversation, message, lang, content, subject) {
+    async sendMessageToConversation(conversation, message, lang, content, subject, urgency: string = null) {
         let that = this;
         if (!conversation) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
@@ -264,7 +271,7 @@ class IMService {
 
         let msgSent : any = undefined; //Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: " sent message failed."}));
         if (this._useXMPP) {
-            msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined);
+            msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject, urgency) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined, urgency);
         }
         if ((this._useS2S)) {
             /*
@@ -320,7 +327,7 @@ class IMService {
      * @method sendMessageToContact
      * @instance
      * @description
-     *  Send a one-2-one message to a contact
+     *  Send a one-2-one message to a contact <br/>
      * @param {String} message The message to send
      * @param {Contact} contact The contact (should have at least a jid_im property)
      * @param {String} [lang=en] The content language used
@@ -328,26 +335,27 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    sendMessageToContact(message, contact, lang, content, subject) {
+    sendMessageToContact(message, contact, lang, content, subject, urgency: string = null) {
         if (!contact || !contact.jid_im) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
         }
 
-        return this.sendMessageToJid(message, contact.jid_im, lang, content, subject);
+        return this.sendMessageToJid(message, contact.jid_im, lang, content, subject, urgency);
     }
 
     /**
      * @private
      * @description
-     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-     *      It allow to give back the status of the sending process.
+     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
+     *      It allow to give back the status of the sending process. <br/>
      * @param conversation
      * @param message
      */
@@ -361,8 +369,8 @@ class IMService {
     /**
      * @private
      * @description
-     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent.
-     *      It allow to give back the status of the sending process.
+     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
+     *      It allow to give back the status of the sending process. <br/>
      * @param message
      */
     /* removePendingMessage(message) {
@@ -386,7 +394,7 @@ class IMService {
      * @method sendMessageToJid
      * @instance
      * @description
-     *  Send a one-2-one message to a contact identified by his Jid
+     *  Send a one-2-one message to a contact identified by his Jid <br/>
      * @param {String} message The message to send
      * @param {String} jid The contact Jid
      * @param {String} [lang=en] The content language used
@@ -394,12 +402,13 @@ class IMService {
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToJid(message, jid, lang, content, subject) {
+    async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null) {
         let that = this;
         if (!lang) {
             lang = "en";
@@ -432,7 +441,7 @@ class IMService {
         let messageSent : any = undefined;
 
         if (this._useXMPP) {
-             messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined);
+             messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined, urgency);
         } else {
             messageSent = Promise.reject("only supported in xmpp mode");
         }
@@ -454,7 +463,7 @@ class IMService {
      * @method sendMessageToJidAnswer
      * @instance
      * @description
-     *  Send a reply to a one-2-one message to a contact identified by his Jid
+     *  Send a reply to a one-2-one message to a contact identified by his Jid <br/>
      * @param {String} message The message to send
      * @param {String} jid The contact Jid
      * @param {String} [lang=en] The content language used
@@ -463,12 +472,13 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg) {
+    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
         if (!lang) {
             lang = "en";
@@ -506,7 +516,7 @@ class IMService {
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg);
+        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg, urgency);
 
         /*
         this.storePendingMessage(messageSent);
@@ -526,7 +536,7 @@ class IMService {
      * @method sendMessageToBubble
      * @instance
      * @description
-     *  Send a message to a bubble
+     *  Send a message to a bubble <br/>
      * @param {String} message The message to send
      * @param {Bubble} bubble The bubble (should at least have a jid property)
      * @param {String} [lang=en] The content language used
@@ -535,19 +545,20 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    sendMessageToBubble(message, bubble, lang, content, subject, mentions) {
+    sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
         if (!bubble || !bubble.jid) {
             this._logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
-        return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject, mentions);
+        return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject, mentions, urgency);
     }
 
     /**
@@ -555,7 +566,7 @@ class IMService {
      * @method sendMessageToBubbleJid
      * @instance
      * @description
-     *  Send a message to a bubble identified by its JID
+     *  Send a message to a bubble identified by its JID <br/>
      * @param {String} message The message to send
      * @param {String} jid The bubble JID
      * @param {String} [lang=en] The content language used
@@ -564,12 +575,13 @@ class IMService {
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions) {
+    async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions, urgency: string = null) {
         let that = this;
         if (!lang) {
             lang = "en";
@@ -601,20 +613,22 @@ class IMService {
 
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
-        if (bubble.isActive) {
-            let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions);
+        if (bubble.isActive ) {
+            let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency);
             return messageSent1;
         } else {
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresence(bubble.jid);
+                await that._presence.sendInitialBubblePresence(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
+                /*
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
+                // */
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions);
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -627,7 +641,7 @@ class IMService {
      * @method sendMessageToBubbleJidAnswer
      * @instance
      * @description
-     *  Send a message to a bubble identified by its JID
+     *  Send a message to a bubble identified by its JID <br/>
      * @param {String} message The message to send
      * @param {String} jid The bubble JID
      * @param {String} [lang=en] The content language used
@@ -637,12 +651,13 @@ class IMService {
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @async
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions) {
+    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null) {
         let that = this;
         if (!lang) {
             lang = "en";
@@ -681,19 +696,21 @@ class IMService {
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions);
+            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency);
             return messageSent;
         } else {
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._xmpp.sendInitialBubblePresence(bubble.jid);
+                await that._presence.sendInitialBubblePresence(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
+                /*
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
+                 */
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions);
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -706,7 +723,7 @@ class IMService {
      * @method sendIsTypingStateInBubble
      * @instance IMService
      * @description
-     *    Switch the "is typing" state in a bubble/room<br>
+     *    Switch the "is typing" state in a bubble/room<br> <br/>
      * @param {Bubble} bubble The destination bubble
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return {Object} Return a promise with no parameter when succeed.
@@ -733,7 +750,7 @@ class IMService {
                         else {
                             await that._xmpp.sendIsTypingState(conversation, status) ;
                             //conversationService.sendIsTypingState(conversation, status);
-                            resolve();
+                            resolve(undefined);
                         }
                     }).catch((err)=>{
                         return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble : " + err}));
@@ -769,7 +786,7 @@ class IMService {
                     return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     await that._xmpp.sendIsTypingState(conversation, status);
-                    resolve();
+                    resolve(undefined);
                 }
             }
         });
@@ -781,7 +798,7 @@ class IMService {
      * @method markMessageAsRead
      * @instance
      * @description
-     *  Send a 'read' receipt to the recipient
+     *  Send a 'read' receipt to the recipient <br/>
      * @param {Message} messageReceived The message received to mark as read
      * @async
      * @return {Promise}
@@ -820,7 +837,7 @@ class IMService {
      * @method enableCarbon
      * @instance
      * @description
-     *      Enable message carbon XEP-0280
+     *      Enable message carbon XEP-0280 <br/>
      * @async
      * @return {Promise}
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
@@ -833,14 +850,14 @@ class IMService {
                 that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
                     that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
                     that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
-                    resolve();
+                    resolve(undefined);
                 });
                 that._xmpp.enableCarbon();
             } else
             if (this._useS2S){
-                resolve();
+                resolve(undefined);
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
     }

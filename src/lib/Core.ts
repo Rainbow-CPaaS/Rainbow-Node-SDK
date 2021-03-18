@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit} from "./common/Utils";
+import {logEntryExit, stackTrace} from "./common/Utils";
 
 export {};
 
@@ -20,7 +20,7 @@ import {AdminService} from "./services/AdminService";
 import {SettingsService} from "./services/SettingsService";
 import {FileServerService} from "./services/FileServerService";
 import {FileStorageService} from "./services/FileStorageService";
-import {StateManager} from "./common/StateManager";
+import {SDKSTATUSENUM, StateManager} from "./common/StateManager";
 import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
 import {InvitationsService} from "./services/InvitationsService";
@@ -29,6 +29,7 @@ import {setFlagsFromString} from "v8";
 import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
 import {ErrorManager} from "./common/ErrorManager";
+import {AlertsService} from "./services/AlertsService";
 
 import {lt} from "semver";
 import {S2SService} from "./services/S2SService";
@@ -70,9 +71,13 @@ class Core {
 	public _fileStorage: FileStorageService;
     public _calllog: CallLogService;
     public _favorites: FavoritesService;
+    public _alerts: AlertsService;
     public _invitations: InvitationsService;
 	public _botsjid: any;
     public _s2s: S2SService;
+
+    static getClassName(){ return 'Core'; }
+    getClassName(){ return Core.getClassName(); }
 
     constructor(options) {
 
@@ -176,17 +181,25 @@ class Core {
                                     self._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
 
                                     //self.events.publish("rainbowversionwarning", error);
+                                } else {
+                                    self.logger.log("info", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
                                 }
                             }
                         });
                     }).catch((error) => {
-                        self.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                        self.logger.log("debug", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
                         // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
                     });
                 }
 
                 if (that.options.useS2S) {
-                    return that._contacts.getRosters()
+                    let result: Promise<any> = Promise.resolve(undefined);
+                    if (that.options.imOptions.autoLoadContacts) {
+                        result = that._contacts.getRosters();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                    }
+                    return result
                         .then(() => {
                             return that._profiles.init();
                         }).then(() => {
@@ -204,44 +217,57 @@ class Core {
                         }).then(() => {
                             return that._channels.fetchMyChannels();
                         }).then(() => {
-                            return that._groups.getGroups();
+                            return that._groups.getGroups().catch(()=>{});
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             //return that.im.enableCarbon();
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             return that._rest.getBots();
                         }).then((bots : any) => {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
-                            return that._conversations.getServerConversations();
+                            if (that.options.imOptions.autoLoadConversations) {
+                                return that._conversations.getServerConversations();
+                            } else {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                                return;
+                            }
                         }).then(() => {
                             return that._calllog.init();
                         }).then(() => {
                             return that._favorites.init();
+                        }).then(() => {
+                            return that._alerts.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
                             return that._s2s.listConnectionsS2S();
                         }).then(() => {
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
                             that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                             reject(err);
                         });
-                    //return resolve();
+                    //return resolve(undefined);
                 }
                 if (that.options.useCLIMode) {
-                    return resolve();
+                    return resolve(undefined);
                 }
                 if (that.options.useXMPP) {
-                    return that._contacts.getRosters()
+                    let result: Promise<any> = Promise.resolve(undefined);
+                    if (that.options.imOptions.autoLoadContacts) {
+                        result = that._contacts.getRosters();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                    }
+                    return result
                         .then(() => {
                             return that._profiles.init();
                         }).then(() => {
@@ -259,29 +285,36 @@ class Core {
                         }).then(() => {
                             return that._channels.fetchMyChannels();
                         }).then(() => {
-                            return that._groups.getGroups();
+                            return that._groups.getGroups().catch(()=>{});
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
                             return that.im.enableCarbon();
                         }).then(() => {
                             return that._rest.getBots();
-                        }).then((bots : any) => {
+                        }).then((bots: any) => {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
-                            return Promise.resolve();
+                            return Promise.resolve(undefined);
                         }).then(() => {
-                            return that._conversations.getServerConversations();
+                            if (that.options.imOptions.autoLoadConversations) {
+                                return that._conversations.getServerConversations();
+                            } else {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                                return;
+                            }
                         }).then(() => {
                             return that._calllog.init();
                         }).then(() => {
                             return that._favorites.init();
                         }).then(() => {
+                            return that._alerts.init();
+                        }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
                             that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
@@ -333,6 +366,15 @@ class Core {
             // Initialize the logger
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
+
+        // Initialize the Events Emitter
+        self._eventEmitter = new Events(self.logger, (jid) => {
+            return self._botsjid.includes(jid);
+        });
+        self._eventEmitter.setCore(self);
+
+        loggerModule.logEventEmitter = self._eventEmitter.logEmitter;
+
         self.logger.log("debug", LOG_ID + "(constructor) _entering_");
         self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
@@ -348,11 +390,9 @@ class Core {
         self.options = new Options(options, self.logger);
         self.options.parse();
 
-        // Initialize the Events Emitter
-        self._eventEmitter = new Events(self.logger, (jid) => {
-            return self._botsjid.includes(jid);
-        });
-        self._eventEmitter.setCore(self);
+        self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
+
+
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
             await self.signin(true, undefined);
         });
@@ -374,7 +414,7 @@ class Core {
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
             let that = self;
-            //todo, check that REST part is ok too
+            self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) received, so start reconnect from RESTService.");
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
@@ -397,12 +437,16 @@ class Core {
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
-                    self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
-                    self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
-                    // ErrorManager in REST micro service, so let say it is disconnected
-                    await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
-                    // relaunch the REST connection.
-                    self._eventEmitter.iee.emit("rainbow_xmppreconnected");
+                    if (err && err.errorname == "reconnectingInProgress") {
+                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
+                    } else {
+                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
+                        self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
+                        // ErrorManager in REST micro service, so let say it is disconnected
+                        await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                        // relaunch the REST connection.
+                        self._eventEmitter.iee.emit("rainbow_xmppreconnected");
+                    }
                 }
             });
         });
@@ -438,8 +482,8 @@ class Core {
 
         // Instantiate basic service
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
-        self._http = new HTTPService(self.options.httpOptions, self.logger, self._proxy, self._eventEmitter.iee);
-        self._rest = new RESTService(self.options.credentials, self.options.applicationOptions, self.options._isOfficialRainbow(), self._eventEmitter.iee, self.logger);
+        self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
+        self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
         self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
@@ -451,7 +495,7 @@ class Core {
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
         self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations);
+        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations);
         self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
         self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
         self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
@@ -462,6 +506,7 @@ class Core {
         self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
+        self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
@@ -484,7 +529,12 @@ class Core {
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
                     reject("Credentials are missing. Check your configuration!");
                 } else {
-                    that.logger.log("debug", LOG_ID + "(start) start all modules");
+                    if (token) {
+                        that.logger.log("debug", LOG_ID + "(start) with token.");
+                        that.logger.log("internal", LOG_ID + "(start) with token : ", token);                        
+                    }
+
+                        that.logger.log("debug", LOG_ID + "(start) start all modules");
                     that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
                     that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
                     return that._stateManager.start().then(() => {
@@ -526,12 +576,14 @@ class Core {
                     }).then(() => {
                         return that._favorites.start(that.options, that) ;
                     }).then(() => {
+                        return that._alerts.start(that.options, that) ;
+                    }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
                             that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                            resolve();
+                            resolve(undefined);
                         }).catch((err) => {
                             reject(err);
                         });
@@ -568,7 +620,9 @@ class Core {
             }).then(() => {
                 that._stateManager.transitTo(that._stateManager.READY).then(() => {
                     resolve(json);
-                }).catch((err)=> { reject(err); });
+                }).catch((err)=> { 
+                    reject(err); 
+                });
             }).catch((err) => {
                 reject(err);
             });
@@ -577,55 +631,78 @@ class Core {
 
     stop() {
         let that = this;
-        this.logger.log("debug", LOG_ID + "(stop) _entering_");
-
-        return new Promise(function (resolve, reject) {
+        this.logger.log("internal", LOG_ID + "(stop) _entering_ stack : ", stackTrace());
+        
+        return new Promise(async function (resolve, reject) {
 
             if (that._stateManager.isSTOPPED()) {
                 return resolve ("core already stopped !");
             }
 
-            that.logger.log("debug", LOG_ID + "(stop) stop all modules");
+            that.logger.log("debug", LOG_ID + "(stop) stop all modules !");
 
-            that._s2s.stop().then(() => {
+            await that._s2s.stop().then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped s2s.");
                 return that._rest.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped rest");
                 return that._http.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped http");
                 return that._xmpp.stop(that.options.useXMPP);
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped xmpp");
                 return that._im.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped im");
                 return that._settings.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped settings");
                 return that._presence.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped presence");
                 return that._conversations.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped conversations");
                 return that._telephony.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped telephony");
                 return that._contacts.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped contacts");
                 return that._bubbles.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped bubbles");
                 return that._channels.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped channels");
                 return that._groups.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped groups");
                 return that._admin.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped admin");
                 return that._fileServer.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped fileServer");
                 return that._fileStorage.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped fileStorage");
                 return that._stateManager.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped stateManager");
                 return that._calllog.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped calllog");
                 return that._favorites.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped favorites");
+                return that._alerts.stop();
+            }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped alerts");
                 return that._invitations.stop();
             }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped invitations");
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 resolve("core stopped");
             }).catch((err) => {
@@ -633,6 +710,59 @@ class Core {
                 that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
+            });
+            // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
+        });
+        // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 2 !");
+    }
+
+    async getConnectionStatus():Promise<{
+        restStatus:boolean,
+        xmppStatus:boolean,
+        s2sStatus:boolean,
+        state : SDKSTATUSENUM,
+        nbHttpAdded : number,
+        httpQueueSize : number,
+        nbRunningReq : number,
+        maxSimultaneousRequests : number
+        nbReqInQueue : number
+    }>{
+        let that = this;
+        let restStatus : boolean = false;
+        // Test XMPP connection
+        let xmppStatus : boolean = false;
+        // Test S2S connection
+        let s2sStatus : boolean = false;
+
+        return new Promise(async(resolve, reject) => {
+           // Test REST connection
+            restStatus = await that._rest.checkRESTAuthentication();
+           // Test XMPP connection
+            xmppStatus = await this._xmpp.sendPing().then((result) => {
+                that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
+                if (result && result.code === 1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            // */
+           // Test S2S connection
+            s2sStatus  = await that._rest.checkS2SAuthentication();
+
+            let httpStatus = await that._http.checkHTTPStatus();
+
+            return resolve({
+                restStatus,
+                xmppStatus,
+                s2sStatus,
+                state : that.state,
+                nbHttpAdded : httpStatus.nbHttpAdded ,
+                httpQueueSize : httpStatus.httpQueueSize ,
+                nbRunningReq : httpStatus.nbRunningReq,
+                maxSimultaneousRequests : httpStatus.maxSimultaneousRequests,
+                nbReqInQueue: httpStatus.nbReqInQueue
             });
         });
     }

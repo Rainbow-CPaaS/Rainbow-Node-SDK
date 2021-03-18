@@ -43,7 +43,7 @@ class StateManager {
                     that.state = SDKSTATUSENUM.STARTING;
                     that.logger.log("info", LOG_ID + "(start) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                    resolve();
+                    resolve(undefined);
                 } else {
                     that.logger.log("error", LOG_ID + "(start) The Rainbow Node Sdk can not start because state \"" + that.state + "\" is not \"" + SDKSTATUSENUM.STOPPED + "\"  state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
@@ -68,7 +68,7 @@ class StateManager {
                 that.transitTo(SDKSTATUSENUM.STOPPED).then(() => {
                     that.logger.log("info", LOG_ID + "(stop) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(stop) _exiting_");
-                    resolve();
+                    resolve(undefined);
                 }).catch((err)=> { return reject(err); });
             } catch (err) {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
@@ -81,19 +81,19 @@ class StateManager {
         return new Promise( async (resolve, reject) => {
             if (this.state === state) {
                 this.logger.log("info", LOG_ID + "(transitTo) the state is yet ", this.state, ", so ignore it.");
-                resolve();
+                resolve(undefined);
             } else {
                 this.state = state;
                 if (this.isSTOPPED() || this.isREADY()) {
                     await utils.setTimeoutPromised(1500).then(() => {
                         this.logger.log("info", LOG_ID + "(transitTo) set state", this.state);
                         this.eventEmitter.publish(state, data);
-                        resolve();
+                        resolve(undefined);
                     });
                 } else {
                     this.logger.log("info", LOG_ID + "(transitTo) set state", this.state);
                     this.eventEmitter.publish(state, data);
-                    resolve();
+                    resolve(undefined);
                 }
             }
         });

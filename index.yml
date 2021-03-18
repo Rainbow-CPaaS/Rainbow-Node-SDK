@@ -2,7 +2,7 @@
 - SDK FOR NODEJS GUIDES:
   - Getting started: 'ref:doc/sdk/node/guides/Getting_Started.md'
   - What's new ?: 'ref:doc/sdk/node/guides/What_is_new.md'
-  - ChangeLog RSS Flow: '/doc/sdk/node/api/ChangeLogRSS.xml'
+  - Get latest SDK News: 'ref:doc/sdk/node/guides/RainbowNodeSDKNews.md'
   - Connecting to Rainbow in XMPP Mode (Default, full features): 'ref:doc/sdk/node/guides/Connecting_to_Rainbow_XMPP_Mode.md'
   - Connecting to Rainbow in S2S MODE (Restricted API - Alpha delivery): 'ref:doc/sdk/node/guides/Connecting_to_Rainbow_S2S_Mode.md'
   - Answering to chat messages: 'ref:doc/sdk/node/guides/Answering_chat_message.md'
@@ -21,6 +21,11 @@
 - SDK FOR NODEJS APIs:
   - SDK: 'ref:doc/sdk/node/api/sdk.md'
   # Types :
+  - Alert: 'ref:doc/sdk/node/api/alert.md'
+  - AlertDevice: 'ref:doc/sdk/node/api/alertdevice.md'
+  - AlertFilter: 'ref:doc/sdk/node/api/alertfilter.md'
+  - AlertMessage: 'ref:doc/sdk/node/api/alertmessage.md'
+  - AlertTemplate: 'ref:doc/sdk/node/api/alerttemplate.md'
   - Bubble: 'ref:doc/sdk/node/api/bubble.md'
   - Call: 'ref:doc/sdk/node/api/call.md'
   - Channel: 'ref:doc/sdk/node/api/channel.md'
@@ -31,6 +36,7 @@
   - Settings.js: 'ref:doc/sdk/node/api/settings.md'
   # Services :
   - Admin Service: 'ref:doc/sdk/node/api/admin.md'
+  - Alerts Service: 'ref:doc/sdk/node/api/alerts.md'
   - Bubbles Service: 'ref:doc/sdk/node/api/bubbles.md'
   - CallLog Service: 'ref:doc/sdk/node/api/calllog.md'
   - Channels Service: 'ref:doc/sdk/node/api/channels.md'

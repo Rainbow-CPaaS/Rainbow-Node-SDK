@@ -127,19 +127,23 @@ export class XMPPUTils {
     }
 
     isFromMobile(fullJid) {
-        return (fullJid.indexOf("mobile") > -1);
+        return (this.getResourceFromFullJID(fullJid).indexOf("mobile")  === 0);
     }
 
     isFromNode(fullJid) {
-        return (fullJid.indexOf("node") > -1);
+        return (this.getResourceFromFullJID(fullJid).indexOf("node") === 0);
     }
 
     isFromS2S(fullJid) {
-        return (fullJid.indexOf("s2s") > -1);
+        return (this.getResourceFromFullJID(fullJid).indexOf("s2s")  === 0);
     }
 
     isFromTelJid(fullJid) {
         return (fullJid.indexOf("tel_") === 0);
+    }
+
+    isFromCalendarJid(fullJid) {
+        return ((fullJid.indexOf("tel_") === 0) && this.getResourceFromFullJID(fullJid) == "calendar");
     }
 
     getResourceFromFullJID(fullJid) {
@@ -149,6 +153,19 @@ export class XMPPUTils {
         return "";
     }
 
+    /** Function: getBareJidFromJid
+     *  Get the bare JID from a JID String.
+     *
+     *  Parameters:
+     *    (String) jid - A JID.
+     *
+     *  Returns:
+     *    A String containing the bare JID.
+     */
+    getBareJidFromJid (jid)
+    {
+        return jid ? jid.split("/")[0] : null;
+    }
 }
 
 export let xu = XMPPUTils.getXMPPUtils();

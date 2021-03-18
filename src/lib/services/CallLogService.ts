@@ -47,7 +47,7 @@ function CallLogsBean() : ICallLogsBean {
 @isStarted([])
 /**
 * @module
-* @name CallsLog
+* @name CallLogService
  * @version SDKVERSION
 * @public
 * @description
@@ -101,9 +101,14 @@ function CallLogsBean() : ICallLogsBean {
         return this._startConfig;
     }
 
+    static getClassName(){ return 'CallLogService'; }
+    getClassName(){ return CallLogService.getClassName(); }
 
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig) {
+    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -242,9 +247,9 @@ function CallLogsBean() : ICallLogsBean {
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived)
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
         ];
 
         /*
@@ -271,7 +276,7 @@ function CallLogsBean() : ICallLogsBean {
             return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
         }
         if (that._useS2S) {
-            return Promise.resolve();
+            return Promise.resolve(undefined);
         }
     }
 
@@ -285,7 +290,7 @@ function CallLogsBean() : ICallLogsBean {
      * @method getAll
      * @instance
      * @description
-     *    Get all calls log history for the connected user
+     *    Get all calls log history for the connected user <br/>
      * @return {CallLog[]} An array of call log entry
      */
     getAll() {
@@ -318,7 +323,7 @@ function CallLogsBean() : ICallLogsBean {
      * @method getMissedCallLogCounter
      * @instance
      * @description
-     *    Get the number of call missed (state === "missed" && direction === "incoming")
+     *    Get the number of call missed (state === "missed" && direction === "incoming") <br/>
      * @return {Number} The number of call missed
      */
     getMissedCallLogCounter() {
@@ -342,8 +347,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @description
      *    Delete a call log from it's id<br/>
-     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished
-     * @param {String} id The call log id to remove
+     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+     * @param {string} id The call log id to remove
      * @return Nothing
      */
     deleteOneCallLog(id) {
@@ -359,8 +364,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @description
      *    Delete all calls log items associated to a contact's given jid<br/>
-     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished
-     * @param {String} jid The call log id to remove
+     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+     * @param {string} jid The call log id to remove
      * @return Nothing
      */
     deleteCallLogsForContact(jid) {
@@ -376,7 +381,7 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @description
      *    Delete all call logs history<br/>
-     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished
+     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
      * @return Nothing
      */
     deleteAllCallLogs() {
@@ -392,8 +397,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @description
      *    Mark a call log item as read<br/>
-     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished
-     * @param {String} id The call log id
+     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
+     * @param {string} id The call log id
      * @return Nothing
      */
     markCallLogAsRead(id) {
@@ -409,7 +414,7 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @description
      *    Mark all call log items as read<br/>
-     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished
+     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
      * @return Nothing
      */
     async markAllCallsLogsAsRead() {
@@ -425,8 +430,8 @@ function CallLogsBean() : ICallLogsBean {
      * @method isInitialized
      * @instance
      * @description
-     *    Check if the call log history has been received from Rainbow
-     *    A false answer means that the call logs have not yet been retrieved from the server.
+     *    Check if the call log history has been received from Rainbow <br/>
+     *    A false answer means that the call logs have not yet been retrieved from the server. <br/>
      * @return {Boolean} True if the call logs have been retrieved. False elsewhere.
      */
     isInitialized() {

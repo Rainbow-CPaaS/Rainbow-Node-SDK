@@ -1,6 +1,8 @@
 module.exports = function(grunt) {
   grunt.initConfig({
 
+      //touch: ['tasks/generateFoss.js'],
+      
     /* ------------------------------ VARIABLES -------------------------------- */
     version: grunt.file.read("./config/version.js").split("\"")[1],
     nodeSdkOrder: grunt.file.read("./jsdoc/cheatsheet/node/nodeSdkOrder") + "\n</div><!--MERMAID-->",
@@ -11,6 +13,7 @@ module.exports = function(grunt) {
         files: [
             { src: "lib/common/Events.js", dest: "build/events.md" },
             { src: "lib/services/AdminService.js", dest: "build/admin.md" },
+            { src: "lib/services/AlertsService.js", dest: "build/alerts.md" },
             { src: "lib/services/BubblesService.js", dest: "build/bubbles.md" },
             { src: "lib/services/CallLogService.js", dest: "build/calllog.md" },
             { src: "lib/services/ChannelsService.js", dest: "build/channels.md" },
@@ -24,7 +27,12 @@ module.exports = function(grunt) {
             { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
             { src: "lib/services/S2SService.js", dest: "build/s2s.md" },
             { src: "lib/services/TelephonyService.js", dest: "build/telephony.md" },
-            { src: "index.js", dest: "build/sdk.md" },
+            { src: "lib/NodeSDK.js", dest: "build/sdk.md" },
+            { src: "lib/common/models/Alert.js", dest: "build/alert.md" },
+            { src: "lib/common/models/AlertDevice.js", dest: "build/alertdevice.md" },
+            { src: "lib/common/models/AlertFilter.js", dest: "build/alertfilter.md" },
+            { src: "lib/common/models/AlertMessage.js", dest: "build/alertmessage.md" },
+            { src: "lib/common/models/AlertTemplate.js", dest: "build/alerttemplate.md" },
             { src: "lib/common/models/Bubble.js", dest: "build/bubble.md" },
             { src: "lib/common/models/Channel.js", dest: "build/channel.md" },
             { src: "lib/common/models/Call.js", dest: "build/call.md" },
@@ -88,7 +96,19 @@ module.exports = function(grunt) {
         }
     },
 
-
+      generateFoss: {
+          all: {
+              options: {
+                  debugcode: true
+              },
+              files: [
+                  {
+                      dest:"build/fossText.md"
+                  }
+              ]
+          }
+      },
+      
       watch: {
         lint: {
             files: ["lib/**/*.js", "index.js", "tests/**/*.js"],
@@ -100,6 +120,7 @@ module.exports = function(grunt) {
         nodesheets: {
             src: [
                 "lib/services/AdminService.js",
+                "lib/services/AlertsService.js",
                 "lib/services/BubblesService.js",
                 "lib/services/CallLogService.js",
                 "lib/services/ChannelsService.js",
@@ -113,7 +134,7 @@ module.exports = function(grunt) {
                 "lib/services/PresenceService.js",
                 "lib/services/S2SService.js",
                 "lib/services/TelephonyService.js",
-                "index.js",
+                "lib/NodeSDK.js",
                 "lib/common/Events.js",
                 "lib/common/models/Bubble.js",
                 "lib/common/models/Call.js",
@@ -215,6 +236,7 @@ module.exports = function(grunt) {
             src: [ "src/**/*.ts" ]
             }
     }
+      
 });
 
   grunt.loadTasks("tasks");
@@ -229,12 +251,26 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
+  // grunt.loadNpmTasks('grunt-touch');
 
+    grunt.registerTask('generateFossRun', 'My "generateFossRun" task.', function() {
+        // Enqueue "bar" and "baz" tasks, to run after "foo" finishes, in-order.
+        grunt.task.run(["generateFoss"]);
+    
+    });
+    
   grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+  grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
+  //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
+
   grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build"]);
-  grunt.registerTask("default", ["preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-  grunt.registerTask("defaultDEBUG", ["prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-//    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+  //grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryBuild", [ "prepareDEBUGcode"]);
+
+  //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
+    
   grunt.registerTask("nodesheets", ["jsdoc:nodesheets", "copy-part-of-file:nodesheets", "copy:generatednodecheatsheet", "replace:nodesheets", "exec:renderNodeSheets"]);
   grunt.registerTask("lint", ["eslint:all"]);
 };

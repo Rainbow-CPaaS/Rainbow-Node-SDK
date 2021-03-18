@@ -1,3 +1,7 @@
+// Desactivated option because it is a preference one, so it impacted every ressources.
+// DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
+// NoStoreBotSide = "nostorebotside",
+
 /**
  * @enum
  * @name DataStoreType
@@ -9,15 +13,11 @@
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  */
 enum DataStoreType {
-  NoStore = "no-store",
-  NoPermanentStore = "no-permanent-store",
-  StoreTwinSide = "storetwinside",
-  UsestoreMessagesField = "OldstoreMessagesUsed"
+    NoStore = "no-store",
+    NoPermanentStore = "no-permanent-store",
+    StoreTwinSide = "storetwinside",
+    UsestoreMessagesField = "OldstoreMessagesUsed"
 }
-
-// Desactivated option because it is a preference one, so it impacted every ressources.
-// DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
-// NoStoreBotSide = "nostorebotside",
 
 let conf =  {
     sandbox: {
@@ -76,6 +76,7 @@ let conf =  {
         level: "info",
         color: false,
         enableConsoleLog: true,
+        enableEventsLogs: false,
         "system-dev": {
             internals: false,
             http: false
@@ -90,7 +91,7 @@ let conf =  {
     },
     im: {
         sendReadReceipt: true,
-        messageMaxLength: 1024,
+        messageMaxLength: 16384,
         sendMessageToConnectedUser: false,
         conversationsRetrievedFormat: "small",
         storeMessages: true, /* https://xmpp.org/extensions/xep-0334.html#hints :
@@ -108,9 +109,18 @@ let conf =  {
         nbMaxConversations: 15,
         rateLimitPerHour: 1000,
         messagesDataStore: DataStoreType.UsestoreMessagesField,
+        autoInitialBubblePresence: true,
+        autoLoadConversations: true,
+        autoLoadContacts: true
 
     },
     mode:"xmpp",
+    "concurrentRequests": 1000,
+    "requestsRate": {
+        "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+        "timeoutRequestForRequestRate": 600, // nb seconds Request stay in queue before being rejected if queue is full.
+    },
     debug:true,
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
@@ -177,6 +187,10 @@ let conf =  {
                 start_up:true,
                 optional:true
             }, //need services :  (that._xmpp, that._rest);
+            alerts:  {
+                start_up:true,
+                optional:true
+            }, //need services :  (that._xmpp, that._rest);
             invitation:  {
                 start_up:true,
                 optional:true
@@ -188,7 +202,7 @@ let conf =  {
     }
 
 };
-
 module.exports.config = conf;
+//module.exports.OptionsType = OptionsType;
 module.exports.DataStoreType = DataStoreType;
-export {conf as config, DataStoreType};
+export {conf as config , DataStoreType};

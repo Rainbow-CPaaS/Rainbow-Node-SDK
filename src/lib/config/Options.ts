@@ -1,4 +1,6 @@
 "use strict";
+import {Logger} from "../common/Logger";
+
 export {};
 
 //const config = require("./config");
@@ -7,8 +9,8 @@ import {config, DataStoreType} from "./config";
 const LOG_ID = "OPTIONS - ";
 
 class Options {
-	public _logger: any;
-	public _options: any;
+	public _logger: Logger;
+	public _options: any; //OptionsType;
 	public _hasCredentials: any;
 	public _hasApplication: any;
 	public _httpOptions: any;
@@ -22,8 +24,10 @@ class Options {
 	public _CLIMode: any;
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
-
-    constructor(_options, _logger) {
+    private _concurrentRequests: number;
+    private _requestsRate: any;
+    
+    constructor(_options: any, _logger: Logger) {
         this._logger = _logger;
         this._options = _options;
         this._hasCredentials = true;
@@ -42,12 +46,12 @@ class Options {
 
         if (!this._options.rainbow || !this._options.rainbow.host) {
             this._logger.log("warn", LOG_ID + "(constructor) 'host' property is not defined. Use default: 'sandbox'. Check the documentation to configure it");
-            this._options.rainbow = {host: "sandbox"};
+            this._options.rainbow = {host: "sandbox", mode: "xmpp"};
         }
 
         if (!this._options.proxy) {
             this._logger.log("info", LOG_ID + "(constructor) 'proxy' property is not defined. Use default: no proxy. Check the documentation to enable it");
-            this._options.proxy = {host: "", protocol: "http", port: 80};
+            this._options.proxy = {host: "", protocol: "http", port: 80, user : undefined, password : undefined, secureProtocol: undefined};
         }
 
         if (!this._options.credentials) {
@@ -79,6 +83,8 @@ class Options {
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
+        //this._concurrentRequests = this._getConcurrentRequestsOption();
+        this._requestsRate = this._getRequestsRateOption();
     }
 
     get testOutdatedVersion(): boolean {
@@ -139,6 +145,17 @@ class Options {
 
     get credentials() {
         return this._options.credentials;
+    }
+
+    get concurrentRequests(): number {
+        return this._concurrentRequests;
+    }
+
+    get requestsRate(): { 
+        "maxReqByIntervalForRequestRate": number, 
+        "intervalForRequestRate": number, 
+        "timeoutRequestForRequestRate": number } {
+        return this._requestsRate;
     }
 
     _gettestOutdatedVersion() {
@@ -214,7 +231,7 @@ class Options {
                 xmppOptions.host = this._options.rainbow.host;
                 if ( this._options.xmpp && this._options.xmpp.protocol ) {  xmppOptions.protocol = this._options.xmpp.protocol; }
                 if ( this._options.xmpp && this._options.xmpp.port) { xmppOptions.port = this._options.xmpp.port; }
-                this._logger.warn("Be careful, an unofficial Rainbow core is used : " + JSON.stringify(xmppOptions));
+                this._logger.log("warn", LOG_ID + "(constructor) Be careful, an unofficial Rainbow core is used : " + JSON.stringify(xmppOptions));
                 this._logger.log("debug", LOG_ID + "(constructor) Use XMPP services on Rainbow " + this._options.rainbow.host + " platform");
                 break;
         }
@@ -241,7 +258,7 @@ class Options {
                 s2sOptions = config.any.s2s;
                 if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
                 if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
-                this._logger.warn("Be careful, an unofficial Rainbow core is used : " + JSON.stringify(s2sOptions));
+                this._logger.log("warn", LOG_ID + "(constructor) Be careful, an unofficial Rainbow core is used : " + JSON.stringify(s2sOptions));
                 this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow " + this._options.rainbow.host + " platform");
                 break;
         }
@@ -266,6 +283,27 @@ class Options {
             }
         }
         return mode;
+    }
+
+/*
+    _getConcurrentRequestsOption() {
+
+        let concurrentRequests = config.concurrentRequests;
+
+        if ("rainbow" in this._options && "concurrentRequests" in this._options.rainbow) {
+            concurrentRequests = this._options.rainbow.concurrentRequests;
+        }
+        return concurrentRequests;
+    }
+// */
+    
+    _getRequestsRateOption() {
+        let requestsRate = config.requestsRate;
+
+        if ("rainbow" in this._options && "requestsRate" in this._options) {
+            requestsRate = this._options.requestsRate;
+        }
+        return requestsRate;
     }
 
     _getProxyOptions() {
@@ -330,7 +368,10 @@ class Options {
             copyMessage: false,
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
-            messagesDataStore: DataStoreType.UsestoreMessagesField
+            messagesDataStore: DataStoreType.UsestoreMessagesField,
+            autoInitialBubblePresence: true,
+            autoLoadConversations: true,
+            autoLoadContacts: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -348,6 +389,9 @@ class Options {
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
+        optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
+        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
 
         return optionsIM;
     }

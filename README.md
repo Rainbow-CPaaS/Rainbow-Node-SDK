@@ -8,7 +8,7 @@ The Alcatel-Lucent Enterprise (ALE) Rainbow Software Development Kit (SDK) is an
 
 ## Preamble
 
-This SDK is a pure JavaScript library dedicated to the Node.js platform. 
+This SDK is a pure JavaScript library dedicated to the Node.js platform.
 
 Its powerfull APIs enable you to create the best Node.js applications that connect to Alcatel-Lucent Enterprise [Rainbow](https://www.openrainbow.com).
 
@@ -16,7 +16,7 @@ This documentation will help you to use it.
 
 Change LOG RSS Flow is available at : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
 
-Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE. 
+Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 
 ## Rainbow developper account
 
@@ -24,7 +24,7 @@ Your need a Rainbow **developer** account in order to use the Rainbow SDK for No
 
 Please contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
 
-Notice: This is not a SDK for Bot as this SDK needs a Rainbow developer account. Nevertheless, once started, the connection to Rainbow is never broken so it can be seen as a **"always on"** user (a user that is always connected and 'online'). 
+Notice: This is not a SDK for Bot as this SDK needs a Rainbow developer account. Nevertheless, once started, the connection to Rainbow is never broken so it can be seen as a **"always on"** user (a user that is always connected and 'online').
 
 
 ## Beta disclaimer
@@ -33,7 +33,7 @@ Please note that this is a Beta version of the Rainbow SDK for Node.js which is 
 
 Alcatel-Lucent Enterprise will not be liable for any loss, whether such loss is direct, indirect, special or consequential, suffered by any party as a result of their use of the Rainbow SDK for Node.js, the application sample software or the documentation content.
 
-If you encounter any bugs, lack of functionality or other problems regarding the Rainbow SDK for Node.js, the application samples or the documentation, please let us know immediately so we can rectify these accordingly. Your help in this regard is greatly appreciated. 
+If you encounter any bugs, lack of functionality or other problems regarding the Rainbow SDK for Node.js, the application samples or the documentation, please let us know immediately so we can rectify these accordingly. Your help in this regard is greatly appreciated.
 
 
 ## Install
@@ -78,81 +78,84 @@ let options = {
            "hostCallback": "http://xxxxxxxxxxxxx", // S2S Callback URL used to receive events on internet
            "locallistenningport": "4000" // Local port where the events must be forwarded from S2S Callback Web server.
     },
-    "credentials": {  
-            "login": "user@xxxx.xxx",  // The Rainbow email account to use  
-            "password": "XXXXX",  
-    },  
+    "credentials": {
+            "login": "user@xxxx.xxx",  // The Rainbow email account to use
+            "password": "XXXXX",
+    },
         // Application identifier : Application is mandatory to connect official Rainbow System.
-    "application": {  
-            "appID": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Identifier  
-            "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret  
-    },  
-        // Proxy configuration  
-    "proxy": {  
-            "host": "xxx.xxx.xxx.xxx",  
-            "port": xxxx,  
-            "protocol": "http",  
-            "user": "proxyuser",  
-            "password": "XXXXX",  
-    },  
-        // Logs options  
-    "logs": {  
-            "enableConsoleLogs": false, // Activate logs on the console  
-            "enableFileLogs": false, // Activate the logs in a file  
-            "color": true, // Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module))   
-            "level": "info", // The level of logs. The value can be "info", "debug", "warn", "error"  
-            "customLabel": "MyRBProject", // A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.  
-            "file": {  
-                "path": "c:/temp/", // Path to the log file  
-                "customFileName": "R-SDK-Node-MyRBProject", // A label inserted in the name of the log file  
-                "zippedArchive": false // Can activate a zip of file. It needs CPU process, so avoid it.  
-            }  
-    },  
-    "testOutdatedVersion": true, // Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.  
-        // IM options  
-    "im": {  
-            "sendReadReceipt": true, // Allow to automatically send back a 'read' status of the received message. Usefull for Bots.  
-            "messageMaxLength": 1024, // Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.  
-            "sendMessageToConnectedUser": false, // Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.  
-            "conversationsRetrievedFormat": "small", // Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`  
-            "storeMessages": true, // Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application  
-            "nbMaxConversations": 15, // Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.  
-            "rateLimitPerHour": 1000, // Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.  
-            "messagesDataStore": DataStoreType.StoreTwinSide // ("storetwinside") Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)  
-                               // DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.  
-                               // DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).  
-                               //DataStoreType.StoreTwinSide The messages are fully stored.  
-                               //DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.  
-    },  
-        // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.  
-        // Take care, severals services are linked, so disabling a service can disturb an other one.  
-        // By default all the services are started. Events received from server are not yet filtered.  
-        // So this feature is realy risky, and should be used with much more cautions.  
-    "servicesToStart": {  
-            "bubbles": {  
-                "start_up": true,  
-            },  
-            "telephony": {  
-                "start_up": true,  
-            },  
-            "channels": {  
-                "start_up": true,  
-            },  
-            "admin": {  
-                "start_up": true,  
-            },  
-            "fileServer": {  
-                "start_up": true,  
-            },  
-            "fileStorage": {  
-                "start_up": true,  
-            },  
-            "calllog": {  
-                "start_up": true,  
-            },  
-            "favorites": {  
-                "start_up": true,  
-            }  
+    "application": {
+            "appID": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Identifier
+            "appSecret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // The Rainbow Application Secret
+    },
+        // Proxy configuration
+    "proxy": {
+            "host": "xxx.xxx.xxx.xxx",
+            "port": xxxx,
+            "protocol": "http",
+            "user": "proxyuser",
+            "password": "XXXXX",
+    },
+        // Logs options
+    "logs": {
+            "enableConsoleLogs": false, // Activate logs on the console
+            "enableFileLogs": false, // Activate the logs in a file
+            "color": true, // Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module))
+            "level": "info", // The level of logs. The value can be "info", "debug", "warn", "error"
+            "customLabel": "MyRBProject", // A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
+            "file": {
+                "path": "c:/temp/", // Path to the log file
+                "customFileName": "R-SDK-Node-MyRBProject", // A label inserted in the name of the log file
+                "zippedArchive": false // Can activate a zip of file. It needs CPU process, so avoid it.
+            }
+    },
+    "testOutdatedVersion": true, // Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+        // IM options
+    "im": {
+            "sendReadReceipt": true, // Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
+            "messageMaxLength": 1024, // Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+            "sendMessageToConnectedUser": false, // Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
+            "conversationsRetrievedFormat": "small", // Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`
+            "storeMessages": true, // Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application
+            "nbMaxConversations": 15, // Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+            "rateLimitPerHour": 1000, // Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+            "messagesDataStore": DataStoreType.StoreTwinSide // ("storetwinside") Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)
+                               // DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
+                               // DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).
+                               //DataStoreType.StoreTwinSide The messages are fully stored.
+                               //DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+            "autoInitialBubblePresence": true, // to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+            "autoLoadConversations": true, // to activate the retrieve of conversations from the server. The default value is true.
+            "autoLoadContacts": true, // to activate the retrieve of contacts from roster from the server. The default value is true.
+    },
+        // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
+        // Take care, severals services are linked, so disabling a service can disturb an other one.
+        // By default all the services are started. Events received from server are not yet filtered.
+        // So this feature is realy risky, and should be used with much more cautions.
+    "servicesToStart": {
+            "bubbles": {
+                "start_up": true,
+            },
+            "telephony": {
+                "start_up": true,
+            },
+            "channels": {
+                "start_up": true,
+            },
+            "admin": {
+                "start_up": true,
+            },
+            "fileServer": {
+                "start_up": true,
+            },
+            "fileStorage": {
+                "start_up": true,
+            },
+            "calllog": {
+                "start_up": true,
+            },
+            "favorites": {
+                "start_up": true,
+            }
     }
 };
 
@@ -277,7 +280,7 @@ If you want to send it manually  when you want, you have to set this parameter t
 
 ...
 rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
-    // do something with the message received 
+    // do something with the message received
     ...
     // send manually a 'read' receipt to the sender
     rainbowSDK.im.markMessageAsRead(message);
@@ -360,7 +363,7 @@ Accessing individually an existing contact can be done using the API `getContact
     rainbowSDK.contacts.getContactByJid(message.fromJid, false).then(function(contact) {
         // do something with the contact found
     }).catch(function(err) {
-        // do something on error 
+        // do something on error
     });
 });
 
@@ -555,7 +558,7 @@ rainbowSDK.bubbles.removeContactFromBubble(aContact, aBubble).then(function(bubb
 ```
 
 
-### Be notified when a contact changes his affiliation with a bubble 
+### Be notified when a contact changes his affiliation with a bubble
 
 When a recipient accepts or decline your invite or when he leaves the bubble, you can receive a notification of his affiliation change by listening to the following event:
 
@@ -648,7 +651,7 @@ rainbowSDK.bubbles.deleteBubble(aBubble).then(function() {
 ```
 
 
-### Be notified when a request to join a bubble is received 
+### Be notified when a request to join a bubble is received
 
 When someone wants to add the connected user to a bubble the event `rainbow_onbubbleinvitationreceived` is fired:
 
@@ -801,7 +804,7 @@ logs: {
 ```
 
 You can modify :
-* path: The path where the logs are saved 
+* path: The path where the logs are saved
 * level: The log level.
 * zippedArchive: if true then the logs file are zipped when archived,
 * maxSize: Maximum size of the file after which it will rotate. This can be a number of bytes, or units of kb, mb, and gb. If using the units, add 'k', 'm', or 'g' as the suffix. The units need to directly follow the number. (default: null)
@@ -875,7 +878,7 @@ rainbowSDK.events.on('rainbow_onconnected', () => {
 });
 
 rainbowSDK.events.on('rainbow_onready', () => {
-    // do something when the SDK is ready to be used 
+    // do something when the SDK is ready to be used
     ...
 });
 
@@ -936,7 +939,7 @@ Here is the list of features supported by the Rainbow-Node-SDK
 ### Bubbles
 
  - Create a new Bubble
- 
+
  - Get the list of bubbles
 
  - Get bubble individually
@@ -969,7 +972,7 @@ Here is the list of features supported by the Rainbow-Node-SDK
 
 ### Serviciability
 
- - Support of connection through an HTTP Proxy 
+ - Support of connection through an HTTP Proxy
 
  - Logs into file & console
 

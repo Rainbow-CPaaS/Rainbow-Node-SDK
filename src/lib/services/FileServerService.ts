@@ -1,4 +1,6 @@
 "use strict";
+import {Observable, Subscriber} from "rxjs";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -8,17 +10,17 @@ import * as URL from "url";
 import * as fs from "fs";
 //const TransferPromiseQueue = require("./TransferPromiseQueue");
 import {createPromiseQueue} from "../common/promiseQueue";
-import {Deferred, logEntryExit} from "../common/Utils";
+import {Deferred, logEntryExit, pause} from "../common/Utils";
 import {ErrorManager} from "../common/ErrorManager";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
-import * as streamBuffers from 'stream-buffers';
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
+import {FileDescriptor} from "../common/models/fileDescriptor";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -34,7 +36,7 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
  * @version SDKVERSION
 * @public
 * @description
-*      This service manage files on server side
+*      This service manage files on server side <br/>
 */
 class FileServer {
     private _eventEmitter: EventEmitter;
@@ -49,7 +51,6 @@ class FileServer {
     private _s2s: S2SService;
     private _useXMPP: any;
     private _useS2S: any;
-	public ONE_MEGABYTE: any;
     public ready: boolean = false;
     private readonly _startConfig: {
         start_up:boolean,
@@ -59,7 +60,13 @@ class FileServer {
         return this._startConfig;
     }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig) {
+    static getClassName(){ return 'FileServer'; }
+    getClassName(){ return FileServer.getClassName(); }
+
+    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+        start_up:boolean,
+        optional:boolean
+    }) {
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;
@@ -109,7 +116,7 @@ class FileServer {
                 that._fileStorageService = _core.fileStorage;
 
                 that.ready = true;
-                resolve();
+                resolve(undefined);
 
             } catch (err) {
                 return reject(err);
@@ -125,7 +132,7 @@ class FileServer {
                 that._rest = null;
 
                 that.ready = false;
-                resolve();
+                resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
@@ -136,7 +143,9 @@ class FileServer {
         let that = this;
 
         return new Promise((resolve, reject)=> {
-            let capa = that.capabilities;
+            let capa = that.capabilities.catch(()=>{
+                resolve(null);
+            });
             resolve(capa);
         });
     }
@@ -152,8 +161,12 @@ class FileServer {
      * @returns {Object} structure containing the response data from server and the index
      *
      */
-    getPartialDataFromServer(url, minRange, maxRange, index) {
+    getPartialDataFromServer(url: string, minRange: number, maxRange: number, index: number) {
         return this._rest.getPartialDataFromServer(url, minRange, maxRange, index);
+    }
+
+    getPartialBufferFromServer(url: string, minRange:number, maxRange: number, index: number) {
+        return this._rest.getPartialBufferFromServer(url, minRange, maxRange, index);
     }
 
     /**
@@ -163,10 +176,11 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} uploadedDate
      * @returns {Buffer} Buffer created from data received from server
      *
      */
-    getBufferFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate) {
+    getBufferFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string) {
         let that = this;
         if (fileSize === void 0) {
             fileSize = 0;
@@ -208,12 +222,12 @@ class FileServer {
                         .then(
                             () => {
                                 let buffer = Buffer.concat(bufferArray);
-                                that._logger.log("info", LOG_ID + "[FileServer] getBufferFromUrlWithOptimization success");
+                                that._logger.log("info", LOG_ID + "(getBufferFromUrlWithOptimization) success");
                                 resolve(buffer);
                             },
                             (error) => {
-                                that._logger.log("error", LOG_ID + "[FileServer] Error." );
-                                that._logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
+                                that._logger.log("error", LOG_ID + "(getBufferFromUrlWithOptimization) Error." );
+                                that._logger.log("internalerror", LOG_ID + "(getBufferFromUrlWithOptimization) Error : ", error);
                                 return reject(error);
                             }
                         );
@@ -236,7 +250,7 @@ class FileServer {
      * @returns {Buffer} Buffer created from data received from server
      *
      */
-    getFileFromUrlWithOptimization(destFile, url, mime, fileSize, fileName, uploadedDate) {
+    getFileFromUrlWithOptimization(destFile: string, url : string, mime: string, fileSize : number, fileName : string, uploadedDate: string) {
         let that = this;
         if (fileSize === void 0) {
             fileSize = 0;
@@ -284,12 +298,12 @@ class FileServer {
                         .then(
                             () => {
                                 let buffer = Buffer.concat(blobArray);
-                                that._logger.log("info", LOG_ID + "[FileServer] getBufferFromUrlWithOptimization success");
+                                that._logger.log("info", LOG_ID + "(getFileFromUrlWithOptimization) success");
                                 resolve(buffer);
                             },
                             (error) => {
-                                that._logger.log("error", LOG_ID + "[FileServer] Error.");
-                                that._logger.log("internalerror", LOG_ID + "[FileServer] Error : ", error);
+                                that._logger.log("error", LOG_ID + "(getFileFromUrlWithOptimization) Error.");
+                                that._logger.log("internalerror", LOG_ID + "(getFileFromUrlWithOptimization) Error : ", error);
                                 return reject(error);
                             }
                         );
@@ -361,12 +375,13 @@ class FileServer {
      *
      * @private
      * @param {string} fileId [required] file descriptor ID of file to be sent
-     * @param {File} file [required] file to be sent
+     * @param {string} fileId [required] file to be sent
+     * @param {string} filePath [required] file path to file to be sent
      * @param {string} mime [required] mime type of file
      * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
      *
      */
-    _uploadAFile(fileId, filePath, mime) {
+    _uploadAFile(fileId : string, filePath : string, mime : string) {
         let that = this;
         return new Promise((resolve, reject) => {
             let fileDescriptor = that._fileStorageService.getFileDescriptorById(fileId);
@@ -391,7 +406,7 @@ class FileServer {
                         if (newFileDescriptor) {
                             newFileDescriptor.state = "uploaded";
                         }
-                        that._logger.log("info", LOG_ID + "(UploadAFile) success");
+                        that._logger.log("info", LOG_ID + "(_uploadAFile) success");
                         // this.$rootScope.$broadcast("ON_FILE_TRANSFER_EVENT", {
                         //     result: "success",
                         //     type: "upload",
@@ -415,8 +430,8 @@ class FileServer {
                         //     filename: file.name,
                         //     filesize: file.size
                         // });
-                        that._logger.log("error", LOG_ID + "(UploadAFile) error." );
-                        that._logger.log("internalerror", LOG_ID + "(UploadAFile) error : ", errorResponse);
+                        that._logger.log("error", LOG_ID + "(_uploadAFile) error." );
+                        that._logger.log("internalerror", LOG_ID + "(_uploadAFile) error : ", errorResponse);
                         return reject(errorResponse);
                     });
         });
@@ -427,15 +442,12 @@ class FileServer {
      *
      * @private
      * @param {string} fileId [required] file descriptor ID of file to be sent
-     * @param {Blob} file [required] file to be sent
-     * @param {number} initialSize [required] initial size of whole file to be sent before partition
-     * @param {number} minRange [requied] minimum value of range
-     * @param {number} maxRange [required] maximum value of range
+     * @param {Buffer} file [required] file to be sent
      * @param {number} index [required] index of the part. Used to indicate the part number to the server
      * @returns {Promise<{}>} file descriptor data received as response from server or http error response
      *
      */
-    _sendPartialDataToServer(fileId, file, index) {
+    _sendPartialDataToServer(fileId : string, file : Buffer, index : number) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.sendPartialDataToServer(fileId, file, index).then(
@@ -464,12 +476,12 @@ class FileServer {
      *
      * @private
      * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
-     * @param {File} file [required] filePath of the file to be sent
+     * @param {string} filePath [required] filePath of the file to be sent
 //     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
      * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
      *
      */
-    async uploadAFileByChunk(fileDescriptor, filePath /*, progressCallback */) {
+    async uploadAFileByChunk(fileDescriptor : FileDescriptor, filePath : string /*, progressCallback */) {
         let that = this;
 
         let promiseQueue = createPromiseQueue(that._logger);
@@ -594,21 +606,25 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
      * @param {string} fileName [optional] name of file to be downloaded
-     * @returns {Promise<Blob>} Blob created from data received from server
-     *
-     * !!!!!! OBSOLETE
+     * @param {string} uploadedDate
+     * @returns {Promise<{
+     *                          buffer : Array<any>,
+     *                           type: string, // mime type
+     *                           fileSize: number,
+     *                           fileName: string
+     *                       }>} Object created from data received from server.
      */
-    async getBlobFromUrlWithOptimization(url, mime, fileSize, fileName, uploadedDate ) {
+    async getBlobFromUrlWithOptimization(url : string, mime : string, fileSize : number, fileName : string, uploadedDate:string ) {
         let that = this;
-        if (fileSize == null || fileSize == undefined) {
+        if (fileSize==null) {
             fileSize = 0;
         }
 
-        if (fileName == null || fileName == undefined) {
+        if (fileName==null) {
             fileName = "";
         }
 
-        if (uploadedDate == null || uploadedDate == undefined) {
+        if (uploadedDate==null) {
             uploadedDate = "";
         }
 
@@ -619,49 +635,73 @@ class FileServer {
         if (!! (await that.capabilities).maxChunkSizeDownload && fileSize !== 0 && fileSize > (await that.capabilities).maxChunkSizeDownload) {
             return new Promise(async(resolve, reject) => {
                 let range = (await that.capabilities).maxChunkSizeDownload;
-                if (range > that.ONE_MEGABYTE) {
-                    range = that.ONE_MEGABYTE;
+                if (range > (ONE_MEGABYTE * 10)) {
+                    range = (ONE_MEGABYTE * 10);
                 }
                 let minRange = 0;
                 let maxRange = range - 1;
                 let repetition = Math.ceil(fileSize / range);
+                let numberOfChunks = Math.ceil(fileSize / range);
                 let blobArray = new Array(repetition);
-                that._logger.log("info", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : " + repetition + " chunks to be downloaded");
+                that._logger.log("internal", LOG_ID + "(getBlobFromUrlWithOptimization) - range : ", range, ", fileSize : ", fileSize, ", repetition : ", repetition, ", ONE_MEGABYTE : ", ONE_MEGABYTE, ", numberOfChunks : ", numberOfChunks);
+                that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) : " + repetition + " chunks to be downloaded");
 
                 let promiseArray = [];
 
                 for (let i = 0; repetition > 0; i++ , repetition-- , minRange += range, maxRange += range) {
-                    promiseArray.push(
-                        that.getPartialDataFromServer(url, minRange, maxRange, i)
+                    that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
+                     promiseArray.push(
+                      //let result = await that.getPartialDataFromServer(url, minRange, maxRange, i)
+                      //let result = await that.getPartialBufferFromServer(url, minRange, maxRange, i)
+                      //let result = await that.getPartialBufferFromServer(url, minRange, maxRange, i)
+                       that.getPartialBufferFromServer(url, minRange, maxRange, i)
                             .then((response) => {
-                                blobArray[response['index']] = response['data'];
-                                return (response['data']);
-                            })
+                                let index = response['index'];
+                                that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
+                                blobArray[index] = response['data'];
+                                //return (response['data']);
+                                return ( { "code":0, "label" : "OK"} );
+                            }).catch((error) => {
+                                that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
+                        })
                     );
+                    //that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter : ", i, "/", numberOfChunks,", result : ", result);
+                   // repetition =0;
+                    await pause(20);
                 }
 
+                that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - wait for the ", numberOfChunks, " chunks to be downloaded!");
+                //promiseArray.push(Promise.resolve());
                 Promise.all(promiseArray)
                     .then(
                         () => {
                             /* NEED TO BE CORREDTED TO BE USED IN NODE RAINBOW SDK
                              let blob = new Blob(blobArray,
                                 { type: mime });
-                            that._logger.log("info", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization success");
+                            that._logger.log("info", LOG_ID + "getBlobFromUrlWithOptimization success");
 
                             resolve(blob);
                             */
+                            that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - all the ", numberOfChunks, " chunks downloaded!");
+                            let blob = {
+                                buffer : blobArray,
+                                type: mime,
+                                fileSize: fileSize,
+                                fileName: fileName
+                            }; // */
+                            resolve(blob);
                         },
                         (errorResponse) => {
-                            let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse.message;
-                            that._logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error.");
-                            that._logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
+                            let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
+                            that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
+                            that._logger.log("internalerror", LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
                             return  reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
 
                             let errorDataObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(errorResponse.data)));
                             let translatedErrorMessage = that.errorHelperService.getLocalizedError(errorDataObj.errorDetailsCode);
-                            that._logger.log("info", LOG_ID + "[FileServerService] " + translatedErrorMessage ? translatedErrorMessage : error.message);
+                            that._logger.log("info", LOG_ID + "" + translatedErrorMessage ? translatedErrorMessage : error.message);
                             */
 
                             //reject(errorMessage);
@@ -674,6 +714,137 @@ class FileServer {
     };
 
     /**
+     * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
+     *
+     * @param {string} url [required] server url for request
+     * @param {string} mime [required] Mime type of the blob to be created
+     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
+     * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} uploadedDate
+     * @returns {Promise<Observable<any>} Observer returning a Blob created from data received from server
+     *
+     */
+    async getBlobFromUrlWithOptimizationObserver(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string ) : Promise<Observable<any>> {
+        let that = this;
+        if (fileSize==null) {
+            fileSize = 0;
+        }
+
+        if (fileName==null) {
+            fileName = "";
+        }
+
+        if (uploadedDate==null) {
+            uploadedDate = "";
+        }
+
+        if (uploadedDate.length !== 0) {
+          // NEED TO BE CORREDTED TO BE USED IN NODE RAINBOW SDK  url += "?update=" + MD5.hexdigest(uploadedDate);
+        }
+
+        let maxChunkSizeDownload = (await that.capabilities).maxChunkSizeDownload ; // / 80 to get alf of 1 Mo when server get us a 10Mo maxChunckSizeDownload;
+        that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - maxChunkSizeDownload : " + maxChunkSizeDownload);
+        // process.exit(-1);
+        if (!! maxChunkSizeDownload && fileSize !== 0 && fileSize > maxChunkSizeDownload) {
+            let promiseArray = [];
+
+            let obsrv$ : Observable<any> = Observable.create(async (subject : Subscriber<any>) => {
+                let chunckLoaded = 0;
+                let range = maxChunkSizeDownload;
+                if (range > (ONE_MEGABYTE * 10)) {
+                    that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) : set range to 10 Mo.");
+                    range = (ONE_MEGABYTE * 10) ;
+                } //
+                let minRange = 0;
+                let maxRange = range - 1;
+                let repetition = Math.ceil(fileSize / range);
+                let numberOfChunks = Math.ceil(fileSize / range);
+                let blobArray = new Array(repetition);
+                that._logger.log("internal", LOG_ID + "(getBlobFromUrlWithOptimization) - range : ", range, ", fileSize : ", fileSize, ", repetition : ", repetition, ", ONE_MEGABYTE : ", ONE_MEGABYTE, ", numberOfChunks : ", numberOfChunks);
+                that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) : " + repetition + " chunks to be downloaded");
+
+
+                for (let i = 0; repetition > 0; i++ , repetition-- , minRange += range, maxRange += range) {
+                    that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
+                    promiseArray.push(
+                        new Promise ((resolve, reject)=> {
+                            that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - push promise in Array iter : ", i, "/", numberOfChunks - 1 /* , ", result : ", result */ );
+                            //let result = await that.getPartialDataFromServer(url, minRange, maxRange, i)
+                            //let result =
+                            /*
+                            // Start Test with out real download.
+                            chunckLoaded++;
+                            let index = 0;
+                            that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer Success iter ", i, "/", numberOfChunks - 1, " succeed! Store at index : ", index);
+                            //blobArray[index] = response['data'];
+                            subject.next(chunckLoaded * 100 / (numberOfChunks - 1 ) ); // Raise the percentage of loaded chunck.
+                            //return (response['data']);
+                            resolve ({"code": 0, "label": "OK"});
+                            // End Test // */
+
+                            that.getPartialBufferFromServer(url, minRange, maxRange, i).then((response) => {
+                                    chunckLoaded++;
+                                    let index = response['index'];
+                                    that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer Success iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
+                                    blobArray[index] = response['data'];
+                                    subject.next(chunckLoaded * 100 / numberOfChunks); // Raise the percentage of loaded chunck.
+                                    //return (response['data']);
+                                    resolve ({"code": 0, "label": "OK"});
+                                }).catch((error) => {
+                                    that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
+                                    reject({"code":-1, "label": "Error while retrieving the chunck " + i + "/" + numberOfChunks})
+                                })
+                        // */
+                        })
+                    );
+                    // repetition =0;
+                    await pause(20);
+                }
+                that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - wait for the ", numberOfChunks, " chunks to be downloaded!");
+                //promiseArray.push(Promise.resolve());
+                Promise.all(promiseArray).then(
+                        () => {
+                            that._logger.log("info", LOG_ID + "(getBlobFromUrlWithOptimization) - all the ", numberOfChunks, " chunks downloaded!");
+                            let blob = {
+                                buffer : blobArray,
+                                type: mime,
+                                fileSize: fileSize,
+                                fileName: fileName
+                            }; // */
+                            subject.next(blob);
+                            subject.complete();//blob
+                        },
+                        (errorResponse) => {
+                            let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
+                            that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
+                            that._logger.log("internalerror", LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
+                             subject.error(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                        }
+                    );
+            });
+
+            return Promise.resolve(obsrv$);
+        } else {
+            let obsrv$ : Observable<any> = Observable.create(async (subject : Subscriber<any>) => {
+                subject.next(1);
+                that.getBlobFromUrl(url, mime, fileSize, fileName).then((blob) => {
+                    subject.next(100);
+                    subject.next(blob);
+                    subject.complete();//blob
+                }).catch((errorResponse)=>{
+                    let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
+                    that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
+                    subject.error(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                });
+            });
+
+            return Promise.resolve(obsrv$);
+            //return this.getBlobFromUrl(url, mime, fileSize, fileName);
+        }
+    };
+
+    /**
      * Method creates blob from a file retrieved from server
      *
      * @private
@@ -681,13 +852,17 @@ class FileServer {
      * @param {string} mime [required] Mime type of the blob to be created
      * @param {number} fileSize [required] size of file to be retrieved
      * @param {string} fileName [required] name of file to be downloaded
-     * @returns {ng.IPromise<Blob>} Blob created from data received from server
-     *
+     * @returns {Promise<{
+     *                          buffer : Array<any>,
+     *                           type: string, // mime type
+     *                           fileSize: number,
+     *                           fileName: string
+     *                       }>} Blob created from data received from server
      */
-     getBlobFromUrl(url, mime, fileSize, fileName) {
+     getBlobFromUrl(url: string, mime: string, fileSize: number, fileName: string) {
          let that = this;
-        that._logger.log("info", LOG_ID + "[FileServerService] >getBlobFromUrl" );
-        that._logger.log("internal", LOG_ID + "[FileServerService] >getBlobFromUrl : " + url);
+        that._logger.log("info", LOG_ID + "(getBlobFromUrl)" );
+        that._logger.log("internal", LOG_ID + "(getBlobFromUrl) : " + url);
 
         return new Promise((resolve, reject) => {
             /*this.$http({
@@ -700,8 +875,10 @@ class FileServer {
                 (response) => { // : ng.IHttpPromiseCallbackArg<IHttpUploadResult>
                     /* let blob = blobUtil.createBlob([response.data],
                         { type: mime }); // */
-
-                    let blob = {buffer : response,
+                    let blobArray = new Array(0);
+                    blobArray.push(response);
+                    let blob = {
+                        buffer : blobArray,
                          type: mime,
                         fileSize: fileSize,
                         fileName: fileName
@@ -710,13 +887,13 @@ class FileServer {
                     /*let blob = new Blob([response.data],
                         { type: mime }); // */
 
-                    that._logger.log("debug", LOG_ID + "[FileServerService] getBlobFromUrl success");
+                    that._logger.log("debug", LOG_ID + "(getBlobFromUrl) success");
                     resolve(blob);
                 },
                 (errorResponse) => {
-                    let errorMessage = "[FileServerService] getBlobFromUrlWithOptimization failure : " + errorResponse;
-                    that._logger.log("error", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization Error." );
-                    that._logger.log("internalerror", LOG_ID + "[FileServerService] getBlobFromUrlWithOptimization : ", errorResponse);
+                    let errorMessage = "(getBlobFromUrl) failure : " + errorResponse;
+                    that._logger.log("error", LOG_ID + "(getBlobFromUrl) Error." );
+                    that._logger.log("internalerror", LOG_ID + "(getBlobFromUrl) : ", errorResponse);
                     let err = ErrorManager.getErrorManager().ERROR;
                     err.msg = errorMessage;
                     return reject(err);
@@ -725,18 +902,18 @@ class FileServer {
 
             let errorDataObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(errorResponse.data)));
             let translatedErrorMessage = this.errorHelperService.getLocalizedError(errorDataObj.errorDetailsCode);
-            this.$log.error("[FileServerService] " + (translatedErrorMessage) ? translatedErrorMessage : error.message);
+            this.$log.error("" + (translatedErrorMessage) ? translatedErrorMessage : error.message);
                 // */
                 });
         });
     }
 
-/**
-* Method retrieves user quota (capabilities) for user
-*
-* @returns {Capabilities} user quota for user
-*
-*/
+    /**
+    * Method retrieves user quota (capabilities) for user
+    *
+    * @returns {Object} user quota for user
+    *
+    */
     getServerCapabilities() {
         return this._rest.getServerCapabilities();
     }

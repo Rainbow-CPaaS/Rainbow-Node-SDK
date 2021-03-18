@@ -16,6 +16,8 @@ import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {BubblesService} from "./BubblesService";
+import {GroupsService} from "./GroupsService";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -25,7 +27,7 @@ const LOG_ID = "INVITATION/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This services manages the invitations received/ sent from/to server.
+ *      This services manages the invitations received/ sent from/to server. <br/>
  *
  */
 @logEntryExit(LOG_ID)
@@ -51,7 +53,8 @@ class InvitationsService {
 	private _eventEmitter: EventEmitter;
 	private _invitationEventHandler: InvitationEventHandler;
 	private _invitationHandlerToken: any;
-	private _contacts: any;
+	private _contacts: ContactsService;
+	private _bubbles: BubblesService;
 	private stats: any;
 	private readonly _startConfig: {
 		start_up:boolean,
@@ -61,6 +64,9 @@ class InvitationsService {
 	get startConfig(): { start_up: boolean; optional: boolean } {
 		return this._startConfig;
 	}
+
+	static getClassName(){ return 'InvitationsService'; }
+	getClassName(){ return InvitationsService.getClassName(); }
 
 	constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
 		let that = this;
@@ -79,6 +85,7 @@ class InvitationsService {
 		// DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
 		this._eventEmitter.on("evt_internal_onrosters", that.onRosterChanged.bind(this));
 		this._eventEmitter.on("evt_internal_invitationsManagementUpdate", that.onInvitationsManagementUpdate.bind(this));
+		this._eventEmitter.on("evt_internal_openinvitationManagementUpdate", that.onOpenInvitationManagementUpdate.bind(this));
 	}
 
 	/************************************************************/
@@ -98,6 +105,7 @@ class InvitationsService {
 		that._useXMPP = that._options.useXMPP;
 		that._useS2S = that._options.useS2S;
 		that._contacts = _core.contacts;
+		that._bubbles = _core.bubbles;
 
 		let startDate: any = new Date();
 		// Private invitation storage
@@ -169,8 +177,8 @@ class InvitationsService {
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_GROUPCHAT, that.conversationEventHandler.onChatMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_WEBRTC, that.conversationEventHandler.onWebRTCMessageReceived),
-			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_MANAGEMENT, that._invitationEventHandler.onManagementMessageReceived),
-			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_ERROR, that._invitationEventHandler.onErrorMessageReceived),
+			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_MANAGEMENT, that._invitationEventHandler.onManagementMessageReceived.bind(that._invitationEventHandler)),
+			PubSub.subscribe(that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_ERROR, that._invitationEventHandler.onErrorMessageReceived.bind(that._invitationEventHandler)),
 			//PubSub.subscribe( that._xmpp.hash + "." + that._invitationEventHandler.MESSAGE_HEADLINE, that._invitationEventHandler.onHeadlineMessageReceived),
 //            PubSub.subscribe( that._xmpp.hash + "." + that.conversationEventHandler.MESSAGE_CLOSE, that.conversationEventHandler.onCloseMessageReceived)
 		];
@@ -180,6 +188,28 @@ class InvitationsService {
 		let that = this;
 		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
 		return that.getAllSentInvitations();
+	}
+
+	async onOpenInvitationManagementUpdate(openInvitation) {
+		let that = this;
+		that._logger.log("internal", LOG_ID + "(onOpenInvitationManagementUpdate) openInvitation : ", openInvitation);
+		//let userInviteElem = stanza.find("userinvite");
+		if (openInvitation) {
+			let invitation = {
+				openInviteId: openInvitation.openinviteid,
+				publicUrl: undefined,
+				action: openInvitation.action,
+				roomType: openInvitation.roomType,
+				bubble: undefined
+			};
+			invitation.publicUrl = that._bubbles.getPublicURLFromResponseContent(invitation);
+			invitation.bubble = await that._bubbles.getBubbleById(openInvitation.roomid);
+
+			that._eventEmitter.emit("evt_internal_openinvitationUpdate", invitation);
+		} else {
+			that._logger.log("warn", LOG_ID + "(onOpenInvitationManagementUpdate) userInvite undefined!");
+		}
+		return true;
 	}
 
 	async onInvitationsManagementUpdate(userInvite) {
@@ -288,7 +318,7 @@ class InvitationsService {
 			if (action === "delete") {
 				delete that.sentInvitations[id];
 				that.updateReceivedInvitationsArray();
-				resolve();
+				resolve(undefined);
 			}
 
 			// Handle other actions
@@ -328,11 +358,11 @@ class InvitationsService {
 							that.updateContactInvitationStatus(invitation.invitedUserId, contactStatus, invitation)
 								.then(function () {
 									that.updateSentInvitationsArray();
-									resolve();
+									resolve(undefined);
 								});
 						} else {
 							that.updateSentInvitationsArray();
-							resolve();
+							resolve(undefined);
 						}
 					});
 
@@ -422,7 +452,7 @@ class InvitationsService {
 	 * @method getReceivedInvitations
 	 * @instance
 	 * @description
-	 *    Get the invite received coming from Rainbow users
+	 *    Get the invite received coming from Rainbow users <br/>
 	 * @return {Invitation[]} The list of invitations received
 	 */
 	getReceivedInvitations() {
@@ -436,7 +466,7 @@ class InvitationsService {
 	 * @method 	getAcceptedInvitations
 	 * @instance
 	 * @description
-	 *    Get the invites you accepted received from others Rainbow users
+	 *    Get the invites you accepted received from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getAcceptedInvitations() {
@@ -450,7 +480,7 @@ class InvitationsService {
 	 * @method getSentInvitations
 	 * @instance
 	 * @description
-	 *    Get the invites sent to others Rainbow users
+	 *    Get the invites sent to others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getSentInvitations() {
@@ -464,7 +494,7 @@ class InvitationsService {
 	 * @method getInvitationsNumberForCounter
 	 * @instance
 	 * @description
-	 *    Get the number of invitations received from others Rainbow users
+	 *    Get the number of invitations received from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getInvitationsNumberForCounter() {
@@ -478,7 +508,7 @@ class InvitationsService {
 	 * @method getAllInvitationsNumber
 	 * @instance
 	 * @description
-	 *    Get the number of invitations sent/received to/from others Rainbow users
+	 *    Get the number of invitations sent/received to/from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getAllInvitationsNumber = function () {
@@ -494,7 +524,7 @@ class InvitationsService {
 	 * @method getInvitation
 	 * @instance
 	 * @description
-	 *    Get an invite by its id
+	 *    Get an invite by its id <br/>
 	 * @param {String} invitationId the id of the invite to retrieve
 	 * @return {Invitation} The invite if found
 	 */
@@ -534,7 +564,7 @@ class InvitationsService {
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
-	 *    Return a promise
+	 *    Return a promise <br/>
 	 * @param {Contact} contact The invitation to accept
 	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	 */
@@ -563,7 +593,7 @@ class InvitationsService {
 	 * @method sendInvitationByEmail
 	 * @instance
 	 * @description
-	 *    Send an invitation email as UCaaS
+	 *    Send an invitation email as UCaaS <br/>
 	 * @param {string} email The email
 	 * @param {string} [customMessage] The email text (optional)
 	 * @return {Object} A promise that contains the contact added or an object describing an error
@@ -592,7 +622,7 @@ class InvitationsService {
 	 * @instance
 	 * @param {Invitation} invitation The invitation to cancel
 	 * @description
-	 *    Cancel an invitation sent
+	 *    Cancel an invitation sent <br/>
 	 * @return {Object} The SDK Ok object or an error
 	 */
 	cancelOneSendInvitation(invitation) {
@@ -619,7 +649,7 @@ class InvitationsService {
 	 * @instance
 	 * @param {Number} invitationId The invitation to re send
 	 * @description
-	 *    Re send an invitation sent
+	 *    Re send an invitation sent <br/>
 	 * @return {Object} The SDK Ok object or an error
 	 */
 	reSendInvitation(invitationId) {
@@ -628,7 +658,7 @@ class InvitationsService {
 		that._rest.reSendInvitation(invitationId).then(
 				function success() {
 					that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
-					resolve();
+					resolve(undefined);
 				},
 				function failure(err) {
 					that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
@@ -644,8 +674,8 @@ class InvitationsService {
 	 * @method sendInvitationByEmail
 	 * @instance
 	 * @description
-	 *    Send invitations for a list of emails as UCaaS
-	 *    LIMITED TO 100 invitations
+	 *    Send invitations for a list of emails as UCaaS <br/>
+	 *    LIMITED TO 100 invitations <br/>
 	 * @param {Array} listOfMails The list of emails
 	 * @return {Object} A promise that the invite result or an object describing an error
 	 */
@@ -681,7 +711,7 @@ class InvitationsService {
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
-	 *    Return a promise
+	 *    Return a promise <br/>
 	 * @param {Invitation} invitation The invitation to accept
 	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	 */
@@ -724,7 +754,7 @@ class InvitationsService {
 	 * @description
 	 *    Decline an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once declined, the user will not be part of your network. <br>
-	 *    Return a promise
+	 *    Return a promise <br/>
 	 * @param {Invitation} invitation The invitation to decline
 	 * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
 	 */
@@ -779,7 +809,7 @@ class InvitationsService {
 						break;
 				}
 				// contact.updateRichStatus();
-				resolve();
+				resolve(undefined);
 			});
 		});
 	};
