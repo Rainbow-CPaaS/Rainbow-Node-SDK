@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.85.0] - 2021-03-18
+-   Delivery to production.
+
 ## [1.85.0-dotnet.1] - 2021-03-17
 -   Update methods `groups.getGroups()`, `BubblesService::getBubbles()`, `FileServerService::init`, `FileStorageService::init` to return a succeed event if the requests to server failed. To avoid the start to failed.
 -   Update of the `dependencies`.
@@ -26,7 +29,6 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `PresenceService::disableCalendar` Allow to disable the calendar.
 -   Offline presence of contacts in the roster.
 -   Update methods `ProfilesService::init` to return a succeed event if the requests to server failed. To avoid the start to failed. 
- 
 
 ## [1.84.0] - 2021-02-22
 -   Add API methods `AlertsService::renameDevicesTags` `AlertsService::deleteDevicesTags` `AlertsService::getstatsTags` to manage Tags in Alerts.
