@@ -366,6 +366,9 @@ class ConversationsService {
         return this._rest.ackAllMessages(conversationDbId);
     }
 
+    resetHistoryPageForConversation(conversation : Conversation) {
+        conversation.reset();
+    }
 
     /**
      * @public
@@ -380,7 +383,7 @@ class ConversationsService {
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    getHistoryPage(conversation, size) {
+    getHistoryPage(conversation : Conversation, size: number = 30) {
         let that = this;
 
         // Avoid to call several time the same request
