@@ -120,6 +120,7 @@ class Contact {
     public invitation: any;
     public selectedTheme: string;
     public customData: any;
+    public isVirtualTerm: boolean;
 
     constructor() {
 

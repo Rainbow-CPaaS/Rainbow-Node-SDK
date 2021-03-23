@@ -41,13 +41,13 @@ class ContactsService {
     private _xmpp: XMPPService;
     private _options: any;
     private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+    private _useXMPP: boolean;
+    private _useS2S: boolean;
 
-    private _contacts: any;
+    private _contacts: Array<Contact>;
     private _eventEmitter: EventEmitter;
     private _rosterPresenceQueue: any;
-    public userContact: any;
+    public userContact: Contact;
     private _rest: RESTService;
     private _invitationsService: InvitationsService;
     private _presenceService: PresenceService;
@@ -127,25 +127,8 @@ class ContactsService {
                 that.userContact.jidtel = "tel_" + that._xmpp.jid;
                 that.userContact.jid_im = that._xmpp.jid;
                 that.userContact.jid_tel = "tel_" + that._xmpp.jid;
-                that.userContact.fullJid = that._xmpp.fullJid;
+                //that.userContact.fullJid = that._xmpp.fullJid;
 
-                /*
-                // Update contact with user data auth information
-                that.userContact.language = that.currentLanguage;
-                that._logger.log("internal", LOG_ID + "(start) before updateFromUserData ", contact);
-                that.userContact.updateFromUserData(authService.userData);
-                that.userContact.getAvatar();
-                that.userContact.updateRichStatus();
-                // */
-
-                /*
-                                that._eventEmitter.on("evt_internal_onrosterpresence", that._onRosterPresenceChanged.bind(that));
-                                that._eventEmitter.on("evt_internal_onrostercontactinformationchanged", that._onContactInfoChanged.bind(that));
-                                that._eventEmitter.on("evt_internal_userinvitereceived", that._onUserInviteReceived.bind(that));
-                                that._eventEmitter.on("evt_internal_userinviteaccepted", that._onUserInviteAccepted.bind(that));
-                                that._eventEmitter.on("evt_internal_userinvitecanceled", that._onUserInviteCanceled.bind(that));
-                                that._eventEmitter.on("evt_internal_onrosters", that._onRostersUpdate.bind(that));
-                */
                 that.ready = true;
                 resolve(undefined);
 
@@ -164,17 +147,9 @@ class ContactsService {
                 that._xmpp = null;
                 that._rest = null;
                 that._contacts = [];
-                /*
-                                that._eventEmitter.removeListener("evt_internal_onrosterpresence", that._onRosterPresenceChanged.bind(that));
-                                that._eventEmitter.removeListener("evt_internal_onrostercontactinformationchanged", that._onContactInfoChanged.bind(that));
-                                that._eventEmitter.removeListener("evt_internal_userinvitereceived", that._onUserInviteReceived.bind(that));
-                                that._eventEmitter.removeListener("evt_internal_userinviteaccepted", that._onUserInviteAccepted.bind(that));
-                                that._eventEmitter.removeListener("evt_internal_userinvitecanceled", that._onUserInviteCanceled.bind(that));
-                                that._eventEmitter.removeListener("evt_internal_onrosters", that._onRostersUpdate.bind(that));
-                */
+
                 that.ready = false;
                 resolve(undefined);
-
             } catch (err) {
                 return reject();
             }
@@ -206,7 +181,7 @@ class ContactsService {
      * @description
      *      Get the display name of a contact <br/>
      */
-    getDisplayName(contact : Contact) {
+    getDisplayName(contact : Contact) : string {
         return contact.firstName + " " + contact.lastName;
     }
 
@@ -217,11 +192,11 @@ class ContactsService {
      * @description
      *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
      * @async
-     * @return {Promise<Array>}
+     * @return {Promise<Array<Contact>>, Promise<ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      * @category async
      */
-    getRosters() {
+    getRosters() : Promise<Array<Contact>> {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.getContacts().then((listOfContacts: any) => {
@@ -705,7 +680,7 @@ class ContactsService {
      *  Get a contact avatar by his contact id <br/>
      * @return {string} Contact avatar URL or file
      */
-    getAvatarByContactId(id : string, lastAvatarUpdateDate : string) {
+    getAvatarByContactId(id : string, lastAvatarUpdateDate : string) : string {
         if (lastAvatarUpdateDate) {
             return this.avatarDomain + "/api/avatar/" + id + "?update=" + md5(lastAvatarUpdateDate);
         }
@@ -799,9 +774,9 @@ class ContactsService {
      *    In return, when accepted, he will be part of your network <br>
      *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
      * @param {Contact} contact The contact object to subscribe
-     * @return {Object} A promise that contains the contact added or an object describing an error
+     * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
      */
-    addToNetwork(contact: Contact) {
+    addToNetwork(contact: Contact) : Promise<Contact>{
         return this.addToContactsList(contact);
     }
 
@@ -816,10 +791,10 @@ class ContactsService {
      *    In return, when accepted, he will be part of your network <br>
      *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
      * @param {Contact} contact The contact object to subscribe
-     * @return {Object} A promise that contains the contact added or an object describing an error
+     * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
      * @category async
      */
-    addToContactsList(contact: Contact) {
+    addToContactsList(contact: Contact) : Promise<Contact>{
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -1036,8 +1011,15 @@ class ContactsService {
                     that.userContact.resources = {};
                 }
 
+                let contactFound = that._contacts.find((contact) => {
+                    return contact.jid_im===that.userContact.jid;
+                });
+                
                 // Store the presence of the resource
                 that.userContact.resources[presence.resource] = presence.value;
+                if (contactFound) {
+                    contactFound.resources = that.userContact.resources; 
+                }
 
                 let on_the_phone = false;
                 let manual_invisible = false;

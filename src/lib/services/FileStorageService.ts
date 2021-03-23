@@ -1029,7 +1029,7 @@ class FileStorage {
     getReceivedFilesForRoom(bubbleId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
             for (let i = 0; i < file.viewers.length; i++) {
-                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.dbId) {
+                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.id) {
                     return true;
                 }
             }

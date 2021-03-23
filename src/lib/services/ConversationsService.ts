@@ -419,6 +419,8 @@ class ConversationsService {
 
         if (conversation.historyIndex !== -1) {
             mamRequest.before = conversation.historyIndex;
+        } else {
+            that.resetHistoryPageForConversation(conversation);
         }
 
         // Request for history messages for the room chat
