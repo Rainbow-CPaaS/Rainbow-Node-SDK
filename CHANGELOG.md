@@ -9,6 +9,19 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [1.86.0-dotnet.0] - 2021-03-XX
 -   Add API `ConversationsService::resetHistoryPageForConversation` to restart from scratch the retrieve of messages from history with getHistoryPage.
 -   Fix the resources information when getContactByJid or by Id for the connected user.
+-   Add API `AdminService::synchronizeUsersAndDeviceswithCSV` masspro to synchronize Rainbow users or devices through a CSV UTF-8 encoded file.
+-   Add API `AdminService::getCSVTemplate` masspro to provides a CSV template. 
+-   Add API `AdminService::checkCSVforSynchronization` masspro to checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.
+-   Add API `AdminService::retrieveRainbowUserList` API generates a file describing all users (csv or json format).
+-   Add API `AdminService::ActivateALdapConnectorUser` API allows to activate a Ldap connector.
+-   Add API `AdminService::retrieveAllLdapConnectorUsersData` API allows administrators to retrieve all the ldap connectors.
+-   Add API `AdminService::deleteLdapConnector` API is to delete the LDAP connector (the connector cannot be modified by the others admin APIs).
+-   Add API `AdminService::createConfigurationForLdapConnector` API allows create configuration for the LDAP connector.
+-   Add API `AdminService::updateConfigurationForLdapConnector` API allows update configuration for the connector. .
+-   Add API `AdminService::retrieveLdapConnectorConfig` This API allows to retrieve the configuration for the connector.
+-   Fix some parameters orders in documentation of `BubblesService`.
+-   Add API `BubblesService::setBubbleAutoRegister` to manage the share of bubble with a public link also called 'public URL' according the autoRegister value.
+-   Add GenericService Class to set common behaviour at startup to the services. And traces the starting delay.
 
 ## [1.85.1] - 2021-03-18
 -   Delivery 1.85.0 failed, so new one.

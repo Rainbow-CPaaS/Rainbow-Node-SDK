@@ -10,6 +10,7 @@ import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 import {XmppClient} from "../common/XmppQueue/XmppClient";
 import { AlertMessage } from "../common/models/AlertMessage";
 import {DataStoreType} from "../config/config";
+import {GenericService} from "../services/GenericService";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -100,7 +101,7 @@ const NameSpacesLabels = {
 
 @logEntryExit(LOG_ID)
 @isStarted(["start", "stop"])
-class XMPPService {
+class XMPPService extends GenericService {
 	public serverURL: any;
 	public host: any;
 	public eventEmitter: any;
@@ -137,20 +138,13 @@ class XMPPService {
     private copyMessage: boolean;
     private rateLimitPerHour: number;
     private messagesDataStore: DataStoreType;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up: boolean,
-        optional: boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
 
 
     constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
+        super(_logger, LOG_ID);
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
         this.host = _xmpp.host;
         this.eventEmitter = _eventEmitter;
@@ -208,7 +202,9 @@ class XMPPService {
                 }
                 that.isReconnecting = false;
                 that.useXMPP = withXMPP;
-                that.ready = that.useXMPP; // Put not ready state when the XMPP is disabled in SDK config options, then methods become unavailable with @isStarted decorator.
+                if (that.useXMPP) { // Put not ready state when the XMPP is disabled in SDK config options, then methods become unavailable with @isStarted decorator.
+                    that.setStarted();
+                }
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
@@ -305,6 +301,7 @@ class XMPPService {
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
                             that.xmppClient = null;
+                            that.setStopped();
                             resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("debug", LOG_ID + "(stop) error received");

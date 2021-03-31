@@ -18,6 +18,7 @@ import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 import {GroupsService} from "./GroupsService";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -32,7 +33,7 @@ const LOG_ID = "INVITATION/SVCE - ";
  */
 @logEntryExit(LOG_ID)
 @isStarted([])
-class InvitationsService {
+class InvitationsService extends GenericService {
 	receivedInvitations: {};
 	sentInvitations: {};
 	acceptedInvitationsArray: any[];
@@ -42,33 +43,17 @@ class InvitationsService {
 	private _portalURL: string;
 	private _contactConfigRef: any;
 	acceptedInvitations: {};
-	private _logger: Logger;
-	private _xmpp: XMPPService;
-	private _rest: RESTService;
-	private _options: any;
-	private _s2s: S2SService;
-	private _useXMPP: any;
-	private _useS2S: any;
-	private started: boolean = false;
-	private _eventEmitter: EventEmitter;
 	private _invitationEventHandler: InvitationEventHandler;
 	private _invitationHandlerToken: any;
 	private _contacts: ContactsService;
 	private _bubbles: BubblesService;
 	private stats: any;
-	private readonly _startConfig: {
-		start_up:boolean,
-		optional:boolean
-	};
-	public ready: boolean = false;
-	get startConfig(): { start_up: boolean; optional: boolean } {
-		return this._startConfig;
-	}
 
 	static getClassName(){ return 'InvitationsService'; }
 	getClassName(){ return InvitationsService.getClassName(); }
 
 	constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
+		super(_logger, LOG_ID);
 		let that = this;
 		this._startConfig = _startConfig;
 		this._xmpp = null;
@@ -79,7 +64,6 @@ class InvitationsService {
 		this._useS2S = false;
 		this._eventEmitter = _eventEmitter;
 		this._logger = _logger;
-		this.started = false;
 
 		//update the sentInvitations list when new invitation is accepted
 		// DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
@@ -122,20 +106,15 @@ class InvitationsService {
 
 		that.attachHandlers();
 
-		let now: any = new Date();
-		let startDuration = Math.round(now - startDate);
-		stats.push({service: "InvitationService", startDuration: startDuration});
-		that._logger.log("info", LOG_ID + "[InvitationService] === STARTED (" + startDuration + " ms) ===");
-
-		this.started = true;
-		this.ready = true;
+		//stats.push({service: "InvitationService", startDuration: startDuration});
+		that.setStarted ();
 	};
 
 	public async init () {
 		let that = this;
 		await that.getAllSentInvitations();
 		await that.getAllReceivedInvitations();
-
+		that.setInitialized();
 	}
 
 	async stop() {
@@ -152,8 +131,7 @@ class InvitationsService {
 		}
 
 		that._logger.log("info", LOG_ID + "[InvitationService] === STOPPED ===");
-		that.started = false;
-		this.ready = false;
+		that.setStopped ();
 	};
 
 

@@ -6,7 +6,7 @@ import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
-import {logEntryExit, makeId} from "../common/Utils.js";
+import {addParamToUrl, logEntryExit, makeId} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
@@ -1165,15 +1165,33 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), {
-                    visibility: visibility
-                }
-                , undefined).then(function (json) {
+                        visibility: visibility
+                    }
+                    , undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(setBubbleVisibility) successfull");
                 that.logger.log("internal", LOG_ID + "(setBubbleVisibility) REST bubble set visibility : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(setBubbleVisibility) error");
                 that.logger.log("internalerror", LOG_ID, "(setBubbleVisibility) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    setBubbleAutoRegister(bubbleId: string, autoRegister : string = "unlock") {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), {
+                        autoRegister: autoRegister
+                    }
+                    , undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(setBubbleAutoRegister) successfull");
+                that.logger.log("internal", LOG_ID + "(setBubbleAutoRegister) REST bubble set visibility : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(setBubbleAutoRegister) error");
+                that.logger.log("internalerror", LOG_ID, "(setBubbleAutoRegister) error : ", err);
                 return reject(err);
             });
         });
@@ -5294,6 +5312,308 @@ Request Method: PUT
     }
 
     //endregion
+    
+    //region AD/LDAP
+    //region AD/LDAP masspro
+    /*
+    POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize?noemails=true with a file containing users and devices
+    Remark: "sync" (and/or "delete") action(s) should be used and all the relevant fields from AD should be systematically provided
+    A hidden field "ldap_id" corresponding to the AD objectGUID should be filled
+    Mandatory field is loginEmail, isInitialized=true
+    // */
+    synchronizeUsersAndDeviceswithCSV(CSVTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") : Promise<{
+        reqId : string,
+        mode : string,
+        status : string,
+        userId : string,
+        displayName : string,
+        label : string,
+        startTime : string
+    }>{
+        let that = this;
+        let urlParams = "";
+
+        addParamToUrl(urlParams, "companyId", companyId);
+        addParamToUrl(urlParams, "label", label);
+        addParamToUrl(urlParams, "noemails", String(noemails));
+        addParamToUrl(urlParams, "nostrict", String(nostrict));
+        addParamToUrl(urlParams, "delimiter", delimiter);
+        addParamToUrl(urlParams, "comment", comment);
+        
+        return new Promise(function (resolve, reject) {
+
+            that.http.post("/api/rainbow/massprovisioning/v1.0/users/imports/synchronize" + urlParams, that.getRequestHeader(), CSVTxt, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) successfull");
+                that.logger.log("internal", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error");
+                that.logger.log("internalerror", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // A template can be retrieved from GET /api/rainbow/massprovisioning/v1.0/users/template?mode=useranddevice
+    getCSVTemplate(companyId? : string, mode : string = "useranddevice", comment? : string) : any {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/template";
+            addParamToUrl(url, "companyId", companyId);
+            addParamToUrl(url, "mode", mode);
+            addParamToUrl(url, "comment", comment);
+
+            that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader("text/csv"), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCSVTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCSVTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(getCSVTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    // A file can be checked with POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check
+    checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string = "%") : any {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check";
+            addParamToUrl(url, "companyId", companyId);
+            addParamToUrl(url, "delimiter", delimiter);
+            addParamToUrl(url, "comment", comment);
+
+            that.logger.log("internal", LOG_ID + "(checkCSVforSynchronization) REST url : ", url);
+
+            that.http.post(url, that.getRequestHeader(), CSVTxt, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(checkCSVforSynchronization) successfull");
+                that.logger.log("internal", LOG_ID + "(checkCSVforSynchronization) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkCSVforSynchronization) error");
+                that.logger.log("internalerror", LOG_ID, "(checkCSVforSynchronization) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /* The users already synchronized can be retrieved in csv format with the following API:
+            GET /api/rainbow/massprovisioning/v1.0/users/synchronize?ldap_id=true&&format=csv
+    the ldap_id field will allow to compare rainbow users and ldap users
+    // */
+    retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/synchronize";
+            addParamToUrl(url, "companyId", companyId);
+            addParamToUrl(url, "format", format);
+            addParamToUrl(url, "ldap_id", String(ldap_id));
+
+            that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveRainbowUserList) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveRainbowUserList) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveRainbowUserList) error : ", err);
+                return reject(err);
+            });
+        });
+    }    
+    
+    //endregion
+
+    //region LDAP APIs to use:
+
+    /* POST /api/rainbow/admin/v1.0/connectors/ldaps/activate
+    for the activation of the ldap_connector, use the same environment than the admin login url returned when the admin logged in
+    // */
+    ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/activate";
+            that.logger.log("internal", LOG_ID + "(ActivateALdapConnectorUser) REST url : ", url);
+            let CSVTxt = undefined;
+
+            that.http.post(url, that.getRequestHeader(), CSVTxt, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(ActivateALdapConnectorUser) successfull");
+                that.logger.log("internal", LOG_ID + "(ActivateALdapConnectorUser) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(ActivateALdapConnectorUser) error");
+                that.logger.log("internalerror", LOG_ID, "(ActivateALdapConnectorUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /* GET /api/rainbow/admin/v1.0/connectors/ldaps
+    to retrieve the activated ldap connectors
+    // */
+    retrieveAllLdapConnectorUsersData (companyId? : string, format : string = "small", limit : number = 100, offset : number = undefined, sortField : string = "displayName", sortOrder : number = 1) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps";
+            addParamToUrl(url, "companyId", companyId);
+            addParamToUrl(url, "format", format);
+            addParamToUrl(url, "limit", String(limit));
+            addParamToUrl(url, "offset", String(offset));
+            addParamToUrl(url, "sortField", sortField);
+            addParamToUrl(url, "sortOrder", String(sortOrder));
+
+            that.logger.log("internal", LOG_ID + "(retrieveAllLdapConnectorUsersData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveAllLdapConnectorUsersData) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllLdapConnectorUsersData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveAllLdapConnectorUsersData) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllLdapConnectorUsersData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /* use GET /api/rainbow/admin/v1.0/users/:userId/presences
+    for the presence of the connector
+    // */
+    // It is provided by the method : getUserPresenceInformation 
+    
+    /* DELETE /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId
+    to delete the connector (the connector cannot be modified by the others admin APIs)
+    // */
+    deleteLdapConnector (ldapId : string) : Promise<{ status : string }> {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            if (!ldapId) {
+                that.logger.log("debug", LOG_ID + "(deleteLdapConnector) failed");
+                that.logger.log("info", LOG_ID + "(deleteLdapConnector) No ldapId provided");
+                resolve(null);
+            } else {
+                that.http.delete("/api/rainbow/admin/v1.0/connectors/ldaps/" + ldapId, that.getRequestHeader()).then(function (json) {
+                    that.logger.log("debug", LOG_ID + "(deleteLdapConnector) successfull");
+                    that.logger.log("internal", LOG_ID + "(deleteLdapConnector) result : " + json );
+                    resolve(json.data);
+                }).catch(function (err) {
+                    that.logger.log("error", LOG_ID, "(deleteLdapConnector) error");
+                    that.logger.log("internalerror", LOG_ID, "(deleteLdapConnector) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
+    retrieveLdapConnectorConfigTemplate () {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/template";
+            
+            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveLdapConnectorConfigTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorConfigTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorConfigTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /* POST /api/rainbow/admin/v1.0/connectors/ldaps/config
+    to create a config object for the connector
+    the configuration has the following format :
+            {
+                "settings" : {
+                    "massproFromLdap" :
+                            Unknown macro: { -----> match fields in masspro csv file and fields in ldap "loginEmail" }
+
+                    ,
+                    "company" :
+                            { ----> other parameters (login, password and url are mandatory) "login" : "toto", "password" : "tata", Remark: password is not stored encrypted "url" : "https://ldap.com/" }
+
+                }
+            }
+     // */
+    createConfigurationForLdapConnector (companyId : string, settings : any) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config";
+            that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
+            let param = {companyId, settings};
+
+            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(createConfigurationForLdapConnector) successfull");
+                that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createConfigurationForLdapConnector) error");
+                that.logger.log("internalerror", LOG_ID, "(createConfigurationForLdapConnector) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /* PUT /api/rainbow/admin/v1.0/connectors/ldaps/config/:ldapConfigId
+    to update a configuration
+    an xmpp message is sent to the connector
+    // */
+    updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/" + ldapConfigId;
+            that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
+            let params = {strict, settings};
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(createConfigurationForLdapConnector) successfull");
+                that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createConfigurationForLdapConnector) error");
+                that.logger.log("internalerror", LOG_ID, "(createConfigurationForLdapConnector) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /* GET /api/rainbow/admin/v1.0/connectors/ldaps/config
+    to retieve the configuration (to be use by the connector at startup and on update)
+    a template can be retrieved with query option type=ldap_template
+    Remark: the template for the ldap connector has to be created beforehand in the database.
+    // */
+    retrieveLdapConnectorConfig (companyId : string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config";
+            addParamToUrl(url, "companyId", companyId);
+
+            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveLdapConnectorConfigTemplate) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorConfigTemplate) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorConfigTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion LDAP APIs to use:
+
+    //endregion AD/LDAP
+    
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

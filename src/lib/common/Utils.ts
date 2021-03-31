@@ -216,6 +216,19 @@ function orderByFilter(originalArray, filterFct, flag, sortFct) {
     }
 }
 
+function addDaysToDate(date, days) {
+    let result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+function addParamToUrl(urlParams : string, paramName : string, paramValue : string) {
+    if (paramValue) {
+        urlParams += urlParams ? "&" : "?";
+        urlParams += paramName + "=" + paramValue;
+    }
+}
+
 function  isStart_upService( serviceoptions) {
     let start_up = true;
     if (!serviceoptions.optional) {
@@ -261,13 +274,13 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                         }
                     } else {
                         if (start_up) {
-                            if (this.ready) {
+                            if (this._started) {
                               //  logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
                                 returnValue = originalMethod.apply(this, args);
                                 //logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                             } else {
                                 //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
-                                throw({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
+                                throw({msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName});
                             }
                         } else {
                             return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
@@ -451,7 +464,9 @@ export let objToExport = {
     getBinaryData,
     getRandomInt,
     pause,
-    stackTrace
+    stackTrace,
+    addDaysToDate,
+    addParamToUrl
 };
 
 module.exports = objToExport;
@@ -474,5 +489,7 @@ export {
     getBinaryData,
     getRandomInt,
     pause,
-    stackTrace
+    stackTrace,
+    addDaysToDate,
+    addParamToUrl
 };

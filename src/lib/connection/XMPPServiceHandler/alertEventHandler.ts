@@ -6,7 +6,6 @@ export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 
-const GenericHandler = require("./GenericHandler");
 import {Conversation} from "../../common/models/Conversation";
 import {Channel} from "../../common/models/Channel";
 import {isNullOrEmpty, logEntryExit} from "../../common/Utils";
@@ -16,6 +15,7 @@ import {NameSpacesLabels, XMPPService} from "../XMPPService";
 import {AlertsService} from "../../services/AlertsService";
 import {Dictionary, IDictionary, KeyValuePair} from "ts-generic-collections-linq";
 import {Bubble} from "../../common/models/Bubble";
+import {GenericHandler} from "./GenericHandler";
 
 const util = require('util');
 
@@ -206,7 +206,7 @@ private void Xmpp_AlertMessageReceived(object sender, Sharp.Xmpp.Im.MessageEvent
     }
 // */
 @logEntryExit(LOG_ID)
-class AlertEventHandler extends GenericHandler.GenericHandler {
+class AlertEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
     public MESSAGE_WEBRTC: any;
@@ -215,7 +215,6 @@ class AlertEventHandler extends GenericHandler.GenericHandler {
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
     public alertsService: any;
-    public eventEmitter: any;
     private _options: any;
     private _xmpp : XMPPService;
     private alertsMessagePoolReceived: IDictionary<string, KeyValuePair<Date, string>> = new Dictionary();

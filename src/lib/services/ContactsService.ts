@@ -16,6 +16,7 @@ import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow";
 import {Invitation} from "../common/models/Invitation";
+import {GenericService} from "./GenericService";
 
 export {};
 
@@ -36,30 +37,14 @@ const LOG_ID = "CONTACTS/SVCE - ";
  *      - Get the network _contacts (roster) <br>
  *      - Get and search _contacts by Id, JID or loginEmail <br>
  */
-class ContactsService {
+class ContactsService extends GenericService {
     private avatarDomain: any;
-    private _xmpp: XMPPService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: boolean;
-    private _useS2S: boolean;
-
     private _contacts: Array<Contact>;
-    private _eventEmitter: EventEmitter;
     private _rosterPresenceQueue: any;
     public userContact: Contact;
-    private _rest: RESTService;
     private _invitationsService: InvitationsService;
     private _presenceService: PresenceService;
-    private _logger: Logger;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up: boolean,
-        optional: boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
+    //private _logger: Logger;
 
     static getClassName() {
         return 'ContactsService';
@@ -73,6 +58,7 @@ class ContactsService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length===2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port:_http.protocol + "://" + _http.host + ":" + _http.port;
         this._xmpp = null;
@@ -86,7 +72,6 @@ class ContactsService {
         this._logger = _logger;
         this._rosterPresenceQueue = [];
         this.userContact = new Contact();
-        this.ready = false;
 
         this._eventEmitter.on("evt_internal_presencechanged", this._onPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
@@ -129,7 +114,7 @@ class ContactsService {
                 that.userContact.jid_tel = "tel_" + that._xmpp.jid;
                 //that.userContact.fullJid = that._xmpp.fullJid;
 
-                that.ready = true;
+                that.setStarted ();
                 resolve(undefined);
 
             } catch (err) {
@@ -148,7 +133,7 @@ class ContactsService {
                 that._rest = null;
                 that._contacts = [];
 
-                that.ready = false;
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 return reject();
@@ -164,6 +149,7 @@ class ContactsService {
                 that.userContact.updateFromUserData(contact);
             });
             Promise.all([userInfo]).then(() => {
+                that.setInitialized();
                 resolve(undefined);
             }).catch(() => {
                 resolve(undefined);
@@ -192,7 +178,7 @@ class ContactsService {
      * @description
      *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
      * @async
-     * @return {Promise<Array<Contact>>, Promise<ErrorManager>}
+     * @return {Promise<Array<Contact>,ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      * @category async
      */

@@ -200,7 +200,9 @@ class Core {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                     }
                     return result
-                        .then(() => {
+                            .then(() => {
+                                return that._s2s.init();
+                            }).then(() => {
                             return that._profiles.init();
                         }).then(() => {
                             return that._telephony.init();
@@ -216,8 +218,20 @@ class Core {
                             return that._bubbles.getBubbles();
                         }).then(() => {
                             return that._channels.fetchMyChannels();
-                        }).then(() => {
-                            return that._groups.getGroups().catch(()=>{});
+                            }).then(() => {
+                                return that._admin.init();
+                            }).then(() => {
+                                return that._bubbles.init();
+                            }).then(() => {
+                                return that._channels.init();
+                            }).then(() => {
+                                return that._conversations.init();
+                            }).then(() => {
+                                return that._groups.init();
+                            }).then(() => {
+                                return that._presence.init();
+                            }).then(() => {
+                                return that._settings.init();
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);
@@ -269,6 +283,8 @@ class Core {
                     }
                     return result
                         .then(() => {
+                            return that._s2s.init();
+                        }).then(() => {
                             return that._profiles.init();
                         }).then(() => {
                             return that._telephony.init();
@@ -285,12 +301,24 @@ class Core {
                         }).then(() => {
                             return that._channels.fetchMyChannels();
                         }).then(() => {
-                            return that._groups.getGroups().catch(()=>{});
+                            return that._admin.init();
+                        }).then(() => {
+                            return that._bubbles.init();
+                        }).then(() => {
+                            return that._channels.init();
+                        }).then(() => {
+                            return that._conversations.init();
+                        }).then(() => {
+                            return that._groups.init();
+                        }).then(() => {
+                            return that._presence.init();
+                        }).then(() => {
+                            return that._settings.init();
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);
                         }).then(() => {
-                            return that.im.enableCarbon();
+                            return that.im.init();
                         }).then(() => {
                             return that._rest.getBots();
                         }).then((bots: any) => {

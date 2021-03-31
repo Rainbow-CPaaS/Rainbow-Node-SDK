@@ -1,4 +1,6 @@
 "use strict";
+import {GenericService} from "./GenericService";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -97,16 +99,7 @@ const FeaturesEnum = {
  * @description
  *  This module is the service used to retrieve profiles from server. <br/>
 */
-class ProfilesService {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
-	public started: any;
+class ProfilesService extends GenericService {
     private onUserUpdateNeeded: any;
     private stats: any;
 	public features: any;
@@ -114,14 +107,6 @@ class ProfilesService {
 	public mainOffers: any;
     private startDate: any;
     private timer: NodeJS.Timeout;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'ProfilesService'; }
     getClassName(){ return ProfilesService.getClassName(); }
@@ -130,6 +115,7 @@ class ProfilesService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -140,7 +126,6 @@ class ProfilesService {
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
-        this.started = false;
         let that = this;
 
         this.onUserUpdateNeeded = (__event) =>
@@ -167,8 +152,6 @@ class ProfilesService {
             }, 3000);
         } ;
 
-        this.ready = false;
-
     }
 
     /*********************************************************************/
@@ -191,18 +174,15 @@ class ProfilesService {
         that.features = {};
         that.profiles = [];
         that.mainOffers = [];
-        that.startDate = new Date();
-        this.ready = true;
-
+        that.setStarted ();
     }
 
     stop () {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPING ===");
+//        that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPING ===");
 
-        that.started = false;
-        that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
-        this.ready = false;
+  //      that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
+        that.setStopped ();
         return Promise.resolve(undefined);
     }
 
@@ -221,21 +201,17 @@ class ProfilesService {
             that.getServerProfile()
                 .then(function () {
                     // Consider service as started
-                    that.started = true;
-
-                    // @ts-ignore
-                    let startDuration = Math.round(new Date() - that.startDate);
-                    that.stats.push({service: "profileService", startDuration: startDuration});
-                    that._logger.log("debug", LOG_ID + "(start) [profileService] === STARTED (" + startDuration + " ms) ===");
+                    that.setInitialized();
+                    //that.stats.push({service: "profileService", startDuration: startDuration});
 
                     //$rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
                     that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                     that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
-
                     // NED TO BE PORTED !!!!!!!
                     // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
-
+                    
+                    that.setInitialized();
                     resolve(undefined);
                 })
                 .catch(function (error) {
@@ -358,7 +334,7 @@ class ProfilesService {
      */
     isFeatureEnabled (featureUniqueRef) {
         let that = this;
-        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
+        if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
             let enabled = that.features[featureUniqueRef].isEnabled;
             that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
             return enabled;
@@ -369,7 +345,7 @@ class ProfilesService {
 
     getFeatureLimitMax (featureUniqueRef) {
         let that = this ;
-        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
+        if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
             let limitMax = that.features[featureUniqueRef].limitMax;
             that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
             return limitMax;
@@ -380,7 +356,7 @@ class ProfilesService {
 
     getFeatureLimitMin (featureUniqueRef) {
         let that = this ;
-        if (that.started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
+        if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
             let limitMin = that.features[featureUniqueRef].limitMin;
             that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
             return limitMin;
@@ -416,7 +392,7 @@ class ProfilesService {
     getMyProfiles () {
         let that = this ;
         let profiles = [];
-        if (that.started) {
+        if (that._started) {
             //TODO return a simplified profile object ???
             profiles = that.profiles;
         } else {
@@ -432,7 +408,7 @@ class ProfilesService {
     getMyProfileFeatures () {
         let that = this;
         let profileFeatures = {};
-        if (that.started) {
+        if (that._started) {
             //return a simplified feature object with featureType, limitMin, limitMax and isEnabled properties only
             Object.keys(that.features).forEach(function (featureUniqueRef) {
                 let originalFeature = that.features[featureUniqueRef];

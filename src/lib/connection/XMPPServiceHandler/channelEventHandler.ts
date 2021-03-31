@@ -6,10 +6,10 @@ export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 
-const GenericHandler = require("./GenericHandler");
 import {Conversation} from "../../common/models/Conversation";
 import {Channel} from "../../common/models/Channel";
 import {logEntryExit} from "../../common/Utils";
+import {GenericHandler} from "./GenericHandler";
 
 const util = require('util');
 
@@ -23,7 +23,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class ChannelEventHandler extends GenericHandler.GenericHandler {
+class ChannelEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
     public MESSAGE_WEBRTC: any;
@@ -32,7 +32,6 @@ class ChannelEventHandler extends GenericHandler.GenericHandler {
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
     public channelsService: any;
-    public eventEmitter: any;
     /*public onManagementMessageReceived: any;
     public onChannelManagementMessageReceived: any;
     public onHeadlineMessageReceived: any;

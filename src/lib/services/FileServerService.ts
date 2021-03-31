@@ -21,6 +21,7 @@ import {S2SService} from "./S2SService";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
 import {FileDescriptor} from "../common/models/fileDescriptor";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -38,27 +39,11 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
 * @description
 *      This service manage files on server side <br/>
 */
-class FileServer {
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
+class FileServer extends GenericService{
     private _capabilities: any;
     private transferPromiseQueue: any;
     private _fileStorageService: FileStorageService;
 	public ONE_KILOBYTE: any;
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'FileServer'; }
     getClassName(){ return FileServer.getClassName(); }
@@ -67,6 +52,7 @@ class FileServer {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;
@@ -79,7 +65,6 @@ class FileServer {
         this._capabilities = null;
         this.transferPromiseQueue = null;
         this._fileStorageService = null;
-        this.ready = false;
     }
 
     get capabilities() : Promise<any>{
@@ -115,9 +100,8 @@ class FileServer {
                 that._useS2S = that._options.useS2S;
                 that._fileStorageService = _core.fileStorage;
 
-                that.ready = true;
+                that.setStarted ();
                 resolve(undefined);
-
             } catch (err) {
                 return reject(err);
             }
@@ -131,7 +115,7 @@ class FileServer {
                 that._xmpp = null;
                 that._rest = null;
 
-                that.ready = false;
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
@@ -142,10 +126,13 @@ class FileServer {
     init () {
         let that = this;
 
-        return new Promise((resolve, reject)=> {
-            let capa = that.capabilities.catch(()=>{
+        return new Promise(async (resolve, reject)=> {
+            
+            let capa = await that.capabilities.catch(()=>{
+                that.setInitialized();
                 resolve(null);
             });
+            that.setInitialized();
             resolve(capa);
         });
     }

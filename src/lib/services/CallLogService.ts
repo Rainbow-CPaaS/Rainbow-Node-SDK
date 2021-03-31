@@ -1,5 +1,7 @@
 "use strict";
 
+import {GenericService} from "./GenericService";
+
 export {};
 
 import {logEntryExit, setTimeoutPromised} from "../common/Utils";
@@ -57,11 +59,7 @@ function CallLogsBean() : ICallLogsBean {
 *      - Delete one or all calls log <br/>
 *      - Mark calls as read / unread <br/>
 */
- class CallLogService {
-    private _eventEmitter: EventEmitter;
-    private logger: Logger;
-    private started: boolean;
-    private _initialized: boolean;
+ class CallLogService extends GenericService{
     private calllogs: ICallLogsBean;
     private callLogHandlerRef: any;
     private callLogMessageAckRef: any;
@@ -82,24 +80,10 @@ function CallLogsBean() : ICallLogsBean {
     private numberMissedCalls: any;
     private lastTimestamp: any;
     // */
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
     private _contacts: ContactsService;
     private _profiles: ProfilesService;
     private _calllogEventHandler: CallLogEventHandler;
     private _telephony: TelephonyService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up: boolean,
-        optional: boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'CallLogService'; }
     getClassName(){ return CallLogService.getClassName(); }
@@ -109,6 +93,7 @@ function CallLogsBean() : ICallLogsBean {
         start_up:boolean,
         optional:boolean
     }) {
+        super(logger, LOG_ID);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -116,18 +101,13 @@ function CallLogsBean() : ICallLogsBean {
         this._startConfig = _startConfig;
         //let that = this;
         this._eventEmitter = _eventEmitter;
-        this.logger = logger;
+        this._logger = logger;
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
-
-        this.started = false;
-        this._initialized = false;
-
-        this.ready = false;
 
         /*this.callLogs = [];
         this.orderByNameCallLogs = [];
@@ -172,19 +152,18 @@ function CallLogsBean() : ICallLogsBean {
 
         this.calllogHandlerToken = [];
 
-        that.logger.log("info", LOG_ID + " ");
-        that.logger.log("info", LOG_ID + "[start] === STARTING ===");
+       that._logger.log("info", LOG_ID + " ");
+       that._logger.log("info", LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
-        this.ready = true;
+        that.setStarted ();
     }
 
     async stop() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "[stop] Stopping");
+       that._logger.log("info", LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
-        this.started = false;
         this._initialized = false;
         //this.callLogs = [];
         //this.callLogsPromises = [];
@@ -212,9 +191,8 @@ function CallLogsBean() : ICallLogsBean {
             that.calllogHandlerToken.forEach((token) => PubSub.unsubscribe(token));
         }
         that.calllogHandlerToken = [];
-        this.ready = false;
-
-        that.logger.log("info", LOG_ID + "[stop] Stopped");
+        that.setStopped ();
+       that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
     async init() {
@@ -225,16 +203,11 @@ function CallLogsBean() : ICallLogsBean {
             let startDate = new Date();
             that.getCallLogHistoryPage()
                 .then(() => {
-                    // @ts-ignore
-                    let duration = new Date() - startDate;
-                    let startDuration = Math.round(duration);
-                    that.logger.log("info", LOG_ID + " callLogService start duration : ", startDuration);
-                    that.logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
-                    that.started = true;
+                    that.setInitialized();
                 })
                 .catch((error) => {
-                    that.logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
-                    that.logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
+                   that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
+                   that._logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
                 });
         });
 
@@ -243,7 +216,7 @@ function CallLogsBean() : ICallLogsBean {
     attachHandlers() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(attachHandlers)");
+       that._logger.log("info", LOG_ID + "(attachHandlers)");
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
@@ -271,7 +244,7 @@ function CallLogsBean() : ICallLogsBean {
     async getCallLogHistoryPage(useAfter?) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(getCallLogHistoryPage)");
+       that._logger.log("info", LOG_ID + "(getCallLogHistoryPage)");
         if (that._useXMPP) {
             return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
         }
@@ -332,7 +305,7 @@ function CallLogsBean() : ICallLogsBean {
 
         that.calllogs.callLogs.forEach(function (callLog) {
             if (!callLog.read && callLog.state === "missed" && callLog.direction === "incoming") {
-                that.logger.log("info", LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
+               that._logger.log("info", LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
                 num++;
             }
         });
@@ -354,7 +327,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteOneCallLog(id) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(deleteOneCallLog) id : ", id);
+       that._logger.log("info", LOG_ID + "(deleteOneCallLog) id : ", id);
         return that._xmpp.deleteOneCallLog(id);
     }
 
@@ -371,7 +344,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteCallLogsForContact(jid) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(deleteCallLogsForContact) jid : ", jid);
+       that._logger.log("info", LOG_ID + "(deleteCallLogsForContact) jid : ", jid);
         return that._xmpp.deleteCallLogsForContact(jid);
     }
 
@@ -387,7 +360,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteAllCallLogs() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(deleteAllCallLogs)");
+       that._logger.log("info", LOG_ID + "(deleteAllCallLogs)");
         return that._xmpp.deleteAllCallLogs();
     }
 
@@ -404,7 +377,7 @@ function CallLogsBean() : ICallLogsBean {
     markCallLogAsRead(id) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(markCallLogAsRead) id : ", id);
+       that._logger.log("info", LOG_ID + "(markCallLogAsRead) id : ", id);
         return that._xmpp.markCallLogAsRead(id);
     }
 
@@ -420,8 +393,8 @@ function CallLogsBean() : ICallLogsBean {
     async markAllCallsLogsAsRead() {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(markAllCallsLogsAsRead) ");
-        that.logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
+       that._logger.log("info", LOG_ID + "(markAllCallsLogsAsRead) ");
+       that._logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
         await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
 
@@ -503,7 +476,7 @@ function CallLogsBean() : ICallLogsBean {
 
     async resetCallLogs() {
         let that = this;
-        that.logger.log("info", LOG_ID + "[resetCallLogs] resetCallLogs");
+       that._logger.log("info", LOG_ID + "[resetCallLogs] resetCallLogs");
         that.calllogs = CallLogsBean();
         await this._calllogEventHandler.resetCallLogs();
 

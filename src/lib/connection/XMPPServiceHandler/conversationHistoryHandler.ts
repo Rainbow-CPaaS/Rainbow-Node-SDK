@@ -19,13 +19,13 @@ momentDurationFormatSetup(moment);
 // @ts-ignore
 global.window = undefined;
 
-const GenericHandler = require("./GenericHandler");
 const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
 import {logEntryExit} from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {ContactsService} from "../../services/ContactsService";
 import {stringify} from "querystring";
+import {GenericHandler} from "./GenericHandler";
 
 const LOG_ID = "XMPP/HNDL/HIST/CONV - ";
 
@@ -33,7 +33,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class ConversationHistoryHandler  extends GenericHandler.GenericHandler {
+class ConversationHistoryHandler  extends GenericHandler {
 	public MESSAGE_MAM: any;
 	public FIN_MAM: any;
 	public _conversationService: ConversationsService;
@@ -71,9 +71,9 @@ class ConversationHistoryHandler  extends GenericHandler.GenericHandler {
             }
 
             // jidIm are used for history
-            else if (that.callLogHandler) {
-                that.callLogHandler(stanza);
-            }
+            //else if (that.callLogHandler) {
+            //    that.callLogHandler(stanza);
+            //}
 
             return true;
         } catch (error) {
