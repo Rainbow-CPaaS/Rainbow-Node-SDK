@@ -25,6 +25,7 @@ class Options {
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
     private _concurrentRequests: number;
+    private _intervalBetweenCleanMemoryCache: number;
     private _requestsRate: any;
     
     constructor(_options: any, _logger: Logger) {
@@ -36,6 +37,7 @@ class Options {
         this._withS2S = false;
         this._CLIMode = true;
         this._testOutdatedVersion = true;
+        this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
     }
 
     parse() {
@@ -83,6 +85,7 @@ class Options {
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
+        this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
         this._requestsRate = this._getRequestsRateOption();
     }
@@ -93,6 +96,14 @@ class Options {
 
     set testOutdatedVersion(value: boolean) {
         this._testOutdatedVersion = value;
+    }
+
+    get intervalBetweenCleanMemoryCache(): number {
+        return this._intervalBetweenCleanMemoryCache;
+    }
+
+    set intervalBetweenCleanMemoryCache(value: number) {
+        this._intervalBetweenCleanMemoryCache = value;
     }
 
     get servicesToStart () {
@@ -164,7 +175,14 @@ class Options {
         } else {
             return config.testOutdatedVersion;
         }
+    }
 
+    _getintervalBetweenCleanMemoryCache() {
+        if ( this._options["intervalBetweenCleanMemoryCache"] !== undefined ) {
+            return this._options.intervalBetweenCleanMemoryCache;
+        } else {
+            return config.intervalBetweenCleanMemoryCache;
+        }
     }
 
     _getservicesToStart() {

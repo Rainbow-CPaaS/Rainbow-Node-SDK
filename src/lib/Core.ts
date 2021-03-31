@@ -75,6 +75,7 @@ class Core {
     public _invitations: InvitationsService;
 	public _botsjid: any;
     public _s2s: S2SService;
+    cleanningClassIntervalID: NodeJS.Timeout;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -533,9 +534,44 @@ class Core {
 
         self._botsjid = [];
 
+        self.startCleanningInterval();
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
     }
 
+    startCleanningInterval() {
+        let that = this;
+        function cleanningClass() {
+            that.logger.log("debug", LOG_ID + "(startCleanningInterval) cleanningClass.");
+
+
+            //public _rest: RESTService;
+            //public _http: HTTPService;
+            //public _xmpp: XMPPService;
+            //public _stateManager: StateManager;
+            //public _im: IMService;
+
+            that._admin.cleanMemoryCache();
+            that._alerts.cleanMemoryCache();
+            that._bubbles.cleanMemoryCache();
+            that._calllog.cleanMemoryCache();
+            that._channels.cleanMemoryCache();
+            that._contacts.cleanMemoryCache();
+            that._conversations.cleanMemoryCache();
+            that._favorites.cleanMemoryCache();
+            that._fileServer.cleanMemoryCache();
+            that._fileStorage.cleanMemoryCache();
+            that._groups.cleanMemoryCache();
+            that._invitations.cleanMemoryCache();
+            that._presence.cleanMemoryCache();
+            that._profiles.cleanMemoryCache();
+            that._s2s.cleanMemoryCache();
+            that._settings.cleanMemoryCache();
+            that._telephony.cleanMemoryCache();
+        }        
+        
+        that.cleanningClassIntervalID = setInterval(cleanningClass, that.options.intervalBetweenCleanMemoryCache);
+    }
+    
     start(token) {
         let that = this;
 

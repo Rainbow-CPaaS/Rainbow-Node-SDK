@@ -152,6 +152,7 @@ let options : any = {
         }
     },
     "testOutdatedVersion": true,
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
     "requestsRate":{
         "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.

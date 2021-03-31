@@ -158,6 +158,21 @@ class ContactsService extends GenericService {
         });
     }
 
+    cleanMemoryCache() {
+        let that = this;
+        super.cleanMemoryCache();
+        for (let i = 0; i < that._contacts.length ; i++) {
+            if (that._contacts[i].isObsoleteCache()) {
+                that._logger.log("info", LOG_ID + "(cleanMemoryCache) contact obsolete. Will remove it from cache.");
+                that._logger.log("internal", LOG_ID + "(cleanMemoryCache) contact obsolete. Will remove it from cache : ", that._contacts[i]);
+                that._contacts[i] = null;                
+            } else {
+                that._logger.log("info", LOG_ID + "(cleanMemoryCache) contact not obsolete.");
+                that._logger.log("internal", LOG_ID + "(cleanMemoryCache) contact not obsolete : ", that._contacts[i]);
+            } 
+        }
+    }
+
     /**
      * @public
      * @method getDisplayName

@@ -22,6 +22,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix some parameters orders in documentation of `BubblesService`.
 -   Add API `BubblesService::setBubbleAutoRegister` to manage the share of bubble with a public link also called 'public URL' according the autoRegister value.
 -   Add GenericService Class to set common behaviour at startup to the services. And traces the starting delay.
+-   Add `intervalBetweenCleanMemoryCache` Node SDK option to set the time in milliseconds Between two `CleanMemoryCache`, method to avoid memoryleak on services (each one needs to implement the cleanning).
+-   Add the treatment of the `CleanMemoryCache` in `contactsService`.
 
 ## [1.85.1] - 2021-03-18
 -   Delivery 1.85.0 failed, so new one.

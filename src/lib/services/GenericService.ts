@@ -57,7 +57,7 @@ class GenericService {
 
     cleanMemoryCache() {
         let that = this;
-        that._logger.log("debug", that._logId + "(GenericService::cleanMemoryCache) Not defined for this module." );
+        // that._logger.log("debug", that._logId + "(GenericService::cleanMemoryCache) Not defined for this module." );
     }
 
     get startedDuration () {
