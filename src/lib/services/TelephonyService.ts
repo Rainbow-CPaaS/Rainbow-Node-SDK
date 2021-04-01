@@ -21,6 +21,7 @@ import {Logger} from "../common/Logger";
 import {error} from "winston";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -41,22 +42,13 @@ const LOG_ID = "TELEPHONY/SVCE - ";
  *      Depending the agent version deployed, some services can return an error (unavailable service) when called <br/>
  *
  */
-class Telephony {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+class Telephony extends GenericService {
     private _contacts: ContactsService;
     private _bubbles: BubblesService;
     private _profiles: ProfilesService;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
     private _calls: any;
     private voiceMail: any;
     private userJidTel: any;
-    private started: any;
     private agentStatus: any;
     private voicemailNumber: any;
     private pbxId: any;
@@ -73,19 +65,10 @@ class Telephony {
     private isNomadicEnabled: any;
     private telephonyHandlerToken: any;
     private telephonyHistoryHandlerToken: any;
-	public startDate: any;
     private _telephonyEventHandler: any;
     private makingCall: any;
     private starting: any;
     private stats: any;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'Telephony'; }
     getClassName(){ return Telephony.getClassName(); }
@@ -94,6 +77,7 @@ class Telephony {
         start_up:boolean,
         optional:boolean
     }) {
+        super(logger, LOG_ID);
         let that = this;
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -108,7 +92,6 @@ class Telephony {
         this._calls = [];
         this.voiceMail = null;//VoiceMail.createVoiceMail();
         this.userJidTel = "TOBEFILLED";//authService.jidTel;
-        this.started = false;
         this.agentStatus = {};
 
         this.voicemailNumber = null;
@@ -125,7 +108,6 @@ class Telephony {
         this.voiceMailFeatureEnabled = false;
         this.isForwardEnabled = false;
         this.isNomadicEnabled = false;
-        this.ready = false;
 
         that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
         that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
@@ -139,7 +121,6 @@ class Telephony {
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
         this.voiceMail = VoiceMail.createVoiceMail(_core._profiles);
-        that.startDate = new Date();
 
         return new Promise((resolve, reject) => {
             try {
@@ -156,9 +137,8 @@ class Telephony {
 
                 that.attachHandlers();
 
-                this.ready = true;
+                that.setStarted();
                 resolve(undefined);
-
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch ErrorManager !!! ");
                 that._logger.log("internalerror", LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
@@ -187,7 +167,7 @@ class Telephony {
                 }
                 that.telephonyHistoryHandlerToken = [];
 
-                this.ready = false;
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
@@ -235,14 +215,15 @@ class Telephony {
             //that.userJidTel = authService.jidTel;
             that.userJidTel = that._rest.loggedInUser.jid_tel;
 
-            that.started = false;
             try {
                 that._xmpp.getAgentStatus().then((data) => {
                     that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
+                    that.setInitialized();
                     resolve(undefined);
                 });
             } catch (err) {
                 that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
+                that.setInitialized();
                 resolve(undefined);
             }
         });
@@ -275,7 +256,7 @@ class Telephony {
                 // Receive unavailable status
                 if (status === "unavailable" || status === "offline" || status === "") {
                     that._logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
-                    that.started = false;
+                    that._started = false;
                     that._calls = [];
                     that._logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "stopped");
                     that._eventEmitter.emit("evt_internal_telephonystatuschanged", "stopped");
@@ -285,7 +266,7 @@ class Telephony {
                 }
 
                 // Service is not started, try to fetch agent status
-                else if (!that.started && !that.starting) {
+                else if (!that._started && !that.starting) {
                     that._logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
                     that.starting = true;
                     that.getAgentStatus()
@@ -316,7 +297,7 @@ class Telephony {
                             let startDuration = Math.round(new Date() - that.startDate);
                            // that.stats.push({ service: "telephonyService", startDuration: startDuration });
                             that._logger.log("info", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
-                            that.started = true;
+                            that._started = true;
                             that.starting = false;
                             that._logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "started");
                             that._eventEmitter.emit("evt_internal_telephonystatuschanged", "started");
@@ -390,7 +371,7 @@ class Telephony {
      * @return {boolean} Return true if the telephony service is configured
      */
     isTelephonyAvailable() {
-        return this.started;
+        return this._started;
     }
 
     /**

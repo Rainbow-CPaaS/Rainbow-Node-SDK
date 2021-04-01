@@ -1,4 +1,6 @@
 "use strict";
+import {GenericService} from "./GenericService";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -26,23 +28,7 @@ const LOG_ID = "SETT/SVCE - ";
  *      - Get user settings <br/>
  *      - Update user settings <br/>
  */
-class Settings {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
+class Settings extends GenericService {
 
     static getClassName(){ return 'Settings'; }
     getClassName(){ return Settings.getClassName(); }
@@ -51,6 +37,7 @@ class Settings {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -65,7 +52,6 @@ class Settings {
         // this.RAINBOW_PRESENCE_DONOTDISTURB = "dnd";
         // this.RAINBOW_PRESENCE_AWAY = "away";
         // this.RAINBOW_PRESENCE_INVISIBLE = "invisible";
-        this.ready = false;
     }
 
     start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
@@ -78,7 +64,7 @@ class Settings {
                 that._s2s = _core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that.ready = true;
+                that.setStarted ();
                 resolve(undefined);
             } catch (err) {
                 return reject();
@@ -92,15 +78,19 @@ class Settings {
             try {
                 that._xmpp = null;
                 that._rest = null;
-                that.ready = false;
+                that.setStopped ();
                 resolve(undefined);
-
             } catch (err) {
                 return reject();
             }
         });
     }
 
+    async init () {
+        let that = this;
+        that.setInitialized();
+    }
+    
     /**
      * @private
      * @method getUserSettings

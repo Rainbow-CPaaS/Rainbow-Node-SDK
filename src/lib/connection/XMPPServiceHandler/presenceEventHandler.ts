@@ -5,10 +5,10 @@ import {logEntryExit} from "../../common/Utils";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow";
 import {Contact} from "../../common/models/Contact";
 import {ContactsService} from "../../services/ContactsService";
+import {GenericHandler} from "./GenericHandler";
 
 export {};
 
-const GenericHandler = require("./GenericHandler");
 const xml = require("@xmpp/xml");
 
 const prettydata = require("../pretty-data").pd;
@@ -16,7 +16,7 @@ const prettydata = require("../pretty-data").pd;
 const LOG_ID = "XMPP/HNDL/PRES - ";
 
 @logEntryExit(LOG_ID)
-class PresenceEventHandler extends GenericHandler.GenericHandler {
+class PresenceEventHandler extends GenericHandler {
 	public PRESENCE: any;
 	// public onPresenceReceived: any;
 	private _contacts : ContactsService;

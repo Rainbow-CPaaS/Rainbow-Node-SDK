@@ -1,4 +1,6 @@
 "use strict";
+import {GenericService} from "./GenericService";
+
 export {};
 
 import {XMPPService} from "../connection/XMPPService";
@@ -29,24 +31,8 @@ const LOG_ID = "GROUPS/SVCE - ";
  *		- Add a contact in a group <br/>
  *		- Remove a contact from a group <br/>
  */
- class GroupsService {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+ class GroupsService extends GenericService{
     private _groups: any;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'GroupsService'; }
     getClassName(){ return GroupsService.getClassName(); }
@@ -55,6 +41,7 @@ const LOG_ID = "GROUPS/SVCE - ";
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -71,7 +58,6 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._eventEmitter.on("evt_internal_hdle_groupupdated", this._onGroupUpdated.bind(this));
         this._eventEmitter.on("evt_internal_hdle_useraddedingroup", this._onUserAddedInGroup.bind(this));
         this._eventEmitter.on("evt_internal_hdle_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
-        this.ready = false;
     }
 
      start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
@@ -98,8 +84,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.on("evt_internal_useraddedingroup", that._onUserAddedInGroup.bind(that));
                 that._eventEmitter.on("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup.bind(that));
 */
-                that.ready = true;
-
+                 that.setStarted ();
                  resolve(undefined);
              } catch (err) {
                  return reject();
@@ -121,7 +106,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                 that._eventEmitter.removeListener("evt_internal_useraddedingroup", that._onUserAddedInGroup);
                 that._eventEmitter.removeListener("evt_internal_userremovedfromgroup", that._onUserRemovedFromGroup);
 */
-                that.ready = false;
+                 that.setStopped ();
                  resolve(undefined);
              } catch (err) {
                  return reject(err);
@@ -129,7 +114,17 @@ const LOG_ID = "GROUPS/SVCE - ";
          });
      }
 
-     /**
+    async init () {
+        let that = this;
+        return that.getGroups().then((result) => {
+            that.setInitialized();
+            return result;
+        }).catch(()=> {
+            //that.setInitialized();
+        });
+    }
+    
+    /**
      * @public
      * @method createGroup
      * @instance

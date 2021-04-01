@@ -6,7 +6,6 @@ export {};
 
 
 const Utils = require("../../common/Utils");
-const GenericHandler = require("./GenericHandler");
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call";
@@ -21,6 +20,7 @@ const prettydata = require("../pretty-data").pd;
 
 //const config = require("../../config/config");
 import {config} from "../../config/config";
+import {GenericHandler} from "./GenericHandler";
 
 const LOG_ID = "XMPP/HNDL/TEL - ";
 
@@ -34,7 +34,7 @@ const CallFailureLabels = {
 };
 
 @logEntryExit(LOG_ID)
-class TelephonyEventHandler extends GenericHandler.GenericHandler {
+class TelephonyEventHandler extends GenericHandler {
 	public MESSAGE: any;
 	public IQ_RESULT: any;
 	public IQ_ERROR: any;
@@ -66,8 +66,6 @@ class TelephonyEventHandler extends GenericHandler.GenericHandler {
 	public createConferenceCall: any;
 
 	 */
-	public logger: any;
-	public eventEmitter: any;
 
     static getClassName(){ return 'TelephonyEventHandler'; }
     getClassName(){ return TelephonyEventHandler.getClassName(); }

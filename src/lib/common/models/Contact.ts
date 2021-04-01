@@ -1,4 +1,6 @@
 "use strict";
+import {addDaysToDate} from "../Utils";
+
 export {};
 
 
@@ -120,9 +122,13 @@ class Contact {
     public invitation: any;
     public selectedTheme: string;
     public customData: any;
+    public isVirtualTerm: boolean;
+    private _lastContactCacheUpdate: Date;
 
     constructor() {
 
+        this._lastContactCacheUpdate = new Date();
+        
         /**
          * @public
          * @readonly
@@ -551,6 +557,16 @@ class Contact {
 
     }
 
+    updateLastContactCacheUpdate() {
+        this._lastContactCacheUpdate = new Date();
+    }
+
+    isObsoleteCache() {
+        //this._lastContactCacheUpdate = new Date("2021-03-23T18:30:05.754Z");
+        let dayPlusOne = addDaysToDate(this._lastContactCacheUpdate,1) ;
+        return (  dayPlusOne <  new Date() ) ; 
+    }
+    
     /**
      * @public
      * @readonly
@@ -660,6 +676,7 @@ class Contact {
 
     updateFromUserData (userData) {
         let that = this;
+
         // Identification fields
         that.id = userData.id;
         that.loginEmail = userData.loginEmail;

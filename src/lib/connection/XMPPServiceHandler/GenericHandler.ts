@@ -57,5 +57,5 @@ class GenericHandler {
     }
 }
 
-module.exports.GenericHandler = GenericHandler;
-export = {GenericHandler: GenericHandler};
+module.exports = {'GenericHandler' : GenericHandler};
+export {GenericHandler as GenericHandler};

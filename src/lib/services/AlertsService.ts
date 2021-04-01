@@ -18,6 +18,7 @@ import {List} from "ts-generic-collections-linq";
 import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice";
 import {AlertTemplate, AlertTemplatesData} from "../common/models/AlertTemplate";
 import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "ALERTS/SVCE - ";
 
@@ -33,17 +34,7 @@ const LOG_ID = "ALERTS/SVCE - ";
      *   <br/>
      *      Note: the Rainbow subscriptions "Alerts" is need to use the Alert notification system. <br/>  
      */
-class AlertsService {
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
-    private started: boolean;
-    private _initialized: boolean;
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+class AlertsService extends GenericService{
     private _alertEventHandler: AlertEventHandler;
     private _alertHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
@@ -52,16 +43,6 @@ class AlertsService {
     private readonly delayToSendReceiptReceived: number; // TimeSpan;
     private readonly delayToSendReceiptRead: number; // TimeSpan;
     private delayInfoLoggued: boolean = false;
-
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up: boolean,
-        optional: boolean
-    };
-
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName() {
         return 'AlertsService';
@@ -75,13 +56,13 @@ class AlertsService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(logger, LOG_ID);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
         /*********************************************************/
         this._startConfig = _startConfig;
         //let that = this;
-        this._eventEmitter = _eventEmitter;
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;
@@ -90,12 +71,8 @@ class AlertsService {
         this._useS2S = false;
         this._logger = logger;
 
-        this.started = false;
-        this._initialized = false;
-
         //this._eventEmitter.on("evt_internal_alertcreated_handle", this.onAlertCreated.bind(this));
         //this._eventEmitter.on("evt_internal_alertdeleted_handle", this.onAlertDeleted.bind(this));
-        this.ready = false;
     }
 
 
@@ -111,17 +88,14 @@ class AlertsService {
 
         that._logger.log("info", LOG_ID + " ");
         that._logger.log("info", LOG_ID + "[start] === STARTING ===");
-        let startDate = new Date().getTime();
         this.attachHandlers();
 
         //this.conversationService.alertService = this;
         //this.attachHandlers();
 
-        let startDuration = Math.round(new Date().getTime() - startDate);
+      
         //stats.push({ service: 'alertService', startDuration: startDuration });
-        that._logger.log("info", LOG_ID + `=== STARTED (${startDuration} ms) ===`);
-        this.ready = true;
-
+        that.setStarted ();
     }
 
     public async stop() {
@@ -130,7 +104,6 @@ class AlertsService {
         that._logger.log("info", LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
-        this.started = false;
         this._initialized = false;
 
         that._xmpp = null;
@@ -143,14 +116,14 @@ class AlertsService {
         }
         that._alertHandlerToken = [];
 
-        this.ready = false;
+        that.setStopped ();
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
     public async init() {
         let that = this;
         //await this.getServerAlerts();
-
+        that.setInitialized();
     }
 
     private attachHandlers() {

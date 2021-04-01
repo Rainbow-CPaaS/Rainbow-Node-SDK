@@ -18,6 +18,7 @@ import {S2SService} from "./S2SService";
 import {RESTService} from "../connection/RESTService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -36,29 +37,13 @@ const LOG_ID = "IM/SVCE - ";
  *      - Send a message to a bubble <br>
  *      - Mark a message as read <br>
  */
-class IMService {
-    private _xmpp: XMPPService;
+class IMService extends GenericService{
     private _conversations: ConversationsService;
-    private _logger: Logger;
-    private _eventEmitter: EventEmitter;
     private _pendingMessages: any;
     private _bulles: any;
     private _imOptions: any;
     private _fileStorage: any;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    private _rest: RESTService;
     private _presence: PresenceService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'IMService'; }
     getClassName(){ return IMService.getClassName(); }
@@ -67,6 +52,7 @@ class IMService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -81,9 +67,6 @@ class IMService {
         this._imOptions = _imOptions;
 
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
-        this.ready = false;
-
-
     }
 
     start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
@@ -100,9 +83,8 @@ class IMService {
                 that._bulles = _core.bubbles;
                 that._fileStorage = _core.fileStorage;
                 that._presence = _core.presence;
-                that.ready = true;
+                that.setStarted ();
                 resolve(undefined);
-
             } catch (err) {
                 return reject(err);
             }
@@ -114,12 +96,20 @@ class IMService {
         return new Promise(function(resolve, reject) {
             try {
                 that._xmpp = null;
-                that.ready = false;
+                that.setStopped ();
                 resolve(undefined);
-
             } catch (err) {
                 return reject(err);
             }
+        });
+    }
+
+    async init () {
+        let that = this;
+        that.enableCarbon().then((result) => {
+            that.setInitialized();
+        }).catch(()=> {
+            //that.setInitialized();
         });
     }
 

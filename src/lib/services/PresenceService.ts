@@ -12,6 +12,7 @@ import {ROOMROLE, S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
+import {GenericService} from "./GenericService";
 
 export {};
 
@@ -30,34 +31,17 @@ const LOG_ID = "PRES/SVCE - ";
  *      The main methods proposed in that module allow to: <br>
  *      - Change the connected user presence <br/>
  */
-class PresenceService {
-    private _logger: Logger;
-    private _xmpp: XMPPService;
+class PresenceService extends GenericService{
     private _settings: SettingsService;
     private _presenceEventHandler: PresenceEventHandler;
     private _presenceHandlerToken: any;
-    private _eventEmitter: EventEmitter;
     private manualState: boolean;
     private _currentPresence: PresenceRainbow;
     public RAINBOW_PRESENCE_ONLINE: PresenceLevel.Online;
     public RAINBOW_PRESENCE_DONOTDISTURB: PresenceLevel.Dnd;
     public RAINBOW_PRESENCE_AWAY: PresenceLevel.Away;
     public RAINBOW_PRESENCE_INVISIBLE: PresenceLevel.Invisible;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    private _s2s: S2SService;
-    private _options: any;
-    private _useXMPP: any;
-    private _useS2S: any;
-    private _rest: RESTService;
     private _bubbles: BubblesService;
-
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'PresenceService'; }
     getClassName(){ return PresenceService.getClassName(); }
@@ -66,6 +50,7 @@ class PresenceService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         let that = this;
         this._startConfig = _startConfig;
 
@@ -88,7 +73,6 @@ class PresenceService {
 
         that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
         that._eventEmitter.on("evt_internal_mypresencechanged", that._onMyPresenceChanged.bind(that));
-        this.ready = false;
     }
 
     start(_options, _core : Core ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
@@ -115,9 +99,8 @@ class PresenceService {
                 that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
                 that._eventEmitter.on("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
-                that.ready = true;
+                that.setStarted();
                 resolve(undefined);
-
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(start) Catch Error !!!");
                 that._logger.log("internalerror", LOG_ID + "(start) Catch Error !!! : ", err);
@@ -139,13 +122,17 @@ class PresenceService {
                 that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
                 that._eventEmitter.removeListener("evt_internal_presencechanged", that._onPresenceChanged.bind(that));
 */
-                that.ready = false;
+                that.setStopped ();
                 resolve(undefined);
-
             } catch (err) {
                 return reject();
             }
         });
+    }
+
+    async init () {
+        let that = this;
+        that.setInitialized();
     }
 
     /**

@@ -27,6 +27,7 @@ import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {Message} from "../common/models/Message";
 import {Bubble} from "../common/models/Bubble";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -47,19 +48,11 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
  *   - Retrieve all information linked to that conversation, <br/>
  * <br/>
  *   */
-class ConversationsService {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+class ConversationsService extends GenericService {
     private _contactsService: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
     private _presence: PresenceService;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
     private pendingMessages: any;
     private _conversationEventHandler: ConversationEventHandler;
     private _conversationHandlerToken: any;
@@ -76,11 +69,6 @@ class ConversationsService {
 	public botServiceReady: any;
     private _conversationHistoryHandler: ConversationHistoryHandler;
     private chatRenderer: any;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
     private conversationsRetrievedFormat: string = "small";
     private nbMaxConversations: number;
     private autoLoadConversations: boolean;
@@ -95,6 +83,7 @@ class ConversationsService {
         start_up:boolean,
         optional:boolean
     }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -116,8 +105,6 @@ class ConversationsService {
         this.autoLoadConversations = _autoLoadConversations;
 
         //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
-        this.ready = false;
-
         this._eventEmitter.on("evt_internal_onreceipt", this._onReceipt.bind(this));
 
     }
@@ -155,7 +142,7 @@ class ConversationsService {
 
                 that.attachHandlers();
 
-                this.ready = true;
+                that.setStarted ();
                 resolve(undefined);
 
             } catch (err) {
@@ -186,8 +173,7 @@ class ConversationsService {
                 that._conversationHistoryHandlerToken = [];
 
                 //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
-                this.ready = false;
-
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
@@ -195,6 +181,11 @@ class ConversationsService {
         });
     }
 
+    async init () {
+        let that = this;
+        that.setInitialized();
+    }
+    
     attachHandlers() {
         let that = this;
         that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService);
@@ -366,6 +357,9 @@ class ConversationsService {
         return this._rest.ackAllMessages(conversationDbId);
     }
 
+    resetHistoryPageForConversation(conversation : Conversation) {
+        conversation.reset();
+    }
 
     /**
      * @public
@@ -380,7 +374,7 @@ class ConversationsService {
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    getHistoryPage(conversation, size) {
+    getHistoryPage(conversation : Conversation, size: number = 30) {
         let that = this;
 
         // Avoid to call several time the same request
@@ -416,6 +410,8 @@ class ConversationsService {
 
         if (conversation.historyIndex !== -1) {
             mamRequest.before = conversation.historyIndex;
+        } else {
+            that.resetHistoryPageForConversation(conversation);
         }
 
         // Request for history messages for the room chat

@@ -6,6 +6,44 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.85 - March 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   Update events `rainbow_onpresencechanged` and `rainbow_oncontactpresencechanged`  with new properties `until` and `delay`.
+-   Add `until` propertie in the presence event of contacts to give the validity date of the calendar presence.
+
+**Others Changes**
+
+-   Update of the `dependencies`.
+-   Fix XmppClient when sent iq failed at re-startup.
+-   Activate DEBUG of `request` library when "logs.system-dev.http" is setted to true. It is only available on rainbow-node-sdk from sources or from debug npm package.
+-   Fix Return types in documentation. 
+-   Fix ContactsService::getRosters api to not reset the contacts cache, but to update contacts from data received from server.
+-   Add PATCH verb in HttpService
+-   Add `PresenceService::getCalendarState` Allow to get the calendar presence of the connected user.
+-   Add `PresenceService::getCalendarStates`  Allow to get the calendar presence of severals users.
+-   Add `PresenceService::setCalendarRegister` Register a new calendar.
+-   Add `PresenceService::getCalendarAutomaticReplyStatus` Allow to retrieve the calendar automatic reply status.
+-   Add `PresenceService::enableCalendar` Allow to enable the calendar.
+-   Add `PresenceService::disableCalendar` Allow to disable the calendar.
+-   Fix Offline presence of contacts in the roster.
+-   Update methods `groups.getGroups()`, `BubblesService::getBubbles()`, `FileServerService::init`, `FileStorageService::init` to return a succeed event if the requests to server failed. To avoid the start to failed.
+-   Update methods `ProfilesService::init` to return a succeed event if the requests to server failed. To avoid the start to failed. 
+
+
 ### SDK for Node.JS 1.84 - February 2021
 
 ---

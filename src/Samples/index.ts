@@ -152,6 +152,7 @@ let options : any = {
         }
     },
     "testOutdatedVersion": true,
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
     "requestsRate":{
         "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
@@ -1660,6 +1661,24 @@ function testgetContactInfos() {
         }
     });
 }
+
+    function testgetContactInfos2() {
+        let loginEmail = "representaive2@al-mydemo.com";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
+                    if (contactInfos) {
+                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                    }
+                    else {
+                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
+                    }
+                });
+            }
+        });
+    }
+
 /**
  * need to be administrator of the company. Here vincent02 is ok.
  */
@@ -1731,6 +1750,15 @@ async function testgetLastMessageOfConversation() {
     });
 }
 
+async function testresetHistoryPageForConversation() {
+    let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+    let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+    rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
+        logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
+        rainbowSDK.conversations.resetHistoryPageForConversation(conversation);
+    });
+}
+
 function getLastMessageOfConversation(contact) : Promise<Conversation> {
     let theLastMessageText = null;
     let conv = undefined;
@@ -1763,7 +1791,7 @@ function getLastMessageOfConversation(contact) : Promise<Conversation> {
 function getConversationHistory(conversation) {
     return new Promise((resolve, reject) => {
         //get messages from conversation. Max number of messages whichcan be retrieved at once is 100
-        rainbowSDK.im.getMessagesFromConversation(conversation, 100).then(function (result) {
+        rainbowSDK.im.getMessagesFromConversation(conversation, 3).then(function (result) {
             logger.log("debug", "MAIN - messages : ", result);
             // The conversation object is updated with the messages retrieved from the server after
             //execution of rainbowSDK.im.getMessagesFromConversation function

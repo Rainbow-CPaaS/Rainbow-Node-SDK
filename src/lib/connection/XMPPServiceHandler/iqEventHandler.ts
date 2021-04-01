@@ -2,9 +2,9 @@
 
 import {XMPPService} from "../XMPPService";
 import {logEntryExit} from "../../common/Utils";
+import {GenericHandler} from "./GenericHandler";
 
 
-const GenericHandler = require("./GenericHandler");
 const xml = require("@xmpp/xml");
 const packageVersion = require("../../../package");
 
@@ -13,7 +13,7 @@ const prettydata = require("../pretty-data").pd;
 const LOG_ID = "XMPP/HNDL/IQ - ";
 
 @logEntryExit(LOG_ID)
-class IQEventHandler extends GenericHandler.GenericHandler {
+class IQEventHandler extends GenericHandler {
 	public IQ_GET: any;
 	public IQ_SET: any;
 	public IQ_RESULT: any;

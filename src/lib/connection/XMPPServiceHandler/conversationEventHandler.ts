@@ -11,11 +11,12 @@ import {BubblesService} from "../../services/BubblesService";
 import {ContactsService} from "../../services/ContactsService";
 import {Message} from "../../common/models/Message";
 import {GeoLoc} from "../../common/models/GeoLoc";
+import {GenericHandler} from "./GenericHandler";
 
 export {};
 
 
-const GenericHandler = require("./GenericHandler");
+//const GenericHandler = require("./GenericHandler");
 
 const util = require('util');
 
@@ -29,7 +30,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class ConversationEventHandler extends GenericHandler.GenericHandler {
+class ConversationEventHandler extends GenericHandler {
     public MESSAGE_CHAT: any;
     public MESSAGE_GROUPCHAT: any;
     public MESSAGE_WEBRTC: any;
@@ -38,7 +39,6 @@ class ConversationEventHandler extends GenericHandler.GenericHandler {
     public MESSAGE_HEADLINE: any;
     public MESSAGE_CLOSE: any;
     private _conversationService: ConversationsService;
-    public eventEmitter: any;
     public findAttrs: any;
     public findChildren: any;
     private _fileStorageService: FileStorageService;

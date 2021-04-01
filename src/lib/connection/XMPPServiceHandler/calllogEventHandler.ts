@@ -7,7 +7,6 @@ export {};
 
 
 const Utils = require("../../common/Utils");
-const GenericHandler = require("./GenericHandler");
 //const Conversation = require("../../common/models/Conversation");
 //const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 const moment = require("moment");
@@ -22,6 +21,7 @@ const orderByFilter = require("../../common/Utils").orderByFilter;
 
 //const config = require("../../config/config");
 import {config} from "../../config/config";
+import {GenericHandler} from "./GenericHandler";
 
 const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 
@@ -30,7 +30,7 @@ const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 /*********************************************************************/
 
 @logEntryExit(LOG_ID)
-class CallLogEventHandler extends GenericHandler.GenericHandler {
+class CallLogEventHandler extends GenericHandler {
 	public MESSAGE: any;
 	public IQ_RESULT: any;
 	public IQ_ERROR: any;
@@ -46,7 +46,6 @@ class CallLogEventHandler extends GenericHandler.GenericHandler {
 	// public onIqCallLogReceived: any;
 	// public onCallLogAckReceived: any;
 	// public onIqCallLogNotificationReceived: any;
-	public logger: any;
 	public callLogs: any;
 
     static getClassName(){ return 'CallLogEventHandler'; }

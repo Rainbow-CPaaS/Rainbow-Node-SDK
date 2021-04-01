@@ -23,6 +23,7 @@ import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -43,15 +44,7 @@ const LOG_ID = "FileStorage/SVCE - ";
  *      - Get the list of files send or received in a bubble conversation <br/>
  *      - Get the connected user quota and consumption <br/>
  */
-class FileStorage {
-    private _rest: RESTService;
-    private _xmpp: XMPPService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP : any;
-    private _useS2S: any;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
+class FileStorage extends GenericService{
     private _fileServerService: FileServerService;
     private _conversations: ConversationsService;
 	public fileDescriptors: any;
@@ -64,18 +57,8 @@ class FileStorage {
 	public receivedFileDescriptorsBySize: any;
 	public consumptionData: any;
     private _contactService: ContactsService;
-    private startDate: any;
-	public started: any;
     private _errorHelperService: any;
     private _helpersService: any;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'FileStorage'; }
     getClassName(){ return FileStorage.getClassName(); }
@@ -84,6 +67,7 @@ class FileStorage {
     start_up:boolean,
     optional:boolean
 }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;
@@ -106,7 +90,6 @@ class FileStorage {
         this.receivedFileDescriptorsByDate = [];
         this.receivedFileDescriptorsBySize = [];
         this.consumptionData = {};
-        this.ready = false;
     }
 
     start(_options, _core : Core) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
@@ -123,8 +106,6 @@ class FileStorage {
                 that._useS2S = that._options.useS2S;
                 that._fileServerService = _core.fileServer;
                 that._conversations = _core.conversations;
-                that.startDate = Date.now();
-                that.started = false;
                 that.fileDescriptors = [];
                 that.fileDescriptorsByDate = [];
                 that.fileDescriptorsByName = [];
@@ -134,10 +115,8 @@ class FileStorage {
                 that.receivedFileDescriptorsByDate = [];
                 that.receivedFileDescriptorsBySize = [];
                 that.consumptionData = {};
-                this.ready = true;
-
+                that.setStarted ();
                 resolve(undefined);
-
             } catch (err) {
                 reject(err);
             }
@@ -147,10 +126,7 @@ class FileStorage {
     stop() {
         let that = this;
         return new Promise((resolve, reject) => {
-            if (that.started) {
-                that.started = false;
-            }
-            this.ready = false;
+            that.setStopped ();
             resolve(undefined);
         });
     }
@@ -169,10 +145,7 @@ class FileStorage {
                     return that.retrieveUserConsumption();
                 })
                 .then(() => {
-                    that.started = true;
-                    let startDuration = Math.round(Date.now() - that.startDate);
-
-                    that._logger.log("debug", LOG_ID + "(init) === STARTED (" + startDuration + " ms) ===");
+                    that.setInitialized();
                     resolve(undefined);
                 })
                 .catch((error) => {
@@ -1029,7 +1002,7 @@ class FileStorage {
     getReceivedFilesForRoom(bubbleId) {
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
             for (let i = 0; i < file.viewers.length; i++) {
-                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.dbId) {
+                if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.id) {
                     return true;
                 }
             }

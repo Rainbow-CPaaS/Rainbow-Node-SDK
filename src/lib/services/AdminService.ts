@@ -10,6 +10,9 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
+import {Contact} from "../common/models/Contact";
+import {ContactsService} from "./ContactsService";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -37,24 +40,8 @@ enum  OFFERTYPES {
  *      - Change the password of a user <br>
  *      - Create a guest user <br/>
  */
-class Admin {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    private _options: any;
-    private _useXMPP: any;
-    private _useS2S: any;
-    private _s2s: S2SService;
-
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
+class Admin extends GenericService {
+    private _contacts: ContactsService;
 
     static getClassName(){ return 'Admin'; }
     getClassName(){ return Admin.getClassName(); }
@@ -63,16 +50,16 @@ class Admin {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;
+        this._contacts = null;
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
-        this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-        this.ready = false;
     }
 
     start(_options, _core) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
@@ -86,10 +73,11 @@ class Admin {
 
                 that._options = _options;
                 that._s2s = _core._s2s;
+                that._contacts = _core._contacts;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 
-                that.ready = true;
+                that.setStarted ();
                 resolve(undefined);
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(start) error : ", err);
@@ -106,7 +94,7 @@ class Admin {
             try {
                 that._xmpp = null;
                 that._rest = null;
-                that.ready = false;
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(stop) error : ", err);
@@ -115,6 +103,11 @@ class Admin {
         });
     }
 
+    async init () {
+        let that = this;
+        that.setInitialized();
+    }
+    
     /**
      * @public
      * @method createCompany
@@ -130,7 +123,7 @@ class Admin {
      * @fulfil {Object} - Created Company or an error object depending on the result
      * @category async
      */
-    createCompany(strName :string, country : string, state : string, offerType? : OFFERTYPES) {
+    createCompany(strName :string, country : string, state : string, offerType? : OFFERTYPES) : Promise<any> {
         let that = this;
 
         that._logger.log("internal", LOG_ID + "(createCompany) parameters : strName : ", strName,", country : ", country);
@@ -164,7 +157,7 @@ class Admin {
      * Remove a user from a company
      * @private
      */
-    removeUserFromCompany(user) {
+    removeUserFromCompany(user) : Promise<any> {
         let that = this;
         that._logger.log("internal", LOG_ID + "(removeUserFromCompany) requested to delete user : ", user);
 
@@ -175,7 +168,7 @@ class Admin {
      * Set the visibility for a company
      * @private
      */
-    setVisibilityForCompany(company, visibleByCompany) {
+    setVisibilityForCompany(company, visibleByCompany) : Promise<any> {
 
         let that = this;
 
@@ -230,7 +223,7 @@ class Admin {
      * @fulfil {Contact} - Created contact in company or an error object depending on the result
      * @category async
      */
-    createUserInCompany(email, password, firstname, lastname, companyId, language, isCompanyAdmin, roles) {
+    createUserInCompany(email, password, firstname, lastname, companyId, language, isCompanyAdmin, roles)  : Promise<Contact> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -264,9 +257,13 @@ class Admin {
                     return;
                 }
 
-                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user) => {
+                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user : any) => {
                     that._logger.log("debug", LOG_ID + "(createUserInCompany) Successfully created user for account : ", email);
-                    resolve(user);
+                    let contact = that._contacts.createBasicContact(user.jid_im, undefined);
+                    //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                    contact.updateFromUserData(user);
+                    contact.avatar = that._contacts.getAvatarByContactId(user.id, user.lastAvatarUpdateDate);
+                    resolve(contact);
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(createUserInCompany) ErrorManager when creating user for account ");
                     that._logger.log("internalerror", LOG_ID + "(createUserInCompany) ErrorManager when creating user for account : ", email);
@@ -295,7 +292,7 @@ class Admin {
      * @fulfil {Object} - Created guest user in company or an error object depending on the result
      * @category async
      */
-    createGuestUser(firstname, lastname, language, timeToLive) {
+    createGuestUser(firstname, lastname, language, timeToLive) : Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -1356,7 +1353,7 @@ class Admin {
     }
 
     /**
-     * @private
+     * @public
      * @method subscribeCompanyToDemoOffer
      * @since 1.73
      * @instance
@@ -1390,7 +1387,7 @@ class Admin {
     }
 
     /**
-     * @private
+     * @public
      * @method unSubscribeCompanyToDemoOffer
      * @since 1.73
      * @instance
@@ -1485,17 +1482,18 @@ class Admin {
         return new Promise(async (resolve, reject) => {
             try {
                 let subscriptionResult = await that._rest.subscribeUserToSubscription(userId,  subscriptionId);
-                that._logger.log("debug", "(subscribeUserToSubscription) - subscription result : ", subscriptionResult);
+                that._logger.log("debug", "(subscribeUserToSubscription) - subscription sent.");
+                that._logger.log("internal", "(subscribeUserToSubscription) - subscription result : ", subscriptionResult);
                 resolve (subscriptionResult);
             } catch (err) {
+                that._logger.log("error", LOG_ID + "(subscribeUserToSubscription) Error.");
+                that._logger.log("internalerror", LOG_ID + "(subscribeUserToSubscription) Error : ", err);
                 return reject(err);
             }
         });
     }
 
     /**
-     * @private
-     * @private
      * @public
      * @method unSubscribeUserToSubscription
      * @since 1.73
@@ -1513,14 +1511,800 @@ class Admin {
         return new Promise(async (resolve, reject) => {
             try {
                 let subscriptionResult = await that._rest.unSubscribeUserToSubscription(userId,  subscriptionId);
-                that._logger.log("debug", "(unSubscribeUserToSubscription) - unsubscription result : ", subscriptionResult);
+                that._logger.log("debug", "(unSubscribeUserToSubscription) - unsubscription sent.");
+                that._logger.log("internal", "(unSubscribeUserToSubscription) - unsubscription result : ", subscriptionResult);
                 resolve (subscriptionResult);
             } catch (err) {
+                that._logger.log("error", LOG_ID + "(unSubscribeUserToSubscription) Error.");
+                that._logger.log("internalerror", LOG_ID + "(unSubscribeUserToSubscription) Error : ", err);
                 return reject(err);
             }
         });
     }
     //endregion
+
+    //region AD/LDAP
+    //region AD/LDAP masspro
+
+    /**
+     * @public
+     * @method synchronizeUsersAndDeviceswithCSV
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} csvTxt the csv of the user and device to synchronize.
+     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+     * @param {string} label a text description of this import
+     * @param {boolean} noemails disable email sending 
+     * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors
+     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @description
+     *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br/>
+     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br/>
+     * <br/>
+     * Supported fields for "user" management are: <br/>
+     * __action__  delete, upsert, sync or detach <br/>
+     * loginEmail  (mandatory) <br/>
+     * password  (mandatory) <br/>
+     * title <br/>
+     * firstName <br/>
+     * lastName <br/>
+     * nickName <br/>
+     * businessPhone{n}  (n is a number starting from 0 or 1) <br/>
+     * mobilePhone{n}  (n is a number starting from 0 or 1) <br/>
+     * email{n}  (n is a number starting from 0 or 1) <br/>
+     * tags{n}  (n is a number starting from 0 to 4) <br/>
+     * jobTitle <br/>
+     * department <br/>
+     * userInfo1 <br/>
+     * userInfo2 <br/>
+     * country <br/>
+     * language <br/>
+     * timezone <br/>
+     * visibility <br/>
+     * isInitialized <br/>
+     * authenticationType <br/>
+     * service{n} <br/>
+     * accountType <br/>
+     * photoUrl <br/>
+     * <br/>
+     * Supported fields for "device" management are: <br/>
+     * loginEmail (mandatory) <br/>
+     * pbxId <br/>
+     * pbxShortNumber <br/>
+     * pbxInternalNumber <br/>
+     * number <br/>
+     * <br/>
+     * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br/>
+     * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br/>
+     * <br/>
+     * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br/>
+     * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br/>
+     * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br/>
+     * <br/>
+     * @return {Promise<any>} import summary result.
+     */
+    synchronizeUsersAndDeviceswithCSV(csvTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") : Promise<{
+        reqId : string,
+        mode : string,
+        status : string,
+        userId : string,
+        displayName : string,
+        label : string,
+        startTime : string
+    }>{
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let synchronizeRestResult = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment);                
+                that._logger.log("debug", "(synchronizeUsersAndDeviceswithCSV) - sent.");
+                that._logger.log("internal", "(synchronizeUsersAndDeviceswithCSV) - synchronizeRestResult : ", synchronizeRestResult);
+                let synchronizeResult : {
+                    reqId : string,
+                    mode : string,
+                    status : string,
+                    userId : string,
+                    displayName : string,
+                    label : string,
+                    startTime : string
+                } = synchronizeRestResult;
+                // synchronizeRestResult;
+                resolve (synchronizeResult);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) Error.");
+                that._logger.log("internalerror", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCSVTemplate
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string}  companyId ompanyId of the users in the CSV file, default to admin's companyId.
+     * @param {string} mode Select template to return.
+     * - user: provider the user management template
+     * - device: provider the device management template
+     * - useranddevice: provider the user and device management template (both user and device)
+     * - rainbowvoice : provider the user and subscriber/DDI/device association management template.
+     * @param {string} comment Only the template comment..
+     * @description
+     *      This API provides a CSV template. <br/>
+     *      result : <br/>
+     *      CSV {Object[]} lines with all supported headers and some samples : <br/> 
+     *      __action__ {string} Action to perform values : create, update, delete, upsert, detach <br/>
+     *      loginEmail {string} email address - Main or professional email used as login <br/>
+     *      password optionnel {string} (>= 8 chars with 1 capital+1 number+1 special char) (e.g. This1Pwd!) <br/>
+     *      title optionnel {string} (e.g. Mr, Mrs, Dr, ...) <br/>
+     *      firstName optionnel {string} <br/>
+     *      lastName optionnel {string} <br/>
+     *      nickName optionnel {string} <br/>
+     *      businessPhone0 optionnel {string} E.164 number - DDI phone number (e.g. +33123456789) <br/>
+     *      mobilePhone0 optionnel {string} E.164 number - Mobile phone number (e.g. +33601234567) <br/>
+     *      email0 optionnel {string} email address - Personal email <br/>
+     *      jobTitle optionnel {string} <br/>
+     *      department optionnel {string} <br/>
+     *      country optionnel {string} ISO 3166-1 alpha-3 - (e.g. FRA) <br/>
+     *      language optionnel {string} ISO 639-1 (en) / with ISO 31661 alpha-2 (en-US) <br/>
+     *      timezone optionnel {string} IANA tz database (Europe/Paris) <br/>
+     *      pbxShortNumber optionnel {number} PBX extension number <br/>
+     *      pbxInternalNumber optionnel {string} E.164 number - Private number when different from extension number <br/>
+     *      selectedAppCustomisationTemplateName optionnel {string} Allow to specify an application customisation template for this user. The application customisation template has to be specified using its name (ex: "Chat and Audio", "Custom profile")     Values( Full, Phone, calls, only, Audio, only, Chat, and, Audio, Same, as, company, , profile) <br/>
+     *      shortNumber optionnel string subscriber {number} (only for rainbowvoice mode) <br/>
+     *      macAddress optionnel {string} macAddress of the associated SIP device of the subscriber (only for rainbowvoice mode) <br/>
+     *      ddiE164Number optionnel string E.164 {number} - E164 number of the associted DDI of the subscriber (only for rainbowvoice mode) <br/>
+     * @return {Promise<any>}
+     */
+    getCSVTemplate(companyId? : string, mode : string = "useranddevice", comment? : string ) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let CSVResult = await that._rest.getCSVTemplate(companyId, mode, comment);
+                that._logger.log("debug", "(getCSVTemplate) - sent.");
+                that._logger.log("internal", "(getCSVTemplate) - result : ", CSVResult);
+               
+                resolve (CSVResult);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCSVTemplate) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCSVTemplate) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method checkCSVforSynchronization
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
+     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
+     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
+     * @description
+     *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br/>
+     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br/>
+     *      { <br/>
+     *           actions {Object} actions information <br/>
+     *               sync optionnel {number} number of user synchronization actions <br/>
+     *               upsert optionnel {number} number of user create/update actions <br/>
+     *               delete optionnel {number} number of user remove actions <br/>
+     *               detach optionnel {number} number of device unpairing actions <br/>
+     *           reqId {string} check request identifier <br/>
+     *           mode {string} request csv mode Valeurs autorisées : user, device <br/>
+     *           columns {number} number of columns in the CSV <br/>
+     *           delimiter {string} the CSV delimiter <br/>
+     *           profiles {Object} the managed profiles <br/>
+     *              name {string} the managed profiles name <br/>
+     *              valid {boolean} the managed profiles validity <br/>
+     *              assignedBefore {number} the assigned number of managed profiles before this import <br/>
+     *              assignedAfter {number} the assigned number of managed profiles after this import has been fulfilled <br/>
+     *              max number the {maximum} number of managed profiles available <br/>
+     *      } <br/>
+     * @return {Promise<any>}
+     */
+    checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string  = "%") : any {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let CSVResult = await that._rest.checkCSVforSynchronization(CSVTxt, companyId, delimiter, comment);
+                that._logger.log("debug", "(getCSVTemplate) - sent.");
+                that._logger.log("internal", "(getCSVTemplate) - result : ", CSVResult);
+
+                resolve (CSVResult);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(checkCSVforSynchronization) Error.");
+                that._logger.log("internalerror", LOG_ID + "(checkCSVforSynchronization) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrieveRainbowUserList
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
+     * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
+     * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
+     * @description
+     *      This API generates a file describing all users (csv or json format). <br/>
+     *      return an {Object}  of synchronization data. <br/>
+     * @return {Promise<any>}
+     */
+    retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.retrieveRainbowUserList(companyId, format, ldap_id);
+                that._logger.log("debug", "(getCSVTemplate) - sent.");
+                that._logger.log("internal", "(getCSVTemplate) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveRainbowUserList) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveRainbowUserList) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion AD/LDAP masspro
+    
+    //region LDAP APIs to use:
+
+    /**
+     * @public
+     * @method ActivateALdapConnectorUser
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @description
+     *      This API allows to activate a Ldap connector. <br/>
+     *      A "Ldap user" is created and registered to the XMPP services. The Ldap user credentials (loginEmail and password) are generated randomly and returned in the response. <br/>
+     * <br/>
+     *      Note 1 A brute force defense is activated when too much activation have been requested. As a result, an error 429 "Too Many Requests" will be returned during an increasing period to dissuade a slow brute force attack. <br/>
+     *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br/>
+     *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br/>
+     *       <br/>
+     *      return { <br/>
+     *          id {string} ldap connector unique identifier. <br/>
+     *          companyId {string} Company linked to the Ldap connector. <br/>
+     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br/>
+     *          password {string} Generated Ldap connector user password. <br/>
+     *          } <br/>
+     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>}
+     */
+    ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.ActivateALdapConnectorUser();
+                that._logger.log("debug", "(ActivateALdapConnectorUser) - sent.");
+                that._logger.log("internal", "(ActivateALdapConnectorUser) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(ActivateALdapConnectorUser) Error.");
+                that._logger.log("internalerror", LOG_ID + "(ActivateALdapConnectorUser) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrieveAllLdapConnectorUsersData
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} companyId the id of the company that allows to filter connectors list on the companyIds provided in this option.
+     * @param {string} format Allows to retrieve more or less user details in response.
+     * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+     * medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
+     * full: all user fields
+     * default : small
+     * Values : small, medium, full
+     * @param {number} limit Allow to specify the number of users to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort user list based on the given field. Default : displayName
+     * @param {number} sortOrder Specify order when sorting user list. Default : 1. Values : -1, 1
+     * @description
+     *     This API allows administrators to retrieve all the ldap connectors. <br/>
+     *     Users with superadmin, support role can retrieve the connectors from any company. <br/>
+     *     Users with bp_admin or bp_finance role can only retrieve the connectors in companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
+     *     Users with admin role can only retrieve the connectors in companies they can manage. That is to say: <br/>
+     *     an organization_admin can retrieve the connectors only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
+     *     a company_admin can only retrieve the connectors in his company. <br/>
+     *     This API can return more or less connector information using format option in query string arguments (default is small). <br/>
+     * <br/>
+     *      return { // List of connector Objects. <br/>
+     *          id string TV unique identifier. <br/>
+     *          name string TV name. <br/>
+     *          location optionnel string Location of the TV. <br/>
+     *          locationDetail optionnel string More detail on the location of the TV. <br/>
+     *          room optionnel string Name of the room where the TV is located. <br/>
+     *          companyId string company linked to the TV. <br/>
+     *          activationCode string Activation code (6 digits). The activationCode may be null in the case its generation in multi-environment database failed. In that case, a security mechanism takes place to generate this activation code asynchronously (try every minutes until the code creation is successful). As soon as the activation code is successfully generated in multi-environment database, the TV is updated accordingly (activationCode set to the generated code value) and with activationCodeGenerationStatus updated to done. <br/>
+     *          codeUpdateDate date Date of last activation code update. <br/>
+     *          status string TV status:    unassociated (no TV user).    associated with a TV user (the TV has been activated). <br/>
+     *          statusUpdatedDate Date-Time Date of last tv status update. <br/>
+     *          subscriptionId string Subscription to use when activating TV. <br/>
+     *          loginEmail string User email address (used for login) <br/>
+     *          firstName string User first name <br/>
+     *          lastName string User last name <br/>
+     *          displayName string User display name (firstName + lastName concatenated on server side) <br/>
+     *          nickName optionnel string User nickName <br/>
+     *          title optionnel string User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
+     *          jobTitle optionnel string User job title <br/>
+     *          department optionnel string User department <br/>
+     *          tags optionnel string[] An Array of free tags associated to the user. A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. tags can only be set by users who have administrator rights on the user. The user can't modify the tags. The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. <br/>
+     *          emails Object[] Array of user emails addresses objects <br/>
+     *             email string User email address <br/>
+     *             type string Email type, one of home, work, other <br/>
+     *          phoneNumbers Object[] Array of user phone numbers objects. Phone number objects can:   be created by user (information filled by user), come from association with a system (pbx) device (association is done by admin). <br/>
+     *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br/>
+     *              number optionnel string User phone number (as entered by user) <br/>
+     *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br/>
+     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br/>
+     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br/>
+     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br/>
+     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br/>
+     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br/>
+     *              type 	String Phone number type, one of home, work, other. <br/>
+     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br/>
+     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br/>
+     *         country 	String User country (ISO 3166-1 alpha3 format) <br/>
+     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br/>
+     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br/>
+     *         timezone optionnel 	String User timezone name <br/>
+     *         jid_im 	String User Jabber IM identifier <br/>
+     *         jid_tel 	String User Jabber TEL identifier <br/>
+     *         jid_password 	String User Jabber IM and TEL password <br/>
+     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br/>
+     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br/>
+     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br/>
+     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br/>
+     *         companyName 	String User company name <br/>
+     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br/>
+     *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br/>
+     *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
+     *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
+     *         closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users <br/>
+     *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br/>
+     *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br/>
+     *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br/>
+     *         isActive 	Boolean Is user active  <br/>
+     *         isInitialized 	Boolean Is user initialized <br/>
+     *         initializationDate 	Date-Time User initialization date <br/>
+     *         activationDate 	Date-Time User activation date <br/>
+     *         creationDate 	Date-Time User creation date <br/>
+     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br/>
+     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br/>
+     *         createdBySelfRegister 	Boolean true if user has been created using self register <br/>
+     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br/>
+     *         userId 	String userId of the admin who created this user <br/>
+     *         loginEmail 	String loginEmail of the admin who created this user <br/>
+     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br/>
+     *         userId 	String userId of the user who invited this user <br/>
+     *         loginEmail 	String loginEmail of the user who invited this user <br/>
+     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br/>
+     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br/>
+     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br/>
+     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br/>
+     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br/>
+     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br/>
+     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br/>
+     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
+     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
+     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br/>
+     *         useScreenSharingCustomisation can be: <br/>
+     *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br/>
+     *            enabled: Each user of the company can share his screen. <br/>
+     *            disabled: No user of the company can share his screen. <br/>
+     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br/>
+     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br/>
+     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br/>
+     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br/>
+     *         FileSharingCustomisation can be: <br/>
+     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br/>
+     *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br/>
+     *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br/>
+     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br/>
+     *         userTitleNameCustomisation can be: <br/>
+     *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br/>
+     *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br/>
+     *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br/>
+     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br/>
+     *         softphoneOnlyCustomisation can be: <br/>
+     *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br/>
+     *            enabled: The user switch to a softphone mode only. <br/>
+     *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br/>
+     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br/>
+     *         useRoomCustomisation can be: <br/>
+     *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br/>
+     *            enabled: The user can use bubbles. <br/>
+     *            disabled: The user can't use bubbles. <br/>
+     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br/>
+     *         phoneMeetingCustomisation can be: <br/>
+     *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br/>
+     *            enabled: The user can join phone meetings. <br/>
+     *            disabled: The user can't join phone meetings. <br/>
+     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br/>
+     *         useChannelCustomisation can be: <br/>
+     *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br/>
+     *            enabled: The user can use some channels. <br/>
+     *            disabled: The user can't use some channel. <br/>
+     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br/>
+     *         useWebRTCVideoCustomisation can be: <br/>
+     *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br/>
+     *            enabled: The user can switch to a Web RTC video conversation. <br/>
+     *            disabled: The user can't switch to a Web RTC video conversation. <br/>
+     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br/>
+     *         useWebRTCAudioCustomisation can be: <br/>
+     *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br/>
+     *            enabled: The user can switch to a Web RTC audio conversation. <br/>
+     *            disabled: The user can't switch to a Web RTC audio conversation. <br/>
+     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br/>
+     *         instantMessagesCustomisation can be: <br/>
+     *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br/>
+     *            enabled: The user can use instant messages. <br/>
+     *            disabled: The user can't use instant messages. <br/>
+     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br/>
+     *         userProfileCustomisation can be: <br/>
+     *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br/>
+     *            enabled: The user can modify his profile. <br/>
+     *            disabled: The user can't modify his profile. <br/>
+     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br/>
+     *         fileStorageCustomisation can be: <br/>
+     *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br/>
+     *            enabled: The user can manage and share files. <br/>
+     *            disabled: The user can't manage and share files. <br/>
+     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br/>
+     *         overridePresenceCustomisation can be: <br/>
+     *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br/>
+     *            enabled: The user can change his presence. <br/>
+     *            disabled: The user can't change his presence. <br/>
+     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br/>
+     *         changeTelephonyCustomisation can be: <br/>
+     *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br/>
+     *            enabled: The user can modify telephony settings. <br/>
+     *            disabled: The user can't modify telephony settings. <br/>
+     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br/>
+     *         changeSettingsCustomisation can be: <br/>
+     *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br/>
+     *            enabled: The user can change all client general settings. <br/>
+     *            disabled: The user can't change any client general setting. <br/>
+     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br/>
+     *         recordingConversationCustomisation can be: <br/>
+     *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br/>
+     *            enabled: The user can record a peer to peer or a multi-party call. <br/>
+     *            disabled: The user can't record a peer to peer or a multi-party call. <br/>
+     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br/>
+     *         useGifCustomisation can be: <br/>
+     *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br/>
+     *            enabled: The user can send animated GIFs in conversations. <br/>
+     *            disabled: The user can't send animated GIFs in conversations. <br/>
+     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br/>
+     *         fileCopyCustomisation can be: <br/>
+     *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br/>
+     *            enabled: The user can make a copy of a file to his personal cloud space. <br/>
+     *            disabled: The user can't make a copy of a file to his personal cloud space. <br/>
+     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br/>
+     *         fileTransferCustomisation can be: <br/>
+     *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br/>
+     *            enabled: The user can transfer a file doesn't belong to him. <br/>
+     *            disabled: The user can't transfer a file doesn't belong to him. <br/>
+     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br/>
+     *         forbidFileOwnerChangeCustomisation can be: <br/>
+     *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br/>
+     *            enabled: The user can't give the ownership of his file. <br/>
+     *            disabled: The user can give the ownership of his file. <br/>
+     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br/>
+     *         useDialOutCustomisation can be: <br/>
+     *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br/>
+     *            enabled: The user can be called by the Rainbow conference bridge. <br/>
+     *            disabled: The user can't be called by the Rainbow conference bridge. <br/>
+     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br/>
+     *      } <br/>
+     * @return {Promise<any>}
+     */
+    retrieveAllLdapConnectorUsersData (companyId? : string, format : string = "small", limit : number = 100, offset : number = undefined, sortField : string = "displayName", sortOrder : number = 1) : Promise<any> {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.retrieveAllLdapConnectorUsersData (companyId, format, limit, offset, sortField, sortOrder );
+                that._logger.log("debug", "(retrieveAllLdapConnectorUsersData) - sent.");
+                that._logger.log("internal", "(retrieveAllLdapConnectorUsersData) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveAllLdapConnectorUsersData) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveAllLdapConnectorUsersData) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteLdapConnector
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} ldapId the Id of the ldap connector to delete.
+     * @description
+     *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br/>
+     *      return { <br/>
+     *          status {string} Delete operation status message. <br/>
+     *          } <br/>
+     * @return {Promise<{ status : string}>}
+     */
+    deleteLdapConnector(ldapId : string) : Promise<{ status : string }> {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.deleteLdapConnector(ldapId);
+                that._logger.log("debug", "(deleteLdapConnector) - sent.");
+                that._logger.log("internal", "(deleteLdapConnector) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteLdapConnector) Error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteLdapConnector) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrieveLdapConnectorConfigTemplate
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @description
+     *      This API allows to retrieve the configuration template for the connector. <br/>
+     *      return { <br/>
+     *         id 	String Config unique identifier. <br/>
+     *         type 	String Config type  <br/>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
+     *         settings 	Object config settings <br/>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
+     *                 login 	String login for the ldap server. <br/>
+     *                 password 	String password for the ldap server. <br/>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
+     *                 url 	String url of the ldap server. <br/>
+     *          } <br/>
+     * @return {Promise<{Object}>}
+     */
+    retrieveLdapConnectorConfigTemplate() {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.retrieveLdapConnectorConfigTemplate();
+                that._logger.log("debug", "(retrieveLdapConnectorConfigTemplate) - sent.");
+                that._logger.log("internal", "(retrieveLdapConnectorConfigTemplate) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorConfigTemplate) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorConfigTemplate) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method createConfigurationForLdapConnector
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} companyId the id of the company.
+     * @param {Object} settings config settings.
+     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
+     * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
+     * @param {Object} settings.company specific settings for the company. Each key represent a setting. 
+     * @param {string} settings.company.login login for the ldap server. 
+     * @param {string} settings.company.password password for the ldap server. 
+     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours. 
+     * @param {string} settings.company.url url of the ldap server. 
+     * @description
+     *      This API allows create configuration for the connector. <br/>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
+     *      Users with superadmin, support role can create the connectors configuration from any company. <br/>
+     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
+     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br/>
+     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
+     *      a company_admin can only create the connectors configuration in his company. <br/>
+     *      return { <br/>
+     *         id 	String Config unique identifier. <br/>
+     *         type 	String Config type  <br/>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
+     *         settings 	Object config settings <br/>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
+     *                 login 	String login for the ldap server. <br/>
+     *                 password 	String password for the ldap server. <br/>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
+     *                 url 	String url of the ldap server. <br/>
+     *          } <br/>
+     * @return {Promise<{Object}>}
+     */
+    createConfigurationForLdapConnector (companyId, settings) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+                
+                if (!settings) {
+                    this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter : ", settings);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                
+                let result = await that._rest.createConfigurationForLdapConnector(companyId, settings);
+                that._logger.log("debug", "(createConfigurationForLdapConnector) - sent.");
+                that._logger.log("internal", "(createConfigurationForLdapConnector) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createConfigurationForLdapConnector) Error.");
+                that._logger.log("internalerror", LOG_ID + "(createConfigurationForLdapConnector) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method updateConfigurationForLdapConnector
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} ldapConfigId ldap connector unique identifier
+     * @param {Object} settings config settings
+     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
+     * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
+     * @param {Object} settings.company specific settings for the company. Each key represent a setting.
+     * @param {string} settings.company.login login for the ldap server.
+     * @param {string} settings.company.password password for the ldap server.
+     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
+     * @param {string} settings.company.url url of the ldap server.
+     * @param {boolean} strict Allows to specify if all the previous fields must be erased or just update/push new fields.
+     * @description
+     *      This API allows update configuration for the connector. <br/>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
+     *      Users with superadmin, support role can update the connectors configuration from any company. <br/>
+     *      Users with bp_admin or bp_finance role can only update the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
+     *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br/>
+     *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
+     *      a company_admin can only update the connectors configuration in his company. <br/>
+     *      return { <br/>
+     *         id 	String Config unique identifier. <br/>
+     *         type 	String Config type  <br/>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
+     *         settings 	Object config settings <br/>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
+     *                 login 	String login for the ldap server. <br/>
+     *                 password 	String password for the ldap server. <br/>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
+     *                 url 	String url of the ldap server. <br/>
+     *          } <br/>
+     * @return {Promise<{Object}>}
+     */
+    updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean = false) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!ldapConfigId) {
+                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter : ", settings);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                
+                if (!settings) {
+                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter : ", settings);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                
+                let result = await that._rest.updateConfigurationForLdapConnector(ldapConfigId, settings, strict);
+                that._logger.log("debug", "(updateConfigurationForLdapConnector) - sent.");
+                that._logger.log("internal", "(updateConfigurationForLdapConnector) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateConfigurationForLdapConnector) Error.");
+                that._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrieveLdapConnectorConfig
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+     * @description
+     *      This API allows to retrieve the configuration for the connector. <br/>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
+     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br/>
+     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
+     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br/>
+     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
+     *      a company_admin can only retrieve the connectors configuration in his company. <br/>
+     *      return { <br/>
+     *         id 	String Config unique identifier. <br/>
+     *         type 	String Config type  <br/>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
+     *         settings 	Object config settings <br/>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
+     *                 login 	String login for the ldap server. <br/>
+     *                 password 	String password for the ldap server. <br/>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
+     *                 url 	String url of the ldap server. <br/>
+     *          } <br/>
+     * @return {Promise<{Object}>}
+     */
+    retrieveLdapConnectorConfig (companyId) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+
+                if (!companyId) {
+                    this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'companyId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'companyId' parameter : ", companyId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.retrieveLdapConnectorConfig(companyId);
+                that._logger.log("debug", "(createConfigurationForLdapConnector) - sent.");
+                that._logger.log("internal", "(createConfigurationForLdapConnector) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createConfigurationForLdapConnector) Error.");
+                that._logger.log("internalerror", LOG_ID + "(createConfigurationForLdapConnector) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+
+    //endregion LDAP APIs to use
+    
+    //endregion AD/LDAP
 }
 
 module.exports.AdminService = Admin;

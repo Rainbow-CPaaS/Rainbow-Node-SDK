@@ -21,6 +21,7 @@ import {ConferencePassCodes} from "../common/models/ConferencePassCodes";
 import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 import {Conference} from "../common/models/Conference";
 import {BubblesManager} from "../common/BubblesManager";
+import {GenericService} from "./GenericService";
 
 export {};
 
@@ -45,25 +46,12 @@ const LOG_ID = "BUBBLES/SVCE - ";
  *      - Accept or decline an invitation to join a bubble <br>
  *      - Change the custom data attached to a bubble <br/>
  */
-class Bubbles {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
+class Bubbles extends GenericService {
     private _bubbles: Bubble[];
-    private readonly _eventEmitter: EventEmitter;
-    private readonly _logger: Logger;
-    public ready: boolean;
-    private readonly _startConfig: {
-        start_up: boolean,
-        optional: boolean
-    };
     private avatarDomain: string;
     private _contacts: ContactsService;
     private _profileService: ProfilesService;
-    private _options: any;
-    private _s2s: S2SService;
     private _presence: PresenceService;
-    private _useXMPP: any;
-    private _useS2S: any;
     private _personalConferenceBubbleId: any;
     private _personalConferenceConfEndpointId: any;
     //private _conferencesSessionById: { [id: string] : any; } = {};     // <Conference Id, Conference>
@@ -78,10 +66,6 @@ class Bubbles {
     private readonly _port: string = null;
     private bubblesManager : BubblesManager;
 
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
-
     static getClassName(){ return 'Bubbles'; }
     getClassName(){ return Bubbles.getClassName(); }
 
@@ -89,7 +73,7 @@ class Bubbles {
         start_up:boolean,
         optional:boolean
     }) {
-        this.ready = false;
+        super(_logger, LOG_ID);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;
@@ -145,7 +129,7 @@ class Bubbles {
                                 that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
                                 that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
                 */
-                that.ready = true;
+                that.setStarted ();
                 resolve(undefined);
             } catch (err) {
                 return reject();
@@ -169,13 +153,18 @@ class Bubbles {
                 that._eventEmitter.removeListener("evt_internal_namechanged", that._onNameChanged.bind(that));
                 that._logger.log("debug", LOG_ID + "(stop) _exiting_");
                 // */
-                that.ready = false;
                 that.bubblesManager.reset();
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 return reject(err);
             }
         });
+    }
+    
+    async init() {
+        let that = this;
+        that.setInitialized();
     }
 
     /**
@@ -931,8 +920,8 @@ class Bubbles {
      * @public
      * @method changeBubbleOwner
      * @instance
-     * @param {Contact} contact         The contact to set a new bubble owner
      * @param {Bubble} bubble           The bubble
+     * @param {Contact} contact         The contact to set a new bubble owner
      * @description
      *  Set a moderator contact as owner of a bubble <br/>
      * @async
@@ -1642,7 +1631,7 @@ class Bubbles {
      * @fulfil {Bubble} - The bubble updated or an error object depending on the result
      * @category async
      */
-    acceptInvitationToJoinBubble(bubble) {
+    acceptInvitationToJoinBubble(bubble : Bubble) {
 
         let that = this;
 
@@ -1823,7 +1812,6 @@ class Bubbles {
      * @category async
      */
     setBubbleVisibilityStatus(bubble, status) {
-
         let that = this;
 
         if (!bubble) {
@@ -2126,8 +2114,8 @@ class Bubbles {
      * @description
      *    Update the description of the bubble  <br/>
      *    Return a promise. <br/>
-     * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
      * @param {Bubble} bubble   The bubble to update
+     * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
      * @return {Bubble} A bubble object of null if not found
      */
     async updateDescriptionForBubble(bubble, strDescription) {
@@ -2609,6 +2597,7 @@ class Bubbles {
      * @method getInfoForPublicUrlFromOpenInvite
      * @since 1.72
      * @instance
+     * @param {Object} openInvite contains informations about a bubbles invitation
      * @description
      *     get infos for the PublicUrl <br/>
      * @return {Promise<any>}
@@ -2893,6 +2882,46 @@ class Bubbles {
     }
 
     /**
+     * @public
+     * @method setBubbleAutoRegister
+     * @since 1.86
+     * @instance
+     * @description
+     *    A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link).
+     *    According with autoRegister value, if another person uses the link to join the room:
+     *    autoRegister = 'unlock': If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. (default value).
+     *    autoRegister = 'lock': If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.
+     *    autoRegister = 'unlock_ack' (value not authorized yet): If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.
+     *    Return a promise. <br/>
+     * @param {Bubble} bubble The bubble on which the public url must be deleted.
+     * @param {string} autoRegister value of the share of public URL to set.
+     * @return {Promise<Bubble>} An object of the result
+     */
+    setBubbleAutoRegister(bubble : Bubble, autoRegister : string = "unlock") : Promise<Bubble> {
+        let that = this;
+
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter");
+            this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.setBubbleAutoRegister(bubble.id, autoRegister).then(async (bubbleData) => {
+                that._logger.log("info", LOG_ID + "(setBubbleAutoRegister) autoRegister set ");
+                that._logger.log("internal", LOG_ID + "(setBubbleAutoRegister) autoRegister set : ", bubbleData);
+                let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubbleData);
+                resolve(bubbleObj);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(setBubbleAutoRegister) error");
+                that._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+        /**
      * @private
      * @method GetPublicURLFromResponseContent
      * @since 1.72
@@ -4461,7 +4490,6 @@ getAllActiveBubbles
      * @param {Array<Bubble>} bubbles The bubbles on which the tags must be deleted.
      * @param {string} tag The tag to be removed on the selected bubbles.
      * @return {Promise<any>} return a promise with a Bubble's tags infos.
-     * @return {Promise<any>}
      */
     deleteTagOnABubble(bubbles : Array<Bubble>, tag: string): Promise<any> {
         let that = this;

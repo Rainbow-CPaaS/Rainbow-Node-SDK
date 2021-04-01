@@ -14,6 +14,7 @@ import {isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {GenericService} from "./GenericService";
 
 export {};
 
@@ -34,17 +35,9 @@ const LOG_ID = "CHANNELS/SVCE - ";
  *      - Manage a channel: update, delete <br>
  *      - Manage users in a channel <br>
  */
-class ChannelsService {
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+class ChannelsService extends GenericService {
     private _channels: any;
     private _channelsList: any;
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
 	public MAX_ITEMS: any;
 	public MAX_PAYLOAD_SIZE: any;
 	public PUBLIC_VISIBILITY: any;
@@ -53,14 +46,6 @@ class ChannelsService {
     private channelEventHandler: ChannelEventHandler;
     private channelHandlerToken: any;
     public invitationCounter: number = 0;
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'ChannelsService'; }
     getClassName(){ return ChannelsService.getClassName(); }
@@ -87,6 +72,7 @@ class ChannelsService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -103,7 +89,6 @@ class ChannelsService {
         this.PUBLIC_VISIBILITY = "company";
         this.PRIVATE_VISIBILITY = "private";
         this.CLOSED_VISIBILITY = "closed";
-        this.ready = false;
 
         this._eventEmitter.on("evt_internal_channelitemreceived", this._onChannelMessageReceived.bind(this));
         this._eventEmitter.on("evt_internal_channelbyidmyappreciationreceived", this._onChannelMyAppreciationReceived.bind(this));
@@ -131,7 +116,7 @@ class ChannelsService {
                 that._channels = [];
                 that._channelsList = [];
                 that.attachHandlers();
-                this.ready = true;
+                that.setStarted ();
                 resolve(undefined);
             }
             catch (err) {
@@ -155,7 +140,7 @@ class ChannelsService {
                     that.channelHandlerToken.forEach((token) => PubSub.unsubscribe(token));
                 }
                 that.channelHandlerToken = [];
-                this.ready = false;
+                that.setStopped ();
                 resolve(undefined);
             } catch (err) {
                 this._logger.log("error", LOG_ID + "(stop) error ");
@@ -163,6 +148,11 @@ class ChannelsService {
                 return reject(err);
             }
         });
+    }
+    
+    async init () {
+        let that = this;
+        that.setInitialized();
     }
 
     attachHandlers() {

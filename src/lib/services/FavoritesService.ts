@@ -14,6 +14,7 @@ import {isStarted} from "../common/Utils";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {GenericService} from "./GenericService";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -30,29 +31,11 @@ const LOG_ID = "FAVTE/SVCE - ";
 *      - Create or delete a Rainbow Favorite (one-to-one, bubble or bot), <br/>
 *      - Retrieve all information linked to that Favorite, <br>
 */
-class FavoritesService {
-    private _eventEmitter: EventEmitter;
-    private _logger: Logger;
-    private started: boolean;
-    private _initialized: boolean;
-    private _xmpp: XMPPService;
-    private _rest: RESTService;
-    private _options: any;
-    private _s2s: S2SService;
-    private _useXMPP: any;
-    private _useS2S: any;
+class FavoritesService extends GenericService{
     private _favoriteEventHandler: FavoriteEventHandler;
     private _favoriteHandlerToken: any;
     //public static $inject: string[] = ['$http', '$log', 'contactService', 'authService', 'roomService', 'conversationService', 'xmppService'];
     private favorites: Favorite[] = [];
-    public ready: boolean = false;
-    private readonly _startConfig: {
-        start_up:boolean,
-        optional:boolean
-    };
-    get startConfig(): { start_up: boolean; optional: boolean } {
-        return this._startConfig;
-    }
 
     static getClassName(){ return 'FavoritesService'; }
     getClassName(){ return FavoritesService.getClassName(); }
@@ -61,6 +44,7 @@ class FavoritesService {
         start_up:boolean,
         optional:boolean
     }) {
+        super(logger, LOG_ID);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -76,12 +60,8 @@ class FavoritesService {
         this._useS2S = false;
         this._logger = logger;
 
-        this.started = false;
-        this._initialized = false;
-
         this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
         this._eventEmitter.on("evt_internal_favoritedeleted_handle", this.onFavoriteDeleted.bind(this));
-        this.ready = false;
     }
 
 
@@ -97,17 +77,13 @@ class FavoritesService {
 
         that._logger.log("info", LOG_ID + " ");
         that._logger.log("info", LOG_ID + "[start] === STARTING ===");
-        let startDate = new Date().getTime();
         this.attachHandlers();
 
         //this.conversationService.favoriteService = this;
         //this.attachHandlers();
 
-        let startDuration = Math.round(new Date().getTime() - startDate);
         //stats.push({ service: 'favoriteService', startDuration: startDuration });
-        that._logger.log("info", LOG_ID + `=== STARTED (${startDuration} ms) ===`);
-        this.ready = true;
-
+        that.setStarted ();
     }
 
     public async stop() {
@@ -116,7 +92,6 @@ class FavoritesService {
         that._logger.log("info", LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
-        this.started = false;
         this._initialized = false;
 
         that._xmpp = null;
@@ -138,14 +113,15 @@ class FavoritesService {
 
          */
 
-
-        this.ready = false;
+        that.setStopped ();
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
     public async init () {
         let that = this;
         await that.getServerFavorites().catch();
+        that.setInitialized();
+
         /*await setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
             that.getCallLogHistoryPage()
