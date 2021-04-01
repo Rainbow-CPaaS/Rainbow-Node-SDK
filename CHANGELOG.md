@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [1.86.0-dotnet.1] - 2021-04-01
+-   Add what's new.
+
 ## [1.86.0-dotnet.0] - 2021-04-01
 -   Add API `ConversationsService::resetHistoryPageForConversation` to restart from scratch the retrieve of messages from history with getHistoryPage.
 -   Fix the resources information when getContactByJid or by Id for the connected user.
@@ -23,7 +26,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add API `BubblesService::setBubbleAutoRegister` to manage the share of bubble with a public link also called 'public URL' according the autoRegister value.
 -   Add GenericService Class to set common behaviour at startup to the services. And traces the starting delay.
 -   Add `intervalBetweenCleanMemoryCache` Node SDK option to set the time in milliseconds Between two `CleanMemoryCache`, method to avoid memoryleak on services (each one needs to implement the cleanning).
--   Add the treatment of the `CleanMemoryCache` in `contactsService`.
+-   Add the treatment of the `CleanMemoryCache` in `ContactsService`.
 
 ## [1.85.1] - 2021-03-18
 -   Delivery 1.85.0 failed, so new one.

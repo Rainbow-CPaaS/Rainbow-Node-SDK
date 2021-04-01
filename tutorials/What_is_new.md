@@ -6,6 +6,45 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 1.86 - April 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Add API `ConversationsService::resetHistoryPageForConversation` to restart from scratch the retrieve of messages from history with getHistoryPage.
+-   Fix the resources information when getContactByJid or by Id for the connected user.
+-   Add API `AdminService::synchronizeUsersAndDeviceswithCSV` masspro to synchronize Rainbow users or devices through a CSV UTF-8 encoded file.
+-   Add API `AdminService::getCSVTemplate` masspro to provides a CSV template. 
+-   Add API `AdminService::checkCSVforSynchronization` masspro to checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.
+-   Add API `AdminService::retrieveRainbowUserList` API generates a file describing all users (csv or json format).
+-   Add API `AdminService::ActivateALdapConnectorUser` API allows to activate a Ldap connector.
+-   Add API `AdminService::retrieveAllLdapConnectorUsersData` API allows administrators to retrieve all the ldap connectors.
+-   Add API `AdminService::deleteLdapConnector` API is to delete the LDAP connector (the connector cannot be modified by the others admin APIs).
+-   Add API `AdminService::createConfigurationForLdapConnector` API allows create configuration for the LDAP connector.
+-   Add API `AdminService::updateConfigurationForLdapConnector` API allows update configuration for the connector. .
+-   Add API `AdminService::retrieveLdapConnectorConfig` This API allows to retrieve the configuration for the connector.
+-   Fix some parameters orders in documentation of `BubblesService`.
+-   Add API `BubblesService::setBubbleAutoRegister` to manage the share of bubble with a public link also called 'public URL' according the autoRegister value.
+-   Add GenericService Class to set common behaviour at startup to the services. And traces the starting delay.
+-   Add `intervalBetweenCleanMemoryCache` Node SDK option to set the time in milliseconds Between two `CleanMemoryCache`, method to avoid memoryleak on services (each one needs to implement the cleanning).
+-   Add the treatment of the `CleanMemoryCache` in `ContactsService`.
+
+
 ### SDK for Node.JS 1.85 - March 2021
 
 ---
