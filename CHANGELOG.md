@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [1.86.0-dotnet.0] - 2021-03-XX
+## [1.86.0-dotnet.0] - 2021-04-01
 -   Add API `ConversationsService::resetHistoryPageForConversation` to restart from scratch the retrieve of messages from history with getHistoryPage.
 -   Fix the resources information when getContactByJid or by Id for the connected user.
 -   Add API `AdminService::synchronizeUsersAndDeviceswithCSV` masspro to synchronize Rainbow users or devices through a CSV UTF-8 encoded file.
