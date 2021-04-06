@@ -178,6 +178,12 @@ pipeline {
      post {
      always {
        sh 'echo "---- THE END ----"'
+       cleanWs(cleanWhenNotBuilt: false,
+                           deleteDirs: true,
+                           disableDeferredWipeout: true,
+                           notFailBuild: true,
+                           patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                                      [pattern: '.propsfile', type: 'EXCLUDE']])
      }
      success {
        sh 'echo "Build is OK" '

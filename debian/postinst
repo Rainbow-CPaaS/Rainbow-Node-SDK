@@ -1,0 +1,4 @@
+#!/bin/sh -e
+# postinst script for rainbow statics files for SDK Node
+sed  -i "s|@hub_fqdn@|$([ -e /etc/env.conf ] && . /etc/env.conf && echo $HUB_FQDN)|g" /usr/share/sdkdoc/node/sitemap.xml
+exit 0
