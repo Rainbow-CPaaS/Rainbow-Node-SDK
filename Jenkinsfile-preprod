@@ -187,7 +187,9 @@ pipeline {
                     echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
                     sh script: """
                      cd "${workspace}"
-                     ls
+                     mkdir -p Documentation
+                     cp -R doc debian Documentation/
+                     ls Documentation/
                      """
                     debianBuild(
                         debianPath: '.',

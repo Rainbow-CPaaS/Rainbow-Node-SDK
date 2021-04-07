@@ -1,4 +1,4 @@
-Source: rainbow-sdk-doc
+Source: rainbow-node-sdk-doc
 Section: web
 Priority: extra
 Maintainer: Alcatel-Lucent Personal Cloud R&D <dev@opentouch.net>
@@ -7,8 +7,8 @@ Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.2
 Xs-Vcs-Git: https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK
 
-Package: otlite-sdk-node-doc
+Package: rainbow-sdk-node-doc
 Architecture: all
 Depends: ${misc:Depends}
-Description: Rainbow node sdk Download files
+Description: Rainbow Node sdk Documentation files
  Documentation downloadable for Rainbow Node Sdk.
