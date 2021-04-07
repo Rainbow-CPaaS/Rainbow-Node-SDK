@@ -189,10 +189,11 @@ pipeline {
                      cd "${workspace}"
                      mkdir -p Documentation
                      cp -R doc debian Documentation/
-                     ls Documentation/
+                     find Documentation/
+                     # cd "${workspace}/Documentation"
                      """
                     debianBuild(
-                        debianPath: '.',
+                        debianPath: 'Documentation',
                         nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
                         language: 'other'
                     )
