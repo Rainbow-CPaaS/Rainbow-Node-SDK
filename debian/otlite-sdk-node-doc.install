@@ -1,2 +1,2 @@
-/../CPaas-Node-SDK-Doc-Release/lastSuccessful/archive/doc/sdk/node/*     /usr/share/sdkdoc/node
-/../CPaas-Node-SDK-Doc-Release/lastSuccessful/archive/doc/sdk/node/index.yml     /usr/share/sdkdoc/node
+./doc/sdk/node/*     /usr/share/sdkdoc/node
+./doc/sdk/node/index.yml     /usr/share/sdkdoc/node
