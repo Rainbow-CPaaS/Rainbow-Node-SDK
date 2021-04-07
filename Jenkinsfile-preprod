@@ -93,22 +93,22 @@ pipeline {
                         npm config set prefix "${WORKSPACE}/.npm-packages"
                         export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
         
-#                        sudo npm version
-#                        sudo npm install n -g
-#                        sudo n stable
+                        sudo npm version
+                        sudo npm install n -g
+                        sudo n stable
                         
-#                        sudo npm install npm@5.8.0
+                        sudo npm install npm@5.8.0
                         
-#                        sudo npm version
+                        sudo npm version
                         
                         echo ---------- STEP install :
-#                        npm install
+                        npm install
                         
                         echo ---------- STEP grunt : 
                         # Sub Step 1 : To compil the sources
-#                        grunt
+                        grunt
                         # Sub Step 2 : To pepare the sources + doc for package
-#                        grunt delivery
+                        grunt delivery
                         
                         echo ---------- STEP configure npm : 
                         git config --global user.email "vincent.berder@al-enterprise.com"
@@ -169,10 +169,49 @@ pipeline {
               
               stage('Build Documentation from Rainbow Node SDK') {
                   steps{
-                sh script: """
-                    echo "Build Documentation "
-                """
+                    sh script: """
+                        echo "Build Documentation from Makefile"
+                        make all
+                    """
+                                  
+                    //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
                   }
+              }
+              
+              stage('Documentation Packaging') {
+                      steps { 
+                        script   {
+                          node('docker-slave-nodebackend-buster-12.x') {  
+              stage('Debian Build') {
+                try {                         
+                    echo "Build debian pkg ${params.RAINBOWNODESDKVERSION}"
+                    debianBuild(
+                        debianPath: '.',
+                        nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
+                        language: 'other'
+                    )
+                } catch (Exception e) {
+                    echo "Failure: ${currentBuild.result}: ${e}"
+                }
+              }
+                          
+              stage('Debian Publish') {
+                try {
+                    echo "Publish Debian : " debianPublish.getDebianArtifacts().join('\n')
+                    //debianPublish(
+                    //    repository: 'nightly-non-free-buster',
+                    //    stashName: "deb"
+                    //)
+                } catch (Exception e) {
+                    echo "Failure: ${currentBuild.result}: ${e}"
+                }
+                finally {
+                    //    notifyBuild(currentBuild.result)
+                }
+              }
+              }
+              }
+              }
               }
     }
      post {
