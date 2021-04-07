@@ -5,7 +5,7 @@ Maintainer: Alcatel-Lucent Personal Cloud R&D <dev@opentouch.net>
 Uploaders: Alcatel-Lucent Personal Cloud R&D <dev@opentouch.net>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.2
-Xs-Vcs-Git: https://github.com/Rainbow-CPaaS/Rainbow-SDK-Doc
+Xs-Vcs-Git: https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK
 
 Package: otlite-sdk-node-doc
 Architecture: all
