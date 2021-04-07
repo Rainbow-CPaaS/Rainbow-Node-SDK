@@ -181,10 +181,14 @@ pipeline {
               stage('Documentation Packaging') {
                       steps { 
                         script   {
-                          node('docker-slave-nodebackend-buster-12.x') {  
+                         // node('docker-slave-nodebackend-buster-12.x') {  
               stage('Debian Build') {
                 try {                         
-                    echo "Build debian pkg ${params.RAINBOWNODESDKVERSION}"
+                    echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
+                    sh script: """
+                     cd "${workspace}"
+                     ls
+                     """
                     debianBuild(
                         debianPath: '.',
                         nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
@@ -209,7 +213,7 @@ pipeline {
                     //    notifyBuild(currentBuild.result)
                 }
               }
-              }
+             // }
               }
               }
               }
