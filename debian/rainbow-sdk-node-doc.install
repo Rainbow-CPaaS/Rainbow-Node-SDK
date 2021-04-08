@@ -1,2 +1,2 @@
-Documentation/doc/sdk/node/*     /usr/share/sdkdoc/node
-Documentation/doc/sdk/node/index.yml     /usr/share/sdkdoc/node
+./doc/sdk/node/*     /usr/share/sdkdoc/node
+./doc/sdk/node/index.yml     /usr/share/sdkdoc/node
