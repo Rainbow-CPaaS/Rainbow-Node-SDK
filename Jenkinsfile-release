@@ -127,8 +127,8 @@ pipeline {
                         #more ~/.npmrc > ~/.npmrc.sav 
                         echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
                         echo "registry=http://registry.npmjs.org/
-                        //registry.npmjs.org/:_authToken=${NPMJSAUTHPWD}" |tee ./.npmrc
-                        #npm config set //registry.npmjs.org/:_authToken=${NPMJSAUTHPWD}
+                        //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                        #npm config set //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}
                         #npm login
                         echo ---------- STEP whoami :
                         npm whoami
