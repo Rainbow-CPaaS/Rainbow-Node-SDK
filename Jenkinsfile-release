@@ -1,4 +1,4 @@
-// Jenkinsfile-preprod file for the production of preprod delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-preprod4DotNet"
+// Jenkinsfile-release file for the production of release delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-release"
 
 @Library('rainbow-shared-library') _
 import groovy.transform.Field
