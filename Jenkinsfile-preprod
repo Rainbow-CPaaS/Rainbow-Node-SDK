@@ -143,7 +143,7 @@ pipeline {
                         #npm whoami
                         
                         echo ---------- STEP publish :
-#                        npm publish --tag .net
+                        npm publish --tag .net
                         
                         echo ---------- PUSH TAGS :
                         # git pull --rebase origin 
