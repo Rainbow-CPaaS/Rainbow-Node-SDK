@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.2
 Xs-Vcs-Git: https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK
 
-Package: rainbow-sdk-node-doc
+Package: otlite-sdk-node-doc
 Architecture: all
 Depends: ${misc:Depends}
 Description: Rainbow Node sdk Documentation files

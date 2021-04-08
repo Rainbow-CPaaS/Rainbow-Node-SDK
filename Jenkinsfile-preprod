@@ -204,11 +204,12 @@ pipeline {
                           
               stage('Debian Publish') {
                 try {
-                    echo "Publish Debian : " debianPublish.getDebianArtifacts().join('\n')
-                    //debianPublish(
-                    //    repository: 'nightly-non-free-buster',
-                    //    stashName: "deb"
-                    //)
+                    echo "Publish Debian : "
+                    echo debianPublish.getDebianArtifacts().join('\n')
+                    debianPublish(
+                        repository: 'nightly-non-free-buster',
+                        stashName: "deb"
+                    )
                 } catch (Exception e) {
                     echo "Failure: ${currentBuild.result}: ${e}"
                 }
