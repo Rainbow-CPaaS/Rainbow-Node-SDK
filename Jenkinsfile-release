@@ -24,7 +24,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.86.0-dotnet.10', description: 'What is the version of the preprod SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.86.0', description: 'What is the version of the preprod SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
