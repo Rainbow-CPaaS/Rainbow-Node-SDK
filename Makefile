@@ -1,5 +1,7 @@
 all: build doc
 
+allsts: build docsts
+
 build:
 	yarn && \
 	grunt ts && \
@@ -17,5 +19,19 @@ doc:
 	cp tutorials/*.md doc/sdk/node/guides && \
 	cp index.yml doc/sdk/node && \
 	cp sitemap.xml doc/sdk/node
+
+docsts
+	grunt nodesheets
+	mkdir -p doc/sdk/node/sts/cheatsheets && \
+	cp bin/jsdoc/sheets/cheatsheet/node/nodeSheet.png doc/sdk/node/sts/cheatsheets && \
+	mkdir -p doc/sdk/node/sts/api && \
+	cp build/*.md doc/sdk/node/sts/api && \
+	cp build/*.xml doc/sdk/node/sts/api && \
+	mkdir -p doc/sdk/node/sts/guides && \
+	cp tutorials/*.md doc/sdk/node/sts/guides && \
+	cp index.yml doc/sdk/node/sts && \
+	cp lts_version.json doc/sdk/node/sts && \
+	cp sitemap.xml doc/sdk/node/sts && \ 
+	echo "{ \n \"lts\": false,\n \"ltsbeta\": false,\n \"sts\": true \n  }" > ./doc/sdk/node/sts/version.json
 
 #	cp build/*.xml doc/sdk/node/guides

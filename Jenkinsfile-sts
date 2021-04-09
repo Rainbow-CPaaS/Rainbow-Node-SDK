@@ -1,0 +1,245 @@
+// Jenkinsfile-preprod file for the production of preprod delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-preprod4DotNet"
+
+@Library('rainbow-shared-library') _
+import groovy.transform.Field
+
+// Map with the default values
+@Field
+Map defaults = [
+        build: 'nodesdk', // Which SDK documentation will be build
+        nextVersion: '0.0.0', // Debian package version (should be triggered by desktop jenkins tasks). It's a 3 digits numbers.
+        stash: 'doc'
+]
+
+def DOC_PATH = ''
+
+pipeline {
+    agent {
+        label "docker-slave-cpaas-stretch"
+    }
+    options {
+        timeout(time: 1, unit: 'HOURS') 
+        disableConcurrentBuilds()
+        //withCredentials() 
+    }
+    
+    parameters {
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.86.0-dotnet.10', description: 'What is the version of the preprod SDK to build?')
+        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
+        //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+        //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+        //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
+        //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+        //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+    }
+     environment {
+                MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
+                NPMJSAUTH = credentials('6ba55a5f-c0fa-41c3-b5dd-0c0f62ee22b5') // npmjs /****** (npmjs auth token to publish vberder)
+                GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
+    }
+    stages {
+        stage('Ask for parameters') {
+            //input {
+              //  message "parameters?"
+            //    ok "Yes, we should."
+            //    parameters {
+            //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.86.0-dotnet.0', description: 'What is the version of the preprod SDK to build?')
+            //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
+            //    }
+            //} 
+            steps {
+                echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL}"
+                sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
+            }
+        }
+              stage('Checkout') {
+                  steps{
+                    echo "Clean before build"
+                    cleanWs()
+                    echo "Branch is ${env.BRANCH_NAME}..."
+                    checkout scm
+                
+                    //echo "Stash files used to describe debian package and lts_version.json"
+                    //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"                 
+                  }
+              }
+
+              stage('Build') {
+                  steps{
+                        echo "DOC_PATH: /${DOC_PATH}"
+                        echo "Build in stage the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL}"
+                        // credentialsId here is the credentials you have set up in Jenkins for pushing to that repository using username and password.
+                        //withCredentials([usernamePassword(credentialsId: 'b04ca5f5-3666-431d-aaf4-c6c239121510', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                        //sshagent(['b04ca5f5-3666-431d-aaf4-c6c239121510']) {
+                        
+                        // git url: "ssh://jenkins@git.openrainbow.com:22/cloud-services/Rainbow-Node-SDK",
+                        //git url: "https://git.openrainbow.org/cloud-services/Rainbow-Node-SDK",
+                       // git url: "https://git.openrainbow.org",
+                       //          credentialsId: 'b04ca5f5-3666-431d-aaf4-c6c239121510',
+                       //          branch: "*"
+                        //         branch: "${env.BRANCH_NAME}"
+                            
+                        sh script: """
+                        echo "Build in shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL}"
+                        
+                        git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
+                        
+                        #echo "registry=http://10.10.13.10:4873/
+                        #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
+        
+                        #npm view
+        
+                        mkdir ${WORKSPACE}/.npm-packages
+                        npm config set prefix "${WORKSPACE}/.npm-packages"
+                        export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+        
+                        sudo npm version
+                        sudo npm install n -g
+                        sudo n stable
+                        
+                        sudo npm install npm@5.8.0
+                        
+                        sudo npm version
+                        
+                        echo ---------- STEP install :
+                        npm install
+                        
+                        echo ---------- STEP grunt : 
+                        # Sub Step 1 : To compil the sources
+                        grunt
+                        # Sub Step 2 : To pepare the sources + doc for package
+                        grunt delivery
+                        
+                        echo ---------- STEP configure npm : 
+                        git config --global user.email "vincent.berder@al-enterprise.com"
+                        git config --global user.name "vincent.berder@al-enterprise.com"
+                        
+                        #echo ---------- STEP commit : 
+                        #git commit -am "\"Deliver beta version ${RAINBOWNODESDKVERSION}\""
+                        
+                        #echo ---------- STEP push : 
+                        #git push origin master
+                        
+                        git reset --hard origin/preprod4DotNet
+                        
+                        npm version ${RAINBOWNODESDKVERSION} 
+                        
+                        #yapm publish -f --registry=http://10.10.13.10:4873/
+                        
+                        #git tag -a v${RAINBOWNODESDKVERSION} -m "v${RAINBOWNODESDKVERSION} sts version"
+                        #git push --tags
+                        
+                        more ~/.npmrc > ~/.npmrc.sav 
+                        #echo "registry=http://registry.npmjs.org" > ~/.npmrc
+                        echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                        echo "registry=http://registry.npmjs.org/
+                        //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                        #npm login
+                        
+                        #npm view
+                        #npm token list
+                        
+                        echo ---------- STEP whoami :
+                        #npm whoami
+                        
+                        echo ---------- STEP publish :
+                        npm publish --tag sts
+                        
+                        echo ---------- PUSH TAGS :
+                        # git pull --rebase origin 
+                        # git push  origin ${env.BRANCH_NAME} https://${GITLABVBERDER}@git.openrainbow.org/cloud-services/Rainbow-Node-SDK
+                        # git push --tags  origin ${env.BRANCH_NAME} https://${GITLABVBERDER}@git.openrainbow.org/cloud-services/Rainbow-Node-SDK
+                        # // sh("git pull --rebase origin") 
+                        # //sh("git push  origin ${env.BRANCH_NAME}")
+                        # //sh('git push --tags origin ${env.BRANCH_NAME}')
+                        # git pull --rebase origin/${env.BRANCH_NAME}
+                         git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
+                         git push  origin HEAD:${env.BRANCH_NAME}
+                         git push --tags origin HEAD:${env.BRANCH_NAME}
+                        
+                        export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
+                        export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
+                        ${SENDEMAIL} && npm run-script sendmailPreProduction
+                        
+                        more ~/.npmrc.sav > ~/.npmrc
+                """
+                  }
+                 // }
+              }
+              
+              stage('Build Documentation from Rainbow Node SDK') {
+                  steps{
+                    sh script: """
+                        echo "Build Documentation from Makefile"
+                        make allsts
+                        
+                    """
+                                  
+                    //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
+                  }
+              }
+              
+              stage('Documentation Packaging') {
+                      steps { 
+                        script   {
+                         // node('docker-slave-nodebackend-buster-12.x') {  
+              stage('Debian Build') {
+                try {                         
+                    echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
+                    sh script: """
+                     cd "${workspace}"
+                     mkdir -p Documentation
+                     cp -R doc debian Documentation/
+                     find Documentation/
+                     #cd "${workspace}/Documentation"
+                     """
+                    debianBuild(
+                        debianPath: 'Documentation',
+                        nextVersion: "sts-${params.RAINBOWNODESDKVERSION}" ,
+                        language: 'other'
+                    )
+                } catch (Exception e) {
+                    echo "Failure: ${currentBuild.result}: ${e}"
+                }
+              }
+                          
+              stage('Debian Publish') {
+                try {
+                    echo "Publish Debian : "
+                    echo debianPublish.getDebianArtifacts().join('\n')
+                    debianPublish(
+                        repository: 'nightly-non-free-buster',
+                        stashName: "deb"
+                    )
+                } catch (Exception e) {
+                    echo "Failure: ${currentBuild.result}: ${e}"
+                }
+                finally {
+                    //    notifyBuild(currentBuild.result)
+                }
+              }
+             // }
+              }
+              }
+              }
+    }
+     post {
+     always {
+       sh 'echo "---- THE END ----"'
+       cleanWs(cleanWhenNotBuilt: false,
+                           deleteDirs: true,
+                           disableDeferredWipeout: true,
+                           notFailBuild: true,
+                           patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                                      [pattern: '.propsfile', type: 'EXCLUDE']])
+     }
+     success {
+       sh 'echo "Build is OK" '
+     }
+     failure {
+       sh 'echo "Issue during build of the pipeline" '
+     }
+   }
+}
+
+
