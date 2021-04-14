@@ -43,7 +43,7 @@ pipeline {
               //  message "parameters?"
             //    ok "Yes, we should."
             //    parameters {
-            //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.86.0-dotnet.0', description: 'What is the version of the preprod SDK to build?')
+            //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the preprod SDK to build?')
             //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
             //    }
             //} 
