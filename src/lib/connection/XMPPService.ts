@@ -468,7 +468,7 @@ class XMPPService extends GenericService {
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
 
             let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
             let delivered = PubSub.publish(eventId, stanza);
 
             stanza.children.forEach((child) => {
@@ -536,7 +536,7 @@ class XMPPService extends GenericService {
             if (err.code === "HPE_INVALID_CONSTANT") {
                 return;
             }
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
             //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
             that.stopIdleTimer();
             if (that.reconnect && err) {
@@ -549,13 +549,15 @@ class XMPPService extends GenericService {
                     case "connection-timeout":
                     case "system-shutdown":
                         let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
                         await setTimeoutPromised(waitime);
                         if (!that.isReconnecting) {
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                            await that.reconnect.reconnect();
+                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
+                            await that.reconnect.reconnect().catch((err) => {
+                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                            });
                         } else {
-                            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
+                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
                         }
                         break;
                     // Conditions which need to only raise an event to inform up layer.
@@ -576,55 +578,57 @@ class XMPPService extends GenericService {
                     case "unsupported-encoding":
                     case "unsupported-feature":
                     case "unsupported-stanza-type":
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
                         that.eventEmitter.emit("evt_internal_xmpperror", err);
                         break;
                     // Conditions which are fatal errors and then need to stop the SDK.
                     case "see-other-host":
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                     case "conflict":
                     case "unsupported-version":
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                         that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
                         break;
                     // Default condition, we do not know what to do, so to avoir wrong stop of SDK, we ignore it.
                     default:
-                        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
                         that.eventEmitter.emit("evt_internal_xmpperror", err);
                         break;
                 }
             } else {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
+                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
             }
         });
 
         that.xmppClient.on(OFFLINE_EVENT, function fn_OFFLINE_EVENT (msg) {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
         });
 
         that.xmppClient.on(CONNECT_EVENT, function fn_CONNECT_EVENT () {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
         });
 
         that.xmppClient.on(RECONNECT_EVENT, function fn_RECONNECT_EVENT (msg) {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECT_EVENT : " + RECONNECT_EVENT + " | " + msg);
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - RECONNECT_EVENT : " + RECONNECT_EVENT + " | " + msg);
         });
 
         that.xmppClient.on(DISCONNECT_EVENT, async function fn_DISCONNECT_EVENT () {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " | ", {'reconnect': that.reconnect});
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : " + DISCONNECT_EVENT + " | ", {'reconnect': that.reconnect});
             that.eventEmitter.emit("rainbow_xmppdisconnect", {'reconnect': that.reconnect});
             let waitime = 11 + Math.floor(Math.random() * Math.floor(15));
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : wait " + waitime + " seconds before try to reconnect");
             await setTimeoutPromised(waitime);
             if (that.reconnect) {
                 if (!that.isReconnecting) {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : It is not already reconnecting, so try to reconnect...");
-                    await that.reconnect.reconnect();
+                    that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : It is not already reconnecting, so try to reconnect...");
+                    await that.reconnect.reconnect().catch((err) => {
+                        that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                    });
                 } else {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
+                    that.logger.log("info", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
                 }
             } else {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
+                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
             }
         });
 
@@ -637,26 +641,26 @@ class XMPPService extends GenericService {
         });
 
         that.reconnect.on(RECONNECTING_EVENT, function fn_RECONNECTING_EVENT () {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
             if (that.reconnect) {
-                that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
+                that.logger.log("info", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
                 if (!that.isReconnecting) {
                     that.reconnect.delay = that.fibonacciStrategy.next();
-                    that.logger.log("debug", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT update reconnect delay - ${that.reconnect.delay} ms`);
+                    that.logger.log("info", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT update reconnect delay - ${that.reconnect.delay} ms`);
 
                     that.eventEmitter.emit("rainbow_xmppreconnectingattempt");
                     that.isReconnecting = true;
                 } else {
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection)  event - RECONNECTING_EVENT : Do nothing, already trying to reconnect...");
+                    that.logger.log("info", LOG_ID + "(handleXMPPConnection)  event - RECONNECTING_EVENT : Do nothing, already trying to reconnect...");
                 }
             } else {
-                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - RECONNECTING_EVENT : reconnection disabled so no reconnect");
+                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - RECONNECTING_EVENT : reconnection disabled so no reconnect");
                 that.isReconnecting = false;
             }
         });
 
         that.reconnect.on(RECONNECTED_EVENT, function fn_RECONNECTED_EVENT () {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTED_EVENT : " + RECONNECTED_EVENT);
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTED_EVENT : " + RECONNECTED_EVENT);
             that.fibonacciStrategy.reset();
             that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
             that.isReconnecting = false;
@@ -738,7 +742,9 @@ class XMPPService extends GenericService {
                 // rejects for any error before online
                 if (err.code === "HPE_INVALID_CONSTANT") {
                     that.logger.log("error", LOG_ID + "start reconnect ", err);
-                    await that.reconnect.reconnect();
+                    await that.reconnect.reconnect().catch((err) => {
+                        that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                    });
                     return;
                 }
 

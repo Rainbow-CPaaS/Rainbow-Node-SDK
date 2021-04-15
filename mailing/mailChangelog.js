@@ -29,13 +29,13 @@ let packageJSON = JSON.parse(content);
 program.version(packageJSON.version);
 
 let minVersion =
-    packageJSON.version.indexOf("-dotnet") > -1
-        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2)
+    packageJSON.version.indexOf("-lts") > -1
+        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2)
         : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
 let fullVersion = packageJSON.version;
 let currentVersion =
-    packageJSON.version.indexOf("-dotnet") > -1
-        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet"))
+    packageJSON.version.indexOf("-lts") > -1
+        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts"))
         : packageJSON.version;
 
 function loadSingleReleaseNotes(item, config) {
@@ -174,7 +174,7 @@ function sendMail(vars, mailjet) {
         "* To use the preprod version in an other NodeJs project : <br> " +
         "<i>npm install rainbow-node-sdk@" + fullVersion + " --save </i>";
 
-    if (vars.environment !== "PRE-PRODUCTION" || !fullVersion.includes("dotnet")) {
+    if (vars.environment !== "PRE-PRODUCTION" || fullVersion.includes("lts")) {
         message =
             "Note: <BR>A new version <b>" +
             fullVersion +

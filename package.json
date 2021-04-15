@@ -9,6 +9,7 @@
     "startafterbuildApiServer": "nodemon $NODE_DEBUG_OPTION  afterbuild/afterbuildApiServer.js",
     "sendmailProduction": "cd mailing/ && node mailChangelog.js notify -e production",
     "sendmailPreProduction": "cd mailing/ && node mailChangelog.js notify -e preproduction",
+    "sendmailProductionTest": "cd mailing/ && node mailChangelog.js notify -e production -t vincent.berder@al-enterprise.com",
     "sendmailPreProductionTest": "cd mailing/ && node mailChangelog.js notify -e preproduction -t vincent.berder@al-enterprise.com",
     "getNextDebugBuildVersion": "node mailing/nextDebugBuildVersion.js"
   },
