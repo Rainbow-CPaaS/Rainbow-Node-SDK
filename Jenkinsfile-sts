@@ -183,6 +183,9 @@ pipeline {
                      cd "${workspace}"
                      mkdir -p Documentation
                      cp -R doc debian Documentation/
+                     
+                     sed -i "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control > "${workspace}/Documentation/debian/control"
+                     
                      find Documentation/
                      #cd "${workspace}/Documentation"
                      """
