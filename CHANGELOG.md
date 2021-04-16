@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-## [1.87.0] - 2021-04-01
+## [1.87.0-test.0] - 2021-04-16
 -   Add STS version build.
 
 ## [1.86.0-dotnet.1] - 2021-04-01
