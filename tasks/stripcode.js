@@ -12,9 +12,9 @@ module.exports = function(grunt) {
         // Extract version
         let content = fs.readFileSync(path.join(__dirname, "../package.json"));
         let packageJSON = JSON.parse(content);
-        //let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
+        //let minVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
         let fullVersion = packageJSON.version;
-        //let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
+        //let currentVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts")) : packageJSON.version;
 
         let multilineComment = /\/\*([\s\S]*?)\*\//g;
         let singleLineComment = /^\s*\t*(\/\/)[^\n\r]*[\n\r]/gm;

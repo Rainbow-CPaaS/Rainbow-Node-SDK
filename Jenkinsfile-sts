@@ -24,7 +24,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.86.0-dotnet.10', description: 'What is the version of the preprod SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.0', description: 'What is the version of the preprod SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
@@ -106,9 +106,9 @@ pipeline {
                         
                         echo ---------- STEP grunt : 
                         # Sub Step 1 : To compil the sources
-                        grunt
+                        grunt --verbose
                         # Sub Step 2 : To pepare the sources + doc for package
-                        grunt delivery
+                        grunt delivery --verbose
                         
                         echo ---------- STEP configure npm : 
                         git config --global user.email "vincent.berder@al-enterprise.com"

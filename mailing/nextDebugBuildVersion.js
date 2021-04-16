@@ -125,11 +125,11 @@ let logger = rainbowSDK._core.logger;
 logger.log("debug", "MAIN - nextDailyBuildVersion started ", logger.colors.green("Hello")); //logger.colors.green(JSON.stringify(result)));
 let content = fs.readFileSync(path.join(__dirname, "../package.json"));
 let packageJSON = JSON.parse(content);
-let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
+let minVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
 //let fullVersion = packageJSON.version;
 let currentVersion = "";
-if (packageJSON.version.indexOf("-dotnet") > -1 ) {
-    currentVersion = packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet"))
+if (packageJSON.version.indexOf("-lts") > -1 ) {
+    currentVersion = packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts"))
 } else
 if (packageJSON.version.indexOf("-debug") > -1 ) {
     currentVersion = packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-debug"))

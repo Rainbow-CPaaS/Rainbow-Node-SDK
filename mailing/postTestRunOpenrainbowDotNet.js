@@ -151,9 +151,9 @@ rainbowSDK.start(undefined).then(async(result) => {
         logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
         //let content = fs.readFileSync(path.join(__dirname, "../package.json"));
         //let packageJSON = JSON.parse(content);
-        //let minVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
+        //let minVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
         //let fullVersion = packageJSON.version;
-        //let currentVersion = packageJSON.version.indexOf("-dotnet") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-dotnet")) : packageJSON.version;
+        //let currentVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts")) : packageJSON.version;
 
         let allBubbles = await rainbowSDK.bubbles.getAllBubbles(); // "5e56968c6f18201dde44fa7c"
         let bubble = allBubbles ? allBubbles.filter((bull) => { return bull.name === bullName; }) : null;
