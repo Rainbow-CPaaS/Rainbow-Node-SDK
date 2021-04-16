@@ -1,4 +1,4 @@
-// Jenkinsfile-preprod file for the production of preprod delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-preprod4DotNet"
+// Jenkinsfile-sts file for the production of sts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-sts"
 
 @Library('rainbow-shared-library') _
 import groovy.transform.Field
@@ -25,7 +25,7 @@ pipeline {
     
     parameters {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.0', description: 'What is the version of the preprod SDK to build?')
-        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
+        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -36,6 +36,8 @@ pipeline {
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
                 NPMJSAUTH = credentials('6ba55a5f-c0fa-41c3-b5dd-0c0f62ee22b5') // npmjs /****** (npmjs auth token to publish vberder)
                 GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
+                VBERDERRB = credentials('5bf46f68-1d87-4091-9aba-c337198503c8') // (vberder - OFFICIAL).
+                APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
     }
     stages {
         stage('Ask for parameters') {
@@ -84,22 +86,16 @@ pipeline {
                         
                         git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
                         
-                        #echo "registry=http://10.10.13.10:4873/
-                        #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
-        
-                        #npm view
-        
+                        echo "registry=http://10.10.13.10:4873/
+                        //10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
+                        
                         mkdir ${WORKSPACE}/.npm-packages
                         npm config set prefix "${WORKSPACE}/.npm-packages"
                         export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
-        
-                        sudo npm version
+                        
+                        #sudo npm install npm -g
                         sudo npm install n -g
                         sudo n stable
-                        
-                        sudo npm install npm@5.8.0
-                        
-                        sudo npm version
                         
                         echo ---------- STEP install :
                         npm install
@@ -122,25 +118,23 @@ pipeline {
                         
                         git reset --hard origin/preprod4DotNet
                         
-                        npm version ${RAINBOWNODESDKVERSION} 
-                        
+                        npm version "${RAINBOWNODESDKVERSION}" 
                         #yapm publish -f --registry=http://10.10.13.10:4873/
                         
                         #git tag -a v${RAINBOWNODESDKVERSION} -m "v${RAINBOWNODESDKVERSION} sts version"
                         #git push --tags
                         
-                        more ~/.npmrc > ~/.npmrc.sav 
-                        #echo "registry=http://registry.npmjs.org" > ~/.npmrc
+                        #more ~/.npmrc > ~/.npmrc.sav 
                         echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
                         echo "registry=http://registry.npmjs.org/
                         //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                        #npm config set //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}
                         #npm login
+                        echo ---------- STEP whoami :
+                        npm whoami
                         
                         #npm view
-                        #npm token list
-                        
-                        echo ---------- STEP whoami :
-                        #npm whoami
+                        npm token list
                         
                         echo ---------- STEP publish :
                         npm publish --tag sts
@@ -156,7 +150,7 @@ pipeline {
                          git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
                          git push  origin HEAD:${env.BRANCH_NAME}
                          git push --tags origin HEAD:${env.BRANCH_NAME}
-                        
+
                         export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
                         export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
                         ${SENDEMAIL} && npm run-script sendmailPreProduction
@@ -172,7 +166,6 @@ pipeline {
                     sh script: """
                         echo "Build Documentation from Makefile"
                         make allsts
-                        
                     """
                                   
                     //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
@@ -190,7 +183,6 @@ pipeline {
                      cd "${workspace}"
                      mkdir -p Documentation
                      cp -R doc debian Documentation/
-                     sed s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/ debian/control > ${workspace}/Documentation/debian/control   
                      find Documentation/
                      #cd "${workspace}/Documentation"
                      """
