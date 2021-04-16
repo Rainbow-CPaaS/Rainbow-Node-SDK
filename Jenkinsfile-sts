@@ -196,7 +196,7 @@ pipeline {
                      """
                     debianBuild(
                         debianPath: 'Documentation',
-                        nextVersion: "sts-${params.RAINBOWNODESDKVERSION}" ,
+                        nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
                         language: 'other'
                     )
                 } catch (Exception e) {
