@@ -5,7 +5,7 @@ allsts: build docsts
 build:
 	yarn && \
 	grunt ts && \
-	grunt
+	grunt && \
 	grunt delivery
 
 doc:
