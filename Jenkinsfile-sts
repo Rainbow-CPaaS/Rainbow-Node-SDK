@@ -102,9 +102,9 @@ pipeline {
                         
                         echo ---------- STEP grunt : 
                         # Sub Step 1 : To compil the sources
-                        grunt --verbose
+                        grunt 
                         # Sub Step 2 : To pepare the sources + doc for package
-                        grunt delivery --verbose
+                        grunt delivery 
                         
                         echo ---------- STEP configure npm : 
                         git config --global user.email "vincent.berder@al-enterprise.com"
