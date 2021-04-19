@@ -192,7 +192,7 @@ pipeline {
                      mkdir -p Documentation
                      cp -R doc debian Documentation/
                      
-                     sed -i "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control > ${workspace}/Documentation/debian/control
+                     sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"
                      
                      more Documentation/debian/control
                      
