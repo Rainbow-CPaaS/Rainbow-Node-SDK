@@ -53,14 +53,14 @@ pipeline {
             //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
             //    }
             //} 
-            when {allOf {branch "preprod4Donet"; triggeredBy 'user'}}
+            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
             steps {
                 echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                 sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
             }
         }
               stage('Checkout') {
-            when {allOf {branch "preprod4Donet"; triggeredBy 'user'}}
+            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
                   steps{
                     echo "Clean before build"
                     cleanWs()
@@ -73,7 +73,7 @@ pipeline {
               }
 
               stage('Build') {
-            when {allOf {branch "preprod4Donet"; triggeredBy 'user'}}
+            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
                   steps{
                         echo "DOC_PATH: /${DOC_PATH}"
                         echo "Build in stage the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
@@ -169,7 +169,7 @@ pipeline {
               }
               
               stage('Build Documentation from Rainbow Node SDK') {
-            when {allOf {branch "preprod4Donet"; triggeredBy 'user'}}
+            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
                   steps{
                     sh script: """
                         echo "Build Documentation from Makefile"
@@ -186,7 +186,7 @@ pipeline {
               }
               
               stage('Documentation Packaging') {
-            when {allOf {branch "preprod4Donet"; triggeredBy 'user'}}
+            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
                       steps { 
                         script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
