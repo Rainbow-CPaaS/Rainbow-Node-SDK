@@ -197,7 +197,7 @@ pipeline {
                      
                      # Warning no space between element in foreach.                     
                      for fileName in {"Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md","Documentation/doc/sdk/node/sts/guides/Development_Kit.md","Documentation/doc/sdk/node/sts/guides/Getting_Started.md","Documentation/doc/sdk/node/sts/guides/Legals.md","Documentation/doc/sdk/node/sts/guides/Managing_bubble.md","Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md","Documentation/doc/sdk/node/sts/guides/What_is_new.md"}; do 
-                       sed "s/\/doc\/sdk\/node/\/doc\//\/sdk\/node\/sts\//g" $fileName |tee $fileName
+                       sed "s/\/doc\/sdk\/node\//\/doc\/\/sdk\/node\/sts\//g" $fileName |tee $fileName
                      done               
                      
                      more Documentation/debian/control
