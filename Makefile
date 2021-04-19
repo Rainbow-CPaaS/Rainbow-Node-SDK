@@ -31,8 +31,7 @@ docsts:
 	cp tutorials/*.md doc/sdk/node/sts/guides && \
 	cp index.yml doc/sdk/node/sts && \
 	cp lts_version.json doc/sdk/node/sts && \
-	cp sitemap.xml doc/sdk/node/sts && \ 
-	echo "{ \n \"lts\": false,\n \"ltsbeta\": false,\n \"sts\": true \n  }" > ./doc/sdk/node/sts/version.json
+	cp sitemap.xml doc/sdk/node/sts 
 
 doclts:
 	grunt nodesheets

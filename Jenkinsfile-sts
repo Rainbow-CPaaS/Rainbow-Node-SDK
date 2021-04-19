@@ -169,6 +169,11 @@ pipeline {
                     sh script: """
                         echo "Build Documentation from Makefile"
                         make allsts
+                        echo "{ 
+                         \"lts\": false,
+                         \"ltsbeta\": false,
+                         \"sts\": true
+                        }" > ./doc/sdk/node/sts/version.json
                     """
                                   
                     //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
