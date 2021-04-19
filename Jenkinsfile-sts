@@ -15,7 +15,10 @@ def DOC_PATH = ''
 
 pipeline {
     agent {
-        label "docker-slave-cpaas-stretch"
+        label {
+                  label "docker-slave-cpaas-stretch"
+                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_preprod4DotNet"
+        }        
     }
     options {
         timeout(time: 1, unit: 'HOURS') 
