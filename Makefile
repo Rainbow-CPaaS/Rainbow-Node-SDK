@@ -2,6 +2,8 @@ all: build doc
 
 allsts: build docsts
 
+alllts: build doclts
+
 build:
 	yarn && \
 	grunt ts && \
@@ -44,7 +46,6 @@ doclts:
 	cp tutorials/*.md doc/sdk/node/lts/guides && \
 	cp index.yml doc/sdk/node/lts && \
 	cp lts_version.json doc/sdk/node/lts && \
-	cp sitemap.xml doc/sdk/node/lts && \ 
-	echo "{ \n \"lts\": true,\n \"ltsbeta\": false,\n \"sts\": false \n  }" > ./doc/sdk/node/sts/version.json
+	cp sitemap.xml doc/sdk/node/lts  
 
 #	cp build/*.xml doc/sdk/node/guides
