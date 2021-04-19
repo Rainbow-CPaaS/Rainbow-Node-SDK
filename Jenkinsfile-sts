@@ -196,9 +196,14 @@ pipeline {
                      sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
                      
                      # Warning no space between element in foreach.                     
-                     for fileName in {"Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md","Documentation/doc/sdk/node/sts/guides/Development_Kit.md","Documentation/doc/sdk/node/sts/guides/Getting_Started.md","Documentation/doc/sdk/node/sts/guides/Legals.md","Documentation/doc/sdk/node/sts/guides/Managing_bubble.md","Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md","Documentation/doc/sdk/node/sts/guides/What_is_new.md"}; do 
-                       sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" $fileName |tee $fileName
-                     done               
+                     # for fileName in {"Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md","Documentation/doc/sdk/node/sts/guides/Development_Kit.md","Documentation/doc/sdk/node/sts/guides/Getting_Started.md","Documentation/doc/sdk/node/sts/guides/Legals.md","Documentation/doc/sdk/node/sts/guides/Managing_bubble.md","Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md","Documentation/doc/sdk/node/sts/guides/What_is_new.md"}; do 
+                     #  sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" $fileName |tee $fileName
+                     # done
+                     
+                     def list = ["Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md","Documentation/doc/sdk/node/sts/guides/Development_Kit.md","Documentation/doc/sdk/node/sts/guides/Getting_Started.md","Documentation/doc/sdk/node/sts/guides/Legals.md","Documentation/doc/sdk/node/sts/guides/Managing_bubble.md","Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md","Documentation/doc/sdk/node/sts/guides/What_is_new.md"]
+                     for (item in list) {
+                        println "item : " + ${item}
+                     }               
                      
                      more Documentation/debian/control
                      more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
