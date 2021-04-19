@@ -20,7 +20,7 @@ doc:
 	cp index.yml doc/sdk/node && \
 	cp sitemap.xml doc/sdk/node
 
-docsts
+docsts:
 	grunt nodesheets
 	mkdir -p doc/sdk/node/sts/cheatsheets && \
 	cp bin/jsdoc/sheets/cheatsheet/node/nodeSheet.png doc/sdk/node/sts/cheatsheets && \
@@ -34,7 +34,7 @@ docsts
 	cp sitemap.xml doc/sdk/node/sts && \ 
 	echo "{ \n \"lts\": false,\n \"ltsbeta\": false,\n \"sts\": true \n  }" > ./doc/sdk/node/sts/version.json
 
-doclts
+doclts:
 	grunt nodesheets
 	mkdir -p doc/sdk/node/lts/cheatsheets && \
 	cp bin/jsdoc/sheets/cheatsheet/node/nodeSheet.png doc/sdk/node/lts/cheatsheets && \
