@@ -29,6 +29,7 @@ pipeline {
     parameters {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.0', description: 'What is the version of the preprod SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
+        booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -53,7 +54,7 @@ pipeline {
             //    }
             //} 
             steps {
-                echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL}"
+                echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                 sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
             }
         }
@@ -72,7 +73,7 @@ pipeline {
               stage('Build') {
                   steps{
                         echo "DOC_PATH: /${DOC_PATH}"
-                        echo "Build in stage the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL}"
+                        echo "Build in stage the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                         // credentialsId here is the credentials you have set up in Jenkins for pushing to that repository using username and password.
                         //withCredentials([usernamePassword(credentialsId: 'b04ca5f5-3666-431d-aaf4-c6c239121510', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         //sshagent(['b04ca5f5-3666-431d-aaf4-c6c239121510']) {
@@ -85,7 +86,7 @@ pipeline {
                         //         branch: "${env.BRANCH_NAME}"
                             
                         sh script: """
-                        echo "Build in shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL}"
+                        echo "Build in shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                         
                         git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
                         
@@ -171,7 +172,7 @@ pipeline {
                         make allsts
                         echo "{ 
                          \"lts\": false,
-                         \"ltsbeta\": false,
+                         \"ltsbeta\": ${LTSBETA},
                          \"sts\": true
                         }" > ./doc/sdk/node/sts/version.json
                     """
@@ -192,9 +193,15 @@ pipeline {
                      mkdir -p Documentation
                      cp -R doc debian Documentation/
                      
-                     sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"
+                     sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
+                     
+                     # Warning no space between element in foreach.                     
+                     for fileName in {"Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md","Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md","Documentation/doc/sdk/node/sts/guides/Development_Kit.md","Documentation/doc/sdk/node/sts/guides/Getting_Started.md","Documentation/doc/sdk/node/sts/guides/Legals.md","Documentation/doc/sdk/node/sts/guides/Managing_bubble.md","Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md","Documentation/doc/sdk/node/sts/guides/What_is_new.md"}; do 
+                       sed "s/\/doc\/sdk\/node/\/doc\//\/sdk\/node\/sts\//g" $fileName |tee $fileName
+                     done               
                      
                      more Documentation/debian/control
+                     more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
                      
                      find Documentation/
                      #cd "${workspace}/Documentation"
