@@ -124,7 +124,7 @@ pipeline {
                         #git tag -a v${RAINBOWNODESDKVERSION} -m "v${RAINBOWNODESDKVERSION}"
                         #git push --tags
                         
-                        #more ~/.npmrc > ~/.npmrc.sav 
+                        more ~/.npmrc > ~/.npmrc.sav 
                         echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
                         echo "registry=http://registry.npmjs.org/
                         //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
