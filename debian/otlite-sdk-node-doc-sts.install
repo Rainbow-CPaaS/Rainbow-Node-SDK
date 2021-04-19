@@ -1,2 +1,2 @@
 ./doc/sdk/node/*     /usr/share/sdkdoc/node
-./doc/sdk/node/index.yml     /usr/share/sdkdoc/node
+./doc/sdk/node/sts/index.yml     /usr/share/sdkdoc/node/sts
