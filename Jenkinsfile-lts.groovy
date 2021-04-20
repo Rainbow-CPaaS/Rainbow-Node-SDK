@@ -56,7 +56,7 @@ pipeline {
                         
                  when {
                     allOf {
-                        branch "STSDelivery"; 
+                        branch "LTSDelivery"; 
                         triggeredBy 'user'
                     }
                  }
@@ -68,7 +68,7 @@ pipeline {
             stage('Checkout') {
                 when {
                     allOf {
-                        branch "STSDelivery"; 
+                        branch "LTSDelivery"; 
                         triggeredBy 'user'
                     }
                 }
@@ -86,7 +86,7 @@ pipeline {
             stage('Build') {
                 when {
                     allOf {
-                        branch "STSDelivery"; 
+                        branch "LTSDelivery"; 
                         triggeredBy 'user'
                     }
                 }
@@ -139,7 +139,7 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard origin/STSDelivery
+                    git reset --hard origin/LTSDelivery
                     npm version "${RAINBOWNODESDKVERSION}" 
                         
                     echo ---------- STEP whoami :
@@ -170,7 +170,7 @@ pipeline {
             stage('Build Documentation from Rainbow Node SDK') {
                 when {
                     allOf {
-                        branch "STSDelivery"; 
+                        branch "LTSDelivery"; 
                         triggeredBy 'user'
                     }
                 }
@@ -192,7 +192,7 @@ pipeline {
             stage('Documentation Packaging') {
                 when {
                     allOf {
-                        branch "STSDelivery"; 
+                        branch "LTSDelivery"; 
                         triggeredBy 'user'
                     }
                 }
