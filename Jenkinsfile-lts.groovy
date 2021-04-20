@@ -27,9 +27,9 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-lts.0', description: 'What is the version of the LTS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the lts SDK built?')
-        //booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
+        //booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this LTS version be also an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -49,8 +49,8 @@ pipeline {
                  //  message "parameters?"
                  //    ok "Yes, we should."
                  //    parameters {
-                 //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the STS SDK to build?')
-                 //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS SDK built?')
+                 //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the LTS SDK to build?')
+                 //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the LTS SDK built?')
                  //    }
                  //} 
                         
