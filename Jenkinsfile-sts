@@ -199,10 +199,10 @@ pipeline {
                      cp -R doc debian Documentation/
                      
                      sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
-                     more Documentation/debian/control
+                     # more Documentation/debian/control
 
                      sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
-                     more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
+                     # more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
                      
                      sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md"
                      sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md"
@@ -212,6 +212,9 @@ pipeline {
                      sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
                      sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_bubble.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubble.md"
                      sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
+                     
+                     sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
+                     sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
                      
                      find Documentation/
                      #cd "${workspace}/Documentation"
