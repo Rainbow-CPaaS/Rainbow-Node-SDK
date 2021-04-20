@@ -17,7 +17,7 @@ pipeline {
     agent {
         label {
                   label "docker-slave-cpaas-stretch"
-                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_preprod4DotNet"
+                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_delivery"
         }        
     }
     options {
@@ -27,7 +27,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.0', description: 'What is the version of the preprod SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
@@ -49,18 +49,18 @@ pipeline {
               //  message "parameters?"
             //    ok "Yes, we should."
             //    parameters {
-            //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the preprod SDK to build?')
-            //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the preprod SDK built?')
+            //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the STS SDK to build?')
+            //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS SDK built?')
             //    }
             //} 
-            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
+            when {allOf {branch "STSDelivery"; triggeredBy 'user'}}
             steps {
                 echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                 sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
             }
         }
               stage('Checkout') {
-            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
+            when {allOf {branch "STSDelivery"; triggeredBy 'user'}}
                   steps{
                     echo "Clean before build"
                     cleanWs()
@@ -73,7 +73,7 @@ pipeline {
               }
 
               stage('Build') {
-            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
+            when {allOf {branch "STSDelivery"; triggeredBy 'user'}}
                   steps{
                         echo "DOC_PATH: /${DOC_PATH}"
                         echo "Build in stage the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
@@ -123,7 +123,7 @@ pipeline {
                         #echo ---------- STEP push : 
                         #git push origin master
                         
-                        git reset --hard origin/preprod4DotNet
+                        git reset --hard origin/STSDelivery
                         
                         npm version "${RAINBOWNODESDKVERSION}" 
                         #yapm publish -f --registry=http://10.10.13.10:4873/
@@ -169,7 +169,7 @@ pipeline {
               }
               
               stage('Build Documentation from Rainbow Node SDK') {
-            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
+            when {allOf {branch "STSDelivery"; triggeredBy 'user'}}
                   steps{
                     sh script: """
                         echo "Build Documentation from Makefile"
@@ -186,7 +186,7 @@ pipeline {
               }
               
               stage('Documentation Packaging') {
-            when {allOf {branch "preprod4DotNet"; triggeredBy 'user'}}
+            when {allOf {branch "STSDelivery"; triggeredBy 'user'}}
                       steps { 
                         script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
