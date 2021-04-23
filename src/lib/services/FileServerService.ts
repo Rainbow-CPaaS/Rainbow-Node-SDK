@@ -20,7 +20,7 @@ import {FileStorageService} from "./FileStorageService";
 import {S2SService} from "./S2SService";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
-import {FileDescriptor} from "../common/models/fileDescriptor";
+import {FileDescriptor} from "../common/models/FileDescriptor";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "FileServer/SVCE - ";

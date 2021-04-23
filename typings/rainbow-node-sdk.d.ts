@@ -4636,7 +4636,7 @@ declare module 'lib/common/models/FileViewer' {
 	export { FileViewerElementFactory, FileViewer };
 
 }
-declare module 'lib/common/models/fileDescriptor' {
+declare module 'lib/common/models/FileDescriptor' {
 	export {}; class FileState {
 	    static DELETED: string;
 	    static UPLOADING: string;
@@ -4732,7 +4732,7 @@ declare module 'lib/services/FileServerService' {
 	import { Logger } from 'lib/common/Logger';
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
-	import { FileDescriptor } from 'lib/common/models/fileDescriptor';
+	import { FileDescriptor } from 'lib/common/models/FileDescriptor';
 	import { GenericService } from 'lib/services/GenericService'; class FileServer extends GenericService {
 	    private _capabilities;
 	    private transferPromiseQueue;
