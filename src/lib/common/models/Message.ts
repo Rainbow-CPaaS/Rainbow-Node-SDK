@@ -10,6 +10,7 @@ export {};
 /**
  * @class
  * @name Message
+ * @public
  * @description
  *      This class is used to represent a message in a conversation <br/>
  *      A message is exchanged when discussing in One-to-One or in a Bubble.
@@ -18,8 +19,9 @@ class Message {
 
 
     /**
+     *  The Type of message.
      * @public
-     * @enum {number}
+     * @enum {{ key: number, value: string }}
      * @readonly
      */
     public static Type: any = {
@@ -38,6 +40,7 @@ class Message {
     };
 
     /**
+     * The Status of the Receipt.
      * @public
      * @enum {number}
      * @readonly
@@ -63,6 +66,7 @@ class Message {
     public static ReceiptStatusText = ["close", "info", "calllog", "check", "done", "read"];
 
     /**
+     * The Side of Message's from
      * @public
      * @enum {string}
      * @readonly

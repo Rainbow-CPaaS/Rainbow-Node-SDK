@@ -4,20 +4,9 @@ import {PresenceLevel, PresenceRainbow} from "./PresenceRainbow";
 
 
 /**
- * Enum for Presence values.
- * @readonly
- * @enum {string}
- */
-/*let RainbowPresence = {
-    ONLINE: "online",
-    AWAY: "away",
-    INVISIBLE: "invisible",
-    DND: "dnd"
-}; // */
-
-/**
  * @class
  * @name Settings
+ * @public
  * @description
  *      This class represents a Settings. <br>
  *		Settings contains several informations stored and shared by application clients.<br>

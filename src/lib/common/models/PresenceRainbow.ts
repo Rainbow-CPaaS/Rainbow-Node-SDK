@@ -5,162 +5,102 @@ import {Offer, offerManager} from "./Offer";
 import {ErrorManager} from "../ErrorManager";
 
 /**
- * @public
- * @enum {number}
- * @name PresenceLevel
- * @description
  *   Enum with all presence levels possible
+ * @public
+ * @enum {string}
  * @readonly
  */
 enum PresenceLevel {
-    /**
-     * @public
-     * @readonly
-     * @property {string} Offline/Invisible The presence of the contact is not connected
-     * @instance
-     */
+    /** Offline/Invisible The presence of the contact is not connected */
     Offline = "offline",
+
+    /** Offline/Invisible The presence of the contact is not connected */
     Invisible = "invisible",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Online The presence of the contact is connected
-     * @instance
-     */
+    /** The presence of the contact is connected */
     Online = "online",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Online The presence of the contact is connected
-     * @instance
-     */
+    /** The presence of the contact is connected on mobile */
     OnlineMobile = "online-mobile",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Away The presence of the contact is connected but away from a long time
-     * @instance
-     */
+    /** The presence of the contact is connected but away from a long time */
     Away = "away",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Dnd The presence of the contact is in "Do not disturb" state
-     * @instance
-     */
+    /** The presence of the contact is in "Do not disturb" state */
     Dnd = "dnd",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Busy The presence of the contact is in "Busy" state
-     * @instance
-     */
+    /** The presence of the contact is in "Busy" state */
     Busy = "busy",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Xa The presence of the contact appear offline but to stay still connected.
-     * @instance
-     */
+    /** The presence of the contact appear offline but to stay still connected. */
     Xa = "xa",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Unknown The presence of the contact is not known
-     * @instance
-     */
+    /** The presence of the contact is not known */
     Unknown = "Unknown",
 
     /// internal
+    /** internal */
     Chat = "chat",
 
+    /** The presence of the contact is an empty string */
     EmptyString = ""
 }
 
+/**
+ *   Enum with all presence Show possible
+ * @public
+ * @enum {string}
+ * @readonly
+ */
 enum PresenceShow {
-    /// The contact is connected
+    /** The presence of the contact is connected */
     Online = "online",
 
+    /** The presence of the contact is disconnected */
     Offline = "offline",
 
-    /// The contact is in "Do not disturb" state
+    /** The contact is in "Do not disturb" state */
     Dnd = "dnd",
 
-    /// For current contact only - to appear offline but to stay still connected
+    /** For current contact only - to appear offline but to stay still connected */
     Xa = "xa",
 
+    /** The contact is away */
     Away = "away",
 
+    /** The Show is Chat */
     Chat = "chat",
 
+    /** The Show is empty string */
     EmptyString = ""
 }
 
+/**
+ *   Enum with all presence Status possible
+ * @public
+ * @enum {string}
+ * @readonly
+ */
 enum PresenceStatus {
-    /**
-     * @public
-     * @readonly
-     * @property {string} Online The presence of the contact is connected
-     * @instance
-     */
+    /** The presence of the contact is connected */
     Online = "online",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} ModeAuto The presence of the contact is connected
-     * @instance
-     */
+    /** The presence of the contact is disconnected */
     ModeAuto = "mode=auto",
 
-    /// <summary>
-    /// <see cref="String"/> -
-    /// </summary>
-    /**
-     * @public
-     * @readonly
-     * @property {string} Away The contact is connected but away from a long time
-     * @instance
-     */
+    /** The contact is connected but away from a long time */
     Away = "away",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Phone The contact is on phone
-     * @instance
-     */
+    /** The contact is on phone */
     Phone = "phone",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Presentation The contact is on presentation
-     * @instance
-     */
+    /** The contact is on presentation */
     Presentation = "presentation",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} Mobile The contact is on mobile phone
-     * @instance
-     */
+    /** The contact is on mobile phone */
     Mobile = "mobile",
 
-    /**
-     * @public
-     * @readonly
-     * @property {string} EmptyString The status is empty string.
-     * @instance
-     */
+    /** The status is empty string. */
     EmptyString = ""
 }
 
@@ -194,22 +134,33 @@ enum PresenceDetails {
     EmptyString = ""
 }
 
-/// To define the phone presence (linked to PBX)
+/**
+ *   Enum with the phone presence (linked to PBX)
+ * @public
+ * @enum {string}
+ * @readonly
+ */
 enum PresencePhone {
-    /// The PBX service is available - the phone is not currently used
+    /** The PBX service is available - the phone is not currently used */
     EVT_CONNECTION_CLEARED = "EVT_CONNECTION_CLEARED",
 
-    /// The PBX service is available - there is a incoming or outgoing call in ringing state
+    /** The PBX service is available - there is a incoming or outgoing call in ringing state */
     EVT_SERVICE_INITIATED = "EVT_SERVICE_INITIATED",
 
-    /// The PBX service is available - there is a current call
+    /** The PBX service is available - there is a current call */
     EVT_ESTABLISHED = "EVT_ESTABLISHED",
 
-    /// The PBX service is not available / operational so we don't know the presence phone
+    /** The PBX service is not available / operational so we don't know the presence phone */
     NOT_AVAILABLE = "NOT_AVAILABLE",
 }
 
-/// Define the base of each presence - Presence Level and Presence Details
+/**
+ * @public
+ * @class
+ * @name PresenceInfo
+ * @description
+ *   Define the base of each presence - Presence Level and Presence Details
+ */
 class PresenceInfo {
     get presenceShow(): string {
         return this._presenceShow;
@@ -364,6 +315,13 @@ class PresenceCalendar extends PresenceInfo {
 /// Inherit of <see cref="PresenceInfo"/>
 /// There is 3 context: Calendar presence, Phone presence (linked to PBX) and the IM presence
 /// </summary>
+/**
+ * @public
+ * @class 
+ * @name PresenceRainbow
+ * @description
+ *   Represent a contact's presence
+ */
 class PresenceRainbow extends PresenceInfo {
     /// The calendar presence
   //  private _presenceCalendar: PresenceCalendar;

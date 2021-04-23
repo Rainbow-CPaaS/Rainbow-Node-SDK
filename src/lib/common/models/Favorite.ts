@@ -1,7 +1,16 @@
 "use strict";
+import {AlertFilter, AlertFiltersData} from "./AlertFilter";
+
 export {};
 
-export class Favorite {
+/**
+ * @class
+ * @name Favorite
+ * @public
+ * @description
+ *      This class represents a Favorite. <br>
+ */
+class Favorite {
     
     public id: string;
     public peerId: string;
@@ -19,3 +28,6 @@ export class Favorite {
 
 exports.Favorite = Favorite;
 module.exports.Favorite = Favorite;
+
+module.exports = {Favorite};
+export {Favorite};

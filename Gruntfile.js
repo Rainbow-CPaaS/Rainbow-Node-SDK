@@ -36,10 +36,17 @@ module.exports = function(grunt) {
             { src: "lib/common/models/Bubble.js", dest: "build/bubble.md" },
             { src: "lib/common/models/Channel.js", dest: "build/channel.md" },
             { src: "lib/common/models/Call.js", dest: "build/call.md" },
+            { src: "lib/common/models/CallLog.js", dest: "build/calllogType.md" },
             { src: "lib/common/models/Contact.js", dest: "build/contact.md" },
             { src: "lib/common/models/Conversation.js", dest: "build/conversation.md" },
+            { src: "lib/common/ErrorManager.js", dest: "build/errormanager.md" },
+            { src: "lib/common/models/Favorite.js", dest: "build/favorite.md" },
+            { src: "lib/common/models/FileDescriptor.js", dest: "build/filedescriptor.md" },
+            { src: "lib/common/models/FileViewer.js", dest: "build/fileviewer.md" },
+            { src: "lib/common/models/GeoLoc.js", dest: "build/geoloc.md" },
             { src: "lib/common/models/Invitation.js", dest: "build/invitation.md" },
             { src: "lib/common/models/Message.js", dest: "build/message.md" },
+            { src: "lib/common/models/PresenceRainbow.js", dest: "build/presencerainbow.md" },
             { src: "lib/common/models/Settings.js", dest: "build/settings.md" }
         ]
       }

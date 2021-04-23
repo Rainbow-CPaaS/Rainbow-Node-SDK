@@ -17,6 +17,8 @@ class Conversation
 class Contact
 class Channel
 class Channel
+class Appreciations
+class Call
 class Call
 class Bubble
 class Events
@@ -241,7 +243,7 @@ ConversationsService : Conversation : getConversationById(string)
 ConversationsService : Promise.Conversation : getBubbleConversation(string, string, Date, string, number, boolean, boolean, Date, string)
 ConversationsService : Promise : closeConversation(Conversation)
 ConversationsService : Promise.any : cleanConversations()
-FavoritesService : Conversation[] : fetchAllFavorites()()
+FavoritesService : Favorite[] : fetchAllFavorites()()
 FavoritesService : Promise.Favorite : createFavorite()(string, string)
 FavoritesService : Favorite[] : deleteFavorite()(string)
 FileStorage : Message : uploadFileToConversation(Conversation, Object, String)
@@ -309,6 +311,7 @@ s2s : Promise.Object, ErrorManager : listConnectionsS2S()
 s2s : Promise.Object, ErrorManager : checkS2Sconnection()
 s2s : Promise.Object, ErrorManager : deleteAllConnectionsS2S()
 s2s : Promise.Object, ErrorManager : infoS2S(String)
+s2s : string : ROOMROLE
 Telephony : boolean : isTelephonyAvailable()
 Telephony : string : getAgentVersion()
 Telephony : string : getXMPPAgentStatus()
@@ -641,7 +644,7 @@ Message [1] --> [1] Conversation
 Message : Conversation : conversation
 Message : boolean : isForwarded
 Message : any : forwardedMsg
-Message : number : Type
+Message : Object : Type
 Message : number : ReceiptStatus
 Message : string : Side
 Settings : PresenceRainbow : presence

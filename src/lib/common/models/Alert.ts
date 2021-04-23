@@ -9,6 +9,7 @@ export {};
 /**
  * @class
  * @name Alert
+ * @public
  * @description
  *      This class represents an Alert to send to the Users with the "Alert" subscription and the an AlertDevice created. <br>
  */

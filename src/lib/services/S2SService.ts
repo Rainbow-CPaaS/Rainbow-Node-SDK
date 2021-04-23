@@ -475,6 +475,12 @@ class S2SService extends GenericService{
 
 }
 
+/**
+ * The role of the Contact in the Bubble.
+ * @public
+ * @enum {string}
+ * @readonly
+ */
 enum ROOMROLE  {
     MODERATOR = "moderator",
     MEMBER = "member"

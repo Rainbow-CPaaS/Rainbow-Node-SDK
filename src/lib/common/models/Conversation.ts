@@ -11,6 +11,7 @@ import { v4 as uuid4 } from 'uuid';
 /**
  * @class
  * @name Conversation
+ * @public
  * @description
  *      This class represents a conversation <br>
  *		A conversation is a "long" interaction (aka the "long tail") between the user ane one or several contacts (Rainbow users or not) based on the IM media if the recipients are Rainbow users. <br>

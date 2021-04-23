@@ -12,6 +12,7 @@ import {config} from "../../config/config";
 /* STATIC ENUM                                               */
 /*************************************************************/
 /**
+ * Type of Admin.
  * @public
  * @enum {string}
  * @readonly
@@ -28,18 +29,19 @@ const AdminType = {
 };
 
 /**
+ * NameUpdatePrio
  * @public
  * @enum {number}
  * @readonly
  */
 const NameUpdatePrio = {
-    /* no update prio then could be updated*/
+    /** no update prio then could be updated */
     'NO_UPDATE_PRIO': 0,
-    /*prio associated to outlook name resolution update*/
+    /** prio associated to outlook name resolution update */
     'OUTLOOK_UPDATE_PRIO': 1,
-    /*prio associated to server name resolution (phonebook or office365AD ...) update*/
+    /** prio associated to server name resolution (phonebook or office365AD ...) update */
     'SERVER_UPDATE_PRIO': 2,
-    /*max prio : no update could overwrite*/
+    /** max prio : no update could overwrite */
     'MAX_UPDATE_PRIO': 99
 };
 
@@ -49,6 +51,7 @@ const textAvatarColor = ["#ff4500", "#d38700", "#348833", "#007356", "#00b2a9", 
 /**
  * @class
  * @name Contact
+ * @public
  * @description
  *      This class is used to represent a contact or the connected user <br/>
  *      A contact is defined by a set of public information (name, firstName, avatar...) and a set of private information that are only shared with contacts that are in the user's network or in the same company (email, phone numbers...)

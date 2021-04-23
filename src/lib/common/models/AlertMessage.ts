@@ -5,6 +5,7 @@ export {};
 /**
  * @class
  * @name AlertMessage
+ * @public
  * @description
  *      This class represents an Alert Message received from server on an Alert Device. <br>
  */

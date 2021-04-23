@@ -1,4 +1,13 @@
+"use strict";
+export {};
 
+/**
+ * @class
+ * @name GeoLoc
+ * @public
+ * @description
+ *      This function represents a GeoLoc object which is the GPS coordinates. <br>
+ */
 class GeoLoc {
     public datum : string;
     public latitude: string;

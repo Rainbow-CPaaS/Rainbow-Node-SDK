@@ -3,19 +3,23 @@
 // NoStoreBotSide = "nostorebotside",
 
 /**
- * @enum
- * @name DataStoreType
- * @description
  *  used in SDK parameter "messagesDataStore": DataStoreType.NoStore, Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)
  *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
  *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).
  *                          DataStoreType.StoreTwinSide The messages are fully stored.
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+ * @public
+ * @enum {string}
+ * @readonly
  */
 enum DataStoreType {
+    /** Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact. */
     NoStore = "no-store",
+    /** Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending). */
     NoPermanentStore = "no-permanent-store",
+    /** The messages are fully stored. */
     StoreTwinSide = "storetwinside",
+    /** To follow the storeMessages SDK's parameter behaviour. */
     UsestoreMessagesField = "OldstoreMessagesUsed"
 }
 

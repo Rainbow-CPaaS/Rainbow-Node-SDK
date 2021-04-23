@@ -8,6 +8,7 @@ import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 /**
  * @class
  * @name AlertFilter
+ * @public
  * @description
  *      This class Define a filter used when an alert is created to notify only some devices. <br>
  */

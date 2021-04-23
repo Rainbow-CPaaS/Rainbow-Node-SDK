@@ -9,6 +9,7 @@ import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 /**
  * @class
  * @name AlertDevice
+ * @public
  * @description
  *      This class represents an Alert device to receive the "Alert". It needs subscription to Alert license. <br>
  */

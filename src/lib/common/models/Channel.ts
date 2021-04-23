@@ -4,33 +4,33 @@ import {Conversation} from "./Conversation";
 export {};
 
 
-///
 /**
- *
- * @name Appreciation
- * @description
- * To store all Type of Appreciations to set on a item
+ *  All Types of Appreciations to be setted on an item
+ * @public
+ * @enum {string}
+ * @readonly
  */
 enum Appreciation
 {
-    // Applause
+    /** Applause */
     Applause = "applause",
-    // Doubt
+    /** Doubt */
     Doubt = "doubt",
-    // Fantastic
+    /** Fantastic */
     Fantastic = "fantastic",
-    // Happy
+    /** Happy */
     Happy = "happy",
-    // Like
+    /** Like */
     Like = "like",
-    // None (no appreciation)
+    /** None (no appreciation) */
     None = "none"
 }
 
 
 /**
- *
+ * @class
  * @name Appreciations
+ * @public
  * @description
  * Number of applause, doubt, fantastic, happy and like appreciations for an item
  */
@@ -61,10 +61,10 @@ class Appreciations {
 
 /**
  * @class
- * @public
  * @name Channel
+ * @public
  * @description
- * This class is used to represent a channel
+ *  This class is used to represent a channel
  */
 class Channel {
     public name: string;

@@ -1,7 +1,13 @@
 "use strict";
 export {};
 
-
+/**
+ * @function
+ * @name CallLog
+ * @public
+ * @description
+ *      This function represents a CallLog. <br>
+ */
 function CallLog(id, contact, state, duration, type?, read?, date?, direction?, callSubject?, isLatestCall?) {
     /**
      * @public

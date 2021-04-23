@@ -8,6 +8,7 @@ export {};
 /**
  * @class
  * @name AlertTemplate
+ * @public
  * @description
  *      This class represents a filter used when an alert is created to notify only some devices. <br>
  */

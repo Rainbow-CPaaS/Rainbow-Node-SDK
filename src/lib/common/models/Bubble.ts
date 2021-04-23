@@ -50,6 +50,7 @@ function sortUsersByDate (userADate, userBDate) {
 /**
  * @class
  * @name Bubble
+ * @public
  * @description
  *      This class represents a Bubble. <br>
  *		A bubble is an interaction between several participants based on IM media. A bubble is described by a name and a description.<br>
@@ -101,6 +102,7 @@ class Bubble {
     };
 
     /**
+     * The privilege of the Contact in the Bubble.
      * @public
      * @readonly
      * @enum {String}
@@ -115,6 +117,7 @@ class Bubble {
     };
 
     /**
+     * Behaviour of the Bubble's History 
      * @public
      * @readonly
      * @enum {String}

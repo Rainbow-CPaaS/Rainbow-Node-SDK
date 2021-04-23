@@ -1,20 +1,31 @@
 "use strict";
 
-/*
-* @typedef Err
-* @readonly
-* @enum {number}
+/**
+ *   The code of the errors raised by the SDK.
+ * @public
+ * @enum {number}
+ * @readonly
 */
 const code = {
+    /** OK code result */
 	"OK": 1,
+    /** ERROR code result */
 	"ERROR": -1,
+    /** ERRORUNAUTHORIZED code result */
 	"ERRORUNAUTHORIZED": -2,
+    /** ERRORXMPP code result */
 	"ERRORXMPP": -4,
+    /** ERRORXMPPJID code result */
 	"ERRORXMPPJID": -8,
+    /** ERRORBADREQUEST code result */
 	"ERRORBADREQUEST": -16,
+    /** ERRORUNSUPPORTED code result */
 	"ERRORUNSUPPORTED": -32,
+    /** ERRORNOTFOUND code result */
 	"ERRORNOTFOUND": -64,
+    /** ERRORFORBIDDEN code result */
     "ERRORFORBIDDEN": -128,
+    /** OTHERERROR code result */
     "OTHERERROR": -256
 };
 
@@ -26,8 +37,11 @@ const code = {
 */
 
 /**
- * @module
+ * @class
  * @name ErrorManager
+ * @public
+ * @description
+ *  The errors raised by the SDK.
  */
 class ErrorManager {
     private static xmppUtils: ErrorManager;

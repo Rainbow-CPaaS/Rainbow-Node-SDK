@@ -7,7 +7,7 @@ import groovy.transform.Field
 @Field
 Map defaults = [
         build: 'nodesdk', // Which SDK documentation will be build
-        nextVersion: '0.0.0', // Debian package version (should be triggered by desktop jenkins tasks). It's a 3 digits numbers.
+        nextVersion: '0.0.0', // Debian package version. It's a 3 digits numbers.
         stash: 'doc'
 ]
 
@@ -27,8 +27,9 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-lts.0', description: 'What is the version of the LTS SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the LTS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the lts SDK built?')
+        booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
         //booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this LTS version be also an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
@@ -149,7 +150,7 @@ pipeline {
                     npm token list
                         
                     echo ---------- STEP publish :
-                    npm publish --tag lts
+                    npm publish
                         
                     echo ---------- PUSH tags AND files :
                     git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a lts version."
@@ -161,6 +162,9 @@ pipeline {
                     export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
                     ${SENDEMAIL} && npm run-script sendmailPreProduction
                     ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+                    
+                    # To send the mailing only to vincent.berder@al-enterprise.com . 
+                    ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
                          
                     more ~/.npmrc.sav > ~/.npmrc
                 """
@@ -179,7 +183,7 @@ pipeline {
                         echo "Build Documentation from Makefile"
                         make alllts
                         echo "{ 
-                         \"lts\": false,
+                         \"lts\": true,
                          \"ltsbeta\": false,
                          \"sts\": false
                         }" > ./doc/sdk/node/lts/version.json

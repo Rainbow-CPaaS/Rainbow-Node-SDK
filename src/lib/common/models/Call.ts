@@ -3,7 +3,13 @@ import {Channel} from "./Channel";
 
 export {};
 
-
+/**
+ * @class
+ * @name Call
+ * @public
+ * @description
+ *      This class represents a Call. <br>
+ */
 class Call {
 	public status: any;
 	public id: any;
@@ -399,9 +405,10 @@ class Call {
 
 
 /**
+ * status of the Call.
  * @public
  * @readonly
- * @enum {Object}
+ * @enum {{ key: number, value: string }}
  */
 Call.Status = {
     /** Call cleared */
@@ -472,8 +479,9 @@ Call.Status = {
 };
 
 /**
+ * The Type of the Call
  * @public
- * @enum {Object}
+ * @enum {{ key: number, value: string }}
  * @readonly
  */
 Call.Type = {
@@ -490,8 +498,9 @@ Call.Type = {
 };
 
 /**
+ * The Type of Media of the Call
  * @public
- * @enum {Object}
+ * @enum {{ key: number, value: string }}
  * @readonly
  */
 Call.Media = {

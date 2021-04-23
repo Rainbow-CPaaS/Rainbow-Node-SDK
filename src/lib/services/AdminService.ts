@@ -16,8 +16,16 @@ import {GenericService} from "./GenericService";
 
 const LOG_ID = "ADMIN/SVCE - ";
 
+/**
+ * Offer type provided by Rainbow
+ * @public
+ * @enum {string}
+ * @readonly
+ */
 enum  OFFERTYPES {
+    /** freemium licence offer */
     FREEMIUM= "freemium",
+    /** premium licence offer */
     PREMIUM= "premium"
 }
 

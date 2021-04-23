@@ -10,6 +10,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.0.0] - 2021-04-20
 -   Add Jenkinsfile-sts.groovy file for the delivery of STS Verstion with a jenkins pipeline job.
 -   Add Jenkinsfile-lts.groovy file for the delivery of LTS Verstion with a jenkins pipeline job.
+-   Update API Documentation
 -   First official STS Version.
 
 ## [1.87.0-test.16] - 2021-04-20

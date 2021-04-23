@@ -36,11 +36,17 @@ declare module 'lib/common/Utils' {
 }
 declare module 'lib/common/models/Channel' {
 	export {}; enum Appreciation {
+	    /** Applause */
 	    Applause = "applause",
+	    /** Doubt */
 	    Doubt = "doubt",
+	    /** Fantastic */
 	    Fantastic = "fantastic",
+	    /** Happy */
 	    Happy = "happy",
+	    /** Like */
 	    Like = "like",
+	    /** None (no appreciation) */
 	    None = "none"
 	} class Channel {
 	    name: string;
@@ -444,9 +450,13 @@ declare module 'lib/connection/XMPPServiceHandler/iqEventHandler' {
 }
 declare module 'lib/config/config' {
 	 enum DataStoreType {
+	    /** Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact. */
 	    NoStore = "no-store",
+	    /** Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending). */
 	    NoPermanentStore = "no-permanent-store",
+	    /** The messages are fully stored. */
 	    StoreTwinSide = "storetwinside",
+	    /** To follow the storeMessages SDK's parameter behaviour. */
 	    UsestoreMessagesField = "OldstoreMessagesUsed"
 	} let conf: {
 	    sandbox: {
@@ -718,15 +728,25 @@ declare module 'lib/common/Logger' {
 }
 declare module 'lib/common/ErrorManager' {
 	 const code: {
+	    /** OK code result */
 	    OK: number;
+	    /** ERROR code result */
 	    ERROR: number;
+	    /** ERRORUNAUTHORIZED code result */
 	    ERRORUNAUTHORIZED: number;
+	    /** ERRORXMPP code result */
 	    ERRORXMPP: number;
+	    /** ERRORXMPPJID code result */
 	    ERRORXMPPJID: number;
+	    /** ERRORBADREQUEST code result */
 	    ERRORBADREQUEST: number;
+	    /** ERRORUNSUPPORTED code result */
 	    ERRORUNSUPPORTED: number;
+	    /** ERRORNOTFOUND code result */
 	    ERRORNOTFOUND: number;
+	    /** ERRORFORBIDDEN code result */
 	    ERRORFORBIDDEN: number;
+	    /** OTHERERROR code result */
 	    OTHERERROR: number;
 	}; class ErrorManager {
 	    private static xmppUtils;
@@ -842,122 +862,57 @@ declare module 'lib/common/models/Offer' {
 }
 declare module 'lib/common/models/PresenceRainbow' {
 	 enum PresenceLevel {
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Offline/Invisible The presence of the contact is not connected
-	     * @instance
-	     */
+	    /** Offline/Invisible The presence of the contact is not connected */
 	    Offline = "offline",
+	    /** Offline/Invisible The presence of the contact is not connected */
 	    Invisible = "invisible",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Online The presence of the contact is connected
-	     * @instance
-	     */
+	    /** The presence of the contact is connected */
 	    Online = "online",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Online The presence of the contact is connected
-	     * @instance
-	     */
+	    /** The presence of the contact is connected on mobile */
 	    OnlineMobile = "online-mobile",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Away The presence of the contact is connected but away from a long time
-	     * @instance
-	     */
+	    /** The presence of the contact is connected but away from a long time */
 	    Away = "away",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Dnd The presence of the contact is in "Do not disturb" state
-	     * @instance
-	     */
+	    /** The presence of the contact is in "Do not disturb" state */
 	    Dnd = "dnd",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Busy The presence of the contact is in "Busy" state
-	     * @instance
-	     */
+	    /** The presence of the contact is in "Busy" state */
 	    Busy = "busy",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Xa The presence of the contact appear offline but to stay still connected.
-	     * @instance
-	     */
+	    /** The presence of the contact appear offline but to stay still connected. */
 	    Xa = "xa",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Unknown The presence of the contact is not known
-	     * @instance
-	     */
+	    /** The presence of the contact is not known */
 	    Unknown = "Unknown",
+	    /** internal */
 	    Chat = "chat",
+	    /** The presence of the contact is an empty string */
 	    EmptyString = ""
 	} enum PresenceShow {
+	    /** The presence of the contact is connected */
 	    Online = "online",
+	    /** The presence of the contact is disconnected */
 	    Offline = "offline",
+	    /** The contact is in "Do not disturb" state */
 	    Dnd = "dnd",
+	    /** For current contact only - to appear offline but to stay still connected */
 	    Xa = "xa",
+	    /** The contact is away */
 	    Away = "away",
+	    /** The Show is Chat */
 	    Chat = "chat",
+	    /** The Show is empty string */
 	    EmptyString = ""
 	} enum PresenceStatus {
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Online The presence of the contact is connected
-	     * @instance
-	     */
+	    /** The presence of the contact is connected */
 	    Online = "online",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} ModeAuto The presence of the contact is connected
-	     * @instance
-	     */
+	    /** The presence of the contact is disconnected */
 	    ModeAuto = "mode=auto",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Away The contact is connected but away from a long time
-	     * @instance
-	     */
+	    /** The contact is connected but away from a long time */
 	    Away = "away",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Phone The contact is on phone
-	     * @instance
-	     */
+	    /** The contact is on phone */
 	    Phone = "phone",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Presentation The contact is on presentation
-	     * @instance
-	     */
+	    /** The contact is on presentation */
 	    Presentation = "presentation",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} Mobile The contact is on mobile phone
-	     * @instance
-	     */
+	    /** The contact is on mobile phone */
 	    Mobile = "mobile",
-	    /**
-	     * @public
-	     * @readonly
-	     * @property {string} EmptyString The status is empty string.
-	     * @instance
-	     */
+	    /** The status is empty string. */
 	    EmptyString = ""
 	} enum PresenceDetails {
 	    Inactive = "inactive",
@@ -970,9 +925,13 @@ declare module 'lib/common/models/PresenceRainbow' {
 	    Free = "free",
 	    EmptyString = ""
 	} enum PresencePhone {
+	    /** The PBX service is available - the phone is not currently used */
 	    EVT_CONNECTION_CLEARED = "EVT_CONNECTION_CLEARED",
+	    /** The PBX service is available - there is a incoming or outgoing call in ringing state */
 	    EVT_SERVICE_INITIATED = "EVT_SERVICE_INITIATED",
+	    /** The PBX service is available - there is a current call */
 	    EVT_ESTABLISHED = "EVT_ESTABLISHED",
+	    /** The PBX service is not available / operational so we don't know the presence phone */
 	    NOT_AVAILABLE = "NOT_AVAILABLE"
 	} class PresenceInfo {
 	    get presenceShow(): string;
@@ -1020,9 +979,13 @@ declare module 'lib/common/models/Contact' {
 	    /** No administrator right */
 	    UNDEFINED: string;
 	}; const NameUpdatePrio: {
+	    /** no update prio then could be updated */
 	    NO_UPDATE_PRIO: number;
+	    /** prio associated to outlook name resolution update */
 	    OUTLOOK_UPDATE_PRIO: number;
+	    /** prio associated to server name resolution (phonebook or office365AD ...) update */
 	    SERVER_UPDATE_PRIO: number;
+	    /** max prio : no update could overwrite */
 	    MAX_UPDATE_PRIO: number;
 	}; class Contact {
 	    id: any;
@@ -1141,9 +1104,34 @@ declare module 'lib/connection/XMPPServiceHandler/favoriteEventHandler' {
 	export { FavoriteEventHandler };
 
 }
-declare module 'lib/common/models/Favorite' {
+declare module 'lib/common/models/AlertFilter' {
 	export {};
-	export class Favorite {
+	import { List } from 'ts-generic-collections-linq'; class AlertFilter {
+	    id: string;
+	    name: string;
+	    companyId: string;
+	    tags: List<string>;
+	    constructor(id?: string, name?: string, companyId?: string, tags?: List<string>);
+	} class AlertFiltersData {
+	    private alertFilters;
+	    total: number;
+	    limit: number;
+	    offset: number;
+	    private lockEngine;
+	    private lockKey;
+	    constructor(limit?: number);
+	    lock(fn: any): any;
+	    addAlertFilter(alertFilter: AlertFilter): Promise<AlertFilter>;
+	    removeBubbleToJoin(alertFilter: AlertFilter): Promise<any>;
+	    getAlertFilter(): Promise<AlertFilter>;
+	    first(): Promise<AlertFilter>;
+	    last(): Promise<AlertFilter>;
+	}
+	export { AlertFilter, AlertFiltersData };
+
+}
+declare module 'lib/common/models/Favorite' {
+	export {}; class Favorite {
 	    id: string;
 	    peerId: string;
 	    type: string;
@@ -1152,6 +1140,7 @@ declare module 'lib/common/models/Favorite' {
 	    conv: any;
 	    constructor(id: string, peerId: string, type: string);
 	}
+	export { Favorite };
 
 }
 declare module 'lib/services/FavoritesService' {
@@ -1185,8 +1174,9 @@ declare module 'lib/services/FavoritesService' {
 	     * @description
 	     * get favorite from cach by Id.
 	     * @param {string} peerId The id of the favorite.
+	     * @return {Promise<Favorite>} The favorite corresponding to the peerId
 	     */
-	    getFavorite(peerId: string): Promise<void>;
+	    getFavorite(peerId: string): Promise<Favorite>;
 	    private createFavoriteObj;
 	    private onXmppEvent;
 	    /**
@@ -1196,9 +1186,9 @@ declare module 'lib/services/FavoritesService' {
 	     * @instance
 	     * @description
 	     *   Fetch all the Favorites from the server in a form of an Array <br/>
-	     * @return {Conversation[]} An array of Favorite objects
+	     * @return {Array<Favorite>} An array of Favorite objects
 	     */
-	    fetchAllFavorites(): Promise<unknown>;
+	    fetchAllFavorites(): Promise<Array<Favorite>>;
 	    /**
 	     * @public
 	     * @since 1.56
@@ -1329,6 +1319,7 @@ declare module 'lib/common/models/Bubble' {
 	        PUBLIC: number;
 	    };
 	    /**
+	     * The privilege of the Contact in the Bubble.
 	     * @public
 	     * @readonly
 	     * @enum {String}
@@ -1342,6 +1333,7 @@ declare module 'lib/common/models/Bubble' {
 	        GUEST: string;
 	    };
 	    /**
+	     * Behaviour of the Bubble's History
 	     * @public
 	     * @readonly
 	     * @enum {String}
@@ -5413,7 +5405,7 @@ declare module 'lib/services/FileStorageService' {
 
 }
 declare module 'lib/common/models/GeoLoc' {
-	 class GeoLoc {
+	export {}; class GeoLoc {
 	    datum: string;
 	    latitude: string;
 	    longitude: string;
@@ -5428,12 +5420,14 @@ declare module 'lib/common/models/Message' {
 	import { Conversation } from 'lib/common/models/Conversation';
 	export {}; class Message {
 	    /**
+	     *  The Type of message.
 	     * @public
-	     * @enum {number}
+	     * @enum {{ key: number, value: string }}
 	     * @readonly
 	     */
 	    static Type: any;
 	    /**
+	     * The Status of the Receipt.
 	     * @public
 	     * @enum {number}
 	     * @readonly
@@ -5457,6 +5451,7 @@ declare module 'lib/common/models/Message' {
 	     */
 	    static ReceiptStatusText: string[];
 	    /**
+	     * The Side of Message's from
 	     * @public
 	     * @enum {string}
 	     * @readonly
@@ -8303,7 +8298,9 @@ declare module 'lib/services/AdminService' {
 	import { Logger } from 'lib/common/Logger';
 	import { Contact } from 'lib/common/models/Contact';
 	import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
+	    /** freemium licence offer */
 	    FREEMIUM = "freemium",
+	    /** premium licence offer */
 	    PREMIUM = "premium"
 	} class Admin extends GenericService {
 	    private _contacts;
@@ -10001,32 +9998,6 @@ declare module 'lib/common/models/AlertTemplate' {
 	    last(): Promise<AlertTemplate>;
 	}
 	export { AlertTemplate, AlertTemplatesData };
-
-}
-declare module 'lib/common/models/AlertFilter' {
-	export {};
-	import { List } from 'ts-generic-collections-linq'; class AlertFilter {
-	    id: string;
-	    name: string;
-	    companyId: string;
-	    tags: List<string>;
-	    constructor(id?: string, name?: string, companyId?: string, tags?: List<string>);
-	} class AlertFiltersData {
-	    private alertFilters;
-	    total: number;
-	    limit: number;
-	    offset: number;
-	    private lockEngine;
-	    private lockKey;
-	    constructor(limit?: number);
-	    lock(fn: any): any;
-	    addAlertFilter(alertFilter: AlertFilter): Promise<AlertFilter>;
-	    removeBubbleToJoin(alertFilter: AlertFilter): Promise<any>;
-	    getAlertFilter(): Promise<AlertFilter>;
-	    first(): Promise<AlertFilter>;
-	    last(): Promise<AlertFilter>;
-	}
-	export { AlertFilter, AlertFiltersData };
 
 }
 declare module 'lib/services/AlertsService' {

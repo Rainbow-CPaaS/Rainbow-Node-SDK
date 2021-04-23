@@ -281,11 +281,13 @@ class FavoritesService extends GenericService{
      * @description
      * get favorite from cach by Id.
      * @param {string} peerId The id of the favorite.
+     * @return {Promise<Favorite>} The favorite corresponding to the peerId
      */
-    public async getFavorite(peerId: string) {
+    public async getFavorite(peerId: string) : Promise<Favorite> {
         let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
         //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
         //return await convGetter;
+        return favorite;
     }
 
     private async createFavoriteObj(id: string, peerId: string, type: string) {
@@ -363,9 +365,9 @@ class FavoritesService extends GenericService{
      * @instance
      * @description
      *   Fetch all the Favorites from the server in a form of an Array <br/>
-     * @return {Conversation[]} An array of Favorite objects
+     * @return {Array<Favorite>} An array of Favorite objects
      */
-    public async fetchAllFavorites() {
+    public async fetchAllFavorites() : Promise<Array<Favorite>> {
         let that = this;
 
         return new Promise((resolve, reject) => {

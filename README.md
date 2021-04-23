@@ -14,7 +14,8 @@ Its powerfull APIs enable you to create the best Node.js applications that conne
 
 This documentation will help you to use it.
 
-Change LOG RSS Flow is available at : https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.xml
+Change LOG RSS Flow for STS Version is available at : https://hub.openrainbow.com/doc/sdk/node/sts/api/ChangeLogRSS.xml
+Change LOG RSS Flow for LTS Version is available at : https://hub.openrainbow.com/doc/sdk/node/lts/api/ChangeLogRSS.xml
 
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 
@@ -177,6 +178,7 @@ rainbowSDK.events.on(<name_of_the_event_to_listen>, callback);
 Here is an example for listening when the SDK is ready to be used (once the connection is successfull to Rainbow):
 
 ```js
+
 ...
 rainbowSDK.events.on('rainbow_onready', () => {
     // do something when the SDK is ready to be used
@@ -220,7 +222,8 @@ Here is list of some events that you can subscribe on:
 | **rainbow_onbubbleownaffiliationchanged** | Fired when a user changes the user connected affiliation with a bubble |
 | **rainbow_onbubbleinvitationreceived** | Fired when an invitation to join a bubble is received |
 
-Full list is available at [here](https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/events)
+Full list for STS Version is available at [here](https://hub.openrainbow.com/#/documentation/doc/sdk/node/sts/api/events)
+Full list for LTS Version is available at [here](https://hub.openrainbow.com/#/documentation/doc/sdk/node/lts/api/events)
 
 ## Instant Messaging
 
