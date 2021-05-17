@@ -8,7 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import * as fileapi from "file-api";
 import {Observable} from 'rxjs';
 import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
-import {fileDescriptorFactory} from "../common/models/fileDescriptor";
+import {fileDescriptorFactory} from "../common/models/FileDescriptor";
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
