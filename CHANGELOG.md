@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.0.1] - 2021-04-XX
 -   Authorized the method "cleanMemoryCache" to be called when services are not connected (in Utils::isStarted).
+-   Fix null Contact in `ContactsService::cleanMemoryCache()` method.
 
 ## [2.0.0] - 2021-04-20
 -   Add Jenkinsfile-sts.groovy file for the delivery of STS Verstion with a jenkins pipeline job.
