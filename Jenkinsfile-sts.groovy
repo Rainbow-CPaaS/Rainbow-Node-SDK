@@ -114,10 +114,10 @@ pipeline {
                     git config --global user.email "vincent.berder@al-enterprise.com"
                     git config --global user.name "vincent.berder@al-enterprise.com"
                         
-                    echo ---------- Create a specific branch :
-                    git branch "delivered${RAINBOWNODESDKVERSION}" 
-                    git checkout "delivered${RAINBOWNODESDKVERSION}"
-                    git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                    #echo ---------- Create a specific branch :
+                    #git branch "delivered${RAINBOWNODESDKVERSION}" 
+                    #git checkout "delivered${RAINBOWNODESDKVERSION}"
+                    #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
                         
                     #echo "registry=http://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
@@ -146,7 +146,8 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                    #git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                    git reset --hard origin/STSDelivery
                     npm version "${RAINBOWNODESDKVERSION}" 
                         
                     echo ---------- STEP whoami :
@@ -166,8 +167,10 @@ pipeline {
                         
                     echo ---------- PUSH tags AND files :
                     git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
-                    git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                    git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    #git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    #git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    git push  origin HEAD:${env.BRANCH_NAME}
+                    git push --tags origin HEAD:${env.BRANCH_NAME}
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
                     export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
@@ -194,9 +197,9 @@ pipeline {
                         echo "Build Documentation from Makefile"
                         make allsts
                         echo "{ 
-                         \"lts\": false,
-                         \"ltsbeta\": ${LTSBETA},
-                         \"sts\": true
+                         \\"lts\\": false,
+                         \\"ltsbeta\\": ${LTSBETA},
+                         \\"sts\\": true
                         }" > ./doc/sdk/node/sts/version.json
                     """
                                   

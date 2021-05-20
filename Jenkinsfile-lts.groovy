@@ -113,6 +113,11 @@ pipeline {
                     git config --global user.email "vincent.berder@al-enterprise.com"
                     git config --global user.name "vincent.berder@al-enterprise.com"
                         
+                    echo ---------- Create a specific branch :
+                    git branch "delivered${RAINBOWNODESDKVERSION}" 
+                    git checkout "delivered${RAINBOWNODESDKVERSION}"
+                    git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                        
                     #echo "registry=http://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
@@ -140,7 +145,7 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard origin/LTSDelivery
+                    git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
                     npm version "${RAINBOWNODESDKVERSION}" 
                         
                     echo ---------- STEP whoami :
@@ -154,8 +159,8 @@ pipeline {
                         
                     echo ---------- PUSH tags AND files :
                     git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a lts version."
-                    git push  origin HEAD:${env.BRANCH_NAME}
-                    git push --tags origin HEAD:${env.BRANCH_NAME}
+                    git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
                     export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
@@ -183,9 +188,9 @@ pipeline {
                         echo "Build Documentation from Makefile"
                         make alllts
                         echo "{ 
-                         \"lts\": true,
-                         \"ltsbeta\": false,
-                         \"sts\": false
+                         \\"lts\\": true,
+                         \\"ltsbeta\\": false,
+                         \\"sts\\": false
                         }" > ./doc/sdk/node/lts/version.json
                     """
                                   
