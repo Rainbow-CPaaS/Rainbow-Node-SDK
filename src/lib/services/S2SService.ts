@@ -199,10 +199,12 @@ class S2SService extends GenericService{
             that.fullJid = "";
             that.userId = "";
             that._logger.log("debug", LOG_ID + "(stop)" );
-            that.setStopped ();
             if (that._useS2S || forceStop) {
-                resolve(that.deleteAllConnectionsS2S());
+                resolve(that.deleteAllConnectionsS2S().then(() => {
+                    that.setStopped ();
+                }));
             } else {
+                that.setStopped ();
                 resolve(undefined);
             }
         });
