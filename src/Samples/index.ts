@@ -2866,6 +2866,22 @@ async function testcreateAlert() {
     
 //endregion    
     
+    //region Rainbow Voice
+    async function testgetCloudPbxById() {
+        // To use with 
+        let systemId = "5cf7dd229fb99523e4de0ea9";
+        let result = await rainbowSDK.admin.getCloudPbxById(systemId);
+        logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
+    } 
+    
+    async function testgetCloudPbxs() {
+        // To use with 
+        let result = await rainbowSDK.admin.getCloudPbxs();
+        logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
+    }
+
+    //endregion
+    
 function commandLineInteraction() {
     let questions = [
         {

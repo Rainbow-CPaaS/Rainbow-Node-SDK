@@ -2291,19 +2291,19 @@ class Admin extends GenericService {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!companyId) {
-                    this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'companyId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'companyId' parameter : ", companyId);
+                    this._logger.log("warn", LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter : ", companyId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.retrieveLdapConnectorConfig(companyId);
-                that._logger.log("debug", "(createConfigurationForLdapConnector) - sent.");
-                that._logger.log("internal", "(createConfigurationForLdapConnector) - result : ", result);
+                that._logger.log("debug", "(retrieveLdapConnectorConfig) - sent.");
+                that._logger.log("internal", "(retrieveLdapConnectorConfig) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createConfigurationForLdapConnector) Error.");
-                that._logger.log("internalerror", LOG_ID + "(createConfigurationForLdapConnector) Error : ", err);
+                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorConfig) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorConfig) Error : ", err);
                 return reject(err);
             }
         });
@@ -2313,6 +2313,86 @@ class Admin extends GenericService {
     //endregion LDAP APIs to use
     
     //endregion AD/LDAP
+    
+    //region Rainbow Voice Communication Platform Provisioning
+    // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
+
+    /**
+     * @public
+     * @method getCloudPbxById
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows administrator to retrieve a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPbxById (systemId) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                //companyId = companyId ? companyId : that._rest.account.companyId;
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPbxById(systemId);
+                that._logger.log("debug", "(getCloudPbxById) - sent.");
+                that._logger.log("internal", "(getCloudPbxById) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPbxById) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPbxById) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPbxs
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @description
+     *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPbxs () {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                //companyId = companyId ? companyId : that._rest.account.companyId;
+
+                /*
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPbxs) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPbxs) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                } // */
+
+                let result = await that._rest.getCloudPbxs();
+                that._logger.log("debug", "(getCloudPbxs) - sent.");
+                that._logger.log("internal", "(getCloudPbxs) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPbxs) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPbxs) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion Rainbow Voice Communication Platform Provisioning 
+    
 }
 
 module.exports.AdminService = Admin;

@@ -20,6 +20,7 @@ import {ROOMROLE} from "../services/S2SService";
 import {urlencoded} from "body-parser";
 import {Core} from "../Core";
 import {Channel} from "../common/models/Channel";
+import {ErrorManager} from "../common/ErrorManager";
 
 const jwt : any = jwtDecode;
 
@@ -5613,7 +5614,54 @@ Request Method: PUT
     //endregion LDAP APIs to use:
 
     //endregion AD/LDAP
-    
+
+    //region Rainbow Voice Communication Platform Provisioning
+    // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
+
+    getCloudPbxById (systemId) {
+// https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/569d0ef3ef7816921f7e94fa
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId;
+            //addParamToUrl(url, "systemId", systemId);
+
+            that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCloudPbxById) successfull");
+                that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCloudPbxById) error");
+                that.logger.log("internalerror", LOG_ID, "(getCloudPbxById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCloudPbxs() {
+        // https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs";
+            //addParamToUrl(url, "systemId", systemId);
+
+            that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCloudPbxById) successfull");
+                that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCloudPbxById) error");
+                that.logger.log("internalerror", LOG_ID, "(getCloudPbxById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    //endregion Rainbow Voice Communication Platform Provisioning 
+
+
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

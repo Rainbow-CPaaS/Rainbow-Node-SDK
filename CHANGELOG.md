@@ -12,6 +12,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix null Contact in `ContactsService::cleanMemoryCache()` method.
 -   Fix S2SService::stop method.
 -   Fix quotes in generated version.json file. 
+-   Start implementation of "Rainbow Voice Communication Platform Provisioning" API.
+-   Add `AdminService::getCloudPbxById` API that allows administrator to retrieve a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPbxs` API that allows administrator to retrieve a list of CloudPBXs..
 
 ## [2.0.0] - 2021-04-20
 -   Add Jenkinsfile-sts.groovy file for the delivery of STS Verstion with a jenkins pipeline job.
