@@ -147,7 +147,7 @@ pipeline {
                         
                     #echo ---------- STEP commit : 
                     git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-                    npm version "${RAINBOWNODESDKVERSION}" --force
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                         
                     echo ---------- STEP whoami :
                     npm whoami
