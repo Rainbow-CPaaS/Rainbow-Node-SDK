@@ -30,6 +30,7 @@ pipeline {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the LTS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the lts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
+        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: false, description: 'Publish the lts SDK built to npmjs and save the tag/branch to GIT.')
         //booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this LTS version be also an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
@@ -114,9 +115,9 @@ pipeline {
                     git config --global user.name "vincent.berder@al-enterprise.com"
                         
                     echo ---------- Create a specific branch :
-                    git branch "delivered${RAINBOWNODESDKVERSION}" 
-                    git checkout "delivered${RAINBOWNODESDKVERSION}"
-                    git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}" 
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
                         
                     #echo "registry=http://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
@@ -155,12 +156,12 @@ pipeline {
                     npm token list
                         
                     echo ---------- STEP publish :
-                    npm publish
+                    ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
                         
                     echo ---------- PUSH tags AND files :
-                    git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a lts version."
-                    git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                    git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a lts version."
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
                     export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
