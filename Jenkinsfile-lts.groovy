@@ -146,7 +146,11 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = true ]; then
+                        git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                    else
+                        git reset --hard "origin/LTSDelivery"
+                    fi    
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                         
                     echo ---------- STEP whoami :
