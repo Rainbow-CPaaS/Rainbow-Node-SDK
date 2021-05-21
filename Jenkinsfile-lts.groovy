@@ -30,7 +30,7 @@ pipeline {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the LTS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the lts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
-        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: false, description: 'Publish the lts SDK built to npmjs and save the tag/branch to GIT.')
+        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the lts SDK built to npmjs and save the tag/branch to GIT.')
         //booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this LTS version be also an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
