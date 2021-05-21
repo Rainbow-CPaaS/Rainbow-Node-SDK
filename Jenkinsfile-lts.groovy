@@ -217,6 +217,9 @@ pipeline {
                                 echo "copy Docs and Debian config files to the folder Documentation ."
 
                                 cd "${workspace}"
+                                echo find debian in workspace
+                                find debian
+                                
                                 mkdir -p Documentation
                                 cp -R doc debian Documentation/
                      
