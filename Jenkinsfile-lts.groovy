@@ -30,7 +30,7 @@ pipeline {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the LTS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the lts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
-        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: false, description: 'Publish the lts SDK built to npmjs and save the tag/branch to GIT.')
+        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the lts SDK built to npmjs and save the tag/branch to GIT.')
         //booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this LTS version be also an LTS BETA Version ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
@@ -146,8 +146,12 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-                    npm version "${RAINBOWNODESDKVERSION}" 
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = true ]; then
+                        git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                    else
+                        git reset --hard "origin/LTSDelivery"
+                    fi    
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                         
                     echo ---------- STEP whoami :
                     npm whoami
@@ -217,6 +221,9 @@ pipeline {
                                 echo "copy Docs and Debian config files to the folder Documentation ."
 
                                 cd "${workspace}"
+                                echo find debian in workspace
+                                find debian
+                                
                                 mkdir -p Documentation
                                 cp -R doc debian Documentation/
                      
@@ -236,8 +243,9 @@ pipeline {
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
-                                 
-                                #find Documentation/
+                                
+                                echo FIND Documentation :  
+                                find Documentation/
                                 #cd "${workspace}/Documentation"
                                 """
                                 echo "Build debian the package : "
