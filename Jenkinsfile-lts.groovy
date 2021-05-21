@@ -236,8 +236,9 @@ pipeline {
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
-                                 
-                                #find Documentation/
+                                
+                                echo FIND Documentation :  
+                                find Documentation/
                                 #cd "${workspace}/Documentation"
                                 """
                                 echo "Build debian the package : "
