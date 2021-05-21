@@ -31,6 +31,7 @@ pipeline {
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
+        booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -113,6 +114,11 @@ pipeline {
                     git config --global user.email "vincent.berder@al-enterprise.com"
                     git config --global user.name "vincent.berder@al-enterprise.com"
                         
+                    #echo ---------- Create a specific branch :
+                    #git branch "delivered${RAINBOWNODESDKVERSION}" 
+                    #git checkout "delivered${RAINBOWNODESDKVERSION}"
+                    #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                        
                     #echo "registry=http://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
@@ -140,6 +146,7 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
+                    #git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
                     git reset --hard origin/STSDelivery
                     npm version "${RAINBOWNODESDKVERSION}" 
                         
@@ -150,10 +157,18 @@ pipeline {
                     npm token list
                         
                     echo ---------- STEP publish :
-                    npm publish --tag sts
+                    if [[ "${PUBLISHONNPMJSWITHSTSTAG}" == true ]]; then
+                        echo "Publish on npmjs with tag."
+                        npm publish --tag sts
+                    else
+                        echo "Publish on npmjs with node .net tag."
+                        npm publish --tag .net
+                    fi
                         
                     echo ---------- PUSH tags AND files :
                     git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
+                    #git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    #git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
                     git push  origin HEAD:${env.BRANCH_NAME}
                     git push --tags origin HEAD:${env.BRANCH_NAME}
 
@@ -182,9 +197,9 @@ pipeline {
                         echo "Build Documentation from Makefile"
                         make allsts
                         echo "{ 
-                         \"lts\": false,
-                         \"ltsbeta\": ${LTSBETA},
-                         \"sts\": true
+                         \\"lts\\": false,
+                         \\"ltsbeta\\": ${LTSBETA},
+                         \\"sts\\": true
                         }" > ./doc/sdk/node/sts/version.json
                     """
                                   
