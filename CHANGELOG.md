@@ -14,7 +14,48 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix quotes in generated version.json file. 
 -   Start implementation of "Rainbow Voice Communication Platform Provisioning" API.
 -   Add `AdminService::getCloudPbxById` API that allows administrator to retrieve a CloudPBX using its identifier.
--   Add `AdminService::getCloudPbxs` API that allows administrator to retrieve a list of CloudPBXs..
+-   Add `AdminService::getCloudPbxs` API that allows administrator to retrieve a list of CloudPBXs.
+-   Add `AdminService::subscribeCompanyToAlertOffer` API that allows administrator to subscribe one company to offer Alert. Private offer on .Net platform.
+-   Add `AdminService::unSubscribeCompanyToAlertOffer` API that allows administrator to unsubscribe one company to offer Alert. Private offer on .Net platform.
+-   Add `AdminService::subscribeCompanyToVoiceEnterpriseOffer` API Method to subscribe one company to offer Voice Enterprise.
+-   Add `AdminService::unSubscribeCompanyToVoiceEnterpriseOffer` API Method to unsubscribe one company to offer Voice Enterprise.
+-   Add `AdminService::updateCloudPBX` API that allows administrator to update a CloudPBX using its identifier.
+-   Add `AdminService::deleteCloudPBX` API that allows administrator to delete a CloudPBX using its identifier.
+-   Add `AdminService::createACloudPBX` API that allows administrator to creates a CloudPBX for a given company.
+-   Add `AdminService::getCloudPBXCLIPolicyForOutboundCalls` API that allows administrator to retrieve the CloudPBX CLI options for outbound calls using its identifier.
+-   Add `AdminService::updateCloudPBXCLIOptionsConfiguration` API that allows administrator to update a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXlanguages` API that allows administrator to retrieve a list of languages supported by a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXDeviceModels` API that allows administrator to retrieve a list of device models supported by a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXTrafficBarringOptions` API that allows administrator to retrieve a list of traffic barring options supported by a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXEmergencyNumbersAndEmergencyOptions` API that allows administrator to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier.
+-   Add `AdminService::CreateCloudPBXSIPDevice` API that allows administrator to create a new SIP device into a CloudPBX.
+-   Add `AdminService::factoryResetCloudPBXSIPDevice` API that allows administrator to reset a SIP deskphone device to its factory settings.
+-   Add `AdminService::getCloudPBXSIPDeviceById` API that allows administrator to retrieve a SIP device using the given deviceId.
+-   Add `AdminService::deleteCloudPBXSIPDevice` API that allows administrator to remove a SIP Device from a CloudPBX.
+-   Add `AdminService::updateCloudPBXSIPDevice` API that allows administrator to update a SIP device.
+-   Add `AdminService::getAllCloudPBXSIPDevice` API that allows administrator to filter devices according their assignment to a subscriber false, allows to obtain all devices not yet assigned to a subscriber.
+-   Add `AdminService::getCloudPBXSIPRegistrationsInformationDevice` API that allows administrator to retrieve SIP registrations information relative to a device.
+-   Add `AdminService::grantCloudPBXAccessToDebugSession` API that allows administrator to grant access to debug session on the given device.
+-   Add `AdminService::revokeCloudPBXAccessFromDebugSession` API that allows administrator to revoke access to debug session on the given device.
+-   Add `AdminService::rebootCloudPBXSIPDevice` API that allows administrator to reboot a SIP deskphone device.
+-   Add `AdminService::getCloudPBXSubscriber` API that allows administrator to get data of a CloudPBX Subscriber.
+-   Add `AdminService::deleteCloudPBXSubscriber` API that allows administrator to delete a CloudPBX Subscriber
+-   Add `AdminService::createCloudPBXSubscriberRainbowUser` API that allows administrator to create a new CloudPBX Subscriber for a Rainbow User.
+-   Add `AdminService::getCloudPBXSIPdeviceAssignedSubscriber` API that allows administrator to retrieve a given SIP device assigned to a subscriber.
+-   Add `AdminService::removeCloudPBXAssociationSubscriberAndSIPdevice` API that allows administrator to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).
+-   Add `AdminService::getCloudPBXAllSIPdevicesAssignedSubscriber` API that allows administrator to retrieve all SIP devices assigned to a subscriber.
+-   Add `AdminService::getCloudPBXInfoAllRegisteredSIPdevicesSubscriber` API that allows administrator to retrieve registrations info on all devices registered for a subscriber.
+-   Add `AdminService::assignCloudPBXSIPDeviceToSubscriber` API that allows administrator to assign a SIP device to a CloudPBX Subscriber.
+-   Add `AdminService::getCloudPBXSubscriberCLIOptions` API that allows administrator to get CLI policy of a CloudPBX Subscriber.
+-   Add `AdminService::getCloudPBXUnassignedInternalPhonenumbers` API that allows administrator to list all unassigned internal phone numbers for a given CloudPBX system.
+-   Add `AdminService::listCloudPBXDDINumbersAssociated` API that allows administrator to get the list of DDI numbers associated to a CloudPBX.
+-   Add `AdminService::createCloudPBXDDINumber` API that allows administrator to create a DDI number for a CloudPBX.
+-   Add `AdminService::deleteCloudPBXDDINumber` API that allows administrator to delete a DDI number for a CloudPBX.
+-   Add `AdminService::associateCloudPBXDDINumber` API that allows administrator to associate a DDI number to a Rainbow user.
+-   Add `AdminService::disassociateCloudPBXDDINumber` API that allows administrator to disassociate a DDI number from a Rainbow user.
+-   Add `AdminService::setCloudPBXDDIAsdefault` API that allows administrator to set a DDI number as default DDI for a CloudPBX.
+-   Add `AdminService::retrieveExternalSIPTrunkById` API that allows administrator to retrieve an external SIP trunk using its identifier.
+-   Add `AdminService::retrievelistExternalSIPTrunks` API that allows administrator to retrieve a list of external SIP trunks.
 
 ## [2.0.0] - 2021-04-20
 -   Add Jenkinsfile-sts.groovy file for the delivery of STS Verstion with a jenkins pipeline job.

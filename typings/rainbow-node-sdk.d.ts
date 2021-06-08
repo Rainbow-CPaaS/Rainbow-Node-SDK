@@ -4616,6 +4616,47 @@ declare module 'lib/connection/RESTService' {
 	    createConfigurationForLdapConnector(companyId: string, settings: any): Promise<unknown>;
 	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean): Promise<unknown>;
 	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
+	    getCloudPbxById(systemId: any): Promise<unknown>;
+	    updateCloudPBX(systemId: any, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<unknown>;
+	    deleteCloudPBX(systemId: string): Promise<{
+	        status: string;
+	    }>;
+	    getCloudPbxs(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string): Promise<unknown>;
+	    createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string): Promise<unknown>;
+	    getCloudPBXCLIPolicyForOutboundCalls(systemId: string): Promise<unknown>;
+	    updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: string): Promise<unknown>;
+	    getCloudPBXlanguages(systemId: string): Promise<unknown>;
+	    getCloudPBXDeviceModels(systemId: string): Promise<unknown>;
+	    getCloudPBXTrafficBarringOptions(systemId: string): Promise<unknown>;
+	    getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string): Promise<unknown>;
+	    CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string): Promise<unknown>;
+	    factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    getCloudPBXSIPDeviceById(systemId: string, deviceId: string): Promise<unknown>;
+	    deleteCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string): Promise<unknown>;
+	    getAllCloudPBXSIPDevice(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, assigned: boolean, phoneNumberId: string): Promise<unknown>;
+	    getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string): Promise<unknown>;
+	    revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string): Promise<unknown>;
+	    rebootCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    getCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string): Promise<unknown>;
+	    getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
+	    removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
+	    getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, phoneNumberId: string): Promise<unknown>;
+	    getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string): Promise<unknown>;
+	    getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    getCloudPBXUnassignedInternalPhonenumbers(systemId: string): Promise<unknown>;
+	    listCloudPBXDDINumbersAssociated(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean): Promise<unknown>;
+	    createCloudPBXDDINumber(systemId: string, number: string): Promise<unknown>;
+	    deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
+	    disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
+	    setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    retrieveExternalSIPTrunkById(externalTrunkId: string): Promise<unknown>;
+	    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string): Promise<unknown>;
 	}
 	export { RESTService, MEDIATYPE, GuestParams };
 
@@ -4636,7 +4677,7 @@ declare module 'lib/common/models/FileViewer' {
 	export { FileViewerElementFactory, FileViewer };
 
 }
-declare module 'lib/common/models/fileDescriptor' {
+declare module 'lib/common/models/FileDescriptor' {
 	export {}; class FileState {
 	    static DELETED: string;
 	    static UPLOADING: string;
@@ -4732,7 +4773,7 @@ declare module 'lib/services/FileServerService' {
 	import { Logger } from 'lib/common/Logger';
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
-	import { FileDescriptor } from 'lib/common/models/fileDescriptor';
+	import { FileDescriptor } from 'lib/common/models/FileDescriptor';
 	import { GenericService } from 'lib/services/GenericService'; class FileServer extends GenericService {
 	    private _capabilities;
 	    private transferPromiseQueue;
@@ -8299,9 +8340,14 @@ declare module 'lib/services/AdminService' {
 	import { Contact } from 'lib/common/models/Contact';
 	import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
 	    /** freemium licence offer */
-	    FREEMIUM = "freemium",
+	    "FREEMIUM" = "freemium",
 	    /** premium licence offer */
-	    PREMIUM = "premium"
+	    "PREMIUM" = "premium"
+	} enum CLOUDPBXCLIOPTIONPOLICY {
+	    /** installation_ddi_number */
+	    "INSTALLATION_DDI_NUMBER" = "installation_ddi_number",
+	    /** user_ddi_number */
+	    "USER_DDI_NUMBER" = "user_ddi_number"
 	} class Admin extends GenericService {
 	    private _contacts;
 	    static getClassName(): string;
@@ -8828,30 +8874,56 @@ declare module 'lib/services/AdminService' {
 	    unSubscribeCompanyToDemoOffer(companyId?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method subscribeCompanyToDemoOffer
+	     * @method subscribeCompanyToAlertOffer
 	     * @since 1.73
 	     * @instance
 	     * @async
-	     * @param {string} companyId Id of the company to get the subscription of the offer.
+	     * @param {string} companyId Id of the company to the subscription of the offer.
 	     * @description
-	     *      Method to subscribe one company to offer demo. <br/>
+	     *      Method to subscribe one company to offer Alert. <br/>
 	     *      Private offer on .Net platform. <br/>
 	     * @return {Promise<any>}
 	     */
 	    subscribeCompanyToAlertOffer(companyId?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method unSubscribeCompanyToDemoOffer
+	     * @method unSubscribeCompanyToAlertOffer
 	     * @since 1.73
 	     * @instance
 	     * @async
-	     * @param {string} companyId Id of the company to get the subscription of the offer.
+	     * @param {string} companyId Id of the company to the unsubscription of the offer.
 	     * @description
-	     *      Method to unsubscribe one company to offer demo. <br/>
+	     *      Method to unsubscribe one company to offer Alert. <br/>
 	     *      Private offer on .Net platform. <br/>
 	     * @return {Promise<any>}
 	     */
 	    unSubscribeCompanyToAlertOffer(companyId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method subscribeCompanyToVoiceEnterpriseOffer
+	     * @since 1.73
+	     * @instance
+	     * @async
+	     * @param {string} companyId Id of the company the subscription of the offer.
+	     * @description
+	     *      Method to subscribe one company to offer Voice Enterprise. <br/>
+	     *      Private offer on .Net platform. <br/>
+	     * @return {Promise<any>}
+	     */
+	    subscribeCompanyToVoiceEnterpriseOffer(companyId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method unSubscribeCompanyToVoiceEnterpriseOffer
+	     * @since 1.73
+	     * @instance
+	     * @async
+	     * @param {string} companyId Id of the company to the unsubscription of the offer.
+	     * @description
+	     *      Method to unsubscribe one company to offer Voice Enterprise. <br/>
+	     *      Private offer on .Net platform. <br/>
+	     * @return {Promise<any>}
+	     */
+	    unSubscribeCompanyToVoiceEnterpriseOffer(companyId?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method unSubscribeCompanyToOfferById
@@ -9006,6 +9078,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @param {string} CSVTxt CSV File content to be checked.
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
 	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
@@ -9444,9 +9517,589 @@ declare module 'lib/services/AdminService' {
 	     *          } <br/>
 	     * @return {Promise<{Object}>}
 	     */
-	    retrieveLdapConnectorConfig(companyId: any): Promise<unknown>;
+	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPbxById
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows administrator to retrieve a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPbxById(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateCloudPBX
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} barringOptions_permissions Identifier of the traffic barring permission to apply
+	     * @param {string} barringOptions_restrictions Identifier of the traffic barring restriction to apply
+	     * @param {string} callForwardOptions_externalCallForward Indicates if an external call forward is authorized
+	     * @param {string} customSipHeader_1 Value to put as Custom SIP Header 1 into SIP data for an external outgoing call
+	     * @param {string} customSipHeader_2 Value to put as Custom SIP Header 2 into SIP data for an external outgoing call
+	     * @param {boolean} emergencyOptions_callAuthorizationWithSoftPhone Indicates if SoftPhone can perform an emergency call over voip
+	     * @param {boolean} emergencyOptions_emergencyGroupActivated Indicates if emergency Group is active
+	     * @param {string} externalTrunkId External trunk that should be linked to this CloudPBX
+	     * @param {string} language New language for this CloudPBX. Values : "ro" "es" "it" "de" "ru" "fr" "en" "ar" "he" "nl"
+	     * @param {string} name New CloudPBX name
+	     * @param {number} numberingDigits Number of digits for CloudPBX numbering plan. If a numberingPrefix is provided, this parameter is mandatory.
+	     * For example, if numberingPrefix is 8 and numberingDigits is 4, allowed numbers for this CloudPBX will be from 8000 to 8999.
+	     * @param {number} numberingPrefix Prefix for CloudPBX numbering plan
+	     * @param {number} outgoingPrefix Company outgoing prefix
+	     * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk)
+	     * @description
+	     *      This API allows to update a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    updateCloudPBX(systemId: any, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteCloudPBX
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows to delete a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    deleteCloudPBX(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPbxs
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @description
+	     *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPbxs(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createACloudPBX
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} bpId Identifier of the BP to which CloudPBX should be linked with.
+	     * @param {string} companyId Required Identifier of the company for which CloudPBX should be created.
+	     * @param {string} customSipHeader_1 Value to put as CustomSipHeader_1 into SIP data for an external outgoing call.
+	     * @param {string} customSipHeader_2 Value to put as CustomSipHeader_2 into SIP data for an external outgoing call.
+	     * @param {string} externalTrunkId External trunk identifier that should be linked to this CloudPBX.
+	     * @param {string} language Associated language for this CloudPBX. Values : "ro" "es" "it" "de" "ru" "fr" "en" "ar" "he" "nl".  default : "en".
+	     * @param {string} name CloudPBX name. If not provided, will be something like 'cloud_pbx_companyName'.
+	     * @param {number} noReplyDelay In case of overflow no reply forward on subscribers, timeout in seconds after which the call will be forwarded. Default 20.
+	     * @param {number} numberingDigits Number of digits for CloudPBX numbering plan. If a numberingPrefix is provided, this parameter is mandatory. <br>
+	     * For example, if numberingPrefix is 8 and numberingDigits is 4, allowed numbers for this CloudPBX will be from 8000 to 8999.
+	     * @param {number} numberingPrefix Prefix for CloudPBX numbering plan.
+	     * @param {number} outgoingPrefix Company outgoing prefix.
+	     * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk).
+	     * @param {string} siteId Identifier of the site on which CloudPBX should be created.
+	     * @description
+	     *      This API allows to creates a CloudPBX for a given company. <br/>
+	     * @return {Promise<any>}
+	     */
+	    createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXCLIPolicyForOutboundCalls
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXCLIPolicyForOutboundCalls(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateCloudPBXCLIOptionsConfiguration
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number".
+	     * @description
+	     *      This API allows to update a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: CLOUDPBXCLIOPTIONPOLICY): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXlanguages
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXlanguages(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXDeviceModels
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXDeviceModels(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXTrafficBarringOptions
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXTrafficBarringOptions(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @description
+	     *      This API allows to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method CreateCloudPBXSIPDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} description Description for identifying the device
+	     * @param {number} deviceTypeId Device type Identifier - see API GET /cloudpbxs/:id/devicemodels to get the list of supported models for the CloudPBX.
+	     * @param {string} macAddress Device mac address - mandatory for SIP deskphone device
+	     * @description
+	     *      This API allows allows to create a new SIP device into a CloudPBX. This SIP device can then be assigned to an existing subscriber. <br/>
+	     * @return {Promise<any>}
+	     */
+	    CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method factoryResetCloudPBXSIPDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device to be reset
+	     * @description
+	     *      This API allows to reset a SIP deskphone device to its factory settings.<br/>
+	     *      Be aware that the device will no longer be operational, and should, after the factory reset, need to be manually configured (e.g. at least auto provisioning Url will need to be set). <br/>
+	     * @return {Promise<any>}
+	     */
+	    factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXSIPDeviceById
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device to get
+	     * @description
+	     *      This API allows to retrieve a SIP device using the given deviceId.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXSIPDeviceById(systemId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteCloudPBXSIPDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device to delete
+	     * @description
+	     *      This API allows to remove a SIP Device from a CloudPBX. To do so, the SIP device must no longer be associated to a subscriber.<br/>
+	     * @return {Promise<any>}
+	     */
+	    deleteCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateCloudPBXSIPDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} description new description
+	     * @param {string} deviceId Unique identifier of the SIP device to delete
+	     * @param {string} macAddress new device mac address
+	     * @description
+	     *      This API allows to update a SIP device.<br/>
+	     * @return {Promise<any>}
+	     */
+	    updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllCloudPBXSIPDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
+	     * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort SIP Devices list based on the given field.
+	     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
+	     * @param {boolean} assigned Allows to filter devices according their assignment to a subscriber
+	     *      false, allows to obtain all devices not yet assigned to a subscriber.
+	     *      true, allows to obtain all devices already assigned to a subscriber.
+	     *      if undefined ; all devices whatever their assignment status are returned
+	     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
+	     *      This parameter can be a list of phoneNumberId separated by a space (space has to be encoded)
+	     * @async
+	     * @description
+	     *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getAllCloudPBXSIPDevice(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, assigned: boolean, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXSIPRegistrationsInformationDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device for which SIP registrations information should be retrieved.
+	     * @description
+	     *      This API allows to retrieve SIP registrations information relative to a device.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method grantCloudPBXAccessToDebugSession
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device for which the debug session access will be granted.
+	     * @param {string} duration Duration, in seconds, of the debug session - Only superadmin can set a debug duration different from the default one (configuration parameter: e.g. 30 minutes)
+	     * @description
+	     *      This API allows  to grant access to debug session on the given device.<br/>
+	     *      When debug session is granted on the device, admins can retrieve the admin password of the device, url to access the device admin page and also initiate ssh session with the device. <br/>
+	     *      A debug session can be terminated by: <br/>
+	     *      Calling the device revoke API <br/>
+	     *      After debug session has timed out, a periodic check is performed by the portal to revoke expired debug sessions (periodicity defined by configuration parameter). <br/>
+	     *
+	     *      During debug session, adminUrl and adminPassword of the device can be retrieved by getting device information.  <br/>
+	     *      Please note that adminUrl could be unreachable depending on network configuration. <br/>
+	     *      When a debug session is closed, ssh access to the device is deactivated, and the admin password of the device is modified.<br/>
+	     * @return {Promise<any>}
+	     */
+	    grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method revokeCloudPBXAccessFromDebugSession
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device access will be revoked
+	     * @description
+	     *      This API allows  to revoke access to debug session on the given device. <br/>
+	     *      When revoked, the debug session can no longer be used. <br/>
+	     *      The admin password is no longer visible (changed). <br/>
+	     * @return {Promise<any>}
+	     */
+	    revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method rebootCloudPBXSIPDevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} deviceId Unique identifier of the SIP device access will be revoked
+	     * @description
+	     *      This API allows  to reboot a SIP deskphone device. <br/>
+	     * @return {Promise<any>}
+	     */
+	    rebootCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXSubscriber
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
+	     * @description
+	     *      This API allows to get data of a CloudPBX Subscriber.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteCloudPBXSubscriber
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
+	     * @description
+	     *      This API allows to delete a CloudPBX Subscriber. All its associated SIP devices become free for other subscribers.<br/>
+	     * @return {Promise<any>}
+	     */
+	    deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createCloudPBXSubscriberRainbowUser
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} login SIP username (if not provided ; shortNumber is used as SIP username)
+	     * @param {string} password SIP password for all associated SIP devices (if not provided ; it will be automatically generated).
+	     * Only lowercases, digits, * and # are authorized characters. Minimum length is 8, maximum is 12
+	     * @param {string} shortNumber Internal Number of the new CloudPBX Subscriber
+	     * @param {string} userId Unique identifier of the associated Rainbow User
+	     * @description
+	     *      This API allows to create a new CloudPBX Subscriber for a Rainbow User.<br/>
+	     *      This new subscriber will appear as a new entry into "phoneNumbers" list of the targeted Rainbow User.<br/>
+	     * @return {Promise<any>}
+	     */
+	    createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXSIPdeviceAssignedSubscriber
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber associated to the SIP device to retrieve.
+	     * @param {string} deviceId Unique identifier of the SIP device to retrieve
+	     * @description
+	     *      This API allows to retrieve a given SIP device assigned to a subscriber.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method removeCloudPBXAssociationSubscriberAndSIPdevice
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the Sip device association must be deleted.
+	     * @param {string} deviceId Unique identifier of the SIP device to free
+	     * @description
+	     *      This API allows to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).<br/>
+	     * @return {Promise<any>}
+	     */
+	    removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXAllSIPdevicesAssignedSubscriber
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
+	     * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort SIP Devices list based on the given field.
+	     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
+	     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
+	     * @async
+	     * @description
+	     *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXInfoAllRegisteredSIPdevicesSubscriber
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber for which all SIP registrations must be retrieved
+	     * @async
+	     * @description
+	     *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method assignCloudPBXSIPDeviceToSubscriber
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the SIP device must be assigned
+	     * @param {string} deviceId Unique identifier of the device to assign
+	     * @param {string} macAddress device mac address
+	     * @description
+	     *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br/>
+	     *      The device must have been previously created.<br/>
+	     *      Assigning a device to a subscriber can de done by specifying the device Id (preferred) in the request, or the device mac address.<br/>
+	     *      Assigning a device to a subscriber can de done by specifying the device Id in the request, or the device mac address and deviceType Id.<br/>
+	     * @return {Promise<any>}
+	     */
+	    assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXSubscriberCLIOptions
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id)
+	     * @async
+	     * @description
+	     *      This API allows to get CLI policy of a CloudPBX Subscriber.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCloudPBXUnassignedInternalPhonenumbers
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @async
+	     * @description
+	     *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getCloudPBXUnassignedInternalPhonenumbers(systemId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method listCloudPBXDDINumbersAssociated
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {number} limit Allow to specify the number of DDI numbers to retrieve. Default : 100.
+	     * @param {number} offset Allow to specify the position of first DDI number to retrieve (first site if not specified)
+	     * Warning: if offset > total, no results are returned
+	     * @param {string} sortField Sort DDI numbers list based on the given field. Default : "number"
+	     * @param {number} sortOrder Specify order when sorting DDI numbers list. Default : 1. Valid values : -1, 1.
+	     * @param {boolean} isAssignedToUser Allows to filter DDI numbers list if they are assigned to a user or not
+	     * @param {boolean} isAssignedToGroup Allows to filter DDI numbers list if they are assigned to a group or not (e.g. hunting group)
+	     * @param {boolean} isAssignedToIVR Allows to filter DDI numbers list if they are assigned to a IVR or not
+	     * @param {boolean} isAssignedToAutoAttendant Allows to filter DDI numbers list if they are assigned to a Auto attendant or not
+	     * @param {boolean} isAssigned Allows to filter DDI numbers list if they are assigned (to a user or to a group or to a IVR) or not assigned
+	     * @async
+	     * @description
+	     *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br/>
+	     * @return {Promise<any>}
+	     */
+	    listCloudPBXDDINumbersAssociated(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createCloudPBXDDINumber
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} number DDI number
+	     * @async
+	     * @description
+	     *      This API allows to create a DDI number for a CloudPBX.<br/>
+	     * @return {Promise<any>}
+	     */
+	    createCloudPBXDDINumber(systemId: string, number: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteCloudPBXDDINumber
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier
+	     * @async
+	     * @description
+	     *      This API allows to delete a DDI number for a CloudPBX. <br/>
+	     *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br/>
+	     * @return {Promise<any>}
+	     */
+	    deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method associateCloudPBXDDINumber
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier
+	     * @param {string} userId Rainbow user unique identifier
+	     * @async
+	     * @description
+	     *      This API allows to associate a DDI number to a Rainbow user. <br/>
+	     * @return {Promise<any>}
+	     */
+	    associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method disassociateCloudPBXDDINumber
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier.
+	     * @param {string} userId Rainbow user unique identifier.
+	     * @async
+	     * @description
+	     *      This API allows to disassociate a DDI number from a Rainbow user. <br/>
+	     * @return {Promise<any>}
+	     */
+	    disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method setCloudPBXDDIAsdefault
+	     * @since 2.0.2
+	     * @instance
+	     * @param {string} systemId CloudPBX unique identifier.
+	     * @param {string} phoneNumberId PhoneNumber unique identifier.
+	     * @async
+	     * @description
+	     *      This API allows to set a DDI number as default DDI for a CloudPBX. <br/>
+	     * @return {Promise<any>}
+	     */
+	    setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method retrieveExternalSIPTrunkById
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} externalTrunkId External trunk unique identifier
+	     * @description
+	     *      This API allows to retrieve an external SIP trunk using its identifier. <br/>
+	     * @return {Promise<any>}
+	     */
+	    retrieveExternalSIPTrunkById(externalTrunkId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method retrievelistExternalSIPTrunks
+	     * @since 2.0.2
+	     * @instance
+	     * @async
+	     * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br/>
+	     *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br/>
+	     * @param {string} status Allows to filter external SIP trunks by status. <br/>
+	     *          This filter allows to load all external SIP trunks according to their status. <br/>
+	     *          Valid values : "new" "active". <br/>
+	     * @param {string} trunkType Allows to filter external SIP trunks by their type. <br/>
+	     * @description
+	     *      This API allows superadmin or bp_admin to retrieve a list of external SIP trunks. <br/>
+	     *      bp_admin can list only external SIP trunks he is allowed to use. <br/>
+	     * @return {Promise<any>}
+	     */
+	    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string): Promise<unknown>;
 	}
-	export { Admin as AdminService, OFFERTYPES };
+	export { Admin as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY };
 
 }
 declare module 'lib/common/StateManager' {

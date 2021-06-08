@@ -22,12 +22,25 @@ const LOG_ID = "ADMIN/SVCE - ";
  * @enum {string}
  * @readonly
  */
-enum  OFFERTYPES {
+enum OFFERTYPES {
     /** freemium licence offer */
-    FREEMIUM= "freemium",
+    "FREEMIUM" = "freemium",
     /** premium licence offer */
-    PREMIUM= "premium"
+    "PREMIUM" = "premium"
 }
+
+/**
+ * The CloudPBX CLI policy value to apply.
+ * @public
+ * @readonly
+ * @enum {String}
+ */
+enum CLOUDPBXCLIOPTIONPOLICY {
+    /** installation_ddi_number */
+    "INSTALLATION_DDI_NUMBER" = "installation_ddi_number",
+    /** user_ddi_number */
+    "USER_DDI_NUMBER" = "user_ddi_number"
+};
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -551,7 +564,6 @@ class Admin extends GenericService {
      * @category async
      */
     deleteUser(userId) {
-
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -1362,13 +1374,13 @@ class Admin extends GenericService {
 
     /**
      * @public
-     * @method subscribeCompanyToDemoOffer
+     * @method subscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
      * @async
-     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {string} companyId Id of the company to the subscription of the offer.
      * @description
-     *      Method to subscribe one company to offer demo. <br/>
+     *      Method to subscribe one company to offer Alert. <br/>
      *      Private offer on .Net platform. <br/>
      * @return {Promise<any>}
      */
@@ -1383,7 +1395,7 @@ class Admin extends GenericService {
                 for (let offer of Offers) {
                     that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer : ", offer);
                     if (offer.name === "Alert Demo" || offer.name === "Alert Custom") { //
-                        that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
+                        that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer Alert Custom found : ", offer);
                         return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
                 }
@@ -1396,13 +1408,13 @@ class Admin extends GenericService {
 
     /**
      * @public
-     * @method unSubscribeCompanyToDemoOffer
+     * @method unSubscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
      * @async
-     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {string} companyId Id of the company to the unsubscription of the offer.
      * @description
-     *      Method to unsubscribe one company to offer demo. <br/>
+     *      Method to unsubscribe one company to offer Alert. <br/>
      *      Private offer on .Net platform. <br/>
      * @return {Promise<any>}
      */
@@ -1417,7 +1429,74 @@ class Admin extends GenericService {
                 for (let offer of Offers) {
                     that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer : ", offer);
                     if (offer.name === "Alert Demo" || offer.name === "Alert Custom") {
-                        that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer Enterprise Demo found : ", offer);
+                        that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer Alert Custom found : ", offer);
+                        resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
+                    }
+                }
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method subscribeCompanyToVoiceEnterpriseOffer
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company the subscription of the offer.
+     * @description
+     *      Method to subscribe one company to offer Voice Enterprise. <br/>
+     *      Private offer on .Net platform. <br/>
+     * @return {Promise<any>}
+     */
+    subscribeCompanyToVoiceEnterpriseOffer(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                that._logger.log("debug", "(subscribeCompanyToVoiceEnterpriseOffer) - Offers : ", Offers);
+                for (let offer of Offers) {
+                    that._logger.log("debug", "(subscribeCompanyToVoiceEnterpriseOffer) offer : ", offer);
+                    if ( offer.name === "Voice Enterprise Custom") { //
+                        that._logger.log("debug", "(subscribeCompanyToVoiceEnterpriseOffer) offer Voice Enterprise Custom found : ", offer);
+                        return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
+                    }
+                }
+                return reject ({"code" : -1, "label" : "Failed to subscribeCompanyToVoiceEnterpriseOffer"}) ;
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method unSubscribeCompanyToVoiceEnterpriseOffer
+     * @since 1.73
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company to the unsubscription of the offer.
+     * @description
+     *      Method to unsubscribe one company to offer Voice Enterprise. <br/>
+     *      Private offer on .Net platform. <br/>
+     * @return {Promise<any>}
+     */
+    unSubscribeCompanyToVoiceEnterpriseOffer(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+                let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                that._logger.log("debug", "(unSubscribeCompanyToVoiceEnterpriseOffer) - Offers : ", Offers);
+                for (let offer of Offers) {
+                    that._logger.log("debug", "(unSubscribeCompanyToVoiceEnterpriseOffer) offer : ", offer);
+                    if (offer.name === "Voice Enterprise Custom") {
+                        that._logger.log("debug", "(unSubscribeCompanyToVoiceEnterpriseOffer) offer Voice Enterprise Custom found : ", offer);
                         resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
                     }
                 }
@@ -1692,6 +1771,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @param {string} CSVTxt CSV File content to be checked.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
@@ -2283,7 +2363,7 @@ class Admin extends GenericService {
      *          } <br/>
      * @return {Promise<{Object}>}
      */
-    retrieveLdapConnectorConfig (companyId) {
+    retrieveLdapConnectorConfig (companyId : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -2317,6 +2397,8 @@ class Admin extends GenericService {
     //region Rainbow Voice Communication Platform Provisioning
     // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
 
+    //region CloudPBX
+    
     /**
      * @public
      * @method getCloudPbxById
@@ -2328,7 +2410,7 @@ class Admin extends GenericService {
      *      This API allows administrator to retrieve a CloudPBX using its identifier. <br/>
      * @return {Promise<any>}
      */
-    getCloudPbxById (systemId) {
+    getCloudPbxById (systemId : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -2356,6 +2438,93 @@ class Admin extends GenericService {
 
     /**
      * @public
+     * @method updateCloudPBX
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} barringOptions_permissions Identifier of the traffic barring permission to apply
+     * @param {string} barringOptions_restrictions Identifier of the traffic barring restriction to apply
+     * @param {string} callForwardOptions_externalCallForward Indicates if an external call forward is authorized
+     * @param {string} customSipHeader_1 Value to put as Custom SIP Header 1 into SIP data for an external outgoing call
+     * @param {string} customSipHeader_2 Value to put as Custom SIP Header 2 into SIP data for an external outgoing call
+     * @param {boolean} emergencyOptions_callAuthorizationWithSoftPhone Indicates if SoftPhone can perform an emergency call over voip
+     * @param {boolean} emergencyOptions_emergencyGroupActivated Indicates if emergency Group is active
+     * @param {string} externalTrunkId External trunk that should be linked to this CloudPBX 
+     * @param {string} language New language for this CloudPBX. Values : "ro" "es" "it" "de" "ru" "fr" "en" "ar" "he" "nl"
+     * @param {string} name New CloudPBX name
+     * @param {number} numberingDigits Number of digits for CloudPBX numbering plan. If a numberingPrefix is provided, this parameter is mandatory.
+     * For example, if numberingPrefix is 8 and numberingDigits is 4, allowed numbers for this CloudPBX will be from 8000 to 8999.
+     * @param {number} numberingPrefix Prefix for CloudPBX numbering plan
+     * @param {number} outgoingPrefix Company outgoing prefix
+     * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk)
+     * @description
+     *      This API allows to update a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    updateCloudPBX (systemId, barringOptions_permissions : string, barringOptions_restrictions : string, callForwardOptions_externalCallForward : string, customSipHeader_1 : string, customSipHeader_2 : string, emergencyOptions_callAuthorizationWithSoftPhone : boolean, emergencyOptions_emergencyGroupActivated : boolean, externalTrunkId : string, language : string, name : string, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number,routeInternalCallsToPeer  : boolean) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                //companyId = companyId ? companyId : that._rest.account.companyId;
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.updateCloudPBX(systemId, barringOptions_permissions , barringOptions_restrictions , callForwardOptions_externalCallForward , customSipHeader_1 , customSipHeader_2 , emergencyOptions_callAuthorizationWithSoftPhone , emergencyOptions_emergencyGroupActivated , externalTrunkId , language , name , numberingDigits , numberingPrefix , outgoingPrefix ,routeInternalCallsToPeer);
+                that._logger.log("debug", "(updateCloudPBX) - sent.");
+                that._logger.log("internal", "(updateCloudPBX) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateCloudPBX) Error.");
+                that._logger.log("internalerror", LOG_ID + "(updateCloudPBX) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCloudPBX
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows to delete a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    deleteCloudPBX (systemId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.deleteCloudPBX(systemId);
+                that._logger.log("debug", "(deleteCloudPBX) - sent.");
+                that._logger.log("internal", "(deleteCloudPBX) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteCloudPBX) Error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBX) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
      * @method getCloudPbxs
      * @since 2.0.2
      * @instance
@@ -2364,21 +2533,12 @@ class Admin extends GenericService {
      *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
      * @return {Promise<any>}
      */
-    getCloudPbxs () {
+    getCloudPbxs ( limit : number, offset : number, sortField : string, sortOrder : number, companyId : string, bpId : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
             try {
-                //companyId = companyId ? companyId : that._rest.account.companyId;
-
-                /*
-                if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPbxs) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPbxs) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                } // */
-
-                let result = await that._rest.getCloudPbxs();
+                let result = await that._rest.getCloudPbxs( limit, offset, sortField, sortOrder, companyId, bpId );
                 that._logger.log("debug", "(getCloudPbxs) - sent.");
                 that._logger.log("internal", "(getCloudPbxs) - result : ", result);
 
@@ -2390,6 +2550,1606 @@ class Admin extends GenericService {
             }
         });
     }
+
+    /**
+     * @public
+     * @method createACloudPBX
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} bpId Identifier of the BP to which CloudPBX should be linked with.
+     * @param {string} companyId Required Identifier of the company for which CloudPBX should be created.
+     * @param {string} customSipHeader_1 Value to put as CustomSipHeader_1 into SIP data for an external outgoing call.
+     * @param {string} customSipHeader_2 Value to put as CustomSipHeader_2 into SIP data for an external outgoing call.
+     * @param {string} externalTrunkId External trunk identifier that should be linked to this CloudPBX.
+     * @param {string} language Associated language for this CloudPBX. Values : "ro" "es" "it" "de" "ru" "fr" "en" "ar" "he" "nl".  default : "en".
+     * @param {string} name CloudPBX name. If not provided, will be something like 'cloud_pbx_companyName'.
+     * @param {number} noReplyDelay In case of overflow no reply forward on subscribers, timeout in seconds after which the call will be forwarded. Default 20.
+     * @param {number} numberingDigits Number of digits for CloudPBX numbering plan. If a numberingPrefix is provided, this parameter is mandatory. <br>
+     * For example, if numberingPrefix is 8 and numberingDigits is 4, allowed numbers for this CloudPBX will be from 8000 to 8999.
+     * @param {number} numberingPrefix Prefix for CloudPBX numbering plan.
+     * @param {number} outgoingPrefix Company outgoing prefix.
+     * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk).
+     * @param {string} siteId Identifier of the site on which CloudPBX should be created.
+     * @description
+     *      This API allows to creates a CloudPBX for a given company. <br/>
+     * @return {Promise<any>}
+     */
+    createACloudPBX (bpId : string, companyId : string, customSipHeader_1 : string, customSipHeader_2 : string, externalTrunkId : string, language : string, name : string, noReplyDelay : number, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number, routeInternalCallsToPeer : boolean, siteId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+
+                let result = await that._rest.createACloudPBX(bpId, companyId, customSipHeader_1, customSipHeader_2, externalTrunkId, language, name, noReplyDelay, numberingDigits, numberingPrefix, outgoingPrefix, routeInternalCallsToPeer, siteId );
+                that._logger.log("debug", "(createACloudPBX) - sent.");
+                that._logger.log("internal", "(createACloudPBX) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createACloudPBX) Error.");
+                that._logger.log("internalerror", LOG_ID + "(createACloudPBX) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXCLIPolicyForOutboundCalls
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXCLIPolicyForOutboundCalls (systemId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXCLIPolicyForOutboundCalls(systemId);
+                that._logger.log("debug", "(getCloudPBXCLIPolicyForOutboundCalls) - sent.");
+                that._logger.log("internal", "(getCloudPBXCLIPolicyForOutboundCalls) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method updateCloudPBXCLIOptionsConfiguration
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number". 
+     * @description
+     *      This API allows to update a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    updateCloudPBXCLIOptionsConfiguration (systemId : string, policy: CLOUDPBXCLIOPTIONPOLICY) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!policy) {
+                    this._logger.log("warn", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter : ", policy);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.updateCloudPBXCLIOptionsConfiguration(systemId, policy);
+                that._logger.log("debug", "(updateCloudPBXCLIOptionsConfiguration) - sent.");
+                that._logger.log("internal", "(updateCloudPBXCLIOptionsConfiguration) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) Error.");
+                that._logger.log("internalerror", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXlanguages
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXlanguages(systemId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXlanguages(systemId);
+                that._logger.log("debug", "(getCloudPBXlanguages) - sent.");
+                that._logger.log("internal", "(getCloudPBXlanguages) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXlanguages) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXDeviceModels
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXDeviceModels(systemId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXDeviceModels(systemId);
+                that._logger.log("debug", "(getCloudPBXlanguages) - sent.");
+                that._logger.log("internal", "(getCloudPBXlanguages) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXlanguages) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXTrafficBarringOptions
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXTrafficBarringOptions(systemId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXTrafficBarringOptions(systemId);
+                that._logger.log("debug", "(getCloudPBXTrafficBarringOptions) - sent.");
+                that._logger.log("internal", "(getCloudPBXTrafficBarringOptions) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXTrafficBarringOptions) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXTrafficBarringOptions) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @description
+     *      This API allows to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId);
+                that._logger.log("debug", "(getCloudPBXEmergencyNumbersAndEmergencyOptions) - sent.");
+                that._logger.log("internal", "(getCloudPBXEmergencyNumbersAndEmergencyOptions) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion CloudPBX
+    //region Cloudpbx Devices
+
+    /**
+     * @public
+     * @method CreateCloudPBXSIPDevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} description Description for identifying the device
+     * @param {number} deviceTypeId Device type Identifier - see API GET /cloudpbxs/:id/devicemodels to get the list of supported models for the CloudPBX.
+     * @param {string} macAddress Device mac address - mandatory for SIP deskphone device
+     * @description
+     *      This API allows allows to create a new SIP device into a CloudPBX. This SIP device can then be assigned to an existing subscriber. <br/>
+     * @return {Promise<any>}
+     */
+    CreateCloudPBXSIPDevice (systemId : string,   description : string,  deviceTypeId  : string,  macAddress  : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!description) {
+                    this._logger.log("warn", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter : ", description);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (! deviceTypeId ) {
+                    this._logger.log("warn", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter : ", description);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.CreateCloudPBXSIPDevice(systemId, description, deviceTypeId,  macAddress);
+                that._logger.log("debug", "(CreateCloudPBXSIPDevice) - sent.");
+                that._logger.log("internal", "(CreateCloudPBXSIPDevice) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(CreateCloudPBXSIPDevice) Error.");
+                that._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method factoryResetCloudPBXSIPDevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device to be reset
+     * @description
+     *      This API allows to reset a SIP deskphone device to its factory settings.<br/>
+     *      Be aware that the device will no longer be operational, and should, after the factory reset, need to be manually configured (e.g. at least auto provisioning Url will need to be set). <br/>
+     * @return {Promise<any>}
+     */
+    factoryResetCloudPBXSIPDevice (systemId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.factoryResetCloudPBXSIPDevice(systemId, deviceId);
+                that._logger.log("debug", "(factoryResetCloudPBXSIPDevice) - sent.");
+                that._logger.log("internal", "(factoryResetCloudPBXSIPDevice) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(factoryResetCloudPBXSIPDevice) Error.");
+                that._logger.log("internalerror", LOG_ID + "(factoryResetCloudPBXSIPDevice) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXSIPDeviceById
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device to get
+     * @description
+     *      This API allows to retrieve a SIP device using the given deviceId.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXSIPDeviceById (systemId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXSIPDeviceById(systemId, deviceId);
+                that._logger.log("debug", "(getCloudPBXSIPDeviceById) - sent.");
+                that._logger.log("internal", "(getCloudPBXSIPDeviceById) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXSIPDeviceById) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPDeviceById) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCloudPBXSIPDevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device to delete
+     * @description
+     *      This API allows to remove a SIP Device from a CloudPBX. To do so, the SIP device must no longer be associated to a subscriber.<br/>
+     * @return {Promise<any>}
+     */
+    deleteCloudPBXSIPDevice (systemId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteCloudPBXSIPDevice(systemId, deviceId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(deleteCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteCloudPBXSIPDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSIPDevice) error : ", err);
+                return reject(err);
+            }
+        });
+
+    }
+
+    /**
+     * @public
+     * @method updateCloudPBXSIPDevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} description new description
+     * @param {string} deviceId Unique identifier of the SIP device to delete
+     * @param {string} macAddress new device mac address
+     * @description
+     *      This API allows to update a SIP device.<br/>
+     * @return {Promise<any>}
+     */
+    updateCloudPBXSIPDevice (systemId : string,   description : string,  deviceId  : string,  macAddress  : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (! deviceId ) {
+                    this._logger.log("warn", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.updateCloudPBXSIPDevice(systemId, description, deviceId,  macAddress);
+                that._logger.log("debug", "(updateCloudPBXSIPDevice) - sent.");
+                that._logger.log("internal", "(updateCloudPBXSIPDevice) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateCloudPBXSIPDevice) Error.");
+                that._logger.log("internalerror", LOG_ID + "(updateCloudPBXSIPDevice) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllCloudPBXSIPDevice
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
+     * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort SIP Devices list based on the given field.
+     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
+     * @param {boolean} assigned Allows to filter devices according their assignment to a subscriber
+     *      false, allows to obtain all devices not yet assigned to a subscriber.
+     *      true, allows to obtain all devices already assigned to a subscriber.
+     *      if undefined ; all devices whatever their assignment status are returned
+     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
+     *      This parameter can be a list of phoneNumberId separated by a space (space has to be encoded)
+     * @async
+     * @description
+     *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br/>
+     * @return {Promise<any>}
+     */
+    getAllCloudPBXSIPDevice (systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, assigned : boolean, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getAllCloudPBXSIPDevice(systemId,  limit, offset, sortField, sortOrder, assigned, phoneNumberId );
+                that._logger.log("debug", "(getAllCloudPBXSIPDevice) - sent.");
+                that._logger.log("internal", "(getAllCloudPBXSIPDevice) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAllCloudPBXSIPDevice) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAllCloudPBXSIPDevice) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXSIPRegistrationsInformationDevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device for which SIP registrations information should be retrieved.
+     * @description
+     *      This API allows to retrieve SIP registrations information relative to a device.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXSIPRegistrationsInformationDevice (systemId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXSIPRegistrationsInformationDevice(systemId, deviceId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method grantCloudPBXAccessToDebugSession
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device for which the debug session access will be granted.
+     * @param {string} duration Duration, in seconds, of the debug session - Only superadmin can set a debug duration different from the default one (configuration parameter: e.g. 30 minutes)
+     * @description
+     *      This API allows  to grant access to debug session on the given device.<br/>
+     *      When debug session is granted on the device, admins can retrieve the admin password of the device, url to access the device admin page and also initiate ssh session with the device. <br/>
+     *      A debug session can be terminated by: <br/>
+     *      Calling the device revoke API <br/>
+     *      After debug session has timed out, a periodic check is performed by the portal to revoke expired debug sessions (periodicity defined by configuration parameter). <br/>
+     *
+     *      During debug session, adminUrl and adminPassword of the device can be retrieved by getting device information.  <br/>
+     *      Please note that adminUrl could be unreachable depending on network configuration. <br/>
+     *      When a debug session is closed, ssh access to the device is deactivated, and the admin password of the device is modified.<br/>
+     * @return {Promise<any>}
+     */
+    grantCloudPBXAccessToDebugSession (systemId : string, deviceId : string,  duration : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.grantCloudPBXAccessToDebugSession(systemId, deviceId, duration).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(grantCloudPBXAccessToDebugSession) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(grantCloudPBXAccessToDebugSession) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(grantCloudPBXAccessToDebugSession) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(grantCloudPBXAccessToDebugSession) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method revokeCloudPBXAccessFromDebugSession
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device access will be revoked
+     * @description
+     *      This API allows  to revoke access to debug session on the given device. <br/>
+     *      When revoked, the debug session can no longer be used. <br/>
+     *      The admin password is no longer visible (changed). <br/>
+     * @return {Promise<any>}
+     */
+    revokeCloudPBXAccessFromDebugSession (systemId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.revokeCloudPBXAccessFromDebugSession(systemId, deviceId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method rebootCloudPBXSIPDevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} deviceId Unique identifier of the SIP device access will be revoked
+     * @description
+     *      This API allows  to reboot a SIP deskphone device. <br/>
+     * @return {Promise<any>}
+     */
+    rebootCloudPBXSIPDevice  (systemId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.rebootCloudPBXSIPDevice(systemId, deviceId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(rebootCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(rebootCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(rebootCloudPBXSIPDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(rebootCloudPBXSIPDevice) error : ", err);
+                return reject(err);
+            }
+        });
+
+    }
+
+
+    //endregion Cloudpbx Devices
+
+    //region Cloudpbx Subscribers
+
+    /**
+     * @public
+     * @method getCloudPBXSubscriber
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
+     * @description
+     *      This API allows to get data of a CloudPBX Subscriber.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXSubscriber (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXSubscriber(systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCloudPBXSubscriber
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
+     * @description
+     *      This API allows to delete a CloudPBX Subscriber. All its associated SIP devices become free for other subscribers.<br/>
+     * @return {Promise<any>}
+     */
+    deleteCloudPBXSubscriber (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteCloudPBXSubscriber(systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(deleteCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteCloudPBXSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSubscriber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method createCloudPBXSubscriberRainbowUser
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} login SIP username (if not provided ; shortNumber is used as SIP username)
+     * @param {string} password SIP password for all associated SIP devices (if not provided ; it will be automatically generated).
+     * Only lowercases, digits, * and # are authorized characters. Minimum length is 8, maximum is 12
+     * @param {string} shortNumber Internal Number of the new CloudPBX Subscriber
+     * @param {string} userId Unique identifier of the associated Rainbow User
+     * @description
+     *      This API allows to create a new CloudPBX Subscriber for a Rainbow User.<br/>
+     *      This new subscriber will appear as a new entry into "phoneNumbers" list of the targeted Rainbow User.<br/>
+     * @return {Promise<any>}
+     */
+    createCloudPBXSubscriberRainbowUser (systemId : string, login : string, password : string, shortNumber : string, userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!shortNumber) {
+                    this._logger.log("warn", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter : ", shortNumber);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!userId) {
+                    this._logger.log("warn", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter : ", userId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.createCloudPBXSubscriberRainbowUser(systemId, login, password, shortNumber, userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createCloudPBXSubscriberRainbowUser) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(createCloudPBXSubscriberRainbowUser) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createCloudPBXSubscriberRainbowUser) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", userId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method getCloudPBXSIPdeviceAssignedSubscriber
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber associated to the SIP device to retrieve.
+     * @param {string} deviceId Unique identifier of the SIP device to retrieve
+     * @description
+     *      This API allows to retrieve a given SIP device assigned to a subscriber.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXSIPdeviceAssignedSubscriber (systemId : string, phoneNumberId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXSIPdeviceAssignedSubscriber(systemId, phoneNumberId, deviceId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    
+    /**
+     * @public
+     * @method removeCloudPBXAssociationSubscriberAndSIPdevice
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the Sip device association must be deleted.
+     * @param {string} deviceId Unique identifier of the SIP device to free
+     * @description
+     *      This API allows to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).<br/>
+     * @return {Promise<any>}
+     */
+    removeCloudPBXAssociationSubscriberAndSIPdevice (systemId : string, phoneNumberId : string, deviceId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!deviceId) {
+                    this._logger.log("warn", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.removeCloudPBXAssociationSubscriberAndSIPdevice(systemId, phoneNumberId, deviceId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log("internal", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXAllSIPdevicesAssignedSubscriber
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
+     * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort SIP Devices list based on the given field.
+     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
+     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)      
+     * @async
+     * @description
+     *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXAllSIPdevicesAssignedSubscriber ( systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.getCloudPBXAllSIPdevicesAssignedSubscriber(systemId,  limit, offset, sortField, sortOrder, phoneNumberId );
+                that._logger.log("debug", "(getCloudPBXAllSIPdevicesAssignedSubscriber) - sent.");
+                that._logger.log("internal", "(getCloudPBXAllSIPdevicesAssignedSubscriber) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXInfoAllRegisteredSIPdevicesSubscriber
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber for which all SIP registrations must be retrieved
+     * @async
+     * @description
+     *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXInfoAllRegisteredSIPdevicesSubscriber (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+     
+    /**
+     * @public
+     * @method assignCloudPBXSIPDeviceToSubscriber
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the SIP device must be assigned
+     * @param {string} deviceId Unique identifier of the device to assign
+     * @param {string} macAddress device mac address
+     * @description
+     *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br/>
+     *      The device must have been previously created.<br/>
+     *      Assigning a device to a subscriber can de done by specifying the device Id (preferred) in the request, or the device mac address.<br/>
+     *      Assigning a device to a subscriber can de done by specifying the device Id in the request, or the device mac address and deviceType Id.<br/>
+     * @return {Promise<any>}
+     */
+    assignCloudPBXSIPDeviceToSubscriber (systemId : string,   phoneNumberId : string,  deviceId  : string,  macAddress  : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (! phoneNumberId ) {
+                    this._logger.log("warn", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.assignCloudPBXSIPDeviceToSubscriber(systemId, phoneNumberId, deviceId,  macAddress);
+                that._logger.log("debug", "(assignCloudPBXSIPDeviceToSubscriber) - sent.");
+                that._logger.log("internal", "(assignCloudPBXSIPDeviceToSubscriber) - result : ", result);
+
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) Error.");
+                that._logger.log("internalerror", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXSubscriberCLIOptions
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id)
+     * @async
+     * @description
+     *      This API allows to get CLI policy of a CloudPBX Subscriber.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXSubscriberCLIOptions (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXSubscriberCLIOptions(systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXSubscriberCLIOptions) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXSubscriberCLIOptions) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXSubscriberCLIOptions) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriberCLIOptions) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+
+    //endregion Cloudpbx Subscribers
+    //region Cloudpbx Phone Numbers
+
+    /**
+     * @public
+     * @method getCloudPBXUnassignedInternalPhonenumbers
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @async
+     * @description
+     *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br/>
+     * @return {Promise<any>}
+     */
+    getCloudPBXUnassignedInternalPhonenumbers(systemId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXUnassignedInternalPhonenumbers(systemId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) ErrorManager error : ", err, ' : ', systemId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method listCloudPBXDDINumbersAssociated
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {number} limit Allow to specify the number of DDI numbers to retrieve. Default : 100.
+     * @param {number} offset Allow to specify the position of first DDI number to retrieve (first site if not specified) 
+     * Warning: if offset > total, no results are returned
+     * @param {string} sortField Sort DDI numbers list based on the given field. Default : "number"
+     * @param {number} sortOrder Specify order when sorting DDI numbers list. Default : 1. Valid values : -1, 1.
+     * @param {boolean} isAssignedToUser Allows to filter DDI numbers list if they are assigned to a user or not
+     * @param {boolean} isAssignedToGroup Allows to filter DDI numbers list if they are assigned to a group or not (e.g. hunting group)
+     * @param {boolean} isAssignedToIVR Allows to filter DDI numbers list if they are assigned to a IVR or not
+     * @param {boolean} isAssignedToAutoAttendant Allows to filter DDI numbers list if they are assigned to a Auto attendant or not
+     * @param {boolean} isAssigned Allows to filter DDI numbers list if they are assigned (to a user or to a group or to a IVR) or not assigned
+     * @async
+     * @description
+     *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br/>
+     * @return {Promise<any>}
+     */
+    listCloudPBXDDINumbersAssociated (systemId : string, limit : number = 100, offset : number, sortField : string = "number", sortOrder : number = 1, isAssignedToUser : boolean, isAssignedToGroup : boolean, isAssignedToIVR : boolean, isAssignedToAutoAttendant : boolean, isAssigned : boolean ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.listCloudPBXDDINumbersAssociated(systemId, limit, offset, sortField, sortOrder, isAssignedToUser, isAssignedToGroup, isAssignedToIVR, isAssignedToAutoAttendant, isAssigned).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) ErrorManager error : ", err, ' : ', systemId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method createCloudPBXDDINumber
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} number DDI number
+     * @async
+     * @description
+     *      This API allows to create a DDI number for a CloudPBX.<br/>
+     * @return {Promise<any>}
+     */
+    createCloudPBXDDINumber (systemId : string, number : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!number) {
+                    this._logger.log("warn", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter : ", number);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.createCloudPBXDDINumber(systemId, number).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createCloudPBXDDINumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", number);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createCloudPBXDDINumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCloudPBXDDINumber
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier 
+     * @async
+     * @description
+     *      This API allows to delete a DDI number for a CloudPBX. <br/>
+     *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br/>
+     * @return {Promise<any>}
+     */
+    deleteCloudPBXDDINumber (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteCloudPBXDDINumber(systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteCloudPBXDDINumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBXDDINumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method associateCloudPBXDDINumber
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier
+     * @param {string} userId Rainbow user unique identifier
+     * @async
+     * @description
+     *      This API allows to associate a DDI number to a Rainbow user. <br/>
+     * @return {Promise<any>}
+     */
+    associateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!userId) {
+                    this._logger.log("warn", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.associateCloudPBXDDINumber(systemId, phoneNumberId, userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(associateCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(associateCloudPBXDDINumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(associateCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    
+    /**
+     * @public
+     * @method disassociateCloudPBXDDINumber
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier.
+     * @param {string} userId Rainbow user unique identifier.
+     * @async
+     * @description
+     *      This API allows to disassociate a DDI number from a Rainbow user. <br/>
+     * @return {Promise<any>}
+     */
+    disassociateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!userId) {
+                    this._logger.log("warn", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.disassociateCloudPBXDDINumber(systemId, phoneNumberId, userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(disassociateCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(disassociateCloudPBXDDINumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(disassociateCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method setCloudPBXDDIAsdefault
+     * @since 2.0.2
+     * @instance
+     * @param {string} systemId CloudPBX unique identifier.
+     * @param {string} phoneNumberId PhoneNumber unique identifier.
+     * @async
+     * @description
+     *      This API allows to set a DDI number as default DDI for a CloudPBX. <br/>
+     * @return {Promise<any>}
+     */
+    setCloudPBXDDIAsdefault (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.setCloudPBXDDIAsdefault(systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(setCloudPBXDDIAsdefault) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(setCloudPBXDDIAsdefault) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(setCloudPBXDDIAsdefault) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(setCloudPBXDDIAsdefault) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Cloudpbx Phone Numbers
+    
+    //region Cloudpbx SIP Trunk
+
+    /**
+     * @public
+     * @method retrieveExternalSIPTrunkById
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} externalTrunkId External trunk unique identifier
+     * @description
+     *      This API allows to retrieve an external SIP trunk using its identifier. <br/>
+     * @return {Promise<any>}
+     */
+    retrieveExternalSIPTrunkById (externalTrunkId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!externalTrunkId) {
+                    this._logger.log("warn", LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter : ", externalTrunkId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.retrieveExternalSIPTrunkById(externalTrunkId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(retrieveExternalSIPTrunkById) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(retrieveExternalSIPTrunkById) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(retrieveExternalSIPTrunkById) ErrorManager error : ", err, ' : ', externalTrunkId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(retrieveExternalSIPTrunkById) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrievelistExternalSIPTrunks
+     * @since 2.0.2
+     * @instance
+     * @async
+     * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br/>
+     *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br/>
+     * @param {string} status Allows to filter external SIP trunks by status. <br/>
+     *          This filter allows to load all external SIP trunks according to their status. <br/>
+     *          Valid values : "new" "active". <br/>
+     * @param {string} trunkType Allows to filter external SIP trunks by their type. <br/>
+     * @description
+     *      This API allows superadmin or bp_admin to retrieve a list of external SIP trunks. <br/>
+     *      bp_admin can list only external SIP trunks he is allowed to use. <br/>
+     * @return {Promise<any>}
+     */
+    retrievelistExternalSIPTrunks (rvcpInstanceId : string, status : string, trunkType : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.retrievelistExternalSIPTrunks (rvcpInstanceId, status, trunkType).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(retrievelistExternalSIPTrunks) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(retrievelistExternalSIPTrunks) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(retrievelistExternalSIPTrunks) ErrorManager error : ", err, ' : ', rvcpInstanceId, " : ", status, " : ", trunkType);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(retrievelistExternalSIPTrunks) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion Cloudpbx SIP Trunk
     
     //endregion Rainbow Voice Communication Platform Provisioning 
     
@@ -2397,4 +4157,5 @@ class Admin extends GenericService {
 
 module.exports.AdminService = Admin;
 module.exports.OFFERTYPES = OFFERTYPES;
-export {Admin as AdminService, OFFERTYPES};
+module.exports.CLOUDPBXCLIOPTIONPOLICY = CLOUDPBXCLIOPTIONPOLICY;
+export {Admin as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY};
