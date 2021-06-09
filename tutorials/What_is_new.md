@@ -6,7 +6,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.0.1 - STS Version - June 2021
+### SDK for Node.JS 2.1.0 - STS Version - June 2021
 
 ---
 
