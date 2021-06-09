@@ -152,8 +152,8 @@ pipeline {
                     npm token list
                         
                     echo ---------- STEP publish :
-                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = true ]; then
-                        if [[ "${PUBLISHONNPMJSWITHSTSTAG}" = true ]]; then
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                        if [[ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]]; then
                             echo "Publish on npmjs with tag."
                             npm publish --tag sts
                         else

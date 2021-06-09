@@ -146,7 +146,7 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = true ]; then
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
                         git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
                     else
                         git reset --hard "origin/LTSDelivery"
