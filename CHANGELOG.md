@@ -7,6 +7,9 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+## [2.0.1-patch.1] - 2021-06-09
+-   Fix delivery issue.
+
 ## [2.0.1] - 2021-04-XX
 -   Authorized the method "cleanMemoryCache" to be called when services are not connected (in Utils::isStarted).
 -   Fix null Contact in `ContactsService::cleanMemoryCache()` method.
