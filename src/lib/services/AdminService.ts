@@ -2402,7 +2402,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPbxById
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2439,7 +2439,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method updateCloudPBX
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2491,7 +2491,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method deleteCloudPBX
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2526,7 +2526,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPbxs
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @description
@@ -2554,7 +2554,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method createACloudPBX
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} bpId Identifier of the BP to which CloudPBX should be linked with.
@@ -2598,7 +2598,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXCLIPolicyForOutboundCalls
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2634,7 +2634,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method updateCloudPBXCLIOptionsConfiguration
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2677,7 +2677,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXlanguages
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2712,7 +2712,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXDeviceModels
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2747,7 +2747,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXTrafficBarringOptions
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2782,7 +2782,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2820,7 +2820,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method CreateCloudPBXSIPDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2871,7 +2871,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method factoryResetCloudPBXSIPDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2915,7 +2915,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXSIPDeviceById
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -2958,7 +2958,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method deleteCloudPBXSIPDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3005,7 +3005,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method updateCloudPBXSIPDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3050,7 +3050,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getAllCloudPBXSIPDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
@@ -3095,7 +3095,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXSIPRegistrationsInformationDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3141,7 +3141,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method grantCloudPBXAccessToDebugSession
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3196,7 +3196,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method revokeCloudPBXAccessFromDebugSession
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3244,7 +3244,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method rebootCloudPBXSIPDevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3296,7 +3296,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXSubscriber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3342,7 +3342,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method deleteCloudPBXSubscriber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3388,7 +3388,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method createCloudPBXSubscriberRainbowUser
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3445,7 +3445,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXSIPdeviceAssignedSubscriber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3499,7 +3499,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method removeCloudPBXAssociationSubscriberAndSIPdevice
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3552,7 +3552,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXAllSIPdevicesAssignedSubscriber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
@@ -3592,7 +3592,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXInfoAllRegisteredSIPdevicesSubscriber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber for which all SIP registrations must be retrieved
@@ -3638,7 +3638,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method assignCloudPBXSIPDeviceToSubscriber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} systemId CloudPBX unique identifier.
@@ -3686,7 +3686,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXSubscriberCLIOptions
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id)
@@ -3736,7 +3736,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method getCloudPBXUnassignedInternalPhonenumbers
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @async
@@ -3775,7 +3775,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method listCloudPBXDDINumbersAssociated
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {number} limit Allow to specify the number of DDI numbers to retrieve. Default : 100.
@@ -3824,7 +3824,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method createCloudPBXDDINumber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} number DDI number
@@ -3870,7 +3870,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method deleteCloudPBXDDINumber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier 
@@ -3917,7 +3917,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method associateCloudPBXDDINumber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier
@@ -3971,7 +3971,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method disassociateCloudPBXDDINumber
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier.
@@ -4024,7 +4024,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method setCloudPBXDDIAsdefault
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier.
@@ -4074,7 +4074,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method retrieveExternalSIPTrunkById
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} externalTrunkId External trunk unique identifier
@@ -4113,7 +4113,7 @@ class Admin extends GenericService {
     /**
      * @public
      * @method retrievelistExternalSIPTrunks
-     * @since 2.0.2
+     * @since 2.1.0
      * @instance
      * @async
      * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br/>
@@ -4152,6 +4152,222 @@ class Admin extends GenericService {
     //endregion Cloudpbx SIP Trunk
     
     //endregion Rainbow Voice Communication Platform Provisioning 
+
+    //region sites
+
+    /**
+     * @public
+     * @method createASite
+     * @since 2.1.1
+     * @instance
+     * @async
+     * @param {string} name Site name. <br/>
+     *              Valid values : 1..255
+     * @param {string} status Site status. <br/>
+     *          Valid values : "active", "alerting", "hold", "terminated". <br/>
+     * @param {string} companyId Id of the company from which the site is linked.
+     * @description
+     *      This API allows administrators to create a site for a company they administrate.  <br/>
+     * @return {Promise<any>}
+     */
+    createASite(name : string, status : string, companyId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!name) {
+                    this._logger.log("warn", LOG_ID + "(createASite) bad or empty 'name' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createASite) bad or empty 'name' parameter : ", name);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!companyId) {
+                    this._logger.log("warn", LOG_ID + "(createASite) bad or empty 'companyId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createASite) bad or empty 'companyId' parameter : ", companyId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.createASite (name, status, companyId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createASite) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createASite) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createASite) ErrorManager error : ", err, ' : ', name, " : ", status, " : ", companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createASite) error : ", err);
+                return reject(err);
+            }
+        }); 
+    }
+
+    /**
+     * @public
+     * @method deleteSite
+     * @since 2.1.1
+     * @instance
+     * @async
+     * @param {string} siteId Site id. <br/>
+     * @description
+     *      This API allows administrators to delete a site by id they administrate.  <br/>
+     * @return {Promise<any>}
+     */
+    deleteSite (siteId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!siteId) {
+                    this._logger.log("warn", LOG_ID + "(deleteSite) bad or empty 'siteId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteSite) bad or empty 'siteId' parameter : ", siteId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                
+                that._rest.deleteSite (siteId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteSite) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteSite) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteSite) ErrorManager error : ", err, ' : ', siteId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteSite) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getSiteData
+     * @since 2.1.1
+     * @instance
+     * @async
+     * @param {string} siteId Site id. <br/>
+     * @description
+     *      This API allows administrators to get a site data by id they administrate.  <br/>
+     * @return {Promise<any>}
+     */
+    getSiteData (siteId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!siteId) {
+                    this._logger.log("warn", LOG_ID + "(getSiteData) bad or empty 'siteId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getSiteData) bad or empty 'siteId' parameter : ", siteId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getSiteData (siteId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getSiteData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getSiteData) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getSiteData) ErrorManager error : ", err, ' : ', siteId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getSiteData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllSites
+     * @since 2.1.1
+     * @instance
+     * @async
+     * @param {string} format Allows to retrieve more or less site details in response. <br/>
+     * - small: _id, name <br/>
+     * - medium: _id, name, status, companyId <br/>
+     * - full: all site fields <br/>
+     * default : small <br/>
+     * Valid values : small, medium, full <br/>
+     * @param {number} limit Allow to specify the number of companies to retrieve. (default=100).
+     * @param {number} offset Allow to specify the position of first site to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort site list based on the given field. (default="name").
+     * @param {number} sortOrder Specify order when sorting site list. Default values : 1. Valid values : -1, 1.
+     * @param {string} name Allows to filter sites list on field name. <br/>
+     * The filtering is case insensitive and on partial name match: all sites containing the provided name value will be returned (whatever the position of the match). <br/>
+     * Ex: if filtering is done on sit, sites with the following names are match the filter 'My site', 'Site', 'A site 1', 'Site of company', 'Sit1', 'Sit2', ... <br/>
+     * @param {string} companyId
+     * @description
+     *      This API allows administrators to get all sites they administrate.  <br/>
+     * @return {Promise<any>}
+     */
+    getAllSites (format = "small", limit = 100, offset = 0, sortField="name", sortOrder : number, name : string, companyId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getAllSites (format, limit, offset, sortField, sortOrder, name, companyId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getAllSites) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getAllSites) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllSites) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllSites) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateSite
+     * @since 2.1.1
+     * @instance
+     * @async
+     * @param {string} siteId Site id. <br/>
+     * @param {string} name Site name
+     * @param {string} status Site status. Valid values : "active", "alerting", "hold", "terminated"
+     * @param {string} companyId Id of the company from which the site is linked.
+     * @description
+     *      This API allows administrators to update a given site by id they administrate.  <br/>
+     * @return {Promise<any>}
+     */
+    updateSite (siteId : string, name : string, status : string, companyId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!siteId) {
+                    this._logger.log("warn", LOG_ID + "(updateSite) bad or empty 'siteId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateSite) bad or empty 'siteId' parameter : ", siteId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                
+                that._rest.updateSite (siteId, name, status, companyId ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updateSite) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updateSite) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateSite) ErrorManager error : ", err, ' : ', siteId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateSite) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion sites
     
 }
 

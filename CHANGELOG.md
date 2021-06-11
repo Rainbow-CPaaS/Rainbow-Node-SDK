@@ -7,6 +7,14 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+## [2.1.1] - 2021-06-10
+-   Fix remove wrong copy/paste of hard coded "https://openrainbow.com" string in some CloudPBX methods.
+-   Add `AdminService::createASite` API that allows administrators to create a site for a company they administrate.
+-   Add `AdminService::deleteSite` API that allows administrators to delete a site by id for a company they administrate.
+-   Add `AdminService::getSiteData` API that allows administrators to get a site data by id for a company they administrate.
+-   Add `AdminService::getAllSites` API that allows administrators to get all sites for a company they administrate.
+-   Add `AdminService::updateSite` API that allows administrators to update a given site by id for a company they administrate.
+
 ## [2.1.0] - 2021-06-09
 -   Fix delivery issue.
 -   Authorized the method "cleanMemoryCache" to be called when services are not connected (in Utils::isStarted).

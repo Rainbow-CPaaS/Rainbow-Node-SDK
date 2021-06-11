@@ -5959,7 +5959,7 @@ Request Method: PUT
         // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId} 
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId , that.getRequestHeader())
+            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId , that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- success");
                         resolve(response);
@@ -6066,7 +6066,7 @@ Request Method: PUT
         // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/debug  
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/debug", that.getRequestHeader())
+            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/debug", that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- success");
                         resolve(response);
@@ -6128,7 +6128,7 @@ Request Method: PUT
         // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}   
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId, that.getRequestHeader())
+            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId, that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- success");
                         resolve(response);
@@ -6192,7 +6192,7 @@ Request Method: PUT
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/{deviceId}    
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices/" + deviceId  , that.getRequestHeader())
+            that.http.delete(" /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices/" + deviceId  , that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- success");
                         resolve(response);
@@ -6371,7 +6371,7 @@ Request Method: PUT
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}     
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId, that.getRequestHeader())
+            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId, that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- success");
                         resolve(response);
@@ -6407,7 +6407,7 @@ Request Method: PUT
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}      
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader())
+            that.http.delete(" /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- success");
                         resolve(response);
@@ -6492,6 +6492,115 @@ Request Method: PUT
 
     //endregion Rainbow Voice Communication Platform Provisioning 
 
+    //region sites
+    
+    createASite(name : string, status : string, companyId : string) {
+        // POST  https://openrainbow.com/api/rainbow/admin/v1.0/sites     
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(createASite) name : ", name + ", status : ", status, ", companyId : " + companyId);
+            let data = {
+            };
+            that.http.post("/api/rainbow/admin/v1.0/sites", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createASite) successfull");
+                that.logger.log("internal", LOG_ID + "(createASite) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createASite) error.");
+                that.logger.log("internalerror", LOG_ID, "(createASite) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteSite (siteId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/admin/v1.0/sites/{siteId}      
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/admin/v1.0/sites/" + siteId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteSite) (" + siteId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+    
+    getSiteData (siteId : string) {
+        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/sites/{siteId} 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/sites/" + siteId ;
+            //addParamToUrl(url, "rvcpInstanceId", rvcpInstanceId);
+
+            that.logger.log("internal", LOG_ID + "(getSiteData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getSiteData) successfull");
+                that.logger.log("internal", LOG_ID + "(getSiteData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getSiteData) error");
+                that.logger.log("internalerror", LOG_ID, "(getSiteData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllSites (format = "small", limit = 100, offset = 0, sortField="name", sortOrder : number, name : string, companyId : string) {
+        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/sites 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/sites" ;
+            addParamToUrl(url, "format", format);
+            addParamToUrl(url, "limit", limit + "");
+            addParamToUrl(url, "offset", offset + "");
+            addParamToUrl(url, "sortField", sortField);
+            addParamToUrl(url, "sortOrder", sortOrder + "");
+            addParamToUrl(url, "name", name);
+            addParamToUrl(url, "companyId", companyId);
+
+            that.logger.log("internal", LOG_ID + "(getAllSites) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllSites) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSites) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllSites) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSites) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    updateSite (siteId : string, name : string, status : string, companyId : string) {
+        // PUT https://openrainbow.com/api/rainbow/admin/v1.0/sites/:siteId
+        let that = this;
+        let data = {
+            name, 
+            status, 
+            companyId
+        };
+
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/admin/v1.0/sites/" + siteId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateSite) successfull");
+                that.logger.log("internal", LOG_ID + "(updateSite) REST set group favorite information : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateSite) error");
+                that.logger.log("internalerror", LOG_ID, "(updateSite) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion sites
 
 }
 
