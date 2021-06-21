@@ -1097,12 +1097,17 @@ class ConversationsService extends GenericService {
                 that._logger.log("internal", LOG_ID + " :: Try to create of get a conversation with " + contact.lastName + " " + contact.firstName);
 
 
-                that.getOrCreateOneToOneConversation(contact.jid).then(function (conversation: any) {
-                        that._logger.log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
-                        resolve(conversation);
-                    }).catch(function (result) {
-                    that._logger.log("error", LOG_ID + "[openConversationForContact] Error.");
-                    that._logger.log("internalerror", LOG_ID + "[openConversationForContact] Error : ", result);
+                that.getOrCreateOneToOneConversation(contact.jid).then(async function (conversation: any) {
+                    that._logger.log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
+                    if (!conversation.dbId) {
+                        conversation = await that.createServerConversation(conversation);
+                        that._logger.log("internal", LOG_ID + "(openConversationForContact) conversation : ", conversation);
+                    }
+
+                    resolve(conversation);
+                }).catch(function (result) {
+                    that._logger.log("error", LOG_ID + "(openConversationForContact) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(openConversationForContact) Error : ", result);
                     return __reject(result);
                 });
             }

@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.2.0] - 2021-06-10 - STS
 -   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
+-   Fix `ConversationsService::openConversationForContact` when dbid is empty to get conversation from serveur side.
 
 ## [2.1.1] - 2021-06-10 - STS
 -   Fix remove wrong copy/paste of hard coded "https://openrainbow.com" string in some CloudPBX methods.
