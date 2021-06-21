@@ -222,10 +222,15 @@ function addDaysToDate(date, days) {
     return result;
 }
 
-function addParamToUrl(urlParams : string, paramName : string, paramValue : string) {
-    if (paramValue) {
-        urlParams += urlParams ? "&" : "?";
-        urlParams += paramName + "=" + paramValue;
+function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue : string) {
+    if (paramValue && urlParams) {
+        if (urlParams[0].includes("?") ) {
+            urlParams[0] += "&" ;
+        } else {
+            urlParams[0] += "?";
+        }
+        //urlParams[0] += urlParams[0] ? "&" : "?";
+        urlParams[0] += paramName + "=" + paramValue;
     }
 }
 

@@ -437,8 +437,7 @@ class FileStorage extends GenericService{
                 // Upload file
                 fileDescriptor.state = "uploading";
 
-                return that._fileServerService.uploadAFileByChunk(fileDescriptor, file.path )
-                    .then(function successCallback(fileDesc) {
+                return that._fileServerService.uploadAFileByChunk(fileDescriptor, file.path ).then(function successCallback(fileDesc) {
                             that._logger.log("debug", LOG_ID + "uploadFileToStorage uploadAFileByChunk success");
                             return Promise.resolve(fileDesc);
                         },

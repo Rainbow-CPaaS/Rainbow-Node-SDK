@@ -5332,18 +5332,20 @@ Request Method: PUT
         startTime : string
     }>{
         let that = this;
-        let urlParams = "";
-
-        addParamToUrl(urlParams, "companyId", companyId);
-        addParamToUrl(urlParams, "label", label);
-        addParamToUrl(urlParams, "noemails", String(noemails));
-        addParamToUrl(urlParams, "nostrict", String(nostrict));
-        addParamToUrl(urlParams, "delimiter", delimiter);
-        addParamToUrl(urlParams, "comment", comment);
+        let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        addParamToUrl(urlParamsTab, "companyId", companyId);
+        addParamToUrl(urlParamsTab, "label", label);
+        addParamToUrl(urlParamsTab, "noemails", String(noemails));
+        addParamToUrl(urlParamsTab, "nostrict", String(nostrict));
+        addParamToUrl(urlParamsTab, "delimiter", delimiter);
+        addParamToUrl(urlParamsTab, "comment", comment);
+        urlParams = urlParamsTab[0];
         
         return new Promise(function (resolve, reject) {
 
-            that.http.post("/api/rainbow/massprovisioning/v1.0/users/imports/synchronize" + urlParams, that.getRequestHeader(), CSVTxt, undefined).then(function (json) {
+            that.http.post(urlParams, that.getRequestHeader(), CSVTxt, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) successfull");
                 that.logger.log("internal", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) REST result : ", json);
                 resolve(json.data);
@@ -5360,9 +5362,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/massprovisioning/v1.0/users/template";
-            addParamToUrl(url, "companyId", companyId);
-            addParamToUrl(url, "mode", mode);
-            addParamToUrl(url, "comment", comment);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "mode", mode);
+            addParamToUrl(urlParamsTab, "comment", comment);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST url : ", url);
 
@@ -5383,9 +5388,13 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check";
-            addParamToUrl(url, "companyId", companyId);
-            addParamToUrl(url, "delimiter", delimiter);
-            addParamToUrl(url, "comment", comment);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "delimiter", delimiter);
+            addParamToUrl(urlParamsTab, "comment", comment);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(checkCSVforSynchronization) REST url : ", url);
 
@@ -5409,9 +5418,13 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/massprovisioning/v1.0/users/synchronize";
-            addParamToUrl(url, "companyId", companyId);
-            addParamToUrl(url, "format", format);
-            addParamToUrl(url, "ldap_id", String(ldap_id));
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "ldap_id", String(ldap_id));
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
 
@@ -5460,12 +5473,15 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps";
-            addParamToUrl(url, "companyId", companyId);
-            addParamToUrl(url, "format", format);
-            addParamToUrl(url, "limit", String(limit));
-            addParamToUrl(url, "offset", String(offset));
-            addParamToUrl(url, "sortField", sortField);
-            addParamToUrl(url, "sortOrder", String(sortOrder));
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", String(limit));
+            addParamToUrl(urlParamsTab, "offset", String(offset));
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", String(sortOrder));
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(retrieveAllLdapConnectorUsersData) REST url : ", url);
 
@@ -5595,7 +5611,10 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config";
-            addParamToUrl(url, "companyId", companyId);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST url : ", url);
 
@@ -5718,12 +5737,15 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs";
-            addParamToUrl(url, "limit", "" + limit);
-            addParamToUrl(url, "offset", "" + offset);
-            addParamToUrl(url, "sortField", sortField);
-            addParamToUrl(url, "sortOrder", "" + sortOrder);
-            addParamToUrl(url, "companyId", companyId);
-            addParamToUrl(url, "bpId", bpId);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", "" + limit);
+            addParamToUrl(urlParamsTab, "offset", "" + offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", "" + sortOrder);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "bpId", bpId);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST url : ", url);
 
@@ -5998,13 +6020,15 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices" ;
-            //addParamToUrl(url, "systemId", systemId);
-            addParamToUrl(url, "limit", limit + "");
-            addParamToUrl(url, "offset", offset + "");
-            addParamToUrl(url, "sortField", sortField);
-            addParamToUrl(url, "sortOrder", sortOrder + "");
-            addParamToUrl(url, "assigned", assigned + "");
-            addParamToUrl(url, "phoneNumberId", phoneNumberId);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "assigned", assigned + "");
+            addParamToUrl(urlParamsTab, "phoneNumberId", phoneNumberId);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getAllCloudPBXSIPDevice) REST url : ", url);
 
@@ -6210,11 +6234,13 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices" ;
-            //addParamToUrl(url, "systemId", systemId);
-            addParamToUrl(url, "limit", limit + "");
-            addParamToUrl(url, "offset", offset + "");
-            addParamToUrl(url, "sortField", sortField);
-            addParamToUrl(url, "sortOrder", sortOrder + "");
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getAllCloudPBXSIPDevice) REST url : ", url);
 
@@ -6323,15 +6349,18 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi";
-            addParamToUrl(url, "limit", limit + "");
-            addParamToUrl(url, "offset", offset + "" ) ;
-            addParamToUrl(url, "sortField", sortField);
-            addParamToUrl(url, "sortOrder", sortOrder + "");
-            addParamToUrl(url, "isAssignedToUser", isAssignedToUser + "");
-            addParamToUrl(url, "isAssignedToGroup", isAssignedToGroup + "");
-            addParamToUrl(url, "isAssignedToIVR", isAssignedToIVR + "");
-            addParamToUrl(url, "isAssignedToAutoAttendant", isAssignedToAutoAttendant + "");
-            addParamToUrl(url, "limit", isAssigned + "");
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "" ) ;
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "isAssignedToUser", isAssignedToUser + "");
+            addParamToUrl(urlParamsTab, "isAssignedToGroup", isAssignedToGroup + "");
+            addParamToUrl(urlParamsTab, "isAssignedToIVR", isAssignedToIVR + "");
+            addParamToUrl(urlParamsTab, "isAssignedToAutoAttendant", isAssignedToAutoAttendant + "");
+            addParamToUrl(urlParamsTab, "limit", isAssigned + "");
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(listCloudPBXDDINumbersAssociated) REST url : ", url);
 
@@ -6470,9 +6499,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/rvcpprovisioning/v1.0/external-trunks" ;
-            addParamToUrl(url, "rvcpInstanceId", rvcpInstanceId);
-            addParamToUrl(url, "status", status);
-            addParamToUrl(url, "trunkType", trunkType);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "rvcpInstanceId", rvcpInstanceId);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "trunkType", trunkType);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(retrievelistExternalSIPTrunks) REST url : ", url);
 
@@ -6500,7 +6532,10 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(createASite) name : ", name + ", status : ", status, ", companyId : " + companyId);
             let data = {
-            };
+                name, 
+                status, 
+                companyId
+            } ;
             that.http.post("/api/rainbow/admin/v1.0/sites", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createASite) successfull");
                 that.logger.log("internal", LOG_ID + "(createASite) REST leave bubble : ", json.data);
@@ -6556,13 +6591,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/sites" ;
-            addParamToUrl(url, "format", format);
-            addParamToUrl(url, "limit", limit + "");
-            addParamToUrl(url, "offset", offset + "");
-            addParamToUrl(url, "sortField", sortField);
-            addParamToUrl(url, "sortOrder", sortOrder + "");
-            addParamToUrl(url, "name", name);
-            addParamToUrl(url, "companyId", companyId);
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getAllSites) REST url : ", url);
 
@@ -6602,6 +6640,366 @@ Request Method: PUT
     
     //endregion sites
 
+    //region Rainbow Company Directory portal 
+    // https://api.openrainbow.org/directory/
+    //region directory
+    // Create a directory entry
+    createDirectoryEntry ( companyId : string, 
+                           firstName : string, 
+                           lastName : string, 
+                           companyName : string, 
+                           department : string,
+                            street : string,
+                            city : string,
+                            state : string,
+                            postalCode : string,
+                            country : string,
+                            workPhoneNumbers : string[],
+                            mobilePhoneNumbers : string[],
+                            otherPhoneNumbers : string[],
+                            jobTitle : string,
+                            eMail : string,
+                            tags : string[],
+                            custom1 : string,
+                            custom2 : string
+    ){
+        // POST  https://openrainbow.com/api/rainbow/directory/v1.0/entries     
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {
+                companyId,
+                firstName,
+                lastName,
+                companyName,
+                department,
+                street,
+                city,
+                state,
+                postalCode,
+                country,
+                workPhoneNumbers,
+                mobilePhoneNumbers,
+                otherPhoneNumbers,
+                jobTitle,
+                eMail,
+                tags,
+                custom1,
+                custom2
+            } ;
+            that.logger.log("internal", LOG_ID + "(createDirectoryEntry) args : ", data );
+            that.http.post("/api/rainbow/directory/v1.0/entries", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createDirectoryEntry) successfull");
+                that.logger.log("internal", LOG_ID + "(createDirectoryEntry) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createDirectoryEntry) error.");
+                that.logger.log("internalerror", LOG_ID, "(createDirectoryEntry) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    // delete all the entries in the directory of a company
+    deleteCompanyDirectoryAllEntry (companyId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/companies/:companyId      
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/directory/v1.0/companies/" + companyId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    // delete a directory entry
+    deleteDirectoryEntry (entryId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId      
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteDirectoryEntry) (" + entryId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    // Get a directory entry data
+    getDirectoryEntryData (entryId : string, format : string) {
+        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/directory/v1.0/entries/" + entryId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getDirectoryEntryData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDirectoryEntryData) successfull");
+                that.logger.log("internal", LOG_ID + "(getDirectoryEntryData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDirectoryEntryData) error");
+                that.logger.log("internalerror", LOG_ID, "(getDirectoryEntryData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Get a list of directory entries data
+    getListDirectoryEntriesData (companyId : string, 
+                                 organisationIds : string, 
+                                 name : string, 
+                                 search : string, 
+                                 type : string, 
+                                 companyName : string, 
+                                 phoneNumbers : string, 
+                                 fromUpdateDate : Date, 
+                                 toUpdateDate : Date, 
+                                 tags  : string, 
+                                 format : string, 
+                                 limit : number, 
+                                 offset : number, 
+                                 sortField : string,
+                                 sortOrder : number) {
+        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/directory/v1.0/entries" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "organisationIds", organisationIds);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "search", search);
+            addParamToUrl(urlParamsTab, "type", type);
+            addParamToUrl(urlParamsTab, "companyName", companyName);
+            addParamToUrl(urlParamsTab, "phoneNumbers", phoneNumbers);
+            addParamToUrl(urlParamsTab, "fromUpdateDate", fromUpdateDate ? fromUpdateDate.toJSON() : "");
+            addParamToUrl(urlParamsTab, "toUpdateDate", toUpdateDate ? toUpdateDate.toJSON() : "");
+            addParamToUrl(urlParamsTab, "tags", tags);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getListDirectoryEntriesData) successfull");
+                that.logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getListDirectoryEntriesData) error");
+                that.logger.log("internalerror", LOG_ID, "(getListDirectoryEntriesData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Update a directory entry
+    updateDirectoryEntry(entryId: string,
+                         firstName: string,
+                         lastName: string,
+                         companyName: string,
+                         department: string,
+                         street: string,
+                         city: string,
+                         state: string,
+                         postalCode: string,
+                         country: string,
+                         workPhoneNumbers: string[],
+                         mobilePhoneNumbers: string[],
+                         otherPhoneNumbers: string[],
+                         jobTitle: string,
+                         eMail: string,
+                         tags: string[],
+                         custom1: string,
+                         custom2: string) {
+        // PUT https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId
+        let that = this;
+        let data = {
+            firstName,
+            lastName,
+            companyName,
+            department,
+            street,
+            city,
+            state,
+            postalCode,
+            country,
+            workPhoneNumbers,
+            mobilePhoneNumbers,
+            otherPhoneNumbers,
+            jobTitle,
+            eMail,
+            tags,
+            custom1,
+            custom2
+        };
+
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateDirectoryEntry) successfull");
+                that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST set group favorite information : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateDirectoryEntry) error");
+                that.logger.log("internalerror", LOG_ID, "(updateDirectoryEntry) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    ImportDirectoryCsvFile = function(companyId, csvContent, label) {
+        // POST  https://openrainbow.com/api/rainbow/directories/imports?companyId=:companyId  
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/massprovisioning/v1.0/directories/imports"
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "label", label);
+            url = urlParamsTab[0];
+
+            let data = csvContent;
+            that.logger.log("internal", LOG_ID + "(createDirectoryEntry) args : ", data );
+            that.http.post(url, that.getPostHeader("text/csv"), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createDirectoryEntry) successfull");
+                that.logger.log("internal", LOG_ID + "(createDirectoryEntry) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createDirectoryEntry) error.");
+                that.logger.log("internalerror", LOG_ID, "(createDirectoryEntry) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion directory
+    
+    //region directory tags
+    // List all tags assigned to directory entries
+    getAllTagsAssignedToDirectoryEntries (companyId : string) {
+        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/directory/v1.0/entries/tags" + companyId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Remove a given tag from all the directory entries
+    removeTagFromAllDirectoryEntries (companyId : string, tag  : string) {
+        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags      
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/directory/v1.0/entries/tags";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "tag", tag);
+            url = urlParamsTab[0];
+
+            that.http.delete(url, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    // Rename a tag for all assigned directory entries
+    renameTagForAllAssignedDirectoryEntries (tag  : string, companyId : string, newTagName : string) {
+        // PUT https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/directory/v1.0/entries/tags";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "tag", tag);
+            url = urlParamsTab[0];
+
+            let data = {
+                newTagName
+            };
+
+            that.http.put("/api/rainbow/directory/v1.0/entries/tags", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) successfull");
+                that.logger.log("internal", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) REST set group favorite information : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error");
+                that.logger.log("internalerror", LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // Return stats regarding tags of directory entries
+    getStatsRegardingTagsOfDirectoryEntries (companyId : string) {
+        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags/stats
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/directory/v1.0/entries/tags/stats" ;
+            addParamToUrl([url], "companyId", companyId);
+            url = url[0];
+
+            that.logger.log("internal", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) successfull");
+                that.logger.log("internal", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error");
+                that.logger.log("internalerror", LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion directory tags
+
+    //endregion Rainbow Company Directory portal
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

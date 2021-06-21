@@ -89,6 +89,7 @@
     "chalk": "^4.1.0",
     "colors": "^1.4.0",
     "crypto-js": "^4.0.0",
+    "dateformat": "^4.5.1",
     "debug-http": "^1.1.0",
     "deep-equal": "^2.0.5",
     "express": "^4.17.1",

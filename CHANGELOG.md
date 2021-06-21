@@ -10,6 +10,19 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.2.0] - 2021-06-10 - STS
 -   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
 -   Fix `ConversationsService::openConversationForContact` when dbid is empty to get conversation from serveur side.
+-   Add `AdminService::createDirectoryEntry` API that allows administrators to Create a directory entry.
+-   Add `AdminService::deleteCompanyDirectoryAllEntry` API that allows administrators administrators  to delete all the entries in the directory of a company they administrate.
+-   Add `AdminService::deleteDirectoryEntry` API that allows administrators to delete an entry from the directory of a company they administrate.
+-   Add `AdminService::getDirectoryEntryData` API that allows administrators to get an entry of the directory of a company they administrate.
+-   Add `AdminService::getListDirectoryEntriesData` API that allows administrators to get a list of directory entries data of a company they administrate.
+-   Add `AdminService::updateDirectoryEntry` API that allows administrators to get an entry of the directory of a company they administrate.
+-   Add `AdminService::exportDirectoryCsvFile` API that allows administrators to export the directory in a CSV file.
+-   Add `AdminService::ImportDirectoryCsvFile` API that allows administrators to import the directory from a CSV file.
+-   Add `AdminService::getAllTagsAssignedToDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.
+-   Add `AdminService::removeTagFromAllDirectoryEntries` API that allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.
+-   Add `AdminService::renameTagForAllAssignedDirectoryEntries` API that allows administrators to rename a tag being assigned to some directory entries.
+-   Add `AdminService::getStatsRegardingTagsOfDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries.
+-   Fix use of addParamToUrl method.
 
 ## [2.1.1] - 2021-06-10 - STS
 -   Fix remove wrong copy/paste of hard coded "https://openrainbow.com" string in some CloudPBX methods.

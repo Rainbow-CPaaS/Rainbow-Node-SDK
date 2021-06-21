@@ -551,8 +551,40 @@ function multiple_testgetContactByLoginEmail_NotInRoster() {
              logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
         });
     }
+    
+    function testgetContactsMessagesFromConversationIdForGuest() {
+        return __awaiter(this, void 0, void 0, function* () {
+            //let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
 
-function testremoveAllMessages() {
+
+            rainbowSDK.admin.createAnonymousGuestUser( 60 * 60 ).then((guest) => {
+                logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result createAnonymousGuestUser : ", guest);
+                rainbowSDK.contacts.getContactByJid(guest.jid_im, true).then(contact => {
+                    logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactByJid : ", contact);
+                    rainbowSDK.conversations.openConversationForContact(contact).then(async conversation => {
+                        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result openConversationForContact : ", conversation);
+                        let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+                        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactsMessagesFromConversationId : ", msgNotEvents);
+                    });
+                });
+            });
+            /*
+            // Retrieve a contact by its id
+            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            //let now = new Date().getTime();
+            // get messages which are not events
+            let msgNotEvents = yield rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+            logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+            // */
+        });
+    }
+
+    function testremoveAllMessages() {
     return __awaiter(this, void 0, void 0, function* () {
         //let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
@@ -2878,6 +2910,59 @@ async function testcreateAlert() {
         // To use with 
         let result = await rainbowSDK.admin.getCloudPbxs();
         logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
+    }
+
+    //endregion
+    
+    //region Directory
+    
+    async function testcreateDirectoryEntry() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testcreateDirectoryEntry. ");
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
+
+        logger.log("debug", "MAIN - testcreateDirectoryEntry. utcEmail : ", utcEmail);
+
+        let  companyId = connectedUser.companyId, 
+                firstName = "firstname_" + utc,
+                lastName  = "firstname_" + utc,
+                companyName = connectedUser.companyName,
+                department = "SBU",
+                street = "1 rte Albert Schweitzer",
+                city = "Illkirch",
+                state = null,
+                postalCode = "67115",
+                country : "France",
+                workPhoneNumbers = ["0011223344"],
+                mobilePhoneNumbers = [],
+                otherPhoneNumbers = [],
+                jobTitle = "Validation Engineer",
+                eMail = utcEmail+"_test@vbe.test.openrainbow.net",
+                tags = [],
+                custom1 = "",
+                custom2 = "" ;
+        let result = await rainbowSDK.admin.createDirectoryEntry( companyId, firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
+        logger.log("debug", "MAIN - testcreateDirectoryEntry - result : ", result);
+        
+         // */
+        //});
+    }
+
+    async function testexportDirectoryCsvFile() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testexportDirectoryCsvFile. ");
+        let  companyId = connectedUser.companyId ;
+        let result = await rainbowSDK.admin.exportDirectoryCsvFile( companyId, "c:\\temp\\");
+        logger.log("debug", "MAIN - testcreateDirectoryEntry - result : ", result);
+    }
+
+    async function testImportDirectoryCsvFile() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testImportDirectoryCsvFile. ");
+        let  companyId = connectedUser.companyId ;
+        let result = await rainbowSDK.admin.ImportDirectoryCsvFile( companyId, "c:\\temp\\dirToImport.csv", "label1");
+        logger.log("debug", "MAIN - testImportDirectoryCsvFile - result : ", result);
     }
 
     //endregion

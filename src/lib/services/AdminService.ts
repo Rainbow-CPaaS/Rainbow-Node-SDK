@@ -6,13 +6,16 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {Deferred, isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Contact} from "../common/models/Contact";
 import {ContactsService} from "./ContactsService";
 import {GenericService} from "./GenericService";
+
+let dateFormat = require('dateformat');
+let fs = require('fs');
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -4368,6 +4371,787 @@ class Admin extends GenericService {
     }
 
     //endregion sites
+
+    //region Rainbow Company Directory portal 
+    // https://api.openrainbow.org/directory/
+    //region directory
+    /**
+     * @public
+     * @method createDirectoryEntry
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company the directory is linked to.
+     * @param {string} firstName Contact first Name
+     * @param {string} lastName Contact last Name
+     * @param {string} companyName Company Name of the contact
+     * @param {string} department Contact address: Department
+     * @param {string} street Contact address: Street
+     * @param {string} city Contact address: City
+     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+     * @param {string} postalCode Contact address: postal code / ZIP
+     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
+     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {string} jobTitle Contact Job title
+     * @param {string} eMail Contact Email address
+     * @param {Array<string>} tags An Array of free tags </br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </br>
+     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). </br>
+     * @param {string} custom1 Custom field 1
+     * @param {string} custom2 Custom field 2
+     * @description
+     *      This API allows administrators to Create a directory entry.  <br/>
+     */
+    createDirectoryEntry ( companyId : string,
+                           firstName : string,
+                           lastName : string,
+                           companyName : string,
+                           department : string,
+                           street : string,
+                           city : string,
+                           state : string,
+                           postalCode : string,
+                           country : string,
+                           workPhoneNumbers : string[],
+                           mobilePhoneNumbers : string[],
+                           otherPhoneNumbers : string[],
+                           jobTitle : string,
+                           eMail : string,
+                           tags : string[],
+                           custom1 : string,
+                           custom2 : string
+    ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!companyId) {
+                    this._logger.log("warn", LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter : ", companyId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.createDirectoryEntry ( companyId,
+                        firstName,
+                        lastName,
+                        companyName,
+                        department,
+                        street,
+                        city,
+                        state,
+                        postalCode,
+                        country,
+                        workPhoneNumbers,
+                        mobilePhoneNumbers,
+                        otherPhoneNumbers,
+                        jobTitle,
+                        eMail,
+                        tags,
+                        custom1,
+                        custom2).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createDirectoryEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createDirectoryEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createDirectoryEntry) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createDirectoryEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCompanyDirectoryAllEntry
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId Id of the company.
+     * @description
+     *      This API allows administrators  to delete all the entries in the directory of a company they administrate.<br/>
+     * @return {Promise<any>}
+     */
+    deleteCompanyDirectoryAllEntry (companyId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!companyId) {
+                    this._logger.log("warn", LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter : ", companyId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteCompanyDirectoryAllEntry (companyId ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteCompanyDirectoryAllEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteCompanyDirectoryAllEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteCompanyDirectoryAllEntry) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteCompanyDirectoryAllEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteDirectoryEntry
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} entryId Id of the entry.
+     * @description
+     *      This API allows administrators  to delete an entry from the directory of a company they administrate.<br/>
+     * @return {Promise<any>}
+     */
+    deleteDirectoryEntry (entryId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!entryId) {
+                    this._logger.log("warn", LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteDirectoryEntry (entryId ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteDirectoryEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteDirectoryEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteDirectoryEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getDirectoryEntryData
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} entryId Id of the entry.
+     * @param {string} format Allows to retrieve more or less entry details in response. <br/>
+     * - small: id, firstName, lastName  <br/>
+     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br/>
+     * - full: all fields. <br/>
+     * default : small <br/>
+     * Valid values : small, medium, full <br/>
+     * @description
+     *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
+     * @return {Promise<any>}
+     */
+    getDirectoryEntryData (entryId : string, format : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!entryId) {
+                    this._logger.log("warn", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getDirectoryEntryData (entryId, format ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getDirectoryEntryData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getDirectoryEntryData) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getDirectoryEntryData) ErrorManager error : ", err, ' : ', entryId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getListDirectoryEntriesData
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param companyId
+     * @param organisationIds
+     * @param name
+     * @param search
+     * @param type
+     * @param companyName
+     * @param phoneNumbers
+     * @param fromUpdateDate
+     * @param toUpdateDate
+     * @param tags
+     * @param {string} format Allows to retrieve more or less entry details in response. <br/>
+     * - small: id, firstName, lastName  <br/>
+     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br/>
+     * - full: all fields. <br/>
+     * default : small <br/>
+     * Valid values : small, medium, full <br/>
+     * @param limit
+     * @param offset
+     * @param sortField
+     * @param sortOrder
+     * @description
+     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br/>
+     * @return {Promise<any>}
+     */
+    getListDirectoryEntriesData (companyId : string,
+                                 organisationIds : string,
+                                 name : string,
+                                 search : string,
+                                 type : string,
+                                 companyName : string,
+                                 phoneNumbers : string,
+                                 fromUpdateDate : Date,
+                                 toUpdateDate : Date,
+                                 tags  : string,
+                                 format : string = "small",
+                                 limit : number = 100,
+                                 offset : number = 0,
+                                 sortField : string = "lastName",
+                                 sortOrder : number = 1) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getListDirectoryEntriesData (companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListDirectoryEntriesData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListDirectoryEntriesData) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getListDirectoryEntriesData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateDirectoryEntry
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} entryId Id of the entry.
+     * @param {string} firstName Contact first Name
+     * @param {string} lastName Contact last Name
+     * @param {string} companyName Company Name of the contact
+     * @param {string} department Contact address: Department
+     * @param {string} street Contact address: Street
+     * @param {string} city Contact address: City
+     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+     * @param {string} postalCode Contact address: postal code / ZIP
+     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
+     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {string} jobTitle Contact Job title
+     * @param {string} eMail Contact Email address
+     * @param {Array<string>} tags An Array of free tags </br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </br>
+     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case).
+     * @param {string} custom1 Custom field 1
+     * @param {string} custom2 Custom field 2
+     * @description
+     *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
+     * @return {Promise<any>}
+     */
+    updateDirectoryEntry  (entryId : string, 
+                           firstName : string,
+                           lastName : string,
+                           companyName : string,
+                           department : string,
+                           street : string,
+                           city : string,
+                           state : string,
+                           postalCode : string,
+                           country : string,
+                           workPhoneNumbers : string[],
+                           mobilePhoneNumbers : string[],
+                           otherPhoneNumbers : string[],
+                           jobTitle : string,
+                           eMail : string,
+                           tags : string[],
+                           custom1 : string,
+                           custom2 : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!entryId) {
+                    this._logger.log("warn", LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.updateDirectoryEntry(entryId,
+                        firstName,
+                        lastName,
+                        companyName,
+                        department,
+                        street,
+                        city,
+                        state,
+                        postalCode,
+                        country,
+                        workPhoneNumbers,
+                        mobilePhoneNumbers,
+                        otherPhoneNumbers,
+                        jobTitle,
+                        eMail,
+                        tags,
+                        custom1,
+                        custom2).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updateDirectoryEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updateDirectoryEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateDirectoryEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /********************************************************/
+    /** EXPORT CSV                                         **/
+    /********************************************************/
+    // Private
+    getAllDirectoryContacts(companyId) {
+        let that = this;
+        const limit = 1000; // maximum of entries that can be requested to the server
+        return new Promise(function (resolve, reject) {
+            let result;
+            // Get first page of entries and the total number of entries to retrieve
+            that.getListDirectoryEntriesData(companyId, null, null, null, null, null, null, null, null, null, null, limit, 0, "firstname", 1)
+                    .then(function (response: any) {
+                        result = response;
+                        result.contacts = response.data;
+                        if (response.total > response.limit) {
+                            const totalPages = Math.ceil(response.total / limit);
+
+                            // List of page numbers to get (remove first page that was already gotten)
+                            let pages = Array.apply(null, Array(totalPages - 1));
+                            pages = pages.map(function (__unused, index) {
+                                return index + 2;
+                            }); // fill array with page numbers to request
+
+                            // Serialize promises by chunks (avoids more requests than the server can handle)
+                            const chunks = [];
+                            while (pages.length > 0) {
+                                chunks.push(pages.splice(0, 5));
+                            } // chunk size must be less than 10 to avoid internal system error
+
+                            return chunks.reduce(function (promiseChain, requests) {
+                                // Parallelize chunks
+                                return promiseChain.then(function () {
+                                    const promisesArray = requests.map(function (page) {
+                                        let offset = (limit * (page - 1));
+                                        return that.getListDirectoryEntriesData(companyId, null, null, null, null, null, null, null, null, null, null, limit, offset, null, null).then(function (data: any) {
+                                            result.contacts = result.contacts.concat(data.data);
+                                            result.limit += data.limit;
+                                        });
+                                    });
+                                    // return chain
+                                    return Promise.all(promisesArray);
+                                });
+                            }, Promise.resolve());
+                        }
+                    })
+                    .then(function () {
+                        resolve(result);
+                    })
+                    .catch(function (error) {
+                        reject(error);
+                    });
+        });
+    }
+
+    // Private
+    buildDirectoryCsvBlob(companyId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "[companyDirectoryService] === buildDirectoryCsvBlob ===");
+
+            that.getAllDirectoryContacts(companyId)
+                    .then(function (result: any) {
+                        // Find number of csv's "workPhoneNumber" columns "mobilePhoneNumber" and "otherPhoneNumber" columns (at least workPhoneNumber0, mobilePhoneNumber0 and otherPhoneNumber0)
+                        const maxWorkPhoneNumbers = Math.max(1, result.contacts.reduce(function (max, contact) {
+                            return Math.max(max, contact.workPhoneNumbers ? contact.workPhoneNumbers.length:0);
+                        }, 0));
+                        const maxMobilePhoneNumbers = Math.max(1, result.contacts.reduce(function (max, contact) {
+                            return Math.max(max, contact.mobilePhoneNumbers ? contact.mobilePhoneNumbers.length:0);
+                        }, 0));
+                        const maxOtherPhoneNumbers = Math.max(1, result.contacts.reduce(function (max, contact) {
+                            return Math.max(max, contact.otherPhoneNumbers ? contact.otherPhoneNumbers.length:0);
+                        }, 0));
+                        const csvWorkPhonesColumns = Array.apply(null, new Array(maxWorkPhoneNumbers)).map(function (val, i) {
+                            return "workPhoneNumber" + i;
+                        });
+                        const csvWorkPhonesExtraSeparators = Array.apply(null, new Array(maxWorkPhoneNumbers)).map(function () {
+                            return ";";
+                        });
+                        const csvMobilePhonesColumns = Array.apply(null, new Array(maxMobilePhoneNumbers)).map(function (val, i) {
+                            return "mobilePhoneNumber" + i;
+                        });
+                        const csvMobilePhonesExtraSeparators = Array.apply(null, new Array(maxMobilePhoneNumbers)).map(function () {
+                            return ";";
+                        });
+                        const csvOtherPhonesColumns = Array.apply(null, new Array(maxOtherPhoneNumbers)).map(function (val, i) {
+                            return "otherPhoneNumber" + i;
+                        });
+                        const csvOtherPhonesExtraSeparators = Array.apply(null, new Array(maxOtherPhoneNumbers)).map(function () {
+                            return ";";
+                        });
+
+                        // directory csv file header line
+                        const csvDirectoryLines = [];
+                        csvDirectoryLines.push("firstName;lastName;companyName;department;street;city;postalCode;state;country;" + csvWorkPhonesColumns.join(";") + ";" + csvMobilePhonesColumns.join(";") + ";" + csvOtherPhonesColumns.join(";") + ";jobTitle;eMail;custom1;custom2");
+
+                        result.contacts.forEach(function (contact) {
+                            let contactLine = "";
+                            contactLine += contact.firstName ? contact.firstName:"";
+
+                            contactLine += ";";
+                            contactLine += contact.lastName ? contact.lastName:"";
+
+                            contactLine += ";";
+                            contactLine += contact.companyName ? contact.companyName:"";
+
+                            contactLine += ";";
+                            contactLine += contact.department ? contact.department:"";
+
+                            contactLine += ";";
+                            contactLine += contact.street ? contact.street:"";
+
+                            contactLine += ";";
+                            contactLine += contact.city ? contact.city:"";
+
+                            contactLine += ";";
+                            contactLine += contact.postalCode ? contact.postalCode:"";
+
+                            contactLine += ";";
+                            contactLine += contact.state ? contact.state:"";
+
+                            contactLine += ";";
+                            contactLine += contact.country ? contact.country:"";
+
+                            // Add contact's phone numbers
+                            let phoneNumbers;
+                            let extraSeparators;
+                            // Add contact's work phone numbers
+                            phoneNumbers = contact.workPhoneNumbers && contact.workPhoneNumbers.length > 0 ? contact.workPhoneNumbers:[""]; // there is at least workPhone0 and mobilePhone0 (empty by default)
+                            contactLine += ";";
+                            contactLine += phoneNumbers.map(function (number) {
+                                return number;
+                            }).join(";");
+                            extraSeparators = csvWorkPhonesExtraSeparators.slice(phoneNumbers.length);
+                            contactLine += extraSeparators.join("");
+                            // Add contact's mobile phone numbers
+                            phoneNumbers = contact.mobilePhoneNumbers && contact.mobilePhoneNumbers.length > 0 ? contact.mobilePhoneNumbers:[""]; // there is at least workPhone0 and mobilePhone0 (empty by default)
+                            contactLine += ";";
+                            contactLine += phoneNumbers.map(function (number) {
+                                return number;
+                            }).join(";");
+                            extraSeparators = csvMobilePhonesExtraSeparators.slice(phoneNumbers.length);
+                            contactLine += extraSeparators.join("");
+                            // Add contact's other phone numbers
+                            phoneNumbers = contact.otherPhoneNumbers && contact.otherPhoneNumbers.length > 0 ? contact.otherPhoneNumbers:[""]; // there is at least workPhone0 and mobilePhone0 (empty by default)
+                            contactLine += ";";
+                            contactLine += phoneNumbers.map(function (number) {
+                                return number;
+                            }).join(";");
+                            extraSeparators = csvOtherPhonesExtraSeparators.slice(phoneNumbers.length);
+                            contactLine += extraSeparators.join("");
+
+                            // Add other fields
+                            contactLine += ";";
+                            contactLine += contact.jobTitle ? contact.jobTitle:"";
+                            contactLine += ";";
+                            contactLine += contact.eMail ? contact.eMail:"";
+                            contactLine += ";";
+                            contactLine += contact.custom1 ? contact.custom1:"";
+                            contactLine += ";";
+                            contactLine += contact.custom2 ? contact.custom2:"";
+
+                            csvDirectoryLines.push(contactLine);
+                        });
+
+                        // create blob
+                        const directoryBlob = {blob: csvDirectoryLines.join("\r\n"), type: "text/csv; charset=utf-8"};
+
+                        resolve(directoryBlob);
+                    })
+                    .catch(function (error) {
+                        reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @public
+     * @method exportDirectoryCsvFile
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId The company id of the directory to export.<br/>
+     * @param {string} filePath The folder where the directory will be exported.
+     * @description
+     *      This API allows administrators to export the directory in a CSV file.<br/>
+     * @return {Promise<any>} If it succeed then it returns the file full path of the exported data. If it failed then it return the error.
+     */
+    exportDirectoryCsvFile(companyId : string, filePath : string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log("info", LOG_ID + "(exportDirectoryCsvFile) ===");
+
+            const mDate = new Date().getTime(); // now
+            const csvFilename = filePath + "directory_" + dateFormat(mDate, "YYYY-MM-DD_HH-mm") + ".csv"; // dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");
+
+            let fileBlob;
+            that.buildDirectoryCsvBlob(companyId).then(function (blobData: any) {
+                fs.writeFile(csvFilename, blobData.blob, 'utf8', function (err) {
+                    if (err) {
+                        that._logger.log("error", LOG_ID + "(exportDirectoryCsvFile) Some error occured - file either not saved or corrupted file saved.");
+                    } else {
+                        that._logger.log("debug", LOG_ID + "(exportDirectoryCsvFile) " + csvFilename + " is saved!");
+                    }
+                });
+                resolve(csvFilename);
+            }).catch(function (error) {
+                reject(error);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method ImportDirectoryCsvFile
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId The company id of the directory to export.<br/>
+     * @param {string} fileFullPath The full file path to import.
+     * @param {string} label The label used for the import.
+     * @description
+     *      This API allows administrators to import the directory from a CSV file.<br/>
+     * @return {Promise<any>} .
+     */
+    ImportDirectoryCsvFile(companyId : string, fileFullPath : string, label : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                let fileStats = fs.statSync(fileFullPath);
+
+                //let range = ONE_MEGABYTE;
+                let sizeToRead = fileStats.size ;
+                // let fd = fs.openSync(fileFullPath, "r+");
+                //let buf = new Buffer(sizeToRead);
+
+                that._logger.log("debug", LOG_ID + "(ImportDirectoryCsvFile) sizeToRead=", sizeToRead, ", fileFullPath : ", fileFullPath);
+
+                // fs.readSync(fd, buf, 0, sizeToRead, null);
+                // const data = fs.readFileSync(fileFullPath, {encoding:'utf8', flag:'r'});
+
+                let cvsContent = fs.readFileSync(fileFullPath, {encoding:'utf8', flag:'r'});
+
+                that._rest.ImportDirectoryCsvFile (companyId, cvsContent, encodeURIComponent(label)).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(ImportDirectoryCsvFile) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(ImportDirectoryCsvFile) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(ImportDirectoryCsvFile) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(ImportDirectoryCsvFile) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion directory
+
+    //region directory tags
+    /**
+     * @public
+     * @method getAllTagsAssignedToDirectoryEntries
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
+     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.
+     * @description
+     *      This API allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.<br/>
+     * @return {Promise<any>}
+     */
+    getAllTagsAssignedToDirectoryEntries (companyId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAllTagsAssignedToDirectoryEntries (companyId ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeTagFromAllDirectoryEntries
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
+     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.<br/>
+     * @param {string} tag tag to remove. 
+     * @description
+     *      This API allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.<br/>
+     *      The parameter companyId can be used to limit the removal of the tag on the directory entries of the specified company(ies).<br/>
+     * @return {Promise<any>}
+     */
+    removeTagFromAllDirectoryEntries (companyId : string, tag  : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {                
+
+                that._rest.removeTagFromAllDirectoryEntries (companyId, tag ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(removeTagFromAllDirectoryEntries) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(removeTagFromAllDirectoryEntries) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(removeTagFromAllDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(removeTagFromAllDirectoryEntries) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method renameTagForAllAssignedDirectoryEntries
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId Allows to rename a tag for the directory entries of the companyIds provided in this option.<br/>
+     * If companyId is not provided, the tag is renamed from all the directory entries of all the companies managed by the logged in administrator.<br/>
+     * @param {string} tag tag to rename.
+     * @param {string} newTagName New tag name.
+     * @description
+     *      This API allows administrators to rename a tag being assigned to some directory entries of the companies managed by the administrator.<br/>
+     *      The parameter companyId can be used to limit the renaming of the tag on the directory entries of the specified company(ies).<br/>
+     * @return {Promise<any>}
+     */
+    renameTagForAllAssignedDirectoryEntries ( tag  : string, companyId : string, newTagName : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!tag) {
+                    this._logger.log("warn", LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter : ", tag);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                
+                that._rest.renameTagForAllAssignedDirectoryEntries (tag, companyId, newTagName).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getStatsRegardingTagsOfDirectoryEntries
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @param {string} companyId Allows to compute the tags statistics for the directory entries of the companyIds provided in this option.<br/>
+     * @description
+     *      This API can be used to list all the tags being assigned to the directory entries of the companies managed by the administrator, with the number of directory entries for each tags.<br/>
+     * @return {Promise<any>}
+     */
+    getStatsRegardingTagsOfDirectoryEntries ( companyId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getStatsRegardingTagsOfDirectoryEntries (companyId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion directory tags
+    //endregion Rainbow Company Directory portal
     
 }
 
