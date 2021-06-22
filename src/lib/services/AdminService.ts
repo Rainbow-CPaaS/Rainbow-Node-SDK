@@ -4559,7 +4559,7 @@ class Admin extends GenericService {
      *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
      * @return {Promise<any>}
      */
-    getDirectoryEntryData (entryId : string, format : string) {
+    getDirectoryEntryData (entryId : string, format : string = "small") {
         let that = this;
 
         return new Promise(function (resolve, reject) {
