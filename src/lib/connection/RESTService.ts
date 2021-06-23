@@ -6855,6 +6855,8 @@ Request Method: PUT
         };
 
         return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
+
             that.http.put("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateDirectoryEntry) successfull");
                 that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST set group favorite information : ", json.data);
