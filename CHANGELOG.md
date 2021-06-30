@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-## [2.2.0] - 2021-06-10 - STS
+## [2.2.0] - 2021-06-XX - STS
 -   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
 -   Fix `ConversationsService::openConversationForContact` when dbid is empty to get conversation from serveur side.
 -   Add `AdminService::createDirectoryEntry` API that allows administrators to Create a directory entry.
@@ -23,6 +23,31 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `AdminService::renameTagForAllAssignedDirectoryEntries` API that allows administrators to rename a tag being assigned to some directory entries.
 -   Add `AdminService::getStatsRegardingTagsOfDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries.
 -   Fix use of addParamToUrl method.
+-   Add `BubblesService::addPSTNParticipantToConference` API that Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number.
+-   Add `BubblesService::snapshotConference` The snapshot command returns global information about conference and the set of participants engaged in the conference. .
+-   Add `BubblesService::delegateConference` API that allows Current owner of the conference delegates its control to another user.
+-   Add `BubblesService::disconnectPSTNParticipantFromConference` API that Disconnect PSTN participant from conference.
+-   Add `BubblesService::disconnectParticipantFromConference` API that Disconnect participant from conference.
+-   Add `BubblesService::getTalkingTimeForAllPparticipantsInConference` The snapshot command returns global information about conference and the set of participants engaged in the conference. .
+-   Add `BubblesService::joinConferenceV2` The snapshot command returns global information about conference and the set of participants engaged in the conference.
+-   Add `BubblesService::pauseRecording` API that allows Pauses the recording of a conference.
+-   Add `BubblesService::resumeRecording` API that allows Resume the recording of a conference. .
+-   Add `BubblesService::startRecording` API that allows Start the recording of a conference.
+-   Add `BubblesService::stopRecording` API that allows Stop the recording of a conference.
+-   Add `BubblesService::rejectAVideoConference` API that allows User indicates that he rejects the conference (only available for WebRTC conferences).
+-   Add `BubblesService::startConferenceOrWebinarInARoom` API that allows The start command initiates a conference in a room.
+-   Add `BubblesService::stopConferenceOrWebinar` API that allows The stop command terminates an active conference identified in a room. All currently connected participants are disconnected.
+-   Add `BubblesService::subscribeForParticipantVideoStream` API that Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user.
+-   Add `BubblesService::updatePSTNParticipantParameters` API that allows The update PSTN participant command can update different options of a participant.
+-   Add `BubblesService::updateConferenceParameters` API that allows The update conference command can update different options of a conference.
+-   Add `BubblesService::updateParticipantParameters` API that allows The update participant command can update different options of a participant.
+-   Add `BubblesService::allowTalkWebinar` API that allows Webinar: allow a participant who raised his hand to talk.
+-   Add `BubblesService::disableTalkWebinar` API that allows Webinar: disable a participant who raised his hand to talk.
+-   Add `BubblesService::lowerHandWebinar` API that allows Webinar: participant lowers hand.
+-   Add `BubblesService::raiseHandWebinar` API that allows Webinar: participant raises hand.
+-   Add `BubblesService::stageDescriptionWebinar` API that allows Webinar: stage description (up to 10 actors).
+-   Add treatment of xmpp event of "startConference" and "stopConference" for conference V2.
+-   Fix export of `DataStoreType` in NodeSDK.  
 
 ## [2.1.1] - 2021-06-10 - STS
 -   Fix remove wrong copy/paste of hard coded "https://openrainbow.com" string in some CloudPBX methods.

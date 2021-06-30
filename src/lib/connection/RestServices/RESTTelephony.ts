@@ -33,6 +33,13 @@ class RESTTelephony {
         }) ;
     }
 
+    stop() {
+        return new Promise( (resolve)=> {
+            let that = this;
+            resolve(undefined);
+        }) ;
+    }
+
     makeCall(requestHeader, contact, phoneInfo) {
         let that = this;
         return new Promise((resolve, reject) => {

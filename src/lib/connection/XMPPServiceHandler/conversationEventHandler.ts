@@ -599,10 +599,25 @@ class ConversationEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                 }
                     break;
-                case "conferenceRemove":
+                case "conferenceRemove": {
                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference stop received");
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
+                }
+                    break;
+                case "startConference": {
+                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference start received");
+                    conferencebubbleJid = fromJid;
+                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
+                }
+                    break;
+                case "stopConference": {
+                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference stop received");
+                    conferencebubbleJid = fromJid;
+                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
+                }
                     break;
                 default:
                     that.logger.log("internal", LOG_ID + "(onChatMessageReceived) no treatment of event ", msg, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter

@@ -192,13 +192,13 @@ class Bubbles extends GenericService {
             }
 
             if (!name) {
-                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'name' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createBubble) bad or empty 'name' parameter", name);
+                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'name' parameter.");
+                that._logger.log("internalerror", LOG_ID + "(createBubble) bad or empty 'name' parameter : ", name);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!description) {
-                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'description' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createBubble) bad or empty 'description' parameter", description);
+                that._logger.log("warn", LOG_ID + "(createBubble) bad or empty 'description' parameter.");
+                that._logger.log("internalerror", LOG_ID + "(createBubble) bad or empty 'description' parameter : ", description);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -248,7 +248,7 @@ class Bubbles extends GenericService {
     isBubbleClosed(bubble) {
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter : ", bubble);
             throw (ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
@@ -328,7 +328,7 @@ class Bubbles extends GenericService {
         return new Promise(function (resolve, reject) {
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -434,7 +434,7 @@ class Bubbles extends GenericService {
 
         return new Promise(function (resolve, reject) {
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -504,7 +504,7 @@ class Bubbles extends GenericService {
         return new Promise(function (resolve, reject) {
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -550,7 +550,7 @@ class Bubbles extends GenericService {
             }
 
             if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -643,7 +643,7 @@ class Bubbles extends GenericService {
     getStatusForConnectedUserInBubble(bubble) {
         let that = this;
         if (!bubble) {
-            that._logger.log("warn", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter");
+            that._logger.log("warn", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter.");
             that._logger.log("internalerror", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter : ", bubble);
             //reject(ErrorManager.getErrorManager().BAD_REQUEST);
             return "none";
@@ -677,12 +677,12 @@ class Bubbles extends GenericService {
             that._logger.log("internal", LOG_ID + "(inviteContactToBubble) arguments : ", ...arguments);
 
             if (!contact) {
-                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter");
+                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter : ", contact);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -760,12 +760,12 @@ class Bubbles extends GenericService {
             that._logger.log("internal", LOG_ID + "(inviteContactsByEmailToBubble) arguments : ", ...arguments);
 
             if (!contactsEmails || !Array.isArray(contactsEmails)) {
-                that._logger.log("warn", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter");
+                that._logger.log("warn", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter : ", contactsEmails);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -804,12 +804,12 @@ class Bubbles extends GenericService {
         return new Promise(function (resolve, reject) {
 
             if (!contact) {
-                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter");
+                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter : ", contact);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -879,11 +879,11 @@ class Bubbles extends GenericService {
     promoteContactToModerator(contact, bubble) {
         let that = this;
         if (!contact) {
-            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter");
+            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter.");
             that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else if (!bubble) {
-            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter");
+            that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter.");
             that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -905,11 +905,11 @@ class Bubbles extends GenericService {
     demoteContactFromModerator(contact, bubble) {
         let that = this;
         if (!contact) {
-            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter");
+            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter.");
             that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else if (!bubble) {
-            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter");
+            that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter.");
             that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -978,12 +978,12 @@ class Bubbles extends GenericService {
         return new Promise(function (resolve, reject) {
 
             if (!contact) {
-                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter");
+                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter : ", contact);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             } else if (!bubble) {
-                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -1453,7 +1453,7 @@ class Bubbles extends GenericService {
             that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
 
             if (!id) {
-                that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'id' parameter", id);
+                that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'id' parameter : ", id);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -1515,7 +1515,7 @@ class Bubbles extends GenericService {
             that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
 
             if (!jid) {
-                that._logger.log("debug", LOG_ID + "(getBubbleByJid) bad or empty 'jid' parameter", jid);
+                that._logger.log("debug", LOG_ID + "(getBubbleByJid) bad or empty 'jid' parameter : ", jid);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -1636,7 +1636,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1686,7 +1686,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1738,7 +1738,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1815,7 +1815,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1853,7 +1853,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1890,7 +1890,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -1950,13 +1950,13 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!roomAvatarPath) {
-            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter");
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter : ", roomAvatarPath);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2000,7 +2000,7 @@ class Bubbles extends GenericService {
      */
     deleteAvatarFromBubble(bubble) {
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2016,7 +2016,7 @@ class Bubbles extends GenericService {
     deleteAvatarBubble(bubbleId) {
         let that = this;
         if (!bubbleId) {
-            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubbleId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2069,11 +2069,11 @@ class Bubbles extends GenericService {
          let bubblefound : any = bubble && bubble.id ? await that.getBubbleById(bubble.id) : null;
 
          if (!customData) {
-             this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter");
+             this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter.");
              this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter : ", customData);
              return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
          } else if (!bubblefound) {
-             this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter");
+             this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
              this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
              return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
          } else {
@@ -2125,11 +2125,11 @@ class Bubbles extends GenericService {
         let bubblefound : any = bubble && bubble.id ? await that.getBubbleById(bubble.id) : null;
 
         if (!strDescription) {
-            this._logger.log("warn", LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter");
+            this._logger.log("warn", LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter.");
             this._logger.log("internalerror", LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter : ", strDescription);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else if (!bubblefound) {
-            this._logger.log("warn", LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
@@ -2673,7 +2673,7 @@ class Bubbles extends GenericService {
     async getAllPublicUrlOfABubble(bubble): Promise<any> {
         let that = this;
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2701,12 +2701,12 @@ class Bubbles extends GenericService {
     async getAllPublicUrlOfABubbleOfAUser(contact : Contact, bubble : Bubble): Promise<any> {
         let that = this;
         if (!contact) {
-            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter");
+            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter.");
             this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2732,7 +2732,7 @@ class Bubbles extends GenericService {
     async createPublicUrl(bubble: Bubble): Promise<any> {
         let that = this;
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2793,7 +2793,7 @@ class Bubbles extends GenericService {
     async generateNewPublicUrl(bubble: Bubble): Promise<any> {
         let that = this;
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -2901,7 +2901,7 @@ class Bubbles extends GenericService {
         let that = this;
 
         if (!bubble) {
-            this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter");
+            this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter.");
             this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
@@ -3014,7 +3014,7 @@ class Bubbles extends GenericService {
             that._logger.log("internal", LOG_ID + "(joinConference) arguments : ", ...arguments);
 
             if (!bubble || !bubble.id) {
-                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble' parameter");
+                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -3044,7 +3044,7 @@ getAllActiveBubbles
             } // */
 
             if (!bubble || !bubble.confEndpoints) {
-                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter");
+                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter : ", bubble);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
@@ -4414,7 +4414,7 @@ getAllActiveBubbles
             that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bubble tags  " + tags);
 
             if (!tags) {
-                that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter", tags);
+                that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter : ", tags);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4456,12 +4456,12 @@ getAllActiveBubbles
             that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bubble tags  " + tags);
 
             if (!bubble || !bubble.id) {
-                that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bad or empty 'bubble' parameter", bubble);
+                that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bad or empty 'bubble' parameter : ", bubble);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!tags) {
-                that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bad or empty 'tags' parameter", tags);
+                that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bad or empty 'tags' parameter : ", tags);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4498,12 +4498,12 @@ getAllActiveBubbles
             that._logger.log("internal", LOG_ID + "(deleteTagOnABubble) bubble tag  ", tag, " on bubble : ", bubbles);
 
             if (!bubbles) {
-                that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bad or empty 'bubbles' parameter", bubbles);
+                that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bad or empty 'bubbles' parameter : ", bubbles);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!tag) {
-                that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bad or empty 'tags' parameter", tag);
+                that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bad or empty 'tags' parameter : ", tag);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4616,12 +4616,12 @@ getAllActiveBubbles
             that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) containers containerId : " + containerId, ", bubbleIds : ", bubbleIds);
             
             if (!containerId) {
-                that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) bad or empty 'containerId' parameter", containerId);
+                that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) bad or empty 'containerId' parameter : ", containerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!bubbleIds) {
-                that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) bad or empty 'bubbleIds' parameter", bubbleIds);
+                that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) bad or empty 'bubbleIds' parameter : ", bubbleIds);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             
@@ -4659,12 +4659,12 @@ getAllActiveBubbles
             that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) containers containerId : " + containerId, ", name : ", name);
 
             if (!containerId) {
-                that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'containerId' parameter", containerId);
+                that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'containerId' parameter : ", containerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!name) {
-                that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'name' parameter", name);
+                that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'name' parameter : ", name);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4702,7 +4702,7 @@ getAllActiveBubbles
             that._logger.log("debug", LOG_ID + "(createBubbleContainer) containers bubbleIds : " + bubbleIds, ", name : ", name);
 
             if (!name) {
-                that._logger.log("debug", LOG_ID + "(createBubbleContainer) bad or empty 'name' parameter", name);
+                that._logger.log("debug", LOG_ID + "(createBubbleContainer) bad or empty 'name' parameter : ", name);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4735,10 +4735,10 @@ getAllActiveBubbles
     deleteBubbleContainer (containerId : string ) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) containers containerId : " + containerId);
+            that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) containerId : " + containerId);
 
             if (!containerId) {
-                that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) bad or empty 'name' parameter", containerId);
+                that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) bad or empty 'name' parameter : ", containerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4772,15 +4772,15 @@ getAllActiveBubbles
     removeBubblesFromContainer (containerId : string, bubbleIds : Array<string> ) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) containers bubbleIds : " + bubbleIds, ", containerId : ", containerId);
+            that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bubbleIds : " + bubbleIds, ", containerId : ", containerId);
 
             if (!containerId) {
-                that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bad or empty 'containerId' parameter", containerId);
+                that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bad or empty 'containerId' parameter : ", containerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!bubbleIds) {
-                that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bad or empty 'bubbleIds' parameter", bubbleIds);
+                that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bad or empty 'bubbleIds' parameter : ", bubbleIds);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -4799,6 +4799,971 @@ getAllActiveBubbles
     }
     
     //endregion CONTAINERS
+    
+    //region Conference V2
+
+    /**
+     * @public
+     * @method addPSTNParticipantToConference
+     * @instance
+     * @param {string} roomId The id of the room.
+     * @param {string} participantPhoneNumber Phone number to call.
+     * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
+     * @since 2.2.0
+     * @async
+     * @description
+     *       Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    addPSTNParticipantToConference(roomId : string, participantPhoneNumber : string, country : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(addPSTNParticipantToConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(addPSTNParticipantToConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!participantPhoneNumber) {
+                that._logger.log("debug", LOG_ID + "(addPSTNParticipantToConference) bad or empty 'participantPhoneNumber' parameter : ", participantPhoneNumber);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.addPSTNParticipantToConference(roomId, participantPhoneNumber , country).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(addPSTNParticipantToConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method snapshotConference
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} limit Allows to specify the number of participants to retrieve. 
+     * @param {string} offset Allows to specify the position of first participant to retrieve.
+     * @async
+     * @description
+     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br/>
+     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br/>
+     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br/>
+     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br/>
+     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    snapshotConference(roomId : string, limit : number = 100,  offset : number = 0) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(snapshotConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(snapshotConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.snapshotConference(roomId, limit, offset).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(snapshotConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method delegateConference
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} userId User identifier.
+     * @async
+     * @description
+     *       Current owner of the conference delegates its control to another user (this user must support conference delegation, i.e. "delegateCapability" was set to true when joining). <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    delegateConference(roomId : string, userId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(delegateConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!userId) {
+                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'userId' parameter : ", userId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.delegateConference(roomId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(delegateConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method disconnectPSTNParticipantFromConference
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Disconnect PSTN participant from conference. The request is sent by a conference's moderator. <br/>
+     *       Conference: Moderator can drop any PSTN participant. <br/>
+     *       Webinar: Organizer or speaker can drop any PSTN participant. <br/>
+     *       Practice room: Not applicable <br/>
+     *       Waiting room: Not applicable. <br/>     
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    disconnectPSTNParticipantFromConference (roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(disconnectPSTNParticipantFromConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(disconnectPSTNParticipantFromConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.disconnectPSTNParticipantFromConference(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disconnectPSTNParticipantFromConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method disconnectParticipantFromConference
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} userId User identifier.
+     * @async
+     * @description
+     *       Disconnect participant from conference. The request can be sent by participant himself or by a conference's moderator. <br/> 
+     *       Conference: Moderator can drop any participant except conference owner. <br/>
+     *       Webinar: Organizer or speaker can drop any participant. <br/>
+     *       Practice room: Organizer or speaker can drop any participant. When last participant is dropped, practice room stops. <br/>
+     *       Waiting room: Not applicable. <br/>     
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    disconnectParticipantFromConference(roomId : string, userId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(delegateConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!userId) {
+                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'userId' parameter : ", userId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.delegateConference(roomId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(delegateConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getTalkingTimeForAllPparticipantsInConference
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} limit Allows to specify the number of participants to retrieve.
+     * @param {string} offset Allows to specify the position of first participant to retrieve.
+     * @async
+     * @description
+     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br/>
+     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br/>
+     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br/>
+     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br/>
+     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    getTalkingTimeForAllPparticipantsInConference(roomId : string, limit : number = 100,  offset : number = 0) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getTalkingTimeForAllPparticipantsInConference(roomId, limit, offset).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method joinConferenceV2
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
+     * @param {string} participantPhoneNumber Join through dial.
+     * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
+     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center).
+     * @param {string} mute Join as muted/unmuted.
+     * @param {string} microphone Has client a microphone?
+     * @async
+     * @description
+     *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    joinConferenceV2(roomId : string, mediaType : string = "webrtcSharingOnly", participantPhoneNumber : string, country : string, dc : Array<string>, mute: boolean = false, microphone : boolean = true) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(joinConferenceV2) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(joinConferenceV2) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.joinConferenceV2(roomId, mediaType, participantPhoneNumber, country, dc, mute, microphone).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(joinConferenceV2) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method pauseRecording
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Pauses the recording of a conference. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    pauseRecording(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(pauseRecording) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(pauseRecording) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.pauseRecording(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(pauseRecording) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method resumeRecording
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Resume the recording of a conference. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    resumeRecording(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(resumeRecording) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(resumeRecording) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.pauseRecording(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(resumeRecording) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method startRecording
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Start the recording of a conference. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    startRecording(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(startRecording) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(startRecording) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.pauseRecording(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(startRecording) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method stopRecording
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Stop the recording of a conference. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    stopRecording(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(stopRecording) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(stopRecording) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.pauseRecording(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(stopRecording) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method rejectAVideoConference
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       User indicates that he rejects the conference (only available for WebRTC conferences). <br>
+     *       A XMPP message will be sent to all his clients in order for them to remove the incoming call popup. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    rejectAVideoConference(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(rejectAVideoConference) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(rejectAVideoConference) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.rejectAVideoConference(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(rejectAVideoConference) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method startConferenceOrWebinarInARoom
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       The start command initiates a conference in a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    startConferenceOrWebinarInARoom(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.startConferenceOrWebinarInARoom(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method stopConferenceOrWebinar
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       The stop command terminates an active conference identified in a room. All currently connected participants are disconnected. <br>
+     *       Conference: Only conference owner can stop it. <br>
+     *       Webinar: Any organizer can stop it. <br>
+     *       Practice room: Any organizer or speaker can stop it. <br>
+     *       Waiting room: Can't be stopped through API. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    stopConferenceOrWebinar(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(stopConferenceOrWebinar) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(stopConferenceOrWebinar) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.stopConferenceOrWebinar(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(stopConferenceOrWebinar) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method subscribeForParticipantVideoStream
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} userId User identifier.
+     * @param {string} media [or audioVideo] Concerned media. Default value in case of webinar is audio+video, else video. <br>
+     * default value : video <br>
+     * Authorized values : audio, video, audioVideo, sharing <br>
+     * @param {number} subStreamLevel Sub stream level (O=low, 2=high) to activate at startup. To be used only if simulcast is available at publisher side. <br>
+     * Authorized values : 0, 1, 2 <br>
+     * @param {boolean} dynamicFeed Declare a feed as dynamic. You will subscribe first to the feed associated to publisher, then switch to active talker's feed if present. <br>
+     *     Valeur par défaut : false <br>
+     * @async
+     * @description
+     *       Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    subscribeForParticipantVideoStream(roomId : string, userId : string, media : string = "video", subStreamLevel : number = 0, dynamicFeed : boolean = false ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(subscribeForParticipantVideoStream) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(subscribeForParticipantVideoStream) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!userId) {
+                that._logger.log("debug", LOG_ID + "(subscribeForParticipantVideoStream) bad or empty 'userId' parameter : ", userId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.subscribeForParticipantVideoStream(roomId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(subscribeForParticipantVideoStream) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method updatePSTNParticipantParameters
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} phoneNumber Participant phone number.
+     * @param {string} option Mute/unmute the participant. <br>
+     *     Authorized values : mute, unmute
+     * @async
+     * @description
+     *       The update PSTN participant command can update different options of a participant. Only one option can be updated at a time. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    updatePSTNParticipantParameters(roomId : string, phoneNumber : string, option : string = " unmute") {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(updatePSTNParticipantParameters) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(updatePSTNParticipantParameters) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!phoneNumber) {
+                that._logger.log("debug", LOG_ID + "(updatePSTNParticipantParameters) bad or empty 'phoneNumber' parameter : ", phoneNumber);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.updatePSTNParticipantParameters(roomId, phoneNumber, option).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(updatePSTNParticipantParameters) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method updateConferenceParameters
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} option Following options are available: </br>
+     * Mute Mutes all participants, except requester. </br>
+     * Unmute Unmutes all participants. </br>
+     * Lock Disables any future participant from joining conference. </br>
+     * Unlock Unlocks the conference. </br>
+     * Webinar Changes practice room into webinar. <br>
+     *     Authorized values :  mute, unmute, lock, unlock, webinar </br>
+     * @async
+     * @description
+     *       The update conference command can update different options of a conference. Only one option can be updated at a time. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    updateConferenceParameters(roomId : string, option : string = "unmute") {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(updateConferenceParameters) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(updateConferenceParameters) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!option) {
+                that._logger.log("debug", LOG_ID + "(updateConferenceParameters) bad or empty 'option' parameter : ", option);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.updateConferenceParameters(roomId, option).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(updateConferenceParameters) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+     /**
+      * @public
+      * @method updateParticipantParameters
+      * @instance
+      * @since 2.2.0
+      * @param {string} roomId The id of the room.
+      * @param {string} userId Conference session participant identifier.
+      * @param {string} option Mute/unmute the participant. </br>
+      * Plug/unplug the microphone.</br>
+      * Update some media parameters:</br>
+      *     Update media bandwidth as publisher. Two parameters must be present: media and bitRate.</br>
+      *     Update substream level as subscriber. One parameter must be present: subStreamLevel. Parameter publisherId is optional.</br>
+      * Authorized values : mute, unmute, update, plug, unplug</br>
+      * @param {string} media Media for which the bitrate will be updated.
+      * Authorized values : video, sharing
+      * @param {number} bitRate Maximum bitrate value in kbps. If 0, no limit of bandwidth usage.
+      * Authorized values : 0..4096
+      * @param {number} subStreamLevel Substream level (only when simulcast is enabled).
+      * Authorized values : 0, 1, 2
+      * @param {string} publisherId Publisher identifier for which the substream level will be updated (a user identifier).
+      * @async
+      * @description
+      *       The update participant command can update different options of a participant. Only one option can be updated at a time. <br>
+      * @return {Promise<any>} the result of the operation.
+      * @category async
+      */
+     updateParticipantParameters(roomId : string, userId : string, option : string, media : string, bitRate : number, subStreamLevel : number, publisherId : string ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(updateParticipantParameters) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(updateParticipantParameters) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!option) {
+                that._logger.log("debug", LOG_ID + "(updateParticipantParameters) bad or empty 'option' parameter : ", option);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.updateParticipantParameters(roomId, userId, option, media, bitRate, subStreamLevel, publisherId ).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(updateParticipantParameters) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method allowTalkWebinar
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} userId User identifier. </br>
+     * @async
+     * @description
+     *       Webinar: allow a participant who raised his hand to talk. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    allowTalkWebinar(roomId : string, userId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(allowTalkWebinar) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(allowTalkWebinar) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!userId) {
+                that._logger.log("debug", LOG_ID + "(allowTalkWebinar) bad or empty 'userId' parameter : ", userId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.allowTalkWebinar(roomId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(allowTalkWebinar) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method disableTalkWebinar
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} userId User identifier. </br>
+     * @async
+     * @description
+     *       Webinar: disable a participant who raised his hand to talk. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    disableTalkWebinar(roomId : string, userId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(disableTalkWebinar) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(disableTalkWebinar) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!userId) {
+                that._logger.log("debug", LOG_ID + "(disableTalkWebinar) bad or empty 'userId' parameter : ", userId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.disableTalkWebinar(roomId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disableTalkWebinar) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method lowerHandWebinar
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Webinar: participant lowers hand. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    lowerHandWebinar(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(lowerHandWebinar) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(lowerHandWebinar) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.lowerHandWebinar(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(lowerHandWebinar) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method raiseHandWebinar
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       Webinar: participant raises hand. <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    raiseHandWebinar(roomId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(raiseHandWebinar) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(raiseHandWebinar) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.raiseHandWebinar(roomId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(raiseHandWebinar) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method stageDescriptionWebinar
+     * @instance
+     * @since 2.2.0
+     * @param {string} roomId The id of the room.
+     * @param {string} userId For each actor, his user identifier.
+     * @param {string} type For each actor, how is he on scene: as a participant (avatar or video) or as a screen sharing. </br>
+     * Authorized values : participant, sharing
+     * @param {Array<string>} properties For each actor, up to 10 properties.
+     * @async
+     * @description
+     *       Webinar: stage description (up to 10 actors). <br>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    stageDescriptionWebinar(roomId : string, userId : string, type : string, properties : Array<string>) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(stageDescriptionWebinar) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log("debug", LOG_ID + "(stageDescriptionWebinar) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!userId) {
+                that._logger.log("debug", LOG_ID + "(stageDescriptionWebinar) bad or empty 'userId' parameter : ", userId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!type) {
+                that._logger.log("debug", LOG_ID + "(stageDescriptionWebinar) bad or empty 'type' parameter : ", type);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!properties) {
+                that._logger.log("debug", LOG_ID + "(stageDescriptionWebinar) bad or empty 'properties' parameter : ", properties);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.stageDescriptionWebinar(roomId, userId, type, properties).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(stageDescriptionWebinar) result from server : ", result);
+
+                if (result) {
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion
     
 }
 

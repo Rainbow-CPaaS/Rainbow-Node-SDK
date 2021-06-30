@@ -21,6 +21,9 @@ import {urlencoded} from "body-parser";
 import {Core} from "../Core";
 import {Channel} from "../common/models/Channel";
 import {ErrorManager} from "../common/ErrorManager";
+import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
+import {GenericService} from "../services/GenericService";
+import {GenericRESTService} from "./GenericRESTService";
 
 const jwt : any = jwtDecode;
 
@@ -279,15 +282,15 @@ class GuestParams {
 }
 
 @logEntryExit(LOG_ID)
-class RESTService {
+class RESTService extends GenericRESTService {
     public http: HTTPService;
     public account: any;
     public app: any;
-    public token: any;
+    //public token: any;
     public renewTokenInterval: any;
-    public auth: any;
-    public _credentials: any;
-    public _application: any;
+    //public auth: any;
+    //public _credentials: any;
+    //public _application: any;
     public loginEmail: any;
     public eventEmitter: EventEmitter;
     public logger: Logger;
@@ -300,6 +303,7 @@ class RESTService {
     public fibonacciStrategy: any;
     public reconnectDelay: any;
     public restTelephony: RESTTelephony;
+    public restConferenceV2: RESTConferenceV2;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -309,20 +313,24 @@ class RESTService {
     getClassName(){ return RESTService.getClassName(); }
 
     constructor(_options, evtEmitter: EventEmitter, _logger: Logger, core : Core) {
+        super();
         let that = this;
         let self = this;
+        this.eventEmitter = evtEmitter;
+        this.logger = _logger;
+        this.restTelephony = new RESTTelephony(evtEmitter, _logger);
+        this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
+
         this.http = null;
         this.account = null;
         this.app = null;
-        this.token = null;
+        this.tokenRest = null;
         this.renewTokenInterval = null;
         this._options =  _options;
-        this._credentials = _options.credentials;
-        this._application = _options.applicationOptions;
+        this.credentialsRest = _options.credentials;
+        this.applicationRest = _options.applicationOptions;
         this.loginEmail = _options.credentials.login
-        this.auth = btoa(this._credentials.login + ":" + this._credentials.password);
-        this.eventEmitter = evtEmitter;
-        this.logger = _logger;
+        this.authRest = btoa(this.credentials.login + ":" + this.credentials.password);
 
         this.currentAttempt = 0;
         this.attempt_succeeded_callback = undefined;
@@ -341,7 +349,6 @@ class RESTService {
         });
         this.reconnectDelay = this.fibonacciStrategy.getInitialDelay();
 
-        this.restTelephony = new RESTTelephony(evtEmitter, _logger);
 
     }
 
@@ -356,14 +363,27 @@ class RESTService {
     start(http) {
         let that = this;
         that.http = http;
-        return that.restTelephony.start(that.http).then(() => {
-            that.logger.log("internal", LOG_ID + "(start) email used", that.loginEmail);
-        });
+        let prom : Array<Promise<any>> = [];
+         prom.push(that.restTelephony.start(that.http).then(() => {
+            that.logger.log("internal", LOG_ID + "(start) restTelephony email used", that.loginEmail);
+        }));
+         prom.push(that.restConferenceV2.start(that.http).then(() => {
+            that.logger.log("internal", LOG_ID + "(start) restConferenceV2 email used", that.loginEmail);
+        }));
+        return Promise.all(prom);
     }
 
     stop() {
         let that = this;
         return new Promise((resolve, reject) => {
+            that.restTelephony.stop().then(() => {
+                that.logger.log("internal", LOG_ID + "(stop) restTelephony.");
+            });
+            
+            that.restConferenceV2.stop().then(() => {
+                that.logger.log("internal", LOG_ID + "(stop) restConferenceV2.");
+            });
+            
             that.signout().then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) Successfully stopped");
                 resolve(undefined);
@@ -372,78 +392,6 @@ class RESTService {
             });
         });
     }
-
-    getRequestHeader (accept : string = undefined) {
-        let that = this;
-
-        let headers = {
-            "Authorization": "Bearer " + that.token,
-            "Accept": accept || "application/json",
-            Range: undefined
-        };
-
-        return headers;
-    }
-
-    getRequestHeaderWithRange (accept: string = undefined, range: string = undefined) {
-        let that = this;
-
-        let header = that.getRequestHeader(accept);
-        header.Range = range;
-        return header;
-    }
-
-    getPostHeader (contentType : string = undefined) {
-        let that = this;
-
-        let header = that.getRequestHeader(undefined);
-        let type = contentType || "application/json";
-        header["Content-Type"] = type;
-        return header;
-    };
-
-    getPostHeaderWithRange (accept: string = undefined, initialSize: string = undefined, minRange: string = undefined, maxRange: string = undefined) {
-        let that = this;
-
-        let header = this.getRequestHeader(accept);
-        // Content-Range: bytes 0-1048575/2960156
-        //header["Content-Range"] = "bytes " + minRange + "-" + maxRange + "/" + initialSize;
-        return header;
-    };
-
-    getLoginHeader (auth : string = undefined, password : string = undefined) {
-        let that = this;
-
-        let headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Basic " + (auth || that.auth),
-            "x-rainbow-client": "sdk_node",
-            "x-rainbow-client-version": packageVersion.version
-        };
-
-        let toEncrypt = that._application.appSecret + (password || that._credentials.password);
-        //that.logger.log("debug", LOG_ID + "toEncrypt : " + toEncrypt);
-        let encrypted = CryptoJS.SHA256(toEncrypt).toString();
-        //that.logger.log("debug", LOG_ID + "encrypted : " + encrypted);
-        let base64 = btoa(that._application.appID + ':' + encrypted);
-        //that.logger.log("debug", LOG_ID + "base64 : " + base64);
-
-        if (that._application.appSecret && base64 && base64.length) {
-            headers["x-rainbow-app-auth"] = "Basic " + base64 || "";
-        }
-
-        return headers;
-    };
-
-    getDefaultHeader () {
-        let that = this;
-
-        return {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        };
-    };
 
     async signin(token: string = undefined) {
         let that = this;
@@ -460,7 +408,7 @@ class RESTService {
                 };
                 that.account = JSON.loggedInUser;
                 that.app = JSON.loggedInApplication;
-                that.token = JSON.token;
+                that.tokenRest = JSON.token;
 
                 let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
                     if (contactsFromServeur && contactsFromServeur.length > 0) {
@@ -491,7 +439,7 @@ class RESTService {
             that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(function (JSON) {
                 that.account = JSON.loggedInUser;
                 that.app = JSON.loggedInApplication;
-                that.token = JSON.token;
+                that.tokenRest = JSON.token;
                 that.logger.log("internal", LOG_ID + "(signin) welcome " + that.account.displayName + "!");
                 //that.logger.log("debug", LOG_ID + "(signin) user information ", that.account);
                 that.logger.log("internal", LOG_ID + "(signin) application information : ", that.app);
@@ -504,6 +452,26 @@ class RESTService {
         });
     }
 
+    set tokenRest(value: any) {
+        this._token = value;
+        this.restConferenceV2.p_token = value;
+    }
+
+    set credentialsRest(value: any) {
+        this._credentials = value;
+        this.restConferenceV2.p_credentials = value;
+    }
+
+    set applicationRest(value: any) {
+        this._application = value;
+        this.restConferenceV2.p_application = value;
+    }
+
+    set authRest(value: any) {
+        this._auth = value;
+        this.restConferenceV2.p_auth = value;
+    }
+    
     setconnectionS2SInfo(_connectionS2SInfo) {
         this.connectionS2SInfo = _connectionS2SInfo;
     }
@@ -531,7 +499,7 @@ class RESTService {
             if (that.http) {
                 that.http.get("/api/rainbow/authentication/v1.0/logout", that.getRequestHeader(), undefined).then(function (JSON) {
                     that.account = null;
-                    that.token = null;
+                    that.tokenRest = null;
                     that.renewTokenInterval = null;
                     that.logger.log("info", LOG_ID + "(signout) Successfully signed-out!");
                     resolve(JSON);
@@ -586,7 +554,7 @@ class RESTService {
         let that = this;
         that.http.get("/api/rainbow/authentication/v1.0/renew", that.getRequestHeader(), undefined).then(function (JSON) {
             that.logger.log("info", LOG_ID + "(_renewAuthToken) renew authentication token success");
-            that.token = JSON.token;
+            that.tokenRest = JSON.token;
             that.logger.log("internal", LOG_ID + "(_renewAuthToken) new token received", that.token);
             that.eventEmitter.emit("rainbow_tokenrenewed");
         }).catch(function (err) {
@@ -1135,7 +1103,7 @@ Request Method: PUT
         });
     }
 
-    //region BUBBLES
+    //region Bubbles
 
     createBubble(name, description, withHistory) {
         let that = this;
@@ -1802,7 +1770,7 @@ Request Method: PUT
     
     //endregion CONTAINERS
     
-    //endregion BUBBLES
+    //endregion Bubbles
 
     /**
      * Method retrieveWebConferences
@@ -1936,7 +1904,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             // Generate user Email based on appId
             let uid = makeId(40);
-            let appId = that._application.appID;
+            let appId = that.application.appID;
             let domain = that.http.host;
             let email = `${uid}@${appId}.${domain}`;
 
@@ -3044,7 +3012,7 @@ Request Method: PUT
     }
 
     ////////
-    // Telephony
+    //region Telephony
     makeCall(contact, phoneInfo) {
         let that = this;
         return that.restTelephony.makeCall(that.getRequestHeader(), contact, phoneInfo);
@@ -3164,8 +3132,10 @@ Request Method: PUT
         });
     }
 
+    //endregion Telephony
+    
     ////////
-    // Conversations
+    //region Conversations
     getServerConversations(format: String = "small") {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -3258,7 +3228,9 @@ Request Method: PUT
         });
     }
 
-    //region ***** INVITATIONS *****
+    //endregion Conversations
+    
+    //region Invitations 
     getAllSentInvitations() {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -3368,12 +3340,12 @@ Request Method: PUT
         });
     };
 
-    //endregion invitations
+    //endregion Invitations
 
     //region Generic HTTP VERB
     get(url, token) {
         let that = this;
-        that.token = token;
+        that.tokenRest = token;
         return new Promise(function (resolve, reject) {
             that.http.get(url, that.getRequestHeader(), undefined).then(function (JSON) {
                 resolve(JSON);
@@ -3386,7 +3358,7 @@ Request Method: PUT
 
     post(url, token, data, contentType) {
         let that = this;
-        that.token = token;
+        that.tokenRest = token;
         return new Promise(function (resolve, reject) {
             that.http.post(url, that.getRequestHeader(), data, contentType).then(function (JSON) {
                 resolve(JSON);
@@ -3399,7 +3371,7 @@ Request Method: PUT
 
     put(url, token, data) {
         let that = this;
-        that.token = token;
+        that.tokenRest = token;
         return new Promise(function (resolve, reject) {
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (JSON) {
                 resolve(JSON);
@@ -3412,7 +3384,7 @@ Request Method: PUT
 
     delete(url, token) {
         let that = this;
-        that.token = token;
+        that.tokenRest = token;
         return new Promise(function (resolve, reject) {
             that.http.delete(url, that.getRequestHeader()).then(function (JSON) {
                 resolve(JSON);
@@ -3455,8 +3427,7 @@ Request Method: PUT
             return Promise.resolve({'status': "OK"});
         }
     }
-
-
+    
     checkPortalHealth(currentAttempt) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(checkPortalHealth) will get the ping to test connection for the currentAttempt : ", currentAttempt);
@@ -3465,7 +3436,7 @@ Request Method: PUT
             //return reject({"error" : "force to failed checkPortalHealth for tests, currentAttempt : " + currentAttempt });
             // end-dev-code //
 
-            that.http.get("/api/rainbow/ping", that.getDefaultHeader(), undefined).then(function (JSON) {
+            that.http.get("/api/rainbow/ping", that.getRequestHeader(), undefined).then(function (JSON) {
                 that.logger.log("info", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready for currentAttempt : ", currentAttempt);
                 setTimeout(() => {
                     that.checkEveryPortals().then(() => {
@@ -7002,6 +6973,125 @@ Request Method: PUT
     //endregion directory tags
 
     //endregion Rainbow Company Directory portal
+    
+    //region Conference v2
+    addPSTNParticipantToConference(roomId : string, participantPhoneNumber : string, country : string) {
+        let that = this;
+        return that.restConferenceV2.addPSTNParticipantToConference(roomId, participantPhoneNumber, country);
+    }
+
+    snapshotConference(roomId : string, limit : number = 100,  offset : number = 0) {
+        let that = this;
+        return that.restConferenceV2.snapshotConference(roomId, limit, offset);
+    }
+
+    delegateConference(roomId : string, userId : string) {
+        let that = this;
+        return that.restConferenceV2.delegateConference(roomId, userId);
+    }
+
+    disconnectPSTNParticipantFromConference(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.disconnectPSTNParticipantFromConference(roomId);
+    }
+
+    disconnectParticipantFromConference(roomId : string, userId : string) {
+        let that = this;
+        return that.restConferenceV2.disconnectParticipantFromConference(roomId, userId );
+    }
+
+    getTalkingTimeForAllPparticipantsInConference(roomId : string, limit : number = 100,  offset : number = 0) {
+        let that = this;
+        return that.restConferenceV2.getTalkingTimeForAllPparticipantsInConference(roomId, limit,  offset );
+    }
+
+    joinConferenceV2(roomId : string, mediaType : string, participantPhoneNumber : string, country : string, dc : Array<string>, mute: boolean, microphone : boolean) {
+        let that = this;
+        return that.restConferenceV2.joinConference(roomId, mediaType, participantPhoneNumber, country, dc, mute, microphone);
+    }
+
+    pauseRecording(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.pauseRecording(roomId);
+    }
+
+    resumeRecording(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.resumeRecording(roomId);
+    }
+
+    startRecording(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.startRecording(roomId);
+    }
+
+    stopRecording(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.stopRecording(roomId);
+    }
+
+    rejectAVideoConference(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.rejectAVideoConference(roomId);
+    }
+
+//Start a PSTN, WebRTC conference or a webinar in a room  () {
+    startConferenceOrWebinarInARoom(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.startConferenceOrWebinarInARoom(roomId);
+    }
+
+    stopConferenceOrWebinar(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.stopConferenceOrWebinar(roomId);
+    }
+
+    subscribeForParticipantVideoStream(roomId : string, userId : string, media : string = "video", subStreamLevel : number = 0, dynamicFeed : boolean = false ) {
+        let that = this;
+        return that.restConferenceV2.subscribeForParticipantVideoStream(roomId, userId, media, subStreamLevel, dynamicFeed);
+    }
+
+    updatePSTNParticipantParameters(roomId : string, phoneNumber : string, option : string = " unmute") {
+        let that = this;
+        return that.restConferenceV2.updatePSTNParticipantParameters(roomId, phoneNumber, option);
+    }
+
+    updateConferenceParameters(roomId : string, option : string = "unmute") {
+        let that = this;
+        return that.restConferenceV2.updateConferenceParameters(roomId, option);
+    }
+
+    updateParticipantParameters(roomId : string, userId : string, option : string, media : string, bitRate : number, subStreamLevel : number, publisherId : string ) {
+        let that = this;
+        return that.restConferenceV2.updateParticipantParameters(roomId, userId, option, media, bitRate, subStreamLevel, publisherId );
+    }
+
+    allowTalkWebinar(roomId : string, userId : string) {
+        let that = this;
+        return that.restConferenceV2.allowTalkWebinar(roomId, userId);
+    }
+
+    disableTalkWebinar(roomId : string, userId : string) {
+        let that = this;
+        return that.restConferenceV2.disableTalkWebinar(roomId, userId);
+    }
+
+    lowerHandWebinar(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.lowerHandWebinar(roomId);
+    }
+
+    raiseHandWebinar(roomId : string) {
+        let that = this;
+        return that.restConferenceV2.raiseHandWebinar(roomId);
+    }
+
+    stageDescriptionWebinar(roomId : string, userId : string, type : string, properties : Array<string>) {
+        let that = this;
+        return that.restConferenceV2.stageDescriptionWebinar(roomId, userId, type, properties);
+    }
+
+    //endregion Conference v2
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

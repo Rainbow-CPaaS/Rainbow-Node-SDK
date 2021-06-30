@@ -2557,6 +2557,19 @@ async function  test_multireconnect() {
     }
 }
 
+async function  testcheckPortalHealth() {
+        
+        rainbowSDK._core.rest.checkPortalHealth(0).then((result)=> {
+            logger.log("debug", "MAIN - testcheckPortalHealth - succeed : ", result);
+        }).catch((err)=> {
+            logger.log("error", "MAIN - testcheckPortalHealth - error : ", err);
+        });
+        // */
+
+        //await rainbowSDK._core.rest.reconnect();
+        logger.log("debug", "MAIN - testcheckPortalHealth - ");
+}
+
     function testCreateBubblesAndSetTags() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTags" + utc, "testCreateBubblesAndSetTags" + utc).then((bubble) => {
@@ -2965,6 +2978,40 @@ async function testcreateAlert() {
         logger.log("debug", "MAIN - testImportDirectoryCsvFile - result : ", result);
     }
 
+    //endregion
+    
+    //region Conference V2
+
+    async function testConferenceV2() {
+        logger.log("debug", "MAIN - (testConferenceV2). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        let loginEmail = "vincent02@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.bubbles.createBubble("testConferenceV2" + utc, "testConferenceV2" + utc, true).then((bubble) => {
+                    logger.log("debug", "MAIN - (testConferenceV2) :: createBubble request ok, bubble : ", bubble);
+                    rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
+
+                        rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubble.id).then(async (confStarted) => {
+                            logger.log("debug", "MAIN - (testConferenceV2) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+
+                            await setTimeoutPromised(3000)
+                            rainbowSDK.bubbles.stopConferenceOrWebinar(bubble.id).then(async (confStarted) => {
+                                logger.log("debug", "MAIN - (testConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
+
+                                rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((confStopped) => {
+                                    logger.log("debug", "MAIN - (testConferenceV2) :: closeAndDeleteBubble request ok, confStopped : ", confStopped);
+                                });
+                            });
+
+                        });
+                    });
+                });
+            }
+        });
+    }
+    
     //endregion
     
 function commandLineInteraction() {

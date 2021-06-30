@@ -704,6 +704,7 @@ class Admin extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
+                that._logger.log("info", LOG_ID + "(askTokenOnBehalf) enter.");
                 that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
                     that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
                     that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : user data : ", json);
@@ -2535,8 +2536,14 @@ class Admin extends GenericService {
      * @description
      *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
      * @return {Promise<any>}
+     * @param {number} limit Allow to specify the number of CloudPBXs to retrieve. Default value : 100
+     * @param {number} offset llow to specify the position of first cloudPBX to retrieve (first site if not specified) Warning: if offset > total, no results are returned
+     * @param {string} sortField Sort CloudPBXs list based on the given field. Default value : companyId
+     * @param {number} sortOrder Specify order when sorting CloudPBXs list. Default value : 1. Possible values : -1, 1
+     * @param {string} companyId Allows to filter CloudPBXs list on the siteIds linked to companyIds provided in this option
+     * @param {string} bpId Allows to filter CloudPBXs list on the bpIds provided in this option
      */
-    getCloudPbxs ( limit : number, offset : number, sortField : string, sortOrder : number, companyId : string, bpId : string) {
+    getCloudPbxs ( limit : number = 100, offset : number = 0, sortField : string = "companyId", sortOrder : number = 1, companyId : string, bpId : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
