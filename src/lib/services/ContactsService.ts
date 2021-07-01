@@ -1277,9 +1277,14 @@ class ContactsService extends GenericService {
         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
 
         try {
-            let contact = this._contacts.find((contactItem) => {
-                return contactItem.jid_im===presence.jid;
-            });
+            let contact = undefined;
+            if (this._contacts) {
+                contact = this._contacts.find((contactItem) => {
+                    return contactItem.jid_im===presence.jid;
+                });
+            } else {
+                this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) the contacts tab contains an undefined contact !");
+            }
 
             if (contact) {
                 this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) contact found : ", contact);

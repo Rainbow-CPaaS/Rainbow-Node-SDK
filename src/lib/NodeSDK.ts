@@ -843,7 +843,7 @@ class NodeSDK {
      *    Get access to the DataStoreType type
      * @return {DataStoreType}
      */
-    get DataStoreType() {
+    static get DataStoreType() {
         return DataStoreType;
     }
 
