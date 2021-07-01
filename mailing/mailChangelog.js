@@ -174,7 +174,7 @@ function sendMail(vars, mailjet) {
         "* To use the STS version in an other NodeJs project : <br> " +
         "<i>npm install rainbow-node-sdk@" + fullVersion + " --save </i>";
 
-    if (vars.environment !== "PRE-PRODUCTION" || fullVersion.includes("lts")) {
+    if (vars.environment !== "STS-PRODUCTION" || fullVersion.includes("lts")) {
         message =
             "Note: <BR>A new LTS version <b>" +
             fullVersion +

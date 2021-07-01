@@ -6,7 +6,7 @@ ccEmail: "rainbowcpaas@al-enterprise.com"
 ccName: "Rainbow CPAAS"
 subject: "[Rainbow Node SDK] Version "
 component: "Rainbow Node SDK"
-preproduction: "PRE-PRODUCTION"
+preproduction: "STS-PRODUCTION"
 production: "PRODUCTION"
 deliveries:
     - "title": "Rainbow Node SDK"
