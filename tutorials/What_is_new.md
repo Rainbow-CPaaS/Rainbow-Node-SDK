@@ -6,6 +6,68 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.2.0 - STS Version - June 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
+-   Fix `ConversationsService::openConversationForContact` when dbid is empty to get conversation from serveur side.
+-   Add `AdminService::createDirectoryEntry` API that allows administrators to Create a directory entry.
+-   Add `AdminService::deleteCompanyDirectoryAllEntry` API that allows administrators administrators  to delete all the entries in the directory of a company they administrate.
+-   Add `AdminService::deleteDirectoryEntry` API that allows administrators to delete an entry from the directory of a company they administrate.
+-   Add `AdminService::getDirectoryEntryData` API that allows administrators to get an entry of the directory of a company they administrate.
+-   Add `AdminService::getListDirectoryEntriesData` API that allows administrators to get a list of directory entries data of a company they administrate.
+-   Add `AdminService::updateDirectoryEntry` API that allows administrators to get an entry of the directory of a company they administrate.
+-   Add `AdminService::exportDirectoryCsvFile` API that allows administrators to export the directory in a CSV file.
+-   Add `AdminService::ImportDirectoryCsvFile` API that allows administrators to import the directory from a CSV file.
+-   Add `AdminService::getAllTagsAssignedToDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.
+-   Add `AdminService::removeTagFromAllDirectoryEntries` API that allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.
+-   Add `AdminService::renameTagForAllAssignedDirectoryEntries` API that allows administrators to rename a tag being assigned to some directory entries.
+-   Add `AdminService::getStatsRegardingTagsOfDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries.
+-   Fix use of addParamToUrl method.
+-   Add `BubblesService::addPSTNParticipantToConference` API that Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number.
+-   Add `BubblesService::snapshotConference` The snapshot command returns global information about conference and the set of participants engaged in the conference. .
+-   Add `BubblesService::delegateConference` API that allows Current owner of the conference delegates its control to another user.
+-   Add `BubblesService::disconnectPSTNParticipantFromConference` API that Disconnect PSTN participant from conference.
+-   Add `BubblesService::disconnectParticipantFromConference` API that Disconnect participant from conference.
+-   Add `BubblesService::getTalkingTimeForAllPparticipantsInConference` The snapshot command returns global information about conference and the set of participants engaged in the conference. .
+-   Add `BubblesService::joinConferenceV2` The snapshot command returns global information about conference and the set of participants engaged in the conference.
+-   Add `BubblesService::pauseRecording` API that allows Pauses the recording of a conference.
+-   Add `BubblesService::resumeRecording` API that allows Resume the recording of a conference. .
+-   Add `BubblesService::startRecording` API that allows Start the recording of a conference.
+-   Add `BubblesService::stopRecording` API that allows Stop the recording of a conference.
+-   Add `BubblesService::rejectAVideoConference` API that allows User indicates that he rejects the conference (only available for WebRTC conferences).
+-   Add `BubblesService::startConferenceOrWebinarInARoom` API that allows The start command initiates a conference in a room.
+-   Add `BubblesService::stopConferenceOrWebinar` API that allows The stop command terminates an active conference identified in a room. All currently connected participants are disconnected.
+-   Add `BubblesService::subscribeForParticipantVideoStream` API that Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user.
+-   Add `BubblesService::updatePSTNParticipantParameters` API that allows The update PSTN participant command can update different options of a participant.
+-   Add `BubblesService::updateConferenceParameters` API that allows The update conference command can update different options of a conference.
+-   Add `BubblesService::updateParticipantParameters` API that allows The update participant command can update different options of a participant.
+-   Add `BubblesService::allowTalkWebinar` API that allows Webinar: allow a participant who raised his hand to talk.
+-   Add `BubblesService::disableTalkWebinar` API that allows Webinar: disable a participant who raised his hand to talk.
+-   Add `BubblesService::lowerHandWebinar` API that allows Webinar: participant lowers hand.
+-   Add `BubblesService::raiseHandWebinar` API that allows Webinar: participant raises hand.
+-   Add `BubblesService::stageDescriptionWebinar` API that allows Webinar: stage description (up to 10 actors).
+-   Add treatment of xmpp event of "startConference" and "stopConference" for conference V2.
+-   Fix export of `DataStoreType` in NodeSDK.  
+
+
 ### SDK for Node.JS 2.1.0 - STS Version - June 2021
 
 ---
