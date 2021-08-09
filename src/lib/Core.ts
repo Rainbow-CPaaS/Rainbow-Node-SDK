@@ -33,6 +33,7 @@ import {AlertsService} from "./services/AlertsService";
 
 import {lt} from "semver";
 import {S2SService} from "./services/S2SService";
+import {WebinarService} from "./services/WebinarService";
 
 const packageVersion = require("../package.json");
 
@@ -72,6 +73,7 @@ class Core {
     public _calllog: CallLogService;
     public _favorites: FavoritesService;
     public _alerts: AlertsService;
+    public _webinar: WebinarService;
     public _invitations: InvitationsService;
 	public _botsjid: any;
     public _s2s: S2SService;
@@ -260,6 +262,8 @@ class Core {
                         }).then(() => {
                             return that._alerts.init();
                         }).then(() => {
+                            return that._webinar.init();
+                        }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
                             return that._s2s.listConnectionsS2S();
@@ -340,6 +344,8 @@ class Core {
                             return that._favorites.init();
                         }).then(() => {
                             return that._alerts.init();
+                        }).then(() => {
+                            return that._webinar.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
@@ -530,6 +536,7 @@ class Core {
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
+        self._webinar = new WebinarService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
@@ -552,6 +559,7 @@ class Core {
 
             that._admin.cleanMemoryCache();
             that._alerts.cleanMemoryCache();
+            that._webinar.cleanMemoryCache();
             that._bubbles.cleanMemoryCache();
             that._calllog.cleanMemoryCache();
             that._channels.cleanMemoryCache();
@@ -634,7 +642,9 @@ class Core {
                     }).then(() => {
                         return that._favorites.start(that.options, that) ;
                     }).then(() => {
-                        return that._alerts.start(that.options, that) ;
+                        return that._alerts.start(that.options, that) ; 
+                    }).then(() => {
+                        return that._webinar.start(that.options, that) ;
                     }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
@@ -758,6 +768,9 @@ class Core {
                 return that._alerts.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped alerts");
+                return that._webinar.stop();
+            }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped webinar");
                 return that._invitations.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped invitations");

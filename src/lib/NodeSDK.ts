@@ -26,6 +26,7 @@ import {ContactsService} from "./services/ContactsService";
 import {AlertsService} from "./services/AlertsService";
 import {ProfilesService} from "./services/ProfilesService";
 import {DataStoreType} from "./config/config";
+import {WebinarService} from "./services/WebinarService";
 
 /**
  * options SDK Startup options.
@@ -834,6 +835,17 @@ class NodeSDK {
      */
     get alerts() : AlertsService{
         return this._core._alerts;
+    }
+
+    /**
+     * @public
+     * @property {WebinarService} alerts
+     * @description
+     *    Get access to the webinar module
+     * @return {WebinarService}
+     */
+    get webinar() : WebinarService {
+        return this._core._webinar;
     }
 
     /**

@@ -114,7 +114,8 @@ class ChannelEventHandler extends GenericHandler {
                         // treated in conversationEventHandler
                         break;
                     case "userinvite":
-                        // treated in conversationEventHandler
+                        // treated also in conversationEventHandler
+                        // treated also in invitationEventHandler
                         break;
                     case "group":
                         // treated in conversationEventHandler
@@ -138,10 +139,6 @@ class ChannelEventHandler extends GenericHandler {
                     case "channel":
                         that.onChannelManagementMessageReceived(node);
                         break;
-                    case "userinvite":
-                        // treated also in conversationEventHandler
-                        // treated also in invitationEventHandler
-                        break;
                     case "openinvite":
                         // treated in invitationEventHandler
                         break;
@@ -153,6 +150,9 @@ class ChannelEventHandler extends GenericHandler {
                         break;
                     case "roomscontainer":
                         // treated in conversationEventHandler
+                        break;
+                    case "webinar":
+                        // treated in webinarEventHandler
                         break;    
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());

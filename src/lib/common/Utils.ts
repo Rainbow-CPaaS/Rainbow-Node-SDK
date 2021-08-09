@@ -234,6 +234,16 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
     }
 }
 
+function cleanEmptyMembersFromObject(objParams : Object) {
+    if (objParams) {
+        for (let objParamsKey in objParams) {
+            if (objParams[objParamsKey] == undefined || objParams[objParamsKey] == null) {
+                delete objParams[objParamsKey];
+            }
+        }
+    }
+}
+
 function  isStart_upService( serviceoptions) {
     let start_up = true;
     if (!serviceoptions.optional) {
@@ -471,7 +481,8 @@ export let objToExport = {
     pause,
     stackTrace,
     addDaysToDate,
-    addParamToUrl
+    addParamToUrl,
+    cleanEmptyMembersFromObject
 };
 
 module.exports = objToExport;
@@ -496,5 +507,6 @@ export {
     pause,
     stackTrace,
     addDaysToDate,
-    addParamToUrl
+    addParamToUrl,
+    cleanEmptyMembersFromObject
 };

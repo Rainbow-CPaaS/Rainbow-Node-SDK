@@ -820,6 +820,20 @@ class Events {
             that.publishEvent("thumbnailcreated", data);
         });
 
+        /************************* Webinar **********************/
+
+        this._evReceiver.on("evt_internal_webinarupdated", function (data) {
+            /**
+             * @event Events#rainbow_onwebinarupdated
+             * @public
+             * @param { String } id The id of the channel
+             * @param { Number } kind The kind of change (ADD: 0, REMOVE: 2)
+             * @description
+             *      Fired when a webinar update event is received
+             */
+            that.publishEvent("webinarupdated", data);
+        });       
+        
         /************************* Channels **********************/
 
         this._evReceiver.on("evt_internal_channelupdated", function (data) {

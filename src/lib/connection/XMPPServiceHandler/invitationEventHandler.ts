@@ -103,6 +103,9 @@ class InvitationEventHandler extends GenericHandler {
                     case "roomscontainer":
                         // treated in conversationEventHandler
                         break;
+                    case "webinar":
+                        // treated in webinarEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

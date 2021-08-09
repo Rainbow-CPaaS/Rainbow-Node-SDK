@@ -3012,7 +3012,78 @@ async function testcreateAlert() {
         });
     }
     
-    //endregion
+    //endregion Conference V2
+    
+    //region Webinar
+
+    async function testgetWebinarsData() {
+        logger.log("debug", "MAIN - (testgetWebinarsData). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.webinar.getWebinarsData().then(async (result: any) => {
+                logger.log("debug", "MAIN - [testgetWebinarsData    ] :: getWebinarsData result : ", result);
+        });
+    }
+    
+    async function testcreateWebinar() {
+        logger.log("debug", "MAIN - (testcreateWebinar). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        let nameWebinar = "nameWebinar_" + utc;
+        let subjectWebinar = "subjectWebinar_" + utc;
+        rainbowSDK.webinar.createWebinar(nameWebinar, subjectWebinar).then(async (result: any) => {
+            logger.log("debug", "MAIN - [testcreateWebinar    ] :: create Webinar result : ", result);
+            rainbowSDK.webinar.getWebinarsData().then(async (result: any) => {
+                logger.log("debug", "MAIN - [testcreateWebinar    ] :: getWebinarsData result : ", result);
+            });
+        });
+    }
+    
+    async function testupdateWebinara() {
+        logger.log("debug", "MAIN - (testgetWebinarsData). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.webinar.getWebinarsData().then(async (webinarsResult: any) => {
+            logger.log("debug", "MAIN - [testupdateWebinara    ] :: getWebinarsData result : ", webinarsResult);
+            let webinar = webinarsResult.data[0];
+            rainbowSDK.webinar.updateWebinar(webinar.id, "updatedNameWebinar", webinar.subject, webinar.waitingRoomStartDate, webinar.webinarStartDate, webinar.webinarEndDate, webinar.reminderDates, webinar.timeZone, webinar.register, webinar.approvalRegistrationMethod, webinar.passwordNeeded, webinar.lockRegistration, webinar.waitingRoomMultimediaURL, webinar.stageBackground, webinar.chatOption).then(async (result: any) => {
+                logger.log("debug", "MAIN - [testupdateWebinara    ] :: updateWebinar result : ", result);
+            }).catch(err => {
+                logger.log("debug", "MAIN - [testupdateWebinara    ] :: error during upodate : ", err);
+            });
+        });
+    }
+
+    async function testcreateAndDeleteWebinar() {
+        logger.log("debug", "MAIN - (testcreateAndDeleteWebinar). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        let nameWebinar = "nameWebinar_" + utc;
+        let subjectWebinar = "subjectWebinar_" + utc;
+        rainbowSDK.webinar.createWebinar(nameWebinar, subjectWebinar).then(async (createresult: any) => {
+            logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: create Webinar result : ", createresult);
+            await rainbowSDK.webinar.getWebinarsData().then(async (result: any) => {
+                logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: getWebinarsData result : ", result);
+            });
+
+            await rainbowSDK.webinar.deleteWebinar(createresult.id).then(async (deleteresult: any) => {
+                logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: delete Webinar result : ", deleteresult);
+
+            });
+        });
+    }
+
+    async function testDeleteAllWebinar() {
+        logger.log("debug", "MAIN - (testDeleteAllWebinar). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.webinar.getWebinarsData().then(async (result: any) => {
+            logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: getWebinarsData result : ", result);
+            for (let resultKey in result.data) {
+                rainbowSDK.webinar.deleteWebinar(result.data[resultKey].id).then(async (deleteresult: any) => {
+                    logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: delete Webinar result : ", deleteresult);
+
+                });
+            }
+        });
+    }
+    
+    //endregion Webinar
     
 function commandLineInteraction() {
     let questions = [

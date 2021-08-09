@@ -199,7 +199,11 @@ let conf =  {
             settings:  {
                 start_up:true,
                 optional:true
-            } //need services : ( XMPPService, _rest : RESTService)
+            }, //need services : ( XMPPService, _rest : RESTService)
+            webinar:  {
+                start_up:true,
+                optional:true
+            } //need services : ( )
     }
 
 };

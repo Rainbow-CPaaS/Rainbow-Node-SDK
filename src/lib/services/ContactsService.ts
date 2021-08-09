@@ -553,7 +553,7 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByID(id).then((_contactFromServer: any) => {
                         let contact: Contact = null;
                         if (_contactFromServer) {
-                            that._logger.log("internal", LOG_ID + "(getContactById) contact found on the server", _contactFromServer);
+                            that._logger.log("internal", LOG_ID + "(getContactById) contact found on the server : ", _contactFromServer);
                             that._logger.log("info", LOG_ID + "(getContactById) contact found on the server");
                             let contactIndex = that._contacts.findIndex((value) => {
                                 return value.jid_im===_contactFromServer.jid_im;

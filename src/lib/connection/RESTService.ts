@@ -22,6 +22,7 @@ import {Core} from "../Core";
 import {Channel} from "../common/models/Channel";
 import {ErrorManager} from "../common/ErrorManager";
 import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
+import {RESTWebinar} from "./RestServices/RESTWebinar";
 import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
 
@@ -304,6 +305,7 @@ class RESTService extends GenericRESTService {
     public reconnectDelay: any;
     public restTelephony: RESTTelephony;
     public restConferenceV2: RESTConferenceV2;
+    public restWebinar: RESTWebinar;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -320,6 +322,7 @@ class RESTService extends GenericRESTService {
         this.logger = _logger;
         this.restTelephony = new RESTTelephony(evtEmitter, _logger);
         this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
+        this.restWebinar = new RESTWebinar(evtEmitter, _logger);
 
         this.http = null;
         this.account = null;
@@ -370,6 +373,9 @@ class RESTService extends GenericRESTService {
          prom.push(that.restConferenceV2.start(that.http).then(() => {
             that.logger.log("internal", LOG_ID + "(start) restConferenceV2 email used", that.loginEmail);
         }));
+         prom.push(that.restWebinar.start(that.http).then(() => {
+            that.logger.log("internal", LOG_ID + "(start) restWebinar email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -382,6 +388,10 @@ class RESTService extends GenericRESTService {
             
             that.restConferenceV2.stop().then(() => {
                 that.logger.log("internal", LOG_ID + "(stop) restConferenceV2.");
+            });
+            
+            that.restWebinar.stop().then(() => {
+                that.logger.log("internal", LOG_ID + "(stop) restWebinar.");
             });
             
             that.signout().then(() => {
@@ -455,21 +465,25 @@ class RESTService extends GenericRESTService {
     set tokenRest(value: any) {
         this._token = value;
         this.restConferenceV2.p_token = value;
+        this.restWebinar.p_token = value;
     }
 
     set credentialsRest(value: any) {
         this._credentials = value;
         this.restConferenceV2.p_credentials = value;
+        this.restWebinar.p_credentials = value;
     }
 
     set applicationRest(value: any) {
         this._application = value;
         this.restConferenceV2.p_application = value;
+        this.restWebinar.p_application = value;
     }
 
     set authRest(value: any) {
         this._auth = value;
         this.restConferenceV2.p_auth = value;
+        this.restWebinar.p_auth = value;
     }
     
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -7092,6 +7106,99 @@ Request Method: PUT
     }
 
     //endregion Conference v2
+    
+    //region Webinar
+
+    createWebinar(name : string,
+                  subject : string,
+                  waitingRoomStartDate: Date,
+                  webinarStartDate : Date,
+                  webinarEndDate : Date,
+                  reminderDates : Array<Date>,
+                  timeZone : string,
+                  register : boolean,
+                  approvalRegistrationMethod : string,
+                  passwordNeeded : boolean,
+                  isOrganizer : boolean,
+                  waitingRoomMultimediaURL : Array<string>,
+                  stageBackground : string,
+                  chatOption : string ) {
+        let that = this;
+        return that.restWebinar.createWebinar(name,
+                subject,
+                waitingRoomStartDate,
+                webinarStartDate,
+                webinarEndDate,
+                reminderDates,
+                timeZone,
+                register,
+                approvalRegistrationMethod,
+                passwordNeeded,
+                isOrganizer,
+                waitingRoomMultimediaURL,
+                stageBackground,
+                chatOption);
+    }
+
+    updateWebinar(webinarId : string,
+                  name : string,
+                  subject : string,
+                  waitingRoomStartDate: Date,
+                  webinarStartDate : Date,
+                  webinarEndDate : Date,
+                  reminderDates : Array<Date>,
+                  timeZone : string,
+                  register : boolean,
+                  approvalRegistrationMethod : string,
+                  passwordNeeded : boolean,
+                  isOrganizer : boolean,
+                  waitingRoomMultimediaURL : Array<string>,
+                  stageBackground : string,
+                  chatOption : string) {
+        let that = this;
+        return that.restWebinar.updateWebinar(webinarId,
+                name,
+                subject,
+                waitingRoomStartDate,
+                webinarStartDate,
+                webinarEndDate,
+                reminderDates,
+                timeZone,
+                register,
+                approvalRegistrationMethod,
+                passwordNeeded,
+                isOrganizer,
+                waitingRoomMultimediaURL,
+                stageBackground,
+                chatOption);
+    }
+
+    getWebinarData(webinarId : string ) {
+        let that = this;
+        return that.restWebinar.getWebinarData(webinarId );
+    }
+
+    getWebinarsData(role  : string) {
+        let that = this;
+        return that.restWebinar.getWebinarsData(role );
+    }
+
+    warnWebinarModerators(webinarId : string) {
+        let that = this;
+        return that.restWebinar.warnWebinarModerators(webinarId );
+    }
+
+    publishAWebinarEvent(webinarId : string) {
+        let that = this;
+        return that.restWebinar.publishAWebinarEvent(webinarId );
+    }
+
+    deleteWebinar(webinarId : string) {
+        let that = this;
+        return that.restWebinar.deleteWebinar(webinarId );
+    }
+
+    //endregion Webinar
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

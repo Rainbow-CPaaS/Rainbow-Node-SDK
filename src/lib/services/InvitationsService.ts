@@ -19,6 +19,7 @@ import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 import {GroupsService} from "./GroupsService";
 import {GenericService} from "./GenericService";
+import {Contact} from "../common/models/Contact";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -316,8 +317,9 @@ class InvitationsService extends GenericService {
 								that._eventEmitter.emit("evt_internal_userinviteaccepted",  invitation);
 								// TODO : VBR $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitedUserId); // evt_internal_userinviteaccepted
 								if (invitation.invitedUserId) {
-									that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact) {
+									that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact: Contact) {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
+										contact.roster = true;
 									});
 								}
 								break;
