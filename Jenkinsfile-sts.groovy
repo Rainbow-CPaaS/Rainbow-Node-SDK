@@ -226,6 +226,7 @@ pipeline {
                      
                                 echo "update files with doc/sdk/node path which should be doc/sdk/node/sts into the folder Documentation ."
                                 sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
+                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
                                 # more Documentation/debian/control
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
                                 # more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
