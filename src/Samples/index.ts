@@ -3150,19 +3150,24 @@ async function testMultiPromise(nb = 100){
 }
 
 let connectedUser : any = {};
-/*
-await rainbowSDK.start(token).then(async(result2) => {
-    // Do something when the SDK is started
-    logger.log("debug", "MAIN - rainbow SDK started result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
-});
-await rainbowSDK.stop();
+async function testStartWithToken() {
+    await rainbowSDK.stop();
+    logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+    await rainbowSDK.start(token).then(async (result2) => {
+        // Do something when the SDK is started
+        logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+    });
+    await rainbowSDK.stop();
+}
 // */
 rainbowSDK.start(token).then(async(result) => {
 //Promise.resolve({}).then(async(result: any) => {
     try {
-        connectedUser = result.loggedInUser;
         // Do something when the SDK is started
-        logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+        connectedUser = result.loggedInUser;
+        token = result.token;       
+        logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+        logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
       
 
