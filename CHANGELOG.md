@@ -7,9 +7,9 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-## [2.3.0] - 2021-08-XX - STS
+## [2.3.0] - 2021-08-13 - STS
 -   Add event `rainbow_onwebinarupdated` fired when a webinar update event is received.
--   Add `WebinarService`
+-   Add `WebinarService` to manage Webinars.
 
 ## [2.2.0] - 2021-06-XX - STS
 -   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
