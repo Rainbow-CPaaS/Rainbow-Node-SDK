@@ -427,6 +427,7 @@ class NodeSDK {
      *    Note :</br>
      *    The token must be empty to signin with credentials.</br>
      *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)</br>
+     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example </br>
      * @memberof NodeSDK
      */
     start(token) {
