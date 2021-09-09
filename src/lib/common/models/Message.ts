@@ -388,7 +388,7 @@ class Message {
          * @property {String} alternativeContent.type The alternative message content-type
          * @instance
          */
-        this.alternativeContent = null;
+        this.alternativeContent = alternativeContent;
 
         /**
          * @public

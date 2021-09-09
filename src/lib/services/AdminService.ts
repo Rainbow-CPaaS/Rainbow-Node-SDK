@@ -1207,7 +1207,7 @@ class Admin extends GenericService {
 
     /**
      * @public
-     * @method retrieveAllSubscribtionsOfCompanyById
+     * @method retrieveAllSubscriptionsOfCompanyById
      * @since 1.73
      * @instance
      * @async
@@ -1216,19 +1216,19 @@ class Admin extends GenericService {
      *      Method to retrieve all the subscriptions of one company on server. <br/>
      * @return {Promise<Array<any>>}
      */
-    retrieveAllSubscribtionsOfCompanyById(companyId?: string) : Promise<Array<any>> {
+    retrieveAllSubscriptionsOfCompanyById(companyId?: string) : Promise<Array<any>> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 that._rest.retrieveAllCompanySubscriptions(companyId).then((result: any) => {
-                    that._logger.log("debug", LOG_ID + "(retrieveAllOffersOfCompanyById) Successfully get all infos");
-                    that._logger.log("internal", LOG_ID + "(retrieveAllOffersOfCompanyById) : result : ", result);
+                    that._logger.log("debug", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) Successfully get all infos");
+                    that._logger.log("internal", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("internalerror", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos", err);
-                    that._logger.log("error", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos");
+                    that._logger.log("internalerror", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) ErrorManager when put infos", err);
+                    that._logger.log("error", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) ErrorManager when put infos");
                     return reject(err);
                 });
             } catch (err) {
@@ -1239,7 +1239,7 @@ class Admin extends GenericService {
 
     /**
      * @public
-     * @method getSubscribtionsOfCompanyByOfferId
+     * @method getSubscriptionsOfCompanyByOfferId
      * @since 1.73
      * @instance
      * @async
@@ -1249,15 +1249,15 @@ class Admin extends GenericService {
      *      Method to get the subscription of one company for one offer. <br/>
      * @return {Promise<any>}
      */
-    async getSubscribtionsOfCompanyByOfferId(offerId, companyId) : Promise<any>{
+    async getSubscriptionsOfCompanyByOfferId(offerId, companyId) : Promise<any>{
         let that = this;
         return new Promise(async function (resolve, reject) {
             try {        //let Offers =  await that.retrieveAllOffersOfCompanyById(companyId);
-                let subscriptions : Array<any> = await that.retrieveAllSubscribtionsOfCompanyById(companyId);
+                let subscriptions : Array<any> = await that.retrieveAllSubscriptionsOfCompanyById(companyId);
                 for (let subscription of subscriptions) {
-                    //that._logger.log("debug", "(getSubscribtionsOfCompanyByOfferId) subscription : ", subscription);
+                    //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
                     if (subscription.offerId === offerId) {
-                        that._logger.log("debug", "(getSubscribtionsOfCompanyByOfferId) subscription found : ", subscription);
+                        that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription found : ", subscription);
                         return resolve(subscription);
                     }
                 }
@@ -1535,7 +1535,7 @@ class Admin extends GenericService {
                 }
 
                 companyId = companyId? companyId : that._rest.account.companyId;
-                let subscription = await that.getSubscribtionsOfCompanyByOfferId(offerId, companyId) ;
+                let subscription = await that.getSubscriptionsOfCompanyByOfferId(offerId, companyId) ;
                 if (!subscription) {
                     return resolve(undefined);
                 }

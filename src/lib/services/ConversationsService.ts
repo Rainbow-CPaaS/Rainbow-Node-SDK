@@ -205,16 +205,30 @@ class ConversationsService extends GenericService {
         ];
     }
 
-    _onReceipt(receipt) {
+    async _onReceipt(receipt) {
         let that = this;
         let messageInfo = this.pendingMessages[receipt.id];
         if (messageInfo && messageInfo.message) {
             let message = messageInfo.message;
             let conversation = messageInfo.conversation;
 
-            that._logger.log("debug", LOG_ID + "[conversationService] Receive server ack (" + conversation.id + ", " + message.id + ")");
+            that._logger.log("debug", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ")");
+            that._logger.log("internal", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ") : ", conversation);
             //message.setReceiptStatus(Message.ReceiptStatus.SENT);
-            conversation.addMessage(message);
+            if (conversation.addMessage) {
+                conversation.addMessage(message);
+            } else {
+                that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ", conversation);
+                if (conversation && conversation.id) {
+                    conversation = await that.getConversationById(conversation.id);
+                    that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
+                    if (conversation.addMessage) {
+                        conversation.addMessage(message);
+                    } else {
+                        that._logger.log("error", LOG_ID + "(_onReceipt) Error addMessage method not defined in Conversation, so message not added to conversation (" + conversation.id, ") : ", conversation);
+                    }
+                }
+            }
             that.removePendingMessage(message);
             //delete this.pendingMessages[message.id];
             // Send event
@@ -379,12 +393,12 @@ class ConversationsService extends GenericService {
 
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
-            that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
+            that._logger.log("debug", LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
             return Promise.resolve(undefined);
         }
         conversation.currentHistoryId = conversation.historyIndex;
 
-        that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ")");
+        that._logger.log("debug", LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ")");
 
         // Create the defered object
         let defered = conversation.historyDefered = new Deferred();
@@ -396,7 +410,7 @@ class ConversationsService extends GenericService {
         }
 
         if (conversation.historyComplete) {
-            that._logger.log("debug", LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
+            that._logger.log("debug", LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
             defered.reject();
             return defered.promise;
         }
@@ -789,9 +803,12 @@ class ConversationsService extends GenericService {
      * @param {Conversation} conversation
      * @param {string} data The message string corrected
      * @param {string} origMsgId The id of the original corrected message.
+     * @param {Object} [content] Allow to send alternative text base content
+     * @param {String} [content.type=text/markdown] The content message type
+     * @param {String} [content.message] The content message body
      * @returns {Promise<string>} message the message new correction message sent. Throw an error if the send fails.
      */
-    async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string) {
+    async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string, content : { message : string, type : string } = null) {
         let that = this;
 
         if (!conversation) {
@@ -829,7 +846,7 @@ class ConversationsService extends GenericService {
         let messageUnicode = shortnameToUnicode(data);
 
         try {
-            let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang );
+            let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content );
             let newMsg = Object.assign({}, originalMessage);
             newMsg.id = sentMessageId;
             newMsg.content = messageUnicode;
@@ -970,7 +987,7 @@ class ConversationsService extends GenericService {
                 }
             };
 
-            that.pendingMessages = [];
+            that.pendingMessages = {};
 
             that._xmpp.mamDelete( mamRequest);
 
@@ -1030,7 +1047,9 @@ class ConversationsService extends GenericService {
                 }
             };
 
-            that.pendingMessages = that.pendingMessages.filter((messagePending) => { if (messagePending.date > date) { return false; } });
+            that.pendingMessages = Object.fromEntries(Object.entries(that.pendingMessages).filter(([key, messagePending ] : [string, Message]) => { if (messagePending.date > date) { return false; } }));
+            
+            //that.pendingMessages = that.pendingMessages.filter((messagePending) => { if (messagePending.date > date) { return false; } });
 
             // Request for history messages
             that._xmpp.mamDelete(mamRequest);

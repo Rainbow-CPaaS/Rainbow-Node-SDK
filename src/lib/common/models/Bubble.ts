@@ -74,7 +74,7 @@ class Bubble {
     public guestEmails: any[];
     public confEndpoints: [];
     public activeUsersCounter: number;
-    public avatar: String;
+    public avatar: string;
     public organizers: Array<any>;
     public members: Array<any>;
     public containerId: string;
@@ -138,7 +138,7 @@ class Bubble {
     public tags: Array<any>;
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: String = "", _containerId: string = null, _containerName: string = null) {
+                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null) {
 
         /**
          * @public

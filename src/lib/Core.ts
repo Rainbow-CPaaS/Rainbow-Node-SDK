@@ -46,6 +46,7 @@ const LOG_ID = "CORE - ";
 class Core {
 	public _signin: any;
 	public _retrieveInformation: any;
+	public setRenewedToken: any;
 	public onTokenRenewed: any;
 	public logger: any;
 	public _rest: RESTService;
@@ -101,7 +102,7 @@ class Core {
                         json = _json;
                         let headers = {
                             "headers": {
-                                "Authorization": "Bearer " + that._rest.token,
+                                // "Authorization": "Bearer " + that._rest.token,
                                 "x-rainbow-client": "sdk_node",
                                 "x-rainbow-client-version": packageVersion.version
                                 // "Accept": accept || "application/json",
@@ -111,15 +112,14 @@ class Core {
                     }).then(function () {
                         that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        resolve(json);
+                        return resolve(json);
                     }).catch(function (err) {
                         that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
                         that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        reject(err);
+                        return reject(err);
                     });
-                }
-                if (that.options.useS2S) {
+                } else if (that.options.useS2S) {
                     return that._rest.signin(token).then(async (_json) => {
                         json = _json;
                         let headers = {
@@ -135,12 +135,12 @@ class Core {
                     }).then(function () {
                         that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        resolve(json);
+                        return resolve(json);
                     }).catch(function (err) {
                         that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
                         that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        reject(err);
+                        return reject(err);
                     });
                 } else {
                     that._rest.signin(token).then((_json) => {
@@ -155,7 +155,7 @@ class Core {
                         };
                         that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        resolve(json);
+                        return resolve(json);
                     });
                 }
             });
@@ -359,6 +359,15 @@ class Core {
             });
         };
 
+        self.setRenewedToken = async (strToken : string) => {
+            self.logger.log("info", LOG_ID +  "(setRenewedToken) strToken : ", strToken);
+            return await self._rest.signin(strToken).then(() => {
+                self.logger.log("info", LOG_ID +  "(setRenewedToken) token successfully renewed, send evt_internal_tokenrenewed event");
+                self._eventEmitter.iee.emit("evt_internal_tokenrenewed");                
+            });
+            //return await self.signin(false, strToken);
+        }
+        
         self.onTokenRenewed = function onTokenRenewed() {
             self.logger.log("info", LOG_ID +  "(tokenSurvey) token successfully renewed");
             self._rest.startTokenSurvey();
@@ -367,10 +376,15 @@ class Core {
         self.onTokenExpired = function onTokenExpired() {
             self.logger.log("info", LOG_ID +  "(tokenSurvey) token expired. Signin required");
 /*
-            self._eventEmitter.iee.removeListener("rainbow_tokenrenewed", self.onTokenRenewed.bind(self));
-            self._eventEmitter.iee.removeListener("rainbow_tokenexpired", self.onTokenExpired.bind(self));
+            self._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", self.onTokenRenewed.bind(self));
+            self._eventEmitter.iee.removeListener("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
 */
-            self._eventEmitter.iee.emit("evt_internal_signinrequired");
+            if (! self._rest.p_decodedtokenRest.oauth) {
+                self._eventEmitter.iee.emit("evt_internal_signinrequired");
+            } else {
+                self.logger.log("info", LOG_ID +  "(tokenSurvey) oauth token expired. Extarnal renew required");
+                self._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
+            }
         };
 
         self._tokenSurvey = () => {
@@ -383,10 +397,10 @@ class Core {
             }
 
 /*
-            that._eventEmitter.iee.removeListener("rainbow_tokenrenewed", that.onTokenRenewed.bind(that));
-            that._eventEmitter.iee.removeListener("rainbow_tokenexpired", that.onTokenExpired.bind(that));
-            that._eventEmitter.iee.on("rainbow_tokenrenewed", that.onTokenRenewed.bind(that));
-            that._eventEmitter.iee.on("rainbow_tokenexpired", that.onTokenExpired.bind(that));
+            that._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", that.onTokenRenewed.bind(that));
+            that._eventEmitter.iee.removeListener("evt_internal_tokenexpired", that.onTokenExpired.bind(that));
+            that._eventEmitter.iee.on("evt_internal_tokenrenewed", that.onTokenRenewed.bind(that));
+            that._eventEmitter.iee.on("evt_internal_tokenexpired", that.onTokenExpired.bind(that));
 */
             that._rest.startTokenSurvey();
         };
@@ -494,8 +508,8 @@ class Core {
             }
         });
 
-        self._eventEmitter.iee.on("rainbow_tokenrenewed", self.onTokenRenewed.bind(self));
-        self._eventEmitter.iee.on("rainbow_tokenexpired", self.onTokenExpired.bind(self));
+        self._eventEmitter.iee.on("evt_internal_tokenrenewed", self.onTokenRenewed.bind(self));
+        self._eventEmitter.iee.on("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
 
         if (self.options.useXMPP) {
             self.logger.log("info", LOG_ID + "(constructor) used in XMPP mode");
@@ -600,8 +614,10 @@ class Core {
                         that.logger.log("internal", LOG_ID + "(start) with token : ", token);                        
                     }
 
-                        that.logger.log("debug", LOG_ID + "(start) start all modules");
-                    that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
+                    that.logger.log("debug", LOG_ID + "(start) start all modules");
+                    if (!token) {
+                        that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
+                    }
                     that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
                     return that._stateManager.start().then(() => {
                         return that._http.start();
@@ -783,6 +799,7 @@ class Core {
                 reject(err);
             });
             // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
+            that.logger.stop();
         });
         // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 2 !");
     }

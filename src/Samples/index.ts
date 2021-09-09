@@ -295,6 +295,20 @@ rainbowSDK.events.on("rainbow_onready", () => {
     }
  // */
     //rainbowSDK.stop();
+    logger.log("debug", "MAIN - Rainbow ready ",rainbowSDK.version);
+
+    var contacts = rainbowSDK.contacts.getAll();
+    logger.log("debug", "MAIN - Contacts : ",contacts.length);
+    contacts.forEach(contact => {
+        console.log(contact.displayName, " - ",contact.presence, " - ",contact.id, " - ",contact.jid);
+        console.log("Emails ",contact.emails);
+        console.log("Email pro",contact.emailPro);
+    })
+    logger.log("debug", "MAIN - ----------------------------------------------------");
+});
+rainbowSDK.events.on("rainbow_onconnectionerror", () => {
+    // do something when the SDK has been started
+    logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
 });
 rainbowSDK.events.on("rainbow_onstarted", () => {
     // do something when the SDK has been started
@@ -451,6 +465,7 @@ rainbowSDK.events.on("rainbow_onerror", (data) => {
         stopped = false;
         rainbowSDK = new RainbowSDK(options);
         logger = rainbowSDK._core.logger;
+        /*
         rainbowSDK.start().then(async(result) => {
             try {
                 // Do something when the SDK is started
@@ -469,6 +484,7 @@ rainbowSDK.events.on("rainbow_onerror", (data) => {
         }).catch((err) => {
             console.log("MAIN - Error during starting : " + util.inspect(err));
         });
+        // */
     });
 });
 
@@ -645,6 +661,34 @@ function testsendMessageToConversationForContact() {
     });
 }
 
+function testsendMessageToConversationForContactIrles() {
+    return __awaiter(this, void 0, void 0, function* () {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "christophe.irles@al-enterprise.com";
+        // Retrieve a contact by its id
+        let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                "\n" +
+                "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+        let content = {
+            message: txt,
+            type: "text/markdown"
+        };
+        let now = new Date().getTime();
+        // Send message
+        //let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+        let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+    });
+}
+
 function testsendMessageToJid() {
     return __awaiter(this, void 0, void 0, function* () {
         //let that = this;
@@ -761,6 +805,58 @@ function testsendCorrectedChatMessage() {
                 logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
             });
             logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+        }), 10000);
+    });
+}
+
+function testsendCorrectedChatMessageWithContent() {
+    return __awaiter(this, void 0, void 0, function* () {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            let txt = "# Test " + now + " \n" +
+                    "\n" +
+                    "Here is the test in **Rainbow-Node-SDK**\n";
+            let content = {
+                message: txt,
+                type: "text/markdown"
+            };
+            // Send message
+            let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", content, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
+            yield Utils.until(() => {
+                return conversation.getMessageById(msgSent.id) !== undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+        }
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - msgStrModified : ", msgStrModified);
+        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+            let now = new Date().getTime();
+            let txt = "# Test modified " + now + " \n" +
+                    "\n" +
+                    "Here is the test in **Rainbow-Node-SDK**\n";
+            let content = {
+                message: txt,
+                type: "text/markdown"
+            };
+
+            let msgCorrectedSent = yield rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+                logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
+            });
+            logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
         }), 10000);
     });
 }
@@ -2530,7 +2626,7 @@ async function  testsubscribeCompanyToDemoOffer(){
     let password = "Password_123";
     let firstname = "vincentTest01";
     let lastname = "berderTest01";
-    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscribtionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscribtionsOfCompanyById(newCompany.id));
+    logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id));
 
     let newUser = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]);
     logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id));
@@ -3013,6 +3109,33 @@ async function testcreateAlert() {
     }
     
     //endregion Conference V2
+
+    function testgetContactByLoginEmailCaseSensitiveTest() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+            let contactVincent00upperCase = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
+            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
+        });
+    }
+
+    function testsendMessageToContactUrgencyMiddle() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
+            rainbowSDK.im.sendMessageToContact("High important message test",contactVincent00,null,null,null,'middle').then((result) => {
+                logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
+            });
+        });
+    }
+
+
     
     //region Webinar
 
@@ -3115,14 +3238,7 @@ function commandLineInteraction() {
 }
 
 //let startDate = new Date();
-//let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1YmJkYzMzNzJjZjQ5NmMwN2RkODkxMjEiLCJsb2dpbkVtYWlsIjoidmluY2VudDAwQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE1NzU0NjIyOTMsImV4cCI6MTU3Njc1ODI5M30.MA71vA1SDjf-PqYtrBnpEsPai1G4LvVFHFqolsQ6Dv3NukRpbHusEgyICvtBt0t9vJ3iuzupN-ltbrj1feSBR7VnGUf2i0QNXWRCSbOgHugQAKyRZTKt9lKphaYtEEJMjHrl7k8XO6E7E1nFLFWIgJw8pNbKSmJ84rCP-wyH6kh5N7ev10XBaZsC0kdDSgFH8M2T72xgc4gtLua5BIK8Oj6qdbpHSODaLptI7ehYdbU-Mw8ECZ_VFj8Cs6lfbQWOYKgHojkoLHakDf_6oVA40YarJZunYEasuuHKL5qiZJHGkgXHBxBUBGJbbDXu_DOkTognKMPSkAXjfnLmbk0kxw';
-//let token = 'sdfsqfsqfsdfsdfgdf';
-let token;
-try {
-    logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwt(token));
-} catch (err) {
-    logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
-}
+let token = undefined;
 
     // testMultiPromise(500)
 async function testMultiPromise(nb = 100){
@@ -3152,7 +3268,23 @@ async function testMultiPromise(nb = 100){
 let connectedUser : any = {};
 async function testStartWithToken() {
     await rainbowSDK.stop();
+    //let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1YmJkYzMzNzJjZjQ5NmMwN2RkODkxMjEiLCJsb2dpbkVtYWlsIjoidmluY2VudDAwQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE1NzU0NjIyOTMsImV4cCI6MTU3Njc1ODI5M30.MA71vA1SDjf-PqYtrBnpEsPai1G4LvVFHFqolsQ6Dv3NukRpbHusEgyICvtBt0t9vJ3iuzupN-ltbrj1feSBR7VnGUf2i0QNXWRCSbOgHugQAKyRZTKt9lKphaYtEEJMjHrl7k8XO6E7E1nFLFWIgJw8pNbKSmJ84rCP-wyH6kh5N7ev10XBaZsC0kdDSgFH8M2T72xgc4gtLua5BIK8Oj6qdbpHSODaLptI7ehYdbU-Mw8ECZ_VFj8Cs6lfbQWOYKgHojkoLHakDf_6oVA40YarJZunYEasuuHKL5qiZJHGkgXHBxBUBGJbbDXu_DOkTognKMPSkAXjfnLmbk0kxw';
+//let token = 'sdfsqfsqfsdfsdfgdf';
+    let token = undefined;
+
+//token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWY3NWEwZGQxZGI5NDY0ZDY3ZTMyNDYzIiwibG9naW5FbWFpbCI6ImxkYXAuY29ubmVjdG9yLmFkbWluMUBjbWEudGVzdC5vcGVucmFpbmJvdy5jb20ifSwiYXBwIjp7ImlkIjoiMDczMGY2ZTBhMGUwMTFlYjhlNjE3YjhlMWVkZTcwYjEiLCJuYW1lIjoiTERBUCAgY29ubmVjdG9yIn0sIm9hdXRoIjp7InRva2VuSWQiOiItZW1zcXpIa3F2IiwidHlwZSI6ImFjY2Vzc190b2tlbiIsInNjb3BlIjoiYWxsIiwiZ3JhbnQiOiJpbXBsaWNpdCJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJwcmVwcm9kdWN0aW9uIiwiZW52aXJvbm1lbnRBcGlVcmwiOiJodHRwczovL29wZW5yYWluYm93Lm5ldCJ9LCJpYXQiOjE2MjkxOTE1ODAsImV4cCI6MTYyOTE5MTg4MH0.p-GJWuIbJzb7eeY9Bi-4oq_t3PUxEr_E-0IrAad0LJbgXVprmIMiieBJamB4SXZhVSN2yqz68_I6yS7veFoLvcVU8coi4L_TebO8R5mnKB8Ocs66SqhjotggmXZNsWmaMNOGNCZRpaCJF9eHz04ux9BZTv7UJmfXpbg7xhce9GXDxT4OAoJYN7XYglymerueWZ8CArQ1Vtc_ahWdeOjp7dQYQ3DMKowmPO1_LdJTmcmAlwVZTG6RGZJNHckPyb4aGTesUYObJIyf_CHwZaIhyk-qcISCAPxzKG-x3qDZ_kCqzNGB3ojP9YkrBy1X5nTmDrt7UfV85gMaW5ew1AIFHQ";
+
+//token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWMzZGY5Mzc3NmYzNTE4OTc4YzFkMDhhIn0sImFwcCI6eyJpZCI6IjIzNWFjNjAwMDk4MzExZWNiN2I4NGQ2OTk4MjVkNmQzIiwibmFtZSI6InZiZXJkZXItb2F1dGgtYXBwIn0sIm9hdXRoIjp7InRva2VuSWQiOiJMU19qV1VvcmpKIiwicmVmcmVzaFRva2VuSWQiOiI2MTJlNjhjMThkZDU3MTc4NTdmZTU1ZjIiLCJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwic2NvcGUiOiJhbGwiLCJncmFudCI6ImF1dGhvcml6YXRpb25fY29kZSJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJwcmVwcm9kdWN0aW9uIiwiZW52aXJvbm1lbnRBcGlVcmwiOiJodHRwczovL29wZW5yYWluYm93Lm5ldCJ9LCJpYXQiOjE2MzA0MzE0MjUsImV4cCI6MTYzMDQzMTcyNX0.DeWye85KexHllKsMwvJMfnC5ajl_NBXLzzE7DHaDuisrN3g3WA27C3Z1Saa7cGAQGixI5zK1DZScJPQaCC6Bv-gR3MJAfuyidF_HA5pjp7oHV40Dt6791NaMCQQDHhlpzbabDWL0pw9gqrO55y4bgtJ07EXg4j-H34nue6SxKfupXqmgx3A_4IM_rIn_HMMpNgooFOv2ktQIPNmRkXL8nUwyiyNIeIhCWtO8KQ4j23zXdgPP30jfS14vSEpRS19dlbCZ3dcdckj42cV8lPm_XEspk-F_x5DcjwGhtfvjrCcqWMn8mQ6x50lcnk_gfqB6K8lIrwWPZXw5PKdruHB40g";
+
     logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+    token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1NzMxZmU0Zjc4MjQwOTFiMzVmNWUyYjciLCJsb2dpbkVtYWlsIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20ifSwiZW52aXJvbm1lbnQiOnsiZW52aXJvbm1lbnROYW1lIjoib2ZmaWNpYWwiLCJlbnZpcm9ubWVudEFwaVVybCI6Imh0dHBzOi8vb3BlbnJhaW5ib3cuY29tIn0sImFwcCI6eyJpZCI6ImEyZjg5MDMwMDBmMDExZTg4NmQ5YjViYmQzMjYwNzkyIiwibmFtZSI6IlJhaW5ib3cgb2ZmaWNpYWwgV2ViIGFwcGxpY2F0aW9uIn0sInNhbWwiOnsibmFtZUlkIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20iLCJzZXNzaW9uSWR4IjoiXzZhZmM4Y2ZmLTg3OTEtNDZhNy1iZWEyLTAzODgwMGI4OGIwMCJ9LCJpYXQiOjE2MjkyMTEzMDQsImV4cCI6MTYzMDUwNzMwNH0.aP4LC9HX-QO1s9gf68-R08goe4472YQYEOErRc7_piaVRRPYchD6Fo3u3CXJNmwep5MJjnypuJKlttQ4mtMRHG5np3b_1peARj0qqMpePag4JiQZWV9ne9DwcwNRhxD8uTmYEDOezGH8hhpIvkqUfuHpR4ZW7Anff5SeVOHPWzwcJ5EUJQKQKKR3sEfEC_2PHd7fywEw0BDOxCIXFQjC1jG3_JbIgnIGOqTwOFdH9-ZaurDjj9mU2JL4l9GKPn_afi1YiBjoAm3Er7hM-x6XwHHdJBvl49SY-4p7uzhqFIFNnrZ-73Cihbo8RTyb0hnCdOB36p6HfiVytL6UwZHQCw";
+    logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+    try {
+        logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwt(token));
+    } catch (err) {
+        logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
+    }
+
     await rainbowSDK.start(token).then(async (result2) => {
         // Do something when the SDK is started
         logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
@@ -3160,6 +3292,7 @@ async function testStartWithToken() {
     await rainbowSDK.stop();
 }
 // */
+    
 rainbowSDK.start(token).then(async(result) => {
 //Promise.resolve({}).then(async(result: any) => {
     try {

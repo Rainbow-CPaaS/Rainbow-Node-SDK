@@ -6,6 +6,7 @@ let packageVersion = require("../../package.json");
 
 class GenericRESTService {
     protected _token: any;
+    protected _decodedtokenRest: any;
     protected _credentials: any;
     protected _application: any;
     protected _auth: any;
@@ -43,6 +44,14 @@ class GenericRESTService {
 
     get auth(): any {
         return this._auth;
+    }
+
+    get p_decodedtokenRest(): any {
+        return this._decodedtokenRest;
+    }
+
+    set p_decodedtokenRest(value: any) {
+        this._decodedtokenRest = value;
     }
 
     getRequestHeader (accept : string = undefined) {

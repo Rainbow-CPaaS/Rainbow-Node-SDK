@@ -257,6 +257,10 @@ class Logger {
             }
         }
 
+        this._logger.stop = function () {
+            return that._winston.end();
+        }
+
         this._logger.log = function (level) {
             try {
                 if (level === "internal" || level === "internalerror") {
@@ -412,12 +416,36 @@ class Logger {
             // No logs :-)
         }
 
+        /*
+        let loggers = winston.loggers;
+
+        for (const logguersKey in loggers) {
+            console.log("logguer : ", logguersKey, " : ", loggers[logguersKey]);
+        }
+        // */
+        
+        if (that._winston.writable) {
+            that._winston.on('error', () => {})
+                    .on('close', () => {})
+                    // flush isn't guaranteed to fire. Since files aren't flushed before 'finish' is fired,
+                    // wait 50ms before closing the logger.
+                    .on('finish', () => {
+                                setTimeout(() => {
+                                    that._winston.close();
+                                    console.log("finish winston.");
+                                }, 50);
+                            }
+                    );
+                    //.end();
+        } else {
+        }
+
         if (this._logger) {
             this._logger.colors = this.colors ;
         }
 
     }
-
+    
     get log() {
         return this._logger;
     }

@@ -1644,6 +1644,131 @@ class AlertsService extends GenericService{
         });        
     }
 
+    /**
+     * @public
+     * @method getAlertFeedbackSentForANotificationMessage
+     * @instance
+     * @async
+     * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification..
+     * @description
+     *    This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id). <br/>
+     * @return {Promise<any>} the result of the operation.
+     * {
+     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br/>
+     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br/>
+     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br/>
+     * - small: id notificationId notificationHistoryId device.id creationDate <br/>
+     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br/>
+     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br/>
+     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br/>
+     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br/>
+     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
+     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
+     * }
+     * @category async
+     */
+    getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (notificationHistoryId == null) {
+                that._logger.log("warn", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.getAlertFeedbackSentForANotificationMessage(notificationHistoryId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) get successfull");
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error.");
+                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getAlertFeedbackSentForAnAlert
+     * @instance
+     * @async
+     * @param {string} alertId Id of the alert.
+     * @description
+     *    This API allows to list the feedback sent by the devices for a given notification. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * {
+     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br/>
+     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br/>
+     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br/>
+     * - small: id notificationId notificationHistoryId device.id creationDate <br/>
+     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br/>
+     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br/>
+     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br/>
+     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br/>
+     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
+     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
+     * }
+     * @category async
+     */
+    getAlertFeedbackSentForAnAlert(alertId: string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (alertId == null) {
+                that._logger.log("warn", LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter : ", alertId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.getAlertFeedbackSentForAnAlert(alertId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(getAlertFeedbackSentForAnAlert) get successfull");
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getAlertFeedbackSentForAnAlert) error.");
+                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForAnAlert) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getAlertStatsFeedbackSentForANotificationMessage
+     * @instance
+     * @async
+     * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification.
+     * @description
+     *    This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * {
+     *   stats 	Object[] List of feedback data submitted by the devices for this given notification message <br/>
+     *      data 	String data submitted by the devices <br/>
+     *      count 	String Number of devices having submitted this given data <br/>
+     * }
+     * @category async
+     */
+    getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (notificationHistoryId == null) {
+                that._logger.log("warn", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) get successfull");
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error.");
+                that._logger.log("internalerror", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
 //endregion CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 
 //region REPORTS
@@ -1712,6 +1837,48 @@ class AlertsService extends GenericService{
                 return reject(err);
             });
         });        
+    }
+
+    /**
+     * @public
+     * @method getReportComplete
+     * @instance
+     * @async
+     * @param {string} alertId Id of the alert.
+     * @description
+     *    Allows to get the fileDescriptor storing the detailed CSV report of the notification. <br/>
+     * <br/>
+     *  The detailed CSV report is generated when one of the APIs getReportSummary or GET getReportDetails is called while the state of the notification message process has reached a final state: <br/>
+     * <br/>
+     *  completed: all the devices targeted by the notification have been notified and have acknowledged the reception of the message, <br/>
+     *  expired: some devices targeted by the notification haven't acknowledged the reception of the message but the notification expiration date has been reached, <br/>
+     *  cancelled: some devices targeted by the notification haven't acknowledged the reception of the message but the notification status has been set to terminated.<br/>
+     * <br/>
+     *  The generated detailed CSV report is stored in Rainbow filestorage backend. The fileDescriptor identifier returned by this API can then be used to download it using the Rainbow filestorage API GET /api/rainbow/fileserver/v1.0/files/:fileId <br/>
+     *  The detailed CSV report contains the following columns: <br/>
+     *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br/>
+     * @return {Promise<any>} the result of the operation.
+     * @category async
+     */
+    getReportComplete(alertId: string): Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (alertId == null) {
+                that._logger.log("warn", LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter");
+                that._logger.log("internalerror", LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter : ", alertId);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            that._rest.getReportComplete(alertId).then(function (json) {
+                that._logger.log("info", LOG_ID + "(getReportComplete) get successfull");
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getReportComplete) error.");
+                that._logger.log("internalerror", LOG_ID + "(getReportComplete) error : ", err);
+                return reject(err);
+            });
+        });
     }
 
 //endregion REPORTS

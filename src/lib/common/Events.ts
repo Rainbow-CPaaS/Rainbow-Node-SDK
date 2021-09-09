@@ -150,6 +150,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubblescontainercreated
  * @fires Events#rainbow_onbubblescontainerupdated
  * @fires Events#rainbow_onbubblescontainerdeleted
+ * @fires Events#rainbow_onusertokenrenewfailed
+ * @fires Events#rainbow_onusertokenwillexpire
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -990,6 +992,32 @@ class Events {
             that.publishEvent("bubblescontainerdeleted", data);
         });
 
+        this._evReceiver.on("evt_internal_onusertokenrenewfailed", function (data) {
+            /**
+             * @event Events#rainbow_onusertokenrenewfailed
+             * @public
+             * @param { Object } data informations about token expired
+             * @description
+             *      Fired when an oauth token is expired event is received.
+             *      Application must refresh the token and send it back to SDK with `setRenewedToken` API.
+             */
+            that.publishEvent("usertokenrenewfailed", data);
+        });
+
+        this._evReceiver.on("evt_internal_onusertokenwillexpire", function (data) {
+            /**
+             * @event Events#rainbow_onusertokenwillexpire
+             * @public
+             * @param { Object } data informations about token expired
+             * @description
+             *      This event is fired when the duration of the current user token reaches half of the maximum time. 
+             *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes.
+             *      Application must refresh the token and send it back to SDK with `setRenewedToken` API.
+             *      It is recommended to renew the token upon the arrival of this event.
+             */
+            that.publishEvent("usertokenwillexpire", data);
+        });
+
     }
 
     get iee(): EventEmitter {
@@ -1170,7 +1198,7 @@ class Events {
 
         });
 
-        this._evPublisher.emit(eventName, ...params);
+        that._evPublisher.emit(eventName, ...params);
     }
 
     setCore(_core : Core): void {

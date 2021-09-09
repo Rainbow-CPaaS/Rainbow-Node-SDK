@@ -403,11 +403,66 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    async getContactByToken(token : string){
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(getContactByToken) with token : ", token, " : ", that.getLoginHeader());
+            let decodedtoken = jwt(token);
+            let JSON = {
+                "loggedInUser": decodedtoken.user,
+                "loggedInApplication": decodedtoken.app,
+                "token": token
+            };
+            if (!that._token || (that._token && that._token != JSON.token)) {
+                that.tokenRest = JSON.token;
+            }
+            if (!that.app || (that.app && that.app.id != JSON.loggedInApplication.id)) {
+                that.app = JSON.loggedInApplication;
+            }
+            if (!that.account || (that.account && that.account.id != JSON.loggedInUser.id)) {
+                that.account = JSON.loggedInUser;
+                that.decodedtokenRest = decodedtoken;
+
+                //let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
+                let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
+                    if (contactsFromServeur) {
+                        let contact: Contact = null;
+                        that.logger.log("info", LOG_ID + "(getContactByToken) contact found on server, get full infos.");
+                        let _contactFromServer = contactsFromServeur;
+                        if (_contactFromServer) {
+                            // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
+                            return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
+                                that.logger.log("internal", LOG_ID + "(getContactByToken) contact full infos : ", _contactInformation);
+                                return _contactInformation;
+                            });
+                        }
+                    } else {
+                        that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByID no contacts found : ", contactsFromServeur);
+                        return Promise.reject(contactsFromServeur);
+                    }
+                }).catch((errr) => {
+                    that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByLoginEmail Error !!! error : ", errr);
+                    return Promise.reject(errr);
+                });
+                that.account = JSON.loggedInUser = loggedInUser;
+            }
+            that.logger.log("debug", LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
+            that.logger.log("internal", LOG_ID + "(getContactByToken) user information ", that.account);
+            that.logger.log("internal", LOG_ID + "(getContactByToken) application information : ", that.app);
+            return Promise.resolve(JSON);
+        } catch (err) {
+            that.logger.log("debug", LOG_ID + "(getContactByToken) CATCH Error !!! error : ", err);
+            return Promise.reject(err);
+        }
+    }
+    
     async signin(token: string = undefined) {
         let that = this;
 
         // Login by the token provided in parameter.
         if (token) {
+            return await this.getContactByToken(token);
+            /*
             try {
                 that.logger.log("internal", LOG_ID + "(signin) with token : ", token, " : ", that.getLoginHeader());
                 let decodedtoken = jwt(token);
@@ -419,12 +474,14 @@ class RESTService extends GenericRESTService {
                 that.account = JSON.loggedInUser;
                 that.app = JSON.loggedInApplication;
                 that.tokenRest = JSON.token;
+                that.decodedtokenRest = decodedtoken;
 
-                let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
-                    if (contactsFromServeur && contactsFromServeur.length > 0) {
+                //let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
+                let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
+                    if (contactsFromServeur ) {
                         let contact: Contact = null;
                         that.logger.log("info", LOG_ID + "(signin) contact found on server, get full infos.");
-                        let _contactFromServer = contactsFromServeur[0];
+                        let _contactFromServer = contactsFromServeur;
                         if (_contactFromServer) {
                             // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
                             return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
@@ -432,7 +489,13 @@ class RESTService extends GenericRESTService {
                                 return _contactInformation;
                             });
                         }
+                    } else {
+                        that.logger.log("debug", LOG_ID + "(signin) getContactInformationByID no contacts found : ", contactsFromServeur);
+                        return Promise.reject(contactsFromServeur);
                     }
+                }).catch((errr) => {
+                    that.logger.log("debug", LOG_ID + "(signin) getContactInformationByLoginEmail Error !!! error : ", errr);
+                    return Promise.reject(errr);
                 });
                 that.account = JSON.loggedInUser = loggedInUser;
                 that.logger.log("debug", LOG_ID + "(signin) token signin, welcome " + that.account.id + "!");
@@ -443,6 +506,7 @@ class RESTService extends GenericRESTService {
                 that.logger.log("debug", LOG_ID + "(signin) CATCH Error !!! error : ", err);
                 return Promise.reject(err);
             }
+            // */
         }
         // If no token is provided, then signin with user/pwd credentials.
         return new Promise(function (resolve, reject) {
@@ -466,6 +530,12 @@ class RESTService extends GenericRESTService {
         this._token = value;
         this.restConferenceV2.p_token = value;
         this.restWebinar.p_token = value;
+    }
+
+    set decodedtokenRest(value: any) {
+        this._decodedtokenRest = value;
+        this.restConferenceV2.p_decodedtokenRest = value;
+        this.restWebinar.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -529,40 +599,74 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    startTokenSurvey() {
+   async startTokenSurvey() {
 
-        let that = this;
+       let that = this;
 
-        let decodedToken = jwt(that.token);
-        that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token");
-        that.logger.log("info", LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
-        that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token, decodedToken : ", decodedToken);
-        let halfExpirationDate = (decodedToken.exp - decodedToken.iat) / 2 + decodedToken.iat;
-        let tokenExpirationTimestamp = halfExpirationDate * 1000;
-        let expirationDate = new Date(tokenExpirationTimestamp);
-        let currentDate = new Date();
-        let currentTimestamp = currentDate.valueOf();
-        let tokenExpirationDuration = tokenExpirationTimestamp - currentTimestamp;
+       let decodedToken = jwt(that.token);
+       //that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token.");
+       that.logger.log("info", LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
+       that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token oauth, decodedToken : ", decodedToken);
+       if (decodedToken.exp && decodedToken.iat) {
+           that.logger.log("info", LOG_ID + "(startTokenSurvey) token decoded : start Date : ", new Date(decodedToken.iat * 1000), ", end Date: ", new Date(decodedToken.exp * 1000));
+       }
+       let halfExpirationDate = (decodedToken.exp - decodedToken.iat) / 2 + decodedToken.iat;
+       let tokenExpirationTimestamp = halfExpirationDate * 1000;
+       let expirationDate = new Date(tokenExpirationTimestamp);
+       let currentDate = new Date();
+       let currentTimestamp = currentDate.valueOf();
+       let halftokenExpirationDuration = tokenExpirationTimestamp - currentTimestamp;
+       let fulltokenExpirationDuration = (decodedToken.exp * 1000) - currentTimestamp;
 
-        if (tokenExpirationDuration < 0) {
-            that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token has already expired, re-new it immediately");
-            that._renewAuthToken();
-        } else if (tokenExpirationDuration < 300000) {
-            that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token will expire in less 5 minutes, re-new it immediately");
-            that._renewAuthToken();
-        } else {
-            let usedExpirationDuration = tokenExpirationDuration - 3600000; // Refresh 1 hour before the token expiration - negative values are well treated by settimeout
-            that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " tokenExpirationDuration: " + tokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms)");
-            if (that.renewTokenInterval) {
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
-                clearTimeout(that.renewTokenInterval);
-            }
-            that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
-            that.renewTokenInterval = setTimeout(function () {
-                that._renewAuthToken();
-            }, usedExpirationDuration);
-        }
-    }
+       let usedExpirationDuration = halftokenExpirationDuration - 3600000; // Refresh 1 hour before the token expiration - negative values are well treated by settimeout
+       that.logger.log("info", LOG_ID + "(startTokenSurvey) token decoded : expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+
+       if (decodedToken && !decodedToken.oauth) {
+           if (halftokenExpirationDuration < 0) {
+               that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token has already expired, re-new it immediately");
+               that._renewAuthToken();
+           } else if (halftokenExpirationDuration < 300000) {
+               that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token will expire in less 5 minutes, re-new it immediately");
+               that._renewAuthToken();
+           } else {
+               let usedExpirationDuration = halftokenExpirationDuration - 3600000; // Refresh 1 hour before the token expiration - negative values are well treated by settimeout
+               that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+               if (that.renewTokenInterval) {
+                   that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
+                   clearTimeout(that.renewTokenInterval);
+               }
+               that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
+               that.renewTokenInterval = setTimeout(function () {
+                   that._renewAuthToken();
+               }, usedExpirationDuration);
+           }
+       } else if (decodedToken) { // token is from oauth external login, so we can not refresh it by ourself.
+           usedExpirationDuration = halftokenExpirationDuration ;
+           that.logger.log("info", LOG_ID + "(startTokenSurvey) start token oauth survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+           if (fulltokenExpirationDuration < 0) {
+               that.logger.log("warn", LOG_ID + "(startTokenSurvey) oauth token has already expired, needs to be re-newed it immediately");
+               //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenrenewfailed.");
+               this.eventEmitter.emit("evt_internal_onusertokenrenewfailed", that.token);
+           } else if (halftokenExpirationDuration < 0) {
+               that.logger.log("warn", LOG_ID + "(startTokenSurvey) oauth token will expire in half duration of the token in : ", tokenExpirationTimestamp, " minutes, needs to be re-newed it immediately");
+               //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
+               this.eventEmitter.emit("evt_internal_onusertokenwillexpire", that.token);
+           } else {
+               if (that.renewTokenInterval) {
+                   that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
+                   clearTimeout(that.renewTokenInterval);
+               }
+               that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
+               that.renewTokenInterval = setTimeout(function () {
+                   //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
+                   that.eventEmitter.emit("evt_internal_onusertokenwillexpire", that.token);
+                   //that.startTokenSurvey()
+               }, usedExpirationDuration);
+           }
+       } else {
+           that.logger.log("info", LOG_ID + "(startTokenSurvey) decodedToken undefined.");
+       }
+   }
 
     _renewAuthToken() {
         let that = this;
@@ -570,13 +674,13 @@ class RESTService extends GenericRESTService {
             that.logger.log("info", LOG_ID + "(_renewAuthToken) renew authentication token success");
             that.tokenRest = JSON.token;
             that.logger.log("internal", LOG_ID + "(_renewAuthToken) new token received", that.token);
-            that.eventEmitter.emit("rainbow_tokenrenewed");
+            that.eventEmitter.emit("evt_internal_tokenrenewed");
         }).catch(function (err) {
             that.logger.log("error", LOG_ID, "(_renewAuthToken) renew authentication token failure");
             that.logger.log("internalerror", LOG_ID, "(_renewAuthToken) renew authentication token failure : ", err);
             clearTimeout(that.renewTokenInterval);
             that.renewTokenInterval = null;
-            that.eventEmitter.emit("rainbow_tokenexpired");
+            that.eventEmitter.emit("evt_internal_tokenexpired");
         });
     }
 
@@ -675,16 +779,35 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    getContactInformationByLoginEmail(email): Promise<[any]> {
+    getMyInformations() {
         let that = this;
         return new Promise(function (resolve, reject) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/me", that.getRequestHeader(), undefined).then(function (json) {
+                    that.logger.log("debug", LOG_ID + "(getMyInformations) successfull");
+                    that.logger.log("internal", LOG_ID + "(getMyInformations) REST contact received  : ", json.data);
+                    resolve(json.data);
+                }).catch(function (err) {
+                    that.logger.log("error", LOG_ID, "(getMyInformations) error");
+                    that.logger.log("internalerror", LOG_ID, "(getMyInformations) error : ", err);
+                    if (err && err.code === 404) {
+                        resolve(null);
+                    } else {
+                        return reject(err);
+                    }
+                });
+        });
+    }
+
+    getContactInformationByLoginEmail(email): Promise<[any]> {
+        let that = this;
+        return new Promise(async function (resolve, reject) {
             if (!email) {
                 that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) failed");
                 that.logger.log("info", LOG_ID + "(getContactInformationByLoginEmail) No email provided");
                 resolve(null);
             } else {
                 //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
-                that.http.post("/api/rainbow/enduser/v1.0/users/loginEmails", that.getRequestHeader(), {"loginEmail": email}, undefined).then(function (json) {
+                await that.http.post("/api/rainbow/enduser/v1.0/users/loginEmails", that.getRequestHeader(), {"loginEmail": email}, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) REST contact received  : ", json.data);
                     resolve(json.data);
@@ -3150,7 +3273,7 @@ Request Method: PUT
     
     ////////
     //region Conversations
-    getServerConversations(format: String = "small") {
+    getServerConversations(format: string = "small") {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format, that.getRequestHeader(), undefined).then(function (json) {
@@ -5129,7 +5252,7 @@ Request Method: PUT
     }
 
     sendAlertFeedback(alertId : string, data : Object) {
-        // /api/rainbow/notifications/v1.0/notifications
+        // /api/rainbow/notifications/v1.0/feedback
 
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -5141,6 +5264,66 @@ Request Method: PUT
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createAlert) error");
                 that.logger.log("internalerror", LOG_ID, "(createAlert) error", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationHistoryId/feedback
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + notificationHistoryId + "/feedback", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) successfull");
+                that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error");
+                that.logger.log("internalerror", LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAlertFeedbackSentForAnAlert(alertId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationId/feedback
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForAnAlert) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAlertFeedbackSentForAnAlert) successfull");
+                that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForAnAlert) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAlertFeedbackSentForAnAlert) error");
+                that.logger.log("internalerror", LOG_ID, "(getAlertFeedbackSentForAnAlert) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationHistoryId/feedback/stats
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + notificationHistoryId + "/feedback/stats", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) successfull");
+                that.logger.log("internal", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error");
+                that.logger.log("internalerror", LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -5179,6 +5362,26 @@ Request Method: PUT
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getReportDetails) error");
                 that.logger.log("internalerror", LOG_ID, "(getReportDetails) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getReportComplete(alertId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationId/reports/complete
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(getReportComplete) REST params : ", params);
+
+            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/complete", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getReportComplete) successfull");
+                that.logger.log("internal", LOG_ID + "(getReportComplete) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getReportComplete) error");
+                that.logger.log("internalerror", LOG_ID, "(getReportComplete) error : ", err);
                 return reject(err);
             });
         });

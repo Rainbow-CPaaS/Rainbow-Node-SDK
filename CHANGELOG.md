@@ -6,6 +6,26 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.3.0] - 2021-09-XX - STS
+-   Update typescript lib `es2017` to `es2019`
+-   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.
+-   Fix `ConversationsService::_onReceipt` callback to not failed even if the conversation is empty.
+-   Fix pendingMessages treatment between Array and Object methods mixed in ConversationsService.
+-   Add method API `AlertsService::getAlertFeedbackSentForANotificationMessage`. This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id).
+-   Add method API `AlertsService::getAlertFeedbackSentForAnAlert`. This API allows to list the feedback sent by the devices for a given notification. 
+-   Add method API `AlertsService::getAlertStatsFeedbackSentForANotificationMessage`. This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. 
+-   Add method API `AlertsService::getReportComplete`. Allows to get the fileDescriptor storing the detailed CSV report of the notification.  
+-   Add method API `AlertsService::getAlertFeedbackSentForANotificationMessage`.
+-   Add support of oauth tokens provided by application at `start` of the SDK and also the api to set the renewed token `setRenewedToken`.
+-   Fix `alternativeContent` in `Message` object constructor.   
+-   Fix `emails` property in `Contact` object.
+-   Add in `Contact` object properties isActive, accountType, systemId, isInitialized, initializationDate, createdBySelfRegister, createdByAppId, firstLoginDate, lastLoginDate, loggedSince, failedLoginAttempts, lastLoginFailureDate, lastExpiredTokenRenewedDate, lastPasswordUpdateDate, timeToLive, timeToLiveDate, terminatedDate, fileSharingCustomisation, userTitleNameCustomisation, softphoneOnlyCustomisation, useRoomCustomisation, phoneMeetingCustomisation, useChannelCustomisation, useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, instantMessagesCustomisation, userProfileCustomisation, fileStorageCustomisation, overridePresenceCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, recordingConversationCustomisation, useGifCustomisation, useDialOutCustomisation, fileCopyCustomisation, fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics, selectedAppCustomisationTemplate, alertNotificationReception, selectedDeviceFirmware, visibility, jid_password, creationDate, profiles, activationDate, lastOfflineMailReceivedDate, state, authenticationType, department, isADSearchAvailable, isTv, calendars, openInvites.
+-   Add support of `Oauth token` provided at `start` of the SDK. In this use case application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : </br> * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. </br> * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time.
+-   Fix typo in methods `AdminService::retrieveAllSubscribtionsOfCompanyById` to `AdminService::retrieveAllSubscriptionsOfCompanyById` and `AdminService::getSubscribtionsOfCompanyByOfferId` to `AdminService::getSubscriptionsOfCompanyByOfferId`
+-   Update `ContactsService::getContactByLoginEmail` method with a new parameter `forceServerSearch` boolean to force the search of the _contacts informations on the server.
+-   Remove the "Authorization" property from http headers when openning the XMPP socket.
+-   Add `ContactsService::getMyInformations` API to Get informations about the connected user.
+-   Update stop of logger to stop winston library.
 
 ## [2.3.0] - 2021-08-13 - STS
 -   Add event `rainbow_onwebinarupdated` fired when a webinar update event is received.

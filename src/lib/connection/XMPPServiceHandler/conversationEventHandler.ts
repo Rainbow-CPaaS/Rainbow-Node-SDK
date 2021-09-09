@@ -808,7 +808,7 @@ class ConversationEventHandler extends GenericHandler {
                 dataMessage.updateMessage(data);
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", dataMessage);
 
-                that._onMessageReceived(conversationId, dataMessage);
+                await that._onMessageReceived(conversationId, dataMessage);
                 //that._onMessageReceived(conversationId, data);
             } else {
                 that.logger.log("debug", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it.");

@@ -979,7 +979,7 @@ class XMPPService extends GenericService {
 
     }
 
-    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, urgency: string = null) {
+    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, content = null) {
         let that = this;
 //        $log.info("[Conversation] >sendCorrectedChatMessage: origMsgId=" + origMsgId)
 
@@ -1006,6 +1006,15 @@ class XMPPService extends GenericService {
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
+
+            if (content && content.message) {
+                let contentType = content.type || "text/markdown";
+                xmppMessage.append(xml("content", {
+                    "type": contentType,
+                    "xmlns": NameSpacesLabels.ContentNameSpace
+                }, content.message));
+            }
+
         }
         // Handle Room conversation message
         else {
@@ -1017,12 +1026,6 @@ class XMPPService extends GenericService {
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
         }
-
-        // Handle urgency
-        if (urgency && urgency !== 'std') {
-            xmppMessage.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
-        }
-
 
         // message = this.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
         if (!originalMessage) {

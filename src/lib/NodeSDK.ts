@@ -416,7 +416,12 @@ class NodeSDK {
      * @public
      * @method start
      * @instance
-     * @param {String} token a valid token to login without login/password.
+     * @param {String} token a valid token to login without login/password. </br>
+     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : </br>
+     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. </br>
+     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. </br>
+     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. </br>
+     *      It is recommended to renew the token upon the arrival of this event. </br>
      * @description
      *    Start the SDK </br>
      *    Note :</br>
@@ -515,6 +520,20 @@ class NodeSDK {
         });
     }
 
+    /**
+     * @public
+     * @method setRenewedToken
+     * @instance
+     * @description
+     *    Set the token renewed externaly of the SDK. This is for oauth authentication.
+     * @memberof NodeSDK
+     */
+    setRenewedToken(strToken) {
+        let that = this;
+        return that._core.setRenewedToken(strToken);
+    }
+    
+    
     /**
      * @public
      * @method stop
