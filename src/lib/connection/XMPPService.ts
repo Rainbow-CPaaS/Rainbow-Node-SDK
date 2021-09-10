@@ -326,12 +326,13 @@ class XMPPService extends GenericService {
 
     startOrResetIdleTimer(incomingStanza = false) {
         if ((this.pingTimer && !incomingStanza) || (this.reconnect && this.reconnect.isReconnecting)) {
+            this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) canceled with this.pingTimer : ", this.pingTimer, ", incomingStanza : ", incomingStanza, ", this.reconnect.isReconnecting : ", this.reconnect.isReconnecting );
             return;
         }
         this.stopIdleTimer();
         if (!this.forceClose) {
             this.idleTimer = setTimeout(() => {
-                this.logger.log("internal", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
+                this.logger.log("error", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;

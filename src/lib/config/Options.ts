@@ -208,13 +208,15 @@ class Options {
     }
 
     _isOfficialRainbow () {
-        return (this._options.rainbow.host === "official");
+        return (this._options.rainbow.host === "official" || this._options.rainbow.host === "openrainbow.com");
+        //return (this._options.rainbow.host === "official" );
     }
 
     _getHTTPOptions() {
         let httpOptions = config.sandbox.http;
 
         switch (this._options.rainbow.host) {
+            case "openrainbow.com":
             case "official":
                 httpOptions = config.official.http;
                 this._logger.log("debug", LOG_ID + "(constructor) Use REST services on Rainbow Official platform");
@@ -236,6 +238,7 @@ class Options {
         let xmppOptions = config.sandbox.xmpp;
 
         switch (this._options.rainbow.host) {
+            case "openrainbow.com":
             case "official":
                 xmppOptions = config.official.xmpp;
                 this._logger.log("debug", LOG_ID + "(constructor) Use XMPP services on Rainbow Official platform");
@@ -260,6 +263,7 @@ class Options {
         let s2sOptions = config.sandbox.s2s;
 
         switch (this._options.rainbow.host) {
+            case "openrainbow.com":
             case "official":
                 s2sOptions = config.official.s2s;
                 if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }

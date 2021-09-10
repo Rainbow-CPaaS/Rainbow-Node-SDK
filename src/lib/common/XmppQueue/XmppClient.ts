@@ -136,11 +136,13 @@ class XmppClient  {
         //let children = stanza.children;
         let iqId = stanza.attrs.id;
         let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
-        that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, msg, errorMsg);
+        that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, ", msg : ", msg, ", errorMsg : ", errorMsg, ", that.iqGetEventWaiting[iqId] : ", that.iqGetEventWaiting[iqId]);
         // reject and delete the waiting iq.
         if (typeof that.iqGetEventWaiting[iqId] === "function") {
+            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
             that.iqGetEventWaiting[iqId](stanza);
         } else {
+            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived delete iqGetEventWaiting function id : ", iqId);
             delete that.iqGetEventWaiting[iqId];
         }
     };
