@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.3.0] - 2021-09-XX - STS
+## [2.4.0] - 2021-09-10 - STS
 -   Update typescript lib `es2017` to `es2019`
 -   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.
 -   Fix `ConversationsService::_onReceipt` callback to not failed even if the conversation is empty.
