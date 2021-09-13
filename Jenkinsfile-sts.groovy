@@ -30,6 +30,7 @@ pipeline {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
+        booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS version be compiled with internal debug ?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
         booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
         booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK built to npmjs and save the tag/branch to GIT.')
@@ -135,11 +136,23 @@ pipeline {
                     echo ---------- STEP install the library :
                     npm install
                         
-                    echo ---------- STEP grunt : 
-                    echo Sub Step 1 : To compil the sources
-                    grunt 
-                    echo Sub Step 2 : To pepare the sources + doc for package
-                    grunt delivery 
+                    if [ "${DEBUGINTERNAL}" = "true" ]; then
+                         echo "Build sources with Internal DEBUG activated."
+                        echo ---------- STEP grunt : 
+                        echo Sub Step 1 : To compil the sources
+                        grunt debugDeliveryBuild 
+                        echo Sub Step 2 : To pepare the sources + doc for package
+                        grunt debugDeliveryDelivery 
+                    else
+                        echo "Build sources with Internal DEBUG removed."
+                        echo ---------- STEP grunt : 
+                        echo Sub Step 1 : To compil the sources
+                        grunt 
+                        echo Sub Step 2 : To pepare the sources + doc for package
+                        grunt delivery 
+                    fi
+                        
+                        
                         
                     #echo ---------- STEP commit : 
                     git reset --hard origin/${env.BRANCH_NAME}

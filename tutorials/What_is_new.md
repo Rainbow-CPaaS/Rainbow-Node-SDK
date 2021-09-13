@@ -43,6 +43,8 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Remove the "Authorization" property from http headers when openning the XMPP socket.
 -   Add `ContactsService::getMyInformations` API to Get informations about the connected user.
 -   Update stop of logger to stop winston library.
+-   Fix the XMPPService (handleXMPPConnection) when ERROR_EVENT happenned to stop the ping timer only when the error is a fatal one.
+-   Change to keep DEBUG with "logs.system-dev.*" in STS delivery. Do not forget that when properties of this section are setted then personnal datas are displayed in logs, so it is not RGPD compatible.is Do not activate it in production systems.  
 
 
 ### SDK for Node.JS 2.2.0 - STS Version - June 2021

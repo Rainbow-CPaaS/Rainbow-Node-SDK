@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.4.0] - 2021-09-10 - STS
+## [2.4.0] - 2021-09-13 - STS
 -   Update typescript lib `es2017` to `es2019`
 -   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.
 -   Fix `ConversationsService::_onReceipt` callback to not failed even if the conversation is empty.
@@ -26,6 +26,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Remove the "Authorization" property from http headers when openning the XMPP socket.
 -   Add `ContactsService::getMyInformations` API to Get informations about the connected user.
 -   Update stop of logger to stop winston library.
+-   Fix the XMPPService (handleXMPPConnection) when ERROR_EVENT happenned to stop the ping timer only when the error is a fatal one.
+-   Change to keep DEBUG with "logs.system-dev.*" in STS delivery. Do not forget that when properties of this section are setted then personnal datas are displayed in logs, so it is not RGPD compatible.is Do not activate it in production systems.  
 
 ## [2.3.0] - 2021-08-13 - STS
 -   Add event `rainbow_onwebinarupdated` fired when a webinar update event is received.

@@ -331,19 +331,24 @@ class XMPPService extends GenericService {
         }
         this.stopIdleTimer();
         if (!this.forceClose) {
+            this.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose not setted so start setTimeout of ping Timer.");
             this.idleTimer = setTimeout(() => {
                 this.logger.log("error", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;
+                    this.logger.log("error", LOG_ID + "(startOrResetIdleTimer) forceClose not setted pindTimer ellapsed and MAX_PING_ANSWER_TIMER happenned, so this.xmppClient.socket.end().");
                     this.xmppClient.socket && this.xmppClient.socket.end();
                 }, MAX_PING_ANSWER_TIMER);
                 this.sendPing();
             }, MAX_IDLE_TIMER);
+        } else {
+            this.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose setted so do not send ping.");
         }
     }
 
     stopIdleTimer() {
+        this.logger.log("debug", LOG_ID + "(stopIdleTimer).");
         if (this.idleTimer) {
             clearTimeout(this.idleTimer);
             this.idleTimer = null;
@@ -539,7 +544,6 @@ class XMPPService extends GenericService {
             }
             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
             //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
-            that.stopIdleTimer();
             if (that.reconnect && err) {
                 // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
                 switch (err.condition) {
@@ -549,6 +553,7 @@ class XMPPService extends GenericService {
                     case "resource-constraint":
                     case "connection-timeout":
                     case "system-shutdown":
+                        that.stopIdleTimer();
                         let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
                         that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
                         await setTimeoutPromised(waitime);
@@ -587,6 +592,7 @@ class XMPPService extends GenericService {
                         that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                     case "conflict":
                     case "unsupported-version":
+                        that.stopIdleTimer();
                         that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                         that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
                         break;
@@ -597,6 +603,7 @@ class XMPPService extends GenericService {
                         break;
                 }
             } else {
+                that.stopIdleTimer();
                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
             }
         });
