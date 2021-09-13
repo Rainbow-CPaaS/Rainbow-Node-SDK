@@ -137,6 +137,9 @@ pipeline {
                     
                     echo ---------- STEP install the library :
                     npm install
+                    
+                    ls 
+                    ls ./src/**/*
                         
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
