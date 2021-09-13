@@ -143,14 +143,14 @@ pipeline {
                         echo ---------- STEP grunt : 
                         echo Sub Step 1 : To compil the sources
                         grunt debugDeliveryBuild 
-                        echo Sub Step 2 : To pepare the sources + doc for package
+                        echo Sub Step 2 : To prepare the sources + doc for package
                         grunt debugDeliveryDelivery 
                     else
                         echo "Build sources with Internal DEBUG removed."
                         echo ---------- STEP grunt : 
                         echo Sub Step 1 : To compil the sources
                         grunt 
-                        echo Sub Step 2 : To pepare the sources + doc for package
+                        echo Sub Step 2 : To prepare the sources + doc for package
                         grunt delivery 
                     fi
                         
