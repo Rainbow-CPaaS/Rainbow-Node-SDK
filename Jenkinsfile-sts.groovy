@@ -133,6 +133,8 @@ pipeline {
                     sudo npm install n -g
                     sudo n stable
                         
+                    cd ${WORKSPACE}
+                    
                     echo ---------- STEP install the library :
                     npm install
                         
