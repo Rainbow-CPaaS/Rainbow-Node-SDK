@@ -144,10 +144,11 @@ pipeline {
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
-                        echo Sub Step 1 : To compil the sources
-                        grunt debugDeliveryBuild --verbose
-                        echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt debugDeliveryDelivery --verbose
+                        grunt ts --verbose
+                        #echo Sub Step 1 : To compil the sources
+                        #grunt debugDeliveryBuild --verbose
+                        #echo Sub Step 2 : To prepare the sources + doc for package
+                        #grunt debugDeliveryDelivery --verbose
                     else
                         echo "Build sources with Internal DEBUG removed."
                         echo ---------- STEP grunt : 
