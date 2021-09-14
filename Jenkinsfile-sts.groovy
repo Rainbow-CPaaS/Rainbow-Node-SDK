@@ -129,7 +129,7 @@ pipeline {
                     echo "registry=http://registry.npmjs.org/
                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                         
-                    #sudo npm install npm -g
+                    sudo npm install npm -g
                     sudo npm install n -g
                     sudo n stable
                         
