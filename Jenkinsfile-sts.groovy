@@ -144,7 +144,8 @@ pipeline {
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
-                        grunt ts --verbose
+                        #grunt ts --verbose
+                        grunt dtsGenerator --verbose
                         #echo Sub Step 1 : To compil the sources
                         #grunt debugDeliveryBuild --verbose
                         #echo Sub Step 2 : To prepare the sources + doc for package
