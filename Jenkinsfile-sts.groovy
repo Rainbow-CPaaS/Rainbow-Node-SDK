@@ -140,7 +140,6 @@ pipeline {
                     
                     ls 
                     ls ./src/**/*
-                    mkdir typings
                         
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
