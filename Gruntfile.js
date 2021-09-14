@@ -236,7 +236,7 @@ module.exports = function(grunt) {
     dtsGenerator: {
         options: {
             "project": "./",
-            "baseDir": "./",
+            // "baseDir": "./",
             "out": "./typings/rainbow-node-sdk.d.ts"
         },
         "default": {
