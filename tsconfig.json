@@ -52,6 +52,6 @@
     "./typings/**/*"
   ],
   "include": [
-    "./src/**/*", "!./src/**/*.d.ts"
+    "./src/**/*.ts", "!./src/**/*.d.ts"
   ]
 }
