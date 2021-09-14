@@ -241,7 +241,7 @@ module.exports = function(grunt) {
             "out": "./typings/rainbow-node-sdk.d.ts"
         },
         "default": {
-            src: [ "src/**/*.ts" ]
+            src: [ "**/*.ts" ]
             }
     }
       
