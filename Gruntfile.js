@@ -217,31 +217,31 @@ module.exports = function(grunt) {
             cmd: "node sitemap_generation.js"
         }
     },
-    ts: {
+    "ts": {
         /*"default": {
             options: {
                 verbose: true
             }
         }, */
-        options: {
+        "options": {
             // disable the grunt-ts fast feature
-            fast: 'never',
-            verbose: true
+            "fast": 'never',
+            "verbose": true
         },
-        build: {
-            src: ["src/**/*.ts", "!node_modules/**"],
-            tsconfig: true
+        "build": {
+            "src": ["src/**/*.ts", "!node_modules/**"],
+            "tsconfig": true
         }
       },
     dtsGenerator: {
-        options: {
+        "options": {
             "project": "./",
             // "baseDir": "./",
-            files: ["./src/**/*.ts", "**/*"],
+            "files": ["./src/**/*.ts", "**/*"],
             "out": "./typings/rainbow-node-sdk.d.ts"
         },
         "default": {
-            src: [ "**/*", "./src/**/*.ts" ]
+            "src": [ "**/*", "./src/**/*.ts" ]
             }
     }
       
