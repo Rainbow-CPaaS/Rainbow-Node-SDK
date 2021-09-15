@@ -24,7 +24,7 @@
     "outDir": "./",
     "lib": [
       "es6",
-      "es2019"
+      "es2017"
     ],
     //, "dom"
     "moduleResolution": "Node"
