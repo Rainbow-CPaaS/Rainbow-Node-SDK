@@ -237,12 +237,12 @@ module.exports = function(grunt) {
         "options": {
             "project": "./",
             // "baseDir": "./",
-            "files": ["./src/**/*.ts", "**/*"],
+            //"files": ["./src/**/*.ts", "**/*"],
             "out": "./typings/rainbow-node-sdk.d.ts"
         },
-        "default": {
-            "src": [ "**/*", "./src/**/*.ts" ]
-            }
+        //"default": {
+        //    "src": [ "**/*", "./src/**/*.ts" ]
+        //    }
     }
       
 });
