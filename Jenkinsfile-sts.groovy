@@ -129,7 +129,7 @@ pipeline {
                     echo "registry=http://registry.npmjs.org/
                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                         
-                    sudo npm install npm -g
+                    #sudo npm install npm -g
                     sudo npm install n -g
                     sudo n stable
                         
@@ -144,12 +144,15 @@ pipeline {
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
+                        
+                        # test of grunt specifics tasks : 
                         #grunt ts --verbose
-                        grunt dtsGenerator --verbose
+                        #grunt dtsGenerator --verbose
+                        
                         #echo Sub Step 1 : To compil the sources
-                        #grunt debugDeliveryBuild --verbose
+                        grunt debugDeliveryBuild --verbose
                         #echo Sub Step 2 : To prepare the sources + doc for package
-                        #grunt debugDeliveryDelivery --verbose
+                        grunt debugDeliveryDelivery --verbose
                     else
                         echo "Build sources with Internal DEBUG removed."
                         echo ---------- STEP grunt : 
