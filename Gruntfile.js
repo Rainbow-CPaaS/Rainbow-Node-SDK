@@ -238,8 +238,8 @@ module.exports = function(grunt) {
             //"name": "rainbow-node-sdk",
             //"main": "rainbow-node-sdk",
             "project": "./",
-            "include": [ "./src/**/*.ts" ],
-            // "baseDir": "./",
+            //"include": [ "./src/**/*.ts" ],
+            "baseDir": "./",
             //"files": ["./src/**/*.ts", "**/*"],
             "out": "./typings/rainbow-node-sdk.d.ts",
             "verbose": true

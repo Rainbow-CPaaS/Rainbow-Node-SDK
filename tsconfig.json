@@ -27,8 +27,10 @@
       "es2019"
     ],
     //, "dom"
-    "moduleResolution": "Node"
-    //"checkJs": true
+    "moduleResolution": "Node",
+    //"checkJs": true,
+    "explainFiles": true,
+    "diagnostics": true
   },
   "buildOnSave": true,
   "compileOnSave": true,
@@ -52,8 +54,8 @@
     "./typings/**/*"
   ],
   "include": [
-    "./src/**/*.ts",
     "**/*",
+    "./src/**/*.ts",
     // "!**/*.d.ts",
     "./**/*.ts",
     "./node_modules/typescript/lib/typescript.d.ts",
