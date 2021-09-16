@@ -54,10 +54,9 @@
     "./typings/**/*"
   ],
   "include": [
-    "**/*",
     "./src/**/*.ts",
     // "!**/*.d.ts",
-    "./**/*.ts",
+    //"./**/*.ts",
     "./node_modules/typescript/lib/typescript.d.ts",
     "./node_modules/typescript/lib/typescript.ts"
   ]

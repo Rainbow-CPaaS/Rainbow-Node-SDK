@@ -245,8 +245,8 @@ module.exports = function(grunt) {
             "verbose": true
         },
         "default": {
-            //"src": [ "./src/**/*.ts" ]
-            }
+            "src": [ "./src/**/*.ts" ]
+        }
     }
       
 });
