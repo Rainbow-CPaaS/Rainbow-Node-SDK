@@ -3,6 +3,7 @@
   "version": "2.4.0",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "mocha --reporter spec",
     "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha",
@@ -40,6 +41,7 @@
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "types": "./index.d.ts",
   "devDependencies": {
+    "@tsconfig/node14": "^1.0.1",
     "@types/node": "^16.9.1",
     "chai": "^4.3.4",
     "commander": "^8.2.0",

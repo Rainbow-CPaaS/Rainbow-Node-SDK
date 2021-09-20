@@ -1909,7 +1909,7 @@ class ConversationsService extends GenericService {
                             that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                                 // TODO ? that.linkAllActiveCallsToConversations();
                             });
-                        }, 10000, 1, true);
+                        }, 10000);//, 1, true);
 
                         resolve(undefined);
                     });
