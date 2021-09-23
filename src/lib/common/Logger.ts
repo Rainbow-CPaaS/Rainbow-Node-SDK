@@ -9,10 +9,17 @@ const DailyRotateFile = require('winston-daily-rotate-file');
 const fs = require("fs");
 const colors = require("colors/safe");
 const util = require("util");
-const stripAnsi = require('strip-ansi');
+//const stripAnsi = require('strip-ansi');
+//import stripAnsi from 'strip-ansi';
+let stripAnsi;
+(async () => {
+    //import {stripAnsi} from 'strip-ansi';
+    stripAnsi = await import('strip-ansi');
+})();
 
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
+import {from} from "rxjs";
 
 const LOG_ID = "LOGS - ";
 

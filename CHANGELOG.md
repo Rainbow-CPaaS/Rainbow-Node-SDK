@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.5.0] - 2021-09-13 - STS
+-   Fix import of strip-ansi which is now a node module and not a commonjs anymore.
+
 ## [2.4.0] - 2021-09-13 - STS
 -   Update typescript lib `es2017` to `es2019`
 -   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.

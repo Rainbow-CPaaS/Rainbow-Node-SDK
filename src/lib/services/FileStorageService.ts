@@ -497,7 +497,7 @@ class FileStorage extends GenericService{
      *    Return a promise <br/>
      * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    downloadFile(fileDescriptor, path: string) {
+    downloadFile(fileDescriptor, path: string = null) {
         let that = this;
         return new Promise(function(resolve, reject) {
 

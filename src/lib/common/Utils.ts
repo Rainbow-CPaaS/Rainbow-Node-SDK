@@ -510,3 +510,28 @@ export {
     addParamToUrl,
     cleanEmptyMembersFromObject
 };
+
+export default {
+    makeId,
+    createPassword,
+    isAdmin,
+    anonymizePhoneNumber,
+    equalIgnoreCase,
+    isNullOrEmpty,
+    Deferred,
+    isSuperAdmin,
+    setTimeoutPromised,
+    until,
+    orderByFilter,
+    isStart_upService,
+    isStarted,
+    logEntryExit,
+    resizeImage,
+    getBinaryData,
+    getRandomInt,
+    pause,
+    stackTrace,
+    addDaysToDate,
+    addParamToUrl,
+    cleanEmptyMembersFromObject
+};

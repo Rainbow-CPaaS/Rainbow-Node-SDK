@@ -181,7 +181,7 @@ class Bubbles extends GenericService {
      * @fulfil {Bubble} - Bubble object, else an ErrorManager object
      * @category async
      */
-    async createBubble(name, description, withHistory) {
+    async createBubble(name, description, withHistory = false) {
 
         let that = this;
 
@@ -670,7 +670,7 @@ class Bubbles extends GenericService {
      * @fulfil {Bubble} - The bubble updated with the new invitation
      * @category async
      */
-    inviteContactToBubble(contact, bubble, isModerator, withInvitation, reason) {
+    inviteContactToBubble(contact, bubble, isModerator, withInvitation, reason = null) {
         let that = this;
 
         return new Promise(function (resolve, reject) {

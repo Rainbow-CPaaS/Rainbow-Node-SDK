@@ -516,4 +516,5 @@ class Bubble {
 
 
 export {Bubble};
+export default {Bubble};
 module.exports = {Bubble};

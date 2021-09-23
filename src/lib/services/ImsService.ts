@@ -571,7 +571,7 @@ class IMService extends GenericService{
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      * @category async
      */
-    async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions, urgency: string = null) {
+    async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions = null, urgency: string = null) {
         let that = this;
         if (!lang) {
             lang = "en";

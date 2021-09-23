@@ -3,7 +3,7 @@
   "version": "2.4.0",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "mocha --reporter spec",
     "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha",

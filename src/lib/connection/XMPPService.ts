@@ -331,9 +331,9 @@ class XMPPService extends GenericService {
         }
         this.stopIdleTimer();
         if (!this.forceClose) {
-            this.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose not setted so start setTimeout of ping Timer.");
+            this.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of ping Timer.");
             this.idleTimer = setTimeout(() => {
-                this.logger.log("error", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
+                this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;
@@ -1794,7 +1794,7 @@ class XMPPService extends GenericService {
                 "id": id
             }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
-            this.logger.log("internal", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
+            this.logger.log("debug", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
             return this.xmppClient.send(stanza).catch((error) => {
                 this.logger.log("error", LOG_ID + "(sendPing) error ");
                 this.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
