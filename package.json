@@ -112,7 +112,7 @@
     "sasl-digest-md5": "^0.1.0",
     "semver": "^7.3.5",
     "stream-buffers": "^3.0.2",
-    "strip-ansi": "^7.0.1",
+    "strip-ansi": "6.0.0",
     "strophe": "^1.2.4",
     "ts-generic-collections-linq": "1.0.7",
     "uuid": "^8.3.2",
