@@ -387,13 +387,14 @@ class Options {
             sendMessageToConnectedUser: false,
             conversationsRetrievedFormat: "small",
             storeMessages: false,
-            copyMessage: false,
+            copyMessage: true,
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialBubblePresence: true,
             autoLoadConversations: true,
-            autoLoadContacts: true
+            autoLoadContacts: true,
+            enableCarbon: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -404,16 +405,17 @@ class Options {
         }
 
         optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
-        optionsIM.sendMessageToConnectedUser = this._options.im.sendMessageToConnectedUser ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
+        optionsIM.sendMessageToConnectedUser = (this._options.im.sendMessageToConnectedUser == false) ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
         optionsIM.conversationsRetrievedFormat = this._options.im.conversationsRetrievedFormat ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
         optionsIM.storeMessages = this._options.im.storeMessages ? this._options.im.storeMessages : config.im.storeMessages;
-        optionsIM.copyMessage = this._options.im.copyMessage ? this._options.im.copyMessage : config.im.copyMessage;
+        optionsIM.copyMessage = (this._options.im.copyMessage == false) ? this._options.im.copyMessage : config.im.copyMessage;
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
         optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
 
         return optionsIM;
     }

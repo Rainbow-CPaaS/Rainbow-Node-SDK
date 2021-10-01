@@ -40,7 +40,7 @@ const LOG_ID = "IM/SVCE - ";
 class IMService extends GenericService{
     private _conversations: ConversationsService;
     private _pendingMessages: any;
-    private _bulles: any;
+    private _bulles: BubblesService;
     private _imOptions: any;
     private _fileStorage: any;
     private _presence: PresenceService;
@@ -104,13 +104,21 @@ class IMService extends GenericService{
         });
     }
 
-    async init () {
+    async init (enableCarbonBool) {
         let that = this;
-        that.enableCarbon().then((result) => {
-            that.setInitialized();
-        }).catch(()=> {
-            //that.setInitialized();
-        });
+        if (enableCarbonBool) {
+            that.enableCarbon().then((result) => {
+                that.setInitialized();
+            }).catch(() => {
+                //that.setInitialized();
+            });
+        } else {
+            that.disableCarbon().then((result) => {
+                that.setInitialized();
+            }).catch(() => {
+                //that.setInitialized();
+            });
+        }
     }
 
     /**
@@ -842,7 +850,37 @@ class IMService extends GenericService{
                     that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
                     resolve(undefined);
                 });
-                that._xmpp.enableCarbon();
+                return that._xmpp.enableCarbon();
+            } else
+            if (this._useS2S){
+                resolve(undefined);
+            } else {
+                resolve(undefined);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @method disableCarbon
+     * @instance
+     * @description
+     *      Disable message carbon XEP-0280 <br/>
+     * @async
+     * @return {Promise}
+     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
+     * @category async
+     */
+    disableCarbon() {
+        let that = this;
+        return new Promise((resolve) => {
+            if (this._useXMPP) {
+                that._eventEmitter.once("rainbow_oncarbondisabled", function fn_oncarbondesactivated() {
+                    that._logger.log("info", LOG_ID + "(disableCarbon) XEP-280 Message Carbon desactivated");
+                    that._eventEmitter.removeListener("rainbow_oncarbondisabled", fn_oncarbondesactivated);
+                    resolve(undefined);
+                });
+                return that._xmpp.disableCarbon();
             } else
             if (this._useS2S){
                 resolve(undefined);

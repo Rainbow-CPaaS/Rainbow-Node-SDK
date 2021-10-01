@@ -4404,11 +4404,26 @@ getAllActiveBubbles
      * @instance
      * @async
      * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
-     * @return {Promise<Bubble>}  return a promise with a list of  {Bubble} filtered by tags or null
+     * @param {string} format Allows to retrieve more or less room details in response. </br> 
+     * small: id, name, jid, isActive </br>
+     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation </br>
+     * full: all room fields </br>
+     * If full format is used, the list of users returned is truncated to 100 active users by default. </br>
+     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. </br>
+     * Default value : small </br>
+     * Authorized value : small, medium, full </br>
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). </br>
+     * If value is set to -1, all active bubble members are returned. </br>
+     * Only usable if requested format is full (otherwise users field is not returned) </br>
+     * Default value : 100 </br>
+     * @return {Promise<{rooms, roomDetails}>}  return a promise with a list of  {rooms : List of rooms having the searched tag, roomDetails : List of rooms detail data according with format and nbUsersToKeep choices} filtered by tags or null
      * @description
      *  Get a list of {Bubble} filtered by tags. <br/>
      */
-    retrieveAllBubblesByTags(tags: Array<string>): Promise<any> {
+    retrieveAllBubblesByTags(tags: Array<string>, format : string = "small", nbUsersToKeep : number = 100): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bubble tags  " + tags);
@@ -4418,7 +4433,7 @@ getAllActiveBubbles
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            return that._rest.retrieveAllBubblesByTags(tags).then(async (result) => {
+            return that._rest.retrieveAllBubblesByTags(tags, format, nbUsersToKeep).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) result from server : ", result);
 
                 if (result) {

@@ -406,7 +406,7 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore);
+        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore, this.copyMessage);
 
         //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
         that.reconnect = this.xmppClient.reconnect;
@@ -793,6 +793,8 @@ class XMPPService extends GenericService {
         }
     }
 
+    //region Carbon
+    
     //Message Carbon XEP-0280
     enableCarbon() {
         let that = this;
@@ -815,6 +817,30 @@ class XMPPService extends GenericService {
         that.logger.log("warn", LOG_ID + "(enableCarbon) No XMPP connection...");
         return Promise.resolve(null);
     }
+
+    disableCarbon() {
+        let that = this;
+        if (this.useXMPP) {
+            let stanza = xml("iq", {
+                "type": "set",
+                id: "disable_xmpp_carbon"
+            }, xml("disable", {xmlns: NameSpacesLabels.Carbon2NameSpace}));
+            this.logger.log("internal", LOG_ID + "(disable) send - 'stanza'", stanza.toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanza).then(() => {
+                    that.logger.log("debug", LOG_ID + "(disable) sent");
+                    resolve(undefined);
+                }).catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+        that.logger.log("warn", LOG_ID + "(disableCarbon) No XMPP connection...");
+        return Promise.resolve(null);
+    }
+
+    //endregion Carbon
 
     sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
@@ -843,6 +869,12 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             let answeredMsgId = null;
             let answeredMsgDate = null;
@@ -914,6 +946,12 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             if (subject) {
                 stanza.append(xml("subject", {
@@ -1015,6 +1053,12 @@ class XMPPService extends GenericService {
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
 
+            if (that.copyMessage == false) {
+                xmppMessage.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
             if (content && content.message) {
                 let contentType = content.type || "text/markdown";
                 xmppMessage.append(xml("content", {
@@ -1033,6 +1077,11 @@ class XMPPService extends GenericService {
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
+            if (that.copyMessage == false) {
+                xmppMessage.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
         }
 
         // message = this.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
@@ -1080,6 +1129,12 @@ class XMPPService extends GenericService {
                 "entity": "client",
                 "id": message.id
             }));
+
+            if (that.copyMessage == false) {
+                stanzaRead.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             this.logger.log("internal", LOG_ID + "(markMessageAsRead) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
@@ -1179,6 +1234,12 @@ class XMPPService extends GenericService {
                 "id": message.id
             }));
 
+            if (that.copyMessage == false) {
+                stanzaRead.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
             this.logger.log("internal", LOG_ID + "(markMessageAsReceived) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
@@ -1237,6 +1298,12 @@ class XMPPService extends GenericService {
                 })
             );
 
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+            
             that.logger.log("internal", LOG_ID + "(sendChatExistingFSMessage) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
                 that
@@ -1295,6 +1362,12 @@ class XMPPService extends GenericService {
                 })
             );
 
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
             that.logger.log("internal", LOG_ID + "(sendChatExistingFSMessageToBubble) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
@@ -1335,6 +1408,12 @@ class XMPPService extends GenericService {
             }, xml(state, {
                 "xmlns": NameSpacesLabels.ChatestatesNameSpace
             }));
+
+            if (that.copyMessage == false) {
+                stanzaRead.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             this.logger.log("internal", LOG_ID + "(sendIsTypingState) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
@@ -1605,6 +1684,12 @@ class XMPPService extends GenericService {
             "id": that.xmppUtils.getUniqueMessageId()
         });
 
+        if (that.copyMessage == false) {
+            message.append(xml("no-copy", {
+                "xmlns": NameSpacesLabels.HintsNameSpace
+            }));
+        }
+
         let msg = message.append(xml("read", {xmlns: NameSpacesLabels.CallLogAckNamespace, call_id: id}));
 
         return await this.xmppClient.sendIq(msg);
@@ -1625,6 +1710,12 @@ class XMPPService extends GenericService {
                     "to": that.jid_im,
                     "id": that.xmppUtils.getUniqueMessageId()
                 });
+
+                if (that.copyMessage == false) {
+                    message.append(xml("no-copy", {
+                        "xmlns": NameSpacesLabels.HintsNameSpace
+                    }));
+                }
 
                 let msg = message.append(xml("read", {
                     "xmlns": NameSpacesLabels.CallLogAckNamespace,
@@ -1836,6 +1927,12 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            if (that.copyMessage == false) {
+                root.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             // let root = imMessage.Data;
 

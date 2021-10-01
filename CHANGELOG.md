@@ -8,6 +8,15 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.5.0] - 2021-09-13 - STS
 -   Fix import of strip-ansi which is now a node module and not a commonjs anymore.
+-   Fix `BubblesService::retrieveAllBubblesByTags` when multiple tags are passed in parameter.
+-   Update `BubblesService::retrieveAllBubblesByTags` with `format` and `nbUsersToKeep` parameters to define the retrieve more or less room details in response.
+-   Add Management of "Client Version" : `AdminService::createAClientVersion` `AdminService::deleteAClientVersion` `AdminService::getAClientVersionData` `AdminService::getAllClientsVersions` `AdminService::updateAClientVersion`. These api are used to manage the minimal required version for a given client application (by AppID).
+-   Add methods in RESTService to deal with Rainbow Voice system (not yet available on API).
+-   Add property in options passed to SDK : {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
+-   Add property in options passed to SDK : {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
+-   Add "x-rainbow-client" "x-rainbow-client-version" properties in Headers of every requests to make stats.
+-   Fix `AdminService::getCSVTemplate` method.
+
 
 ## [2.4.0] - 2021-09-13 - STS
 -   Update typescript lib `es2017` to `es2019`
@@ -526,7 +535,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
     * Errors which need a reconnection
     * Errors which need to only raise an event to inform up layer. => Add an event `rainbow_onxmpperror` to inform about issue.
     * Errors which are fatal errors and then need to stop the SDK. => Already existing events `rainbow_onerror` + `rainbow_onstop`.
--   Work done on private method BubblesServices::joinConference (Not finish, so not available).
+-   Work done on private method BubblesService::joinConference (Not finish, so not available).
 -   Update Bubble::users property ordered by additionDate.
 -   Fix ordered calllogs (`orderByNameCallLogsBruts`, `orderByDateCallLogsBruts`).
 

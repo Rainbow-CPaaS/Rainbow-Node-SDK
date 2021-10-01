@@ -175,7 +175,8 @@ let options : any = {
         "autoLoadConversations": true,
         // "autoInitialBubblePresence": false,
         // "autoLoadConversations": false,
-        "autoLoadContacts": true
+        "autoLoadContacts": true,
+        "enableCarbon": true
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -2691,17 +2692,18 @@ async function  testcheckPortalHealth() {
     }
 
 
-function testretrieveAllBubblesByTags() {
-    //let tags = [{tag: "Essai1DeTag"}];
-    let tags = ["Essai1DeTag"];
-    rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
-        if (bubbles) {
-            logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: bubbles : ", bubbles);
-        }
-    }).catch((err) => {
-        logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
-    });
-}
+    function testretrieveAllBubblesByTags() {
+        //let tags = [{tag: "Essai1DeTag"}];
+        let tags = ["Essai1DeTag", "tagess2"];
+        //let tags = ["Essai1DeTag"];
+        rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
+            if (bubbles) {
+                logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: bubbles : ", bubbles);
+            }
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
+        });
+    }
 
     function testCreateBubblesAndSetTagsAndDeleteTags() {
         let utc = new Date().toJSON().replace(/-/g, "/");
@@ -3078,6 +3080,17 @@ async function testcreateAlert() {
         logger.log("debug", "MAIN - testImportDirectoryCsvFile - result : ", result);
     }
 
+    function testgetCSVTemplate() {
+    // to use with bp-admin@pqa.test.openrainbow.net user on NET platform.
+        rainbowSDK.admin.getCSVTemplate("5f75a07c1db9464d67e3245e", "user", "test").then((res) => {
+            if (res) {
+                logger.log("debug", "MAIN - [testgetCSVTemplate    ] :: res : ", res);
+            }
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testgetCSVTemplate    ] :: error : ", err);
+        });
+    }
+
     //endregion
     
     //region Conference V2
@@ -3211,6 +3224,35 @@ async function testcreateAlert() {
     }
     
     //endregion Webinar
+
+    //region Clients Versions
+
+    async function testgetAllClientsVersions () {
+        let that = this;
+        let res = await rainbowSDK.admin.getAllClientsVersions(null, null);
+        logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+    }
+       async function testgetAllClientsVersionsBot () {
+        let that = this;
+        let res = await rainbowSDK.admin.getAllClientsVersions(null, "bot");
+        logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+    }
+    
+    async function testcreateAClientVersion () {
+        let that = this;
+        //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
+        let res = await rainbowSDK.admin.createAClientVersion(undefined, "2.5.0");
+        logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+    }
+    
+    async function testdeleteAClientVersion () {
+        let that = this;
+        //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
+        let res = await rainbowSDK.admin.deleteAClientVersion(options.application.appID);
+        logger.log("debug", "MAIN - testdeleteAClientVersion, res : ", res);
+    }
+
+    //endregion Clients Versions
     
 function commandLineInteraction() {
     let questions = [

@@ -6,7 +6,7 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
-import {Deferred, isStarted, logEntryExit} from "../common/Utils";
+import {addParamToUrl, Deferred, isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
@@ -5159,6 +5159,204 @@ class Admin extends GenericService {
     
     //endregion directory tags
     //endregion Rainbow Company Directory portal
+
+    //region Clients Versions
+
+    /**
+     * @public
+     * @method createAClientVersion
+     * @since 2.5.0
+     * @instance
+     * @param {string} id Unique identifier of the application to which the client version refer. Default value is the AppId provided to login the SDK.
+     * @param {string} version App version
+     * @async
+     * @description
+     *      This API can be used to define the minimal required version for a given client application.<br/>
+     *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br/>
+     *      In that case, the client application can show an error message to the user requesting him to update his application.<br/>
+     *      To be noted that the application must provide the header x-rainbow-client-version with its current version so that this check can be performed.<br/>
+     *      Users with superadmin role can define the minimal required version for any client applications.<br/>
+     * @return {Promise<any>}
+     */
+    createAClientVersion (id : string, version: string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (version == null) {
+                    that._logger.log("warn", LOG_ID + "(createAClientVersion) bad or empty 'version' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(createAClientVersion) bad or empty 'version' parameter : ", version);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                
+                if (!id) {
+                    id = that._options._applicationOptions.appID;
+                }
+
+                that._rest.createAClientVersion(id, version).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createAClientVersion) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createAClientVersion) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createAClientVersion) ErrorManager error : ", err, ', id : ', id);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createAClientVersion) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(createAClientVersion) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAClientVersion
+     * @since 2.5.0
+     * @instance
+     * @param {string} clientId Application unique identifier to which the client version refer
+     * @async
+     * @description
+     *      This API can be used to delete the minimal required version defined for a given client application.<br/>
+     *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br/>
+     *      Users with superadmin role can delete the minimal required version for any client applications.<br/>
+     * @return {Promise<any>}
+     */
+    deleteAClientVersion (clientId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deleteAClientVersion(clientId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteAClientVersion) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteAClientVersion) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteAClientVersion) ErrorManager error : ", err, ', clientId : ', clientId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteAClientVersion) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteAClientVersion) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAClientVersionData
+     * @since 2.5.0
+     * @instance
+     * @param {string} clientId Application unique identifier to which the client version refer
+     * @async
+     * @description
+     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
+     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+     * @return {Promise<any>}
+     */
+    getAClientVersionData (clientId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAClientVersionData(clientId ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getAClientVersionData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getAClientVersionData) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAClientVersionData) ErrorManager error : ", err, ', clientId : ', clientId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAClientVersionData) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getAClientVersionData) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllClientsVersions
+     * @since 2.5.0
+     * @instance
+     * @async
+     * @param {string} name Allows to filter clients versions list on field name.
+     * @param {string} typeClient Allows to filter clients versions list on field type.
+     * @param {number} limit Allow to specify the number of clients versions to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first client version to retrieve (first client version if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort clients versions list based on the given field. Default value : "name"
+     * @param {number} sortOrder Specify order when sorting clients versions list. Default value : 1. Authorized values : -1, 1.
+     * @description
+     *      This API can be used to get the minimal required versions defined for the client applications.<br/>
+     *      Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+     * @return {Promise<any>}
+     */
+    getAllClientsVersions (name? : string, typeClient? : string, limit :number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAllClientsVersions(name, typeClient, limit, offset, sortField, sortOrder ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getAllClientsVersions) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getAllClientsVersions) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllClientsVersions) ErrorManager error : ", err, ', name : ', name);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAllClientsVersions) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getAllClientsVersions) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateAClientVersion
+     * @since 2.5.0
+     * @instance
+     * @param {string} clientId Application unique identifier to which the client version refer
+     * @param {string} version App version
+     * @async
+     * @description
+     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
+     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+     * @return {Promise<any>}
+     */
+    updateAClientVersion (clientId : string, version   : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.updateAClientVersion(clientId, version).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updateAClientVersion) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updateAClientVersion) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateAClientVersion) ErrorManager error : ", err, ', clientId : ', clientId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateAClientVersion) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(updateAClientVersion) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+
+    //endregion Clients Versions
     
 }
 

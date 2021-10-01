@@ -4585,7 +4585,7 @@ Request Method: PUT
     //endregion
 
     //region Bubbles Tags
-    retrieveAllBubblesByTags(tags: Array<string>) {
+    retrieveAllBubblesByTags(tags: Array<string>, format : string = "small", nbUsersToKeep : number = 100) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) REST companyId : ", tags);
@@ -4604,10 +4604,18 @@ Request Method: PUT
             }
             if (nbTags > 1) {
                 for (let id = 0; id <nbTags ; id++ ) {
-                    tagParams += "tag" + id + "=" + encodeURI(tags[id]) + "+";
+                    tagParams += "tag" + "=" + encodeURI(tags[id]) + "&";
                 }
             }
 
+            if (format) {
+                tagParams += "format" + "=" + encodeURI(format) + "&";
+            }
+            
+            if (format) {
+                tagParams += "nbUsersToKeep" + "=" + nbUsersToKeep + "&";
+            }
+            
             that.http.get("/api/rainbow/enduser/v1.0/rooms/tags?" + tagParams, that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveAllBubblesByTags) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) REST result : ", json.data);
@@ -5558,8 +5566,16 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader("text/csv"), undefined).then((json) => {
+            
+            let headers = {
+                "Authorization": "Bearer " + that._token,
+                "accept": "application/json",
+              //  Range: undefined
+                "x-rainbow-client": "sdk_node",
+                "x-rainbow-client-version": packageVersion.version
+            };
+            
+            that.http.get(url, headers, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getCSVTemplate) successfull");
                 that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST result : ", json);
                 resolve(json);
@@ -6624,7 +6640,7 @@ Request Method: PUT
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}      
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.delete(" /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader())
+            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader())
                     .then((response) => {
                         that.logger.log("info", LOG_ID + "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- success");
                         resolve(response);
@@ -6712,6 +6728,786 @@ Request Method: PUT
 
     //endregion Rainbow Voice Communication Platform Provisioning 
 
+    //region Rainbow Voice
+    
+    //region Rainbow Voice CLI Options
+    
+    retrieveAllAvailableCallLineIdentifications () {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/cli-options" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "rvcpInstanceId", rvcpInstanceId);
+            // addParamToUrl(urlParamsTab, "status", status);
+            // addParamToUrl(urlParamsTab, "trunkType", trunkType);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrieveCurrentCallLineIdentification () {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options/current 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/cli-options/current" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "rvcpInstanceId", rvcpInstanceId);
+            // addParamToUrl(urlParamsTab, "status", status);
+            // addParamToUrl(urlParamsTab, "trunkType", trunkType);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveCurrentCallLineIdentification) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveCurrentCallLineIdentification) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveCurrentCallLineIdentification) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveCurrentCallLineIdentification) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveCurrentCallLineIdentification) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    setCurrentActiveCallLineIdentification (policy : string,   phoneNumberId  : string) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateCloudPBXSIPDevice) policy : ", policy + ", phoneNumberId : ", phoneNumberId );
+            let data = {
+                policy,
+                phoneNumberId
+            };
+            that.http.put("/api/rainbow/voice/v1.0/cli-options", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateCloudPBXSIPDevice) successfull");
+                that.logger.log("internal", LOG_ID + "(updateCloudPBXSIPDevice) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateCloudPBXSIPDevice) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateCloudPBXSIPDevice) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Rainbow Voice CLI Options
+    
+    //region Rainbow Voice Cloud PBX group
+
+    addMemberToGroup (groupId : string, memberId : string, position : number, roles : [], status : string ) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/members
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-add_user_to_group
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(addMemberToGroup) groupId : ", groupId + ", memberId : ", memberId + ", position : ", position + ", roles : ", roles + ", status : ", status);
+            let data = {
+                memberId,
+                position, 
+                roles, 
+                status
+            };
+            that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/members", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(addMemberToGroup) successfull");
+                that.logger.log("internal", LOG_ID + "(addMemberToGroup) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(addMemberToGroup) error.");
+                that.logger.log("internalerror", LOG_ID, "(addMemberToGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteVoiceMessageAssociatedToAGroup (groupId : string, messageId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages/:messageId      
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-DeleteGroupVoiceMessage
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/voice/v1.0/groups/" + groupId + "/messages/" + messageId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+    
+    getVoiceMessagesAssociatedToGroup (groupId : string, limit = 100, offset = 0, sortField="name", sortOrder : number, fromDate : string, toDate : string, callerName : string, callerNumber : string ) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetGroupVoiceMessages
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/groups/" + groupId + "/messages" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getVoiceMessagesAssociatedToGroup) successfull");
+                that.logger.log("internal", LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getVoiceMessagesAssociatedToGroup) error");
+                that.logger.log("internalerror", LOG_ID, "(getVoiceMessagesAssociatedToGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getGroupForwards (groupId : string) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/forwards 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetCloudPbxGroupForwards
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/groups/" + groupId + "/forwards" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */ 
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getGroupForwards) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getGroupForwards) successfull");
+                that.logger.log("internal", LOG_ID + "(getGroupForwards) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getGroupForwards) error");
+                that.logger.log("internalerror", LOG_ID, "(getGroupForwards) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getTheUserGroup (type : string) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Get_User_groups
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/groups" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "type", type + "");
+            /*
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getTheUserGroup) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getTheUserGroup) successfull");
+                that.logger.log("internal", LOG_ID + "(getTheUserGroup) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getTheUserGroup) error");
+                that.logger.log("internalerror", LOG_ID, "(getTheUserGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    joinAGroup (groupId : string) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/join     
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_group
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(joinAGroup) groupId : ", groupId );
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(joinAGroup) successfull");
+                that.logger.log("internal", LOG_ID + "(joinAGroup) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(joinAGroup) error.");
+                that.logger.log("internalerror", LOG_ID, "(joinAGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    joinAllGroups () {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/join     
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_all_groups
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(joinAllGroups) ");
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/groups/join", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(joinAllGroups) successfull");
+                that.logger.log("internal", LOG_ID + "(joinAllGroups) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(joinAllGroups) error.");
+                that.logger.log("internalerror", LOG_ID, "(joinAllGroups) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    leaveAGroup (groupId : string) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/leave     
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_group
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(leaveAGroup) groupId : ", groupId );
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/leave", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(leaveAGroup) successfull");
+                that.logger.log("internal", LOG_ID + "(leaveAGroup) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(leaveAGroup) error.");
+                that.logger.log("internalerror", LOG_ID, "(leaveAGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    leaveAllGroups () {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/leave     
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_all_groups
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(leaveAllGroups) ");
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/groups/leave", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(leaveAllGroups) successfull");
+                that.logger.log("internal", LOG_ID + "(leaveAllGroups) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(leaveAllGroups) error.");
+                that.logger.log("internalerror", LOG_ID, "(leaveAllGroups) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    removeMemberFromGroup (groupId : string, memberId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/members/:memberId      
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-remove_user_from_group
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/voice/v1.0/groups/" + groupId + "/members/" + memberId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    updateAVoiceMessageAssociatedToAGroup (groupId : string,   messageId  : string, read : boolean) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages/:messageId 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-UpdateGroupVoiceMessage
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateCloudPBXSIPDevice) groupId : ", groupId + ", messageId : ", messageId );
+            let data = {
+                read
+            };
+            that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/messages/" + messageId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateCloudPBXSIPDevice) successfull");
+                that.logger.log("internal", LOG_ID + "(updateCloudPBXSIPDevice) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateCloudPBXSIPDevice) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateCloudPBXSIPDevice) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateGroupForward (groupId : string,   callForwardType  : string, destinationType : string, numberToForward : number, activate : boolean, noReplyDelay : number, managerIds : Array<string>, rvcpAutoAttendantId : string ) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/forwards/:callForwardType 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-PutCloudPbxGroupForwards
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateGroupForward) groupId : ", groupId + ", callForwardType : ", callForwardType );
+            let data = {
+                destinationType, 
+                "number" : numberToForward, 
+                activate, 
+                noReplyDelay,
+                managerIds, 
+                rvcpAutoAttendantId 
+            };
+            that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/forwards/" + callForwardType, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateGroupForward) successfull");
+                that.logger.log("internal", LOG_ID + "(updateGroupForward) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateGroupForward) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateGroupForward) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateGroupMember (groupId : string,   memberId  : string, position  : number, roles : Array<string>, status : string ) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/members/:memberId 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-update_member_inside_group
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateGroupMember) groupId : ", groupId + ", memberId : ", memberId );
+            let data = {
+                position,
+                roles,
+                status
+            };
+            that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/members/" + memberId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateGroupMember) successfull");
+                that.logger.log("internal", LOG_ID + "(updateGroupMember) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateGroupMember) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateGroupMember) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Rainbow Voice Cloud PBX group    
+    
+    //region Rainbow Voice Personal Routines    
+
+    activatePersonalRoutine (routineId : string) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId/activate     
+        // API https://api.openrainbow.org/voice/#api-Personal_Routines-Activate_PersonalRoutine
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(activatePersonalRoutine) routineId : ", routineId);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/personalroutines/" + routineId + "/activate", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(activatePersonalRoutine) successfull");
+                that.logger.log("internal", LOG_ID + "(activatePersonalRoutine) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(activatePersonalRoutine) error.");
+                that.logger.log("internalerror", LOG_ID, "(activatePersonalRoutine) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getPersonalRoutineData (routineId : string) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId 
+        // API https://api.openrainbow.org/voice/#api-Personal_Routines-Get_PersonalRoutine
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/personalroutines/" + routineId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "type", type + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getPersonalRoutineData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getPersonalRoutineData) successfull");
+                that.logger.log("internal", LOG_ID + "(getPersonalRoutineData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getPersonalRoutineData) error");
+                that.logger.log("internalerror", LOG_ID, "(getPersonalRoutineData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllPersonalRoutines () {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines 
+        // API https://api.openrainbow.org/voice/#api-Personal_Routines-Get_PersonalRoutines
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/personalroutines/" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "type", type + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllPersonalRoutines) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllPersonalRoutines) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllPersonalRoutines) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllPersonalRoutines) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllPersonalRoutines) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updatePersonalRoutineData (routineId : string, dndPresence : boolean, name : string, deviceMode : {manage : boolean, mode : string}, immediateCallForward : {manage : boolean, activate : boolean, number  : string, destinationType : string}, noreplyCallForward : { manage : boolean, activate : boolean, number : string, destinationType : string, noReplyDelay : number}, huntingGroups : { withdrawAll : boolean} ) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId 
+        // API https://api.openrainbow.org/voice/#api-Personal_Routines-Update_PersonalRoutine
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updatePersonalRoutineData) routineId : ", routineId + ", name : ", name );
+            let data = {
+                dndPresence,
+                name, 
+                deviceMode, 
+                immediateCallForward, 
+                noreplyCallForward, 
+                huntingGroups 
+            };
+            that.http.put("/api/rainbow/voice/v1.0/personalroutines/" + routineId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updatePersonalRoutineData) successfull");
+                that.logger.log("internal", LOG_ID + "(updatePersonalRoutineData) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updatePersonalRoutineData) error.");
+                that.logger.log("internalerror", LOG_ID, "(updatePersonalRoutineData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Rainbow Voice Personal Routines    
+    
+    //region Rainbow Voice Routing
+
+    manageUserRoutingData (destinations  : Array<string>, currentDeviceId : string ) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/routing 
+        // API https://api.openrainbow.org/voice/#api-Routing-Set_Routing
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(manageUserRoutingData) destinations : ", destinations + ", currentDeviceId : ", currentDeviceId );
+            let data = {
+                destinations ,
+                currentDeviceId
+            };
+            that.http.put("/api/rainbow/voice/v1.0/routing", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(manageUserRoutingData) successfull");
+                that.logger.log("internal", LOG_ID + "(manageUserRoutingData) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(manageUserRoutingData) error.");
+                that.logger.log("internalerror", LOG_ID, "(manageUserRoutingData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrievetransferRoutingData (calleeId : string, addresseeId ? : string, addresseePhoneNumber ? : string) {
+        // GET    https://openrainbow.com/api/rainbow/voice/v1.0/transfer-routing
+        // API https://api.openrainbow.org/voice/#api-Routing-Get_Transfer_Routing
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/transfer-routing" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            
+            addParamToUrl(urlParamsTab, "calleeId", calleeId );
+            addParamToUrl(urlParamsTab, "addresseeId", addresseeId );
+            addParamToUrl(urlParamsTab, "addresseePhoneNumber", addresseePhoneNumber );
+            /*addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrievetransferRoutingData) successfull");
+                that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrievetransferRoutingData) error");
+                that.logger.log("internalerror", LOG_ID, "(retrievetransferRoutingData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrieveUserRoutingData () {
+        // GET  https://api.openrainbow.org/api/rainbow/voice/v1.0/routing
+        // API https://api.openrainbow.org/voice/#api-Routing-Get_Routing
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/routing" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            /*addParamToUrl(urlParamsTab, "calleeId", calleeId );
+            addParamToUrl(urlParamsTab, "addresseeId", addresseeId );
+            addParamToUrl(urlParamsTab, "addresseePhoneNumber", addresseePhoneNumber );
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrievetransferRoutingData) successfull");
+                that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrievetransferRoutingData) error");
+                that.logger.log("internalerror", LOG_ID, "(retrievetransferRoutingData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Rainbow Voice Routing    
+    
+    //region Rainbow Voice Voice
+
+    /*
+    addParticipant3PCC
+    answer call3PCC
+    blind Transfer call3PCC
+    deflect call3PCC
+    hold call3PCC
+    make call3PCC
+    merge call3PCC
+    pickup call3PCC
+    release call3PCC
+    retrieve call3PCC
+    send DTMF3PCC
+    snapshot3PCC
+    transfer call3PCC
+    delete a Voice message
+    delete all Voice messages
+    get Emergency numbers and emergency options
+    get Voice messages
+    get user devices
+    update Voice message
+    // */
+    
+    //endregion Rainbow Voice Voice    
+
+    //region Rainbow Voice Voice Forward
+
+/*
+    forwardCall
+    getTheSubscriberForwards
+    // */
+
+    //endregion Rainbow Voice Voice Forward
+
+    //region Rainbow Voice Voice Search Hunting Groups
+    
+/*
+    searchCloudPBXhuntingGroups
+    // */
+
+    //endregion Rainbow Voice Voice Search Hunting Groups
+    
+    //endregion Rainbow Voice
+    
+    //region Clients Versions
+
+
+    createAClientVersion (id : string, version: string) {
+        // POST  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions     
+        // API https://api.openrainbow.org/admin/#api-clients_versions-PostClientsVersions
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(createAClientVersion) id : ", id, ", version : ", version );
+            let data = {
+                id, 
+                version
+            };
+            that.http.post("/api/rainbow/admin/v1.0/clientsversions", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createAClientVersion) successfull");
+                that.logger.log("internal", LOG_ID + "(createAClientVersion) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createAClientVersion) error.");
+                that.logger.log("internalerror", LOG_ID, "(createAClientVersion) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteAClientVersion (clientId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId      
+        // API https://api.openrainbow.org/admin/#api-clients_versions-DeleteClientsVersions
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/admin/v1.0/clientsversions/" + clientId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteAClientVersion) (" + clientId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    getAClientVersionData (clientId : string) {
+        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId 
+        // API https://api.openrainbow.org/admin/#api-clients_versions-GetClientsVersionsId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/clientsversions/" + clientId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "type", type + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAClientVersionData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAClientVersionData) successfull");
+                that.logger.log("internal", LOG_ID + "(getAClientVersionData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAClientVersionData) error");
+                that.logger.log("internalerror", LOG_ID, "(getAClientVersionData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllClientsVersions (name? : string, typeClient? : string, limit :number = 100, offset? : number, sortField : string = "name", sortOrder : number = 1) {
+        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions 
+        // API https://api.openrainbow.org/admin/#api-clients_versions-GetClientsversions
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/clientsversions" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            if (name) addParamToUrl(urlParamsTab, "name", name + "");
+            if (typeClient) addParamToUrl(urlParamsTab, "type", typeClient  + "");
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllClientsVersions) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllClientsVersions) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllClientsVersions) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllClientsVersions) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllClientsVersions) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateAClientVersion (clientId : string,   version   : string) {
+        // PUT  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId 
+        // API https://api.openrainbow.org/admin/#api-clients_versions-PutClientsVersions
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateAClientVersion) clientId : ", clientId + ", version : ", version );
+            let data = {
+                version
+            };
+            that.http.put("/api/rainbow/admin/v1.0/clientsversions/" + clientId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateAClientVersion) successfull");
+                that.logger.log("internal", LOG_ID + "(updateAClientVersion) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateAClientVersion) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateAClientVersion) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
+    //endregion Clients Versions
+    
     //region sites
     
     createASite(name : string, status : string, companyId : string) {

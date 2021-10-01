@@ -12,6 +12,7 @@ import {ContactsService} from "../../services/ContactsService";
 import {Message} from "../../common/models/Message";
 import {GeoLoc} from "../../common/models/GeoLoc";
 import {GenericHandler} from "./GenericHandler";
+import {WebConferenceSession} from "../../common/models/webConferenceSession";
 
 export {};
 
@@ -155,7 +156,7 @@ class ConversationEventHandler extends GenericHandler {
             
             voiceMessage = stanza.find("voicemessage").text();
             historyIndex = id;
-            children.forEach((node) => {
+            for (const node of children) {
                 switch (node.getName()) {
                     case "sent":
                         if (node.attrs.xmlns === "urn:xmpp:carbons:2") {
@@ -573,12 +574,223 @@ class ConversationEventHandler extends GenericHandler {
                         }
                     }
                         break;
+                    case "conference-info": {
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - conference-info : ", node);
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) conference-info : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+                        let xmlNodeStr = node ? node.toString():"<xml></xml>";
+                        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) JSON conference-info : ", "\n", jsonNode);
+                        let conferenceInfo = jsonNode["conference-info"];
+                        //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
+                        let bubble = undefined;
+
+                        let xmlnsNode = conferenceInfo["$attrs"]["xmlns"];
+                        if (xmlnsNode == "jabber:iq:conference") {
+                             let conferenceId = undefined;
+                            if (conferenceInfo["conference-id"]) {
+                                conferenceId = conferenceInfo["conference-id"];
+                                bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo in bubble : ", bubble);
+                                //that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
+                            } // */
+                            let webConferenceSession : WebConferenceSession = null;
+
+                            /*
+                            if (node.length) {
+
+                                webConferenceSession =  WebConferenceSession.create(conferenceId, bubble);
+
+                                // Handle conference-state
+                                const conferenceStateElems = node.find('conference-state');
+                                if (conferenceStateElems.length) {
+                                    const activeConference = conferenceStateElems.find('active').text() === 'true';
+                                    if (!activeConference) {
+                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) onConferenceMessage : " + webConferenceSession.id + " has ended");
+                                        this.removeActiveConferenceSession(webConferenceSession);
+                                        return 1;
+                                    }
+
+                                    const talkerActiveElem = conferenceStateElems.find("talker-active");
+                                    const isTalkerActive = (talkerActiveElem.text() === "true");
+
+                                    const lockElem = conferenceStateElems.find("lock");
+                                    const isLock = (lockElem.text() === "true");
+
+                                    const recordingElem = conferenceStateElems.find("recording-state");
+                                    const recordingText = recordingElem.text();
+
+                                    let lockedBy = conferenceStateElems.find("locked-by").text();
+                                    if (!lockedBy) { lockedBy = conferenceStateElems.find("unlocked-by").text(); }
+
+                                    if (recordingText === "on" || recordingText === "pause") {
+                                        webConferenceSession.recordingStarted = true;
+                                        webConferenceSession.currentRecordingState = recordingText;
+
+                                        //TO DO to be moved to RXjs
+                                        this.eventService.publish(recordingText === "on" ? "ON_CONFERENCE_RECORDING_STARTED" : "ON_CONFERENCE_RECORDING_PAUSED", webConferenceSession);
+                                    }
+
+                                    if (webConferenceSession.isLocked() !== isLock) {
+                                        webConferenceSession.setLocked(isLock);
+                                        if (lockedBy) this.sendEvent(this.RAINBOW_ONWEBCONFERENCELOCKSTATEUPDATED, {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
+                                    }
+                                }
+                            }
+
+                            // Handle session add/update participants event
+                            let participantAction: string = 'newParticipant';
+                            let participantElems = stanzaElem.find('participants').find('participant');
+                            if (participantElems.length === 0) { participantElems = stanzaElem.find('added-participants').find('participant'); participantAction = 'addParticipant'; }
+                            if (participantElems.length === 0) { participantElems = stanzaElem.find('updated-participants').find('participant'); participantAction = 'updateParticipant'; }
+
+                            if (participantElems.length) {
+                                const participantsPromise = [];
+                                participantElems.each((__i: number, participantElem: Element) => { participantsPromise.push(this.createSessionParticipantFromElem($(participantElem))); });
+                                const participants: WebConferenceParticipant[] = await Promise.all(participantsPromise);
+                                participants.forEach((participant: WebConferenceParticipant) => {
+                                    if (participant) {
+                                        if (this.contactService.isUserContact(participant.contact) && !webConferenceSession.localParticipant) {
+                                            webConferenceSession.localParticipant = participant;
+                                        }
+                                        else {
+                                            webConferenceSession.addOrUpdateParticipant(participant);
+                                        }
+                                        const participantId = participant.id === webConferenceSession.localParticipant.id ? 'local' : participant.id;
+                                        this.logger.info(`[WebConferenceServiceV2] onConferenceMessage ${participantAction} -- ${participantId} -- ${webConferenceSession.id}`);
+                                    }
+                                });
+
+                                if (participantAction === "newParticipant" || participantAction === "addParticipant") {
+                                    this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                }
+                                // if (participantAction === "newParticipant" || participantAction === "addParticipant") {
+                                //     this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                // }
+                            }
+
+                            // Handle session remove participant event
+                            const removedParticipantElems = stanzaElem.find('removed-participants');
+                            if (removedParticipantElems.length) {
+                                const participantIdElems = $(removedParticipantElems).find('user-id');
+                                participantIdElems.each((__i: number, participantIdElem: Element) => {
+                                    const participantId = $(participantIdElem).text();
+                                    const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
+                                    if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
+
+                                    if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
+                                    this.logger.info(`[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
+                                });
+
+                                if (!webConferenceSession.localParticipant) {
+                                    this.removeActiveConferenceSession(webConferenceSession);
+                                    //remove the web conf session
+                                    // webinar.session = null; 
+                                }
+                                else {
+                                    this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                }
+                            }
+
+
+                            // // Handle publishers
+                            let publisherMode: string = 'publishers';
+                            let publisherElems = stanzaElem.find('publishers');
+                            if (publisherElems.length === 0) { publisherElems = stanzaElem.find('added-publishers'); publisherMode = 'addPublisher'; }
+
+                            if (publisherElems.length) {
+                                publisherElems.find('publisher').each((__index: number, publisher: any) => {
+                                    const publisherElem = $(publisher);
+                                    const publisherId = publisherElem.find('user-id').text();
+                                    const mediaType = publisherElem.find('media-type').text();
+                                    if (publisherId === webConferenceSession.localParticipant.id) {
+                                        if (mediaType === "video") { webConferenceSession.localParticipant.isVideoAvailable = true; }
+                                        else if (mediaType === "sharing") { webConferenceSession.hasLocalSharing = true; }
+                                    }
+                                    else {
+                                        const participant = webConferenceSession.getParticipantById(publisherId);
+                                        if (mediaType === "video") {
+                                            participant.isVideoAvailable = true;
+                                        }
+                                        else if (mediaType === "sharing") {
+                                            //create sharing participant
+                                            const sharingParticipant = new WebConferenceParticipant(participant.id);
+                                            sharingParticipant.contact = participant.contact;
+                                            sharingParticipant.isSharingParticipant = true;
+                                            webConferenceSession.setSharingParticipant(sharingParticipant);
+                                        }
+                                    }
+
+                                    // if (publisherMode === 'addPublisher') { this.subscribeToPublisher(webinar, participant, mediaType === 'sharing' ? 'sharing' : 'audioVideo'); }
+                                    // mediaType.split('+').forEach((media: string) => { participant.medias[media] = true; });
+                                    // if (participant.role === 'attendee') { 
+                                    //     if (webinar.session.speakerParticipants.find((speaker: WebinarSessionParticipant) => { return speaker.id === participant.id; }) === undefined) {
+                                    //         webinar.session.speakerParticipants.push(participant); 
+                                    //     }
+                                    // }
+                                    this.logger.info(`[WebConferenceServiceV2] onConferenceMessage -- ${webConferenceSession.id} -- ${publisherMode} -- ${publisherId} -- ${mediaType}`);
+                                });
+
+                                this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSADDED, {"roomDbId": webConferenceSession.id});
+                            }
+
+                            console.error(webConferenceSession);
+                            const removedPublisherElems = stanzaElem.find('removed-publishers');
+                            if (removedPublisherElems.length) {
+                                removedPublisherElems.find('publisher').each((__index: number, publisher: any) => {
+                                    const publisherElem = $(publisher);
+                                    const publisherId = publisherElem.find('user-id').text();
+                                    const mediaType = publisherElem.find('media-type').text();
+                                    if (publisherId === webConferenceSession.localParticipant.id) {
+                                        if (mediaType === "video") {
+                                            webConferenceSession.localParticipant.isVideoAvailable = false;
+                                            if (webConferenceSession.localParticipant.videoSession) {
+                                                webConferenceSession.localParticipant.videoSession.terminate();
+                                                webConferenceSession.localParticipant.videoSession = null;
+                                            }
+                                        }
+                                        else if (mediaType === "sharing") {
+                                            webConferenceSession.hasLocalSharing = false;
+                                            let sharingSession = webConferenceSession.getLocalSharingSession();
+                                            if (sharingSession) {
+                                                sharingSession.terminate();
+                                                sharingSession = null;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        const participant = webConferenceSession.getParticipantById(publisherId);
+                                        if (mediaType === "video") {
+                                            participant.isVideoAvailable = false;
+                                            if (participant.videoSession) {
+                                                participant.videoSession.terminate();
+                                                participant.videoSession = null;
+                                            }
+                                        }
+                                        else if (mediaType === "sharing") {
+                                            //remove sharing participant
+                                            webConferenceSession.setSharingParticipant(null);
+                                        }
+                                    }
+
+                                    this.logger.info(`[WebinarConferenceService] onConferenceMessage -- ${webConferenceSession.id} -- removePublisher -- ${publisherId} -- ${mediaType}`);
+                                });
+
+                                this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSREMOVED, {"roomDbId": webConferenceSession.id});
+                            }
+                            // */
+                        } else {
+                            
+                        }
+                        
+
+                    }
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
                         that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                         break;
                 }
-            });
+            }
 
             switch (event) {
                 case "invitation": {

@@ -60,7 +60,9 @@ class GenericRESTService {
         let headers = {
             "Authorization": "Bearer " + that._token,
             "Accept": accept || "application/json",
-            Range: undefined
+            "Range": undefined,
+            "x-rainbow-client": "sdk_node",
+            "x-rainbow-client-version": packageVersion.version
         };
 
         return headers;
@@ -122,7 +124,9 @@ class GenericRESTService {
 
         return {
             "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "x-rainbow-client": "sdk_node",
+            "x-rainbow-client-version": packageVersion.version
         };
     };
     

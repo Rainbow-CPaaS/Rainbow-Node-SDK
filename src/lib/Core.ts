@@ -34,6 +34,7 @@ import {AlertsService} from "./services/AlertsService";
 import {lt} from "semver";
 import {S2SService} from "./services/S2SService";
 import {WebinarService} from "./services/WebinarService";
+import {RBVoiceService} from "./services/RBVoiceService";
 
 const packageVersion = require("../package.json");
 
@@ -75,6 +76,7 @@ class Core {
     public _favorites: FavoritesService;
     public _alerts: AlertsService;
     public _webinar: WebinarService;
+    public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
 	public _botsjid: any;
     public _s2s: S2SService;
@@ -262,6 +264,8 @@ class Core {
                         }).then(() => {
                             return that._alerts.init();
                         }).then(() => {
+                            return that._rbvoice.init();
+                        }).then(() => {
                             return that._webinar.init();
                         }).then(() => {
                             return that._invitations.init();
@@ -323,7 +327,7 @@ class Core {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);
                         }).then(() => {
-                            return that.im.init();
+                            return that.im.init(that.options._imOptions.enableCarbon);
                         }).then(() => {
                             return that._rest.getBots();
                         }).then((bots: any) => {
@@ -344,6 +348,8 @@ class Core {
                             return that._favorites.init();
                         }).then(() => {
                             return that._alerts.init();
+                        }).then(() => {
+                            return that._rbvoice.init();
                         }).then(() => {
                             return that._webinar.init();
                         }).then(() => {
@@ -550,6 +556,7 @@ class Core {
         self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
+        self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
         self._webinar = new WebinarService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
@@ -573,6 +580,7 @@ class Core {
 
             that._admin.cleanMemoryCache();
             that._alerts.cleanMemoryCache();
+            that._rbvoice.cleanMemoryCache();
             that._webinar.cleanMemoryCache();
             that._bubbles.cleanMemoryCache();
             that._calllog.cleanMemoryCache();
@@ -659,6 +667,8 @@ class Core {
                         return that._favorites.start(that.options, that) ;
                     }).then(() => {
                         return that._alerts.start(that.options, that) ; 
+                    }).then(() => {
+                        return that._rbvoice.start(that.options, that) ;
                     }).then(() => {
                         return that._webinar.start(that.options, that) ;
                     }).then(() => {
@@ -784,6 +794,9 @@ class Core {
                 return that._alerts.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped alerts");
+                return that._rbvoice.stop();
+            }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped rbvoice");
                 return that._webinar.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped webinar");

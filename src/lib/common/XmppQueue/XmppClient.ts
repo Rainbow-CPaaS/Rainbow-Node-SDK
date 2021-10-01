@@ -45,6 +45,7 @@ class XmppClient  {
 	public password: any;
     socketClosed: boolean = false;
     storeMessages: any;
+    copyMessage: any = true;
     rateLimitPerHour: any;
     private nbMessagesSentThisHour: number;
     lastTimeReset: Date;
@@ -75,7 +76,7 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore) {
+    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage) {
         let that = this;
         that.logger = _logger;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
@@ -84,6 +85,7 @@ class XmppClient  {
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
         that.lastTimeReset = new Date ();
+        that.copyMessage = _copyMessage;
 
         if (that.messagesDataStore) {
             switch (that.messagesDataStore) {
@@ -237,6 +239,12 @@ class XmppClient  {
                         //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
                     }
 
+                    /*if (that.copyMessage == false) {
+                        stanza.append(xml("no-copy", {
+                            "xmlns": NameSpacesLabels.HintsNameSpace
+                        }));
+                    }//*/
+                    
                     // test the rate-limit
                     if (this.nbMessagesSentThisHour > that.rateLimitPerHour) {
                         let timeWhenRateLimitPerHourHappens = new Date().getTime();

@@ -105,13 +105,15 @@ let conf =  {
             This hint MUST only be included on messages addressed to full JIDs and explicitly does not override the behaviour defined in XMPP IM [1] for handling messages to bare JIDs,
             which may involve copying to multiple resources, or multiple occupants in a Multi-User Chat (XEP-0045) [6] room.
         // */
-        copyMessage: false,
+        copyMessage: true,
         nbMaxConversations: 15,
         rateLimitPerHour: 1000,
         messagesDataStore: DataStoreType.UsestoreMessagesField,
         autoInitialBubblePresence: true,
         autoLoadConversations: true,
-        autoLoadContacts: true
+        autoLoadContacts: true,
+        // manage carbon copy https://xmpp.org/extensions/xep-0280.html
+        enableCarbon: true
 
     },
     mode:"xmpp",
@@ -201,6 +203,10 @@ let conf =  {
                 optional:true
             }, //need services : ( XMPPService, _rest : RESTService)
             webinar:  {
+                start_up:true,
+                optional:true
+            }, //need services : ( )
+            rbvoice:  {
                 start_up:true,
                 optional:true
             } //need services : ( )

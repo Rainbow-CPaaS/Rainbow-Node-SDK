@@ -104,6 +104,9 @@ class IQEventHandler extends GenericHandler {
             if (stanza.attrs.id === "enable_xmpp_carbon") {
                 that.eventEmitter.emit("rainbow_oncarbonactivated");
             }
+            if (stanza.attrs.id === "disable_xmpp_carbon") {
+                that.eventEmitter.emit("rainbow_oncarbondisabled");
+            }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
             that.logger.log("internalerror", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
