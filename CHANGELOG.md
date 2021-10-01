@@ -17,7 +17,6 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add "x-rainbow-client" "x-rainbow-client-version" properties in Headers of every requests to make stats.
 -   Fix `AdminService::getCSVTemplate` method.
 
-
 ## [2.4.0] - 2021-09-13 - STS
 -   Update typescript lib `es2017` to `es2019`
 -   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.

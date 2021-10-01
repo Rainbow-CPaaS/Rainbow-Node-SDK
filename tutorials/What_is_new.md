@@ -6,6 +6,36 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.5.0 - STS Version - October 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Update `BubblesService::retrieveAllBubblesByTags` with `format` and `nbUsersToKeep` parameters to define the retrieve more or less room details in response.
+
+**Others Changes**
+
+-   Fix import of strip-ansi which is now a node module and not a commonjs anymore.
+-   Fix `BubblesService::retrieveAllBubblesByTags` when multiple tags are passed in parameter.
+-   Add Management of "Client Version" : `AdminService::createAClientVersion` `AdminService::deleteAClientVersion` `AdminService::getAClientVersionData` `AdminService::getAllClientsVersions` `AdminService::updateAClientVersion`. These api are used to manage the minimal required version for a given client application (by AppID).
+-   Add methods in RESTService to deal with Rainbow Voice system (not yet available on API).
+-   Add property in options passed to SDK : {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
+-   Add property in options passed to SDK : {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
+-   Add "x-rainbow-client" "x-rainbow-client-version" properties in Headers of every requests to make stats.
+-   Fix `AdminService::getCSVTemplate` method.
+
+
 ### SDK for Node.JS 2.4.0 - STS Version - September 2021
 
 ---
