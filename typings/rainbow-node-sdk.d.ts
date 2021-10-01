@@ -32,7 +32,31 @@ declare module 'lib/common/Utils' {
 	    addParamToUrl: typeof addParamToUrl;
 	    cleanEmptyMembersFromObject: typeof cleanEmptyMembersFromObject;
 	};
-	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject };
+	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject }; const _default: {
+	    makeId: (n: any) => string;
+	    createPassword: (size: any) => string;
+	    isAdmin: (roles: any) => boolean;
+	    anonymizePhoneNumber: (number: any) => any;
+	    equalIgnoreCase: (s1: string, s2: string) => boolean;
+	    isNullOrEmpty: (value: any) => boolean;
+	    Deferred: typeof Deferred;
+	    isSuperAdmin: (roles: any) => boolean;
+	    setTimeoutPromised: (timeOutMs: any) => Promise<any>;
+	    until: typeof until;
+	    orderByFilter: typeof orderByFilter;
+	    isStart_upService: typeof isStart_upService;
+	    isStarted: typeof isStarted;
+	    logEntryExit: typeof logEntryExit;
+	    resizeImage: typeof resizeImage;
+	    getBinaryData: typeof getBinaryData;
+	    getRandomInt: typeof getRandomInt;
+	    pause: (timeOutMs: any) => Promise<any>;
+	    stackTrace: typeof stackTrace;
+	    addDaysToDate: typeof addDaysToDate;
+	    addParamToUrl: typeof addParamToUrl;
+	    cleanEmptyMembersFromObject: typeof cleanEmptyMembersFromObject;
+	};
+	export default _default;
 
 }
 declare module 'lib/common/models/Channel' {
@@ -539,6 +563,7 @@ declare module 'lib/config/config' {
 	        autoInitialBubblePresence: boolean;
 	        autoLoadConversations: boolean;
 	        autoLoadContacts: boolean;
+	        enableCarbon: boolean;
 	    };
 	    mode: string;
 	    concurrentRequests: number;
@@ -629,6 +654,10 @@ declare module 'lib/config/config' {
 	            start_up: boolean;
 	            optional: boolean;
 	        };
+	        rbvoice: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
 	    };
 	};
 	export { conf as config, DataStoreType };
@@ -648,6 +677,7 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    password: any;
 	    socketClosed: boolean;
 	    storeMessages: any;
+	    copyMessage: any;
 	    rateLimitPerHour: any;
 	    private nbMessagesSentThisHour;
 	    lastTimeReset: Date;
@@ -656,7 +686,7 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    private iqSetEventRoster;
 	    socket: any;
 	    constructor(...args: any[]);
-	    init(_logger: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any): void;
+	    init(_logger: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any): void;
 	    onIqErrorReceived(msg: any, stanza: any): void;
 	    onIqResultReceived(msg: any, stanza: any): void;
 	    resetnbMessagesSentThisHour(): void;
@@ -1433,7 +1463,10 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    static BubbleFactory(avatarDomain: any, contactsService: any): (data: any) => Promise<Bubble>;
 	}
-	export { Bubble };
+	export { Bubble }; const _default: {
+	    Bubble: typeof Bubble;
+	};
+	export default _default;
 
 }
 declare module 'lib/common/promiseQueue' {
@@ -1859,7 +1892,7 @@ declare module 'lib/services/BubblesService' {
 	     * @fulfil {Bubble} - Bubble object, else an ErrorManager object
 	     * @category async
 	     */
-	    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
+	    createBubble(name: any, description: any, withHistory?: boolean): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method isBubbleClosed
@@ -2005,7 +2038,7 @@ declare module 'lib/services/BubblesService' {
 	     * @fulfil {Bubble} - The bubble updated with the new invitation
 	     * @category async
 	     */
-	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason: any): Promise<unknown>;
+	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason?: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method inviteContactsByEmailsToBubble
@@ -2708,11 +2741,26 @@ declare module 'lib/services/BubblesService' {
 	     * @instance
 	     * @async
 	     * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
-	     * @return {Promise<Bubble>}  return a promise with a list of  {Bubble} filtered by tags or null
+	     * @param {string} format Allows to retrieve more or less room details in response. </br>
+	     * small: id, name, jid, isActive </br>
+	     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation </br>
+	     * full: all room fields </br>
+	     * If full format is used, the list of users returned is truncated to 100 active users by default. </br>
+	     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+	     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. </br>
+	     * Default value : small </br>
+	     * Authorized value : small, medium, full </br>
+	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). </br>
+	     * If value is set to -1, all active bubble members are returned. </br>
+	     * Only usable if requested format is full (otherwise users field is not returned) </br>
+	     * Default value : 100 </br>
+	     * @return {Promise<{rooms, roomDetails}>}  return a promise with a list of  {rooms : List of rooms having the searched tag, roomDetails : List of rooms detail data according with format and nbUsersToKeep choices} filtered by tags or null
 	     * @description
 	     *  Get a list of {Bubble} filtered by tags. <br/>
 	     */
-	    retrieveAllBubblesByTags(tags: Array<string>): Promise<any>;
+	    retrieveAllBubblesByTags(tags: Array<string>, format?: string, nbUsersToKeep?: number): Promise<any>;
 	    /**
 	     * @public
 	     * @method setTagsOnABubble
@@ -4624,21 +4672,29 @@ declare module 'lib/connection/GenericRESTService' {
 	        Authorization: string;
 	        Accept: string;
 	        Range: any;
+	        "x-rainbow-client": string;
+	        "x-rainbow-client-version": any;
 	    };
 	    getRequestHeaderWithRange(accept?: string, range?: string): {
 	        Authorization: string;
 	        Accept: string;
 	        Range: any;
+	        "x-rainbow-client": string;
+	        "x-rainbow-client-version": any;
 	    };
 	    getPostHeader(contentType?: string): {
 	        Authorization: string;
 	        Accept: string;
 	        Range: any;
+	        "x-rainbow-client": string;
+	        "x-rainbow-client-version": any;
 	    };
 	    getPostHeaderWithRange(accept?: string, initialSize?: string, minRange?: string, maxRange?: string): {
 	        Authorization: string;
 	        Accept: string;
 	        Range: any;
+	        "x-rainbow-client": string;
+	        "x-rainbow-client-version": any;
 	    };
 	    getLoginHeader(auth?: string, password?: string): {
 	        Accept: string;
@@ -4650,6 +4706,8 @@ declare module 'lib/connection/GenericRESTService' {
 	    getDefaultHeader(): {
 	        Accept: string;
 	        "Content-Type": string;
+	        "x-rainbow-client": string;
+	        "x-rainbow-client-version": any;
 	    };
 	}
 	export { GenericRESTService as GenericRESTService };
@@ -5064,7 +5122,7 @@ declare module 'lib/connection/RESTService' {
 	    unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string): Promise<unknown>;
 	    subscribeUserToSubscription(userId: string, subscriptionId: string): Promise<unknown>;
 	    unSubscribeUserToSubscription(userId: string, subscriptionId: string): Promise<unknown>;
-	    retrieveAllBubblesByTags(tags: Array<string>): Promise<unknown>;
+	    retrieveAllBubblesByTags(tags: Array<string>, format?: string, nbUsersToKeep?: number): Promise<unknown>;
 	    /**
 	     *
 	     * @param {string} roomId
@@ -5204,6 +5262,50 @@ declare module 'lib/connection/RESTService' {
 	    setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string): Promise<unknown>;
 	    retrieveExternalSIPTrunkById(externalTrunkId: string): Promise<unknown>;
 	    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string): Promise<unknown>;
+	    retrieveAllAvailableCallLineIdentifications(): Promise<unknown>;
+	    retrieveCurrentCallLineIdentification(): Promise<unknown>;
+	    setCurrentActiveCallLineIdentification(policy: string, phoneNumberId: string): Promise<unknown>;
+	    addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string): Promise<unknown>;
+	    deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string): Promise<unknown>;
+	    getVoiceMessagesAssociatedToGroup(groupId: string, limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
+	    getGroupForwards(groupId: string): Promise<unknown>;
+	    getTheUserGroup(type: string): Promise<unknown>;
+	    joinAGroup(groupId: string): Promise<unknown>;
+	    joinAllGroups(): Promise<unknown>;
+	    leaveAGroup(groupId: string): Promise<unknown>;
+	    leaveAllGroups(): Promise<unknown>;
+	    removeMemberFromGroup(groupId: string, memberId: string): Promise<unknown>;
+	    updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean): Promise<unknown>;
+	    updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string): Promise<unknown>;
+	    updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string): Promise<unknown>;
+	    activatePersonalRoutine(routineId: string): Promise<unknown>;
+	    getPersonalRoutineData(routineId: string): Promise<unknown>;
+	    getAllPersonalRoutines(): Promise<unknown>;
+	    updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, deviceMode: {
+	        manage: boolean;
+	        mode: string;
+	    }, immediateCallForward: {
+	        manage: boolean;
+	        activate: boolean;
+	        number: string;
+	        destinationType: string;
+	    }, noreplyCallForward: {
+	        manage: boolean;
+	        activate: boolean;
+	        number: string;
+	        destinationType: string;
+	        noReplyDelay: number;
+	    }, huntingGroups: {
+	        withdrawAll: boolean;
+	    }): Promise<unknown>;
+	    manageUserRoutingData(destinations: Array<string>, currentDeviceId: string): Promise<unknown>;
+	    retrievetransferRoutingData(calleeId: string, addresseeId?: string, addresseePhoneNumber?: string): Promise<unknown>;
+	    retrieveUserRoutingData(): Promise<unknown>;
+	    createAClientVersion(id: string, version: string): Promise<unknown>;
+	    deleteAClientVersion(clientId: string): Promise<unknown>;
+	    getAClientVersionData(clientId: string): Promise<unknown>;
+	    getAllClientsVersions(name?: string, typeClient?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    updateAClientVersion(clientId: string, version: string): Promise<unknown>;
 	    createASite(name: string, status: string, companyId: string): Promise<unknown>;
 	    deleteSite(siteId: string): Promise<unknown>;
 	    getSiteData(siteId: string): Promise<unknown>;
@@ -5615,7 +5717,7 @@ declare module 'lib/services/FileStorageService' {
 	     *    Return a promise <br/>
 	     * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
 	     */
-	    downloadFile(fileDescriptor: any, path: string): Promise<unknown>;
+	    downloadFile(fileDescriptor: any, path?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.79.0
@@ -6222,6 +6324,305 @@ declare module 'lib/common/models/Message' {
 	    static MessageFactory(): (data: any) => Message;
 	}
 	export { Message };
+
+}
+declare module 'lib/common/models/webConferenceParticipant' {
+	import { Contact } from 'lib/common/models/Contact';
+	/**
+	 * @module
+	 * @name WebConferenceParticipant
+	 * @description
+	 * This class is used to represent a web conference participant object that
+	 * is part of the WebConferenceSession
+	 */
+	export class WebConferenceParticipant {
+	    /**
+	     * @public
+	     * @name id
+	     * @description The ID of the participant;
+	     * @type {string}
+	     * @readonly
+	     */
+	    id: string;
+	    /**
+	     * @public
+	     * @name contact
+	     * @description Contact object related to the web conference participant
+	     * @type {Contact}
+	     * @readonly
+	     */
+	    contact: Contact;
+	    /**
+	     * @public
+	     * @name isVideoAvailable
+	     * @description Whether the participant is currently publishing his video in the conference
+	     * @type {boolean}
+	     * @readonly
+	     */
+	    isVideoAvailable: boolean;
+	    /**
+	     * @public
+	     * @name videoSession
+	     * @description The current video session related to that participant. If the session is null but the 'isVideoAvailable'
+	     * is true, then we can subscribe to this participant video.
+	     * @type {any}
+	     * @readonly
+	     */
+	    videoSession: any;
+	    /**
+	     * @public
+	     * @name mute
+	     * @description Whether the participant is currently muted
+	     * @type {boolean}
+	     * @readonly
+	     */
+	    mute: boolean;
+	    /**
+	     * @public
+	     * @name noMicrophone
+	     * @description Whether the participant has joined without microphone
+	     * @type {boolean}
+	     * @readonly
+	     */
+	    noMicrophone: boolean;
+	    /**
+	     * @public
+	     * @name role
+	     * @description The current role of the participant. It could be either a moderator, or participant
+	     * @type {string}
+	     * @readonly
+	     */
+	    role: string;
+	    /**
+	     * @public
+	     * @name isSharingParticipant
+	     * @description Whether the current participant object is a sharing participant (in this case, the videoSession object is related to the sharing session)
+	     * @type {boolean}
+	     * @readonly
+	     */
+	    isSharingParticipant: boolean;
+	    /**
+	     * @public
+	     * @name delegateCapability
+	     * @description Indicates whether the conference can be delegated to the current participant
+	     * @type {boolean}
+	     * @readonly
+	     */
+	    delegateCapability: boolean;
+	    subscriptionInProgress: boolean;
+	    static create(id: string): WebConferenceParticipant;
+	    constructor(id: string);
+	}
+
+}
+declare module 'lib/common/models/webConferenceSession' {
+	import { Bubble } from 'lib/common/models/Bubble';
+	import { WebConferenceParticipant } from 'lib/common/models/webConferenceParticipant';
+	/**
+	 * @module
+	 * @name WebConferenceSession
+	 * @description
+	 * This class is used to represent a web conference session containing
+	 * all the relevant information to the current conference session
+	 */
+	export class WebConferenceSession {
+	    /**
+	     * @public
+	     * @name id
+	     * @description Conference Session ID. This is a global reference of the conference session
+	     * @type {string}
+	     * @readonly
+	     */
+	    id: string;
+	    /**
+	     * @public
+	     * @name bubble
+	     * @description The Bubble object related to the conference
+	     * @type {Bubble}
+	     * @readonly
+	     */
+	    bubble: Bubble;
+	    /**
+	     * @public
+	     * @name status
+	     * @description The current status of the conference. It could be "connecting", "connected", "reconnecting", "ended"
+	     * @type {string}
+	     * @readonly
+	     */
+	    status: string;
+	    /**
+	     * @public
+	     * @name duration
+	     * @description The current duration of the conference (in seconds)
+	     * @type {number}
+	     * @readonly
+	     */
+	    duration: number;
+	    /**
+	     * @public
+	     * @name localParticipant
+	     * @description Yourself in the conference
+	     * @type {WebConferenceParticipant}
+	     * @readonly
+	     */
+	    localParticipant: WebConferenceParticipant;
+	    /**
+	     * @public
+	     * @name participants
+	     * @description The list of other participants currently connected in the conference
+	     * @type {WebConferenceParticipant[]}
+	     * @readonly
+	     */
+	    participants: WebConferenceParticipant[];
+	    /**
+	     * @public
+	     * @name hasLocalSharing
+	     * @description Boolean indicating whether the current user is currently sharing his screen
+	     * @type {boolean}
+	     * @readonly
+	     */
+	    hasLocalSharing: boolean;
+	    /**
+	     * @public
+	     * @name localSharingSession
+	     * @description The local sharing session (as a JINGLE SESSION object) or null
+	     * @type {any}
+	     * @readonly
+	     */
+	    localSharingSession: any;
+	    /**
+	     * @public
+	     * @name audioSession
+	     * @description The Audio session related to the web conference. (represented as a Jingle Session object)
+	     * @type {any}
+	     * @readonly
+	     */
+	    audioSession: any;
+	    private sharingParticipant;
+	    private pinnedParticipant;
+	    type: string;
+	    haveJoined: boolean;
+	    isInExternalWindow: boolean;
+	    conferenceView: string;
+	    externalWindowRef: any;
+	    isOnlySharingWindow: boolean;
+	    control: any;
+	    conferenceLayoutSize: any;
+	    record: any;
+	    recordingStarted: boolean;
+	    currentRecordingState: string;
+	    isMyConference: boolean;
+	    dimLocalSharingScreen: boolean;
+	    localStreams: any;
+	    jingleJid: string;
+	    originalVideoStream: any;
+	    metricsId: string;
+	    metricsState: string;
+	    private durationTimer;
+	    private locked;
+	    static create(id: string, bubble: Bubble): WebConferenceSession;
+	    constructor(id: string, bubble: Bubble);
+	    /**
+	     * @public
+	     * @function getParticipants
+	     * @instance
+	     * @description
+	     *    Get a list of all connected participants in the conference (except for yourself)
+	     * @returns {WebConferenceParticipant[]} Return an array of all WebConferenceParticipants taking part of the web conference
+	     */
+	    getParticipants(): WebConferenceParticipant[];
+	    /**
+	     * @public
+	     * @function getLocalParticipant
+	     * @instance
+	     * @description
+	     *    Get yourself as a web conference participant
+	     * @returns {WebConferenceParticipant} Return the current user as a web conference participant connected to the conference
+	     */
+	    getLocalParticipant(): WebConferenceParticipant;
+	    /**
+	     * @public
+	     * @function getBubble
+	     * @instance
+	     * @description
+	     *    Get the bubble related to the web conference session
+	     * @returns {Bubble} Get the bubble related to the web conference session
+	     */
+	    getBubble(): Bubble;
+	    /**
+	     * @public
+	     * @function getAudioSession
+	     * @instance
+	     * @description
+	     *    Get the jingle audio session related to the conference session
+	     * @returns {any} The jingle audio session related to the conference session
+	     */
+	    getAudioSession(): any;
+	    /**
+	     * @public
+	     * @function getSharingParticipant
+	     * @instance
+	     * @description
+	     *    Get web conference participant object that is currently sharing in the conference (could not be myself)
+	     * @returns {WebConferenceParticipant} Web conference participant object that is currently sharing (could not be myself)
+	     */
+	    getSharingParticipant(): WebConferenceParticipant;
+	    /**
+	     * @public
+	     * @function getLocalSharingSession
+	     * @instance
+	     * @description
+	     *    Get the local sharing session (if any)
+	     * @returns {any} The local sharing session (or null)
+	     */
+	    getLocalSharingSession(): any;
+	    /**
+	     * @public
+	     * @function getRemoteSharingSession
+	     * @instance
+	     * @description
+	     *    Get the remote sharing session (if any)
+	     * @returns {any} The remote sharing session (or null) from the sharing participant object
+	     */
+	    getRemoteSharingSession(): any;
+	    /**
+	     * @public
+	     * @function getParticipantById
+	     * @instance
+	     * @param {string} participantId the ID of the participant to find
+	     * @description
+	     *    Find and return a participant by his Id
+	     * @returns {WebConferenceParticipant} The WebConferenceParticipant (if found) by his id
+	     */
+	    getParticipantById(participantId: string): WebConferenceParticipant;
+	    /**
+	     * @public
+	     * @function isLock
+	     * @instance
+	     * @description
+	     *    Check if the current web conference is locked. In case it's locked, no other user is allowed to join it
+	     * @returns {boolean} Return a boolean value indicating whether the web conference is currently locked
+	     */
+	    isLocked(): boolean;
+	    /**
+	     * @public
+	     * @function getDelegateParticipantsList
+	     * @instance
+	     * @description
+	     *    Get the list of participants to whom we can delegate the current conference. Delegation means that we give
+	     *    the ownership of the conference to another user
+	     * @returns {Array} Return an array of WebConferenceParticipant to whom we can delegate the conference
+	     */
+	    getDelegateParticipantsList(): WebConferenceParticipant[];
+	    addOrUpdateParticipant(participant: WebConferenceParticipant): void;
+	    startDuration(): void;
+	    stopDuration(): void;
+	    getPinnedParticipant(): any;
+	    updatePinnedParticipant(participant?: WebConferenceParticipant, mediaType?: string): void;
+	    setLocked(lock?: boolean): void;
+	    setSharingParticipant(participant?: WebConferenceParticipant): void;
+	    private getParticipantByIdAndMediaType;
+	}
 
 }
 declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
@@ -7183,6 +7584,7 @@ declare module 'lib/connection/XMPPService' {
 	    handleXMPPConnection(headers: any): void;
 	    setPresence(show: any, status: any): Promise<unknown>;
 	    enableCarbon(): Promise<unknown>;
+	    disableCarbon(): Promise<unknown>;
 	    sendChatMessage(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
 	    sendChatMessageToBubble(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, attention: any, urgency?: string): Promise<unknown>;
 	    sendCorrectedChatMessage(conversation: any, originalMessage: any, data: any, origMsgId: any, lang: any, content?: any): Promise<string>;
@@ -7245,7 +7647,7 @@ declare module 'lib/services/ImsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(enableCarbonBool: any): Promise<void>;
 	    /**
 	     * @public
 	     * @since 1.39
@@ -7426,7 +7828,7 @@ declare module 'lib/services/ImsService' {
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 	     * @category async
 	     */
-	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions: any, urgency?: string): Promise<unknown>;
+	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions?: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubbleJidAnswer
@@ -7500,6 +7902,18 @@ declare module 'lib/services/ImsService' {
 	     * @category async
 	     */
 	    enableCarbon(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method disableCarbon
+	     * @instance
+	     * @description
+	     *      Disable message carbon XEP-0280 <br/>
+	     * @async
+	     * @return {Promise}
+	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
+	     * @category async
+	     */
+	    disableCarbon(): Promise<unknown>;
 	}
 	export { IMService };
 
@@ -11005,6 +11419,82 @@ declare module 'lib/services/AdminService' {
 	     * @return {Promise<any>}
 	     */
 	    getStatsRegardingTagsOfDirectoryEntries(companyId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createAClientVersion
+	     * @since 2.5.0
+	     * @instance
+	     * @param {string} id Unique identifier of the application to which the client version refer. Default value is the AppId provided to login the SDK.
+	     * @param {string} version App version
+	     * @async
+	     * @description
+	     *      This API can be used to define the minimal required version for a given client application.<br/>
+	     *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br/>
+	     *      In that case, the client application can show an error message to the user requesting him to update his application.<br/>
+	     *      To be noted that the application must provide the header x-rainbow-client-version with its current version so that this check can be performed.<br/>
+	     *      Users with superadmin role can define the minimal required version for any client applications.<br/>
+	     * @return {Promise<any>}
+	     */
+	    createAClientVersion(id: string, version: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteAClientVersion
+	     * @since 2.5.0
+	     * @instance
+	     * @param {string} clientId Application unique identifier to which the client version refer
+	     * @async
+	     * @description
+	     *      This API can be used to delete the minimal required version defined for a given client application.<br/>
+	     *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br/>
+	     *      Users with superadmin role can delete the minimal required version for any client applications.<br/>
+	     * @return {Promise<any>}
+	     */
+	    deleteAClientVersion(clientId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAClientVersionData
+	     * @since 2.5.0
+	     * @instance
+	     * @param {string} clientId Application unique identifier to which the client version refer
+	     * @async
+	     * @description
+	     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
+	     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getAClientVersionData(clientId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllClientsVersions
+	     * @since 2.5.0
+	     * @instance
+	     * @async
+	     * @param {string} name Allows to filter clients versions list on field name.
+	     * @param {string} typeClient Allows to filter clients versions list on field type.
+	     * @param {number} limit Allow to specify the number of clients versions to retrieve. Default value : 100.
+	     * @param {number} offset Allow to specify the position of first client version to retrieve (first client version if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort clients versions list based on the given field. Default value : "name"
+	     * @param {number} sortOrder Specify order when sorting clients versions list. Default value : 1. Authorized values : -1, 1.
+	     * @description
+	     *      This API can be used to get the minimal required versions defined for the client applications.<br/>
+	     *      Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+	     * @return {Promise<any>}
+	     */
+	    getAllClientsVersions(name?: string, typeClient?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateAClientVersion
+	     * @since 2.5.0
+	     * @instance
+	     * @param {string} clientId Application unique identifier to which the client version refer
+	     * @param {string} version App version
+	     * @async
+	     * @description
+	     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
+	     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+	     * @return {Promise<any>}
+	     */
+	    updateAClientVersion(clientId: string, version: string): Promise<unknown>;
 	}
 	export { Admin as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY };
 
@@ -11408,6 +11898,7 @@ declare module 'lib/config/Options' {
 	        autoInitialBubblePresence: boolean;
 	        autoLoadConversations: boolean;
 	        autoLoadContacts: boolean;
+	        enableCarbon: boolean;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -12409,6 +12900,32 @@ declare module 'lib/services/WebinarService' {
 	export { WebinarService as WebinarService };
 
 }
+declare module 'lib/services/RBVoiceService' {
+	/// <reference types="node" />
+	import { EventEmitter } from 'events';
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core';
+	import { GenericService } from 'lib/services/GenericService';
+	export {}; class RBVoiceService extends GenericService {
+	    private avatarDomain;
+	    private readonly _protocol;
+	    private readonly _host;
+	    private readonly _port;
+	    private rbvoiceHandlerToken;
+	    static getClassName(): string;
+	    getClassName(): string;
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    init(): Promise<void>;
+	    attachHandlers(): void;
+	}
+	export { RBVoiceService as RBVoiceService };
+
+}
 declare module 'lib/Core' {
 	/// <reference types="node" />
 	export {};
@@ -12436,7 +12953,8 @@ declare module 'lib/Core' {
 	import { ProxyImpl } from 'lib/ProxyImpl';
 	import { AlertsService } from 'lib/services/AlertsService';
 	import { S2SService } from 'lib/services/S2SService';
-	import { WebinarService } from 'lib/services/WebinarService'; class Core {
+	import { WebinarService } from 'lib/services/WebinarService';
+	import { RBVoiceService } from 'lib/services/RBVoiceService'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
 	    setRenewedToken: any;
@@ -12468,6 +12986,7 @@ declare module 'lib/Core' {
 	    _favorites: FavoritesService;
 	    _alerts: AlertsService;
 	    _webinar: WebinarService;
+	    _rbvoice: RBVoiceService;
 	    _invitations: InvitationsService;
 	    _botsjid: any;
 	    _s2s: S2SService;
@@ -12538,7 +13057,8 @@ declare module 'lib/NodeSDK' {
 	import { AlertsService } from 'lib/services/AlertsService';
 	import { ProfilesService } from 'lib/services/ProfilesService';
 	import { DataStoreType } from 'lib/config/config';
-	import { WebinarService } from 'lib/services/WebinarService'; class NodeSDK {
+	import { WebinarService } from 'lib/services/WebinarService';
+	import { RBVoiceService } from 'lib/services/RBVoiceService'; class NodeSDK {
 	    _core: Core;
 	    startTime: Date;
 	    static NodeSDK: any;
@@ -12883,6 +13403,14 @@ declare module 'lib/NodeSDK' {
 	     * @return {AlertsService}
 	     */
 	    get alerts(): AlertsService;
+	    /**
+	     * @public
+	     * @property {RBVoiceService} alerts
+	     * @description
+	     *    Get access to the webinar module
+	     * @return {RBVoiceService}
+	     */
+	    get rbvoice(): RBVoiceService;
 	    /**
 	     * @public
 	     * @property {WebinarService} alerts
