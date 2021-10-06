@@ -145,7 +145,7 @@ pipeline {
                         branch "STSDelivery"; 
                         //triggeredBy 'UpstreamCause'
                         //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
-                        //triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
                         //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
                     }
                 }
@@ -160,7 +160,7 @@ pipeline {
                     //specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                     //def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 
-                    echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
+                    //echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
 
                 sh script: """
                                     #echo "registry=http://10.10.13.10:4873/
