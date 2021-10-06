@@ -119,14 +119,14 @@ pipeline {
           }  else if (UserCause) {
 
               println "******* Manual Build Detected *******"
-              println "UserCause : " + UserCause
+              println "UserCause : " + UserCause.getShortDescription()
               stage ('Stage 2') {
                   sh 'echo Stage 2'
               }
           } else if (IndexingCause) {
 
               println "******* IndexingCause Build Detected *******"
-              println IndexingCause.getShortDescription()
+              println "IndexingCause : " + IndexingCause
               stage ('Stage 3') {
                   sh 'echo Stage 3'
               }
