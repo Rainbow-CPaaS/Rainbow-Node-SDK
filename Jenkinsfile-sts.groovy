@@ -119,7 +119,7 @@ pipeline {
           }  else if (UserCause) {
 
               println "******* Manual Build Detected *******"
-              println UserCause.getShortDescription()
+              println "UserCause : " + UserCause
               stage ('Stage 2') {
                   sh 'echo Stage 2'
               }
