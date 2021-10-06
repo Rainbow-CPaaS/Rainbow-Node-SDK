@@ -151,6 +151,12 @@ pipeline {
                 }
                 steps{
                     echo "WhenJenkinsfileChanged build"
+                    
+                    echo "Clean ${env.workspace} customWorkspace before build"
+                    cleanWs()
+                    echo "Branch is ${env.BRANCH_NAME}..."
+                    checkout scm
+                                        
                     // Get all Causes for the current build
                     //causes = currentBuild.getBuildCauses()
                     //def causes = currentBuild.getBuildCauses()
