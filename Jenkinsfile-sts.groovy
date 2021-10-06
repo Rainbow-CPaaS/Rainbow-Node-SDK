@@ -87,6 +87,49 @@ pipeline {
                 }
             }
 
+            stage('WhenJenkinsfileChanged') {
+                when {
+                    allOf {
+                        branch "STSDelivery"; 
+                        triggeredBy 'user'
+                    }
+                }
+                steps{
+                    echo "WhenJenkinsfileChanged build"
+                    // Get all Causes for the current build
+                    def causes = currentBuild.getBuildCauses()
+                    
+                    // Get a specific Cause type (in this case the user who kicked off the build),
+                    // if present.
+                    def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+
+                    echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
+
+                sh script: """
+                                    #echo "registry=http://10.10.13.10:4873/
+                                    #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
+                                        
+                                    echo ---------- Set the NPM config and install node stable version :
+                                    mkdir ${WORKSPACE}/.npm-packages
+                                    npm config set prefix "${WORKSPACE}/.npm-packages"
+                                    export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+                
+                                    more ~/.npmrc > ~/.npmrc.sav 
+                                    echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                                    echo "registry=http://registry.npmjs.org/
+                                    //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                                        
+                                    #sudo npm install npm -g
+                                    sudo npm install n -g
+                                    sudo n stable
+
+                                    npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                                                                
+                                    more ~/.npmrc.sav > ~/.npmrc
+                                """
+                }
+            }
+
             stage('Build') {
                 when {
                     allOf {
