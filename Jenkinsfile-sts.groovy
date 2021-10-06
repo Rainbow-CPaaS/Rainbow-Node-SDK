@@ -104,6 +104,7 @@ pipeline {
           echo "User initiate : ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')}"  // Only returns if user initiates via Jenkins GUI
           
           def GitPushCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
+          def IndexingCause = currentBuild.getBuildCauses('jenkins.branch.BranchIndexingCause')
           def UserCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
           
           // If a cause was populated do... 
@@ -121,6 +122,13 @@ pipeline {
               println UserCause.getShortDescription()
               stage ('Stage 2') {
                   sh 'echo Stage 2'
+              }
+          } else if (IndexingCause) {
+
+              println "******* IndexingCause Build Detected *******"
+              println IndexingCause.getShortDescription()
+              stage ('Stage 3') {
+                  sh 'echo Stage 3'
               }
           }else {
               println "unknown cause"
