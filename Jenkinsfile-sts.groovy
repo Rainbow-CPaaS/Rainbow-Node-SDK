@@ -242,7 +242,7 @@ pipeline {
                     sudo npm install n -g
                     sudo n stable
                     
-                    npm install --global npm
+                    sudo npm install --global npm
                         
                     cd ${WORKSPACE}
                     
