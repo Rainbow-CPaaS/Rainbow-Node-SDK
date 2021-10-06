@@ -133,7 +133,8 @@ pipeline {
                 when {
                     allOf {
                         branch "STSDelivery"; 
-                        triggeredBy UpstreamCause
+                        triggeredBy 'UpstreamCause'
+                        //triggeredBy cause : 'BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
                         //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
                     }
                 }
