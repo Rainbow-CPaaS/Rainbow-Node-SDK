@@ -97,11 +97,13 @@ pipeline {
                 steps{
                     echo "WhenJenkinsfileChanged build"
                     // Get all Causes for the current build
-                    def causes = currentBuild.getBuildCauses()
+                    causes = currentBuild.getBuildCauses()
+                    //def causes = currentBuild.getBuildCauses()
                     
                     // Get a specific Cause type (in this case the user who kicked off the build),
                     // if present.
-                    def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    //def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 
                     echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
 
