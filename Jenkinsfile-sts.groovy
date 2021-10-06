@@ -87,6 +87,48 @@ pipeline {
                 }
             }
 
+ stage('Check Build Cause'){
+  when {
+                     allOf {
+                         branch "STSDelivery"; 
+                     }
+                 }
+      steps{
+        script{
+          // get Build Causes
+          // https://stackoverflow.com/questions/43597803/how-to-differentiate-build-triggers-in-jenkins-pipeline
+          
+          echo "full cause : ${currentBuild.getBuildCauses()}" //Always returns full Cause
+          echo "branch events : ${currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')}" // Only returns for branch events
+          echo "SCM trigger : ${currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause')}" // Only returns SCM Trigger
+          echo "User initiate : ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')}"  // Only returns if user initiates via Jenkins GUI
+          
+          def GitPushCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
+          def UserCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+          
+          // If a cause was populated do... 
+          if (GitPushCause) {
+            
+              println "********* Git Push *********"
+              println GitPushCause.getShortDescription()
+              stage ('Stage 1') {
+                  sh 'echo Stage 1'
+              }
+            
+          }  else if (UserCause) {
+
+              println "******* Manual Build Detected *******"
+              println UserCause.getShortDescription()
+              stage ('Stage 2') {
+                  sh 'echo Stage 2'
+              }
+          }else {
+              println "unknown cause"
+          }
+        }
+      }
+    }
+
             stage('WhenJenkinsfileChanged') {
                 when {
                     allOf {
@@ -97,12 +139,12 @@ pipeline {
                 steps{
                     echo "WhenJenkinsfileChanged build"
                     // Get all Causes for the current build
-                    causes = currentBuild.getBuildCauses()
+                    //causes = currentBuild.getBuildCauses()
                     //def causes = currentBuild.getBuildCauses()
                     
                     // Get a specific Cause type (in this case the user who kicked off the build),
                     // if present.
-                    specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    //specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                     //def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 
                     echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
