@@ -86,7 +86,7 @@ pipeline {
                     //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"                 
                 }
             }
-
+/*
  stage('Check Build Cause'){
   when {
                      allOf {
@@ -138,6 +138,7 @@ pipeline {
       }
     }
 
+// */
             stage('WhenJenkinsfileChanged') {
                 when {
                     allOf {
