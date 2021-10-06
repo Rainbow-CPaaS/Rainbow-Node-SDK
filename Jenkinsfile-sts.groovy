@@ -91,6 +91,7 @@ pipeline {
   when {
                      allOf {
                          branch "STSDelivery"; 
+                        triggeredBy 'user'
                      }
                  }
       steps{
