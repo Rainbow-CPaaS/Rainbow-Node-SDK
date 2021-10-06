@@ -272,7 +272,7 @@ class Channel {
                         that[val] = data[val];
                     } else {
                         //console.log("WARNING : One property of the parameter of updateChannel method is not present in the Channel class can not update Channel with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of updateChannel method is not present in the Channel class can not update Channel with : ");
+                        //console.log("WARNING : One property of the parameter of updateChannel method is not present in the Channel class can not update Channel with : ");
                     }
                 });
         }
@@ -330,7 +330,7 @@ class Channel {
                         //console.log(val + " -> " + data[val]);
                         if (!channelproperties.find((el) => { return val == el ;})) {
                             //console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val, " -> ", data[val]);
-                            console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val);
+                            //console.log("WARNING : One property of the parameter of ChannelFactory method is not present in the Channel class : ", val);
                         }
                     });
             }

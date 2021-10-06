@@ -4600,7 +4600,7 @@ Request Method: PUT
                 return reject(err);
             }
             if (nbTags == 1) {
-                tagParams = "tag="+ encodeURI(tags[0]);
+                tagParams = "tag="+ encodeURI(tags[0]) + "&";
             }
             if (nbTags > 1) {
                 for (let id = 0; id <nbTags ; id++ ) {
@@ -5613,6 +5613,43 @@ Request Method: PUT
             });
         });
     }
+    
+    importRainbowVoiceUsersWithCSVdata(companyId : string, label : string = null, noemails: boolean = true, nostrict : boolean = false, delimiter : string = null, comment : string = "%", csvData : string) {
+        // POST  https://openrainbow.com/api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice     
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-RainbowVoiceCSV
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            // content-type : text/csv; charset=utf-8
+            that.logger.log("internal", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", companyId, ", label : ", label, ", noemails : ", noemails, ", nostrict : ", nostrict, ", delimiter : ", delimiter, ", comment : ", comment);
+            let url = "/api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice";
+
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "label", label);
+            addParamToUrl(urlParamsTab, "noemails", noemails?"true":"false");
+            addParamToUrl(urlParamsTab, "nostrict", nostrict?"true":"false");
+            addParamToUrl(urlParamsTab, "delimiter", delimiter);
+            addParamToUrl(urlParamsTab, "comment", comment);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) REST url : ", url);
+            
+            /*let data = {
+            }; */
+            that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
+            //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
+                that.logger.log("info", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) successfull");
+                that.logger.log("internal", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) REST leave bubble : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(importRainbowVoiceUsersWithCSVdata) error.");
+                that.logger.log("internalerror", LOG_ID, "(importRainbowVoiceUsersWithCSVdata) error : ", err);
+                return reject(err);
+            });
+        });
+    }    
 
     /* The users already synchronized can be retrieved in csv format with the following API:
             GET /api/rainbow/massprovisioning/v1.0/users/synchronize?ldap_id=true&&format=csv

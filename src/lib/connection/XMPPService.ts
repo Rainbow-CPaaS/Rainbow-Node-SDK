@@ -195,8 +195,8 @@ class XMPPService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (withXMPP) {
-                    that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
-                    that.logger.log("info", LOG_ID + "(start) XMPP URL : ", that.serverURL);
+                    that.logger.log("debug", LOG_ID + "(start) XMPP host used : ", that.host);
+                    that.logger.log("info", LOG_ID + "(start) XMPP serverURL : ", that.serverURL);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) XMPP connection blocked by configuration");
                 }
@@ -366,7 +366,7 @@ class XMPPService extends GenericService {
         let domain = that.xmppUtils.getDomainFromFullJID(this.fullJid);
 
         let options = {agent: null};
-        Object.assign(options, headers);
+        //Object.assign(options, headers); // headers not supoorted by xmpp/client. Needs to put it with query param in url.
         let opt = url.parse(this.proxy.proxyURL);
         if (this.proxy.isProxyConfigured) {
             if (this.proxy.secureProtocol) {
@@ -391,8 +391,17 @@ class XMPPService extends GenericService {
 
         //"domain": {enter(node) {
         //}, exit(node){}},
+        // GET /websocket?x-rainbow-client=web_sdk&x-rainbow-client-version=v2.0.1-lts&x-rainbow-xmpp-dom=openrainbow.net
+        let urlToConnect = that.serverURL + "?x-rainbow-xmpp-dom=" + domain;
+                    
+        if (headers.headers["x-rainbow-client"]) {
+            urlToConnect += "&x-rainbow-client=" + headers.headers["x-rainbow-client"];
+        }
+        if (headers.headers["x-rainbow-client-version"]) {
+            urlToConnect += "&x-rainbow-client-version=" + headers.headers["x-rainbow-client-version"];
+        }
         let xmppLinkOptions = {
-            "service": that.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+            "service": urlToConnect,
             "domain": domain,
             "resource": that.resourceId,
             "username": that.fullJid,
@@ -457,8 +466,8 @@ class XMPPService extends GenericService {
             }
         });
 
-        that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (msg) {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", msg);
+        that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (status, value) {
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value ? value.toString() : "");
             /* if (msg === "closing") {
                  that.xmppClient.restartConnect().then((res) => {
                      that.logger.log("debug", LOG_ID + "(handleXMPPConnection) restartConnect result : ", res);
@@ -678,7 +687,7 @@ class XMPPService extends GenericService {
 
 
         that.xmppClient.start({
-            uri: this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+            uri: urlToConnect, //this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
             domain: domain
         }).then((jid) => {
             /* <iq type='get'

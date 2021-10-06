@@ -6,6 +6,12 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.5.1] - 2021-10-06 - STS
+-   Remove `console.log` from models Classes
+-   Add method `AdminService::importRainbowVoiceUsersWithCSVdata`. This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file.
+-   Fix openning of XMPP websocket. Headers can not be settend by @xmpp/client lib, so put it as url query parameters : "x-rainbow-client" and "x-rainbow-client-version".
+-   Update the logs of `STATUS_EVENT` events in `XMPPService`.
+
 ## [2.5.0] - 2021-09-13 - STS
 -   Fix import of strip-ansi which is now a node module and not a commonjs anymore.
 -   Fix `BubblesService::retrieveAllBubblesByTags` when multiple tags are passed in parameter.

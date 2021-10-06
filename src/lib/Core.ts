@@ -451,6 +451,7 @@ class Core {
 
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop le SDK : ", err);
+            self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop le SDK : ", err);
             await self._stateManager.transitTo(self._stateManager.ERROR, err);
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;

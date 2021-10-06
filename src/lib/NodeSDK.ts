@@ -28,6 +28,9 @@ import {ProfilesService} from "./services/ProfilesService";
 import {DataStoreType} from "./config/config";
 import {WebinarService} from "./services/WebinarService";
 import {RBVoiceService} from "./services/RBVoiceService";
+import {Logger} from "./common/Logger";
+
+let LOG_ID = "NodeSDK/IDX";
 
 /**
  * options SDK Startup options.
@@ -294,6 +297,7 @@ class NodeSDK {
      *      The entry point of the Rainbow Node SDK.
      * @ param {OptionsType} options SDK Startup options.
      */
+    private logger: Logger;
     
     /**
      * @method constructor
@@ -413,6 +417,7 @@ class NodeSDK {
         //process.on("SIGUSR2", that.stopProcess());
 
         this._core = new Core(options);
+        this.logger = this._core.logger
     }
 
     /**
@@ -446,6 +451,7 @@ class NodeSDK {
                 if (!result) {result = {};}
                 result.startDuration = startDuration;
                 resolve(result);
+                //reject ({message : "Error !!!"});
             }).catch(async function(err) {
                 try {
                     await that.stop();
@@ -455,6 +461,8 @@ class NodeSDK {
                 
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(err));
+                    // It looks that winston is close before this line :(, so console is used. 
+                    // that.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop le SDK : ", err);
                     that.events.publish("connectionerror", err);
                     reject(err);
                 } else {

@@ -1822,6 +1822,136 @@ class Admin extends GenericService {
     /**
      * @public
      * @method retrieveRainbowUserList
+     * @since 2.5.1
+     * @instance
+     * @async
+     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+     * @param {string} label a text description of this import. default undefined.
+     * @param {boolean} noemails disable email sending. default true.
+     * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors. default false.
+     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
+     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. default "%"
+     * @param {string} csvData the csv of the user and device to synchronize.
+     * @description
+     *      This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file. <br/>
+     *      The first line of the CSV data describes the content format. <br/>
+     *      Most of the field names are the field names of the admin createUser API. <br/>
+     *      Additional field used for Subscriber management is: shortNumber <br/>
+     *      Additional field used for DDI attachment is: ddiE164Number  <br/>
+     *      Additional field used for Sip device attachment is: macAddress <br/>
+     *  <br/>
+     *      Supported fields for "user" management are: <br/>
+     *      __action__    upsert, delete or detach <br/>
+     *      loginEmail    (mandatory) <br/>
+     *      password    (mandatory) <br/> 
+     *      title <br/>
+     *      firstName <br/>
+     *      lastName <br/>
+     *      nickName <br/>
+     *      businessPhone{n}    (n is a number starting from 0 or 1) <br/>
+     *      mobilePhone{n}    (n is a number starting from 0 or 1) <br/>
+     *      email{n}    (n is a number starting from 0 or 1) <br/>
+     *      tags{n}    (n is a number starting from 0 to 4) <br/>
+     *      jobTitle <br/>
+     *      department <br/>
+     *      userInfo1 <br/>
+     *      userInfo2 <br/>
+     *      country <br/>
+     *      language <br/>
+     *      timezone <br/>
+     *      visibility <br/>
+     *      isInitialized <br/>
+     *      authenticationType <br/>
+     *      service{n} <br/>
+     *      accountType <br/>
+     *      photoUrl <br/>
+     *       <br/>
+     *      Supported fields for "subscriber" management are: <br/>
+     * <br/>
+     *      loginEmail    (mandatory) <br/>
+     *      shortNumber <br/>
+     * <br/>
+     *      Supported fields for "SIP Device" management are: <br/>
+     * <br/>
+     *      loginEmail    (mandatory) <br/>
+     *      macAddress <br/>
+     * <br/>
+     *      Supported fields for "DDI" management are: <br/>
+     * <br/>
+     *      loginEmail    (mandatory) <br/>
+     *      ddiE164Number <br/>
+     * <br/>
+     *      __action__ description : <br/>
+     *      upsert: allows to modify user (update or create if doesn't exist). It attaches also a subscriber (if field shortNumber is filled) , attaches a Sip Device (if field macAddress is filled) and attaches a DDI (if field ddiE164Number is filled) <br/>
+     *      Remark: empty fields are not taken into account. <br/>
+     * <br/>
+     *      detach: allows to detach subscriber (if field shortNumber is filled) ; to detach Sip Device (if field macAddress is filled) and to detach DDI (if field ddiE164Number is filled) <br/>
+     *      If field shortNumber is filled; detach action is done not only on subscriber but also on Sip Device and DDI automatically (even if fields macAddress and ddiE164Number are not filled) <br/>
+     *    <br/>
+     *      delete: allows to delete a user (if user is attached to a subscriber ; this subscriber + DDI + Sip device are automatically detached) <br/>
+     *       <br/>
+     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br/>
+     *   <br/>
+     *      Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. If you really need to apply same CSV data again, you will have to delete its associated import report first. <br/>
+     * <br/>
+     *      Error codes: <br/>
+     *      2001 'company {companyId} has no Cloud Pbx' <br/>
+     *      2002 'ShortNumber {shortNumber} not in line with Cloud PBX Numbering Plan for company {companyId}' <br/>
+     *      2003 'ShortNumber {shortNumber} is already assigned to someone else inside this company {companyId}' <br/>
+     *      2004 'user {userId} is already assigned into another PBX of the company {companyId}' <br/>
+     *      2005 'failed to create subscriber for user {userId} with shortNumber {shortNumber} into system {systemId}' <br/>
+     *      2006 'failed to update subscriber number for user {userId} with this new shortNumber {shortNumber} into system {systemId}' <br/>
+     *      2007 'there is no existing Sip Device with this macAddress {macAddress}' <br/>
+     *      2008 'the existing Sip Device with this macAddress {macAddress} is not belonging to the requested company {companyId}' <br/>
+     *      2009 'the existing Sip Device with this macAddress {macAddress} is attached to someone else: userId={userId}' <br/>
+     *      2010 'another Sip Device with macAddress {macAddress} is attached to user={userId}' <br/>
+     *      2011 'cannot assign/unassign a Sip device to this user {userId} ; he is not yet a subscriber' <br/>
+     *      2012 'failed to attach this Sip Device {macAddress} with this user {userId} %s' <br/>
+     *      2013 'cannot assign a DDI to this user {userId} ; he is not yet a subscriber' <br/>
+     *      2014 'there is no existing DDI with this number {ddiE164Number}' <br/>
+     *      2015 'the existing DDI with this number {ddiE164Number} is attached to someone else: userId={userId}' <br/>
+     *      2016 'another DDI with number {ddiE164Number} is attached to user={userId}' <br/>
+     *      2017 'failed to attach this DDI {ddiE164Number} with this user {userId}' <br/>
+     *      2018 'failed to detach subscriber for user {userId}, no shortNumber is provided' <br/>
+     *      2019 'failed to detach this subscriber {shortNumber into the request} from this user {userId}, user is attached to another subscriber {real subscriber shortNumber}' <br/>
+     *      2020 'cannot detach a DDI to this user {userId} ; he is no more a subscriber' <br/>
+     *      2021 'failed to detach this DDI {ddiE164Number} with this user {userId}' <br/>
+     *      2022 'failed to detach this Sip Device {macAddress} with this user {userId}' <br/>
+     *      <br/>
+     *      
+     *      Sample :
+     *      <code class="  language-csv">
+     *          __action__;loginEmail                   ;shortNumber;   macAddress        ; ddiE164Number    ;password     ;title;firstName  ;lastName;language;service0         ;service1
+     *          upsert    ;lupin00@ejo.company.com      ;           ;                     ;                  ;Password_123 ;Mr   ;Arsene00   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
+     *          upsert    ;lupin01@ejo.company.com      ; 81011     ;                     ;                  ;Password_123 ;Mr   ;Arsene01   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
+     *          upsert    ;lupin02@ejo.company.com      ; 81012     ;   aa:bb:cc:dd:ee:02 ;                  ;Password_123 ;Mr   ;Arsene02   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
+     *          delete    ;lupin13@ejo.company.com      ; 81023     ;   aa:bb:cc:dd:ee:13 ; 33298300513      ;Password_123 ;Mr   ;Arsene13   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
+     *          delete    ;lupin14@ejo.company.com      ;           ;                     ;                  ;             ;     ;           ;        ;        ;                 ;</code>
+     *          
+     *      return an {Object}  . <br/>
+     * @return {Promise<any>}
+     */
+    importRainbowVoiceUsersWithCSVdata(companyId : string, label : string = null, noemails: boolean = true, nostrict : boolean = false, delimiter : string = null, comment : string = "%", csvData : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.importRainbowVoiceUsersWithCSVdata(companyId, label, noemails, nostrict, delimiter, comment, csvData);
+                that._logger.log("debug", "(importRainbowVoiceUsersWithCSVdata) - sent.");
+                that._logger.log("internal", "(importRainbowVoiceUsersWithCSVdata) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) Error.");
+                that._logger.log("internalerror", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+     /**
+     * @public
+     * @method retrieveRainbowUserList
      * @since 1.86.0
      * @instance
      * @async

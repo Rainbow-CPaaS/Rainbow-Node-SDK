@@ -429,7 +429,7 @@ class Bubble {
                         }
                     } else {
                         //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
+                      //  console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
                     }
                 });
             if (data.creator) {
@@ -488,7 +488,7 @@ class Bubble {
                             return val == el;
                         })) {
                             //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
+                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
                         }
                     });
                 if (data.creator) {
@@ -503,7 +503,7 @@ class Bubble {
                                 bubble.owner = false;
                             }
                         } else {
-                            console.log("(BubbleFactory) ownerContact empty.");
+                            //console.log("(BubbleFactory) ownerContact empty.");
                         }
                     });
                 }

@@ -69,6 +69,7 @@ Admin : Promise.any : unSubscribeUserToSubscription(string, string)
 Admin : Promise.any : synchronizeUsersAndDeviceswithCSV(string, string, string, boolean, boolean, string, string)
 Admin : Promise.any : getCSVTemplate(string, string, string)
 Admin : Promise.any : checkCSVforSynchronization(string, string, string, string)
+Admin : Promise.any : retrieveRainbowUserList(string, string, boolean, boolean, string, string, string)
 Admin : Promise.any : retrieveRainbowUserList(string, string, boolean)
 Admin : Promise.{id: string, companyId: string, loginEmail: string, password: string} : ActivateALdapConnectorUser()
 Admin : Promise.any : retrieveAllLdapConnectorUsersData(string, string, number, number, string, number)
@@ -133,6 +134,11 @@ Admin : Promise.any : getAllTagsAssignedToDirectoryEntries(string)
 Admin : Promise.any : removeTagFromAllDirectoryEntries(string, string)
 Admin : Promise.any : renameTagForAllAssignedDirectoryEntries(string, string, string)
 Admin : Promise.any : getStatsRegardingTagsOfDirectoryEntries(string)
+Admin : Promise.any : createAClientVersion(string, string)
+Admin : Promise.any : deleteAClientVersion(string)
+Admin : Promise.any : getAClientVersionData(string)
+Admin : Promise.any : getAllClientsVersions(string, string, number, number, string, number)
+Admin : Promise.any : updateAClientVersion(string, string)
 AlertsService : Promise.any : markAlertMessageAsRead(string, string)
 AlertsService : Promise.AlertDevice : createDevice(AlertDevice)
 AlertsService : Promise.AlertDevice : updateDevice(AlertDevice)
@@ -212,7 +218,7 @@ Bubbles : Promise.Bubble : setBubbleAutoRegister(Bubble, string)
 Bubbles : Promise.any : registerGuestForAPublicURL(string, string, string, string, string, string, string, string, string)
 Bubbles : Promise.any : conferenceStart(Bubble, string)
 Bubbles : Promise.any : conferenceStop(string)
-Bubbles : Promise.Bubble : retrieveAllBubblesByTags(string[])
+Bubbles : Promise.{rooms, roomDetails} : retrieveAllBubblesByTags(string[], string, number)
 Bubbles : Promise.any : setTagsOnABubble(Bubble, Object[])
 Bubbles : Promise.any : deleteTagOnABubble(Bubble[], string)
 Bubbles : Promise.any : getAllBubblesContainers(string)
@@ -453,6 +459,7 @@ NodeSDK : Object : invitations
 NodeSDK : Object : s2s
 NodeSDK [1] --> [1] AlertsService
 NodeSDK : AlertsService : alerts
+NodeSDK : RBVoiceService : rbvoice
 NodeSDK : WebinarService : webinar
 NodeSDK : Object : DataStoreType
 SDK : Promise.{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number} : getConnectionStatus()

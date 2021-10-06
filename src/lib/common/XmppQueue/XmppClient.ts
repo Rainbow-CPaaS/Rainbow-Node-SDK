@@ -26,6 +26,7 @@ const _middleware = require('@xmpp/middleware');
 const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
+//const debug = require("@xmpp/debug");
 
 const Element = require('ltx').Element;
 
@@ -66,6 +67,7 @@ class XmppClient  {
             return {};
         };
         this.client = client(...args);
+        //debug(this.client, true);
         this.socket = client.socket;
         this.client.getQuery('urn:xmpp:ping', 'ping', ctx => { return {} });
         this.client.setQuery('jabber:iq:roster', 'query', this.iqSetEventRoster);

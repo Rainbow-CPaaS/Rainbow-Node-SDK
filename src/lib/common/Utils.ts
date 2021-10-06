@@ -385,7 +385,7 @@ function resizeImage (avatarImg, maxWidth, maxHeight) {
                     });
             })
             .catch(err => {
-                console.log("error", "(setAvatarBubble) Error : ", err);
+                console.log("error", "(resizeImage) Error : ", err);
             });
     });
 

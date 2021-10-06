@@ -163,7 +163,7 @@ let options : any = {
     "im": {
         "sendReadReceipt": true,
         "messageMaxLength": 1024,
-        "sendMessageToConnectedUser": true,
+        "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
         "storeMessages": false,
         "copyMessage": true,
@@ -2695,10 +2695,17 @@ async function  testcheckPortalHealth() {
     function testretrieveAllBubblesByTags() {
         //let tags = [{tag: "Essai1DeTag"}];
         let tags = ["Essai1DeTag", "tagess2"];
-        //let tags = ["Essai1DeTag"];
+        let tags1 = ["Essai1DeTag"];
+        rainbowSDK.bubbles.retrieveAllBubblesByTags(tags1).then(bubbles => {
+            if (bubbles) {
+                logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: one tag bubbles : ", bubbles);
+            }
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
+        });
         rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
             if (bubbles) {
-                logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: bubbles : ", bubbles);
+                logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: two tags bubbles : ", bubbles);
             }
         }).catch((err) => {
             logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);

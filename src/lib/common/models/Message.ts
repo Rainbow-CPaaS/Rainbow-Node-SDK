@@ -766,7 +766,7 @@ class Message {
                         that[val] = data[val];
                     } else {
                         //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val);
+                        //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val);
                     }
                 });
         }
@@ -849,7 +849,7 @@ class Message {
                             //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
                             // from become fromJid and data become content
                             if (val != "from" && val != "data") {
-                                console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class : ", val);
+                                //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class : ", val);
                             }
                         }
                     });
