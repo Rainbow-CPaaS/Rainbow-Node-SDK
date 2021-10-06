@@ -188,7 +188,7 @@ pipeline {
                                     sudo npm install n -g
                                     sudo n stable
 
-                                    //npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    #npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
                                     npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
                                                                                 
                                     more ~/.npmrc.sav > ~/.npmrc
