@@ -152,10 +152,12 @@ pipeline {
                 steps{
                     echo "WhenJenkinsfileChanged build"
                     
+                    /*
                     echo "Clean ${env.workspace} customWorkspace before build"
                     cleanWs()
                     echo "Branch is ${env.BRANCH_NAME}..."
                     checkout scm
+                    // */
                                         
                     // Get all Causes for the current build
                     //causes = currentBuild.getBuildCauses()
@@ -186,7 +188,8 @@ pipeline {
                                     sudo npm install n -g
                                     sudo n stable
 
-                                    npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    //npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
                                                                                 
                                     more ~/.npmrc.sav > ~/.npmrc
                                 """
