@@ -276,7 +276,7 @@ class Logger {
                         //level = (level === "internal") ? "debug" : "error";
                         let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
 
-                        // dev-code //
+                        // dev-code-internal //
                         if ( level === "internal") {
                             level = "debug";
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
@@ -291,7 +291,7 @@ class Logger {
                                 that.emit(level, that._logger.customLabel + datatolog);
                             }
                             /* */
-                        // end-dev-code //
+                        // end-dev-code-internal //
                         /*
                         if ( level === "internal") {
                             level = "debug";

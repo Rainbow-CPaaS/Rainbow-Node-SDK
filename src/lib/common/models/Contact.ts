@@ -1120,8 +1120,10 @@ class Contact {
                     if (!objProperties.find((el) => {
                         return val == el;
                     })) {
+                        // dev-code-console //
                         //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                        //console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val);
+                        console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val);
+                        // end-dev-code-console //
                     }
                 });
     }

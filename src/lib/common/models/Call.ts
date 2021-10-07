@@ -366,7 +366,9 @@ class Call {
                     if (callproperties.find((el) => { return val == el ;})) {
                         that[val] = data[val];
                     } else {
-                        //console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ", val);
+                        // dev-code-console //
+                        console.log("WARNING : One property of the parameter of updateCall method is not present in the Call class can not update Call with : ", val);
+                        // end-dev-code-console //
                     }
                 });
         }
@@ -391,7 +393,9 @@ class Call {
                 Object.getOwnPropertyNames(data).forEach(
                     (val, idx, array) => {
                         if (!channelproperties.find((el) => { return val == el ;})) {
-                            //console.log("WARNING : One property of the parameter of CallFactory method is not present in the Call class : ");
+                            // dev-code-console //
+                            console.log("WARNING : One property of the parameter of CallFactory method is not present in the Call class : ", val);
+                            // end-dev-code-console //
                         }
                     });
             }

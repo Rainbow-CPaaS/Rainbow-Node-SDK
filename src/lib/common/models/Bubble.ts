@@ -429,7 +429,9 @@ class Bubble {
                         }
                     } else {
                         //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                      //  console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
+                        // dev-code-console //
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
+                        // end-dev-code-console //
                     }
                 });
             if (data.creator) {
@@ -488,7 +490,9 @@ class Bubble {
                             return val == el;
                         })) {
                             //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
+                            // dev-code-console //
+                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
+                            // end-dev-code-console //
                         }
                     });
                 if (data.creator) {
@@ -503,7 +507,9 @@ class Bubble {
                                 bubble.owner = false;
                             }
                         } else {
-                            //console.log("(BubbleFactory) ownerContact empty.");
+                            // dev-code-console //
+                            console.log("(BubbleFactory) ownerContact empty.");
+                            // end-dev-code-console //
                         }
                     });
                 }

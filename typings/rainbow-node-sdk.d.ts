@@ -10123,7 +10123,7 @@ declare module 'lib/services/AdminService' {
 	    /**
 	     * @public
 	     * @method retrieveRainbowUserList
-	     * @since 1.86.0
+	     * @since 2.5.1
 	     * @instance
 	     * @async
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
@@ -10234,19 +10234,19 @@ declare module 'lib/services/AdminService' {
 	     */
 	    importRainbowVoiceUsersWithCSVdata(companyId: string, label: string, noemails: boolean, nostrict: boolean, delimiter: string, comment: string, csvData: string): Promise<unknown>;
 	    /**
-	 * @public
-	 * @method retrieveRainbowUserList
-	 * @since 1.86.0
-	 * @instance
-	 * @async
-	 * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
-	 * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
-	 * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
-	 * @description
-	 *      This API generates a file describing all users (csv or json format). <br/>
-	 *      return an {Object}  of synchronization data. <br/>
-	 * @return {Promise<any>}
-	 */
+	    * @public
+	    * @method retrieveRainbowUserList
+	    * @since 1.86.0
+	    * @instance
+	    * @async
+	    * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
+	    * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
+	    * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
+	    * @description
+	    *      This API generates a file describing all users (csv or json format). <br/>
+	    *      return an {Object}  of synchronization data. <br/>
+	    * @return {Promise<any>}
+	    */
 	    retrieveRainbowUserList(companyId?: string, format?: string, ldap_id?: boolean): Promise<unknown>;
 	    /**
 	     * @public
@@ -13177,6 +13177,7 @@ declare module 'lib/NodeSDK' {
 	    _core: Core;
 	    startTime: Date;
 	    static NodeSDK: any;
+	    private logger;
 	    /**
 	     * @method constructor
 	     * @public

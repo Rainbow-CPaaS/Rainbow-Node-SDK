@@ -80,7 +80,17 @@ module.exports = function(grunt) {
             options: {
                 singleline: false,
                 multiline: false,
-                debugcode: true
+                debugcode: true,
+                replaceCodeTab: [[/\/\/ dev-code \/\//g, "/*"], [/\/\/ end-dev-code \/\//g, "// */"], [/\/\/ dev-code-internal \/\//g, "/*"], [/\/\/ end-dev-code-internal \/\//g, "// */"], [/\/\/ dev-code-console \/\//g, "/*"], [/\/\/ end-dev-code-console \/\//g, "// */"]]
+            },
+            src: ['lib/**/*.js']
+        },
+        debug: {
+            options: {
+                singleline: false,
+                multiline: false,
+                debugcode: true,
+                replaceCodeTab: [[/\/\/ dev-code \/\//g, "/*"], [/\/\/ end-dev-code \/\//g, "// */"], [/\/\/ dev-code-console \/\//g, "/*"], [/\/\/ end-dev-code-console \/\//g, "// */"]]
             },
             src: ['lib/**/*.js']
         }
@@ -270,13 +280,13 @@ module.exports = function(grunt) {
         grunt.task.run(["generateFoss"]);
     
     });
-    
+
   grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
   grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
   //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
     grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
 
-  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build"]);
+  grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode:debug"]);
   //grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("debugDeliveryBuild", [ "prepareDEBUGcode"]);
