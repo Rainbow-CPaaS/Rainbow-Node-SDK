@@ -129,7 +129,7 @@ pipeline {
 
                     more ~/.npmrc > ~/.npmrc.sav 
                     echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                    echo "registry=http://registry.npmjs.org/
+                    echo "registry=https://registry.npmjs.org/
                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                         
                     #sudo npm install npm -g
