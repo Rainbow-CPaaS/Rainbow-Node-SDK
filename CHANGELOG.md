@@ -6,17 +6,17 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.6.0] - 2021-10-XX - STS
+## [2.6.0] - 2021-10-XX
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
 -   Add tags : `dev-code-console` and `dev-code-internal` to `removedebugcode` task.
 
-## [2.5.1] - 2021-10-06 - STS
+## [2.5.1] - 2021-10-06
 -   Remove `console.log` from models Classes
 -   Add method `AdminService::importRainbowVoiceUsersWithCSVdata`. This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file.
 -   Fix openning of XMPP websocket. Headers can not be settend by @xmpp/client lib, so put it as url query parameters : "x-rainbow-client" and "x-rainbow-client-version".
 -   Update the logs of `STATUS_EVENT` events in `XMPPService`.
 
-## [2.5.0] - 2021-09-13 - STS
+## [2.5.0] - 2021-09-13
 -   Fix import of strip-ansi which is now a node module and not a commonjs anymore.
 -   Fix `BubblesService::retrieveAllBubblesByTags` when multiple tags are passed in parameter.
 -   Update `BubblesService::retrieveAllBubblesByTags` with `format` and `nbUsersToKeep` parameters to define the retrieve more or less room details in response.
@@ -27,7 +27,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add "x-rainbow-client" "x-rainbow-client-version" properties in Headers of every requests to make stats.
 -   Fix `AdminService::getCSVTemplate` method.
 
-## [2.4.0] - 2021-09-13 - STS
+## [2.4.0] - 2021-09-13
 -   Update typescript lib `es2017` to `es2019`
 -   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.
 -   Fix `ConversationsService::_onReceipt` callback to not failed even if the conversation is empty.
@@ -50,11 +50,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix the XMPPService (handleXMPPConnection) when ERROR_EVENT happenned to stop the ping timer only when the error is a fatal one.
 -   Change to keep DEBUG with "logs.system-dev.*" in STS delivery. Do not forget that when properties of this section are setted then personnal datas are displayed in logs, so it is not RGPD compatible.is Do not activate it in production systems.  
 
-## [2.3.0] - 2021-08-13 - STS
+## [2.3.0] - 2021-08-13
 -   Add event `rainbow_onwebinarupdated` fired when a webinar update event is received.
 -   Add `WebinarService` to manage Webinars.
 
-## [2.2.0] - 2021-06-XX - STS
+## [2.2.0] - 2021-06-28
 -   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
 -   Fix `ConversationsService::openConversationForContact` when dbid is empty to get conversation from serveur side.
 -   Add `AdminService::createDirectoryEntry` API that allows administrators to Create a directory entry.
@@ -96,7 +96,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add treatment of xmpp event of "startConference" and "stopConference" for conference V2.
 -   Fix export of `DataStoreType` in NodeSDK.  
 
-## [2.1.1] - 2021-06-10 - STS
+## [2.1.1] - 2021-06-10 
 -   Fix remove wrong copy/paste of hard coded "https://openrainbow.com" string in some CloudPBX methods.
 -   Add `AdminService::createASite` API that allows administrators to create a site for a company they administrate.
 -   Add `AdminService::deleteSite` API that allows administrators to delete a site by id for a company they administrate.
