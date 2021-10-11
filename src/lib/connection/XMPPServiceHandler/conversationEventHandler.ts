@@ -112,10 +112,18 @@ class ConversationEventHandler extends GenericHandler {
     }
 
     private async createSessionParticipantFromElem(participantElem: any): Promise<WebConferenceParticipant> {
+        let that = this;
         try {
-            const contactId = participantElem.find('user-id').text();
+            that.logger.log("internal", LOG_ID + "(createSessionParticipantFromParticipantElem) participantElem : ", participantElem);
+            let contactId = participantElem.find('user-id').text();
+            if (!contactId) {
+                contactId = participantElem.find('participant-id').text();
+            } 
             const role = participantElem.find('role').text();
-            const contact: Contact = await this._contactsService.getContactById(contactId);
+            const contact: Contact = await this._contactsService.getContactById(contactId).catch(()=>{
+                that.logger.log("internal", LOG_ID + "(createSessionParticipantFromParticipantElem) No contact found. ");
+                return null;
+            });
 
             if (contact) {
                 const sessionParticipant = WebConferenceParticipant.create(contactId);
@@ -129,7 +137,8 @@ class ConversationEventHandler extends GenericHandler {
             return null;
         }
         catch (error) {
-            this.logger.error(`[WebinarConferenceService] createSessionParticipantFromParticipantElem -- Failure`);
+            that.logger.log("error", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!!");
+            that.logger.log("internalerror", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!! error : ", error);
             return null;
         }
     }
@@ -603,7 +612,7 @@ class ConversationEventHandler extends GenericHandler {
                         that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - conference-info : ", node);
                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) conference-info : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
                         
-                        let ignoreConferenceInfo = true;
+                        let ignoreConferenceInfo = false;
                                               
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
                         let jsonNode = await that.getJsonFromXML(xmlNodeStr);
@@ -677,52 +686,53 @@ class ConversationEventHandler extends GenericHandler {
                             // Handle session add/update participants event
                             let participantAction: string = 'newParticipant';
                             let participantsElems = stanzaElem.find('participants');
-                            let participantElems = participantsElems.find('participant');
-                            if (participantElems.length === 0) { 
-                                participantElems = stanzaElem.find('added-participants').find('participant'); 
-                                participantAction = 'addParticipant'; 
-                            }
-                            if (participantElems.length === 0) { 
-                                participantElems = stanzaElem.find('updated-participants').find('participant'); 
-                                participantAction = 'updateParticipant'; 
-                            }
-
-                            if (participantElems.length) {
-                                const participantsPromise = [];
-                                //participantElems.each((__i: number, participantElem: Element) => { participantsPromise.push(this.createSessionParticipantFromElem(participantElem)); });
-                                if (participantElems.length === 1) {
-                                    participantsPromise.push(this.createSessionParticipantFromElem(participantElems));
-                                } else {
-                                    for (let i = 0; i < participantElems.length; i++) {
-                                        participantsPromise.push(this.createSessionParticipantFromElem(participantElems[i]));
-                                    }
+                            if (participantsElems) {
+                                let participantElems = participantsElems.find('participant');
+                                if (participantElems.length===0) {
+                                    participantElems = stanzaElem.find('added-participants').find('participant');
+                                    participantAction = 'addParticipant';
                                 }
-                               // for (let participantElem of participantElems) {
-                               //     participantsPromise.push(this.createSessionParticipantFromElem(participantElem));
-                               // }
-                                const participants: WebConferenceParticipant[] = await Promise.all(participantsPromise);
-                                participants.forEach((participant: WebConferenceParticipant) => {
-                                    if (participant) {
-                                        if (that._contactsService.isUserContact(participant.contact) && !webConferenceSession.localParticipant) {
-                                            webConferenceSession.localParticipant = participant;
-                                        }
-                                        else {
-                                            webConferenceSession.addOrUpdateParticipant(participant);
-                                        }
-                                        const participantId = participant.id === webConferenceSession.localParticipant.id ? 'local' : participant.id;
-                                        that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage ${participantAction} -- ${participantId} -- ${webConferenceSession.id}`);
-                                    }
-                                });
-
-                                if (participantAction === "newParticipant" || participantAction === "addParticipant") {
-                                    // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
-                                    that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
+                                if (participantElems.length===0) {
+                                    participantElems = stanzaElem.find('updated-participants').find('participant');
+                                    participantAction = 'updateParticipant';
                                 }
-                                // if (participantAction === "newParticipant" || participantAction === "addParticipant") {
-                                //     this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
-                                // }
-                            }
 
+                                if (participantElems.length) {
+                                    const participantsPromise = [];
+                                    //participantElems.each((__i: number, participantElem: Element) => { participantsPromise.push(this.createSessionParticipantFromElem(participantElem)); });
+                                    if (participantElems.length===1) {
+                                        participantsPromise.push(this.createSessionParticipantFromElem(participantElems));
+                                    } else {
+                                        for (let i = 0; i < participantElems.length; i++) {
+                                            participantsPromise.push(this.createSessionParticipantFromElem(participantElems[i]));
+                                        }
+                                    }
+                                    // for (let participantElem of participantElems) {
+                                    //     participantsPromise.push(this.createSessionParticipantFromElem(participantElem));
+                                    // }
+                                    const participants: WebConferenceParticipant[] = await Promise.all(participantsPromise);
+                                    participants.forEach((participant: WebConferenceParticipant) => {
+                                        if (participant) {
+                                            if (that._contactsService.isUserContact(participant.contact) && !webConferenceSession.localParticipant) {
+                                                webConferenceSession.localParticipant = participant;
+                                            } else {
+                                                webConferenceSession.addOrUpdateParticipant(participant);
+                                            }
+                                            const participantId = participant.id===webConferenceSession.localParticipant.id ? 'local':participant.id;
+                                            that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage ${participantAction} -- ${participantId} -- ${webConferenceSession.id}`);
+                                        }
+                                    });
+
+                                    if (participantAction==="newParticipant" || participantAction==="addParticipant") {
+                                        // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                        that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
+                                    }
+                                    // if (participantAction === "newParticipant" || participantAction === "addParticipant") {
+                                    //     this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                    // }
+                                }
+                            }
+                            
                             // Handle session remove participant event
                             const removedParticipantElems : Element = stanzaElem.find('removed-participants');
                             if (removedParticipantElems.length) {
@@ -738,7 +748,7 @@ class ConversationEventHandler extends GenericHandler {
                                     that.logger.log("internalerror", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
                                 });
                                 // */
-                                if (participantElems.length === 1) {
+                                if (participantIdElems.length === 1) {
                                     let participantIdElem = participantIdElems;
                                     const participantId = participantIdElem.text();
                                     const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
