@@ -48,7 +48,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 import Bubble_1 from "../lib/common/models/Bubble";
 import {NodeSDK as RainbowSDK} from "../index";
 import  Utils from "../lib/common/Utils";
-import fs from "fs";
+import fs = require("fs");
 import fileapi from "file-api";
 import {inspect} from "util";
 const inquirer = require ("inquirer");
@@ -3099,6 +3099,34 @@ async function testcreateAlert() {
     }
 
     //endregion
+
+    //region ldap
+
+    async function testsynchronizeUsersAndDeviceswithCSV() {
+        // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
+        logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
+        let allCompanies : any = await rainbowSDK.admin.getAllCompanies();
+        logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - allCompanies : ", allCompanies);
+        let  companyId = connectedUser.companyId ;
+        for (let company of allCompanies.data) {
+            //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+            if (company.name === "vbeCompanie") {
+                logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV vbeCompanie found : ", company);
+                companyId = company.id;
+            }
+        }
+        logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - companyId : ", companyId);
+        fs.readFile('c:\\temp\\file.csv', 'utf8', async (err: any, data: any) => {
+            if (err) {
+                logger.log("error", "MAIN - testsynchronizeUsersAndDeviceswithCSV syncCSV readFile error: ", err);
+                return;
+            }
+            let result = await rainbowSDK.admin.synchronizeUsersAndDeviceswithCSV(data,companyId,"test synchronise",true,false);
+            logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - result : ", result);
+        });
+    }
+
+    //endregion ldap
     
     //region Conference V2
 

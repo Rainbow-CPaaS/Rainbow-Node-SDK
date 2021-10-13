@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.6.0] - 2021-10-XX
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
 -   Add tags : `dev-code-console` and `dev-code-internal` to `removedebugcode` task.
+-   Fix RESTService::synchronizeUsersAndDeviceswithCSV method.
 
 ## [2.5.1] - 2021-10-06
 -   Remove `console.log` from models Classes

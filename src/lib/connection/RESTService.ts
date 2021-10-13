@@ -5541,7 +5541,7 @@ Request Method: PUT
         
         return new Promise(function (resolve, reject) {
 
-            that.http.post(urlParams, that.getRequestHeader(), CSVTxt, undefined).then(function (json) {
+            that.http.post(urlParams, that.getRequestHeader(""), CSVTxt, 'text/csv; charset=utf-8').then(function (json) {
                 that.logger.log("info", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) successfull");
                 that.logger.log("internal", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) REST result : ", json);
                 resolve(json.data);
