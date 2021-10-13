@@ -612,7 +612,7 @@ class ConversationEventHandler extends GenericHandler {
                         that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - conference-info : ", node);
                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) conference-info : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
                         
-                        let ignoreConferenceInfo = false;
+                        let ignoreConferenceInfo = true;
                                               
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
                         let jsonNode = await that.getJsonFromXML(xmlNodeStr);
@@ -666,8 +666,10 @@ class ConversationEventHandler extends GenericHandler {
 
                                         //this.eventService.publish(recordingText === "on" ? "ON_CONFERENCE_RECORDING_STARTED" : "ON_CONFERENCE_RECORDING_PAUSED", webConferenceSession);
                                         if (recordingText === "on") {
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencerecordingstarted stanza : ", stanzaElem);
                                             that.eventEmitter.emit("evt_internal_bubbleconferencerecordingstarted", webConferenceSession);
                                         } else {
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencerecordingpaused stanza : ", stanzaElem);
                                             that.eventEmitter.emit("evt_internal_bubbleconferencerecordingpaused", webConferenceSession);
                                         }
 
@@ -677,6 +679,7 @@ class ConversationEventHandler extends GenericHandler {
                                         webConferenceSession.setLocked(isLock);
                                         if (lockedBy)  {
                                             //this.sendEvent(this.RAINBOW_ONWEBCONFERENCELOCKSTATEUPDATED, {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencelockstateupdated stanza : ", stanzaElem);
                                             that.eventEmitter.emit("evt_internal_bubbleconferencelockstateupdated", {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
                                         }
                                     }
@@ -686,15 +689,21 @@ class ConversationEventHandler extends GenericHandler {
                             // Handle session add/update participants event
                             let participantAction: string = 'newParticipant';
                             let participantsElems = stanzaElem.find('participants');
-                            if (participantsElems) {
+                            if (participantsElems.length) {
                                 let participantElems = participantsElems.find('participant');
                                 if (participantElems.length===0) {
-                                    participantElems = stanzaElem.find('added-participants').find('participant');
-                                    participantAction = 'addParticipant';
+                                    let addedparticipantElems = stanzaElem.find('added-participants');
+                                    if (addedparticipantElems.length) {
+                                        participantElems = addedparticipantElems.find('participant');
+                                        participantAction = 'addParticipant';
+                                    }
                                 }
                                 if (participantElems.length===0) {
-                                    participantElems = stanzaElem.find('updated-participants').find('participant');
-                                    participantAction = 'updateParticipant';
+                                    let updatedparticipantElems = stanzaElem.find('updated-participants');
+                                    if (updatedparticipantElems.length) {
+                                        participantElems = updatedparticipantElems.find('participant');
+                                        participantAction = 'updateParticipant';
+                                    }
                                 }
 
                                 if (participantElems.length) {
@@ -725,6 +734,7 @@ class ConversationEventHandler extends GenericHandler {
 
                                     if (participantAction==="newParticipant" || participantAction==="addParticipant") {
                                         // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferenceparticipantlistupdated stanza : ", stanzaElem);
                                         that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
                                     }
                                     // if (participantAction === "newParticipant" || participantAction === "addParticipant") {
@@ -777,6 +787,7 @@ class ConversationEventHandler extends GenericHandler {
                                 }
                                 else {
                                     //this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferenceparticipantlistupdated stanza : ", stanzaElem);
                                     that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
 
                                 }
@@ -785,11 +796,16 @@ class ConversationEventHandler extends GenericHandler {
                             // // Handle publishers
                             let publisherMode: string = 'publishers';
                             let publisherElems = stanzaElem.find('publishers');
-                            if (publisherElems.length === 0) { publisherElems = stanzaElem.find('added-publishers'); publisherMode = 'addPublisher'; }
+                            if (publisherElems.length === 0) { 
+                                publisherElems = stanzaElem.find('added-publishers'); 
+                                publisherMode = 'addPublisher'; 
+                            }
 
                             if (publisherElems.length) {
-                                publisherElems.find('publisher').each((__index: number, publisher: any) => {
-                                    const publisherElem = publisher;
+                                let publishers = publisherElems.find('publisher');
+                                        //.each((__index: number, publisher: any) => {
+                                for (let i = 0; i < publishers.length; i++) {            
+                                    const publisherElem = publishers[i];
                                     const publisherId = publisherElem.find('user-id').text();
                                     const mediaType = publisherElem.find('media-type').text();
                                     if (publisherId === webConferenceSession.localParticipant.id) {
@@ -818,9 +834,10 @@ class ConversationEventHandler extends GenericHandler {
                                     //     }
                                     // }
                                     that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage -- ${webConferenceSession.id} -- ${publisherMode} -- ${publisherId} -- ${mediaType}`);
-                                });
+                                };
 
                                 // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSADDED, {"roomDbId": webConferenceSession.id});
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencepublishersadded stanza : ", stanzaElem);
                                 that.eventEmitter.emit("evt_internal_bubbleconferencepublishersadded", {"roomDbId": webConferenceSession.id});
                             }
 
@@ -829,8 +846,8 @@ class ConversationEventHandler extends GenericHandler {
                             if (removedPublisherElems.length) {
                                 removedPublisherElems.find('publisher').each((__index: number, publisher: any) => {
                                     const publisherElem = publisher;
-                                    const publisherId = publisherElem.find('user-id').text();
-                                    const mediaType = publisherElem.find('media-type').text();
+                                    const publisherId = publisherElem.find('user-id').length ? publisherElem.find('user-id').text() : "";
+                                    const mediaType = publisherElem.find('media-type').length ? publisherElem.find('media-type').text() : "";
                                     if (publisherId === webConferenceSession.localParticipant.id) {
                                         if (mediaType === "video") {
                                             webConferenceSession.localParticipant.isVideoAvailable = false;
@@ -867,6 +884,7 @@ class ConversationEventHandler extends GenericHandler {
                                 });
 
                                 //this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSREMOVED, {"roomDbId": webConferenceSession.id});
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencepublisherremoved stanza : ", stanzaElem);
                                 that.eventEmitter.emit("evt_internal_bubbleconferencepublisherremoved", {"roomDbId": webConferenceSession.id});
                             }
                             // */
@@ -923,7 +941,7 @@ class ConversationEventHandler extends GenericHandler {
                 }
                     break;
                 default:
-                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) no treatment of event ", msg, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
+                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) no treatment of event ", msg, ", event : ", event, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
             }
 
             let fromBubbleJid = "";
