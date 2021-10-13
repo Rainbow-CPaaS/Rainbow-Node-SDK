@@ -30,8 +30,10 @@ pipeline {
         string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
+        booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS version be compiled with internal debug ?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
         booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
+        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK built to npmjs and save the tag/branch to GIT.')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -84,6 +86,115 @@ pipeline {
                     //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"                 
                 }
             }
+/*
+ stage('Check Build Cause'){
+  when {
+                     allOf {
+                         branch "STSDelivery"; 
+                        triggeredBy 'user'
+                     }
+                 }
+      steps{
+        script{
+          // get Build Causes
+          // https://stackoverflow.com/questions/43597803/how-to-differentiate-build-triggers-in-jenkins-pipeline
+          
+          echo "full cause : ${currentBuild.getBuildCauses()}" //Always returns full Cause
+          echo "branch events : ${currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')}" // Only returns for branch events
+          echo "SCM trigger : ${currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause')}" // Only returns SCM Trigger
+          echo "User initiate : ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')}"  // Only returns if user initiates via Jenkins GUI
+          
+          def GitPushCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
+          def IndexingCause = currentBuild.getBuildCauses('jenkins.branch.BranchIndexingCause')
+          def UserCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+          
+          // If a cause was populated do... 
+          if (GitPushCause) {
+            
+              println "********* Git Push *********"
+              println GitPushCause.getShortDescription()
+              stage ('Stage 1') {
+                  sh 'echo Stage 1'
+              }
+            
+          }  else if (UserCause) {
+
+              println "******* Manual Build Detected *******"
+              println "UserCause : " + UserCause.getShortDescription()
+              stage ('Stage 2') {
+                  sh 'echo Stage 2'
+              }
+          } else if (IndexingCause) {
+
+              println "******* IndexingCause Build Detected *******"
+              println "IndexingCause : " + IndexingCause
+              stage ('Stage 3') {
+                  sh 'echo Stage 3'
+              }
+          }else {
+              println "unknown cause"
+          }
+        }
+      }
+    }
+
+// */
+            stage('WhenJenkinsfileChanged') {
+                when {
+                    allOf {
+                        branch "STSDelivery"; 
+                        //triggeredBy 'UpstreamCause'
+                        //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                        //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                    }
+                }
+                steps{
+                    echo "WhenJenkinsfileChanged build"
+                    
+                    /*
+                    echo "Clean ${env.workspace} customWorkspace before build"
+                    cleanWs()
+                    echo "Branch is ${env.BRANCH_NAME}..."
+                    checkout scm
+                    // */
+                                        
+                    // Get all Causes for the current build
+                    //causes = currentBuild.getBuildCauses()
+                    //def causes = currentBuild.getBuildCauses()
+                    
+                    // Get a specific Cause type (in this case the user who kicked off the build),
+                    // if present.
+                    //specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    //def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+
+                    //echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
+
+                sh script: """
+                                    #echo "registry=http://10.10.13.10:4873/
+                                    #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
+                                        
+                                    echo ---------- Set the NPM config and install node stable version :
+                                    mkdir ${WORKSPACE}/.npm-packages
+                                    npm config set prefix "${WORKSPACE}/.npm-packages"
+                                    export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+                
+                                    more ~/.npmrc > ~/.npmrc.sav 
+                                    echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                                    echo "registry=http://registry.npmjs.org/
+                                    //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                                        
+                                    #sudo npm install npm -g
+                                    sudo npm install n -g
+                                    sudo n stable
+
+                                    #npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                                                                
+                                    more ~/.npmrc.sav > ~/.npmrc
+                                """
+                }
+            }
 
             stage('Build') {
                 when {
@@ -129,27 +240,50 @@ pipeline {
 
                     more ~/.npmrc > ~/.npmrc.sav 
                     echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                    echo "registry=http://registry.npmjs.org/
+                    echo "registry=https://registry.npmjs.org/
                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                         
                     #sudo npm install npm -g
                     sudo npm install n -g
                     sudo n stable
+                    
+                    sudo npm install --global npm@6
                         
+                    cd ${WORKSPACE}
+                    
                     echo ---------- STEP install the library :
                     npm install
+                    
+                    ls 
+                    ls ./src/**/*
                         
-                    echo ---------- STEP grunt : 
-                    echo Sub Step 1 : To compil the sources
-                    grunt 
-                    echo Sub Step 2 : To pepare the sources + doc for package
-                    grunt delivery 
+                    if [ "${DEBUGINTERNAL}" = "true" ]; then
+                         echo "Build sources with Internal DEBUG activated."
+                        echo ---------- STEP grunt : 
+                        
+                        # test of grunt specifics tasks : 
+                        #grunt ts --verbose
+                        #grunt dtsGenerator --verbose
+                        
+                        #echo Sub Step 1 : To compil the sources
+                        grunt debugDeliveryBuild --verbose
+                        #echo Sub Step 2 : To prepare the sources + doc for package
+                        grunt debugDeliveryDelivery --verbose
+                    else
+                        echo "Build sources with Internal DEBUG removed."
+                        echo ---------- STEP grunt : 
+                        echo Sub Step 1 : To compil the sources
+                        grunt 
+                        echo Sub Step 2 : To prepare the sources + doc for package
+                        grunt delivery 
+                    fi
+                        
+                        
                         
                     #echo ---------- STEP commit : 
-                    #git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-                    git reset --hard origin/STSDelivery
-                    npm version "${RAINBOWNODESDKVERSION}" 
-                        
+                    git reset --hard origin/${env.BRANCH_NAME}
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
+                                                
                     echo ---------- STEP whoami :
                     npm whoami
                         
@@ -157,25 +291,26 @@ pipeline {
                     npm token list
                         
                     echo ---------- STEP publish :
-                    if [[ "${PUBLISHONNPMJSWITHSTSTAG}" == true ]]; then
-                        echo "Publish on npmjs with tag."
-                        npm publish --tag sts
-                    else
-                        echo "Publish on npmjs with node .net tag."
-                        npm publish --tag .net
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                        if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
+                            echo "Publish on npmjs with tag."
+                            npm publish --tag sts
+                        else
+                            echo "Publish on npmjs with node .net tag."
+                            npm publish --tag .net
+                        fi
                     fi
                         
                     echo ---------- PUSH tags AND files :
-                    git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
-                    #git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                    #git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                    git push  origin HEAD:${env.BRANCH_NAME}
-                    git push --tags origin HEAD:${env.BRANCH_NAME}
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
                     export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
                     export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
                     ${SENDEMAIL} && npm run-script sendmailPreProduction
+                    ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
 
                     # To send the mailing only to vincent.berder@al-enterprise.com . 
                     ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
@@ -230,6 +365,7 @@ pipeline {
                      
                                 echo "update files with doc/sdk/node path which should be doc/sdk/node/sts into the folder Documentation ."
                                 sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
+                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
                                 # more Documentation/debian/control
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
                                 # more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md

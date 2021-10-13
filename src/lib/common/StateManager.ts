@@ -86,12 +86,12 @@ class StateManager {
                 this.state = state;
                 if (this.isSTOPPED() || this.isREADY()) {
                     await utils.setTimeoutPromised(1500).then(() => {
-                        this.logger.log("info", LOG_ID + "(transitTo) set state", this.state);
+                        this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
                         this.eventEmitter.publish(state, data);
                         resolve(undefined);
                     });
                 } else {
-                    this.logger.log("info", LOG_ID + "(transitTo) set state", this.state);
+                    this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
                     this.eventEmitter.publish(state, data);
                     resolve(undefined);
                 }

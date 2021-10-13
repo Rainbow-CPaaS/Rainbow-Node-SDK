@@ -222,10 +222,25 @@ function addDaysToDate(date, days) {
     return result;
 }
 
-function addParamToUrl(urlParams : string, paramName : string, paramValue : string) {
-    if (paramValue) {
-        urlParams += urlParams ? "&" : "?";
-        urlParams += paramName + "=" + paramValue;
+function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue : string) {
+    if (paramValue && urlParams) {
+        if (urlParams[0].includes("?") ) {
+            urlParams[0] += "&" ;
+        } else {
+            urlParams[0] += "?";
+        }
+        //urlParams[0] += urlParams[0] ? "&" : "?";
+        urlParams[0] += paramName + "=" + paramValue;
+    }
+}
+
+function cleanEmptyMembersFromObject(objParams : Object) {
+    if (objParams) {
+        for (let objParamsKey in objParams) {
+            if (objParams[objParamsKey] == undefined || objParams[objParamsKey] == null) {
+                delete objParams[objParamsKey];
+            }
+        }
     }
 }
 
@@ -370,7 +385,7 @@ function resizeImage (avatarImg, maxWidth, maxHeight) {
                     });
             })
             .catch(err => {
-                console.log("error", "(setAvatarBubble) Error : ", err);
+                console.log("error", "(resizeImage) Error : ", err);
             });
     });
 
@@ -466,7 +481,8 @@ export let objToExport = {
     pause,
     stackTrace,
     addDaysToDate,
-    addParamToUrl
+    addParamToUrl,
+    cleanEmptyMembersFromObject
 };
 
 module.exports = objToExport;
@@ -491,5 +507,31 @@ export {
     pause,
     stackTrace,
     addDaysToDate,
-    addParamToUrl
+    addParamToUrl,
+    cleanEmptyMembersFromObject
+};
+
+export default {
+    makeId,
+    createPassword,
+    isAdmin,
+    anonymizePhoneNumber,
+    equalIgnoreCase,
+    isNullOrEmpty,
+    Deferred,
+    isSuperAdmin,
+    setTimeoutPromised,
+    until,
+    orderByFilter,
+    isStart_upService,
+    isStarted,
+    logEntryExit,
+    resizeImage,
+    getBinaryData,
+    getRandomInt,
+    pause,
+    stackTrace,
+    addDaysToDate,
+    addParamToUrl,
+    cleanEmptyMembersFromObject
 };

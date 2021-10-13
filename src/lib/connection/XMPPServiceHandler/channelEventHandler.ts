@@ -114,7 +114,8 @@ class ChannelEventHandler extends GenericHandler {
                         // treated in conversationEventHandler
                         break;
                     case "userinvite":
-                        // treated in conversationEventHandler
+                        // treated also in conversationEventHandler
+                        // treated also in invitationEventHandler
                         break;
                     case "group":
                         // treated in conversationEventHandler
@@ -138,10 +139,6 @@ class ChannelEventHandler extends GenericHandler {
                     case "channel":
                         that.onChannelManagementMessageReceived(node);
                         break;
-                    case "userinvite":
-                        // treated also in conversationEventHandler
-                        // treated also in invitationEventHandler
-                        break;
                     case "openinvite":
                         // treated in invitationEventHandler
                         break;
@@ -153,6 +150,9 @@ class ChannelEventHandler extends GenericHandler {
                         break;
                     case "roomscontainer":
                         // treated in conversationEventHandler
+                        break;
+                    case "webinar":
+                        // treated in webinarEventHandler
                         break;    
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
@@ -414,6 +414,7 @@ class ChannelEventHandler extends GenericHandler {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }

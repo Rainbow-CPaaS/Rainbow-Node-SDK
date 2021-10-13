@@ -2,7 +2,7 @@
   "compilerOptions": {
     "noImplicitAny": false,
     "module": "commonjs",
-    "target": "es6",
+    "target": "es2020",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
@@ -24,11 +24,14 @@
     "outDir": "./",
     "lib": [
       "es6",
-      "es2017"
+      "es2020"
     ],
     //, "dom"
-    "moduleResolution": "Node"
-    //"checkJs": true
+    //"moduleResolution": "node",
+    //"moduleResolution": "classic",
+    //"checkJs": true,
+    "explainFiles": true,
+    "diagnostics": true
   },
   "buildOnSave": true,
   "compileOnSave": true,
@@ -52,7 +55,10 @@
     "./typings/**/*"
   ],
   "include": [
-    "src/**/*",
-    "../../../../../../Users/user1/.WebStorm2019.3/config/javascript/nodejs/10.17.0/node-typings/node_modules/@types/node/globals.d.ts"
+    "./src/**/*.ts",
+    // "!**/*.d.ts",
+    //"./**/*.ts",
+    "./node_modules/typescript/lib/typescript.d.ts",
+    "./node_modules/typescript/lib/typescript.ts"
   ]
 }

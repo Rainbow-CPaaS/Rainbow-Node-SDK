@@ -196,8 +196,8 @@ safeJsonParse(str) {
     tokenExpirationControl(bodyjs: { errorCode: number, errorDetails: string }): void {
         let that = this;
         if (bodyjs.errorCode === 401 && bodyjs.errorDetails === "jwt expired") {
-            that.logger.log("debug", LOG_ID + "(tokenExpirationControl) rainbow_tokenexpired");
-            that.eventEmitter.emit("rainbow_tokenexpired");
+            that.logger.log("debug", LOG_ID + "(tokenExpirationControl) evt_internal_tokenexpired");
+            that.eventEmitter.emit("evt_internal_tokenexpired");
         }
     }
 

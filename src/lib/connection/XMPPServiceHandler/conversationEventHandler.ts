@@ -12,6 +12,9 @@ import {ContactsService} from "../../services/ContactsService";
 import {Message} from "../../common/models/Message";
 import {GeoLoc} from "../../common/models/GeoLoc";
 import {GenericHandler} from "./GenericHandler";
+import {WebConferenceSession} from "../../common/models/webConferenceSession";
+import {WebConferenceParticipant} from "../../common/models/webConferenceParticipant";
+import {Contact} from "../../common/models/Contact";
 
 export {};
 
@@ -108,6 +111,38 @@ class ConversationEventHandler extends GenericHandler {
 
     }
 
+    private async createSessionParticipantFromElem(participantElem: any): Promise<WebConferenceParticipant> {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(createSessionParticipantFromParticipantElem) participantElem : ", participantElem);
+            let contactId = participantElem.find('user-id').text();
+            if (!contactId) {
+                contactId = participantElem.find('participant-id').text();
+            } 
+            const role = participantElem.find('role').text();
+            const contact: Contact = await this._contactsService.getContactById(contactId).catch(()=>{
+                that.logger.log("internal", LOG_ID + "(createSessionParticipantFromParticipantElem) No contact found. ");
+                return null;
+            });
+
+            if (contact) {
+                const sessionParticipant = WebConferenceParticipant.create(contactId);
+                sessionParticipant.contact = contact;
+                sessionParticipant.mute = participantElem.find('mute').text() === 'true';
+                sessionParticipant.delegateCapability = participantElem.find("delegate-capability").text() === 'true';
+                sessionParticipant.role = role;
+                return sessionParticipant;
+            }
+
+            return null;
+        }
+        catch (error) {
+            that.logger.log("error", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!!");
+            that.logger.log("internalerror", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!! error : ", error);
+            return null;
+        }
+    }
+    
     async onChatMessageReceived (msg, stanza: Element) {
         let that = this;
         try {
@@ -155,7 +190,7 @@ class ConversationEventHandler extends GenericHandler {
             
             voiceMessage = stanza.find("voicemessage").text();
             historyIndex = id;
-            children.forEach((node) => {
+            for (const node of children) {
                 switch (node.getName()) {
                     case "sent":
                         if (node.attrs.xmlns === "urn:xmpp:carbons:2") {
@@ -573,12 +608,298 @@ class ConversationEventHandler extends GenericHandler {
                         }
                     }
                         break;
+                    case "conference-info": {
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - conference-info : ", node);
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) conference-info : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+                        
+                        let ignoreConferenceInfo = true;
+                                              
+                        let xmlNodeStr = node ? node.toString():"<xml></xml>";
+                        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) JSON conference-info : ", "\n", jsonNode);
+                        let conferenceInfo = jsonNode["conference-info"];
+                        //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
+                        let bubble = undefined;
+
+                        let xmlnsNode = conferenceInfo["$attrs"]["xmlns"];
+                        if (xmlnsNode == "jabber:iq:conference" && !ignoreConferenceInfo) {
+                             let conferenceId = undefined;
+                            if (conferenceInfo["conference-id"]) {
+                                conferenceId = conferenceInfo["conference-id"];
+                                bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo in bubble : ", bubble);
+                                //that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
+                            } 
+                            let webConferenceSession : WebConferenceSession = null;
+
+                            let stanzaElem = node;
+                            
+                            if (node.children.length) {
+
+                                webConferenceSession =  WebConferenceSession.create(conferenceId, bubble);
+
+                                // Handle conference-state
+                                const conferenceStateElems = node.find('conference-state');
+                                if (conferenceStateElems.length) {
+                                    const activeConference = conferenceStateElems.find('active').text() === 'true';
+                                    if (!activeConference) {
+                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) onConferenceMessage : " + webConferenceSession.id + " has ended");
+                                        // todo : this.removeActiveConferenceSession(webConferenceSession);
+                                        return 1;
+                                    }
+
+                                    const talkerActiveElem = conferenceStateElems.find("talker-active");
+                                    const isTalkerActive = (talkerActiveElem.text() === "true");
+
+                                    const lockElem = conferenceStateElems.find("lock");
+                                    const isLock = (lockElem.text() === "true");
+
+                                    const recordingElem = conferenceStateElems.find("recording-state");
+                                    const recordingText = recordingElem.text();
+
+                                    let lockedBy = conferenceStateElems.find("locked-by").text();
+                                    if (!lockedBy) { lockedBy = conferenceStateElems.find("unlocked-by").text(); }
+
+                                    if (recordingText === "on" || recordingText === "pause") {
+                                        webConferenceSession.recordingStarted = true;
+                                        webConferenceSession.currentRecordingState = recordingText;
+
+                                        //this.eventService.publish(recordingText === "on" ? "ON_CONFERENCE_RECORDING_STARTED" : "ON_CONFERENCE_RECORDING_PAUSED", webConferenceSession);
+                                        if (recordingText === "on") {
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencerecordingstarted stanza : ", stanzaElem);
+                                            that.eventEmitter.emit("evt_internal_bubbleconferencerecordingstarted", webConferenceSession);
+                                        } else {
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencerecordingpaused stanza : ", stanzaElem);
+                                            that.eventEmitter.emit("evt_internal_bubbleconferencerecordingpaused", webConferenceSession);
+                                        }
+
+                                    }
+
+                                    if (webConferenceSession.isLocked() !== isLock) {
+                                        webConferenceSession.setLocked(isLock);
+                                        if (lockedBy)  {
+                                            //this.sendEvent(this.RAINBOW_ONWEBCONFERENCELOCKSTATEUPDATED, {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencelockstateupdated stanza : ", stanzaElem);
+                                            that.eventEmitter.emit("evt_internal_bubbleconferencelockstateupdated", {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Handle session add/update participants event
+                            let participantAction: string = 'newParticipant';
+                            let participantsElems = stanzaElem.find('participants');
+                            if (participantsElems.length) {
+                                let participantElems = participantsElems.find('participant');
+                                if (participantElems.length===0) {
+                                    let addedparticipantElems = stanzaElem.find('added-participants');
+                                    if (addedparticipantElems.length) {
+                                        participantElems = addedparticipantElems.find('participant');
+                                        participantAction = 'addParticipant';
+                                    }
+                                }
+                                if (participantElems.length===0) {
+                                    let updatedparticipantElems = stanzaElem.find('updated-participants');
+                                    if (updatedparticipantElems.length) {
+                                        participantElems = updatedparticipantElems.find('participant');
+                                        participantAction = 'updateParticipant';
+                                    }
+                                }
+
+                                if (participantElems.length) {
+                                    const participantsPromise = [];
+                                    //participantElems.each((__i: number, participantElem: Element) => { participantsPromise.push(this.createSessionParticipantFromElem(participantElem)); });
+                                    if (participantElems.length===1) {
+                                        participantsPromise.push(this.createSessionParticipantFromElem(participantElems));
+                                    } else {
+                                        for (let i = 0; i < participantElems.length; i++) {
+                                            participantsPromise.push(this.createSessionParticipantFromElem(participantElems[i]));
+                                        }
+                                    }
+                                    // for (let participantElem of participantElems) {
+                                    //     participantsPromise.push(this.createSessionParticipantFromElem(participantElem));
+                                    // }
+                                    const participants: WebConferenceParticipant[] = await Promise.all(participantsPromise);
+                                    participants.forEach((participant: WebConferenceParticipant) => {
+                                        if (participant) {
+                                            if (that._contactsService.isUserContact(participant.contact) && !webConferenceSession.localParticipant) {
+                                                webConferenceSession.localParticipant = participant;
+                                            } else {
+                                                webConferenceSession.addOrUpdateParticipant(participant);
+                                            }
+                                            const participantId = participant.id===webConferenceSession.localParticipant.id ? 'local':participant.id;
+                                            that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage ${participantAction} -- ${participantId} -- ${webConferenceSession.id}`);
+                                        }
+                                    });
+
+                                    if (participantAction==="newParticipant" || participantAction==="addParticipant") {
+                                        // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferenceparticipantlistupdated stanza : ", stanzaElem);
+                                        that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
+                                    }
+                                    // if (participantAction === "newParticipant" || participantAction === "addParticipant") {
+                                    //     this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                    // }
+                                }
+                            }
+                            
+                            // Handle session remove participant event
+                            const removedParticipantElems : Element = stanzaElem.find('removed-participants');
+                            if (removedParticipantElems.length) {
+                                const participantIdElems : any = removedParticipantElems.find('user-id');
+
+                                /*
+                                    participantIdElems.each((__i: number, participantIdElem: Element) => {
+                                    const participantId = participantIdElem.text();
+                                    const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
+                                    if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
+
+                                    if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
+                                    that.logger.log("internalerror", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
+                                });
+                                // */
+                                if (participantIdElems.length === 1) {
+                                    let participantIdElem = participantIdElems;
+                                    const participantId = participantIdElem.text();
+                                    const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
+                                    if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
+
+                                    if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
+                                    that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
+                                } else {
+                                    for (let i = 0; i < participantIdElems.length; i++) {
+                                        //for (let participantIdElem of participantIdElems) {
+                                        let participantIdElem = participantIdElems [i];
+                                        const participantId = participantIdElem.text();
+                                        const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
+                                        if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
+
+                                        if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
+                                        that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
+                                    }
+                                }
+                                
+                                
+                                if (!webConferenceSession.localParticipant) {
+                                    // todo : that.removeActiveConferenceSession(webConferenceSession);
+                                    //remove the web conf session
+                                    // webinar.session = null; 
+                                }
+                                else {
+                                    //this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
+                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferenceparticipantlistupdated stanza : ", stanzaElem);
+                                    that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
+
+                                }
+                            }
+                            
+                            // // Handle publishers
+                            let publisherMode: string = 'publishers';
+                            let publisherElems = stanzaElem.find('publishers');
+                            if (publisherElems.length === 0) { 
+                                publisherElems = stanzaElem.find('added-publishers'); 
+                                publisherMode = 'addPublisher'; 
+                            }
+
+                            if (publisherElems.length) {
+                                let publishers = publisherElems.find('publisher');
+                                        //.each((__index: number, publisher: any) => {
+                                for (let i = 0; i < publishers.length; i++) {            
+                                    const publisherElem = publishers[i];
+                                    const publisherId = publisherElem.find('user-id').text();
+                                    const mediaType = publisherElem.find('media-type').text();
+                                    if (publisherId === webConferenceSession.localParticipant.id) {
+                                        if (mediaType === "video") { webConferenceSession.localParticipant.isVideoAvailable = true; }
+                                        else if (mediaType === "sharing") { webConferenceSession.hasLocalSharing = true; }
+                                    }
+                                    else {
+                                        const participant = webConferenceSession.getParticipantById(publisherId);
+                                        if (mediaType === "video") {
+                                            participant.isVideoAvailable = true;
+                                        }
+                                        else if (mediaType === "sharing") {
+                                            //create sharing participant
+                                            const sharingParticipant = new WebConferenceParticipant(participant.id);
+                                            sharingParticipant.contact = participant.contact;
+                                            sharingParticipant.isSharingParticipant = true;
+                                            webConferenceSession.setSharingParticipant(sharingParticipant);
+                                        }
+                                    }
+
+                                    // if (publisherMode === 'addPublisher') { this.subscribeToPublisher(webinar, participant, mediaType === 'sharing' ? 'sharing' : 'audioVideo'); }
+                                    // mediaType.split('+').forEach((media: string) => { participant.medias[media] = true; });
+                                    // if (participant.role === 'attendee') { 
+                                    //     if (webinar.session.speakerParticipants.find((speaker: WebinarSessionParticipant) => { return speaker.id === participant.id; }) === undefined) {
+                                    //         webinar.session.speakerParticipants.push(participant); 
+                                    //     }
+                                    // }
+                                    that.logger.log("internal", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage -- ${webConferenceSession.id} -- ${publisherMode} -- ${publisherId} -- ${mediaType}`);
+                                };
+
+                                // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSADDED, {"roomDbId": webConferenceSession.id});
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencepublishersadded stanza : ", stanzaElem);
+                                that.eventEmitter.emit("evt_internal_bubbleconferencepublishersadded", {"roomDbId": webConferenceSession.id});
+                            }
+
+                            console.error(webConferenceSession);
+                            const removedPublisherElems = stanzaElem.find('removed-publishers');
+                            if (removedPublisherElems.length) {
+                                removedPublisherElems.find('publisher').each((__index: number, publisher: any) => {
+                                    const publisherElem = publisher;
+                                    const publisherId = publisherElem.find('user-id').length ? publisherElem.find('user-id').text() : "";
+                                    const mediaType = publisherElem.find('media-type').length ? publisherElem.find('media-type').text() : "";
+                                    if (publisherId === webConferenceSession.localParticipant.id) {
+                                        if (mediaType === "video") {
+                                            webConferenceSession.localParticipant.isVideoAvailable = false;
+                                            if (webConferenceSession.localParticipant.videoSession) {
+                                                webConferenceSession.localParticipant.videoSession.terminate();
+                                                webConferenceSession.localParticipant.videoSession = null;
+                                            }
+                                        }
+                                        else if (mediaType === "sharing") {
+                                            webConferenceSession.hasLocalSharing = false;
+                                            let sharingSession = webConferenceSession.getLocalSharingSession();
+                                            if (sharingSession) {
+                                                sharingSession.terminate();
+                                                sharingSession = null;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        const participant = webConferenceSession.getParticipantById(publisherId);
+                                        if (mediaType === "video") {
+                                            participant.isVideoAvailable = false;
+                                            if (participant.videoSession) {
+                                                participant.videoSession.terminate();
+                                                participant.videoSession = null;
+                                            }
+                                        }
+                                        else if (mediaType === "sharing") {
+                                            //remove sharing participant
+                                            webConferenceSession.setSharingParticipant(null);
+                                        }
+                                    }
+
+                                    that.logger.log("internal", LOG_ID + `[WebinarConferenceService] onConferenceMessage -- ${webConferenceSession.id} -- removePublisher -- ${publisherId} -- ${mediaType}`);
+                                });
+
+                                //this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSREMOVED, {"roomDbId": webConferenceSession.id});
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) evt_internal_bubbleconferencepublisherremoved stanza : ", stanzaElem);
+                                that.eventEmitter.emit("evt_internal_bubbleconferencepublisherremoved", {"roomDbId": webConferenceSession.id});
+                            }
+                            // */
+                        } else {
+                            
+                        }
+                        
+                    }
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName());
                         that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                         break;
                 }
-            });
+            }
 
             switch (event) {
                 case "invitation": {
@@ -599,13 +920,28 @@ class ConversationEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                 }
                     break;
-                case "conferenceRemove":
+                case "conferenceRemove": {
                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference stop received");
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
+                }
+                    break;
+                case "startConference": {
+                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference start received");
+                    conferencebubbleJid = fromJid;
+                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
+                }
+                    break;
+                case "stopConference": {
+                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) conference stop received");
+                    conferencebubbleJid = fromJid;
+                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
+                }
                     break;
                 default:
-                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) no treatment of event ", msg, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
+                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) no treatment of event ", msg, ", event : ", event, " : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " so default."); //, this.eventEmitter
             }
 
             let fromBubbleJid = "";
@@ -793,7 +1129,7 @@ class ConversationEventHandler extends GenericHandler {
                 dataMessage.updateMessage(data);
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", dataMessage);
 
-                that._onMessageReceived(conversationId, dataMessage);
+                await that._onMessageReceived(conversationId, dataMessage);
                 //that._onMessageReceived(conversationId, data);
             } else {
                 that.logger.log("debug", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it.");
@@ -876,6 +1212,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "userinvite":
                         that.onUserInviteManagementMessageReceived(node);
+                        // treated also in invitationEventHandler
                         break;
                     case "group":
                         that.onGroupManagementMessageReceived(node);
@@ -899,10 +1236,6 @@ class ConversationEventHandler extends GenericHandler {
                     case "channel":
                         //treated in channelEventHandler::onFavoriteManagementMessageReceived(node);
                         break;
-                    case "userinvite":
-                        // treated also in conversationEventHandler
-                        // treated also in invitationEventHandler
-                        break;
                     case "openinvite":
                         // treated in invitationEventHandler
                         break;
@@ -914,6 +1247,9 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "roomscontainer":
                         that.onRoomsContainerManagementMessageReceived(node);
+                        break;
+                    case "webinar":
+                        // treated in webinarEventHandler
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());

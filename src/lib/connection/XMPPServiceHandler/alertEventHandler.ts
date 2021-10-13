@@ -349,6 +349,8 @@ class AlertEventHandler extends GenericHandler {
                     case "usersettings":
                         break;
                     case "userinvite":
+                        // treated also in conversationEventHandler
+                        // treated also in invitationEventHandler
                         break;
                     case "group":
                         break;
@@ -365,10 +367,6 @@ class AlertEventHandler extends GenericHandler {
                     case "channel-subscription":
                     case "channel":
                         break;
-                    case "userinvite":
-                        // treated also in conversationEventHandler
-                        // treated also in invitationEventHandler
-                        break;
                     case "openinvite":
                         // treated in invitationEventHandler
                         break;
@@ -380,6 +378,9 @@ class AlertEventHandler extends GenericHandler {
                         break;
                     case "roomscontainer":
                         // treated in conversationEventHandler
+                        break;
+                    case "webinar":
+                        // treated in webinarEventHandler
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());

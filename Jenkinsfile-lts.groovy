@@ -129,7 +129,7 @@ pipeline {
 
                     more ~/.npmrc > ~/.npmrc.sav 
                     echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                    echo "registry=http://registry.npmjs.org/
+                    echo "registry=https://registry.npmjs.org/
                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                         
                     #sudo npm install npm -g
@@ -146,7 +146,7 @@ pipeline {
                     grunt delivery 
                         
                     #echo ---------- STEP commit : 
-                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = true ]; then
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
                         git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
                     else
                         git reset --hard "origin/LTSDelivery"
@@ -229,6 +229,7 @@ pipeline {
                      
                                 echo "update files with doc/sdk/node path which should be doc/sdk/node/lts into the folder Documentation ."
                                 sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-lts/" debian/control |tee "${workspace}/Documentation/debian/control"      
+                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
                                 # more Documentation/debian/control
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md"
                                 # more Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md

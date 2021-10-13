@@ -126,7 +126,64 @@ class Contact {
     public selectedTheme: string;
     public customData: any;
     public isVirtualTerm: boolean;
+    public tags: Array<string>;
     private _lastContactCacheUpdate: Date;
+    public isActive : boolean;
+    public  accountType : string;
+    public  systemId : string;
+    public  isInitialized : boolean;
+    public  initializationDate : string;
+    public  createdBySelfRegister : boolean;
+    public  createdByAppId : string;
+    public  firstLoginDate : string;
+    public  lastLoginDate : string;
+    public  loggedSince: string;
+    public  failedLoginAttempts : number;
+    public  lastLoginFailureDate : string;
+    public  lastExpiredTokenRenewedDate : string;
+    public  lastPasswordUpdateDate : string;
+    public  timeToLive : number;
+    public  timeToLiveDate : string;
+    public  terminatedDate : string;
+    public  fileSharingCustomisation : string;
+    public  userTitleNameCustomisation : string;
+    public  softphoneOnlyCustomisation : string;
+    public  useRoomCustomisation : string;
+    public  phoneMeetingCustomisation : string;
+    public  useChannelCustomisation : string;
+    public  useScreenSharingCustomisation : string;
+    public  useWebRTCAudioCustomisation : string;
+    public  useWebRTCVideoCustomisation : string;
+    public  instantMessagesCustomisation : string;
+    public  userProfileCustomisation : string;
+    public  fileStorageCustomisation : string;
+    public  overridePresenceCustomisation : string;
+    public  changeTelephonyCustomisation : string;
+    public  changeSettingsCustomisation : string;
+    public  recordingConversationCustomisation : string;
+    public  useGifCustomisation : string;
+    public  useDialOutCustomisation : string;
+    public  fileCopyCustomisation : string;
+    public  fileTransferCustomisation : string;
+    public  forbidFileOwnerChangeCustomisation : string;
+    public  readReceiptsCustomisation : string;
+    public  useSpeakingTimeStatistics : string;
+    public  selectedAppCustomisationTemplate : any;
+    public  alertNotificationReception : string;
+    public  selectedDeviceFirmware : string;
+    public  visibility : string;
+    public  jid_password : string;
+    public  creationDate : string;
+    public  profiles : Array<any>;
+    public  activationDate : string;
+    public  lastOfflineMailReceivedDate : Array<any>;
+    public  state : string;
+    public  authenticationType : string;
+    public  department : string;
+    public  isADSearchAvailable : boolean;
+    public  isTv : boolean;
+    public  calendars : any;
+    public  openInvites : any;
 
     constructor() {
 
@@ -557,6 +614,63 @@ class Contact {
         this.customData = [];
         this.selectedTheme = null;
 
+        this.tags = [];
+    this.isActive = false;
+    this.accountType = null;
+    this.systemId = null;
+    this.isInitialized = false;
+    this.initializationDate = null;
+    this.createdBySelfRegister = false;
+    this.createdByAppId = null;
+    this.firstLoginDate = null;
+    this.lastLoginDate = null;
+    this.loggedSince = null;
+    this.failedLoginAttempts = 0;
+    this.lastLoginFailureDate = null;
+    this.lastExpiredTokenRenewedDate = null;
+    this.lastPasswordUpdateDate = null;
+    this.timeToLive = -1;
+    this.timeToLiveDate = null;
+    this.terminatedDate = null;
+    this.fileSharingCustomisation = null;
+    this.userTitleNameCustomisation = null;
+    this.softphoneOnlyCustomisation = null;
+    this.useRoomCustomisation = null;
+    this.phoneMeetingCustomisation = null;
+    this.useChannelCustomisation = null;
+    this.useScreenSharingCustomisation = null;
+    this.useWebRTCAudioCustomisation = null;
+    this.useWebRTCVideoCustomisation = null;
+    this.instantMessagesCustomisation = null;
+    this.userProfileCustomisation = null;
+    this.fileStorageCustomisation = null;
+    this.overridePresenceCustomisation = null;
+    this.changeTelephonyCustomisation = null;
+    this.changeSettingsCustomisation = null;
+    this.recordingConversationCustomisation = null;
+    this.useGifCustomisation = null;
+    this.useDialOutCustomisation = null;
+    this.fileCopyCustomisation = null;
+    this.fileTransferCustomisation = null;
+    this.forbidFileOwnerChangeCustomisation = null;
+    this.readReceiptsCustomisation = null;
+    this.useSpeakingTimeStatistics = null;
+    this.selectedAppCustomisationTemplate  = null;
+    this.alertNotificationReception = null;
+    this.selectedDeviceFirmware = null;
+    this.visibility = null;
+    this.jid_password = null;
+    this.creationDate = null;
+    this.profiles = [];
+    this.activationDate = null;
+    this.lastOfflineMailReceivedDate = [];
+    this.state = null;
+    this.authenticationType = null;
+    this.department = null;
+    this.isADSearchAvailable = false;
+    this.isTv = false;
+    this.calendars = null;
+    this.openInvites = null;
 
     }
 
@@ -742,7 +856,8 @@ class Contact {
 
         // Update emails
         if (userData.emails) {
-            that.emailPerso = "";//PR_14671
+            that.emails = userData.emails;
+            that.emailPerso = "";
             userData.emails.forEach(function (email) {
                 switch (email.type) {
                     case "work":
@@ -812,10 +927,207 @@ class Contact {
             that.phonePersoCan = "";
         }
 
+        if (userData.tags) {
+            that.tags = userData.tags
+        }
+
+        if (userData.isActive) {
+            that.isActive = userData.isActive;
+        }
+        if (userData.accountType) {
+            that.accountType = userData.accountType;
+        }
+        if (userData.systemId) {
+            that.systemId = userData.systemId;
+        }
+        if (userData.isInitialized) {
+            that.isInitialized = userData.isInitialized;
+        }
+        if (userData.initializationDate) {
+            that.initializationDate = userData.initializationDate;
+        }
+        if (userData.createdBySelfRegister) {
+            that.createdBySelfRegister = userData.createdBySelfRegister;
+        }
+        if (userData.createdByAppId) {
+            that.createdByAppId = userData.createdByAppId;
+        }
+        if (userData.firstLoginDate) {
+            that.firstLoginDate = userData.firstLoginDate;
+        }
+        if (userData.lastLoginDate) {
+            that.lastLoginDate = userData.lastLoginDate;
+        }
+        if (userData.loggedSince) {
+            that.loggedSince = userData.loggedSince;
+        }
+        if (userData.failedLoginAttempts) {
+            that.failedLoginAttempts = userData.failedLoginAttempts;
+        }
+        if (userData.lastLoginFailureDate) {
+            that.lastLoginFailureDate = userData.lastLoginFailureDate;
+        }
+        if (userData.lastExpiredTokenRenewedDate) {
+            that.lastExpiredTokenRenewedDate = userData.lastExpiredTokenRenewedDate;
+        }
+        if (userData.lastPasswordUpdateDate) {
+            that.lastPasswordUpdateDate = userData.lastPasswordUpdateDate;
+        }
+        if (userData.timeToLive) {
+            that.timeToLive = userData.timeToLive;
+        }
+        if (userData.timeToLiveDate) {
+            that.timeToLiveDate = userData.timeToLiveDate;
+        }
+        if (userData.terminatedDate) {
+            that.terminatedDate = userData.terminatedDate;
+        }
+        if (userData.fileSharingCustomisation) {
+            that.fileSharingCustomisation = userData.fileSharingCustomisation;
+        }
+        if (userData.userTitleNameCustomisation) {
+            that.userTitleNameCustomisation = userData.userTitleNameCustomisation;
+        }
+        if (userData.softphoneOnlyCustomisation) {
+            that.softphoneOnlyCustomisation = userData.softphoneOnlyCustomisation;
+        }
+        if (userData.useRoomCustomisation) {
+            that.useRoomCustomisation = userData.useRoomCustomisation;
+        }
+        if (userData.phoneMeetingCustomisation) {
+            that.phoneMeetingCustomisation = userData.phoneMeetingCustomisation;
+        }
+        if (userData.useChannelCustomisation) {
+            that.useChannelCustomisation = userData.useChannelCustomisation;
+        }
+        if (userData.useScreenSharingCustomisation) {
+            that.useScreenSharingCustomisation = userData.useScreenSharingCustomisation;
+        }
+        if (userData.useWebRTCAudioCustomisation) {
+            that.useWebRTCAudioCustomisation = userData.useWebRTCAudioCustomisation;
+        }
+        if (userData.useWebRTCVideoCustomisation) {
+            that.useWebRTCVideoCustomisation = userData.useWebRTCVideoCustomisation;
+        }
+        if (userData.instantMessagesCustomisation) {
+            that.instantMessagesCustomisation = userData.instantMessagesCustomisation;
+        }
+        if (userData.userProfileCustomisation) {
+            that.userProfileCustomisation = userData.userProfileCustomisation;
+        }
+        if (userData.fileStorageCustomisation) {
+            that.fileStorageCustomisation = userData.fileStorageCustomisation;
+        }
+        if (userData.overridePresenceCustomisation) {
+            that.overridePresenceCustomisation = userData.overridePresenceCustomisation;
+        }
+        if (userData.changeTelephonyCustomisation) {
+            that.changeTelephonyCustomisation = userData.changeTelephonyCustomisation;
+        }
+        if (userData.changeSettingsCustomisation) {
+            that.changeSettingsCustomisation = userData.changeSettingsCustomisation;
+        }
+        if (userData.recordingConversationCustomisation) {
+            that.recordingConversationCustomisation = userData.recordingConversationCustomisation;
+        }
+        if (userData.useGifCustomisation) {
+            that.useGifCustomisation = userData.useGifCustomisation;
+        }
+        if (userData.useDialOutCustomisation) {
+            that.useDialOutCustomisation = userData.useDialOutCustomisation;
+        }
+        if (userData.fileCopyCustomisation) {
+            that.fileCopyCustomisation = userData.fileCopyCustomisation;
+        }
+        if (userData.fileTransferCustomisation) {
+            that.fileTransferCustomisation = userData.fileTransferCustomisation;
+        }
+        if (userData.forbidFileOwnerChangeCustomisation) {
+            that.forbidFileOwnerChangeCustomisation = userData.forbidFileOwnerChangeCustomisation;
+        }
+        if (userData.readReceiptsCustomisation) {
+            that.readReceiptsCustomisation = userData.readReceiptsCustomisation;
+        }
+        if (userData.useSpeakingTimeStatistics) {
+            that.useSpeakingTimeStatistics = userData.useSpeakingTimeStatistics;
+        }
+        if (userData.selectedAppCustomisationTemplate) {
+            that.selectedAppCustomisationTemplate  = userData.selectedAppCustomisationTemplate;
+        }
+        if (userData.alertNotificationReception) {
+            that.alertNotificationReception = userData.alertNotificationReception;
+        }
+        if (userData.selectedDeviceFirmware) {
+            that.selectedDeviceFirmware = userData.selectedDeviceFirmware;
+        }
+        if (userData.visibility) {
+            that.visibility = userData.visibility;
+        }
+        if (userData.jid_password) {
+            that.jid_password = userData.jid_password;
+        }
+        if (userData.creationDate) {
+            that.creationDate = userData.creationDate;
+        }
+        if (userData.profiles) {
+            that.profiles = userData.profiles;
+        }
+        if (userData.activationDate) {
+            that.activationDate = userData.activationDate;
+        }
+        if (userData.lastOfflineMailReceivedDate) {
+            that.lastOfflineMailReceivedDate = userData.lastOfflineMailReceivedDate;
+        }
+        if (userData.state) {
+            that.state = userData.state;
+        }
+        if (userData.authenticationType) {
+            that.authenticationType = userData.authenticationType;
+        }
+        if (userData.department) {
+            that.department = userData.department;
+        }
+        if (userData.isADSearchAvailable) {
+            that.isADSearchAvailable = userData.isADSearchAvailable;
+        }
+        if (userData.isTv) {
+            this.isTv = userData.isTv;
+        }        
+        if (userData.calendars) {
+            this.calendars = userData.calendars;
+        }
+        if (userData.openInvites) {
+            this.openInvites = userData.openInvites;
+        }
+
         // Compute display name
         that.computeDisplayName();
+
+        // dev-code //
+        that.checkPropertiesName(userData);
+        // end-dev-code //
+
     }
 
+    checkPropertiesName(obj : any){
+        let objProperties = Object.getOwnPropertyNames(this);
+        /* objProperties.forEach((prop) => {
+            console.log("Contact obj propertie Name : ", prop);
+        }); // */
+        Object.getOwnPropertyNames(obj).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    if (!objProperties.find((el) => {
+                        return val == el;
+                    })) {
+                        // dev-code-console //
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                        console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val);
+                        // end-dev-code-console //
+                    }
+                });
+    }
+    
     isGuest() {
         return this.guestMode;
     };

@@ -195,8 +195,8 @@ class XMPPService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (withXMPP) {
-                    that.logger.log("debug", LOG_ID + "(start) host used : ", that.host);
-                    that.logger.log("info", LOG_ID + "(start) XMPP URL : ", that.serverURL);
+                    that.logger.log("debug", LOG_ID + "(start) XMPP host used : ", that.host);
+                    that.logger.log("info", LOG_ID + "(start) XMPP serverURL : ", that.serverURL);
                 } else {
                     that.logger.log("info", LOG_ID + "(start) XMPP connection blocked by configuration");
                 }
@@ -326,23 +326,29 @@ class XMPPService extends GenericService {
 
     startOrResetIdleTimer(incomingStanza = false) {
         if ((this.pingTimer && !incomingStanza) || (this.reconnect && this.reconnect.isReconnecting)) {
+            this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) canceled with this.pingTimer : ", this.pingTimer, ", incomingStanza : ", incomingStanza, ", this.reconnect.isReconnecting : ", this.reconnect.isReconnecting );
             return;
         }
         this.stopIdleTimer();
         if (!this.forceClose) {
+            this.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of ping Timer.");
             this.idleTimer = setTimeout(() => {
-                this.logger.log("internal", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
+                this.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) No message received since " + MAX_IDLE_TIMER / 1000 + " seconds.");
                 // Start waiting an answer from server else reset the connection
                 this.pingTimer = setTimeout(() => {
                     this.pingTimer = null;
+                    this.logger.log("error", LOG_ID + "(startOrResetIdleTimer) forceClose not setted pindTimer ellapsed and MAX_PING_ANSWER_TIMER happenned, so this.xmppClient.socket.end().");
                     this.xmppClient.socket && this.xmppClient.socket.end();
                 }, MAX_PING_ANSWER_TIMER);
                 this.sendPing();
             }, MAX_IDLE_TIMER);
+        } else {
+            this.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose setted so do not send ping.");
         }
     }
 
     stopIdleTimer() {
+        this.logger.log("debug", LOG_ID + "(stopIdleTimer).");
         if (this.idleTimer) {
             clearTimeout(this.idleTimer);
             this.idleTimer = null;
@@ -360,7 +366,7 @@ class XMPPService extends GenericService {
         let domain = that.xmppUtils.getDomainFromFullJID(this.fullJid);
 
         let options = {agent: null};
-        Object.assign(options, headers);
+        //Object.assign(options, headers); // headers not supoorted by xmpp/client. Needs to put it with query param in url.
         let opt = url.parse(this.proxy.proxyURL);
         if (this.proxy.isProxyConfigured) {
             if (this.proxy.secureProtocol) {
@@ -385,8 +391,17 @@ class XMPPService extends GenericService {
 
         //"domain": {enter(node) {
         //}, exit(node){}},
+        // GET /websocket?x-rainbow-client=web_sdk&x-rainbow-client-version=v2.0.1-lts&x-rainbow-xmpp-dom=openrainbow.net
+        let urlToConnect = that.serverURL + "?x-rainbow-xmpp-dom=" + domain;
+                    
+        if (headers.headers["x-rainbow-client"]) {
+            urlToConnect += "&x-rainbow-client=" + headers.headers["x-rainbow-client"];
+        }
+        if (headers.headers["x-rainbow-client-version"]) {
+            urlToConnect += "&x-rainbow-client-version=" + headers.headers["x-rainbow-client-version"];
+        }
         let xmppLinkOptions = {
-            "service": that.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+            "service": urlToConnect,
             "domain": domain,
             "resource": that.resourceId,
             "username": that.fullJid,
@@ -400,7 +415,7 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore);
+        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore, this.copyMessage);
 
         //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
         that.reconnect = this.xmppClient.reconnect;
@@ -451,8 +466,8 @@ class XMPPService extends GenericService {
             }
         });
 
-        that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (msg) {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", msg);
+        that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (status, value) {
+            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value ? value.toString() : "");
             /* if (msg === "closing") {
                  that.xmppClient.restartConnect().then((res) => {
                      that.logger.log("debug", LOG_ID + "(handleXMPPConnection) restartConnect result : ", res);
@@ -538,7 +553,6 @@ class XMPPService extends GenericService {
             }
             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
             //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
-            that.stopIdleTimer();
             if (that.reconnect && err) {
                 // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
                 switch (err.condition) {
@@ -548,6 +562,7 @@ class XMPPService extends GenericService {
                     case "resource-constraint":
                     case "connection-timeout":
                     case "system-shutdown":
+                        that.stopIdleTimer();
                         let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
                         that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
                         await setTimeoutPromised(waitime);
@@ -586,6 +601,7 @@ class XMPPService extends GenericService {
                         that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                     case "conflict":
                     case "unsupported-version":
+                        that.stopIdleTimer();
                         that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                         that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
                         break;
@@ -596,6 +612,7 @@ class XMPPService extends GenericService {
                         break;
                 }
             } else {
+                that.stopIdleTimer();
                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
             }
         });
@@ -670,7 +687,7 @@ class XMPPService extends GenericService {
 
 
         that.xmppClient.start({
-            uri: this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
+            uri: urlToConnect, //this.serverURL + "?x-rainbow-xmpp-dom=" + domain,
             domain: domain
         }).then((jid) => {
             /* <iq type='get'
@@ -785,6 +802,8 @@ class XMPPService extends GenericService {
         }
     }
 
+    //region Carbon
+    
     //Message Carbon XEP-0280
     enableCarbon() {
         let that = this;
@@ -807,6 +826,30 @@ class XMPPService extends GenericService {
         that.logger.log("warn", LOG_ID + "(enableCarbon) No XMPP connection...");
         return Promise.resolve(null);
     }
+
+    disableCarbon() {
+        let that = this;
+        if (this.useXMPP) {
+            let stanza = xml("iq", {
+                "type": "set",
+                id: "disable_xmpp_carbon"
+            }, xml("disable", {xmlns: NameSpacesLabels.Carbon2NameSpace}));
+            this.logger.log("internal", LOG_ID + "(disable) send - 'stanza'", stanza.toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanza).then(() => {
+                    that.logger.log("debug", LOG_ID + "(disable) sent");
+                    resolve(undefined);
+                }).catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+        that.logger.log("warn", LOG_ID + "(disableCarbon) No XMPP connection...");
+        return Promise.resolve(null);
+    }
+
+    //endregion Carbon
 
     sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
@@ -835,6 +878,12 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             let answeredMsgId = null;
             let answeredMsgDate = null;
@@ -906,6 +955,12 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             if (subject) {
                 stanza.append(xml("subject", {
@@ -979,7 +1034,7 @@ class XMPPService extends GenericService {
 
     }
 
-    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, urgency: string = null) {
+    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, content = null) {
         let that = this;
 //        $log.info("[Conversation] >sendCorrectedChatMessage: origMsgId=" + origMsgId)
 
@@ -1006,6 +1061,21 @@ class XMPPService extends GenericService {
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
+
+            if (that.copyMessage == false) {
+                xmppMessage.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
+            if (content && content.message) {
+                let contentType = content.type || "text/markdown";
+                xmppMessage.append(xml("content", {
+                    "type": contentType,
+                    "xmlns": NameSpacesLabels.ContentNameSpace
+                }, content.message));
+            }
+
         }
         // Handle Room conversation message
         else {
@@ -1016,13 +1086,12 @@ class XMPPService extends GenericService {
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
             );
+            if (that.copyMessage == false) {
+                xmppMessage.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
         }
-
-        // Handle urgency
-        if (urgency && urgency !== 'std') {
-            xmppMessage.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
-        }
-
 
         // message = this.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
         if (!originalMessage) {
@@ -1069,6 +1138,12 @@ class XMPPService extends GenericService {
                 "entity": "client",
                 "id": message.id
             }));
+
+            if (that.copyMessage == false) {
+                stanzaRead.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             this.logger.log("internal", LOG_ID + "(markMessageAsRead) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
@@ -1168,6 +1243,12 @@ class XMPPService extends GenericService {
                 "id": message.id
             }));
 
+            if (that.copyMessage == false) {
+                stanzaRead.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
             this.logger.log("internal", LOG_ID + "(markMessageAsReceived) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanzaRead).then(() => {
@@ -1226,6 +1307,12 @@ class XMPPService extends GenericService {
                 })
             );
 
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+            
             that.logger.log("internal", LOG_ID + "(sendChatExistingFSMessage) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
                 that
@@ -1284,6 +1371,12 @@ class XMPPService extends GenericService {
                 })
             );
 
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
             that.logger.log("internal", LOG_ID + "(sendChatExistingFSMessageToBubble) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
@@ -1324,6 +1417,12 @@ class XMPPService extends GenericService {
             }, xml(state, {
                 "xmlns": NameSpacesLabels.ChatestatesNameSpace
             }));
+
+            if (that.copyMessage == false) {
+                stanzaRead.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             this.logger.log("internal", LOG_ID + "(sendIsTypingState) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
@@ -1594,6 +1693,12 @@ class XMPPService extends GenericService {
             "id": that.xmppUtils.getUniqueMessageId()
         });
 
+        if (that.copyMessage == false) {
+            message.append(xml("no-copy", {
+                "xmlns": NameSpacesLabels.HintsNameSpace
+            }));
+        }
+
         let msg = message.append(xml("read", {xmlns: NameSpacesLabels.CallLogAckNamespace, call_id: id}));
 
         return await this.xmppClient.sendIq(msg);
@@ -1614,6 +1719,12 @@ class XMPPService extends GenericService {
                     "to": that.jid_im,
                     "id": that.xmppUtils.getUniqueMessageId()
                 });
+
+                if (that.copyMessage == false) {
+                    message.append(xml("no-copy", {
+                        "xmlns": NameSpacesLabels.HintsNameSpace
+                    }));
+                }
 
                 let msg = message.append(xml("read", {
                     "xmlns": NameSpacesLabels.CallLogAckNamespace,
@@ -1783,7 +1894,7 @@ class XMPPService extends GenericService {
                 "id": id
             }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
-            this.logger.log("internal", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
+            this.logger.log("debug", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
             return this.xmppClient.send(stanza).catch((error) => {
                 this.logger.log("error", LOG_ID + "(sendPing) error ");
                 this.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
@@ -1825,6 +1936,12 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
                 })
             ));
+
+            if (that.copyMessage == false) {
+                root.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
 
             // let root = imMessage.Data;
 

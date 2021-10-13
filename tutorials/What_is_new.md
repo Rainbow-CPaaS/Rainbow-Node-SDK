@@ -6,6 +6,208 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.5.0 - STS Version - October 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Update `BubblesService::retrieveAllBubblesByTags` with `format` and `nbUsersToKeep` parameters to define the retrieve more or less room details in response.
+
+**Others Changes**
+
+-   Fix import of strip-ansi which is now a node module and not a commonjs anymore.
+-   Fix `BubblesService::retrieveAllBubblesByTags` when multiple tags are passed in parameter.
+-   Add Management of "Client Version" : `AdminService::createAClientVersion` `AdminService::deleteAClientVersion` `AdminService::getAClientVersionData` `AdminService::getAllClientsVersions` `AdminService::updateAClientVersion`. These api are used to manage the minimal required version for a given client application (by AppID).
+-   Add methods in RESTService to deal with Rainbow Voice system (not yet available on API).
+-   Add property in options passed to SDK : {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
+-   Add property in options passed to SDK : {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
+-   Add "x-rainbow-client" "x-rainbow-client-version" properties in Headers of every requests to make stats.
+-   Fix `AdminService::getCSVTemplate` method.
+
+
+### SDK for Node.JS 2.4.0 - STS Version - September 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   Fix typo in methods `AdminService::retrieveAllSubscribtionsOfCompanyById` to `AdminService::retrieveAllSubscriptionsOfCompanyById` and `AdminService::getSubscribtionsOfCompanyByOfferId` to `AdminService::getSubscriptionsOfCompanyByOfferId`
+
+**API Changes**
+
+-   Update `ContactsService::getContactByLoginEmail` method with a new parameter `forceServerSearch` boolean to force the search of the _contacts informations on the server.
+-   Update `ImsService::sendMessageToConversation` with a new 'content' parameter to update message with a typed message.
+
+**Others Changes**
+
+-   Update typescript lib `es2017` to `es2019`
+-   Fix `ConversationsService::_onReceipt` callback to not failed even if the conversation is empty.
+-   Fix pendingMessages treatment between Array and Object methods mixed in ConversationsService.
+-   Add method API `AlertsService::getAlertFeedbackSentForANotificationMessage`. This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id).
+-   Add method API `AlertsService::getAlertFeedbackSentForAnAlert`. This API allows to list the feedback sent by the devices for a given notification. 
+-   Add method API `AlertsService::getAlertStatsFeedbackSentForANotificationMessage`. This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. 
+-   Add method API `AlertsService::getReportComplete`. Allows to get the fileDescriptor storing the detailed CSV report of the notification.  
+-   Add method API `AlertsService::getAlertFeedbackSentForANotificationMessage`.
+-   Add support of oauth tokens provided by application at `start` of the SDK and also the api to set the renewed token `setRenewedToken`. There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example
+-   Fix `alternativeContent` in `Message` object constructor.   
+-   Fix `emails` property in `Contact` object.
+-   Add in `Contact` object properties isActive, accountType, systemId, isInitialized, initializationDate, createdBySelfRegister, createdByAppId, firstLoginDate, lastLoginDate, loggedSince, failedLoginAttempts, lastLoginFailureDate, lastExpiredTokenRenewedDate, lastPasswordUpdateDate, timeToLive, timeToLiveDate, terminatedDate, fileSharingCustomisation, userTitleNameCustomisation, softphoneOnlyCustomisation, useRoomCustomisation, phoneMeetingCustomisation, useChannelCustomisation, useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, instantMessagesCustomisation, userProfileCustomisation, fileStorageCustomisation, overridePresenceCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, recordingConversationCustomisation, useGifCustomisation, useDialOutCustomisation, fileCopyCustomisation, fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics, selectedAppCustomisationTemplate, alertNotificationReception, selectedDeviceFirmware, visibility, jid_password, creationDate, profiles, activationDate, lastOfflineMailReceivedDate, state, authenticationType, department, isADSearchAvailable, isTv, calendars, openInvites.
+-   Add support of `Oauth token` provided at `start` of the SDK. In this use case application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : </br> * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. </br> * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time.
+-   Remove the "Authorization" property from http headers when openning the XMPP socket.
+-   Add `ContactsService::getMyInformations` API to Get informations about the connected user.
+-   Update stop of logger to stop winston library.
+-   Fix the XMPPService (handleXMPPConnection) when ERROR_EVENT happenned to stop the ping timer only when the error is a fatal one.
+-   Change to keep DEBUG with "logs.system-dev.*" in STS delivery. Do not forget that when properties of this section are setted then personnal datas are displayed in logs, so it is not RGPD compatible.is Do not activate it in production systems.  
+
+
+### SDK for Node.JS 2.2.0 - STS Version - June 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Fix delete of item in `ContactsService::cleanMemoryCache ` method.
+-   Fix `ConversationsService::openConversationForContact` when dbid is empty to get conversation from serveur side.
+-   Add `AdminService::createDirectoryEntry` API that allows administrators to Create a directory entry.
+-   Add `AdminService::deleteCompanyDirectoryAllEntry` API that allows administrators administrators  to delete all the entries in the directory of a company they administrate.
+-   Add `AdminService::deleteDirectoryEntry` API that allows administrators to delete an entry from the directory of a company they administrate.
+-   Add `AdminService::getDirectoryEntryData` API that allows administrators to get an entry of the directory of a company they administrate.
+-   Add `AdminService::getListDirectoryEntriesData` API that allows administrators to get a list of directory entries data of a company they administrate.
+-   Add `AdminService::updateDirectoryEntry` API that allows administrators to get an entry of the directory of a company they administrate.
+-   Add `AdminService::exportDirectoryCsvFile` API that allows administrators to export the directory in a CSV file.
+-   Add `AdminService::ImportDirectoryCsvFile` API that allows administrators to import the directory from a CSV file.
+-   Add `AdminService::getAllTagsAssignedToDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.
+-   Add `AdminService::removeTagFromAllDirectoryEntries` API that allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.
+-   Add `AdminService::renameTagForAllAssignedDirectoryEntries` API that allows administrators to rename a tag being assigned to some directory entries.
+-   Add `AdminService::getStatsRegardingTagsOfDirectoryEntries` API that allows administrators to list all the tags being assigned to the directory entries.
+-   Fix use of addParamToUrl method.
+-   Add `BubblesService::addPSTNParticipantToConference` API that Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number.
+-   Add `BubblesService::snapshotConference` The snapshot command returns global information about conference and the set of participants engaged in the conference. .
+-   Add `BubblesService::delegateConference` API that allows Current owner of the conference delegates its control to another user.
+-   Add `BubblesService::disconnectPSTNParticipantFromConference` API that Disconnect PSTN participant from conference.
+-   Add `BubblesService::disconnectParticipantFromConference` API that Disconnect participant from conference.
+-   Add `BubblesService::getTalkingTimeForAllPparticipantsInConference` The snapshot command returns global information about conference and the set of participants engaged in the conference. .
+-   Add `BubblesService::joinConferenceV2` The snapshot command returns global information about conference and the set of participants engaged in the conference.
+-   Add `BubblesService::pauseRecording` API that allows Pauses the recording of a conference.
+-   Add `BubblesService::resumeRecording` API that allows Resume the recording of a conference. .
+-   Add `BubblesService::startRecording` API that allows Start the recording of a conference.
+-   Add `BubblesService::stopRecording` API that allows Stop the recording of a conference.
+-   Add `BubblesService::rejectAVideoConference` API that allows User indicates that he rejects the conference (only available for WebRTC conferences).
+-   Add `BubblesService::startConferenceOrWebinarInARoom` API that allows The start command initiates a conference in a room.
+-   Add `BubblesService::stopConferenceOrWebinar` API that allows The stop command terminates an active conference identified in a room. All currently connected participants are disconnected.
+-   Add `BubblesService::subscribeForParticipantVideoStream` API that Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user.
+-   Add `BubblesService::updatePSTNParticipantParameters` API that allows The update PSTN participant command can update different options of a participant.
+-   Add `BubblesService::updateConferenceParameters` API that allows The update conference command can update different options of a conference.
+-   Add `BubblesService::updateParticipantParameters` API that allows The update participant command can update different options of a participant.
+-   Add `BubblesService::allowTalkWebinar` API that allows Webinar: allow a participant who raised his hand to talk.
+-   Add `BubblesService::disableTalkWebinar` API that allows Webinar: disable a participant who raised his hand to talk.
+-   Add `BubblesService::lowerHandWebinar` API that allows Webinar: participant lowers hand.
+-   Add `BubblesService::raiseHandWebinar` API that allows Webinar: participant raises hand.
+-   Add `BubblesService::stageDescriptionWebinar` API that allows Webinar: stage description (up to 10 actors).
+-   Add treatment of xmpp event of "startConference" and "stopConference" for conference V2.
+-   Fix export of `DataStoreType` in NodeSDK.  
+
+
+### SDK for Node.JS 2.1.0 - STS Version - June 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: Starting 2019, the LTS active version of Node.js migrated to version 12.x. This version of SDK Node.js is only compliant with this LTS version up to 10.x.
+Consequently, you need to update your Node.js version to 10.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   none
+
+**API Changes**
+
+-   none
+
+**Others Changes**
+
+-   Fix null Contact in `ContactsService::cleanMemoryCache()` method.
+-   Fix S2SService::stop method.
+-   Fix quotes in generated version.json file. 
+-   Start implementation of "Rainbow Voice Communication Platform Provisioning" API.
+-   Add `AdminService::getCloudPbxById` API that allows administrator to retrieve a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPbxs` API that allows administrator to retrieve a list of CloudPBXs.
+-   Add `AdminService::subscribeCompanyToAlertOffer` API that allows administrator to subscribe one company to offer Alert. Private offer on .Net platform.
+-   Add `AdminService::unSubscribeCompanyToAlertOffer` API that allows administrator to unsubscribe one company to offer Alert. Private offer on .Net platform.
+-   Add `AdminService::subscribeCompanyToVoiceEnterpriseOffer` API Method to subscribe one company to offer Voice Enterprise.
+-   Add `AdminService::unSubscribeCompanyToVoiceEnterpriseOffer` API Method to unsubscribe one company to offer Voice Enterprise.
+-   Add `AdminService::updateCloudPBX` API that allows administrator to update a CloudPBX using its identifier.
+-   Add `AdminService::deleteCloudPBX` API that allows administrator to delete a CloudPBX using its identifier.
+-   Add `AdminService::createACloudPBX` API that allows administrator to creates a CloudPBX for a given company.
+-   Add `AdminService::getCloudPBXCLIPolicyForOutboundCalls` API that allows administrator to retrieve the CloudPBX CLI options for outbound calls using its identifier.
+-   Add `AdminService::updateCloudPBXCLIOptionsConfiguration` API that allows administrator to update a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXlanguages` API that allows administrator to retrieve a list of languages supported by a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXDeviceModels` API that allows administrator to retrieve a list of device models supported by a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXTrafficBarringOptions` API that allows administrator to retrieve a list of traffic barring options supported by a CloudPBX using its identifier.
+-   Add `AdminService::getCloudPBXEmergencyNumbersAndEmergencyOptions` API that allows administrator to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier.
+-   Add `AdminService::CreateCloudPBXSIPDevice` API that allows administrator to create a new SIP device into a CloudPBX.
+-   Add `AdminService::factoryResetCloudPBXSIPDevice` API that allows administrator to reset a SIP deskphone device to its factory settings.
+-   Add `AdminService::getCloudPBXSIPDeviceById` API that allows administrator to retrieve a SIP device using the given deviceId.
+-   Add `AdminService::deleteCloudPBXSIPDevice` API that allows administrator to remove a SIP Device from a CloudPBX.
+-   Add `AdminService::updateCloudPBXSIPDevice` API that allows administrator to update a SIP device.
+-   Add `AdminService::getAllCloudPBXSIPDevice` API that allows administrator to filter devices according their assignment to a subscriber false, allows to obtain all devices not yet assigned to a subscriber.
+-   Add `AdminService::getCloudPBXSIPRegistrationsInformationDevice` API that allows administrator to retrieve SIP registrations information relative to a device.
+-   Add `AdminService::grantCloudPBXAccessToDebugSession` API that allows administrator to grant access to debug session on the given device.
+-   Add `AdminService::revokeCloudPBXAccessFromDebugSession` API that allows administrator to revoke access to debug session on the given device.
+-   Add `AdminService::rebootCloudPBXSIPDevice` API that allows administrator to reboot a SIP deskphone device.
+-   Add `AdminService::getCloudPBXSubscriber` API that allows administrator to get data of a CloudPBX Subscriber.
+-   Add `AdminService::deleteCloudPBXSubscriber` API that allows administrator to delete a CloudPBX Subscriber
+-   Add `AdminService::createCloudPBXSubscriberRainbowUser` API that allows administrator to create a new CloudPBX Subscriber for a Rainbow User.
+-   Add `AdminService::getCloudPBXSIPdeviceAssignedSubscriber` API that allows administrator to retrieve a given SIP device assigned to a subscriber.
+-   Add `AdminService::removeCloudPBXAssociationSubscriberAndSIPdevice` API that allows administrator to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).
+-   Add `AdminService::getCloudPBXAllSIPdevicesAssignedSubscriber` API that allows administrator to retrieve all SIP devices assigned to a subscriber.
+-   Add `AdminService::getCloudPBXInfoAllRegisteredSIPdevicesSubscriber` API that allows administrator to retrieve registrations info on all devices registered for a subscriber.
+-   Add `AdminService::assignCloudPBXSIPDeviceToSubscriber` API that allows administrator to assign a SIP device to a CloudPBX Subscriber.
+-   Add `AdminService::getCloudPBXSubscriberCLIOptions` API that allows administrator to get CLI policy of a CloudPBX Subscriber.
+-   Add `AdminService::getCloudPBXUnassignedInternalPhonenumbers` API that allows administrator to list all unassigned internal phone numbers for a given CloudPBX system.
+-   Add `AdminService::listCloudPBXDDINumbersAssociated` API that allows administrator to get the list of DDI numbers associated to a CloudPBX.
+-   Add `AdminService::createCloudPBXDDINumber` API that allows administrator to create a DDI number for a CloudPBX.
+-   Add `AdminService::deleteCloudPBXDDINumber` API that allows administrator to delete a DDI number for a CloudPBX.
+-   Add `AdminService::associateCloudPBXDDINumber` API that allows administrator to associate a DDI number to a Rainbow user.
+-   Add `AdminService::disassociateCloudPBXDDINumber` API that allows administrator to disassociate a DDI number from a Rainbow user.
+-   Add `AdminService::setCloudPBXDDIAsdefault` API that allows administrator to set a DDI number as default DDI for a CloudPBX.
+-   Add `AdminService::retrieveExternalSIPTrunkById` API that allows administrator to retrieve an external SIP trunk using its identifier.
+-   Add `AdminService::retrievelistExternalSIPTrunks` API that allows administrator to retrieve a list of external SIP trunks.
+
+
 ### SDK for Node.JS 2.0.1-lts.2 - June 2021
 
 ---
@@ -31,6 +233,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Fix null Contact in `ContactsService::cleanMemoryCache()` method.
 -   Fix S2SService::stop method.
 -   Fix quotes in generated version.json file. 
+
 
 ### SDK for Node.JS 2.0.0 - May 2021
 

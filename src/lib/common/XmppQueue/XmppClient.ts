@@ -26,6 +26,7 @@ const _middleware = require('@xmpp/middleware');
 const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
+//const debug = require("@xmpp/debug");
 
 const Element = require('ltx').Element;
 
@@ -45,6 +46,7 @@ class XmppClient  {
 	public password: any;
     socketClosed: boolean = false;
     storeMessages: any;
+    copyMessage: any = true;
     rateLimitPerHour: any;
     private nbMessagesSentThisHour: number;
     lastTimeReset: Date;
@@ -65,6 +67,7 @@ class XmppClient  {
             return {};
         };
         this.client = client(...args);
+        //debug(this.client, true);
         this.socket = client.socket;
         this.client.getQuery('urn:xmpp:ping', 'ping', ctx => { return {} });
         this.client.setQuery('jabber:iq:roster', 'query', this.iqSetEventRoster);
@@ -75,7 +78,7 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore) {
+    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage) {
         let that = this;
         that.logger = _logger;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
@@ -84,6 +87,7 @@ class XmppClient  {
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
         that.lastTimeReset = new Date ();
+        that.copyMessage = _copyMessage;
 
         if (that.messagesDataStore) {
             switch (that.messagesDataStore) {
@@ -136,11 +140,13 @@ class XmppClient  {
         //let children = stanza.children;
         let iqId = stanza.attrs.id;
         let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
-        that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, msg, errorMsg);
+        that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, ", msg : ", msg, ", errorMsg : ", errorMsg, ", that.iqGetEventWaiting[iqId] : ", that.iqGetEventWaiting[iqId]);
         // reject and delete the waiting iq.
         if (typeof that.iqGetEventWaiting[iqId] === "function") {
+            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
             that.iqGetEventWaiting[iqId](stanza);
         } else {
+            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived delete iqGetEventWaiting function id : ", iqId);
             delete that.iqGetEventWaiting[iqId];
         }
     };
@@ -235,6 +241,12 @@ class XmppClient  {
                         //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
                     }
 
+                    /*if (that.copyMessage == false) {
+                        stanza.append(xml("no-copy", {
+                            "xmlns": NameSpacesLabels.HintsNameSpace
+                        }));
+                    }//*/
+                    
                     // test the rate-limit
                     if (this.nbMessagesSentThisHour > that.rateLimitPerHour) {
                         let timeWhenRateLimitPerHourHappens = new Date().getTime();

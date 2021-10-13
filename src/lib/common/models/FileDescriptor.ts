@@ -86,7 +86,7 @@ interface IFileDescriptor {
     isUploaded(): boolean;
     isAlreadyFileViewer(viewerId: string): boolean;
     getDisplayName(): string;
-    getDisplayNameTruncated(): String[];
+    getDisplayNameTruncated(): string[];
     getExtension(): string;
 }
 
@@ -318,7 +318,7 @@ class FileDescriptor implements IFileDescriptor {
         return this.fileName.replace(/\.[^/.]+$/, "");
     }
 
-    public getDisplayNameTruncated(): String[] {
+    public getDisplayNameTruncated(): string[] {
         var str = this.fileName.replace(/\.[^/.]+$/, "");
         return [str.substring(0, str.length - 4), str.slice(-4)];
     }

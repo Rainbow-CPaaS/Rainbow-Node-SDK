@@ -553,7 +553,7 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByID(id).then((_contactFromServer: any) => {
                         let contact: Contact = null;
                         if (_contactFromServer) {
-                            that._logger.log("internal", LOG_ID + "(getContactById) contact found on the server", _contactFromServer);
+                            that._logger.log("internal", LOG_ID + "(getContactById) contact found on the server : ", _contactFromServer);
                             that._logger.log("info", LOG_ID + "(getContactById) contact found on the server");
                             let contactIndex = that._contacts.findIndex((value) => {
                                 return value.jid_im===_contactFromServer.jid_im;
@@ -592,6 +592,7 @@ class ContactsService extends GenericService {
      * @method getContactByLoginEmail
      * @instance
      * @param {string} loginEmail The contact loginEmail
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
      *  Get a contact by his loginEmail <br/>
      * @async
@@ -599,7 +600,7 @@ class ContactsService extends GenericService {
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
      * @category async
      */
-    async getContactByLoginEmail(loginEmail : string): Promise<Contact> {
+    async getContactByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<Contact> {
 
         let that = this;
 
@@ -613,7 +614,7 @@ class ContactsService extends GenericService {
                 let contactFound: Contact = null;
                 let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
 
-                if (that._contacts) {
+                if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
                         return contact.loginEmail===loginEmail;
                     });
@@ -677,6 +678,30 @@ class ContactsService extends GenericService {
         });
     }
 
+    /**
+     * @public
+     * @method getMyInformations
+     * @instance
+     * @description
+     *  Get informations about the connected user <br/>
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - Found informations or null or an error object depending on the result
+     * @category async
+     */
+    getMyInformations(): Promise<Contact> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+                    that._logger.log("debug", LOG_ID + "(getMyInformations) Ask the server...");
+                    that._rest.getMyInformations().then((_contactFromServer: any) => {
+                        that._logger.log("internal", LOG_ID + "(getMyInformations) contact informations found on server : ", _contactFromServer);
+                        resolve(_contactFromServer);
+                    }).catch((err) => {
+                        return reject(err);
+                    });
+        });
+    }
+    
     /**
      * @public
      * @method getAvatarByContactId

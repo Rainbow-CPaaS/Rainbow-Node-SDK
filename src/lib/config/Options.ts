@@ -208,13 +208,15 @@ class Options {
     }
 
     _isOfficialRainbow () {
-        return (this._options.rainbow.host === "official");
+        return (this._options.rainbow.host === "official" || this._options.rainbow.host === "openrainbow.com");
+        //return (this._options.rainbow.host === "official" );
     }
 
     _getHTTPOptions() {
         let httpOptions = config.sandbox.http;
 
         switch (this._options.rainbow.host) {
+            case "openrainbow.com":
             case "official":
                 httpOptions = config.official.http;
                 this._logger.log("debug", LOG_ID + "(constructor) Use REST services on Rainbow Official platform");
@@ -236,6 +238,7 @@ class Options {
         let xmppOptions = config.sandbox.xmpp;
 
         switch (this._options.rainbow.host) {
+            case "openrainbow.com":
             case "official":
                 xmppOptions = config.official.xmpp;
                 this._logger.log("debug", LOG_ID + "(constructor) Use XMPP services on Rainbow Official platform");
@@ -260,6 +263,7 @@ class Options {
         let s2sOptions = config.sandbox.s2s;
 
         switch (this._options.rainbow.host) {
+            case "openrainbow.com":
             case "official":
                 s2sOptions = config.official.s2s;
                 if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
@@ -383,13 +387,14 @@ class Options {
             sendMessageToConnectedUser: false,
             conversationsRetrievedFormat: "small",
             storeMessages: false,
-            copyMessage: false,
+            copyMessage: true,
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialBubblePresence: true,
             autoLoadConversations: true,
-            autoLoadContacts: true
+            autoLoadContacts: true,
+            enableCarbon: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -400,16 +405,17 @@ class Options {
         }
 
         optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
-        optionsIM.sendMessageToConnectedUser = this._options.im.sendMessageToConnectedUser ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
+        optionsIM.sendMessageToConnectedUser = (this._options.im.sendMessageToConnectedUser == false) ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
         optionsIM.conversationsRetrievedFormat = this._options.im.conversationsRetrievedFormat ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
         optionsIM.storeMessages = this._options.im.storeMessages ? this._options.im.storeMessages : config.im.storeMessages;
-        optionsIM.copyMessage = this._options.im.copyMessage ? this._options.im.copyMessage : config.im.copyMessage;
+        optionsIM.copyMessage = (this._options.im.copyMessage == false) ? this._options.im.copyMessage : config.im.copyMessage;
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
         optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
 
         return optionsIM;
     }

@@ -26,6 +26,11 @@ import {ContactsService} from "./services/ContactsService";
 import {AlertsService} from "./services/AlertsService";
 import {ProfilesService} from "./services/ProfilesService";
 import {DataStoreType} from "./config/config";
+import {WebinarService} from "./services/WebinarService";
+import {RBVoiceService} from "./services/RBVoiceService";
+import {Logger} from "./common/Logger";
+
+let LOG_ID = "NodeSDK/IDX";
 
 /**
  * options SDK Startup options.
@@ -43,34 +48,36 @@ import {DataStoreType} from "./config/config";
  * @property {string} options.proxy.protocol "http", The proxy protocol (note http is used to https also).
  * @property {string} options.proxy.user "proxyuser", The proxy username.
  * @property {string} options.proxy.password "XXXXX", The proxy password.
- * @property {string} options.logs.enableConsoleLogs false, Activate logs on the console.
- * @property {string} options.logs.enableFileLogs false, Activate the logs in a file.
- * @property {string} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
- * @property {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)).
+ * @property {boolean} options.logs.enableConsoleLogs false, Activate logs on the console.
+ * @property {boolean} options.logs.enableFileLogs false, Activate the logs in a file.
+ * @property {boolean} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
+ * @property {boolean} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module, or notepad++ + python + error_list_lexer_support (https://github.com/Ekopalypse/NppPythonScripts/blob/master/npp/error_list_lexer_support.py) )).
  * @property {string} options.logs.level "info", The level of logs. The value can be "info", "debug", "warn", "error".
  * @property {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
  * @property {string} options.logs.file.path "c:/temp/", Path to the log file.
  * @property {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
- * @property {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
- * @property {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
- * @property {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
- * @property {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
- * @property {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
- * @property {string} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
- * @property {string} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
- * @property {string} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
+ * @property {boolean} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
+ * @property {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+ * @property {number} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
+ * @property {number} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
+ * @property {number} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
+ * @property {boolean} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
+ * @property {number} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+ * @property {boolean} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
  * @property {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
- * @property {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
- * @property {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
- * @property {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+ * @property {boolean} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
+ * @property {number} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
+ * @property {number} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
  * @property {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).</br>
  *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
  *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
  *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
- * @property {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
- * @property {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
- * @property {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+ * @property {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+ * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
+ * @property {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+ * @property {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
+ * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
  * @property {Object} options.servicesToStart <br>
  *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
  *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -290,6 +297,7 @@ class NodeSDK {
      *      The entry point of the Rainbow Node SDK.
      * @ param {OptionsType} options SDK Startup options.
      */
+    private logger: Logger;
     
     /**
      * @method constructor
@@ -409,18 +417,25 @@ class NodeSDK {
         //process.on("SIGUSR2", that.stopProcess());
 
         this._core = new Core(options);
+        this.logger = this._core.logger
     }
 
     /**
      * @public
      * @method start
      * @instance
-     * @param {String} token a valid token to login without login/password.
+     * @param {String} token a valid token to login without login/password. </br>
+     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : </br>
+     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. </br>
+     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. </br>
+     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. </br>
+     *      It is recommended to renew the token upon the arrival of this event. </br>
      * @description
      *    Start the SDK </br>
      *    Note :</br>
      *    The token must be empty to signin with credentials.</br>
      *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)</br>
+     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example </br>
      * @memberof NodeSDK
      */
     start(token) {
@@ -436,6 +451,7 @@ class NodeSDK {
                 if (!result) {result = {};}
                 result.startDuration = startDuration;
                 resolve(result);
+                //reject ({message : "Error !!!"});
             }).catch(async function(err) {
                 try {
                     await that.stop();
@@ -445,6 +461,8 @@ class NodeSDK {
                 
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(err));
+                    // It looks that winston is close before this line :(, so console is used. 
+                    // that.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop le SDK : ", err);
                     that.events.publish("connectionerror", err);
                     reject(err);
                 } else {
@@ -514,6 +532,20 @@ class NodeSDK {
         });
     }
 
+    /**
+     * @public
+     * @method setRenewedToken
+     * @instance
+     * @description
+     *    Set the token renewed externaly of the SDK. This is for oauth authentication.
+     * @memberof NodeSDK
+     */
+    setRenewedToken(strToken) {
+        let that = this;
+        return that._core.setRenewedToken(strToken);
+    }
+    
+    
     /**
      * @public
      * @method stop
@@ -834,6 +866,28 @@ class NodeSDK {
      */
     get alerts() : AlertsService{
         return this._core._alerts;
+    }
+
+    /**
+     * @public
+     * @property {RBVoiceService} alerts
+     * @description
+     *    Get access to the webinar module
+     * @return {RBVoiceService}
+     */
+    get rbvoice() : RBVoiceService {
+        return this._core._rbvoice;
+    }
+
+    /**
+     * @public
+     * @property {WebinarService} alerts
+     * @description
+     *    Get access to the webinar module
+     * @return {WebinarService}
+     */
+    get webinar() : WebinarService {
+        return this._core._webinar;
     }
 
     /**

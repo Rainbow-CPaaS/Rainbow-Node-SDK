@@ -10,9 +10,17 @@ const fs = require("fs");
 const colors = require("colors/safe");
 const util = require("util");
 const stripAnsi = require('strip-ansi');
+//import stripAnsi from 'strip-ansi';
+/* let stripAnsi;
+(async () => {
+    //import {stripAnsi} from 'strip-ansi';
+    stripAnsi = await import('strip-ansi');
+})();
+// */
 
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
+import {from} from "rxjs";
 
 const LOG_ID = "LOGS - ";
 
@@ -257,6 +265,10 @@ class Logger {
             }
         }
 
+        this._logger.stop = function () {
+            return that._winston.end();
+        }
+
         this._logger.log = function (level) {
             try {
                 if (level === "internal" || level === "internalerror") {
@@ -264,7 +276,7 @@ class Logger {
                         //level = (level === "internal") ? "debug" : "error";
                         let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
 
-                        // dev-code //
+                        // dev-code-internal //
                         if ( level === "internal") {
                             level = "debug";
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
@@ -279,7 +291,7 @@ class Logger {
                                 that.emit(level, that._logger.customLabel + datatolog);
                             }
                             /* */
-                        // end-dev-code //
+                        // end-dev-code-internal //
                         /*
                         if ( level === "internal") {
                             level = "debug";
@@ -412,12 +424,36 @@ class Logger {
             // No logs :-)
         }
 
+        /*
+        let loggers = winston.loggers;
+
+        for (const logguersKey in loggers) {
+            console.log("logguer : ", logguersKey, " : ", loggers[logguersKey]);
+        }
+        // */
+        
+        if (that._winston.writable) {
+            that._winston.on('error', () => {})
+                    .on('close', () => {})
+                    // flush isn't guaranteed to fire. Since files aren't flushed before 'finish' is fired,
+                    // wait 50ms before closing the logger.
+                    .on('finish', () => {
+                                setTimeout(() => {
+                                    that._winston.close();
+                                    console.log("finish winston.");
+                                }, 50);
+                            }
+                    );
+                    //.end();
+        } else {
+        }
+
         if (this._logger) {
             this._logger.colors = this.colors ;
         }
 
     }
-
+    
     get log() {
         return this._logger;
     }
