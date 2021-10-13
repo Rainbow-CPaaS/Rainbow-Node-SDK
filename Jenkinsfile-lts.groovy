@@ -135,6 +135,8 @@ pipeline {
                     #sudo npm install npm -g
                     sudo npm install n -g
                     sudo n stable
+                    
+                    sudo npm install --global npm@6
                         
                     echo ---------- STEP install the library :
                     npm install
