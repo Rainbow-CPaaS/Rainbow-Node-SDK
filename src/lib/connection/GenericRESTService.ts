@@ -67,6 +67,19 @@ class GenericRESTService {
 
         return headers;
     }
+    
+    getRequestHeaderLowercaseAccept (accept : string = undefined) {
+        let that = this;
+
+        let headers = {
+            "Authorization": "Bearer " + that._token,
+            "accept": accept || "application/json",
+            "x-rainbow-client": "sdk_node",
+            "x-rainbow-client-version": packageVersion.version
+        };
+
+        return headers;
+    }
 
     getRequestHeaderWithRange (accept: string = undefined, range: string = undefined) {
         let that = this;

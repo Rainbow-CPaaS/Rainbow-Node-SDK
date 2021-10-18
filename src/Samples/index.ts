@@ -3151,6 +3151,26 @@ async function testcreateAlert() {
         });
     }
 
+    async function testretrieveRainbowUserList() {
+        // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
+        logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
+        let allCompanies : any = await rainbowSDK.admin.getAllCompanies();
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - allCompanies : ", allCompanies);
+        let  companyId = connectedUser.companyId ;
+        for (let company of allCompanies.data) {
+            //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+            if (company.name === "vbeCompanie") {
+                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+                companyId = company.id;
+            }
+        }
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+       
+        let result = await  rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+       
+    }
+
     //endregion ldap
     
     //region Conference V2

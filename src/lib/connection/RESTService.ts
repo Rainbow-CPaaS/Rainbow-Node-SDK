@@ -5567,15 +5567,7 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST url : ", url);
             
-            let headers = {
-                "Authorization": "Bearer " + that._token,
-                "accept": "application/json",
-              //  Range: undefined
-                "x-rainbow-client": "sdk_node",
-                "x-rainbow-client-version": packageVersion.version
-            };
-            
-            that.http.get(url, headers, undefined).then((json) => {
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getCSVTemplate) successfull");
                 that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST result : ", json);
                 resolve(json);
@@ -5669,7 +5661,7 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
 
-            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveRainbowUserList) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST result : ", json);
                 resolve(json.data);
