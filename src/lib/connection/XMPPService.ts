@@ -138,6 +138,8 @@ class XMPPService extends GenericService {
     private copyMessage: boolean;
     private rateLimitPerHour: number;
     private messagesDataStore: DataStoreType;
+    private raiseLowLevelXmppInEvent: boolean;
+    private raiseLowLevelXmppOutReq: boolean;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
@@ -174,6 +176,8 @@ class XMPPService extends GenericService {
         this.pingTimer = null;
         this.forceClose = false;
         this.applicationId = _application.appID;
+        this.raiseLowLevelXmppInEvent = _xmpp.raiseLowLevelXmppInEvent;
+        this.raiseLowLevelXmppOutReq = _xmpp.raiseLowLevelXmppOutReq;
 
         this._startConfig =  {
             start_up: true,
@@ -415,7 +419,7 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore, this.copyMessage);
+        that.xmppClient.init(this.logger, this.eventEmitter, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore, this.copyMessage);
 
         //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
         that.reconnect = this.xmppClient.reconnect;
@@ -447,14 +451,27 @@ class XMPPService extends GenericService {
             return bind(that.xmppUtils.getResourceFromFullJID(this.fullJid));
         }); // */
 
+        /*
+                "raiseLowLevelXmppInEvent": true,
+        "raiseLowLevelXmppOutReq": true
+         */
+        
         that.xmppClient.on("input", function fn_input (packet) {
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(prettydata.xml(packet)));
+            let xmlStr = prettydata.xml(packet);
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(xmlStr));
             that.startOrResetIdleTimer(true);
+            if (that.raiseLowLevelXmppInEvent ) {
+                that.eventEmitter.emit("evt_internal_xmmpeventreceived", xmlStr);
+            }
         });
 
         that.xmppClient.on("output", function fn_output (packet) {
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(prettydata.xml(packet)));
+            let xmlStr = prettydata.xml(packet);
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(xmlStr));
             that.startOrResetIdleTimer(false);
+            if (that.raiseLowLevelXmppOutReq ) {
+                that.eventEmitter.emit("evt_internal_xmmprequestsent", xmlStr);
+            }
         });
 
         that.xmppClient.on(ONLINE_EVENT, function fn_ONLINE_EVENT (msg) {

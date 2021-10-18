@@ -118,7 +118,9 @@ type OptionsType = {
         host: string,
         port: string,
         protocol: string,
-        timeBetweenXmppRequests: string
+        timeBetweenXmppRequests: string,
+        "raiseLowLevelXmppInEvent": false,
+        "raiseLowLevelXmppOutReq": false
     }
     "s2s": {
         "hostCallback": string,

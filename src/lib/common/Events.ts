@@ -250,6 +250,28 @@ class Events {
             }
         });
 
+        this._evReceiver.on("evt_internal_xmmpeventreceived", function(...args) {
+
+            /**
+             * @event Events#rainbow_onxmmpeventreceived
+             * @public
+             * @description
+             *      Fired when a xmpp message is received.
+             */
+            that.publishEvent("xmmpeventreceived", ...args);
+        });
+
+        this._evReceiver.on("evt_internal_xmmprequestsent", function(...args) {
+
+            /**
+             * @event Events#rainbow_onxmmprequestsent
+             * @public
+             * @description
+             *      Fired when an xmpp request is sent.
+             */
+            that.publishEvent("xmmprequestsent", ...args);
+        });
+        
         this._evReceiver.on("evt_internal_onmessagereceived", function(message) {
             if (_filterCallback && _filterCallback(message.fromJid)) {
                 that._logger.log("warn", `${LOG_ID} filtering event rainbow_onmessagereceived for jid: ${message.fromJid}` );

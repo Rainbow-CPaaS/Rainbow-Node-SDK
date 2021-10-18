@@ -256,6 +256,8 @@ class Options {
                 this._logger.log("debug", LOG_ID + "(constructor) Use XMPP services on Rainbow " + this._options.rainbow.host + " platform");
                 break;
         }
+        if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppInEvent) { xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent; }
+        if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppOutReq) { xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq; }
         return xmppOptions;
     }
 

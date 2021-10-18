@@ -91,7 +91,9 @@ let options : any = {
         "host": "",
         "port": "443",
         "protocol": "wss",
-        "timeBetweenXmppRequests": "20"
+        "timeBetweenXmppRequests": "20",
+        "raiseLowLevelXmppInEvent": true,
+        "raiseLowLevelXmppOutReq": true
     },
     "s2s": {
         "hostCallback": urlS2S,
@@ -278,6 +280,29 @@ function saveCall(call) {
 rainbowSDK.events.onLog("debug", (log) => {
     console.log(logger.colors.green("MAIN - Log : ") + log);
 });
+
+let fileLogXmpp;
+if (options.xmpp.raiseLowLevelXmppInEvent || options.xmpp.raiseLowLevelXmppOutReq) {
+    let now = new Date().getTime();
+    let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g, "_");
+
+    let fileNameXmppLogs = "c:\\temp\\xmpp_" + utc + ".log";
+    fileLogXmpp = fs.openSync(fileNameXmppLogs, "w");
+}
+
+
+rainbowSDK.events.on("rainbow_onxmmpeventreceived", (...argv) => {
+    // do something when the SDK is ready to be used
+    logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow xmpp event received : ", logger.colors.cyan(...argv));
+    if (fileLogXmpp) fs.writeSync(fileLogXmpp,"in: " + logger.colors.cyan(argv[0]) + "\n"); 
+});
+
+rainbowSDK.events.on("rainbow_onxmmprequestsent", (...argv) => {
+    // do something when the SDK is ready to be used
+    logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow xmpp request sent : ", logger.colors.yellow(...argv));
+    if (fileLogXmpp) fs.writeSync(fileLogXmpp,"out: " + logger.colors.yellow(argv[0]) + "\n");
+});
+
 rainbowSDK.events.on("rainbow_onready", () => {
     // do something when the SDK is ready to be used
     logger.log("debug", "MAIN - (rainbow_onready) - rainbow onready");

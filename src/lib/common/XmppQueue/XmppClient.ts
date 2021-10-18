@@ -34,6 +34,7 @@ let LOG_ID='XMPPCLIENT';
 
 class XmppClient  {
 	public options: any;
+    public eventEmitter: any;
 	public restartConnectEnabled: any;
 	public client: any;
 	public iqGetEventWaiting: any;
@@ -42,7 +43,7 @@ class XmppClient  {
 	public logger: any;
 	public xmppQueue: any;
 	public timeBetweenXmppRequests: any;
-	public username: any;
+    public username: any;
 	public password: any;
     socketClosed: boolean = false;
     storeMessages: any;
@@ -78,9 +79,10 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage) {
+    init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage) {
         let that = this;
         that.logger = _logger;
+        this.eventEmitter = _eventemitter;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
         that.storeMessages = _storeMessages;
