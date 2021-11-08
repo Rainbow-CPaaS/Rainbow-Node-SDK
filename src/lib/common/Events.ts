@@ -86,6 +86,8 @@ class Emitter extends EventEmitterClass{
  * @description
  *      This module fires every events that come from Rainbow.<br/>
  *      To receive them, you need to subscribe individually to each of the following events<br/>
+ * @fires Events#rainbow_onxmmpeventreceived
+ * @fires Events#rainbow_onxmmprequestsent
  * @fires Events#rainbow_onrainbowversionwarning
  * @fires Events#rainbow_onmessageserverreceiptreceived
  * @fires Events#rainbow_onmessagereceiptreceived
@@ -99,21 +101,25 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onallmessagedremovedfromconversationreceived
  * @fires Events#rainbow_onchatstate
  * @fires Events#rainbow_oncontactinformationchanged
+ * @fires Events#rainbow_onuserinformationchanged
  * @fires Events#rainbow_onuserinvitereceived
  * @fires Events#rainbow_onuserinviteaccepted
  * @fires Events#rainbow_onuserinvitecanceled
- * @fires Events#rainbow_onusercontactremoved
+ * @fires Events#rainbow_oncontactremovedfromnetwork
  * @fires Events#rainbow_onbubbleaffiliationchanged
+ * @fires Events#rainbow_onbubblepresencechanged
  * @fires Events#rainbow_onbubbleownaffiliationchanged
+ * @fires Events#rainbow_onbubbledeleted
  * @fires Events#rainbow_onbubbleinvitationreceived
  * @fires Events#rainbow_onbubbleconferencestartedreceived
  * @fires Events#rainbow_onbubbleconferencestoppedreceived
  * @fires Events#rainbow_onbubbleconferenceupdated
- * @fires Events#rainbow_onbubblecustomDatachanged
+ * @fires Events#rainbow_onbubblecustomdatachanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
  * @fires Events#rainbow_onbubbleavatarchanged
  * @fires Events#rainbow_onbubblenamechanged
+ * @fires Events#rainbow_onopeninvitationupdate
  * @fires Events#rainbow_ongroupcreated
  * @fires Events#rainbow_ongroupdeleted
  * @fires Events#rainbow_ongroupupdated
@@ -135,12 +141,14 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onvoicemessageupdated
  * @fires Events#rainbow_oncallforwarded
  * @fires Events#rainbow_onchannelmessagereceived
+ * @fires Events#rainbow_onchannelmyappreciationreceived
  * @fires Events#rainbow_onchannelmessagedeletedreceived
  * @fires Events#rainbow_onprofilefeatureupdated
  * @fires Events#rainbow_onfilecreated
  * @fires Events#rainbow_onfileupdated
  * @fires Events#rainbow_onfiledeleted
  * @fires Events#rainbow_onthumbnailcreated
+ * @fires Events#rainbow_onwebinarupdated
  * @fires Events#rainbow_onchannelupdated
  * @fires Events#rainbow_onchannelusersubscription
  * @fires Events#rainbow_onmediapropose
@@ -148,6 +156,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogackupdated
  * @fires Events#rainbow_onfavoritecreated
  * @fires Events#rainbow_onfavoritedeleted
+ * @fires Events#rainbow_onxmpperror
+ * @fires Events#rainbow_onalertmessagereceived
  * @fires Events#rainbow_onbubblescontainercreated
  * @fires Events#rainbow_onbubblescontainerupdated
  * @fires Events#rainbow_onbubblescontainerdeleted
@@ -299,7 +309,8 @@ class Events {
              */
             that.publishEvent("sendmessagefailed", message);
         });
-  this._evReceiver.on("evt_internal_onrainbowversionwarning", function(data) {
+        
+        this._evReceiver.on("evt_internal_onrainbowversionwarning", function(data) {
             /**
              * @event Events#rainbow_onrainbowversionwarning
              * @public
@@ -407,14 +418,14 @@ class Events {
             that.publishEvent("contactinformationchanged", contact);
         });
 
-        this._evReceiver.on("evt_internalinformationchanged", function(contact) {
+        this._evReceiver.on("evt_internal_informationchanged", function(contact) {
 
             /**
              * @public
              * @event Events#rainbow_onuserinformationchanged
              * @param { Contact } contact The connected user
              * @description
-             *      This event is fired when a conversation has been removed
+             *      This event is fired when informations about the connected user changed.
              */
             that.publishEvent("userinformationchanged", contact);
         });
@@ -458,7 +469,7 @@ class Events {
             /**
              * @public
              * @event Events#rainbow_oncontactremovedfromnetwork
-             * @param { Contact } contact The contact removed from network.
+             * @param { Object } contact { jid , subscription, ask } The information of the subscrition of the contact removed from network.
              * @description
              *      Fired when a contact is removed from connected user's network.
              *      Note :

@@ -1517,7 +1517,7 @@ class ContactsService extends GenericService {
                 connectedUser.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
                 connectedUser.status = that._presenceService.getUserConnectedPresence().presenceStatus;
                 connectedUser.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
-                this._eventEmitter.emit("evt_internalinformationchanged", connectedUser);
+                this._eventEmitter.emit("evt_internal_informationchanged", connectedUser);
             }
 
         }).catch((err) => {

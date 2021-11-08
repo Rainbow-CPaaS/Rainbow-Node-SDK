@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update conferences related methods documentation in BubblesService.
 -   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
 -   Add `Manage_conferences` documentation for informations about conferences.
+-   Fix events documentation.
 
 ## [2.1.0-lts.0] - 2021-10-XX
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
