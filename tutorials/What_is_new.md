@@ -1951,7 +1951,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **SDK**
 
--   New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/sdk/node/guides/Managing_bubble)
+-   New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/sdk/node/guides/Managing_bubbles)
 
 **API**
 

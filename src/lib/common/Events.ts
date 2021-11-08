@@ -108,6 +108,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleinvitationreceived
  * @fires Events#rainbow_onbubbleconferencestartedreceived
  * @fires Events#rainbow_onbubbleconferencestoppedreceived
+ * @fires Events#rainbow_onbubbleconferenceupdated
  * @fires Events#rainbow_onbubblecustomDatachanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
@@ -558,6 +559,40 @@ class Events {
              *      Fired when an event conference stop in a bubble is received
              */
             that.publishEvent("bubbleconferencestoppedreceived", bubble);
+        });
+
+        
+        // this._evReceiver.on("evt_internal_bubbleconferenceparticipantlistupdated", function(bubble) {
+        //     /**
+        //      * @event Events#rainbow_onbubbleconferenceparticipantlistupdated
+        //      * @public
+        //      * @param { WebConferenceSession } conference The conference with participant added.
+        //      * @description
+        //      *      Fired when an event conference stop in a bubble is received
+        //      */
+        //     that.publishEvent("bubbleconferenceparticipantlistupdated", bubble);
+        // });
+        //
+        // this._evReceiver.on("evt_internal_bubbleconferenceendinvitation", function(bubble) {
+        //     /**
+        //      * @event Events#rainbow_onbubbleconferenceendinvitation
+        //      * @public
+        //      * @param { Bubble } conference The conference with participant added.
+        //      * @description
+        //      *      Fired when an event conference leaved a bubble is received
+        //      */
+        //     that.publishEvent("bubbleconferenceendinvitation", bubble);
+        // });
+
+        this._evReceiver.on("evt_internal_bubbleconferenceupdated", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferenceupdated
+             * @public
+             * @param { Object } conference The conference is updated.
+             * @description
+             *      Fired when an event conference is updated.
+             */
+            that.publishEvent("bubbleconferenceupdated", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {

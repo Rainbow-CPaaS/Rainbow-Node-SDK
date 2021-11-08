@@ -6,10 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.5.1] - 2021-10-XX
+## [2.6.0] - 2021-11-XX
 -   Add parameter `raiseLowLevelXmppInEvent` to SDK options to raise an event `rainbow_onxmmpeventreceived` when an XMPP stanza is received. The default value is false. 
 -   Add parameter `raiseLowLevelXmppOutReq` to SDK options to raise an event `rainbow_onxmmprequestsent` when an XMPP stanza is sent. The default value is false.
 -   Fix `AdminService::retrieveRainbowUserList` method.
+-   Update conferences related methods documentation in BubblesService.
+-   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
+-   Add `Manage_conferences` documentation for informations about conferences.
 
 ## [2.1.0-lts.0] - 2021-10-XX
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 

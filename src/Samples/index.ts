@@ -63,6 +63,7 @@ let rainbowMode =  "xmpp" ;
 //const ngrok = import('ngrok');
 import ngrok from 'ngrok';
 import {from} from "rxjs";
+import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 let urlS2S;
 
 (async function() {
@@ -92,8 +93,8 @@ let options : any = {
         "port": "443",
         "protocol": "wss",
         "timeBetweenXmppRequests": "20",
-        "raiseLowLevelXmppInEvent": true,
-        "raiseLowLevelXmppOutReq": true
+        "raiseLowLevelXmppInEvent": false,
+        "raiseLowLevelXmppOutReq": false
     },
     "s2s": {
         "hostCallback": urlS2S,
@@ -362,6 +363,10 @@ let bubbleInvitationReceived = null;
 rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", (bubble) => {
     logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
     bubbleInvitationReceived = bubble;
+});
+
+rainbowSDK.events.on("rainbow_onbubbleconferenceupdated", (conference: ConferenceSession) => {
+    logger.log("debug", "MAIN - (rainbow_onbubbleconferenceupdated) - rainbow event received.", conference);
 });
 
 function acceptReceivedInvitation() {
@@ -1679,7 +1684,26 @@ async function testsendMessageToBubbleJid_WithMention() {
 
 function testGetAllConferences() {
     rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
-        console.log("(getBubbles) retrieveAllConferences : ", conferences);
+        logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
+    });
+}
+
+function testStartConference() {
+    let webrtcConferenceId = rainbowSDK.bubbles.getWebRtcConfEndpointId();
+    logger.log("debug", "MAIN - testStartConference, webrtcConferenceId : ", webrtcConferenceId);
+
+    let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+
+    let myBubbleToConferenced = null;
+    for (const bubble of bubbles) {
+        if (bubble.name === "BullesOfTests") {
+            logger.log("debug", "MAIN - testStartConference found BullesOfTests bubble : ", bubble);
+            myBubbleToConferenced = bubble;
+        }
+    }
+    
+    rainbowSDK.bubbles.conferenceStart(myBubbleToConferenced).then((result) => {
+        logger.log("debug", "MAIN - testStartConference, result : ", result);
     });
 }
 
@@ -2214,6 +2238,53 @@ function testDeletebubble() {
         rainbowSDK.bubbles.deleteBubble(bubble);
     });
 }
+
+function testDeleteBubble() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let bubbles = yield rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testDeleteBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+        rainbowSDK.bubbles.deleteBubble(bubbles[0]).then((resultDelete)=> {
+            logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+        });
+    });
+}
+
+function testDeleteBubble_ByBubbleId(bubbleId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let bubble = yield rainbowSDK.bubbles.getBubbleById(bubbleId);
+        logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId, ", bubbleId,", bubble : ", bubble); //logger.colors.green(JSON.stringify(result)));
+        rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete)=> {
+            logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+        });
+    });
+}
+
+function testLeaveBubble() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let bubbles = yield rainbowSDK.bubbles.getAllBubbles();
+        logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+        for (const bubble of bubbles) {
+            if (bubble.name.indexOf("testBot") != -1) {
+                logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+                if (bubble.ownerContact.id === rainbowSDK._core._rest.userId ) {
+                    // The bubble should be deleted instead of leaved
+                    logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", The bubble should be deleted instead of leaved."); //logger.colors.green(JSON.stringify(result)));
+                    rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete)=> {
+                        logger.log("debug", "MAIN - testLeaveBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+                    });
+                } else {                    
+                    rainbowSDK.bubbles.leaveBubble(bubble).then((resultLeave)=> {
+                        logger.log("debug", "MAIN - testLeaveBubble bubble.name : ", bubble.name, ", resultLeave : ", resultLeave); //logger.colors.green(JSON.stringify(result)));
+                    });
+                    // */
+                }
+            } else {
+                logger.log("debug", "MAIN - testLeaveBubble NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+            }
+        }
+    });
+}
+    
 function testDeleteOneCallLog() {
     let mycalllog = mycalllogs ? mycalllogs.callLogs[0] : {};
     let utc = new Date().toJSON().replace(/-/g, "_");

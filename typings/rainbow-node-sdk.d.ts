@@ -496,6 +496,8 @@ declare module 'lib/config/config' {
 	            port: string;
 	            protocol: string;
 	            timeBetweenXmppRequests: string;
+	            raiseLowLevelXmppInEvent: boolean;
+	            raiseLowLevelXmppOutReq: boolean;
 	        };
 	        s2s: {
 	            hostCallback: string;
@@ -513,6 +515,8 @@ declare module 'lib/config/config' {
 	            port: string;
 	            protocol: string;
 	            timeBetweenXmppRequests: string;
+	            raiseLowLevelXmppInEvent: boolean;
+	            raiseLowLevelXmppOutReq: boolean;
 	        };
 	        s2s: {
 	            hostCallback: string;
@@ -530,6 +534,8 @@ declare module 'lib/config/config' {
 	            port: string;
 	            protocol: string;
 	            timeBetweenXmppRequests: string;
+	            raiseLowLevelXmppInEvent: boolean;
+	            raiseLowLevelXmppOutReq: boolean;
 	        };
 	        s2s: {
 	            hostCallback: string;
@@ -667,6 +673,7 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	import { DataStoreType } from 'lib/config/config';
 	export {}; class XmppClient {
 	    options: any;
+	    eventEmitter: any;
 	    restartConnectEnabled: any;
 	    client: any;
 	    iqGetEventWaiting: any;
@@ -686,7 +693,7 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    private iqSetEventRoster;
 	    socket: any;
 	    constructor(...args: any[]);
-	    init(_logger: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any): void;
+	    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any): void;
 	    onIqErrorReceived(msg: any, stanza: any): void;
 	    onIqResultReceived(msg: any, stanza: any): void;
 	    resetnbMessagesSentThisHour(): void;
@@ -1632,6 +1639,8 @@ declare module 'lib/services/ProfilesService' {
 }
 declare module 'lib/common/models/ConferenceSession' {
 	import { List } from 'ts-generic-collections-linq';
+	import { MEDIATYPE } from 'lib/connection/RESTService';
+	import { Contact } from 'lib/common/models/Contact';
 	export {}; class Participant {
 	    private _id;
 	    private _jid_im;
@@ -1639,9 +1648,27 @@ declare module 'lib/common/models/ConferenceSession' {
 	    private _moderator;
 	    private _muted;
 	    private _hold;
+	    private _talkingTime;
+	    private _microphone;
+	    private _delegateCapability;
 	    private _connected;
-	    constructor();
+	    private _contact;
+	    constructor(id: string);
+	    /**
+	     *
+	     *  @name id
+	     * @return {string}
+	     * @description
+	     *    get the id of the participant. The Id of the particpant is NOT AT ALL related to the Id of a Contact.
+	     */
 	    get id(): string;
+	    /**
+	     *
+	     *  @name id
+	     * @param {string} value
+	     * @description
+	     *    set the id of the participant. The Id of the particpant is NOT AT ALL related to the Id of a Contact.
+	     */
 	    set id(value: string);
 	    get jid_im(): string;
 	    set jid_im(value: string);
@@ -1655,12 +1682,53 @@ declare module 'lib/common/models/ConferenceSession' {
 	    set hold(value: boolean);
 	    get connected(): boolean;
 	    set connected(value: boolean);
+	    get contact(): Contact;
+	    set contact(value: Contact);
+	    get talkingTime(): number;
+	    set talkingTime(value: number);
+	    get microphone(): boolean;
+	    set microphone(value: boolean);
+	    get delegateCapability(): boolean;
+	    set delegateCapability(value: boolean);
+	    ToString(): string;
+	} class Talker {
+	    private _participant;
+	    private _talkingTime;
+	    private _publisher;
+	    private _simulcast;
+	    constructor(participant: Participant);
+	    get participant(): Participant;
+	    set participant(value: Participant);
+	    get talkingTime(): number;
+	    set talkingTime(value: number);
+	    get publisher(): boolean;
+	    set publisher(value: boolean);
+	    get simulcast(): boolean;
+	    set simulcast(value: boolean);
+	    ToString(): string;
+	} class Silent {
+	    private _participant;
+	    private _talkingTime;
+	    private _publisher;
+	    private _simulcast;
+	    constructor(participant: Participant);
+	    get participant(): Participant;
+	    set participant(value: Participant);
+	    get talkingTime(): string;
+	    set talkingTime(value: string);
+	    get publisher(): boolean;
+	    set publisher(value: boolean);
+	    get simulcast(): boolean;
+	    set simulcast(value: boolean);
 	    ToString(): string;
 	} class Publisher {
 	    private _id;
 	    private _jid_im;
 	    private _media;
-	    constructor();
+	    private _participant;
+	    get participant(): Participant;
+	    set participant(value: Participant);
+	    constructor(id: any);
 	    get id(): string;
 	    set id(value: string);
 	    get jid_im(): string;
@@ -1673,12 +1741,17 @@ declare module 'lib/common/models/ConferenceSession' {
 	    private _active;
 	    private _muted;
 	    private _locked;
+	    private _talkerActive;
 	    private _recordStarted;
 	    private _mediaType;
+	    private _reason;
 	    private _participants;
 	    private _publishers;
 	    private _talkers;
-	    constructor();
+	    private _silents;
+	    private _replacedByConference;
+	    private _replaceConference;
+	    constructor(id: string, participants?: List<Participant>, mediaType?: MEDIATYPE);
 	    get id(): string;
 	    set id(value: string);
 	    get active(): boolean;
@@ -1695,11 +1768,22 @@ declare module 'lib/common/models/ConferenceSession' {
 	    set participants(value: List<Participant>);
 	    get publishers(): List<Publisher>;
 	    set publishers(value: List<Publisher>);
-	    get talkers(): List<String>;
-	    set talkers(value: List<String>);
+	    get talkers(): List<Talker>;
+	    set talkers(value: List<Talker>);
+	    get silents(): List<Silent>;
+	    set silents(value: List<Silent>);
+	    get talkerActive(): boolean;
+	    set talkerActive(value: boolean);
+	    get reason(): string;
+	    set reason(value: string);
+	    get replacedByConference(): ConferenceSession;
+	    set replacedByConference(value: ConferenceSession);
+	    get replaceConference(): ConferenceSession;
+	    set replaceConference(conference: ConferenceSession);
 	    ToString(): string;
+	    reset(): void;
 	}
-	export { ConferenceSession };
+	export { Publisher, Participant, ConferenceSession, Talker, Silent };
 
 }
 declare module 'lib/common/models/ConferencePassCodes' {
@@ -1875,8 +1959,23 @@ declare module 'lib/services/BubblesService' {
 	        start_up: boolean;
 	        optional: boolean;
 	    });
+	    /**
+	     * @name start
+	     * @private
+	     * @return {Promise<void>}
+	     */
 	    start(_options: any, _core: Core): Promise<unknown>;
+	    /**
+	     * @name stop
+	     * @private
+	     * @return {Promise<void>}
+	     */
 	    stop(): Promise<unknown>;
+	    /**
+	     * @name init
+	     * @private
+	     * @return {Promise<void>}
+	     */
 	    init(): Promise<void>;
 	    /**
 	     * @public
@@ -2494,6 +2593,7 @@ declare module 'lib/services/BubblesService' {
 	     *      Method called when receiving an create/update/delete event of the bubbles container <br/>
 	     */
 	    _onBubblesContainerReceived(infos: any): Promise<void>;
+	    _onBubbleConferenceStoppedReceived(bubble: any): Promise<void>;
 	    /**
 	     * @private
 	     * @method getInfoForPublicUrlFromOpenInvite
@@ -2646,12 +2746,44 @@ declare module 'lib/services/BubblesService' {
 	    joinConference(bubble: any): Promise<unknown>;
 	    getBubbleByConferenceIdFromCache(conferenceId: string): Bubble;
 	    getBubbleIdByConferenceIdFromCache(conferenceId: string): string;
+	    /**
+	     * @name getConferencesIdByBubbleIdFromCache
+	     * @param {string} bubbleId
+	     * @return {Array<string>}
+	     * @description
+	     *      to get the list of conferences id linked to a specified bubble.
+	     */
+	    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string>;
+	    /**
+	     * @name conferenceAllowed
+	     * @return {boolean}
+	     * @description
+	     *      To know if the current user has the permission to start its own WebRTC Conference.
+	     *      return True if it's allowed, false if it's not the case
+	     */
 	    conferenceAllowed(): boolean;
-	    conferenceGetByIdFromCache(conferenceId: string): ConferenceSession;
+	    /**
+	     * @name getConferenceByIdFromCache
+	     * @param {string} conferenceId ID of the conference to get
+	     * @return {ConferenceSession}
+	     * @description
+	     *      To get a conference from the cache using a conference Id.
+	     *      RETURN A conference object or NULL if not found
+	     */
+	    getConferenceByIdFromCache(conferenceId: string): ConferenceSession;
+	    /**
+	     * @name conferenceGetListFromCache
+	     * @return {boolean}
+	     * @description
+	     *      To get conferences list in progress from the cache.
+	     *      return The list of Conference in progress.
+	     */
 	    conferenceGetListFromCache(): List<ConferenceSession>;
 	    /**
 	     * @Method retrieveConferences
 	     * @public
+	     * @since 1.73
+	     * @instance
 	     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
 	     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
 	     * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
@@ -2662,6 +2794,8 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @Method updateOrCreateWebConferenceEndpoint
 	     * @public
+	     * @since 1.73
+	     * @instance
 	     * @param {any} conferenceData [required] conference data for the update / creation
 	     * @returns {any} the updated conferenceEndpoint or null on error
 	     * @memberof BubblesService
@@ -2671,6 +2805,8 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @Method getWebRtcConfEndpointId
 	     * @public
+	     * @since 1.73
+	     * @instance
 	     * @returns {string} the user unique webrtc conference enpoint id
 	     * @memberof BubblesService
 	     */
@@ -2678,6 +2814,8 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @Method getWebRtcSharingOnlyConfEndpointId
 	     * @public
+	     * @since 1.73
+	     * @instance
 	     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
 	     * @memberof BubblesService
 	     */
@@ -2694,7 +2832,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
 	     * @return {Promise<any>} The result of the starting.
 	     */
-	    conferenceStart(bubble: any, conferenceId: string): Promise<any>;
+	    conferenceStart(bubble: any, conferenceId?: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method conferenceStop
@@ -2706,7 +2844,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} conferenceId The id of the conference that should stop
 	     * @return {Promise<any>} return undefined.
 	     */
-	    conferenceStop(conferenceId: string): Promise<unknown>;
+	    conferenceStop(conferenceId?: string): Promise<unknown>;
 	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
 	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
 	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
@@ -2727,13 +2865,63 @@ declare module 'lib/services/BubblesService' {
 	    personalConferenceLockOrUnlock(toLock: boolean): Promise<unknown>;
 	    personalConferenceMuteOrUnmutParticipant(participantId: string, mute: boolean): Promise<any>;
 	    personalConferenceDropParticipant(participantId: string): Promise<any>;
+	    /**
+	     * @name conferenceEndedForBubble
+	     * @private
+	     * @param {string} bubbleJid
+	     * @return {Promise<void>}
+	     */
 	    conferenceEndedForBubble(bubbleJid: string): Promise<void>;
+	    /**
+	     * @name askBubbleForConferenceDetails
+	     * @private
+	     * @param {string} bubbleJid
+	     */
 	    askBubbleForConferenceDetails(bubbleJid: string): void;
+	    /**
+	     * @name personalConferenceRename
+	     * @private
+	     * @param {string} name
+	     * @return {Promise<unknown>}
+	     */
 	    personalConferenceRename(name: string): Promise<unknown>;
-	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE): Promise<unknown>;
+	    /**
+	     * @name askConferenceSnapshot
+	     * @private
+	     * @param {string} conferenceId
+	     * @param {MEDIATYPE} type
+	     * @return {Promise<void>}
+	     */
+	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE): Promise<void>;
+	    /**
+	     * @name conferenceModeratorAction
+	     * @private
+	     * @param {string} conferenceId
+	     * @param {string} action
+	     * @return {Promise<unknown>}
+	     */
 	    conferenceModeratorAction(conferenceId: string, action: string): Promise<unknown>;
+	    /**
+	     * @name conferenceMuteOrUnmutParticipant
+	     * @private
+	     * @param {string} conferenceId
+	     * @param {string} participantId
+	     * @param {string} action
+	     * @return {Promise<unknown>}
+	     */
 	    conferenceModeratorActionOnParticipant(conferenceId: string, participantId: string, action: string): Promise<unknown>;
+	    /**
+	     * @name removeBubbleFromCache
+	     * @private
+	     * @param {string} conferenceId
+	     * @param {boolean} deleteLinkWithBubble
+	     */
 	    removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean): void;
+	    /**
+	     * @name addConferenceToCache
+	     * @private
+	     * @param {ConferenceSession} conference
+	     */
 	    addConferenceToCache(conference: ConferenceSession): void;
 	    /**
 	     * @public
@@ -4675,6 +4863,12 @@ declare module 'lib/connection/GenericRESTService' {
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
 	    };
+	    getRequestHeaderLowercaseAccept(accept?: string): {
+	        Authorization: string;
+	        accept: string;
+	        "x-rainbow-client": string;
+	        "x-rainbow-client-version": any;
+	    };
 	    getRequestHeaderWithRange(accept?: string, range?: string): {
 	        Authorization: string;
 	        Accept: string;
@@ -4945,6 +5139,7 @@ declare module 'lib/connection/RESTService' {
 	    unsubscribeContactFromBubble(contactId: any, bubbleId: any): Promise<unknown>;
 	    acceptInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
 	    declineInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
+	    deleteUserFromBubble(bubbleId: any): Promise<unknown>;
 	    inviteUser(email: any, companyId: any, language: any, message: any): Promise<unknown>;
 	    setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
 	    deleteAvatarRoom(roomId: any): Promise<unknown>;
@@ -6629,6 +6824,8 @@ declare module 'lib/common/models/webConferenceSession' {
 declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	import { Element } from 'ltx';
 	import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler';
+	import { ConferenceSession } from 'lib/common/models/ConferenceSession';
+	import { List } from 'ts-generic-collections-linq';
 	export {}; class ConversationEventHandler extends GenericHandler {
 	    MESSAGE_CHAT: any;
 	    MESSAGE_GROUPCHAT: any;
@@ -6648,7 +6845,13 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    getClassName(): string;
 	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
 	    private createSessionParticipantFromElem;
-	    onChatMessageReceived(msg: any, stanza: Element): Promise<number>;
+	    onConferenceMessageV2(): void;
+	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
+	    parseParticipantsFromConferenceUpdatedEvent(conference: ConferenceSession, addedParticipants: any): Promise<void>;
+	    parseParticipantsIdFromConferenceUpdatedEvent(participants: any): List<string>;
+	    parseTalkersFromConferenceUpdatedEvent(conference: ConferenceSession, talkersElmt: any): void;
+	    parsSilentsFromConferenceUpdatedEvent(conference: ConferenceSession, silentsElmt: any): void;
+	    parsePublishersFromConferenceUpdatedEvent(conference: ConferenceSession, xmlElementList: any, add: boolean): Promise<void>;
 	    _onMessageReceived(conversationId: any, data: any): Promise<void>;
 	    onRoomAdminMessageReceived(msg: any, stanza: any): void;
 	    onFileMessageReceived(msg: any, stanza: any): void;
@@ -7575,6 +7778,8 @@ declare module 'lib/connection/XMPPService' {
 	    private copyMessage;
 	    private rateLimitPerHour;
 	    private messagesDataStore;
+	    private raiseLowLevelXmppInEvent;
+	    private raiseLowLevelXmppOutReq;
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
@@ -11981,6 +12186,8 @@ declare module 'lib/config/Options' {
 	        port: string;
 	        protocol: string;
 	        timeBetweenXmppRequests: string;
+	        raiseLowLevelXmppInEvent: boolean;
+	        raiseLowLevelXmppOutReq: boolean;
 	    };
 	    _getS2SOptions(): {
 	        hostCallback: string;

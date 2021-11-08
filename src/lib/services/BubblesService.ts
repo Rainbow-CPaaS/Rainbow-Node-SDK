@@ -2,21 +2,19 @@
 
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
 import * as deepEqual from "deep-equal";
-import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
+import {GuestParams, MEDIATYPE} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
-import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue";
 import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
-import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {Contact} from "../common/models/Contact";
-import {ConferenceSession} from "../common/models/ConferenceSession";
+import {ConferenceSession, Participant} from "../common/models/ConferenceSession";
 import {ConferencePassCodes} from "../common/models/ConferencePassCodes";
 import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 import {Conference} from "../common/models/Conference";
@@ -101,9 +99,15 @@ class Bubbles extends GenericService {
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
         this._eventEmitter.on("evt_internal_privilegechanged", this._onPrivilegeBubbleChanged.bind(this));
         this._eventEmitter.on("evt_internal_roomscontainer", this._onBubblesContainerReceived.bind(this));
+        this._eventEmitter.on("evt_internal_bubbleconferencestoppedreceived", this._onBubbleConferenceStoppedReceived.bind(this));
 
     }
 
+    /**
+     * @name start
+     * @private
+     * @return {Promise<void>}
+     */
     start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
 
@@ -137,6 +141,11 @@ class Bubbles extends GenericService {
         });
     }
 
+    /**
+     * @name stop
+     * @private
+     * @return {Promise<void>}
+     */
     stop() {
         let that = this;
 
@@ -161,7 +170,12 @@ class Bubbles extends GenericService {
             }
         });
     }
-    
+
+    /**
+     * @name init
+     * @private
+     * @return {Promise<void>}
+     */
     async init() {
         let that = this;
         that.setInitialized();
@@ -334,20 +348,43 @@ class Bubbles extends GenericService {
                 return;
             }
 
-            that._rest.deleteBubble(bubble.id).then((resultDelete) => {
-                //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
-                /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
-                    return el.id === updatedBubble.id;
-                }), 1); // */
-                that._logger.log("debug", LOG_ID + "(deleteBubble) delete bubble with id : ", bubble.id, " successfull");
-                that._logger.log("internal", LOG_ID + "(deleteBubble) delete bubble : ", bubble, ", resultDelete : ", resultDelete, " bubble successfull");
-                //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
-                //resolve( Object.assign(bubble, bubbleRemoved));
-                resolve(bubble);
-            }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(deleteBubble) error");
-                return reject(err);
-            });
+            let amIModerator = false;
+            let userStatus = "none";
+            
+            let meUser = bubble.users ? bubble.users.find((user) => {
+                return user.userId === that._rest.userId;
+            }) : true;
+            amIModerator = meUser ? meUser.privilege === "moderator" : true;
+            userStatus = meUser ? meUser.status : "none";
+
+            if (amIModerator) {                
+                that._rest.deleteBubble(bubble.id).then((resultDelete) => {
+                    //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
+                    /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
+                        return el.id === updatedBubble.id;
+                    }), 1); // */
+                    that._logger.log("debug", LOG_ID + "(deleteBubble) delete bubble with id : ", bubble.id, " successfull");
+                    that._logger.log("internal", LOG_ID + "(deleteBubble) delete bubble : ", bubble, ", resultDelete : ", resultDelete, " bubble successfull");
+                    //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
+                    //resolve( Object.assign(bubble, bubbleRemoved));
+                    resolve(bubble);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(deleteBubble) error");
+                    return reject(err);
+                });
+            } else {
+                if (userStatus !== "deleted") {
+                    that._rest.deleteUserFromBubble(bubble.id).then(function (json) {
+                        that._logger.log("info", LOG_ID + "(deleteBubble) deleted successfull : ", json);
+                        //that._xmpp.sendUnavailableBubblePresence(bubble.jid);
+                        resolve(json);
+                    }).catch(function (err) {
+                        that._logger.log("error", LOG_ID + "(leaveBubble) error.");
+                        that._logger.log("internalerror", LOG_ID + "(leaveBubble) error : ", err);
+                        return reject(err);
+                    });
+                }
+            }
         });
     }
 
@@ -1172,6 +1209,13 @@ class Bubbles extends GenericService {
         //      });
     }
 
+    /**
+     * @name getBubbleFromCache
+     * @private
+     * @param {string} bubbleId
+     * @return {Bubble}
+     * @private
+     */
     private getBubbleFromCache(bubbleId: string): Bubble {
         let bubbleFound = null;
         this._logger.log("internal", LOG_ID + "(getBubbleFromCache) search id : ", bubbleId);
@@ -1189,6 +1233,13 @@ class Bubbles extends GenericService {
         return bubbleFound;
     }
 
+    /**
+     * @name addOrUpdateBubbleToCache
+     * @private
+     * @param bubble
+     * @return {Promise<Bubble>}
+     * @private
+     */
     private async addOrUpdateBubbleToCache(bubble: any): Promise<Bubble> {
         let that = this;
         that._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) - parameter bubble : ", bubble);
@@ -1263,7 +1314,7 @@ class Bubbles extends GenericService {
 
                     if (that._conferencesSessionById.containsKey(conferenceId)) {
                         //needToRaiseEvent = true;
-                        //conference = that.conferenceGetByIdFromCache(conferenceId);
+                        //conference = that.getConferenceByIdFromCache(conferenceId);
                         //break;
                     } else {
                         // Since we have no information about this conference, we ask the servrr
@@ -1275,6 +1326,13 @@ class Bubbles extends GenericService {
         return bubbleObj;
     }
 
+    /**
+     * @name removeBubbleFromCache
+     * @private
+     * @param {string} bubbleId
+     * @return {Promise<Bubble>}
+     * @private
+     */
     private removeBubbleFromCache(bubbleId: string): Promise<Bubble> {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1910,6 +1968,12 @@ class Bubbles extends GenericService {
         });
     }
 
+    /**
+     * @name randomString
+     * @private
+     * @param {number} length
+     * @return {string}
+     */
     randomString(length: number = 10) {
         let string = "";
         let rnd;
@@ -2591,6 +2655,25 @@ class Bubbles extends GenericService {
 
     }
 
+    /**
+     * @name _onBubbleConferenceStoppedReceived
+     * @private
+     * @param bubble
+     * @return {Promise<void>}
+     */
+    async _onBubbleConferenceStoppedReceived (bubble) {
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(_onBubbleConferenceStoppedReceived) bubble : ", bubble);
+        if (bubble) {
+            for (let conferenceId of that.getConferencesIdByBubbleIdFromCache(bubble.id)) {
+                let conference = that.getConferenceByIdFromCache(conferenceId);
+                that.removeConferenceFromCache(conferenceId, true);
+                conference.active = false;
+                that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference);                
+            }
+        }
+    }
+    
 //region PUBLIC URL
 
     /**
@@ -2740,42 +2823,7 @@ class Bubbles extends GenericService {
         this._logger.log("internal", LOG_ID + "(createPublicUrl) bubble parameter : ", bubble);
 
         let bubbleId: string = bubble.id;
-        return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));
-        /*
-        if (!application.IsCapabilityAvailable(Contact.Capability.BubbleCreate))
-        {
-            callback?.Invoke(new SdkResult<String>("Current user has not the capability [BubbleCreate]", false));
-            return;
-        }
-
-        // CF. https://api.openrainbow.org/enduser/#api-users_rooms_public_link-unbindOpenInviteIdWithRoomId
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("enduser", $"users/{currentContactId}/public-links/bind");
-
-        String body = String.Format(@"{{""roomId"":""{0}""}}", personalConferenceBubbleId);
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.POST);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync(restRequest, (response) =>
-        {
-            //Do we have a correct answer
-            if (response.IsSuccessful)
-            {
-                log.DebugFormat("[CreatePublicUrl] - response.Content:\r\n{0}", response.Content);
-
-                String url = GetPublicURLFromResponseContent(response.Content);
-
-                if (String.IsNullOrEmpty(url))
-                    callback?.Invoke(new SdkResult<String>("Cannot get Open Invite ID value", false));
-                else
-                    callback?.Invoke(new SdkResult<String>(url, true));
-            }
-            else
-                callback?.Invoke(new SdkResult<String>(Sdk.ErrorFromResponse(response)));
-        });
-        // */
+        return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));        
     }
 
     /**
@@ -2800,41 +2848,6 @@ class Bubbles extends GenericService {
         }
         let bubbleId: string = bubble.id;
         return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
-        /*
-        if (!application.IsCapabilityAvailable(Contact.Capability.BubbleCreate))
-    {
-        callback?.Invoke(new SdkResult<String>("Current user has not the capability [BubbleCreate]", false));
-        return;
-    }
-
-    // CF. https://api.openrainbow.org/enduser/#api-users_rooms_public_link-resetOpenInviteIdOfRoomId
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("enduser", $"users/{currentContactId}/public-links/reset");
-
-    String body = String.Format(@"{{""roomId"":""{0}""}}", personalConferenceBubbleId);
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-    restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-    restClient.ExecuteAsync(restRequest, (response) =>
-    {
-        //Do we have a correct answer
-        if (response.IsSuccessful)
-        {
-            log.DebugFormat("[GenerateNewPublicUrl] - response.Content:\r\n{0}", response.Content);
-
-            String url = GetPublicURLFromResponseContent(response.Content);
-
-            if (String.IsNullOrEmpty(url))
-                callback?.Invoke(new SdkResult<String>("Cannot get Open Invite ID value", false));
-            else
-                callback?.Invoke(new SdkResult<String>(url, true));
-        }
-        else
-            callback?.Invoke(new SdkResult<String>(Sdk.ErrorFromResponse(response)));
-    });
-    // */
     }
 
     /**
@@ -2852,34 +2865,6 @@ class Bubbles extends GenericService {
         let that = this;
         let bubbleId = bubble.id;
         return that._rest.removePublicUrl(bubbleId);
-        /*
-            if (!application.IsCapabilityAvailable(Contact.Capability.BubbleCreate))
-            {
-                callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleCreate]"));
-                return;
-            }
-
-            // CF. https://api.openrainbow.org/enduser/#api-users_rooms_public_link-unbindOpenInviteIdWithRoomId
-
-            RestClient restClient = rest.GetClient();
-            string resource = rest.GetResource("enduser", $"users/{currentContactId}/public-links/unbind");
-
-            String body = String.Format(@"{{""roomId"":""{0}""}}", personalConferenceBubbleId);
-
-            RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-            restClient.ExecuteAsync(restRequest, (response) =>
-            {
-                //Do we have a correct answer
-                if (response.IsSuccessful)
-                {
-                    callback?.Invoke(new SdkResult<Boolean>(true));
-                }
-                else
-                    callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-            });
-            // */
     }
 
     /**
@@ -3007,7 +2992,14 @@ class Bubbles extends GenericService {
 
 //region CONFERENCE SPECIFIC
 
-    // @private for ale rainbow team's tests only
+    /**
+     * @name joinConference
+     * @private
+     * @param bubble
+     * @return {Promise<unknown>}
+     * @description
+     *  private for ale rainbow team's tests only
+     */
     joinConference(bubble) {
         let that = this;
 
@@ -3075,11 +3067,14 @@ getAllActiveBubbles
         });
     }
 
-    /// <summary>
-    /// To get a bubble from the cache using a conference Id
-    /// </summary>
-    /// <param name="conferenceId"><see cref="String"/>ID of the conference</param>
-    /// <returns><see cref="Bubble"> - A bubble object or NULL if not found</see></returns>
+    /**
+     * @name getBubbleByConferenceIdFromCache
+     * @since 2.6.0 
+     * @param {string} conferenceId ID of the conference
+     * @description
+     * To get a bubble from the cache using a conference Id
+     * @return {Bubble} A bubble object or NULL if not found
+     */
     getBubbleByConferenceIdFromCache(conferenceId: string): Bubble {
         let result: Bubble = null;
         let that = this;
@@ -3090,11 +3085,14 @@ getAllActiveBubbles
         return result;
     }
 
-/// <summary>
-/// To get ID of the bubble from the cache using a conference Id
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/>ID of the conference</param>
-/// <returns><see cref="Bubble"> - A bubble object or NULL if not found</see></returns>
+    /**
+     * @name getBubbleIdByConferenceIdFromCache
+     * @since 2.6.0
+     * @param {string} conferenceId ID of the conference
+     * @return {string}
+     * @description
+     * To get ID of the bubble from the cache using a conference Id 
+     */
     getBubbleIdByConferenceIdFromCache(conferenceId: string): string {
         let result: string = null;
         let that = this;
@@ -3106,36 +3104,72 @@ getAllActiveBubbles
         return result;
     }
 
-/// <summary>
-/// To know if the current user has the permission to start its own WebRTC Conference
-/// </summary>
-/// <returns><see cref="Boolean"/> - True if it's allowed, false if it's not the case</returns>
+    /**
+     * @name getConferencesIdByBubbleIdFromCache
+     * @since 2.6.0
+     * @param {string} bubbleId
+     * @return {Array<string>}
+     * @description
+     *      to get the list of conferences id linked to a specified bubble.
+     */
+    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string> {
+        let result: Array<string> = [];
+        let that = this;
+        if (that._linkConferenceAndBubble.containsValue(bubbleId)) {
+            that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) FOUND bubbleId : ", bubbleId, " in that._linkConferenceAndBubble.");
+            let confsIdByBulleId = that._linkConferenceAndBubble.where((item:KeyValuePair<string, string>) => { return item.value == bubbleId });
+            for (const iterConfsIdByBulleId of confsIdByBulleId.toArray()) {
+                result.push(iterConfsIdByBulleId.key);
+            } 
+        }
+        that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) bubbleId : ", bubbleId, " conferencesId : ", result, " from that._linkConferenceAndBubble : ", that._linkConferenceAndBubble);
+        return result;
+    }
+
+    /**
+     * @name conferenceAllowed
+     * @since 2.6.0
+     * @return {boolean}
+     * @description
+     *      To know if the current user has the permission to start its own WebRTC Conference.
+     *      return True if it's allowed, false if it's not the case
+     */   
     conferenceAllowed(): boolean {
         let that = this;
         return that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED) //that._profileService.get.IsFeatureEnabled(Feature.WEBRTC_CONFERENCE_ALLOWED);
     }
 
-/// <summary>
-/// To get a conference from the cache using a conference Id
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/>ID of the conference to get</param>
-/// <returns><see cref="Conference"> - A conference object or NULL if not found</see></returns>
-    conferenceGetByIdFromCache(conferenceId: string): ConferenceSession // Conference
+    /**
+     * @name getConferenceByIdFromCache
+     * @since 2.6.0
+     * @param {string} conferenceId ID of the conference to get
+     * @return {ConferenceSession}
+     * @description
+     *      To get a conference from the cache using a conference Id.
+     *      RETURN A conference object or NULL if not found
+     */
+    getConferenceByIdFromCache(conferenceId: string): ConferenceSession // Conference
     {
         let result: any = null; // Conference
         let that = this;
         //lock (lockConferenceDictionary)
         //{
-        if (that._conferencesSessionById.containsKey(conferenceId))
-            result = that._conferencesSessionById[conferenceId];
+        if (that._conferencesSessionById.containsKey(conferenceId)) {
+            //result = that._conferencesSessionById[conferenceId];
+            result = that._conferencesSessionById.tryGetValue(conferenceId);
+        }
         //}
         return result;
     }
 
-/// <summary>
-/// To get conferences list in progress from the cache
-/// </summary>
-/// <returns><see cref="T:List{Conference}"/> - The list of <see cref="Conference"/> in progress.</returns>
+    /**
+     * @name conferenceGetListFromCache
+     * @since 2.6.0
+     * @return {boolean}
+     * @description
+     *      To get conferences list in progress from the cache.
+     *      return The list of Conference in progress.
+     */
     conferenceGetListFromCache(): List<ConferenceSession> // List<Conference>
     {
         let that = this;
@@ -3149,6 +3183,8 @@ getAllActiveBubbles
     /**
      * @Method retrieveConferences
      * @public
+     * @since 2.6.0
+     * @instance
      * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
      * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
      * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
@@ -3239,6 +3275,8 @@ getAllActiveBubbles
     /**
      * @Method updateOrCreateWebConferenceEndpoint
      * @public
+     * @since 2.6.0
+     * @instance
      * @param {any} conferenceData [required] conference data for the update / creation
      * @returns {any} the updated conferenceEndpoint or null on error
      * @memberof BubblesService
@@ -3267,6 +3305,12 @@ getAllActiveBubbles
         return this._conferenceEndpoints[conferenceData.id];
     }
 
+    /**
+     * @name updateWebConferenceInfos
+     * @since 2.6.0
+     * @private
+     * @param {any[]} endpoints
+     */
     public updateWebConferenceInfos(endpoints: any[]): void {
         let that = this;
         that._logger.log("debug", LOG_ID + "(updateWebConferenceInfos)");
@@ -3311,6 +3355,8 @@ getAllActiveBubbles
     /**
      * @Method getWebRtcConfEndpointId
      * @public
+     * @since 2.6.0
+     * @instance
      * @returns {string} the user unique webrtc conference enpoint id
      * @memberof BubblesService
      */
@@ -3327,6 +3373,8 @@ getAllActiveBubbles
     /**
      * @Method getWebRtcSharingOnlyConfEndpointId
      * @public
+     * @since 2.6.0
+     * @instance
      * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
      * @memberof BubblesService
      */
@@ -3343,7 +3391,7 @@ getAllActiveBubbles
     /**
      * @public
      * @method conferenceStart
-     * @since 1.73
+     * @since 2.6.0
      * @instance
      * @description
      *     To start a conference. <br/>
@@ -3352,7 +3400,7 @@ getAllActiveBubbles
      * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
      * @return {Promise<any>} The result of the starting.
      */
-    async conferenceStart(bubble, conferenceId: string): Promise<any> {
+    async conferenceStart(bubble, conferenceId?: string): Promise<any> {
         let that = this;
        /* let bubbleId = null;
         if (bubble) {
@@ -3366,35 +3414,12 @@ getAllActiveBubbles
         } else {
             return that._rest.conferenceStart(bubble.id, conferenceId, mediaType);
         }
-
-        /*
-            RestClient restClient = rest.GetClient();
-            string resource = rest.GetResource("conference", $"conferences/{conferenceId}/start");
-
-            String body = String.Format(@"{{""mediaType"":""{0}""}}", mediaType);
-
-            RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-            restClient.ExecuteAsync(restRequest, (response) =>
-            {
-                //Do we have a correct answer
-                if (response.IsSuccessful)
-                {
-                    //log.DebugFormat("[ConferenceStart] - response.Content:\r\n{0}", response.Content);
-                    callback?.Invoke(new SdkResult<Boolean>(true));
-                }
-                else
-                    callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-            });
-
-         // */
     }
 
     /**
      * @public
      * @method conferenceStop
-     * @since 1.73
+     * @since 2.6.0
      * @instance
      * @description
      *     To stop a conference. <br/>
@@ -3402,7 +3427,7 @@ getAllActiveBubbles
      * @param {string} conferenceId The id of the conference that should stop
      * @return {Promise<any>} return undefined.
      */
-    async conferenceStop(conferenceId: string) //, Action<SdkResult<Boolean>> callback = null)
+    async conferenceStop(conferenceId?: string) //, Action<SdkResult<Boolean>> callback = null)
     {
         let that = this;
         // Cf. https://api.openrainbow.org/conference/#api-conference-Stop_conference
@@ -3414,48 +3439,30 @@ getAllActiveBubbles
         }
         return that._rest.conferenceStop(conferenceId, mediaType, roomId);
 
-        /*
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("conference", $"conferences/{conferenceId}/stop");
-
-        String body;
-
-        if (mediaType == Bubble.MediaType.Webrtc)
-        {
-            String roomId = GetBubbleIdByConferenceIdFromCache(conferenceId);
-            body = String.Format(@"{{""mediaType"":""{0}"", ""roomId"":""{0}""}}", mediaType, roomId);
-        }
-        else
-            body = String.Format(@"{{""mediaType"":""{0}""}}", mediaType);
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync(restRequest, (response) =>
-        {
-            //Do we have a correct answer
-            if (response.IsSuccessful)
-            {
-                //log.DebugFormat("[ConferenceStop] - response.Content:\r\n{0}", response.Content);
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-        });
-        // */
     }
 
 /// <summary>
-/// To join a conference.
-///
-/// NOTE: The conference must be first started before to join it.
+/// 
 /// </summary>
-/// <param name="conferenceId"><see cref="String"/> ID of the conference</param>
-/// <param name="asModerator"><see cref="Boolean"/>To join conference as operator or not</param>
-/// <param name="muted"><see cref="Boolean"/>To join conference as muted or not</param>
-/// <param name="phoneNumber"><see cref="String"/>The phone number used to join the conference - it can be null or empty</param>
-/// <param name="country"><see cref="String"/>Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user</param>
+/// <param name="conferenceId"><see cref="String"/> </param>
+/// <param name="asModerator"><see cref="Boolean"/></param>
+/// <param name="muted"><see cref="Boolean"/></param>
+/// <param name="phoneNumber"><see cref="String"/></param>
+/// <param name="country"><see cref="String"/></param>
 /// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name conferenceJoin
+     * @since 2.6.0
+     * @param {string} conferenceId ID of the conference
+     * @param {boolean} asModerator To join conference as operator or not
+     * @param {boolean} muted To join conference as muted or not
+     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
+     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+     * @description
+     * To join a conference.  </br> 
+     * NOTE: The conference must be first started before to join it. 
+     * @return {Promise<any>}
+     */
     async conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string)//, Action<SdkResult<Boolean>> callback = null)
     {
         let that = this;
@@ -3511,42 +3518,48 @@ getAllActiveBubbles
         // */
     }
 
-/// <summary>
-/// Mute or Unmute the conference - If muted only the moderator can speak
-///
-/// Only the moderator of the conference can use this method
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/> ID of the conference</param>
-/// <param name="mute"><see cref="Boolean"/> True to mute, False to unmute</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name conferenceMuteOrUnmute
+     * @since 2.6.0
+     * @param {string} conferenceId ID of the conference
+     * @param {boolean} mute True to mute, False to unmute
+     * @description
+     * Mute or Unmute the conference - If muted only the moderator can speak.  </BR>
+     * Only the moderator of the conference can use this method 
+     * @return {Promise<any>}
+     */
     conferenceMuteOrUnmute(conferenceId: string, mute: boolean)//, Action<SdkResult<Boolean>> callback = null)
     {
         let that = this;
         return that.conferenceModeratorAction(conferenceId, mute ? "mute" : "unmute");
     }
 
-/// <summary>
-/// Mute or Unmute the specified participant in the conference
-///
-/// Only the moderator of the conference can use this method
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/> ID of the conference</param>
-/// <param name="participantId"><see cref="String"/> ID of the participant to mute/unmute</param>
-/// <param name="mute"><see cref="Boolean"/> True to mute, False to unmute</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name conferenceMuteOrUnmutParticipant
+     * @since 2.6.0
+     * @param {string} conferenceId ID of the conference
+     * @param {string} participantId ID of the participant to mute/unmute
+     * @param {boolean} mute True to mute, False to unmute
+     * @description
+     * Mute or Unmute the specified participant in the conference.</br>
+     * Only the moderator of the conference can use this method
+     * @return {Promise<any>}
+     */
     conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean) {
         let that = this;
         return that.conferenceModeratorActionOnParticipant(conferenceId, participantId, mute ? "mute" : "unmute");
     }
 
-/// <summary>
-/// Drop the specified participant in the conference
-///
-/// Only the moderator of the conference can use this method
-/// </summary>
-/// <param name="conferenceId"><see cref="String"/> ID of the conference</param>
-/// <param name="participantId"><see cref="String"/> ID of the participant to drop</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name conferenceDropParticipant
+     * @since 2.6.0
+     * @param {string} conferenceId ID of the conference
+     * @param {string} participantId ID of the participant to drop
+     * @description
+     * Drop the specified participant in the conference. </br>
+     * Only the moderator of the conference can use this method 
+     * @return {Promise<any>}
+     */
     async conferenceDropParticipant(conferenceId: string, participantId: string) {
         let that = this;
         /*
@@ -3559,38 +3572,20 @@ getAllActiveBubbles
 
         // Cf. https://api.openrainbow.org/conference/#api-conference-Drop_participant
         let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;
-        return that._rest.conferenceDropParticipant(conferenceId, mediaType, participantId);
-        /*
-        String mediaType = (conferenceId == personalConferenceConfEndpointId) ? Bubble.MediaType.PstnAudio : Bubble.MediaType.Webrtc;
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("conference", $"conferences/{conferenceId}/participants/{participantId}");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.DELETE);
-        restRequest.AddQueryParameter("mediaType", mediaType);
-
-        restClient.ExecuteAsync(restRequest, (response) =>
-        {
-            //Do we have a correct answer
-            if (response.IsSuccessful)
-            {
-                //log.DebugFormat("[PersonalConferenceDropParticipant] - response.Content:\r\n{0}", response.Content);
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-        });
-        // */
+        return that._rest.conferenceDropParticipant(conferenceId, mediaType, participantId);        
     }
 
 //endregion CONFERENCE SPECIFIC
 
 //region PERSONAL CONFERENCE SPECIFIC
 
-/// <summary>
-/// To know if the current user has the permission to start its own Personal Conference
-/// </summary>
-/// <returns><see cref="Boolean"/> - True if it's allowed, false if it's not the case</returns>
+    /**
+     * @name personalConferenceAllowed
+     * @since 2.6.0
+     * @return {boolean}
+     * @description
+     * To know if the current user has the permission to start its own Personal Conference 
+     */
     personalConferenceAllowed(): boolean {
         let that = this;
         return that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().PERSONAL_CONFERENCE_ALLOWED);
@@ -3598,19 +3593,25 @@ getAllActiveBubbles
         //return application.IsFeatureEnabled(Feature.PERSONAL_CONFERENCE_ALLOWED);
     }
 
-/// <summary>
-/// To get teh Id of the Personal Conference
-/// </summary>
-/// <returns><see cref="String"/> - Id of the Personal Conference or NULL</returns>
+    /**
+     * @name personalConferenceGetId
+     * @since 2.6.0
+     * @description
+     * To get teh Id of the Personal Conference 
+     * @return {string} Id of the Personal Conference or NULL
+     */
     personalConferenceGetId(): string {
         let that = this;
         return that._personalConferenceConfEndpointId;
     }
 
-/// <summary>
-/// To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
-/// </summary>
-/// <returns><see cref="Bubble"/> - The Bubble which contains the Personal Meeting or null</returns>
+    /**
+     * @name personalConferenceGetBubbleFromCache
+     * @since 2.6.0
+     * @description
+     * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission) 
+     * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
+     */
     async personalConferenceGetBubbleFromCache(): Promise<Bubble> {
         let that = this;
 //    if (!String.IsNullOrEmpty(personalConferenceBubbleId))
@@ -3621,10 +3622,13 @@ getAllActiveBubbles
         return null;
     }
 
-/// <summary>
-/// To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
-/// </summary>
-/// <returns><see cref="Bubble"/> - The Bubble which contains the Personal Meeting or null</returns>
+    /**
+     * @name personalConferenceGetBubbleIdFromCache
+     * @since 2.6.0
+     * @description
+     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission) 
+     * @return {string} The Bubble which contains the Personal Meeting or null
+     */
     personalConferenceGetBubbleIdFromCache(): string {
         // if (!String.IsNullOrEmpty(personalConferenceBubbleId))
         //   return personalConferenceBubbleId;
@@ -3637,10 +3641,13 @@ getAllActiveBubbles
         return null;
     }
 
-/// <summary>
-/// To get the list of phone numbers used to reach the Personal Meeting
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{PersonalConferenceAudioPhoneNumbers}}"/>Callback fired when the operation is done - <see cref="personalConferencePhoneNumbers"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceGetPhoneNumbers
+     * @since 2.6.0
+     * @description
+     * To get the list of phone numbers used to reach the Personal Meeting 
+     * @return {Promise<any>}
+     */
     async personalConferenceGetPhoneNumbers(): Promise<any> {
         let that = this;
         /*
@@ -3693,10 +3700,13 @@ getAllActiveBubbles
         // */
     }
 
-/// <summary>
-/// To retrieve the pass codes of the Personal Meeting of the current user
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{MeetingPassCodes}}"/>Callback fired when the operation is done - <see cref="ConferencePassCodes"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceGetPassCodes
+     * @since 2.6.0
+     * @description
+     * To retrieve the pass codes of the Personal Meeting of the current user 
+     * @return {Promise<ConferencePassCodes>}
+     */
     async personalConferenceGetPassCodes(): Promise<ConferencePassCodes> {
 // Cf. https://api.openrainbow.org/conf-provisioning/#api-conferences-GetConference
         let that = this;
@@ -3759,10 +3769,13 @@ getAllActiveBubbles
     // */
     }
 
-/// <summary>
-/// To reset and get new pass codes of the Personal Meeting of the current user
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{MeetingPassCodes}}"/>Callback fired when the operation is done - <see cref="ConferencePassCodes"/> is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceResetPassCodes
+     * @since 2.6.0
+     * @description
+     * To reset and get new pass codes of the Personal Meeting of the current user 
+     * @return {Promise<any>}
+     */
     async personalConferenceResetPassCodes(): Promise<any> {
 // Cf. https://api.openrainbow.org/conf-provisioning/#api-conferences-PutConference
         let that = this;
@@ -3825,10 +3838,13 @@ getAllActiveBubbles
         // */
     }
 
-/// <summary>
-/// To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{String}}"/>Callback fired when the operation is done - <see cref="String"/> as a valid URL is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceGetPublicUrl
+     * @since 2.6.0
+     * @description 
+     * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL 
+     * @return {Promise<any>}
+     */
     async personalConferenceGetPublicUrl(): Promise<any> {
         let that = this;
         return that.createPublicUrl(that._personalConferenceBubbleId);
@@ -3846,55 +3862,40 @@ getAllActiveBubbles
         // */
     }
 
-/// <summary>
-/// Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL)
-///
-/// The previous URL is no more functional !
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{String}}"/>Callback fired when the operation is done - <see cref="String"/> as a valid URL is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceGenerateNewPublicUrl
+     * @since 2.6.0
+     * @description
+     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). </br>
+     * The previous URL is no more functional ! 
+     * @return {Promise<any>}
+     */
     async personalConferenceGenerateNewPublicUrl(): Promise<any> {
         let that = this;
         return that.generateNewPublicUrl(that._personalConferenceBubbleId);
-
-// CF. https://api.openrainbow.org/enduser/#api-users_rooms_public_link-resetOpenInviteIdOfRoomId
-        /*
-        if (String.IsNullOrEmpty(personalConferenceBubbleId))
-        {
-        callback?.Invoke(new SdkResult<String>("You don't have an Personal Meeting", false));
-        return;
-        }
-
-        GenerateNewPublicUrl(personalConferenceBubbleId, callback);
-        //  */
     }
 
-/// <summary>
-/// To start a Personal Conference.
-///
-/// Only a moderator can start a Personal Conference.
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceStart
+     * @since 2.6.0
+     * @description
+     * To start a Personal Conference. </br>
+     * Only a moderator can start a Personal Conference. 
+     * @return {Promise<any>}
+     */
     async personalConferenceStart(): Promise<any> {
         let that = this;
         return that.conferenceStart(null, that._personalConferenceConfEndpointId);
-
-        /*
-        if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-        {
-        callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-        return;
-        }
-
-        ConferenceStart(personalConferenceConfEndpointId, callback);
-        // */
     }
 
-/// <summary>
-/// To stop the Personal Conference.
-///
-/// Only a moderator can stop a Personal Conference
-/// </summary>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceStop
+     * @since 2.6.0
+     * @description
+     * To stop the Personal Conference.</br>
+     * Only a moderator can stop a Personal Conference 
+     * @return {Promise<any>}
+     */
     async personalConferenceStop(): Promise<any> {
         let that = this;
         return that.conferenceStop(that._personalConferenceConfEndpointId);
@@ -3910,16 +3911,18 @@ getAllActiveBubbles
         // */
     }
 
-/// <summary>
-/// To join the Personal Conference.
-///
-/// NOTE: The Personal Conference must be first started before to join it.
-/// </summary>
-/// <param name="asModerator"><see cref="Boolean"/>To join Personal Conference as operator or not</param>
-/// <param name="muted"><see cref="Boolean"/>To join Personal Conference as muted or not</param>
-/// <param name="phoneNumber"><see cref="String"/>The phone number used to join the Personal Conference - it can be null or empty</param>
-/// <param name="country"><see cref="String"/>Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceJoin
+     * @since 2.6.0
+     * @param {boolean} asModerator To join Personal Conference as operator or not
+     * @param {boolean} muted To join Personal Conference as muted or not
+     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
+     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+     * @description
+     * To join the Personal Conference.
+     * NOTE: The Personal Conference must be first started before to join it. 
+     * @return {Promise<any>}
+     */
     async personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any> {
         let that = this;
         return that.conferenceJoin(that._personalConferenceConfEndpointId, asModerator, muted, phoneNumber, country);
@@ -3935,96 +3938,62 @@ getAllActiveBubbles
     // */
     }
 
-/// <summary>
-/// Mute or Unmute the Personal Conference - If muted only the moderator can speak
-///
-/// Only the moderator of the Personal Conference can use this method
-/// </summary>
-/// <param name="mute"><see cref="Boolean"/> True to mute, False to unmute</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceMuteOrUnmute
+     * @since 2.6.0
+     * @param {boolean} mute
+     * @description
+     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.</br>
+     * Only the moderator of the Personal Conference can use this method
+     * @return {Promise<any>}
+     */
     async personalConferenceMuteOrUnmute(mute: boolean) {
         let that = this;
         return that.conferenceModeratorAction(that._personalConferenceConfEndpointId, mute ? "mute" : "unmute");
-
-        /*
-    if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-    {
-    callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-    return;
     }
 
-    ConferenceModeratorAction(personalConferenceConfEndpointId, mute ? "mute" : "unmute", callback);
-    // */
-    }
-
-/// <summary>
-/// Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference
-///
-/// Lock / Unlock is only possible for PSTN Conference
-///
-/// Only a moderator can use this method
-/// </summary>
-/// <param name="toLock"><see cref="Boolean"/> True to lock, False to unlock</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceLockOrUnlock
+     * @since 2.6.0
+     * @param {boolean} toLock  True to lock, False to unlock
+     * @description
+     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. </br>
+     * Lock / Unlock is only possible for PSTN Conference. </br> 
+     * Only a moderator can use this method 
+     * @return {Promise<any>}
+     */
     async personalConferenceLockOrUnlock(toLock: boolean) {
         let that = this;
         return that.conferenceModeratorAction(that._personalConferenceConfEndpointId, toLock ? "lock" : "unlock");
-
-        /*
-
-        if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-        {
-        callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-        return;
-        }
-
-        ConferenceModeratorAction(personalConferenceConfEndpointId, toLock ? "lock" : "unlock", callback);
-        // */
     }
 
-/// <summary>
-/// Mute or Unmute the specified participant in the Personal Conference
-///
-/// Only the moderator of the Personal Conference can use this method
-/// </summary>
-/// <param name="participantId"><see cref="String"/> ID of the participant to mute/unmute</param>
-/// <param name="mute"><see cref="Boolean"/> True to mute, False to unmute</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
-    async personalConferenceMuteOrUnmutParticipant(participantId: string, mute: boolean): Promise<any> {
+    /**
+     * @name personalConferenceMuteOrUnmuteParticipant
+     * @since 2.6.0
+     * @param {string} participantId ID of the participant to mute/unmute
+     * @param {boolean} mute True to mute, False to unmute
+     * @description
+     * Mute or Unmute the specified participant in the Personal Conference.</br>
+     * Only the moderator of the Personal Conference can use this method. 
+     * @return {Promise<any>}
+     */
+    async personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any> {
         let that = this;
         return that.conferenceModeratorActionOnParticipant(that._personalConferenceConfEndpointId, participantId, mute ? "mute" : "unmute");
-
-        /*
-            if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-        {
-        callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-        return;
-        }
-
-        ConferenceModeratorActionOnParticipant(personalConferenceConfEndpointId, participantId, mute ? "mute" : "unmute", callback);
-        // */
     }
 
-/// <summary>
-/// Drop the specified participant in the Personal Conference
-///
-/// Only the moderator of the Personal Conference can use this method
-/// </summary>
-/// <param name="participantId"><see cref="String"/> ID of the participant to drop</param>
-/// <param name="callback"><see cref="T:Action{SdkResult{Boolean}}"/>Callback fired when the operation is done - True is expected in **Data** member of <see cref="SdkResult{T}"/> if no error occurs</param>
+    /**
+     * @name personalConferenceDropParticipant
+     * @since 2.6.0
+     * @param {string} participantId ID of the participant to drop
+     * @description
+     * Drop the specified participant in the Personal Conference. </br>
+     * Only the moderator of the Personal Conference can use this method. 
+     * @return {Promise<any>}
+     */
     async personalConferenceDropParticipant(participantId: string): Promise<any> {
         let that = this;
         return that.conferenceDropParticipant(that._personalConferenceConfEndpointId, participantId);
-
-        /*
-        if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-        {
-        callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-        return;
-        }
-
-        ConferenceDropParticipant(personalConferenceConfEndpointId, participantId, callback);
-        // */
     }
 
 //endregion PERSONAL CONFERENCE SPECIFIC
@@ -4033,6 +4002,12 @@ getAllActiveBubbles
 
 // Internal
 
+    /**
+     * @name conferenceEndedForBubble
+     * @private
+     * @param {string} bubbleJid
+     * @return {Promise<void>}
+     */
     async conferenceEndedForBubble(bubbleJid: string) {
         let that = this;
         //let bubbleId : string = GetBubbleIdFromBubbleJidFromCache(bubbleJid);
@@ -4044,32 +4019,20 @@ getAllActiveBubbles
             //foreach(Bubble.ConfEndpoint confEndpoint in bubble.confEndpoints)
             bubble.confEndpoints.forEach((confEndpoint: any) => {
                 // Create a non active conference and "add it to the cache" - in consequence the conference will be removed and ConfrenceUpdated event raised if necessary
-                let conference: ConferenceSession = new ConferenceSession();
-                conference.id = confEndpoint.ConfEndpointId;
+                let conference: ConferenceSession = new ConferenceSession(confEndpoint.ConfEndpointId, new List(), MEDIATYPE.WEBRTC);
+                //conference.id = confEndpoint.ConfEndpointId;
                 conference.active = false;
                 that._logger.log("debug", LOG_ID + "(ConferenceEndedForBubble) Add inactive conference to the cache - conferenceId: ", conference.id, ", bubbleJid:", bubbleJid);
                 that.addConferenceToCache(conference);
             });
         }
-
-        /* if ((bubble != null) && (bubble.ConfEndpoints != null) && (bubble.ConfEndpoints.Count > 0)) {
-             conference : Conference;
-             foreach(Bubble.ConfEndpoint
-             confEndpoint in bubble.ConfEndpoints
-         )
-             {
-                 // Create a non active conference and "add it to the cache" - in consequence the conference will be removed and ConfrenceUpdated event raised if necessary
-                 conference = new Conference();
-                 conference.Id = confEndpoint.ConfEndpointId;
-                 conference.Active = false;
-
-                 log.DebugFormat("[ConferenceEndedForBubble] Add inactive conference to the cache - conferenceId:[{0}] - bubbleId:[{1}] - bubbleId:[{2}]",
-                     conference.Id, bubbleId, bubbleJid);
-                 that.addConferenceToCache(conference);
-             }
-         }*/
     }
 
+    /**
+     * @name askBubbleForConferenceDetails
+     * @private
+     * @param {string} bubbleJid
+     */
     askBubbleForConferenceDetails(bubbleJid: string) {
         /*
             GetBubbleByJid(bubbleJid, callback =>
@@ -4098,147 +4061,126 @@ getAllActiveBubbles
         */
     }
 
+    /**
+     * @name personalConferenceRename
+     * @private
+     * @param {string} name
+     * @return {Promise<unknown>}
+     */
     async personalConferenceRename(name: string) {
         let that = this;
-        return that._rest.personalConferenceRename(that._personalConferenceConfEndpointId, name);
-
-        /*    RestClient restClient = rest.GetClient();
-            string resource = rest.GetResource("confprovisioning", $"conferences/{personalConferenceConfEndpointId}");
-
-            String body = string.Format(@"{{""name"":""{0}""}}", name);
-
-            RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-            restClient.ExecuteAsync(restRequest, (response) =>
-            {
-                if (!response.IsSuccessful)
-                    log.ErrorFormat("[PersonalConferenceRename] - Not possible to rename Personal Conference conference:[{0}]", Sdk.ErrorFromResponse(response));
-            });*/
+        return that._rest.personalConferenceRename(that._personalConferenceConfEndpointId, name);        
     }
 
+    /**
+     * @name askConferenceSnapshot
+     * @private
+     * @param {string} conferenceId
+     * @param {MEDIATYPE} type
+     * @return {Promise<void>}
+     */
     async askConferenceSnapshot(conferenceId: string, type: MEDIATYPE) {
         let that = this;
-        return that._rest.askConferenceSnapshot(conferenceId, type);
+        let confSnapshop = await that._rest.askConferenceSnapshot(conferenceId, type);
 
-        /* RestClient restClient = rest.GetClient();
-         string resource = rest.GetResource("conference", $"conferences/{conferenceId}/snapshot");
+        that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
+        let active : boolean = false;
+        active = confSnapshop["active"];
 
-         RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-         restRequest.AddQueryParameter("mediaType", type);
+        // Do something only if conference is active
+        if (active)
+        {
+            // Get conference form cahe (if any)
+            let conference : ConferenceSession = await that.getConferenceByIdFromCache(conferenceId);
+            if (conference == null)
+            {
+                conference = new ConferenceSession(conferenceId);
+            }
 
-         restClient.ExecuteAsync(restRequest, (response) =>
-         {
-             //Do we have a correct answer
-             if (response.IsSuccessful)
-             {
-                 //log.DebugFormat("[AskConferenceSnapshot] - response.Content:\r\n{0}", response.Content);
+            conference.active = true;
 
-                 var json = JsonConvert.DeserializeObject<dynamic>(response.Content);
+            // Clear participants since this server request give all info about them
+            conference.participants = new List<Participant>();
 
-                 if (json["data"] != null)
-                 {
-                     JObject jObject = (JObject)json["data"];
+            try
+            {
+                // Loop on participants found
+                let jArray = confSnapshop["participants"];
 
-                     //if (jObject.GetValue("active") != null)
-                     {
+                if ((jArray != null)) {
+                    //jArray.forEach(async (jParticipant: any) => {
+                    for ( const jParticipant of jArray) {
+                        let participant : Participant = null;
+                        if (jParticipant.hasOwnProperty("participantId"))
+                        {
+                            // Id
+                            let participantId = jParticipant["participantId"];
 
-                         log.DebugFormat("[AskConferenceSnapshot] - active(string):[{0}]", jObject.GetValue("active").ToString());
-                         Boolean active = false;
-                         if (jObject.GetValue("active").Type == JTokenType.Boolean)
-                             active = (Boolean)jObject.GetValue("active");
+                            // Create Participant object
+                            participant = new Participant(participantId);
 
-                         // Do something only if conference is active
-                         if (active)
-                         {
-                             // Get conference form cahe (if any)
-                             Conference conference = ConferenceGetByIdFromCache(conferenceId);
-                             if (conference == null)
-                             {
-                                 conference = new Conference();
-                                 conference.Id = conferenceId;
-                             }
+                            // Muted
+                            if (jParticipant.hasOwnProperty("mute"))
+                                participant.muted = (jParticipant["mute"] == "true");
+                            else
+                                participant.muted = false;
 
-                             conference.Active = true;
+                            // Hold
+                            if (jParticipant.hasOwnProperty("held"))
+                                participant.hold = (jParticipant["held"] == "true");
+                            else
+                                participant.hold = false;
 
-                             // Clear participants since this server request give all info about them
-                             conference.Participants = new List<Conference.Participant>();
+                            // IsModerator
+                            if (jParticipant.hasOwnProperty("participantRole"))
+                                participant.moderator = (jParticipant["participantRole"] == "moderator");
+                            else
+                                participant.moderator = false;
 
-                             try
-                             {
-                                 // Loop on participants found
-                                 JArray jArray = (JArray)jObject.GetValue("participants");
+                            // IsConnected
+                            if (jParticipant.hasOwnProperty("participantState"))
+                                participant.connected = (jParticipant["participantState"] == "connected");
+                            else
+                                participant.connected = false;
 
-                                 if ((jArray != null)
-                                     && (jArray.Count > 0))
-                                 {
-                                     Conference.Participant participant = null;
-                                     foreach (JObject jParticipant in jArray)
-                                     {
-                                         if (jParticipant.GetValue("participantId") != null)
-                                         {
-                                             // Create Participant object
-                                             participant = new Conference.Participant();
+                            // Jid_im
+                            if (jParticipant.hasOwnProperty("jid_im")) {
+                                participant.jid_im = jParticipant["jid_im"];
+                                participant.contact = await that._contacts.getContactByJid(participant.jid_im).catch((err)=> {
+                                    that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - not found the contact for participant : ", err);
+                                    return null;
+                                });
+                            }
 
-                                             // Id
-                                             participant.Id = jParticipant.GetValue("participantId").ToString();
+                            // PhoneNumber
+                            if (jParticipant.hasOwnProperty("phoneNumber") )
+                                participant.phoneNumber = jParticipant["phoneNumber"];
 
-                                             // Muted
-                                             if (jParticipant.GetValue("mute") != null)
-                                                 participant.Muted = (jParticipant.GetValue("mute").ToString() == "true");
-                                             else
-                                                 participant.Muted = false;
+                            // Finally add participant to the list
+                            conference.participants.add(participant);
+                        }
+                    };
+                }
+            }
+            catch (e)
+            {
+                that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - CATCH Error !!! Error : ", e);
+            }
 
-                                             // Hold
-                                             if (jParticipant.GetValue("held") != null)
-                                                 participant.Hold = (jParticipant.GetValue("held").ToString() == "true");
-                                             else
-                                                 participant.Hold = false;
+            that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
 
-                                             // IsModerator
-                                             if (jParticipant.GetValue("participantRole") != null)
-                                                 participant.Moderator = (jParticipant.GetValue("participantRole").ToString() == "moderator");
-                                             else
-                                                 participant.Moderator = false;
-
-                                             // IsConnected
-                                             if (jParticipant.GetValue("participantState") != null)
-                                                 participant.Connected = (jParticipant.GetValue("participantState").ToString() == "connected");
-                                             else
-                                                 participant.Connected = false;
-
-                                             // Jid_im
-                                             if (jParticipant.GetValue("jid_im") != null)
-                                                 participant.Jid_im = jParticipant.GetValue("jid_im").ToString();
-
-                                             // PhoneNumber
-                                             if (jParticipant.GetValue("phoneNumber") != null)
-                                                 participant.PhoneNumber = jParticipant.GetValue("phoneNumber").ToString();
-
-                                             // Finally add participant to the list
-                                             conference.Participants.Add(participant);
-                                         }
-                                     }
-                                 }
-                             }
-                             catch (Exception e)
-                             {
-                                 log.WarnFormat("[AskConferenceSnapshot] - Exception:[{0}]", Util.SerializeException(e));
-                             }
-
-                             log.DebugFormat("[AskConferenceSnapshot] - Conference:[{0}]", conference.ToString());
-
-                             // Finally add conference to the cache
-                             AddConferenceToCache(conference);
-                         }
-                     }
-                 }
-             }
-             else
-                 log.DebugFormat("[AskConferenceSnapshot] - Error:[{0}]", Sdk.ErrorFromResponse(response));
-         });*/
+            // Finally add conference to the cache
+            that.addConferenceToCache(conference);
+        }
     }
 
+    /**
+     * @name conferenceModeratorAction
+     * @private
+     * @param {string} conferenceId
+     * @param {string} action
+     * @return {Promise<unknown>}
+     */
     async conferenceModeratorAction(conferenceId: string, action: string) //, Action<SdkResult<Boolean>> callback = null
     {
 
@@ -4256,91 +4198,36 @@ getAllActiveBubbles
         }
 
         return that._rest.conferenceModeratorAction(conferenceId, mediaType, action);
-
-        /*
-            if (!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-            {
-                callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-                return;
-            }
-
-            // Cf. https://api.openrainbow.org/conference/#api-conference-Update_conference
-
-            String mediaType = (conferenceId == personalConferenceConfEndpointId) ? Bubble.MediaType.PstnAudio : Bubble.MediaType.Webrtc;
-
-            if ( (mediaType == Bubble.MediaType.Webrtc)
-                && ( (action == "lock") || (action == "unlock") ) )
-            {
-                // CRRAINB - 8132: API To Lock a Conference doesn't work
-                //      Lock only available for PSTN Conference (not webRTC)
-                callback?.Invoke(new SdkResult<Boolean>("Lock / Unlock is only available for Personal Conference"));
-                return;
-            }
-
-            RestClient restClient = rest.GetClient();
-            string resource = rest.GetResource("conference", $"conferences/{conferenceId}/update");
-
-            String body = String.Format(@"{{""option"":""{0}"", ""mediaType"":""{1}""}}", action, mediaType);
-
-            RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-            restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-            restClient.ExecuteAsync(restRequest, (response) =>
-            {
-                //Do we have a correct answer
-                if (response.IsSuccessful)
-                {
-                    //log.DebugFormat("[PersonalConferenceModeratorAction] - response.Content:\r\n{0}", response.Content);
-                    callback?.Invoke(new SdkResult<Boolean>(true));
-                }
-                else
-                    callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-            });*/
     }
 
+    /**
+     * @name conferenceMuteOrUnmutParticipant
+     * @private
+     * @param {string} conferenceId
+     * @param {string} participantId
+     * @param {string} action
+     * @return {Promise<unknown>}
+     */
     async conferenceModeratorActionOnParticipant(conferenceId: string, participantId: string, action: string) {
         let that = this;
 
         let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;
 
         return that._rest.conferenceModeratorActionOnParticipant(conferenceId, mediaType, participantId, action);
-
-        /*if (!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-
-        // Cf. https://api.openrainbow.org/conference/#api-conference-Update_participant
-
-        String mediaType = (conferenceId == personalConferenceConfEndpointId) ? Bubble.MediaType.PstnAudio : Bubble.MediaType.Webrtc;
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("conference", $"conferences/{conferenceId}/participants/{participantId}");
-
-        String body = String.Format(@"{{""option"":""{0}"", ""mediaType"":""{1}""}}", action, mediaType);
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync(restRequest, (response) =>
-        {
-            //Do we have a correct answer
-            if (response.IsSuccessful)
-            {
-                //log.DebugFormat("[PersonalConferenceModeratorAction] - response.Content:\r\n{0}", response.Content);
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-        });*/
     }
 
 //endregion CONFERENCE / Personal Conference SPECIFIC
 
 //region Conference cache
+    /**
+     * @name removeBubbleFromCache
+     * @private
+     * @param {string} conferenceId
+     * @param {boolean} deleteLinkWithBubble
+     */
     removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean) {
         let that = this;
+        that._logger.log("debug", LOG_ID + "(removeConferenceFromCache) remove conference : ", conferenceId);
         if (that._conferencesSessionById.containsKey(conferenceId)) {
             that._conferencesSessionById.remove((item: KeyValuePair<string, ConferenceSession>) => {
                 return conferenceId === item.key;
@@ -4356,6 +4243,11 @@ getAllActiveBubbles
         }
     }
 
+    /**
+     * @name addConferenceToCache
+     * @private
+     * @param {ConferenceSession} conference
+     */
     addConferenceToCache(conference: ConferenceSession) {
         let that = this;
         if (conference != null) {
@@ -4392,6 +4284,7 @@ getAllActiveBubbles
                 that._logger.log("debug", LOG_ID + "(addConferenceToCache) ConferenceUpdated event raised.");
                 // log.DebugFormat("[addConferenceToCache] ConferenceUpdated event raised");
                 // TODO: ConferenceUpdated.Raise(this, new ConferenceEventArgs(conference));
+                that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference);                
             }
         }
     }

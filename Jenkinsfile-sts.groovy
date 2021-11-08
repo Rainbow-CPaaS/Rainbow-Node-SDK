@@ -375,7 +375,8 @@ pipeline {
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Development_Kit.md"  |tee "Documentation/doc/sdk/node/sts/guides/Development_Kit.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Getting_Started.md"  |tee "Documentation/doc/sdk/node/sts/guides/Getting_Started.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_bubble.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubble.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
