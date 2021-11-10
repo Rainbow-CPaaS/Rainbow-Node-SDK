@@ -12,7 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `AdminService::retrieveRainbowUserList` method.
 -   Update conferences related methods documentation in BubblesService.
 -   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
--   Add `Manage_conferences` documentation for informations about conferences.
+-   Add `Manage_conferences` documentation for information about conferences.
 -   Fix events documentation and low layer documentation.
 -   Update `getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
 -   Update `getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.

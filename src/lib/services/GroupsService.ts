@@ -668,6 +668,9 @@ const LOG_ID = "GROUPS/SVCE - ";
             }
 
             that._eventEmitter.emit("evt_internal_groupcreated", groupCreated);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onGroupCreated) Error.");
+            that._logger.log("internalerror", LOG_ID + "(_onGroupCreated) Error : ", err);
         });
     }
 
@@ -717,6 +720,9 @@ const LOG_ID = "GROUPS/SVCE - ";
             }
 
             that._eventEmitter.emit("evt_internal_groupupdated", groupUpdated);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onGroupUpdated) Error.");
+            that._logger.log("internalerror", LOG_ID + "(_onGroupUpdated) Error : ", err);
         });
     }
 
@@ -745,6 +751,9 @@ const LOG_ID = "GROUPS/SVCE - ";
             let contact = groupUpdated.users[contactAddedIndex];
 
             that._eventEmitter.emit("evt_internal_useraddedingroup", groupUpdated, contact);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onUserAddedInGroup) Error.");
+            that._logger.log("internalerror", LOG_ID + "(_onUserAddedInGroup) Error : ", err);
         });
     }
 
@@ -775,6 +784,9 @@ const LOG_ID = "GROUPS/SVCE - ";
             }
 
             that._eventEmitter.emit("evt_internal_userremovedfromgroup", groupUpdated, contact);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onUserRemovedFromGroup) Error.");
+            that._logger.log("internalerror", LOG_ID + "(_onUserRemovedFromGroup) Error : ", err);
         });
     }
  }
