@@ -537,14 +537,55 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method getGroupById
      * @instance
-     * @param {String} group Id of the group to found
-     * @return {Object} The group found if exist or undefined
+     * @param {String} id group Id of the group to found
+     * @return {Promise<any>} The group found if exist or undefined
      * @description
      *  Return a group by its id <br/>
      */
-    getGroupById(id) {
-        return this._groups.find((group) => {
-            return group.id === id;
+    getGroupById(id: string, , forceServerSearch : boolean = false) : Promise<any>{
+        return new Promise((resolve, reject) => {
+            let that = this;
+            let groupFound = this._groups.find((group) => {
+                return  (group.id===id);
+            });
+
+            if (groupFound && !forceServerSearch) {
+                return resolve (groupFound);
+            } else {
+                return that._rest.getGroups().then((listOfGroups: []) => {
+
+                    let promises = [];
+                    let groupFoundOnServer = false;
+
+                    listOfGroups.forEach(async (group: any) => {
+                        if (group.id === id) {
+                            await this._rest.getGroup(group.id).then((groupUpdated: any) => {
+                                //that._logger.log("internal", LOG_ID + "(_onGroupUpdated) Group updated", groupUpdated.name);
+
+                                let foundIndex = that._groups.findIndex(groupItem => groupItem.id===groupUpdated.id);
+                                if (foundIndex > -1) {
+                                    that._groups[foundIndex] = groupUpdated;
+                                } else {
+                                    that._groups.push(groupUpdated);
+                                }
+
+                                that._eventEmitter.emit("evt_internal_groupupdated", groupUpdated);
+                                //that._logger.log("info", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
+                                that._logger.log("debug", LOG_ID + "(getGroupById) retrieved infos on group found on server successfully, groupUpdated : ", groupUpdated);
+                                groupFoundOnServer = true;
+                                return resolve(groupUpdated);
+                            });
+                        }
+                    });
+                    if (!groupFoundOnServer) {
+                        return resolve (null);
+                    }
+                }, err => {
+                    that._logger.log("error", LOG_ID + "(getGroupById) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getGroupById) Error : ", err);
+                    return reject(err);
+                });
+            }
         });
     }
 
@@ -553,13 +594,55 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @method getGroupByName
      * @instance
      * @param {String} name Name of the group to found
-     * @return {Object} The group found if exist or undefined
+     * @param {boolean} forceServerSearch force the update from server.
+     * @return {Promise<any>} The group found if exist or undefined
      * @description
      *  Return a group by its id <br/>
      */
-    getGroupByName(name) {
-        return this._groups.find((group) => {
-            return group.name === name;
+    async getGroupByName(name : string, forceServerSearch : boolean = false) : Promise<any>{
+        return new Promise((resolve, reject) => {
+            let that = this;
+            let groupFound = this._groups.find((group) => {
+                return  (group.name===name);
+            });
+
+            if (groupFound && !forceServerSearch) {
+                return resolve (groupFound);
+            } else {
+                return that._rest.getGroups().then((listOfGroups: []) => {
+
+                    let promises = [];
+                    let groupFoundOnServer = false;
+                    
+                    listOfGroups.forEach(async (group: any) => {
+                        if (group.name === name) {
+                            await this._rest.getGroup(group.id).then((groupUpdated: any) => {
+                                //that._logger.log("internal", LOG_ID + "(_onGroupUpdated) Group updated", groupUpdated.name);
+
+                                let foundIndex = that._groups.findIndex(groupItem => groupItem.id===groupUpdated.id);
+                                if (foundIndex > -1) {
+                                    that._groups[foundIndex] = groupUpdated;
+                                } else {
+                                    that._groups.push(groupUpdated);
+                                }
+
+                                that._eventEmitter.emit("evt_internal_groupupdated", groupUpdated);
+                                //that._logger.log("info", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
+                                that._logger.log("debug", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully, groupUpdated : ", groupUpdated);
+                                groupFoundOnServer = true;
+                                return resolve(groupUpdated);
+                            });
+                        }
+                    });
+                    if (!groupFoundOnServer) {
+                        return resolve (null);
+                    } 
+                }, err => {
+                    that._logger.log("error", LOG_ID + "(getGroupByName) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getGroupByName) Error : ", err);
+                    return reject(err);
+                });
+            }
         });
     }
 

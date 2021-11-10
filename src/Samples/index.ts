@@ -304,6 +304,17 @@ rainbowSDK.events.on("rainbow_onxmmprequestsent", (...argv) => {
     if (fileLogXmpp) fs.writeSync(fileLogXmpp,"out: " + logger.colors.yellow(argv[0]) + "\n");
 });
 
+    let GROUP_NAME = "Services";
+
+    const displayGroup = async () => {
+        //let groups = rainbowSDK.groups.getAll();
+        //let group = groups.find(group => group.name === GROUP_NAME);
+        let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME)
+        let users = group.users.map(user => user.id)
+        console.log(users.length);
+        console.log(users);
+    }
+
 rainbowSDK.events.on("rainbow_onready", () => {
     // do something when the SDK is ready to be used
     logger.log("debug", "MAIN - (rainbow_onready) - rainbow onready");
@@ -325,13 +336,16 @@ rainbowSDK.events.on("rainbow_onready", () => {
     //rainbowSDK.stop();
     logger.log("debug", "MAIN - Rainbow ready ",rainbowSDK.version);
 
-    var contacts = rainbowSDK.contacts.getAll();
+    let contacts = rainbowSDK.contacts.getAll();
     logger.log("debug", "MAIN - Contacts : ",contacts.length);
     contacts.forEach(contact => {
         console.log(contact.displayName, " - ",contact.presence, " - ",contact.id, " - ",contact.jid);
         console.log("Emails ",contact.emails);
         console.log("Email pro",contact.emailPro);
     })
+
+    // setInterval(() => {displayGroup();} , 10000);
+    
     logger.log("debug", "MAIN - ----------------------------------------------------");
 });
 rainbowSDK.events.on("rainbow_onconnectionerror", () => {
@@ -1038,29 +1052,47 @@ function testReconnection() {
     });
 }
 
-async function testdeleteAllGroups() {
-    let that = this;
-    logger.log("debug", "MAIN - testdeleteAllGroups before delete");
-    await rainbowSDK.groups.deleteAllGroups();
-    logger.log("debug", "MAIN - testdeleteAllGroups after delete");
-}
+//region group 
 
-async function testsetGroupAsFavorite() {
-    let that = this;
-    //logger.log("debug", "testsetGroupAsFavorite before delete");
-    let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
-    logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
-    let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
-    logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
-    await setTimeoutPromised(1500);
-    let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
-    logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
-    await setTimeoutPromised(1500);
-    let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
-    logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
-}
+    async function testdeleteAllGroups() {
+        let that = this;
+        logger.log("debug", "MAIN - testdeleteAllGroups before delete");
+        await rainbowSDK.groups.deleteAllGroups();
+        logger.log("debug", "MAIN - testdeleteAllGroups after delete");
+    }
+    
+    async function testsetGroupAsFavorite() {
+        let that = this;
+        //logger.log("debug", "testsetGroupAsFavorite before delete");
+        let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
+        let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
+        await setTimeoutPromised(1500);
+        let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
+        await setTimeoutPromised(1500);
+        let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
+    }
+    
+    async function testgetGroupByName(forceSearchOnServer) {
+            //let groups = rainbowSDK.groups.getAll();
+            //let group = groups.find(group => group.name === GROUP_NAME);
+        let GROUP_NAME = "Services";
+        //let forceSearchOnServer = false;
+        let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME, forceSearchOnServer != null ? forceSearchOnServer : false)
+        if (group) {
+            let users = group.users.map(user => user.id)
+            logger.log("debug", "MAIN - testgetGroupByName - result users.length : ", users.length, ", users : ", users);
+        } else {
+            logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
+        }
+    }
 
-function testChannelImage() {
+//endregion group
+
+    function testChannelImage() {
     let mychannels = rainbowSDK.channels.getAllOwnedChannel();
     let mychannel = mychannels ? mychannels[0] : null;
     rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((result) => {
