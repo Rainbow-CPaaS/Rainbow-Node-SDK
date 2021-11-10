@@ -542,7 +542,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @description
      *  Return a group by its id <br/>
      */
-    getGroupById(id: string, , forceServerSearch : boolean = false) : Promise<any>{
+    getGroupById(id: string, forceServerSearch : boolean = false) : Promise<any>{
         return new Promise((resolve, reject) => {
             let that = this;
             let groupFound = this._groups.find((group) => {
