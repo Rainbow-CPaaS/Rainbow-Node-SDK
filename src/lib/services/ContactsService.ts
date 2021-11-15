@@ -1655,11 +1655,15 @@ class ContactsService extends GenericService {
                     let foundContact = that._contacts.find(item => item.jid_im===contact.jid);
                     if (foundContact) {
                         foundContact.presence = "unknown";
+                        foundContact.roster = false;
                         that._eventEmitter.emit("evt_internal_contactremovedfromnetwork", contact);
+                        /*
+                        // replace following remove of the Contact by setting its roster property to false :                         
                         // Add suppression delay
                         setTimeout(() => {
                             that._contacts = that._contacts.filter(_contact => _contact.jid_im!==contact.jid);
                         }, 3000);
+                        // */
                     }
                     return;
                 }

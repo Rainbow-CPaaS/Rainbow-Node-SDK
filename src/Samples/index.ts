@@ -559,44 +559,150 @@ rainbowSDK.events.on("rainbow_onstopped", (data) => {
     // */
 });
 
-function testgetUserPresenceInformation() {
-    rainbowSDK.admin.getUserPresenceInformation().then(result => {
-        logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
-    }).catch((err) => {
-        logger.log("error", "MAIN - [getUserPresenceInformation    ] :: catch reject contact : ", err);
-    });
-}
+//region Contacts
+    function testgetUserPresenceInformation() {
+        rainbowSDK.admin.getUserPresenceInformation().then(result => {
+            logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [getUserPresenceInformation    ] :: catch reject contact : ", err);
+        });
+    }
+    
+    function testgetContactByLoginEmail_UnknownUser() {
+        let usershouldbeUnkown = "unknowcontact@openrainbow.org";
+        rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
+            logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+        });
+    }
+    
+    function testgetContactByLoginEmail_NotInRoster() {
+        let usershouldbeUnkown = "vincent06@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
+            logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+        });
+    }
+    
+    function multiple_testgetContactByLoginEmail_NotInRoster() {
+        let usershouldbeUnkown = "vincent02@vbe.test.openrainbow.net"; // "WRONG6ac069e5eb4741e2af64a8beac59406f@openrainbow.net"
+        rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then( (contact: Contact) => {
+            for (let i = 0; i < 20; i++) {
+                let prom = rainbowSDK._core._rest.getContactInformationByJID(contact.jid ).then((_contactFromServer: any) => {
+                    logger.log("debug", "MAIN - [getContactInformationByJID    ] ::  _contactFromServer : ", _contactFromServer);
+                }).catch((err) => {
+                    logger.log("error", "MAIN - [getContactInformationByJID    ] :: catch reject contact : ", err);
+                });
+            }
+        });
+    }
 
-function testgetContactByLoginEmail_UnknownUser() {
-    let usershouldbeUnkown = "unknowcontact@openrainbow.org";
-    rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
-        logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
-    }).catch((err) => {
-        logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
-    });
-}
 
-function testgetContactByLoginEmail_NotInRoster() {
-    let usershouldbeUnkown = "vincent06@vbe.test.openrainbow.net";
-    rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
-        logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
-    }).catch((err) => {
-        logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
-    });
-}
+    function testgetContactByLoginEmailCaseSensitiveTest() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+            let contactVincent00upperCase = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
+            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
+        });
+    }
 
-function multiple_testgetContactByLoginEmail_NotInRoster() {
-    let usershouldbeUnkown = "vincent02@vbe.test.openrainbow.net"; // "WRONG6ac069e5eb4741e2af64a8beac59406f@openrainbow.net"
-    rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then( (contact: Contact) => {
-        for (let i = 0; i < 20; i++) {
-            let prom = rainbowSDK._core._rest.getContactInformationByJID(contact.jid ).then((_contactFromServer: any) => {
-                logger.log("debug", "MAIN - [getContactInformationByJID    ] ::  _contactFromServer : ", _contactFromServer);
-            }).catch((err) => {
-                logger.log("error", "MAIN - [getContactInformationByJID    ] :: catch reject contact : ", err);
-            });
-        }
-    });
-}
+    function  displayRoster() {
+        let contacts = rainbowSDK.contacts.getAll();
+        let roster = contacts.filter(contact => contact.roster).map(contact => contact.displayName)
+        logger.log("debug", "MAIN - [displayRoster] roster.length : ", roster.length, ", roster : ", roster);
+    }
+
+    function testgetContactByLoginEmail() {
+        let loginEmail = "vincent++@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
+            }
+        });
+    }
+    /**
+     * need to be administrator of the company. Here vincent02 is ok.
+     */
+    function testgetContactInfos() {
+        let loginEmail = "vincent++@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
+                    if (contactInfos) {
+                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                    }
+                    else {
+                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
+                    }
+                });
+            }
+        });
+    }
+
+    function testgetContactInfos2() {
+        let loginEmail = "representaive2@al-mydemo.com";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
+                    if (contactInfos) {
+                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                    }
+                    else {
+                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * need to be administrator of the company. Here vincent02 is ok.
+     */
+    function testupdateContactInfos() {
+        let loginEmail = "vincent++@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+                let utc = new Date().toJSON().replace(/-/g, "_");
+                let infos = {
+                    "userInfo1": "My Value UserInfo 1_" + utc,
+                    "userInfo2": "My Value UserInfo 2_" + utc,
+                    "jobTitle": "my job",
+                    customData:{
+                        "key1":"TestTextOfKey1" + utc,
+                        "key2":"TestTextOfKey2" + utc
+                    }
+                };
+                rainbowSDK.admin.updateContactInfos(contact.id, infos).then(result => {
+                    if (result) {
+                        logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos result : ", result);
+                    }
+                    else {
+                        logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos no infos found");
+                    }
+                    rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
+                        if (contactInfos) {
+                            logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                        }
+                        else {
+                            logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos no infos found");
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+//endregion Contacts
+    
     function testgetContactsMessagesFromConversationId() {
         return __awaiter(this, void 0, void 0, function* () {
             //let that = this;
@@ -1846,88 +1952,6 @@ function testCreateBubblesAndJoinConference() {
 
     }
 
-    function testgetContactByLoginEmail() {
-        let loginEmail = "vincent++@vbe.test.openrainbow.net";
-        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
-            if (contact) {
-                logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
-            }
-        });
-    }
-/**
- * need to be administrator of the company. Here vincent02 is ok.
- */
-function testgetContactInfos() {
-    let loginEmail = "vincent++@vbe.test.openrainbow.net";
-    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
-        if (contact) {
-            logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
-            rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
-                if (contactInfos) {
-                    logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
-                }
-                else {
-                    logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
-                }
-            });
-        }
-    });
-}
-
-    function testgetContactInfos2() {
-        let loginEmail = "representaive2@al-mydemo.com";
-        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
-            if (contact) {
-                logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
-                rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
-                    if (contactInfos) {
-                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
-                    }
-                    else {
-                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
-                    }
-                });
-            }
-        });
-    }
-
-/**
- * need to be administrator of the company. Here vincent02 is ok.
- */
-function testupdateContactInfos() {
-    let loginEmail = "vincent++@vbe.test.openrainbow.net";
-    rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
-        if (contact) {
-            logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactByLoginEmail contact : ", contact);
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let infos = {
-                "userInfo1": "My Value UserInfo 1_" + utc,
-                "userInfo2": "My Value UserInfo 2_" + utc,
-                "jobTitle": "my job",
-                customData:{
-                    "key1":"TestTextOfKey1" + utc,
-                    "key2":"TestTextOfKey2" + utc
-                }
-            };
-            rainbowSDK.admin.updateContactInfos(contact.id, infos).then(result => {
-                if (result) {
-                    logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos result : ", result);
-                }
-                else {
-                    logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos no infos found");
-                }
-                rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
-                    if (contactInfos) {
-                        logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
-                    }
-                    else {
-                        logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos no infos found");
-                    }
-                });
-            });
-        }
-    });
-}
 //This is the event handler to detect change of a contact's presence and output in console contact name and new status
 rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
     //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
@@ -1950,6 +1974,15 @@ rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
     logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence);
     //getLastMessageOfConversation(contact);
 });
+
+    rainbowSDK.events.on("rainbow_onuserinviteaccepted", function(invit) {
+        logger.log("debug", "MAIN - (rainbow_onuserinviteaccepted) invit : ", invit);
+    });
+
+    rainbowSDK.events.on("rainbow_oncontactremovedfromnetwork", async function(contact) {
+        logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
+    });
+
 
 async function testgetLastMessageOfConversation() {
     let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
@@ -3309,18 +3342,6 @@ async function testcreateAlert() {
     }
     
     //endregion Conference V2
-
-    function testgetContactByLoginEmailCaseSensitiveTest() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
-            let contactVincent00upperCase = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
-            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
-        });
-    }
 
     function testsendMessageToContactUrgencyMiddle() {
         return __awaiter(this, void 0, void 0, function* () {

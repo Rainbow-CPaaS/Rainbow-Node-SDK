@@ -16,6 +16,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix events documentation and low layer documentation.
 -   Update `getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
 -   Update `getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `Contact` property `roster` to false when the `rainbow_oncontactremovedfromnetwork` event is raised instead of removing the Contact from cache.
 
 ## [2.1.0-lts.0] - 2021-10-XX
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
