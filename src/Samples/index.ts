@@ -618,14 +618,24 @@ rainbowSDK.events.on("rainbow_onstopped", (data) => {
         logger.log("debug", "MAIN - [displayRoster] roster.length : ", roster.length, ", roster : ", roster);
     }
 
-    function testgetContactByLoginEmail() {
+    /*function testgetContactByLoginEmail() {
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
                 logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
             }
         });
+    } // */
+
+    function testgetContactByLoginEmail(loginEmail : string = "vincent++@vbe.test.openrainbow.net") {
+        //let loginEmail = "vincent++@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
+            }
+        });
     }
+    
     /**
      * need to be administrator of the company. Here vincent02 is ok.
      */
