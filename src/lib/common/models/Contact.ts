@@ -184,6 +184,7 @@ class Contact {
     public  isTv : boolean;
     public  calendars : any;
     public  openInvites : any;
+    public isAlertNotificationEnabled : boolean;
 
     constructor() {
 
@@ -671,6 +672,7 @@ class Contact {
     this.isTv = false;
     this.calendars = null;
     this.openInvites = null;
+    this.isAlertNotificationEnabled = false;
 
     }
 
@@ -1098,6 +1100,9 @@ class Contact {
         }
         if (userData.openInvites) {
             this.openInvites = userData.openInvites;
+        }
+        if (userData.isAlertNotificationEnabled) {
+            this.isAlertNotificationEnabled = userData.isAlertNotificationEnabled;
         }
 
         // Compute display name

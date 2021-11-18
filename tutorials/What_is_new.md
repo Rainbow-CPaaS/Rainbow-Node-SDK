@@ -6,6 +6,38 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.6.0 - STS Version - November 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Update `getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+
+**Others Changes**
+
+-   Add parameter `raiseLowLevelXmppInEvent` to SDK options to raise an event `rainbow_onxmmpeventreceived` when an XMPP stanza is received. The default value is false. 
+-   Add parameter `raiseLowLevelXmppOutReq` to SDK options to raise an event `rainbow_onxmmprequestsent` when an XMPP stanza is sent. The default value is false.
+-   Fix `AdminService::retrieveRainbowUserList` method.
+-   Update conferences related methods documentation in BubblesService.
+-   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
+-   Add `Manage_conferences` documentation for information about conferences.
+-   Fix events documentation and low layer documentation.
+-   Update `Contact::roster` property to false when the `rainbow_oncontactremovedfromnetwork` event is raised instead of removing the Contact from cache.
+-   Add `Contact::isAlertNotificationEnabled` property which allow to know if a user is able to send/receiv an urgency message. 
+
+
 ### SDK for Node.JS 2.1.0-lts.0 - LTS Version - October 2021
 
 ---
