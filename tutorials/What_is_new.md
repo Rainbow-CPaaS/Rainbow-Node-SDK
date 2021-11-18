@@ -22,8 +22,9 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Changes**
 
--   Update `getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
--   Update `getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `GroupsService::getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `GroupsService::getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `AdminService::retrieveAllSubscriptionsOfCompanyById` API method with a format parameter to get small,middle, or full data.
 
 **Others Changes**
 

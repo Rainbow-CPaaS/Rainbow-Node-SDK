@@ -14,10 +14,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
 -   Add `Manage_conferences` documentation for information about conferences.
 -   Fix events documentation and low layer documentation.
--   Update `getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
--   Update `getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `GroupsService::getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `GroupsService::getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
 -   Update `Contact` property `roster` to false when the `rainbow_oncontactremovedfromnetwork` event is raised instead of removing the Contact from cache.
--   Add `Contact::isAlertNotificationEnabled` property which allow to know if a user is able to send/receiv an urgency message. 
+-   Add `Contact::isAlertNotificationEnabled` property which allow to know if a user is able to send/receiv an urgency message.
+-   Update `AdminService::retrieveAllSubscriptionsOfCompanyById` API method with a format parameter to get "small","middle", or "full" data. 
 
 ## [2.1.0-lts.0] - 2021-10-XX
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 

@@ -4491,12 +4491,20 @@ Request Method: PUT
         });
     }
 
-    retrieveAllCompanySubscriptions(companyId: string) {
+    retrieveAllCompanySubscriptions(companyId: string, format : string = "small") {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
 
-            that.http.get("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions" , that.getRequestHeader(), undefined).then((json) => {
+            let url : string = "/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
+
+            that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json.data);
                 resolve(json.data);

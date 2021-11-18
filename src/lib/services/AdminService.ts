@@ -1212,17 +1212,21 @@ class Admin extends GenericService {
      * @instance
      * @async
      * @param {string} companyId Id of the company to be retrieve the subscriptions.
+     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") </br>
+     * - small: id offerId profileId isDefault</br>
+     * - medium: id offerId profileId isDefault maxNumberUsers status</br>
+     * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)</br>
      * @description
      *      Method to retrieve all the subscriptions of one company on server. <br/>
      * @return {Promise<Array<any>>}
      */
-    retrieveAllSubscriptionsOfCompanyById(companyId?: string) : Promise<Array<any>> {
+    retrieveAllSubscriptionsOfCompanyById(companyId?: string, format : string = "small") : Promise<Array<any>> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
-                that._rest.retrieveAllCompanySubscriptions(companyId).then((result: any) => {
+                that._rest.retrieveAllCompanySubscriptions(companyId, format ).then((result: any) => {
                     that._logger.log("debug", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) Successfully get all infos");
                     that._logger.log("internal", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) : result : ", result);
                     resolve(result);
