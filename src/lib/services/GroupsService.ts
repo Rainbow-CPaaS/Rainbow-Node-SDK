@@ -552,12 +552,12 @@ const LOG_ID = "GROUPS/SVCE - ";
             if (groupFound && !forceServerSearch) {
                 return resolve (groupFound);
             } else {
-                return that._rest.getGroups().then((listOfGroups: []) => {
+                return that._rest.getGroups().then(async (listOfGroups: [any]) => {
 
                     let promises = [];
                     let groupFoundOnServer = false;
 
-                    listOfGroups.forEach(async (group: any) => {
+                    for (const group of listOfGroups) {
                         if (group.id === id) {
                             await this._rest.getGroup(group.id).then((groupUpdated: any) => {
                                 //that._logger.log("internal", LOG_ID + "(_onGroupUpdated) Group updated", groupUpdated.name);
@@ -576,7 +576,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                                 return resolve(groupUpdated);
                             });
                         }
-                    });
+                    };
                     if (!groupFoundOnServer) {
                         return resolve (null);
                     }
@@ -609,12 +609,12 @@ const LOG_ID = "GROUPS/SVCE - ";
             if (groupFound && !forceServerSearch) {
                 return resolve (groupFound);
             } else {
-                return that._rest.getGroups().then((listOfGroups: []) => {
+                that._rest.getGroups().then(async (listOfGroups: [any]) => {
 
                     let promises = [];
                     let groupFoundOnServer = false;
-                    
-                    listOfGroups.forEach(async (group: any) => {
+
+                    for (const group of listOfGroups) {
                         if (group.name === name) {
                             await this._rest.getGroup(group.id).then((groupUpdated: any) => {
                                 //that._logger.log("internal", LOG_ID + "(_onGroupUpdated) Group updated", groupUpdated.name);
@@ -630,10 +630,10 @@ const LOG_ID = "GROUPS/SVCE - ";
                                 //that._logger.log("info", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
                                 that._logger.log("debug", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully, groupUpdated : ", groupUpdated);
                                 groupFoundOnServer = true;
-                                return resolve(groupUpdated);
+                                resolve(groupUpdated);
                             });
                         }
-                    });
+                    };
                     if (!groupFoundOnServer) {
                         return resolve (null);
                     } 

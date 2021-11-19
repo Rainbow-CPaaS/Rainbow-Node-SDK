@@ -309,10 +309,10 @@ rainbowSDK.events.on("rainbow_onxmmprequestsent", (...argv) => {
     const displayGroup = async () => {
         //let groups = rainbowSDK.groups.getAll();
         //let group = groups.find(group => group.name === GROUP_NAME);
-        let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME)
+        let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME, true)
+        logger.log("debug", "MAIN - group.length : ", group.length, ", group : ", group);
         let users = group.users.map(user => user.id)
-        console.log(users.length);
-        console.log(users);
+        logger.log("debug", "MAIN - users.length : ", users.length, ", users : ", users);
     }
 
 rainbowSDK.events.on("rainbow_onready", () => {
@@ -3467,6 +3467,14 @@ async function testcreateAlert() {
     }
 
     //endregion Clients Versions
+    
+    
+    function testGetEventsList() {
+        let eventsTab = rainbowSDK.events.sdkPublicEventsName;
+        for (const event in eventsTab) {
+            logger.log("debug", "MAIN - testGetEventsList, eventTab : ", eventsTab[event]);
+        }
+    }
     
 function commandLineInteraction() {
     let questions = [
