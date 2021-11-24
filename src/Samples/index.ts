@@ -1364,6 +1364,21 @@ function downloadFile() {
         }
     }
 
+    async function testaddFileViewer() {
+        let that = this;
+        
+        let user : Contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+        let filesDescriptors : [any] = await rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner();
+        for (let fileDescriptor of filesDescriptors) {
+            let fileName = fileDescriptor.fileName;
+            logger.log("debug", "Main - testaddFileViewer Checking file : ", fileName);
+            let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fileDescriptor.id);
+            logger.log("debug", "Main - testaddFileViewer fileDescriptorFull : ", fileDescriptorFull);
+            let fileShared = await rainbowSDK.fileStorage.addFileViewer(fileDescriptorFull.id, user.id,"user");
+            logger.log("debug", "Main - testaddFileViewer file shared : ", fileName);
+        }
+    }
+
     async function testdownloadFile() {
     let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {

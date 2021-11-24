@@ -1051,7 +1051,7 @@ class Admin extends GenericService {
      *  customData can only be created/updated by: <br/>
      *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br/> 
      *   Restrictions on customData Object: <br/>
-     *   max 10 keys, <br/>
+     *   max 20 keys, <br/>
      *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). <br/>   
      *
      * @async

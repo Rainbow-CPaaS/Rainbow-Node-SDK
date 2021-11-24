@@ -1157,6 +1157,7 @@ declare module 'lib/common/models/Contact' {
 	    isTv: boolean;
 	    calendars: any;
 	    openInvites: any;
+	    isAlertNotificationEnabled: boolean;
 	    constructor();
 	    updateLastContactCacheUpdate(): void;
 	    isObsoleteCache(): boolean;
@@ -2255,8 +2256,29 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
 	     */
 	    getAllOwnedBubbles(): Bubble[];
+	    /**
+	     * @name getBubbleFromCache
+	     * @private
+	     * @param {string} bubbleId
+	     * @return {Bubble}
+	     * @private
+	     */
 	    private getBubbleFromCache;
+	    /**
+	     * @name addOrUpdateBubbleToCache
+	     * @private
+	     * @param bubble
+	     * @return {Promise<Bubble>}
+	     * @private
+	     */
 	    private addOrUpdateBubbleToCache;
+	    /**
+	     * @name removeBubbleFromCache
+	     * @private
+	     * @param {string} bubbleId
+	     * @return {Promise<Bubble>}
+	     * @private
+	     */
 	    private removeBubbleFromCache;
 	    /**
 	     * @method getAvatarFromBubble
@@ -2430,6 +2452,12 @@ declare module 'lib/services/BubblesService' {
 	     * @category async
 	     */
 	    setBubbleName(bubble: any, name: any): Promise<unknown>;
+	    /**
+	     * @name randomString
+	     * @private
+	     * @param {number} length
+	     * @return {string}
+	     */
 	    randomString(length?: number): string;
 	    /**
 	     * @public
@@ -2593,6 +2621,12 @@ declare module 'lib/services/BubblesService' {
 	     *      Method called when receiving an create/update/delete event of the bubbles container <br/>
 	     */
 	    _onBubblesContainerReceived(infos: any): Promise<void>;
+	    /**
+	     * @name _onBubbleConferenceStoppedReceived
+	     * @private
+	     * @param bubble
+	     * @return {Promise<void>}
+	     */
 	    _onBubbleConferenceStoppedReceived(bubble: any): Promise<void>;
 	    /**
 	     * @private
@@ -2743,11 +2777,36 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Promise<any>} An object of the result
 	     */
 	    registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string): Promise<unknown>;
+	    /**
+	     * @name joinConference
+	     * @private
+	     * @param bubble
+	     * @return {Promise<unknown>}
+	     * @description
+	     *  private for ale rainbow team's tests only
+	     */
 	    joinConference(bubble: any): Promise<unknown>;
+	    /**
+	     * @name getBubbleByConferenceIdFromCache
+	     * @since 2.6.0
+	     * @param {string} conferenceId ID of the conference
+	     * @description
+	     * To get a bubble from the cache using a conference Id
+	     * @return {Bubble} A bubble object or NULL if not found
+	     */
 	    getBubbleByConferenceIdFromCache(conferenceId: string): Bubble;
+	    /**
+	     * @name getBubbleIdByConferenceIdFromCache
+	     * @since 2.6.0
+	     * @param {string} conferenceId ID of the conference
+	     * @return {string}
+	     * @description
+	     * To get ID of the bubble from the cache using a conference Id
+	     */
 	    getBubbleIdByConferenceIdFromCache(conferenceId: string): string;
 	    /**
 	     * @name getConferencesIdByBubbleIdFromCache
+	     * @since 2.6.0
 	     * @param {string} bubbleId
 	     * @return {Array<string>}
 	     * @description
@@ -2756,6 +2815,7 @@ declare module 'lib/services/BubblesService' {
 	    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string>;
 	    /**
 	     * @name conferenceAllowed
+	     * @since 2.6.0
 	     * @return {boolean}
 	     * @description
 	     *      To know if the current user has the permission to start its own WebRTC Conference.
@@ -2764,6 +2824,7 @@ declare module 'lib/services/BubblesService' {
 	    conferenceAllowed(): boolean;
 	    /**
 	     * @name getConferenceByIdFromCache
+	     * @since 2.6.0
 	     * @param {string} conferenceId ID of the conference to get
 	     * @return {ConferenceSession}
 	     * @description
@@ -2773,6 +2834,7 @@ declare module 'lib/services/BubblesService' {
 	    getConferenceByIdFromCache(conferenceId: string): ConferenceSession;
 	    /**
 	     * @name conferenceGetListFromCache
+	     * @since 2.6.0
 	     * @return {boolean}
 	     * @description
 	     *      To get conferences list in progress from the cache.
@@ -2782,7 +2844,7 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @Method retrieveConferences
 	     * @public
-	     * @since 1.73
+	     * @since 2.6.0
 	     * @instance
 	     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
 	     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
@@ -2794,18 +2856,24 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @Method updateOrCreateWebConferenceEndpoint
 	     * @public
-	     * @since 1.73
+	     * @since 2.6.0
 	     * @instance
 	     * @param {any} conferenceData [required] conference data for the update / creation
 	     * @returns {any} the updated conferenceEndpoint or null on error
 	     * @memberof BubblesService
 	     */
 	    updateOrCreateWebConferenceEndpoint(conferenceData: any): any;
+	    /**
+	     * @name updateWebConferenceInfos
+	     * @since 2.6.0
+	     * @private
+	     * @param {any[]} endpoints
+	     */
 	    updateWebConferenceInfos(endpoints: any[]): void;
 	    /**
 	     * @Method getWebRtcConfEndpointId
 	     * @public
-	     * @since 1.73
+	     * @since 2.6.0
 	     * @instance
 	     * @returns {string} the user unique webrtc conference enpoint id
 	     * @memberof BubblesService
@@ -2814,7 +2882,7 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @Method getWebRtcSharingOnlyConfEndpointId
 	     * @public
-	     * @since 1.73
+	     * @since 2.6.0
 	     * @instance
 	     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
 	     * @memberof BubblesService
@@ -2823,7 +2891,7 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @public
 	     * @method conferenceStart
-	     * @since 1.73
+	     * @since 2.6.0
 	     * @instance
 	     * @description
 	     *     To start a conference. <br/>
@@ -2836,7 +2904,7 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @public
 	     * @method conferenceStop
-	     * @since 1.73
+	     * @since 2.6.0
 	     * @instance
 	     * @description
 	     *     To stop a conference. <br/>
@@ -2845,25 +2913,199 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Promise<any>} return undefined.
 	     */
 	    conferenceStop(conferenceId?: string): Promise<unknown>;
+	    /**
+	     * @name conferenceJoin
+	     * @since 2.6.0
+	     * @param {string} conferenceId ID of the conference
+	     * @param {boolean} asModerator To join conference as operator or not
+	     * @param {boolean} muted To join conference as muted or not
+	     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
+	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+	     * @description
+	     * To join a conference.  </br>
+	     * NOTE: The conference must be first started before to join it.
+	     * @return {Promise<any>}
+	     */
 	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
+	    /**
+	     * @name conferenceMuteOrUnmute
+	     * @since 2.6.0
+	     * @param {string} conferenceId ID of the conference
+	     * @param {boolean} mute True to mute, False to unmute
+	     * @description
+	     * Mute or Unmute the conference - If muted only the moderator can speak.  </BR>
+	     * Only the moderator of the conference can use this method
+	     * @return {Promise<any>}
+	     */
 	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
+	    /**
+	     * @name conferenceMuteOrUnmutParticipant
+	     * @since 2.6.0
+	     * @param {string} conferenceId ID of the conference
+	     * @param {string} participantId ID of the participant to mute/unmute
+	     * @param {boolean} mute True to mute, False to unmute
+	     * @description
+	     * Mute or Unmute the specified participant in the conference.</br>
+	     * Only the moderator of the conference can use this method
+	     * @return {Promise<any>}
+	     */
 	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
+	    /**
+	     * @name conferenceDropParticipant
+	     * @since 2.6.0
+	     * @param {string} conferenceId ID of the conference
+	     * @param {string} participantId ID of the participant to drop
+	     * @description
+	     * Drop the specified participant in the conference. </br>
+	     * Only the moderator of the conference can use this method
+	     * @return {Promise<any>}
+	     */
 	    conferenceDropParticipant(conferenceId: string, participantId: string): Promise<unknown>;
+	    /**
+	     * @name personalConferenceAllowed
+	     * @since 2.6.0
+	     * @return {boolean}
+	     * @description
+	     * To know if the current user has the permission to start its own Personal Conference
+	     */
 	    personalConferenceAllowed(): boolean;
+	    /**
+	     * @name personalConferenceGetId
+	     * @since 2.6.0
+	     * @description
+	     * To get teh Id of the Personal Conference
+	     * @return {string} Id of the Personal Conference or NULL
+	     */
 	    personalConferenceGetId(): string;
+	    /**
+	     * @name personalConferenceGetBubbleFromCache
+	     * @since 2.6.0
+	     * @description
+	     * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
+	     * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
+	     */
 	    personalConferenceGetBubbleFromCache(): Promise<Bubble>;
+	    /**
+	     * @name personalConferenceGetBubbleIdFromCache
+	     * @since 2.6.0
+	     * @description
+	     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
+	     * @return {string} The Bubble which contains the Personal Meeting or null
+	     */
 	    personalConferenceGetBubbleIdFromCache(): string;
+	    /**
+	     * @name personalConferenceGetPhoneNumbers
+	     * @since 2.6.0
+	     * @description
+	     * To get the list of phone numbers used to reach the Personal Meeting
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceGetPhoneNumbers(): Promise<any>;
+	    /**
+	     * @name personalConferenceGetPassCodes
+	     * @since 2.6.0
+	     * @description
+	     * To retrieve the pass codes of the Personal Meeting of the current user
+	     * @return {Promise<ConferencePassCodes>}
+	     */
 	    personalConferenceGetPassCodes(): Promise<ConferencePassCodes>;
+	    /**
+	     * @name personalConferenceResetPassCodes
+	     * @since 2.6.0
+	     * @description
+	     * To reset and get new pass codes of the Personal Meeting of the current user
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceResetPassCodes(): Promise<any>;
+	    /**
+	     * @name personalConferenceGetPublicUrl
+	     * @since 2.6.0
+	     * @description
+	     * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceGetPublicUrl(): Promise<any>;
+	    /**
+	     * @name personalConferenceGenerateNewPublicUrl
+	     * @since 2.6.0
+	     * @description
+	     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). </br>
+	     * The previous URL is no more functional !
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceGenerateNewPublicUrl(): Promise<any>;
+	    /**
+	     * @name personalConferenceStart
+	     * @since 2.6.0
+	     * @description
+	     * To start a Personal Conference. </br>
+	     * Only a moderator can start a Personal Conference.
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceStart(): Promise<any>;
+	    /**
+	     * @name personalConferenceStop
+	     * @since 2.6.0
+	     * @description
+	     * To stop the Personal Conference.</br>
+	     * Only a moderator can stop a Personal Conference
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceStop(): Promise<any>;
+	    /**
+	     * @name personalConferenceJoin
+	     * @since 2.6.0
+	     * @param {boolean} asModerator To join Personal Conference as operator or not
+	     * @param {boolean} muted To join Personal Conference as muted or not
+	     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
+	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+	     * @description
+	     * To join the Personal Conference.
+	     * NOTE: The Personal Conference must be first started before to join it.
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any>;
+	    /**
+	     * @name personalConferenceMuteOrUnmute
+	     * @since 2.6.0
+	     * @param {boolean} mute
+	     * @description
+	     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.</br>
+	     * Only the moderator of the Personal Conference can use this method
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceMuteOrUnmute(mute: boolean): Promise<unknown>;
+	    /**
+	     * @name personalConferenceLockOrUnlock
+	     * @since 2.6.0
+	     * @param {boolean} toLock  True to lock, False to unlock
+	     * @description
+	     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. </br>
+	     * Lock / Unlock is only possible for PSTN Conference. </br>
+	     * Only a moderator can use this method
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceLockOrUnlock(toLock: boolean): Promise<unknown>;
-	    personalConferenceMuteOrUnmutParticipant(participantId: string, mute: boolean): Promise<any>;
+	    /**
+	     * @name personalConferenceMuteOrUnmuteParticipant
+	     * @since 2.6.0
+	     * @param {string} participantId ID of the participant to mute/unmute
+	     * @param {boolean} mute True to mute, False to unmute
+	     * @description
+	     * Mute or Unmute the specified participant in the Personal Conference.</br>
+	     * Only the moderator of the Personal Conference can use this method.
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any>;
+	    /**
+	     * @name personalConferenceDropParticipant
+	     * @since 2.6.0
+	     * @param {string} participantId ID of the participant to drop
+	     * @description
+	     * Drop the specified participant in the Personal Conference. </br>
+	     * Only the moderator of the Personal Conference can use this method.
+	     * @return {Promise<any>}
+	     */
 	    personalConferenceDropParticipant(participantId: string): Promise<any>;
 	    /**
 	     * @name conferenceEndedForBubble
@@ -3597,22 +3839,23 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method getGroupById
 	     * @instance
-	     * @param {String} group Id of the group to found
-	     * @return {Object} The group found if exist or undefined
+	     * @param {String} id group Id of the group to found
+	     * @return {Promise<any>} The group found if exist or undefined
 	     * @description
 	     *  Return a group by its id <br/>
 	     */
-	    getGroupById(id: any): any;
+	    getGroupById(id: string, forceServerSearch?: boolean): Promise<any>;
 	    /**
 	     * @public
 	     * @method getGroupByName
 	     * @instance
 	     * @param {String} name Name of the group to found
-	     * @return {Object} The group found if exist or undefined
+	     * @param {boolean} forceServerSearch force the update from server.
+	     * @return {Promise<any>} The group found if exist or undefined
 	     * @description
 	     *  Return a group by its id <br/>
 	     */
-	    getGroupByName(name: any): any;
+	    getGroupByName(name: string, forceServerSearch?: boolean): Promise<any>;
 	    /**
 	     * @private
 	     * @method _onGroupCreated
@@ -5312,7 +5555,7 @@ declare module 'lib/connection/RESTService' {
 	    conferenceModeratorActionOnParticipant(conferenceId: string, mediaType: MEDIATYPE, participantId: string, action: string): Promise<unknown>;
 	    retrieveAllConferences(scheduled: any): Promise<unknown>;
 	    retrieveAllCompanyOffers(companyId: string): Promise<unknown>;
-	    retrieveAllCompanySubscriptions(companyId: string): Promise<unknown>;
+	    retrieveAllCompanySubscriptions(companyId: string, format?: string): Promise<unknown>;
 	    subscribeCompanyToOffer(companyId: string, offerId: string, maxNumberUsers?: number, autoRenew?: boolean): Promise<unknown>;
 	    unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string): Promise<unknown>;
 	    subscribeUserToSubscription(userId: string, subscriptionId: string): Promise<unknown>;
@@ -10033,11 +10276,15 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @async
 	     * @param {string} companyId Id of the company to be retrieve the subscriptions.
+	     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") </br>
+	     * - small: id offerId profileId isDefault</br>
+	     * - medium: id offerId profileId isDefault maxNumberUsers status</br>
+	     * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)</br>
 	     * @description
 	     *      Method to retrieve all the subscriptions of one company on server. <br/>
 	     * @return {Promise<Array<any>>}
 	     */
-	    retrieveAllSubscriptionsOfCompanyById(companyId?: string): Promise<Array<any>>;
+	    retrieveAllSubscriptionsOfCompanyById(companyId?: string, format?: string): Promise<Array<any>>;
 	    /**
 	     * @public
 	     * @method getSubscriptionsOfCompanyByOfferId
@@ -12057,6 +12304,7 @@ declare module 'lib/common/Events' {
 	    _evPublisher: EventEmitter;
 	    _core: Core;
 	    private _logEmitter;
+	    sdkPublicEventsName: string[];
 	    constructor(_logger: Logger, _filterCallback: Function);
 	    get iee(): EventEmitter;
 	    get eee(): EventEmitter;

@@ -106,6 +106,7 @@ class FileStorage extends GenericService{
                 that._useS2S = that._options.useS2S;
                 that._fileServerService = _core.fileServer;
                 that._conversations = _core.conversations;
+                that._contactService = _core.contacts;
                 that.fileDescriptors = [];
                 that.fileDescriptorsByDate = [];
                 that.fileDescriptorsByName = [];
@@ -1167,7 +1168,7 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor[]>}
      *
      */
-    retrieveFileDescriptorsListPerOwner() {
+    retrieveFileDescriptorsListPerOwner() : Promise<[any]> {
         let that = this;
         that.fileDescriptors = [];
         return new Promise((resolve, reject) => {
@@ -1676,7 +1677,7 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor>} file descriptor retrieved
      *
      */
-    retrieveOneFileDescriptor(fileId) {
+    retrieveOneFileDescriptor(fileId) : Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.retrieveOneFileDescriptor(fileId )
