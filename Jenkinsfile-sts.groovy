@@ -171,7 +171,7 @@ pipeline {
                     //echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
 
                 sh script: """
-                                    #echo "registry=http://10.10.13.10:4873/
+                                    #echo "registry=https://10.10.13.10:4873/
                                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                                         
                                     echo ---------- Set the NPM config and install node stable version :
@@ -181,7 +181,7 @@ pipeline {
                 
                                     more ~/.npmrc > ~/.npmrc.sav 
                                     echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                                    echo "registry=http://registry.npmjs.org/
+                                    echo "registry=https://registry.npmjs.org/
                                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                                         
                                     #sudo npm install npm -g
@@ -230,7 +230,7 @@ pipeline {
                     #git checkout "delivered${RAINBOWNODESDKVERSION}"
                     #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
                         
-                    #echo "registry=http://10.10.13.10:4873/
+                    #echo "registry=https://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
                     echo ---------- Set the NPM config and install node stable version :

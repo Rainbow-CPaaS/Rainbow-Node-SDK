@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.6.2] - 2021-11-24
+-   Fix initialisation of _contactService in FileStorageService.
+
 ## [2.6.1] - 2021-11-19
 -   Fix `GroupsService::getGroupByName` and `GroupsService::getGroupById` methods.
 
