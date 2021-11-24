@@ -175,23 +175,24 @@ pipeline {
                                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                                         
                                     echo ---------- Set the NPM config and install node stable version :
-                                    mkdir ${WORKSPACE}/.npm-packages
-                                    npm config set prefix "${WORKSPACE}/.npm-packages"
-                                    export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+                                    
+                                    #mkdir ${WORKSPACE}/.npm-packages
+                                    #npm config set prefix "${WORKSPACE}/.npm-packages"
+                                    #export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
                 
-                                    more ~/.npmrc > ~/.npmrc.sav 
-                                    echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                                    echo "registry=https://registry.npmjs.org/
-                                    //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                                    #more ~/.npmrc > ~/.npmrc.sav 
+                                    #echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                                    #echo "registry=https://registry.npmjs.org/
+                                    #//registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                                         
-                                    #sudo npm install npm -g
-                                    sudo npm install n -g
-                                    sudo n stable
+                                    ##sudo npm install npm -g
+                                    #sudo npm install n -g
+                                    #sudo n stable
 
-                                    #npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
-                                    npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    ##npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    #npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
                                                                                 
-                                    more ~/.npmrc.sav > ~/.npmrc
+                                    #more ~/.npmrc.sav > ~/.npmrc
                                 """
                 }
             }
