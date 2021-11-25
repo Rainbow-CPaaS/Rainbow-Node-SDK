@@ -275,7 +275,7 @@ class ConversationsService extends GenericService {
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return a promise with no success parameter
      */
-    sendIsTypingState(conversation : Conversation, status : string) {
+    sendIsTypingState(conversation : Conversation, status : boolean) {
         let that = this;
         return new Promise((resolve, reject) => {
             if (!conversation) {
