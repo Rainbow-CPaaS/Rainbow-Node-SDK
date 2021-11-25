@@ -99,20 +99,24 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onallmessagedremovedfromconversationreceived
  * @fires Events#rainbow_onchatstate
  * @fires Events#rainbow_oncontactinformationchanged
+ * @fires Events#rainbow_onuserinformationchanged
  * @fires Events#rainbow_onuserinvitereceived
  * @fires Events#rainbow_onuserinviteaccepted
  * @fires Events#rainbow_onuserinvitecanceled
- * @fires Events#rainbow_onusercontactremoved
+ * @fires Events#rainbow_oncontactremovedfromnetwork
  * @fires Events#rainbow_onbubbleaffiliationchanged
+ * @fires Events#rainbow_onbubblepresencechanged
  * @fires Events#rainbow_onbubbleownaffiliationchanged
+ * @fires Events#rainbow_onbubbledeleted
  * @fires Events#rainbow_onbubbleinvitationreceived
  * @fires Events#rainbow_onbubbleconferencestartedreceived
  * @fires Events#rainbow_onbubbleconferencestoppedreceived
- * @fires Events#rainbow_onbubblecustomDatachanged
+ * @fires Events#rainbow_onbubblecustomdatachanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
  * @fires Events#rainbow_onbubbleavatarchanged
  * @fires Events#rainbow_onbubblenamechanged
+ * @fires Events#rainbow_onopeninvitationupdate
  * @fires Events#rainbow_ongroupcreated
  * @fires Events#rainbow_ongroupdeleted
  * @fires Events#rainbow_ongroupupdated
@@ -134,12 +138,14 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onvoicemessageupdated
  * @fires Events#rainbow_oncallforwarded
  * @fires Events#rainbow_onchannelmessagereceived
+ * @fires Events#rainbow_onchannelmyappreciationreceived
  * @fires Events#rainbow_onchannelmessagedeletedreceived
  * @fires Events#rainbow_onprofilefeatureupdated
  * @fires Events#rainbow_onfilecreated
  * @fires Events#rainbow_onfileupdated
  * @fires Events#rainbow_onfiledeleted
  * @fires Events#rainbow_onthumbnailcreated
+ * @fires Events#rainbow_onwebinarupdated
  * @fires Events#rainbow_onchannelupdated
  * @fires Events#rainbow_onchannelusersubscription
  * @fires Events#rainbow_onmediapropose
@@ -147,6 +153,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogackupdated
  * @fires Events#rainbow_onfavoritecreated
  * @fires Events#rainbow_onfavoritedeleted
+ * @fires Events#rainbow_onxmpperror
+ * @fires Events#rainbow_onalertmessagereceived
  * @fires Events#rainbow_onbubblescontainercreated
  * @fires Events#rainbow_onbubblescontainerupdated
  * @fires Events#rainbow_onbubblescontainerdeleted
@@ -167,6 +175,83 @@ class Events {
 	public _evPublisher: EventEmitter;
 	public _core: Core;
     private _logEmitter: EventEmitter;
+
+    public sdkPublicEventsName = [
+        "rainbow_onrainbowversionwarning",
+        "rainbow_onmessageserverreceiptreceived",
+        "rainbow_onmessagereceiptreceived",
+        "rainbow_onmessagereceiptreadreceived",
+        "rainbow_onmessagereceived",
+        "rainbow_onsendmessagefailed",
+        "rainbow_oncontactpresencechanged",
+        "rainbow_onpresencechanged",
+        "rainbow_onconversationremoved",
+        "rainbow_onconversationchanged",
+        "rainbow_onallmessagedremovedfromconversationreceived",
+        "rainbow_onchatstate",
+        "rainbow_oncontactinformationchanged",
+        "rainbow_onuserinformationchanged",
+        "rainbow_onuserinvitereceived",
+        "rainbow_onuserinviteaccepted",
+        "rainbow_onuserinvitecanceled",
+        "rainbow_oncontactremovedfromnetwork",
+        "rainbow_onbubbleaffiliationchanged",
+        "rainbow_onbubblepresencechanged",
+        "rainbow_onbubbleownaffiliationchanged",
+        "rainbow_onbubbledeleted",
+        "rainbow_onbubbleinvitationreceived",
+        "rainbow_onbubbleconferencestartedreceived",
+        "rainbow_onbubbleconferencestoppedreceived",
+        "rainbow_onbubblecustomdatachanged",
+        "rainbow_onbubbletopicchanged",
+        "rainbow_onbubbleprivilegechanged",
+        "rainbow_onbubbleavatarchanged",
+        "rainbow_onbubblenamechanged",
+        "rainbow_onopeninvitationupdate",
+        "rainbow_ongroupcreated",
+        "rainbow_ongroupdeleted",
+        "rainbow_ongroupupdated",
+        "rainbow_onuseraddedingroup",
+        "rainbow_onuserremovedfromgroup",
+        "rainbow_onstarted",
+        "rainbow_onstopped",
+        "rainbow_onready",
+        "rainbow_onerror",
+        "rainbow_onconnected",
+        "rainbow_onconnectionerror",
+        "rainbow_ondisconnected",
+        "rainbow_onreconnecting",
+        "rainbow_onfailed",
+        "rainbow_oncallupdated",
+        "rainbow_onconferenced",
+        "rainbow_ontelephonystatuschanged",
+        "rainbow_onnomadicstatusevent",
+        "rainbow_onvoicemessageupdated",
+        "rainbow_oncallforwarded",
+        "rainbow_onchannelmessagereceived",
+        "rainbow_onchannelmyappreciationreceived",
+        "rainbow_onchannelmessagedeletedreceived",
+        "rainbow_onprofilefeatureupdated",
+        "rainbow_onfilecreated",
+        "rainbow_onfileupdated",
+        "rainbow_onfiledeleted",
+        "rainbow_onthumbnailcreated",
+        "rainbow_onwebinarupdated",
+        "rainbow_onchannelupdated",
+        "rainbow_onchannelusersubscription",
+        "rainbow_onmediapropose",
+        "rainbow_oncalllogupdated",
+        "rainbow_oncalllogackupdated",
+        "rainbow_onfavoritecreated",
+        "rainbow_onfavoritedeleted",
+        "rainbow_onxmpperror",
+        "rainbow_onalertmessagereceived",
+        "rainbow_onbubblescontainercreated",
+        "rainbow_onbubblescontainerupdated",
+        "rainbow_onbubblescontainerdeleted",
+        "rainbow_onusertokenrenewfailed",
+        "rainbow_onusertokenwillexpire"
+    ];
 
     constructor( _logger : Logger, _filterCallback : Function) {
         let that = this;
