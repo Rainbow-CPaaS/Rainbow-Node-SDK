@@ -1591,7 +1591,7 @@ Request Method: PUT
                 default:
                     that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), {"status": "unsubscribed"}, undefined).then(function (json) {
                         that.logger.log("info", LOG_ID + "(leaveBubble) unsubscribed successfull");
-                        that.logger.log("internal", LOG_ID + "(leaveBubble) REST invitation accepted : ", json.data);
+                        that.logger.log("internal", LOG_ID + "(leaveBubble) REST result : ", json.data);
                         resolve(json.data);
                     }).catch(function (err) {
                         that.logger.log("error", LOG_ID, "(leaveBubble) error");
@@ -1673,6 +1673,21 @@ Request Method: PUT
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(declineInvitationToJoinBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(declineInvitationToJoinBubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteUserFromBubble(bubbleId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deleteUserFromBubble) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteUserFromBubble) REST invitation declined : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteUserFromBubble) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteUserFromBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -5567,15 +5582,7 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST url : ", url);
             
-            let headers = {
-                "Authorization": "Bearer " + that._token,
-                "accept": "application/json",
-              //  Range: undefined
-                "x-rainbow-client": "sdk_node",
-                "x-rainbow-client-version": packageVersion.version
-            };
-            
-            that.http.get(url, headers, undefined).then((json) => {
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getCSVTemplate) successfull");
                 that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST result : ", json);
                 resolve(json);
@@ -5669,10 +5676,10 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
 
-            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveRainbowUserList) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveRainbowUserList) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveRainbowUserList) error : ", err);

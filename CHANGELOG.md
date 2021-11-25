@@ -6,7 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.1.0-lts.0] - 2021-10-XX
+## [2.1.0-lts.0] - 2021-11-25
+-   Fix type of parameter of `ConversationsService::sendIsTypingState` API.
+-   Add an events name list in `events::sdkPublicEventsName` tab.  
+
+## [2.1.0-lts.0] - 2021-10-20
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
 -   Add tags : `dev-code-console` and `dev-code-internal` to `removedebugcode` task.
 -   Fix RESTService::synchronizeUsersAndDeviceswithCSV method.

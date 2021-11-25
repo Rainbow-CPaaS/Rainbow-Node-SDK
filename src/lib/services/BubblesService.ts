@@ -2154,6 +2154,7 @@ class Bubbles extends GenericService {
      */
     _onInvitationReceived(invitation) {
         let that = this;
+        that._logger.log("info", LOG_ID + "(_onInvitationReceived) received. ");
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
         this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated: any) => {
