@@ -627,9 +627,9 @@ rainbowSDK.events.on("rainbow_onstopped", (data) => {
         });
     } // */
 
-    function testgetContactByLoginEmail(loginEmail : string = "vincent++@vbe.test.openrainbow.net") {
+    function testgetContactByLoginEmail(loginEmail : string = "vincent++@vbe.test.openrainbow.net", forceServerSearch: boolean = false) {
         //let loginEmail = "vincent++@vbe.test.openrainbow.net";
-        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail, forceServerSearch).then(contact => {
             if (contact) {
                 logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
             }

@@ -249,7 +249,9 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {string} id The ID of the Bubble
+         * @property {string} isActive When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.
+         * This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.
+         * This flag is read-only.
          * @instance
          */        
         this.isActive = _isActive;
