@@ -421,6 +421,7 @@ class RESTService extends GenericRESTService {
             }
             if (!that.account || (that.account && that.account.id != JSON.loggedInUser.id)) {
                 that.account = JSON.loggedInUser;
+                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
                 that.decodedtokenRest = decodedtoken;
 
                 //let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
@@ -445,6 +446,7 @@ class RESTService extends GenericRESTService {
                     return Promise.reject(errr);
                 });
                 that.account = JSON.loggedInUser = loggedInUser;
+                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
             }
             that.logger.log("debug", LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
             that.logger.log("internal", LOG_ID + "(getContactByToken) user information ", that.account);
@@ -512,6 +514,7 @@ class RESTService extends GenericRESTService {
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(function (JSON) {
                 that.account = JSON.loggedInUser;
+                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
                 that.app = JSON.loggedInApplication;
                 that.tokenRest = JSON.token;
                 that.logger.log("internal", LOG_ID + "(signin) welcome " + that.account.displayName + "!");
@@ -1343,7 +1346,8 @@ Request Method: PUT
         let that = this;
         let getSetOfBubbles = (page, max, bubbles) => {
             return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
+                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&unsubscribed=true&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
+                //that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
                     bubbles = bubbles.concat(json.data);
                     that.logger.log("info", LOG_ID + "(getBubbles) getSetOfBubbles successfull");
                     that.logger.log("internal", LOG_ID + "(getBubbles) REST result : getSetOfBubbles retrieved " + json.data.length + " bubbles, total " + bubbles.length + ", existing " + json.total);
@@ -1397,7 +1401,7 @@ Request Method: PUT
     getBubble(bubbleId) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubble) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubble) REST result : ", json.data);
                 resolve(json.data);
@@ -1413,7 +1417,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             //http://vberder.openrainbow.org/api/rainbow/enduser/v1.0/rooms/jids/{jid}
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubbleByJid) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubbleByJid) REST result : ", json.data);
                 resolve(json.data);

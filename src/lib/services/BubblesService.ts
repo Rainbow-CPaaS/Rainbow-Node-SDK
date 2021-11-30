@@ -276,7 +276,98 @@ class Bubbles extends GenericService {
 
     /**
      * @public
-     * @method
+     * @method isBubbleArchived
+     * @instance
+     * @async
+     * @description
+     *     Check if the Bubble is un Archive state (everybody unsubscribed)
+     * @param {object} bubble Bubble to be archived
+     * @returns {Promise<boolean>} True if the Bubble is in archive state
+     */
+    public async isBubbleArchived(bubble: Bubble): Promise<boolean> {
+        let that = this;
+        let isArchived = true;
+
+        // update bubble with internal copy to avoid user/moderator/owner side effects
+        bubble = bubble && bubble.id ? await that.getBubbleById(bubble.id):null;
+
+        if (!bubble) {
+            isArchived = false;
+        } else if (bubble.status!==Bubble.RoomUserStatus.UNSUBSCRIBED) {
+            isArchived = false;
+        } else {
+            bubble.users.forEach(user => {
+                if (user.status!==Bubble.RoomUserStatus.UNSUBSCRIBED && user.status!==Bubble.RoomUserStatus.DELETED) {
+                    isArchived = false;
+                }
+            });
+        }
+
+        return isArchived;
+    }
+
+    /**
+     * @public
+     * @method getAllOwnedNotArchivedBubbles
+     * @instance
+     * @async
+     * @description
+     *     Get all the owned Bubbles which are NOT in an Archive state (everybody unsubscribed)
+     * @returns {Promise<Bubble>} return a promise with an array of the owned bubbles which are NOT in an archive state
+     */
+    public async getAllOwnedNotArchivedBubbles() : Promise<[Bubble]>{
+        let that = this;
+        let allOwnedBubbles = that.getAllOwnedBubbles();
+        that._logger.log("debug", "(getAllOwnedNotArchivedBubbles) nb owned bulles : ", allOwnedBubbles ? allOwnedBubbles.length:0);
+        //that._logger.log("internal", "(getAllOwnedNotArchivedBubbles) allOwnedBubbles : ", allOwnedBubbles, ", nb owned bulles : ", allOwnedBubbles ? allOwnedBubbles.length:0);
+
+        async function asyncFilter (arr, predicate) {
+            const results = await Promise.all(arr.map(predicate));
+
+            return arr.filter((_v, index) => results[index]);
+        }
+
+        let bubblesNotArchived = await asyncFilter (allOwnedBubbles, async bubble => {
+            return (await that.isBubbleArchived(bubble)===false);
+        });
+        that._logger.log("debug", "(getAllOwnedNotArchivedBubbles) nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+        //that._logger.log("internal", "(getAllOwnedNotArchivedBubbles) bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+        
+        return bubblesNotArchived;
+    }
+
+    /**
+     * @public
+     * @method getAllOwnedArchivedBubbles
+     * @instance
+     * @async
+     * @description
+     *     Get all the owned Bubbles in an Archive state (everybody unsubscribed)
+     * @returns {Promise<Bubble>} return a promise with an array of the owned bubbles with an archive state
+     */
+    public async getAllOwnedArchivedBubbles() : Promise<[Bubble]> {
+        let that = this;
+        let allOwnedBubbles = that.getAllOwnedBubbles();
+        that._logger.log("debug", "(getAllOwnedArchivedBubbles) nb owned bulles : ", allOwnedBubbles ? allOwnedBubbles.length:0);
+        //that._logger.log("internal", "(getAllOwnedArchivedBubbles) allOwnedBubbles : ", allOwnedBubbles, ", nb owned bulles : ", allOwnedBubbles ? allOwnedBubbles.length:0);
+
+        async function asyncFilter (arr, predicate) {
+            const results = await Promise.all(arr.map(predicate));
+
+            return arr.filter((_v, index) => results[index]);
+        }
+
+        let bubblesArchived = await asyncFilter (allOwnedBubbles, async bubble => {
+            return (await that.isBubbleArchived(bubble)===true);
+        });
+        that._logger.log("debug", "(getAllOwnedArchivedBubbles) nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+        //that._logger.log("internal", "(getAllOwnedArchivedBubbles) bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+        return bubblesArchived;
+    }
+
+    /**
+     * @public
+     * @method deleteAllBubbles
      * @instance
      * @description
      *    Delete all existing owned bubbles <br/>
@@ -301,7 +392,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
-     * @method
+     * @method closeAnddeleteAllBubbles
      * @instance
      * @description
      *    Delete all existing owned bubbles <br/>

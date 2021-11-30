@@ -79,6 +79,7 @@ class Bubble {
     public members: Array<any>;
     public containerId: string;
     public containerName: string;
+    public status: string = "none";
 
 
     public static RoomUserStatus = {
@@ -204,7 +205,7 @@ class Bubble {
         } else {
             this.users = _users;
         }
-
+        
         /**
          * @public
          * @readonly
@@ -371,6 +372,13 @@ class Bubble {
          * @readonly
          */
         this.containerName = _containerName;
+
+        /**
+         * @public
+         * @property {string} status The status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted')
+         * @readonly
+         */
+        this.status = "none";
     }
 
     /**
@@ -437,6 +445,17 @@ class Bubble {
             if (data.creator) {
                 that.ownerContact = await contactsService.getContactById(data.creator, false);
                 that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
+            }
+
+            if (data.users) {
+                data.users.forEach((userData: any) => {
+                    const contact = contactsService.getContactById(userData.userId);
+                    //if (contact) {                      
+                        if (contactsService.isUserContact(contact)) {
+                            that.status = userData.status;
+                        }
+                    //}
+                })
             }
         }
 
@@ -512,6 +531,16 @@ class Bubble {
                             // end-dev-code-console //
                         }
                     });
+                }
+                if (data.users) {
+                    data.users.forEach(async (userData: any) => {
+                        const contact = await  contactsService.getContactById(userData.userId);
+                        //if (contact) {                      
+                        if (contactsService.isUserContact(contact)) {
+                            bubble.status = userData.status;
+                        }
+                        //}
+                    })
                 }
             }
 

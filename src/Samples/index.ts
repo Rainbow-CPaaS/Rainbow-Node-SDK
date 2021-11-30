@@ -1694,7 +1694,7 @@ async function testCreate50BubblesAndArchiveThem() {
     rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
         if (contact) {
             logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 5; i++) {
                 let utc = new Date().toJSON().replace(/-/g, "/");
                 await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + i, appointmentRoom + utc + "_" + i).then( async(bubble : any) => {
                     logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
@@ -1719,6 +1719,13 @@ async function testCreate50BubblesAndArchiveThem() {
                     });
                 });
             }
+            rainbowSDK.bubbles.getBubblesConsumption().then(consumption => {
+                if (consumption) {
+                    logger.log("debug", "MAIN - [testCreate50BubblesAndArchiveThem    ] :: getBubblesConsumption consumption : ", consumption);
+                } else {
+                    logger.log("debug", "MAIN - [testCreate50BubblesAndArchiveThem    ] :: getBubblesConsumption no consumption found.");
+                }
+            });
         }
     }); // */
     //    let utc = new Date().toJSON().replace(/-/g, '/');
@@ -1789,6 +1796,17 @@ function testCreateBubblesOnly() {
         logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
     });
     //    let utc = new Date().toJSON().replace(/-/g, '/');
+}
+
+async function testNbCreateBubblesOnly(nbBubblesToCreate: number) {
+    let utc = new Date().toJSON().replace(/-/g, "/");
+    for (let i = 0; i < nbBubblesToCreate; i++) {
+        await rainbowSDK.bubbles.createBubble("bubbles_" + i + "_" + utc, "bubbles_" + i + "_" + utc).then((bubble: any) => {
+            logger.log("debug", "MAIN - [testNbCreateBubblesOnly    ] :: createBubble nb " + i + " ok : ", bubble.id);
+        });
+        await setTimeoutPromised(800);
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
 }
 
 function testCreateBubble_closeAndDeleteBubble() {
@@ -1976,6 +1994,87 @@ function testCreateBubblesAndJoinConference() {
         });
 
     }
+
+    async function testgetAllOwnedNotArchivedBubbles() {
+        let bubblesNotArchived = await rainbowSDK.bubbles.getAllOwnedNotArchivedBubbles();
+        logger.log("debug", "MAIN - testgetAllOwnedNotArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+    }
+    
+    async function testgetAllOwnedArchivedBubbles() {
+        let bubblesArchived = await rainbowSDK.bubbles.getAllOwnedArchivedBubbles();
+        logger.log("debug", "MAIN - testgetAllOwnedArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+    }
+    
+    async function testgetArchivedBubbles() {
+        let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        //let result = rainbowSDK.bubbles.getAllActiveBubbles();
+        logger.log("debug", "MAIN - testgetArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
+
+        async function asyncFilter (arr, predicate) {
+            const results = await Promise.all(arr.map(predicate));
+
+            return arr.filter((_v, index) => results[index]);
+        }
+
+        let bubblesNotArchived = await asyncFilter (result, async bubble => {
+            return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===false);
+        });        
+        logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+        
+        let bubblesArchived = await asyncFilter (result, async bubble => {
+            return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===true);
+        });
+        logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+
+        /*for (let i = 0; i < result.length; i++) {
+            //logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - result[", i, "] : ", result[i], ", : ", result[i].);
+        } // */
+
+        /*
+        if (result.length > 0) {
+            let bubble = result[0];
+            // Share the file
+            return rainbowSDK.bubbles.getUsersFromBubble(bubble, undefined).then((users) => {
+                logger.log("debug", "MAIN - testgetAllActiveBubbles - users : ", users);
+            });
+        }
+        //});
+        // */
+    }
+
+    function testArchive10BubblesFromgetAllActiveBubbles() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+        logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles getAllActiveBubbles - nb owned bulles : ", bubbles ? bubbles.length : 0 );
+
+        for (let i = 0; i < 10; i++) {
+            rainbowSDK.bubbles.archiveBubble(bubbles[i]).then((result) => {
+                logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles archiveBubble - iter : ", i, ", result : ", result );
+
+            });
+        }
+        /*
+        let bubbleisActive = result.filter(bubble => bubble.isActive);
+        logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - bubbleisActive : ", bubbleisActive, ", nb bubbleisActive bulles : ", bubbleisActive ? bubbleisActive.length : 0 );
+        let bubbleNotisActive = result.filter(bubble => bubble.isActive === false);
+        logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - bubbleNotisActive : ", bubbleNotisActive, ", nb bubbleNotisActive bulles : ", bubbleNotisActive ? bubbleNotisActive.length : 0 );
+        // */        
+        /*for (let i = 0; i < result.length; i++) {
+            //logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - result[", i, "] : ", result[i], ", : ", result[i].);
+        } // */
+        
+        /*
+        if (result.length > 0) {
+            let bubble = result[0];
+            // Share the file
+            return rainbowSDK.bubbles.getUsersFromBubble(bubble, undefined).then((users) => {
+                logger.log("debug", "MAIN - testgetAllActiveBubbles - users : ", users);
+            });
+        }
+        //});
+        // */
+    }
+
 
 //This is the event handler to detect change of a contact's presence and output in console contact name and new status
 rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {

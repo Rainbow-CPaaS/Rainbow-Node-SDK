@@ -8,6 +8,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.6.2] - 2021-11-24
 -   Fix initialisation of _contactService in FileStorageService.
+-   Add `Bubble::status` property which is the status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted'). The initial value is "none", it is not a real value.
+-   Add `BubblesService::isBubbleArchived` method to check if the Bubble is an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedArchivedBubbles` method to get all the owned Bubbles in an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedNotArchivedBubbles` method to  get all the owned Bubbles which are NOT in an Archive state (everybody unsubscribed).
+-   Add "unsubscribed=true" parameter to resquests to server about bubbles. Beside owner and invited/accepted users keep also unsubscribed users.
 
 ## [2.6.1] - 2021-11-19
 -   Fix `GroupsService::getGroupByName` and `GroupsService::getGroupById` methods.
