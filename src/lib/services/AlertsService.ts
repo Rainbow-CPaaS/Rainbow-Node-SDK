@@ -155,12 +155,13 @@ class AlertsService extends GenericService{
      * @method markAlertMessageAsReceived
      * @instance
      * @async
+     * @category Mark as Received / Read
      * @param {string} jid The Jid of the sender</param>
      * @param {string} messageXmppId the Xmpp Id of the alert message</param>
      * @description
      *    Mark as Received the specified alert message   <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     markAlertMessageAsReceived(jid: string, messageXmppId: string): Promise<any> {
         let that = this;
@@ -188,12 +189,13 @@ class AlertsService extends GenericService{
      * @method markAlertMessageAsRead
      * @instance
      * @async
+     * @category Mark as Received / Read
      * @param {string} jid The Jid of the sender
      * @param {string} messageXmppId the Xmpp Id of the alert message
      * @description
      *    Mark as Read the specified alert message   <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     markAlertMessageAsRead(jid: string, messageXmppId: string): Promise<any> {
         let that = this;
@@ -219,6 +221,7 @@ class AlertsService extends GenericService{
      * @method createDevice
      * @instance
      * @async
+     * @category DEVICE
      * @param {AlertDevice} device Device to create.
      * @description
      *    Create a device which can receive Alerts(notifications) from the server   <br/>
@@ -226,7 +229,7 @@ class AlertsService extends GenericService{
      *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br/>
      *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br/>
      * @return {Promise<AlertDevice>} the result of the operation.
-     * @category async
+     
      */
     createDevice(device: AlertDevice): Promise<AlertDevice> {
         return this.createOrUpdateDevice(true, device);
@@ -237,6 +240,7 @@ class AlertsService extends GenericService{
      * @method updateDevice
      * @instance
      * @async
+     * @category DEVICE
      * @param {AlertDevice} device Device to Update.
      * @description
      *    Update a device which can receive Alerts(notifications) from the server <br/>    
@@ -245,7 +249,7 @@ class AlertsService extends GenericService{
      *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br/>    
      *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br/>
      * @return {Promise<AlertDevice>} the result of the operation.   <br/>
-     * @category async
+     
      */
     updateDevice(device: AlertDevice): Promise<AlertDevice> {
         return this.createOrUpdateDevice(false, device);
@@ -377,11 +381,12 @@ class AlertsService extends GenericService{
      * @method deleteDevice
      * @instance
      * @async
+     * @category DEVICE
      * @param {AlertDevice} device Device to delete.
      * @description
      *    Delete a device (using its id) <br/>
      * @return {Promise<AlertDevice>} the result of the operation.
-     * @category async
+     
      */
     deleteDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
@@ -447,11 +452,12 @@ class AlertsService extends GenericService{
      * @method getDevice
      * @instance
      * @async
+     * @category DEVICE
      * @param {string} deviceId Id of the device.
      * @description
      *    Get a device using its Id <br/>
      * @return {Promise<AlertDevice>} the result of the operation.
-     * @category async
+     
      */
     getDevice(deviceId: string): Promise<AlertDevice> {
         let that = this;
@@ -516,6 +522,7 @@ class AlertsService extends GenericService{
      * @method getDevices
      * @instance
      * @async
+     * @category DEVICE
      * @param {string} companyId Allows to filter device list on the companyId provided in this option. (optional) If companyId is not provided, the devices linked to all the companies that the administrator manage are returned.
      * @param {string} userId Allows to filter device list on the userId provided in this option. (optional) If the user has no admin rights, this filter is forced to the logged in user's id (i.e. the user can only list is own devices).
      * @param {string} deviceName Allows to filter device list on the name provided in this option. (optional) The filtering is case insensitive and on partial name match: all devices containing the provided name value will be returned(whatever the position of the match). Ex: if filtering is done on My, devices with the following names are match the filter 'My device', 'My phone', 'This is my device', ...
@@ -526,7 +533,7 @@ class AlertsService extends GenericService{
      * @description
      *    Get list of devices   <br/>
      * @return {Promise<AlertDevicesData>} the result of the operation.
-     * @category async
+     
      */
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
         let that = this;
@@ -580,11 +587,12 @@ class AlertsService extends GenericService{
      * @method getDevicesTags
      * @instance
      * @async
+     * @category DEVICE
      * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
      * @description
      *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     getDevicesTags(companyId: string): Promise<any> {
         let that = this;
@@ -607,6 +615,7 @@ class AlertsService extends GenericService{
      * @method renameDevicesTags
      * @instance
      * @async
+     * @category DEVICE
      * @param {string} tag 	tag to rename.
      * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
      * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
@@ -614,7 +623,7 @@ class AlertsService extends GenericService{
      * @description
      * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     renameDevicesTags(newTagName : string, tag: string, companyId: string) {
 
@@ -651,13 +660,14 @@ class AlertsService extends GenericService{
      * @method deleteDevicesTags
      * @instance
      * @async
+     * @category DEVICE
      * @param {string} tag 	tag to rename.
      * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
      * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
      * @description
      * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     deleteDevicesTags(tag: string, companyId: string) {
         let that = this;
@@ -687,12 +697,13 @@ class AlertsService extends GenericService{
      * @method getstatsTags
      * @instance
      * @async
+     * @category DEVICE
      * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
      * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
      * @description
      * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     getstatsTags(companyId: string) {
         // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
@@ -720,11 +731,12 @@ class AlertsService extends GenericService{
      * @method createTemplate
      * @instance
      * @async
+     * @category TEMPLATE
      * @param {AlertTemplate} template Template to create.
      * @description
      *    Create a template <br/>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     * @category async
+     
      */
     createTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         return this.createOrUpdateTemplate(true, template);
@@ -735,11 +747,12 @@ class AlertsService extends GenericService{
      * @method updateTemplate
      * @instance
      * @async
+     * @category TEMPLATE
      * @param {AlertTemplate} template Template to Update.
      * @description
      *    Update a template  <br/>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     * @category async
+     
      */
     updateTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         return this.createOrUpdateTemplate(false, template);
@@ -854,11 +867,12 @@ class AlertsService extends GenericService{
      * @method deleteTemplate
      * @instance
      * @async
+     * @category TEMPLATE
      * @param {AlertTemplate} template Template to Delete.
      * @description
      *    Delete a template <br/>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     * @category async
+     
      */
     deleteTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
@@ -919,11 +933,12 @@ class AlertsService extends GenericService{
      * @method getTemplate
      * @instance
      * @async
+     * @category TEMPLATE
      * @param {string} templateId Id of the template.
      * @description
      *    Get an template by id <br/>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     * @category async
+     
      */
     getTemplate(templateId: string): Promise<AlertTemplate> {
         let that = this;
@@ -985,13 +1000,14 @@ class AlertsService extends GenericService{
      * @method getTemplates
      * @instance
      * @async
+     * @category TEMPLATE
      * @param {string} companyId Id of the company (optional).
      * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
      * @param {number} limit Limit of templates to retrieve (100 by default).
      * @description
      *    Get templates <br/>
      * @return {Promise<AlertTemplatesData>} the result of the operation.
-     * @category async
+     
      */
     getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<AlertTemplatesData> {
         let that = this;
@@ -1047,11 +1063,12 @@ class AlertsService extends GenericService{
      * @method createFilter
      * @instance
      * @async
+     * @category FILTERS
      * @param {AlertFilter} filter Filter to create.
      * @description
      *    Create a filter <br/>
      * @return {Promise<AlertFilter>} the result of the operation.
-     * @category async
+     
      */
     createFilter(filter: AlertFilter): Promise<AlertFilter> {
         return this.createOrUpdateFilter(true, filter);
@@ -1062,11 +1079,12 @@ class AlertsService extends GenericService{
      * @method updateFilter
      * @instance
      * @async
+     * @category FILTERS
      * @param {AlertFilter} filter Filter to Update.
      * @description
      *    Update a filter <br/>
      * @return {Promise<AlertFilter>} the result of the operation.
-     * @category async
+     
      */
     updateFilter(filter: AlertFilter) : Promise<AlertFilter> {
         return this.createOrUpdateFilter(false, filter);
@@ -1137,11 +1155,12 @@ class AlertsService extends GenericService{
      * @method deleteFilter
      * @instance
      * @async
+     * @category FILTERS
      * @param {AlertFilter} filter Filter to Delete.
      * @description
      *    Delete a filter <br/>
      * @return {Promise<AlertFilter>} the result of the operation.
-     * @category async
+     
      */
     deleteFilter(filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
@@ -1187,11 +1206,12 @@ class AlertsService extends GenericService{
      * @method getFilter
      * @instance
      * @async
+     * @category FILTERS
      * @param {string} filterId Id of the Filter.
      * @description
      *    Get an filter by id <br/>
      * @return {Promise<AlertFilter>} the result of the operation.
-     * @category async
+     
      */
     getFilter(filterId: string): Promise<AlertFilter> {
         let that = this;
@@ -1238,12 +1258,13 @@ class AlertsService extends GenericService{
      * @method getFilters
      * @instance
      * @async
+     * @category FILTERS
      * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
      * @param {number} limit Limit of filters to retrieve (100 by default).
      * @description
      *    Get filters : have required role(s) superadmin, admin <br/>
      * @return {Promise<AlertFiltersData>} the result of the operation.
-     * @category async
+     
      */
     getFilters(offset: number = 0, limit: number = 100): Promise<AlertFiltersData> {
         let that = this;
@@ -1291,13 +1312,13 @@ class AlertsService extends GenericService{
      * @method createAlert
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {Alert} alert Alert to send.
      * @description
      *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
      *    The alert will be received by devices according the filter id and the company id used.   <br/>
      *    The content of the alert is based on the template id.   <br/>
      * @return {Promise<Alert>} the result of the operation.  
-     * @category async
      */
     createAlert(alert: Alert): Promise<Alert> {
         return this.createOrUpdateAlert(true, alert);
@@ -1308,6 +1329,7 @@ class AlertsService extends GenericService{
      * @method updateAlert
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {Alert} alert Alert to update.
      * @description
      *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
@@ -1315,7 +1337,7 @@ class AlertsService extends GenericService{
      *    The content of the alert is based on the template id.   <br/>
      *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br/>  
      * @return {Promise<Alert>} the result of the operation.
-     * @category async
+     
      */
     updateAlert(alert: Alert): Promise<Alert> {
         return this.createOrUpdateAlert(false, alert);
@@ -1427,12 +1449,13 @@ class AlertsService extends GenericService{
      * @method deleteAlert
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {Alert} alert Alert to Delete.
      * @description
      *    Delete an alert   <br/>
      *    All the data related to this notification are deleted, including the reports <br/>  
      * @return {Promise<Alert>} the result of the operation.
-     * @category async
+     
      */
     deleteAlert(alert: Alert): Promise<Alert> {
         let that = this;
@@ -1482,11 +1505,12 @@ class AlertsService extends GenericService{
      * @method getAlert
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} alertId Id of the alert.
      * @description
      *    Get an alert by id <br/>
      * @return {Promise<Alert>} the result of the operation.
-     * @category async
+     
      */
     getAlert(alertId: string): Promise<Alert> {
         let that = this;
@@ -1535,12 +1559,13 @@ class AlertsService extends GenericService{
      * @method getAlerts
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
      * @param {number} limit Limit of Alerts to retrieve (100 by default).
      * @description
      *    Get alerts : required role(s) superadmin,support,admin <br/>
      * @return {Promise<AlertsData>} the result of the operation.
-     * @category async
+     
      */
     getAlerts(offset: number = 0, limit: number = 100): Promise<AlertsData> {
         let that = this;
@@ -1593,6 +1618,7 @@ class AlertsService extends GenericService{
      * @method sendAlertFeedback
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} deviceId Id of the device.
      * @param {string} alertId Id of the alert.
      * @param {string} answerId Id of the answer.
@@ -1600,7 +1626,7 @@ class AlertsService extends GenericService{
      *    To send a feedback from an alert.   <br/>
      *    To be used by end-user who has received the alert   <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any> {
         let that = this;
@@ -1649,6 +1675,7 @@ class AlertsService extends GenericService{
      * @method getAlertFeedbackSentForANotificationMessage
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification..
      * @description
      *    This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id). <br/>
@@ -1665,7 +1692,7 @@ class AlertsService extends GenericService{
      * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
      * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
      * }
-     * @category async
+     
      */
     getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
@@ -1693,6 +1720,7 @@ class AlertsService extends GenericService{
      * @method getAlertFeedbackSentForAnAlert
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} alertId Id of the alert.
      * @description
      *    This API allows to list the feedback sent by the devices for a given notification. <br/>
@@ -1709,7 +1737,7 @@ class AlertsService extends GenericService{
      * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
      * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
      * }
-     * @category async
+     
      */
     getAlertFeedbackSentForAnAlert(alertId: string): Promise<any> {
         let that = this;
@@ -1737,6 +1765,7 @@ class AlertsService extends GenericService{
      * @method getAlertStatsFeedbackSentForANotificationMessage
      * @instance
      * @async
+     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification.
      * @description
      *    This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. <br/>
@@ -1746,7 +1775,7 @@ class AlertsService extends GenericService{
      *      data 	String data submitted by the devices <br/>
      *      count 	String Number of devices having submitted this given data <br/>
      * }
-     * @category async
+     
      */
     getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
@@ -1778,11 +1807,12 @@ class AlertsService extends GenericService{
      * @method getReportSummary
      * @instance
      * @async
+     * @category REPORTS
      * @param {string} alertId Id of the alert.
      * @description
      *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     getReportSummary(alertId: string): Promise<any> {
         let that = this;
@@ -1811,11 +1841,12 @@ class AlertsService extends GenericService{
      * @method getReportDetails
      * @instance
      * @async
+     * @category REPORTS
      * @param {string} alertId Id of the alert.
      * @description
      *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     getReportDetails(alertId: string): Promise<any> {
         let that = this;
@@ -1844,6 +1875,7 @@ class AlertsService extends GenericService{
      * @method getReportComplete
      * @instance
      * @async
+     * @category REPORTS
      * @param {string} alertId Id of the alert.
      * @description
      *    Allows to get the fileDescriptor storing the detailed CSV report of the notification. <br/>
@@ -1858,7 +1890,7 @@ class AlertsService extends GenericService{
      *  The detailed CSV report contains the following columns: <br/>
      *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br/>
      * @return {Promise<any>} the result of the operation.
-     * @category async
+     
      */
     getReportComplete(alertId: string): Promise<any> {
         let that = this;

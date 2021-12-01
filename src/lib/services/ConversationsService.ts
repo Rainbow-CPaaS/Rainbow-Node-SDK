@@ -264,38 +264,7 @@ class ConversationsService extends GenericService {
    /* formatDate (date){
         return moment(date).utc().format("YYYY-MM-DDTHH:mm:ss") + "Z";
     }; // */
-
-    /**
-     * @public
-     * @method sendIsTypingState
-     * @instance ConversationsService
-     * @description
-     *    Switch the "is typing" state in a conversation<br>
-     * @param {Conversation} conversation The conversation recipient
-     * @param {boolean} status The status, true for setting "is Typing", false to remove it
-     * @return a promise with no success parameter
-     */
-    sendIsTypingState(conversation : Conversation, status : boolean) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            if (!conversation) {
-                return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
-            }
-            /* else if (!status) {
-                reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
-            } // */
-            else {
-                conversation = conversation.id ? that.getConversationById(conversation.id) : null;
-                if (!conversation) {
-                    return reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
-                } else {                    
-                    resolve(that._xmpp.sendIsTypingState(conversation, status));
-                }
-            }
-        });
-    }
-
-
+    
     /**
      * @private
      * @method
@@ -359,6 +328,7 @@ class ConversationsService extends GenericService {
      * @public
      * @method ackAllMessages
      * @instance
+     * @category MESSAGES
      * @description
      *    Mark all unread messages in the conversation as read. <br/>
      * @param {string} conversationDbId ID of the conversation (dbId field)
@@ -379,6 +349,7 @@ class ConversationsService extends GenericService {
      * @public
      * @method getHistoryPage
      * @instance
+     * @category MESSAGES
      * @description
      *    Retrieve the remote history of a specific conversation. <br/>
      * @param {Conversation} conversation Conversation to retrieve
@@ -455,6 +426,7 @@ class ConversationsService extends GenericService {
      * @public
      * @method getOneMessageFromConversationId
      * @instance
+     * @category MESSAGES
      * @description
      *    To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp <br/>
      * <br/>
@@ -502,6 +474,7 @@ class ConversationsService extends GenericService {
      * @public
      * @method getContactsMessagesFromConversationId
      * @instance
+     * @category MESSAGES
      * @description
      *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br/>
      * @param {string} conversationId : Id of the conversation
@@ -596,6 +569,7 @@ class ConversationsService extends GenericService {
      * @private
      * @method sendFSMessage
      * @instance
+     * @category MESSAGES
      * @description
      *   Send an file sharing message <br/>
      */
@@ -725,6 +699,7 @@ class ConversationsService extends GenericService {
      * @public
      * @method sendExistingMessage
      * @instance
+     * @category MESSAGES
      * @description
      *    Send a message to this conversation <br/>
      * @return {Message} The message sent
@@ -757,6 +732,7 @@ class ConversationsService extends GenericService {
      * @private
      * @method
      * @instance
+     * @category MESSAGES
      * @description
      *   Send an existing file sharing message <br/>
      */
@@ -772,6 +748,7 @@ class ConversationsService extends GenericService {
      * @private
      * @method
      * @instance
+     * @category MESSAGES
      * @description
      *    Send a instant message to a conversation <br/>
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
@@ -793,6 +770,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method sendCorrectedChatMessage
+     * @category MESSAGES
      * @instance
      * @description
      *    Send a corrected message to a conversation <br/>
@@ -870,6 +848,7 @@ class ConversationsService extends GenericService {
      * @public
      * @since 1.58
      * @method deleteMessage
+     * @category MESSAGES
      * @instance
      * @async
      * @description
@@ -901,6 +880,7 @@ class ConversationsService extends GenericService {
      * @public
      * @since 1.67.0
      * @method deleteAllMessageInOneToOneConversation
+     * @category MESSAGES
      * @instance
      * @async
      * @description
@@ -929,6 +909,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @private
+     * @category MESSAGES
      * @description
      *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
      *      It allow to give back the status of the sending process. <br/>
@@ -944,6 +925,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @private
+     * @category MESSAGES
      * @description
      *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
      *      It allow to give back the status of the sending process. <br/>
@@ -956,6 +938,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method removeAllMessages
+     * @category MESSAGES
      * @instance
      * @description
      *    Cleanup a conversation by removing all previous messages<br/>
@@ -1016,6 +999,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method removeMessagesFromConversation
+     * @category MESSAGES
      * @instance
      * @description
      *    Remove a specific range of message in a conversation<br/>
@@ -1056,12 +1040,46 @@ class ConversationsService extends GenericService {
             //that._xmpp.mamDelete(conversation.id, mamRequest);
         });
     }
+
+    /**
+     * @public
+     * @method sendIsTypingState
+     * @category MESSAGES
+     * @instance
+     * @description
+     *    Switch the "is typing" state in a conversation<br>
+     * @param {Conversation} conversation The conversation recipient
+     * @param {boolean} status The status, true for setting "is Typing", false to remove it
+     * @return a promise with no success parameter
+     */
+    sendIsTypingState(conversation : Conversation, status : boolean) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!conversation) {
+                return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+            }
+            /* else if (!status) {
+                reject(Object.assign( ErrorManager.BAD_REQUEST, {msg: "Parameter 'status' is missing or null"}));
+            } // */
+            else {
+                conversation = conversation.id ? that.getConversationById(conversation.id) : null;
+                if (!conversation) {
+                    return reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
+                } else {
+                    resolve(that._xmpp.sendIsTypingState(conversation, status));
+                }
+            }
+        });
+    }
+    
 // endregion
+    
 //region CONVERSATIONS
 
     /**
      * @public
      * @method getAllConversations
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Allow to get the list of existing conversations (p2p and bubbles) <br/>
@@ -1075,6 +1093,7 @@ class ConversationsService extends GenericService {
     /**
      * @private
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *      Get all conversation <br/>
@@ -1094,6 +1113,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method openConversationForContact
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Open a conversation to a contact <br/>
@@ -1137,6 +1157,7 @@ class ConversationsService extends GenericService {
      * @public
      * @method openConversationForBubble
      * @since 1.65
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Open a conversation to a bubble <br/>
@@ -1170,9 +1191,10 @@ class ConversationsService extends GenericService {
     }
 
     /**
-     * @private
+     * @public
      * @method getS2SServerConversation
      * @since 1.65
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    get a conversation from id on S2S API Server.<br/>
@@ -1221,8 +1243,9 @@ class ConversationsService extends GenericService {
     }
 
     /**
-     * @private
-     * @method
+     * @public
+     * @method deleteServerConversation
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Allow to delete a conversation on server (p2p and bubbles) <br/>
@@ -1259,6 +1282,7 @@ class ConversationsService extends GenericService {
     /**
      * @private
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Allow to mute notification in a conversations (p2p and bubbles) <br/>
@@ -1278,6 +1302,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method sendConversationByEmail
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br/>
@@ -1296,6 +1321,7 @@ class ConversationsService extends GenericService {
     /**
      * @private
      * @method
+     * @category CONVERSATIONS
      * @instance
      */
     async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) : Promise<Conversation>{
@@ -1348,6 +1374,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method getConversationById
+     * @category CONVERSATIONS
      * @instance
      * @description
      *      Get a p2p conversation by id <br/>
@@ -1365,8 +1392,9 @@ class ConversationsService extends GenericService {
     }
 
     /**
-     * @private
-     * @method
+     * @public
+     * @method getConversationByDbId
+     * @category CONVERSATIONS
      * @instance
      * @description
      *      Get a conversation by db id <br/>
@@ -1386,8 +1414,9 @@ class ConversationsService extends GenericService {
     };
 
     /**
-     * @private
+     * @public
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *      Get a bubble conversation by bubble id <br/>
@@ -1406,8 +1435,9 @@ class ConversationsService extends GenericService {
     }
 
     /**
-     * @private
+     * @public
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *      Get a bubble conversation by bubble id <br/>
@@ -1428,6 +1458,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method getBubbleConversation
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Get a conversation associated to a bubble (using the bubble ID to retrieve it) <br/>
@@ -1547,6 +1578,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method closeConversation
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Close a conversation <br/>
@@ -1578,6 +1610,7 @@ class ConversationsService extends GenericService {
     /**
      * @private
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Remove locally a conversation <br/>
@@ -1623,6 +1656,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @method cleanConversations
+     * @category CONVERSATIONS
      * @instance
      * @async
      * @description
@@ -1646,6 +1680,7 @@ class ConversationsService extends GenericService {
     /**
      * @private
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Allow to get the list of existing conversations from server (p2p and bubbles) <br/>
@@ -1716,6 +1751,7 @@ class ConversationsService extends GenericService {
     /**
      * @private
      * @method
+     * @category CONVERSATIONS
      * @instance
      * @description
      *    Allow to create a conversations on server (p2p and bubbles) <br/>

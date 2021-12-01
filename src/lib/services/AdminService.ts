@@ -131,7 +131,9 @@ class Admin extends GenericService {
         let that = this;
         that.setInitialized();
     }
-    
+
+    // region Companies and users management
+
     /**
      * @public
      * @method createCompany
@@ -143,6 +145,7 @@ class Admin extends GenericService {
      * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
      * @param {OFFERTYPES} offerType Company offer type. Companies with offerType=freemium are not able to subscribe to paid offers, they must be premium to do so. Companies created with privateDC="HDS" are automatically created with offerType=premium (as a paid subscription to HDS Company offer is automatically done during the company creation. Values can be : freemium, premium
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created Company or an error object depending on the result
      * @category async
@@ -243,6 +246,7 @@ class Admin extends GenericService {
      * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
      * @param {Array<string>} [roles] The roles the created user.
      * @async
+     * @category Companies and users management
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Created contact in company or an error object depending on the result
      * @category async
@@ -312,6 +316,7 @@ class Admin extends GenericService {
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created guest user in company or an error object depending on the result
      * @category async
@@ -368,6 +373,7 @@ class Admin extends GenericService {
      *      Anonymous guest user is user without name and firstname   <br/>
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created anonymous guest user in company or an error object depending on the result
      * @category async
@@ -410,6 +416,7 @@ class Admin extends GenericService {
      * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
      * @param {string} [message=""] A custom message to send
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created invitation or an error object depending on the result
      * @category async
@@ -461,6 +468,7 @@ class Admin extends GenericService {
      * @param {string} password The new password
      * @param {string} userId The id of the user
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Updated user or an error object depending on the result
      * @category async
@@ -509,6 +517,7 @@ class Admin extends GenericService {
      * @param {Object} objData An object (key: value) containing the data to change with their new value
      * @param {string} userId The id of the user
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Updated user or an error object depending on the result
      * @category async
@@ -562,6 +571,7 @@ class Admin extends GenericService {
      *      Delete an existing user <br/>
      * @param {string} userId The id of the user
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Deleted user or an error object depending on the result
      * @category async
@@ -601,6 +611,7 @@ class Admin extends GenericService {
      * @description
      *      Get all companies for a given admin <br/>
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
      * @category async
@@ -686,48 +697,12 @@ class Admin extends GenericService {
 
     /**
      * @public
-     * @method askTokenOnBehalf
-     * @instance
-     * @description
-     *      Ask Rainbow for a token on behalf a user <br/>
-     *      This allow to not use the secret key on client side <br/>
-     * @param {string} loginEmail The user login email
-     * @param {string} password The user password
-     * @async
-     * @return {Promise<Object, Error>}
-     * @fulfil {Object} - Json object containing the user data, application data and token
-     * @category async
-     */
-    askTokenOnBehalf(loginEmail, password) {
-        let that = this;
-
-        return new Promise(function (resolve, reject) {
-            try {
-                that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
-                that._logger.log("info", LOG_ID + "(askTokenOnBehalf) enter.");
-                that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
-                    that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
-                    that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : user data : ", json);
-                    resolve(json);
-                }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(askTokenOnBehalf) Error when getting a token");
-                    return reject(err);
-                });
-
-            } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(askTokenOnBehalf) error : ", err);
-                return reject(err);
-            }
-        });
-    }
-
-    /**
-     * @public
      * @method getAllUsers
      * @instance
      * @description
      *      Get all users for a given admin <br/>
      * @async
+     * @category Companies and users management
      * @param {string} format Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
@@ -770,6 +745,7 @@ class Admin extends GenericService {
      * @description
      *      Get all users for a given admin in a company <br/>
      * @async
+     * @category Companies and users management
      * @param {string} format Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
@@ -814,6 +790,7 @@ class Admin extends GenericService {
      * @description
      *      Get all users for a given admin in a company by a search of string in email<br/>
      * @async
+     * @category Companies and users management
      * @param {string} format Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
@@ -859,6 +836,7 @@ class Admin extends GenericService {
      *      Get informations about a user <br/>
      * @param {string} userId The id of the user
      * @async
+     * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing informations or an error object depending on the result
      * @category async
@@ -1057,7 +1035,7 @@ class Admin extends GenericService {
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing informations or an error object depending on the result
-     * @category async
+     * @category Companies and users management
      */
     updateContactInfos(userId, infos) {
         let that = this;
@@ -1135,6 +1113,48 @@ class Admin extends GenericService {
         });
     }
 
+    //endregion Companies and users management
+
+    //region Users at running 
+
+    /**
+     * @public
+     * @method askTokenOnBehalf
+     * @instance
+     * @description
+     *      Ask Rainbow for a token on behalf a user <br/>
+     *      This allow to not use the secret key on client side <br/>
+     * @param {string} loginEmail The user login email
+     * @param {string} password The user password
+     * @async
+     * @category Users at running
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the user data, application data and token
+     * @category async
+     */
+    askTokenOnBehalf(loginEmail, password) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
+                that._logger.log("info", LOG_ID + "(askTokenOnBehalf) enter.");
+                that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
+                    that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
+                    that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : user data : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(askTokenOnBehalf) Error when getting a token");
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(askTokenOnBehalf) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
     /**
      *
      * @public
@@ -1146,8 +1166,9 @@ class Admin extends GenericService {
      *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc). <br/>
      *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile. <br/>
      *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned . <br/>
-     * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id. 
+     * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id.
      * @async
+     * @category Users at running
      * @return {Promise<any>}
      * @category async
      */
@@ -1171,7 +1192,9 @@ class Admin extends GenericService {
             }
         });
     }
-
+    
+    //endregion Users at running 
+    
     //region Offers and Subscriptions.
     /**
      * @public
@@ -1179,6 +1202,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the offers.
      * @description
      *      Method to retrieve all the offers of one company on server. <br/>
@@ -1211,6 +1235,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the subscriptions.
      * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") </br>
      * - small: id offerId profileId isDefault</br>
@@ -1247,6 +1272,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
@@ -1278,6 +1304,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @param {number} maxNumberUsers
@@ -1320,6 +1347,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
      *      Method to subscribe one company to offer demo. <br/>
@@ -1353,6 +1381,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
      *      Method to unsubscribe one company to offer demo. <br/>
@@ -1386,6 +1415,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to the subscription of the offer.
      * @description
      *      Method to subscribe one company to offer Alert. <br/>
@@ -1420,6 +1450,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to the unsubscription of the offer.
      * @description
      *      Method to unsubscribe one company to offer Alert. <br/>
@@ -1453,6 +1484,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company the subscription of the offer.
      * @description
      *      Method to subscribe one company to offer Voice Enterprise. <br/>
@@ -1487,6 +1519,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to the unsubscription of the offer.
      * @description
      *      Method to unsubscribe one company to offer Voice Enterprise. <br/>
@@ -1520,6 +1553,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
@@ -1565,6 +1599,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} userId the id of the user which will subscribe. If not provided, the connected user is used.
      * @param {string} subscriptionId the id of the subscription to attach to user.
      * @description
@@ -1594,6 +1629,7 @@ class Admin extends GenericService {
      * @since 1.73
      * @instance
      * @async
+     * @category Offers and Subscriptions.
      * @param {string} userId the id of the user which will unsubscribe. If not provided, the connected user is used.
      * @param {string} subscriptionId the id of the subscription to unsubscribe the user.
      * @description
@@ -1627,6 +1663,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - AD/LDAP masspro
      * @param {string} csvTxt the csv of the user and device to synchronize.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import
@@ -1721,6 +1758,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - AD/LDAP masspro
      * @param {string}  companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} mode Select template to return.
      * - user: provider the user management template
@@ -1779,6 +1817,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - AD/LDAP masspro
      * @param {string} CSVTxt CSV File content to be checked.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
@@ -1829,6 +1868,7 @@ class Admin extends GenericService {
      * @since 2.5.1
      * @instance
      * @async
+     * @category AD/LDAP - AD/LDAP masspro
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import. default undefined.
      * @param {boolean} noemails disable email sending. default true.
@@ -1959,6 +1999,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - AD/LDAP masspro
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
@@ -1987,7 +2028,7 @@ class Admin extends GenericService {
     
     //endregion AD/LDAP masspro
     
-    //region LDAP APIs to use:
+    //region LDAP APIs to use
 
     /**
      * @public
@@ -1995,6 +2036,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @description
      *      This API allows to activate a Ldap connector. <br/>
      *      A "Ldap user" is created and registered to the XMPP services. The Ldap user credentials (loginEmail and password) are generated randomly and returned in the response. <br/>
@@ -2035,6 +2077,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId the id of the company that allows to filter connectors list on the companyIds provided in this option.
      * @param {string} format Allows to retrieve more or less user details in response.
      * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
@@ -2271,6 +2314,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @param {string} ldapId the Id of the ldap connector to delete.
      * @description
      *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br/>
@@ -2303,6 +2347,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @description
      *      This API allows to retrieve the configuration template for the connector. <br/>
      *      return { <br/>
@@ -2344,6 +2389,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId the id of the company.
      * @param {Object} settings config settings.
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
@@ -2408,6 +2454,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @param {string} ldapConfigId ldap connector unique identifier
      * @param {Object} settings config settings
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
@@ -2477,6 +2524,7 @@ class Admin extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
      * @description
      *      This API allows to retrieve the configuration for the connector. <br/>
@@ -2543,6 +2591,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
      *      This API allows administrator to retrieve a CloudPBX using its identifier. <br/>
@@ -2580,6 +2629,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} barringOptions_permissions Identifier of the traffic barring permission to apply
      * @param {string} barringOptions_restrictions Identifier of the traffic barring restriction to apply
@@ -2632,6 +2682,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
      *      This API allows to delete a CloudPBX using its identifier. <br/>
@@ -2667,6 +2718,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @description
      *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
      * @return {Promise<any>}
@@ -2701,6 +2753,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} bpId Identifier of the BP to which CloudPBX should be linked with.
      * @param {string} companyId Required Identifier of the company for which CloudPBX should be created.
      * @param {string} customSipHeader_1 Value to put as CustomSipHeader_1 into SIP data for an external outgoing call.
@@ -2745,6 +2798,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
      *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br/>
@@ -2781,6 +2835,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number". 
      * @description
@@ -2824,6 +2879,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
      *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br/>
@@ -2859,6 +2915,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
      *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br/>
@@ -2894,6 +2951,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
      *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br/>
@@ -2928,6 +2986,7 @@ class Admin extends GenericService {
      * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
      * @since 2.1.0
      * @instance
+     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @async
      * @param {string} systemId CloudPBX unique identifier.
      * @description
@@ -2967,6 +3026,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} description Description for identifying the device
      * @param {number} deviceTypeId Device type Identifier - see API GET /cloudpbxs/:id/devicemodels to get the list of supported models for the CloudPBX.
@@ -3018,6 +3078,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device to be reset
      * @description
@@ -3062,6 +3123,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device to get
      * @description
@@ -3105,6 +3167,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device to delete
      * @description
@@ -3152,6 +3215,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} description new description
      * @param {string} deviceId Unique identifier of the SIP device to delete
@@ -3208,6 +3272,7 @@ class Admin extends GenericService {
      * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
      *      This parameter can be a list of phoneNumberId separated by a space (space has to be encoded)
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @description
      *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br/>
      * @return {Promise<any>}
@@ -3242,6 +3307,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device for which SIP registrations information should be retrieved.
      * @description
@@ -3288,6 +3354,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device for which the debug session access will be granted.
      * @param {string} duration Duration, in seconds, of the debug session - Only superadmin can set a debug duration different from the default one (configuration parameter: e.g. 30 minutes)
@@ -3343,6 +3410,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device access will be revoked
      * @description
@@ -3391,6 +3459,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device access will be revoked
      * @description
@@ -3443,6 +3512,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
      * @description
@@ -3489,6 +3559,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
      * @description
@@ -3535,6 +3606,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} login SIP username (if not provided ; shortNumber is used as SIP username)
      * @param {string} password SIP password for all associated SIP devices (if not provided ; it will be automatically generated).
@@ -3592,6 +3664,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber associated to the SIP device to retrieve.
      * @param {string} deviceId Unique identifier of the SIP device to retrieve
@@ -3646,6 +3719,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the Sip device association must be deleted.
      * @param {string} deviceId Unique identifier of the SIP device to free
@@ -3705,6 +3779,7 @@ class Admin extends GenericService {
      * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
      * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)      
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
      *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br/>
      * @return {Promise<any>}
@@ -3741,6 +3816,7 @@ class Admin extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber for which all SIP registrations must be retrieved
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
      *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br/>
      * @return {Promise<any>}
@@ -3789,6 +3865,7 @@ class Admin extends GenericService {
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the SIP device must be assigned
      * @param {string} deviceId Unique identifier of the device to assign
      * @param {string} macAddress device mac address
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
      *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br/>
      *      The device must have been previously created.<br/>
@@ -3835,6 +3912,7 @@ class Admin extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id)
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
      *      This API allows to get CLI policy of a CloudPBX Subscriber.<br/>
      * @return {Promise<any>}
@@ -3884,6 +3962,7 @@ class Admin extends GenericService {
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br/>
      * @return {Promise<any>}
@@ -3933,6 +4012,7 @@ class Admin extends GenericService {
      * @param {boolean} isAssignedToAutoAttendant Allows to filter DDI numbers list if they are assigned to a Auto attendant or not
      * @param {boolean} isAssigned Allows to filter DDI numbers list if they are assigned (to a user or to a group or to a IVR) or not assigned
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br/>
      * @return {Promise<any>}
@@ -3973,6 +4053,7 @@ class Admin extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} number DDI number
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to create a DDI number for a CloudPBX.<br/>
      * @return {Promise<any>}
@@ -4019,6 +4100,7 @@ class Admin extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier 
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to delete a DDI number for a CloudPBX. <br/>
      *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br/>
@@ -4067,6 +4149,7 @@ class Admin extends GenericService {
      * @param {string} phoneNumberId PhoneNumber unique identifier
      * @param {string} userId Rainbow user unique identifier
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to associate a DDI number to a Rainbow user. <br/>
      * @return {Promise<any>}
@@ -4121,6 +4204,7 @@ class Admin extends GenericService {
      * @param {string} phoneNumberId PhoneNumber unique identifier.
      * @param {string} userId Rainbow user unique identifier.
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to disassociate a DDI number from a Rainbow user. <br/>
      * @return {Promise<any>}
@@ -4173,6 +4257,7 @@ class Admin extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier.
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
      *      This API allows to set a DDI number as default DDI for a CloudPBX. <br/>
      * @return {Promise<any>}
@@ -4222,6 +4307,7 @@ class Admin extends GenericService {
      * @instance
      * @async
      * @param {string} externalTrunkId External trunk unique identifier
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx SIP Trunk
      * @description
      *      This API allows to retrieve an external SIP trunk using its identifier. <br/>
      * @return {Promise<any>}
@@ -4260,6 +4346,7 @@ class Admin extends GenericService {
      * @since 2.1.0
      * @instance
      * @async
+     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx SIP Trunk
      * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br/>
      *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br/>
      * @param {string} status Allows to filter external SIP trunks by status. <br/>
@@ -4305,6 +4392,7 @@ class Admin extends GenericService {
      * @since 2.1.1
      * @instance
      * @async
+     * @category sites
      * @param {string} name Site name. <br/>
      *              Valid values : 1..255
      * @param {string} status Site status. <br/>
@@ -4354,6 +4442,7 @@ class Admin extends GenericService {
      * @since 2.1.1
      * @instance
      * @async
+     * @category sites
      * @param {string} siteId Site id. <br/>
      * @description
      *      This API allows administrators to delete a site by id they administrate.  <br/>
@@ -4392,6 +4481,7 @@ class Admin extends GenericService {
      * @since 2.1.1
      * @instance
      * @async
+     * @category sites
      * @param {string} siteId Site id. <br/>
      * @description
      *      This API allows administrators to get a site data by id they administrate.  <br/>
@@ -4430,6 +4520,7 @@ class Admin extends GenericService {
      * @since 2.1.1
      * @instance
      * @async
+     * @category sites
      * @param {string} format Allows to retrieve more or less site details in response. <br/>
      * - small: _id, name <br/>
      * - medium: _id, name, status, companyId <br/>
@@ -4475,6 +4566,7 @@ class Admin extends GenericService {
      * @method updateSite
      * @since 2.1.1
      * @instance
+     * @category sites
      * @async
      * @param {string} siteId Site id. <br/>
      * @param {string} name Site name
@@ -4522,6 +4614,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} companyId Id of the company the directory is linked to.
      * @param {string} firstName Contact first Name
      * @param {string} lastName Contact last Name
@@ -4613,6 +4706,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} companyId Id of the company.
      * @description
      *      This API allows administrators  to delete all the entries in the directory of a company they administrate.<br/>
@@ -4651,6 +4745,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} entryId Id of the entry.
      * @description
      *      This API allows administrators  to delete an entry from the directory of a company they administrate.<br/>
@@ -4689,6 +4784,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} entryId Id of the entry.
      * @param {string} format Allows to retrieve more or less entry details in response. <br/>
      * - small: id, firstName, lastName  <br/>
@@ -4733,6 +4829,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param companyId
      * @param organisationIds
      * @param name
@@ -4799,6 +4896,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} entryId Id of the entry.
      * @param {string} firstName Contact first Name
      * @param {string} lastName Contact last Name
@@ -5065,6 +5163,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} companyId The company id of the directory to export.<br/>
      * @param {string} filePath The folder where the directory will be exported.
      * @description
@@ -5101,6 +5200,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory
      * @param {string} companyId The company id of the directory to export.<br/>
      * @param {string} fileFullPath The full file path to import.
      * @param {string} label The label used for the import.
@@ -5153,6 +5253,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory tags
      * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
      * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.
      * @description
@@ -5186,6 +5287,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory tags
      * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
      * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.<br/>
      * @param {string} tag tag to remove. 
@@ -5222,6 +5324,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory tags
      * @param {string} companyId Allows to rename a tag for the directory entries of the companyIds provided in this option.<br/>
      * If companyId is not provided, the tag is renamed from all the directory entries of all the companies managed by the logged in administrator.<br/>
      * @param {string} tag tag to rename.
@@ -5264,6 +5367,7 @@ class Admin extends GenericService {
      * @since 2.2.0
      * @instance
      * @async
+     * @category Rainbow Company Directory portal - directory tags
      * @param {string} companyId Allows to compute the tags statistics for the directory entries of the companyIds provided in this option.<br/>
      * @description
      *      This API can be used to list all the tags being assigned to the directory entries of the companies managed by the administrator, with the number of directory entries for each tags.<br/>
@@ -5304,6 +5408,7 @@ class Admin extends GenericService {
      * @param {string} id Unique identifier of the application to which the client version refer. Default value is the AppId provided to login the SDK.
      * @param {string} version App version
      * @async
+     * @category Clients Versions
      * @description
      *      This API can be used to define the minimal required version for a given client application.<br/>
      *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br/>
@@ -5353,6 +5458,7 @@ class Admin extends GenericService {
      * @instance
      * @param {string} clientId Application unique identifier to which the client version refer
      * @async
+     * @category Clients Versions
      * @description
      *      This API can be used to delete the minimal required version defined for a given client application.<br/>
      *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br/>
@@ -5388,6 +5494,7 @@ class Admin extends GenericService {
      * @instance
      * @param {string} clientId Application unique identifier to which the client version refer
      * @async
+     * @category Clients Versions
      * @description
      *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
      *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
@@ -5421,6 +5528,7 @@ class Admin extends GenericService {
      * @since 2.5.0
      * @instance
      * @async
+     * @category Clients Versions
      * @param {string} name Allows to filter clients versions list on field name.
      * @param {string} typeClient Allows to filter clients versions list on field type.
      * @param {number} limit Allow to specify the number of clients versions to retrieve. Default value : 100.
@@ -5462,6 +5570,7 @@ class Admin extends GenericService {
      * @param {string} clientId Application unique identifier to which the client version refer
      * @param {string} version App version
      * @async
+     * @category Clients Versions
      * @description
      *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
      *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>

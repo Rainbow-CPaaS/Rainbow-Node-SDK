@@ -180,125 +180,8 @@ class ContactsService extends GenericService {
         }
     }
 
-    /**
-     * @public
-     * @method getDisplayName
-     * @instance
-     * @param {Contact} contact  The contact to get display name
-     * @return {string} The contact first name and last name
-     * @description
-     *      Get the display name of a contact <br/>
-     */
-    getDisplayName(contact : Contact) : string {
-        return contact.firstName + " " + contact.lastName;
-    }
-
-    /**
-     * @public
-     * @method getRosters
-     * @instance
-     * @description
-     *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
-     * @async
-     * @return {Promise<Array<Contact>,ErrorManager>}
-     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-     * @category async
-     */
-    getRosters() : Promise<Array<Contact>> {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that._rest.getContacts().then((listOfContacts: any) => {
-                if (! that._contacts) {
-                    that._contacts = [];
-                }
-
-                listOfContacts.forEach((contactData: any) => {
-                  let contactIndex = that._contacts.findIndex((_contact: any) => {
-                        return _contact.jid_im===contactData.jid_im;
-                    });
-                    if (contactIndex === -1) {
-                        if (that._contacts[contactIndex]) {
-                            that._contacts[contactIndex].roster = false;
-                        }
-                    }
-                });
-
-                listOfContacts.forEach((contactData: any) => {
-                    that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
-                        that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server");
-                        that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
-                            // Update or Add contact
-                            let contactIndex = that._contacts.findIndex((_contact: any) => {
-                                return _contact.jid_im===_contactFromServer.jid_im;
-                            });
-
-                            let contact = null;
-                            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
-
-                            if (contactIndex!== -1) {
-                                contact = that._contacts[contactIndex];
-                                //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
-                                contact.updateFromUserData(_contactFromServer);
-                                contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
-
-                                // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
-                            } else {
-                                contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
-                                //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
-                                contact.updateFromUserData(_contactFromServer);
-                                contact.roster = true;
-                                contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
-
-                                // this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
-                            }
-                        
-
-                    }).catch((err) => {
-                        this._logger.log("info", LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
-                    });
-                });
-
-                resolve(that._contacts.filter((contact) => { return contact.roster === true; }));
-                /*
-                
-                that._contacts = [];
-                listOfContacts.forEach((contactData: any) => {
-                    // Create the contact object
-                    let contact = new Contact();
-                    Object.assign(contact, contactData);
-                    // that._logger.log("internal", LOG_ID + "(getRosters) before updateFromUserData ", contact);
-                    contact.updateFromUserData(contactData);
-                    contact.roster = true;
-                    contact.avatar = that.getAvatarByContactId(contact.id, contact.lastAvatarUpdateDate);
-                    // Append in contact list
-                    // that._contacts[contact.id] = contact;
-                    that._contacts.push(contact);
-                });
-                that._logger.log("internal", LOG_ID + "(getRosters) get rosters successfully : ", that._contacts);
-
-                that._logger.log("info", LOG_ID + "(getRosters) get rosters successfully");
-                resolve(that.getAll());
-                // */
-            }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getRosters) error");
-                that._logger.log("internalerror", LOG_ID + "(getRosters) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * @public
-     * @method getAll
-     * @instance
-     * @return {Contact[]} the list of _contacts
-     * @description
-     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
-     */
-    getAll() : Array<Contact>{
-        return this._contacts;
-    }
-
+    //region Contacts MANAGEMENT
+    
     createEmptyContactContact(jid) {
         let that = this;
         let contact = that.createBasicContact(jid);
@@ -436,10 +319,28 @@ class ContactsService extends GenericService {
         return contact;
     }
 
+    //endregion Contacts MANAGEMENT
+
+    //region Contacts INFORMATIONS
+
+    /**
+     * @public
+     * @method getAll
+     * @category Contacts INFORMATIONS
+     * @instance
+     * @return {Contact[]} the list of _contacts
+     * @description
+     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
+     */
+    getAll() : Array<Contact>{
+        return this._contacts;
+    }
+
     /**
      * @public
      * @method getContactByJid
      * @instance
+     * @category Contacts INFORMATIONS
      * @param {string} jid The contact jid
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
@@ -447,7 +348,7 @@ class ContactsService extends GenericService {
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
-     * @category async
+
      */
     getContactByJid(jid : string, forceServerSearch : boolean = false): Promise<Contact> {
 
@@ -514,6 +415,7 @@ class ContactsService extends GenericService {
      * @public
      * @method getContactById
      * @instance
+     * @category Contacts INFORMATIONS
      * @param {string} id The contact id
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
@@ -521,7 +423,7 @@ class ContactsService extends GenericService {
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
-     * @category async
+
      */
     getContactById(id : string, forceServerSearch: boolean = false): Promise<Contact> {
         let that = this;
@@ -591,6 +493,7 @@ class ContactsService extends GenericService {
      * @public
      * @method getContactByLoginEmail
      * @instance
+     * @category Contacts INFORMATIONS
      * @param {string} loginEmail The contact loginEmail
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
@@ -598,7 +501,7 @@ class ContactsService extends GenericService {
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
-     * @category async
+
      */
     async getContactByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<Contact> {
 
@@ -682,12 +585,13 @@ class ContactsService extends GenericService {
      * @public
      * @method getMyInformations
      * @instance
+     * @category Contacts INFORMATIONS
      * @description
      *  Get informations about the connected user <br/>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Found informations or null or an error object depending on the result
-     * @category async
+
      */
     getMyInformations(): Promise<Contact> {
         let that = this;
@@ -706,6 +610,7 @@ class ContactsService extends GenericService {
      * @public
      * @method getAvatarByContactId
      * @instance
+     * @category Contacts INFORMATIONS
      * @param {string} id The contact id
      * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
      *      if missing or null in case where no avatar available a local module file is provided instead of URL
@@ -719,6 +624,55 @@ class ContactsService extends GenericService {
         }
         return path.resolve(__dirname, "../resources/unknownContact.png");
     }
+
+    /**
+     * @public
+     * @method getConnectedUser
+     * @category Contacts INFORMATIONS
+     * @instance
+     * @description
+     *    Get the connected user information <br/>
+     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+     */
+    getConnectedUser(): Contact {
+        let that = this;
+        if (!that._rest.account) {
+            return null;
+        }
+        /*// Create the contact object
+        let contact = new Contact();
+
+        //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
+        contact.updateFromUserData(that._rest.account);
+        contact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
+        contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+        contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+        // */
+
+        // Create the contact object
+        that.userContact.updateFromUserData(that._rest.account);
+        that.userContact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
+        //that.userContact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+        //that.userContact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+
+        return that.userContact;
+    }
+
+    /**
+     * @public
+     * @method getDisplayName
+     * @instance
+     * @category Contacts INFORMATIONS
+     * @param {Contact} contact  The contact to get display name
+     * @return {string} The contact first name and last name
+     * @description
+     *      Get the display name of a contact <br/>
+     */
+    getDisplayName(contact : Contact) : string {
+        return contact.firstName + " " + contact.lastName;
+    }
+
+    //endregion Contacts INFORMATIONS
 
     // ************************************************** //
     // **  jid utilities                               ** //
@@ -763,37 +717,101 @@ class ContactsService extends GenericService {
         return (that._rest.account.jid===contact.jid);
     }
 
+    //region Contacts NETWORK
 
     /**
      * @public
-     * @method getConnectedUser
+     * @method getRosters
      * @instance
+     * @category Contacts NETWORK
      * @description
-     *    Get the connected user information <br/>
-     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+     *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
+     * @async
+     * @return {Promise<Array<Contact>,ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+
      */
-    getConnectedUser(): Contact {
+    getRosters() : Promise<Array<Contact>> {
         let that = this;
-        if (!that._rest.account) {
-            return null;
-        }
-        /*// Create the contact object
-        let contact = new Contact();
+        return new Promise((resolve, reject) => {
+            that._rest.getContacts().then((listOfContacts: any) => {
+                if (! that._contacts) {
+                    that._contacts = [];
+                }
 
-        //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
-        contact.updateFromUserData(that._rest.account);
-        contact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
-        contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
-        contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
-        // */
+                listOfContacts.forEach((contactData: any) => {
+                    let contactIndex = that._contacts.findIndex((_contact: any) => {
+                        return _contact.jid_im===contactData.jid_im;
+                    });
+                    if (contactIndex === -1) {
+                        if (that._contacts[contactIndex]) {
+                            that._contacts[contactIndex].roster = false;
+                        }
+                    }
+                });
 
-        // Create the contact object
-        that.userContact.updateFromUserData(that._rest.account);
-        that.userContact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
-        //that.userContact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
-        //that.userContact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
+                listOfContacts.forEach((contactData: any) => {
+                    that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
+                        that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server");
+                        that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
+                        // Update or Add contact
+                        let contactIndex = that._contacts.findIndex((_contact: any) => {
+                            return _contact.jid_im===_contactFromServer.jid_im;
+                        });
 
-        return that.userContact;
+                        let contact = null;
+                        //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+
+                        if (contactIndex!== -1) {
+                            contact = that._contacts[contactIndex];
+                            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                            contact.updateFromUserData(_contactFromServer);
+                            contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                            // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
+                        } else {
+                            contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
+                            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                            contact.updateFromUserData(_contactFromServer);
+                            contact.roster = true;
+                            contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                            // this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
+                        }
+
+
+                    }).catch((err) => {
+                        this._logger.log("info", LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
+                    });
+                });
+
+                resolve(that._contacts.filter((contact) => { return contact.roster === true; }));
+                /*
+                
+                that._contacts = [];
+                listOfContacts.forEach((contactData: any) => {
+                    // Create the contact object
+                    let contact = new Contact();
+                    Object.assign(contact, contactData);
+                    // that._logger.log("internal", LOG_ID + "(getRosters) before updateFromUserData ", contact);
+                    contact.updateFromUserData(contactData);
+                    contact.roster = true;
+                    contact.avatar = that.getAvatarByContactId(contact.id, contact.lastAvatarUpdateDate);
+                    // Append in contact list
+                    // that._contacts[contact.id] = contact;
+                    that._contacts.push(contact);
+                });
+                that._logger.log("internal", LOG_ID + "(getRosters) get rosters successfully : ", that._contacts);
+
+                that._logger.log("info", LOG_ID + "(getRosters) get rosters successfully");
+                resolve(that.getAll());
+                // */
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(getRosters) error");
+                that._logger.log("internalerror", LOG_ID + "(getRosters) error : ", err);
+                return reject(err);
+            });
+        });
     }
 
     /**
@@ -801,6 +819,7 @@ class ContactsService extends GenericService {
      * @since 1.17
      * @method addToNetwork
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
@@ -818,6 +837,7 @@ class ContactsService extends GenericService {
      * @since 1.17
      * @method addToContactsList
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
@@ -825,7 +845,7 @@ class ContactsService extends GenericService {
      *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
      * @param {Contact} contact The contact object to subscribe
      * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
-     * @category async
+
      */
     addToContactsList(contact: Contact) : Promise<Contact>{
         let that = this;
@@ -863,6 +883,7 @@ class ContactsService extends GenericService {
      * @method removeFromNetwork
      * @since 1.69
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    Remove a contact from the list of contacts and unsubscribe to the contact's presence <br/>
      * @param {Contact} contact The contact object to unsubscribe
@@ -898,6 +919,7 @@ class ContactsService extends GenericService {
      * @since 1.64.0
      * @method getInvitationById
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    Get an invite by its id <br/>
      * @param {string} strInvitationId the id of the invite to retrieve
@@ -918,8 +940,9 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
-     * @method
+     * @method acceptInvitation
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    Accept an invitation from an other Rainbow user to mutually join the network <br>
      *    Once accepted, the user will be part of your network. <br>
@@ -943,8 +966,9 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
-     * @method
+     * @method declineInvitation
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    Decline an invitation from an other Rainbow user to mutually join the network <br>
      *    Once declined, the user will not be part of your network. <br>
@@ -968,25 +992,19 @@ class ContactsService extends GenericService {
 
 
     /**
-     * @typedef {Object} joinContactsResult
-     * @property {string[]} success List of succeed joined users
-     * @property {string[]} failed List of failed to joined users
-     */
-
-    /**
      * @public
      * @since 1.41
      * @beta
      * @method joinContacts
      * @instance
+     * @category Contacts NETWORK
      * @description
      *    As admin, add _contacts to a user roster <br/>
      * @param {Contact} contact The contact object to subscribe
      * @param {Array<string>} contactIds List of contactId to add to the user roster
      * @async
      * @return {Promise<Object, ErrorManager>}
-     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
-     * @category async
+     * @fulfil {any} - Join result or an error object depending on the result
      */
     joinContacts(contact: Contact, contactIds : Array<string>) {
         let that = this;
@@ -1025,6 +1043,10 @@ class ContactsService extends GenericService {
         });
     }
 
+    //endregion Contacts NETWORK
+
+    //region Events
+     
     /**
      * @private
      * @method _onPresenceChanged
@@ -1692,6 +1714,7 @@ class ContactsService extends GenericService {
         });
     }
 
+    //endregion Events
 }
 
 module.exports.Contacts = ContactsService;
