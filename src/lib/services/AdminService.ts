@@ -49,7 +49,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
 @isStarted([])
 /**
  * @module
- * @name Admin
+ * @name AdminService
  * @version SDKVERSION
  * @public
  * @description
@@ -64,11 +64,11 @@ enum CLOUDPBXCLIOPTIONPOLICY {
  *      - Change the password of a user <br>
  *      - Create a guest user <br/>
  */
-class Admin extends GenericService {
+class AdminService extends GenericService {
     private _contacts: ContactsService;
 
-    static getClassName(){ return 'Admin'; }
-    getClassName(){ return Admin.getClassName(); }
+    static getClassName(){ return 'AdminService'; }
+    getClassName(){ return AdminService.getClassName(); }
 
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
@@ -5603,7 +5603,7 @@ class Admin extends GenericService {
     
 }
 
-module.exports.AdminService = Admin;
+module.exports.AdminService = AdminService;
 module.exports.OFFERTYPES = OFFERTYPES;
 module.exports.CLOUDPBXCLIOPTIONPOLICY = CLOUDPBXCLIOPTIONPOLICY;
-export {Admin as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY};
+export {AdminService as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY};
