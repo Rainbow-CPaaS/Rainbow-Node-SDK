@@ -159,92 +159,15 @@ class FileStorage extends GenericService{
 
 
 
-    /**
-     * @private
-     * @since 1.47.1
-     * @method
-     * @instance
-     * @description
-     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br/>
-     *    Return a promise <br/>
-     * @return {Message} Return the message sent
-     */
-    _addFileToConversation(conversation, file, data) {
-        let that = this;
-
-        return new Promise(function(resolve, reject) {
-            return new Promise(function(_resolve) {
-
-                // Allow to pass a file path (for test purpose)
-                if ( typeof (file) === "string") {
-                    try {
-                        let fileObj = new fileapi.File({
-
-                                //            path: "c:\\temp\\15777240.jpg",   // path of file to read
-                                "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
-                                //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
-
-                                //            buffer: Node.Buffer,          // use this Buffer instead of reading file
-                                //            stream: Node.ReadStream,      // use this ReadStream instead of reading file
-                                //            name: "SomeAwesomeFile.txt",  // optional when using `path`
-                                // must be supplied when using `Node.Buffer` or `Node.ReadStream`
-                                //            type: "text/plain",           // generated based on the extension of `name` or `path`
-
-                                "jsdom": true,                  // be DoM-like and immediately get `size` and `lastModifiedDate`
-                                // [default: false]
-                                "async": false                  // use `fs.stat` instead of `fs.statSync` for getting
-                                // the `jsdom` info
-                                // [default: false]
-                                //   lastModifiedDate: fileStat.mtime.toISOString()
-                                //   size: fileStat.size || Buffer.length
-                            }
-                        );
-
-                        that._logger.log("internal", LOG_ID + "(_addFileToConversation) file path : ", file, " give fileObj :", fileObj);
-
-                        _resolve(fileObj);
-                    } catch (err) {
-                        that._logger.log("error", LOG_ID + "(_addFileToConversation) Catch Error !!! Error.");
-                        that._logger.log("internalerror", LOG_ID + "(_addFileToConversation) Catch Error !!! Error : ", err);
-                        reject(err);
-                    }
-                } else {
-                    _resolve(file);
-                }
-            }).then(function(_file :any ) {
-
-                if (_file.size > 100000000) {
-                    let errorMessage = "The file is to large (limited to 100MB)";
-                    that._logger.log("error", LOG_ID + "(_addFileToConversation) Error." );
-                    that._logger.log("internalerror", LOG_ID + "(_addFileToConversation) Error : ", errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-
-                    /* reject({
-                        code: SDK.ERRORBADREQUEST,
-                        label: "The file is to large (limited to 100MB)"
-                    }); // */
-                } else {
-                    if (!data || data.length === 0) {
-                        data = file.name;
-                    }
-
-                    that._conversations.sendFSMessage(conversation, _file, data).then(function(message) {
-                        resolve(message);
-                    }).catch((err)=> {
-                        return reject(err);
-                    });
-                }
-            });
-        });
-    }
-
     /**************** API ***************/
-
+    //region Files TRANSFER
     /**
      * @public
      * @since 1.47.1
      * @method uploadFileToConversation
      * @instance
+     * @async
+     * @category Files TRANSFER
      * @param {Conversation} conversation   The conversation where the message will be added
      * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @param {String} strMessage   An optional message to add with the file
@@ -253,7 +176,7 @@ class FileStorage extends GenericService{
      *    Return the promise <br/>
      * @return {Message} Return the message sent <br/>
      */
-    uploadFileToConversation(conversation, file, strMessage) {
+    async uploadFileToConversation(conversation, file, strMessage) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -300,6 +223,8 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method uploadFileToBubble
      * @instance
+     * @async
+     * @category Files TRANSFER
      * @param {Bubble} bubble   The bubble where the message will be added
      * @param {File} file The file to add
      * @param {String} strMessage   An optional message to add with the file
@@ -308,7 +233,7 @@ class FileStorage extends GenericService{
      *    Return a promise <br/>
      * @return {Message} Return the message sent <br/>
      */
-    uploadFileToBubble(bubble, file, strMessage) {
+    async uploadFileToBubble(bubble, file, strMessage) {
         let that = this;
 
         return new Promise(async function(resolve, reject) {
@@ -367,12 +292,14 @@ class FileStorage extends GenericService{
      * @public
      * @since 1.67.0
      * @method uploadFileToStorage
+     * @category Files TRANSFER
+     * @async
      * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @instance
      * @description
      *   Send a file in user storage <br/>
      */
-    uploadFileToStorage( file) {
+    async uploadFileToStorage( file) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("info", LOG_ID + "sendFSMessage");
@@ -490,6 +417,8 @@ class FileStorage extends GenericService{
      * @public
      * @since 1.47.1
      * @method downloadFile
+     * @category Files TRANSFER
+     * @async
      * @instance
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
      * @param {string} path If provided then the retrieved file is stored in it. If not provided then
@@ -498,7 +427,7 @@ class FileStorage extends GenericService{
      *    Return a promise <br/>
      * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    downloadFile(fileDescriptor, path: string = null) {
+    async downloadFile(fileDescriptor, path: string = null) {
         let that = this;
         return new Promise(function(resolve, reject) {
 
@@ -542,8 +471,11 @@ class FileStorage extends GenericService{
      * @since 1.79.0
      * @method downloadFileInPath
      * @instance
+     * @category Files TRANSFER
+     * @async
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
      * @param {string} path If provided then the retrieved file is stored in it. If not provided then
+     * @async
      * @description
      *    Allow to download a file from the server and store it in provided path. <br/>
      *    Return a promise <br/>
@@ -661,31 +593,17 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
-     * @method getUserQuotaConsumption
-     * @instance
-     * @description
-     *    Get the current file storage quota and consumption for the connected user <br/>
-     *    Return a promise <br/>
-     * @return {Object} Return an object containing the user quota and consumption
-     */
-    /*getUserQuotaConsumption() {
-        let that = this;
-        return that.retrieveUserConsumption();
-    }*/
-
-
-    /**
-     * @public
-     * @since 1.47.1
      * @method removeFile
      * @instance
+     * @async
+     * @category Files TRANSFER
      * @param {FileDescriptor} fileDescriptor   The description of the file to remove (short file descriptor)
      * @description
      *    Remove an uploaded file <br/>
      *    Return a promise <br/>
      * @return {Object} Return a SDK OK Object or a SDK error object depending the result
      */
-    removeFile(fileDescriptor) {
+    async removeFile(fileDescriptor) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -729,9 +647,95 @@ class FileStorage extends GenericService{
         });
     }
 
+    //endregion Files TRANSFER 
+
+    //region Files FILE MANAGEMENT / PROPERTIES 
+
+    /**
+     * @private
+     * @since 1.47.1
+     * @method
+     * @instance
+     * @async
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br/>
+     *    Return a promise <br/>
+     * @return {Message} Return the message sent
+     */
+    _addFileToConversation(conversation, file, data) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+            return new Promise(function(_resolve) {
+
+                // Allow to pass a file path (for test purpose)
+                if ( typeof (file) === "string") {
+                    try {
+                        let fileObj = new fileapi.File({
+
+                                    //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                                    "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
+                                    //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+
+                                    //            buffer: Node.Buffer,          // use this Buffer instead of reading file
+                                    //            stream: Node.ReadStream,      // use this ReadStream instead of reading file
+                                    //            name: "SomeAwesomeFile.txt",  // optional when using `path`
+                                    // must be supplied when using `Node.Buffer` or `Node.ReadStream`
+                                    //            type: "text/plain",           // generated based on the extension of `name` or `path`
+
+                                    "jsdom": true,                  // be DoM-like and immediately get `size` and `lastModifiedDate`
+                                    // [default: false]
+                                    "async": false                  // use `fs.stat` instead of `fs.statSync` for getting
+                                    // the `jsdom` info
+                                    // [default: false]
+                                    //   lastModifiedDate: fileStat.mtime.toISOString()
+                                    //   size: fileStat.size || Buffer.length
+                                }
+                        );
+
+                        that._logger.log("internal", LOG_ID + "(_addFileToConversation) file path : ", file, " give fileObj :", fileObj);
+
+                        _resolve(fileObj);
+                    } catch (err) {
+                        that._logger.log("error", LOG_ID + "(_addFileToConversation) Catch Error !!! Error.");
+                        that._logger.log("internalerror", LOG_ID + "(_addFileToConversation) Catch Error !!! Error : ", err);
+                        reject(err);
+                    }
+                } else {
+                    _resolve(file);
+                }
+            }).then(function(_file :any ) {
+
+                if (_file.size > 100000000) {
+                    let errorMessage = "The file is to large (limited to 100MB)";
+                    that._logger.log("error", LOG_ID + "(_addFileToConversation) Error." );
+                    that._logger.log("internalerror", LOG_ID + "(_addFileToConversation) Error : ", errorMessage);
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+
+                    /* reject({
+                        code: SDK.ERRORBADREQUEST,
+                        label: "The file is to large (limited to 100MB)"
+                    }); // */
+                } else {
+                    if (!data || data.length === 0) {
+                        data = file.name;
+                    }
+
+                    that._conversations.sendFSMessage(conversation, _file, data).then(function(message) {
+                        resolve(message);
+                    }).catch((err)=> {
+                        return reject(err);
+                    });
+                }
+            });
+        });
+    }
+    
     /**********************************************************/
     /**  Basic accessors to FileStorage's properties   **/
     /**********************************************************/
+    
     getFileDescriptorById(id) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(getFileDescriptorById) FileDescriptorId : ", id, ", from : ", that.fileDescriptors);
@@ -754,6 +758,7 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method getFileDescriptorFromId
      * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {String} id   The file id
      * @description
      *    Get the file descriptor the user own by it's id <br/>
@@ -768,13 +773,15 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method getFilesReceivedInConversation
      * @instance
+     * @async
      * @param {Conversation} conversation   The conversation where to get the files
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      *    Get the list of all files received in a conversation with a contact <br/>
      *    Return a promise <br/>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
-    getFilesReceivedInConversation(conversation) {
+    async getFilesReceivedInConversation(conversation) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -811,6 +818,8 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method getFilesReceivedInBubble
      * @instance
+     * @async
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Bubble} bubble   The bubble where to get the files
      * @description
      *    Get the list of all files received in a bubble <br/>
@@ -853,6 +862,8 @@ class FileStorage extends GenericService{
      * @description
      * Method returns a file descriptor with full contact object in viewers'list by requesting server <br/>
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @async
      * @param {string} fileId [required] Identifier of file descriptor
      * @return {Promise<FileDescriptor>} file descriptor
      *
@@ -909,6 +920,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @return {FileDescriptor[]}
      */
     getDocuments() {
@@ -919,6 +931,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @return {FileDescriptor}
      */
     getReceivedDocuments() {
@@ -929,6 +942,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {boolean} received
      * @return {FileDescriptor[]}
      */
@@ -940,6 +954,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {boolean} received
      * @return {FileDescriptor[]}
      */
@@ -951,6 +966,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {boolean} received
      * @return {FileDescriptor[]}
      */
@@ -962,6 +978,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} dbId
      * @return {FileDescriptor[]}
      */
@@ -977,6 +994,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} dbId
      * @return {FileDescriptor[]}
      */
@@ -994,10 +1012,14 @@ class FileStorage extends GenericService{
     }
 
     /**
-     *
+     * @method getReceivedFilesForRoom
      * @public
      *
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} bubbleId id of the bubble
+     * @description
+     *    Method to get the list of received files descriptors.
      * @return {FileDescriptor[]}
      */
     getReceivedFilesForRoom(bubbleId) {
@@ -1015,6 +1037,7 @@ class FileStorage extends GenericService{
 
     /**
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @private
      *
      * @return {Object}
@@ -1032,6 +1055,7 @@ class FileStorage extends GenericService{
      * @description
      * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors) <br/>
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} name [required] name of file for which file descriptor has to be created
      * @param {string} extension [required] extension of file
      * @param {number} size [required] size of  file
@@ -1069,6 +1093,7 @@ class FileStorage extends GenericService{
      *
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {*} data
      * @return {FileDescriptor}
      */
@@ -1106,6 +1131,7 @@ class FileStorage extends GenericService{
      * @description
      *
      * Method request deletion of a file descriptor on the server and removes it from local storage <br/>
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} id [required] file descriptor id to be destroyed
      * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
      */
@@ -1129,6 +1155,7 @@ class FileStorage extends GenericService{
     /**
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      * Method request deletion of all files on the server and removes them from local storage <br/>
      * @return {Promise<{}>} ???
@@ -1161,7 +1188,10 @@ class FileStorage extends GenericService{
 
     /**
      * @public
-     *
+     * @method retrieveFileDescriptorsListPerOwner
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @async
+     * @instance
      * @description
      * Method retrieve full list of files belonging to user making the request <br/>
      *
@@ -1232,6 +1262,7 @@ class FileStorage extends GenericService{
     /**
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      * Method retrieve a list of [limit] files belonging to user making the request begining with offset <br/>
      *
@@ -1249,6 +1280,8 @@ class FileStorage extends GenericService{
      * @description
      * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation) <br/>
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @async
      * @param {string} userId [required] dbId of user making the request
      * @param {string} peerId [required] dbId of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
@@ -1281,7 +1314,9 @@ class FileStorage extends GenericService{
 
     /**
      * @public
-     *
+     * @method retrieveSentFiles
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @instance
      * @description
      * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br/>
      *
@@ -1317,9 +1352,12 @@ class FileStorage extends GenericService{
     /**
      * @public
      *
+     * @method retrieveReceivedFilesForRoom
+     * @instance
      * @description
      * Method request for the list of files received in a room <br/>
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} bubbleId [required] Id of the room
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
@@ -1358,7 +1396,10 @@ class FileStorage extends GenericService{
     /**
      *
      * @public
-     *
+     * @method retrieveReceivedFiles
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @instance
+     * @async
      * @description
      * Method request for the list of files received by a user <br/>
      *
@@ -1366,7 +1407,7 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
      */
-    retrieveReceivedFiles(viewerId) {
+    async retrieveReceivedFiles(viewerId) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.retrieveReceivedFilesForRoomOrViewer(viewerId)
@@ -1408,6 +1449,7 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method getFilesSentInConversation
      * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Conversation} conversation   The conversation where to get the files
      * @description
      *    Get the list of all files sent in a conversation with a contact <br/>
@@ -1454,6 +1496,7 @@ class FileStorage extends GenericService{
      * @method getFilesSentInBubble
      * @instance
      * @param {Bubble} bubble   The bubble where to get the files
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      *    Get the list of all files sent in a bubble <br/>
      *    Return a promise <br/>
@@ -1489,7 +1532,8 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
-     * @method
+     * @method getUserQuotaConsumption
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
      * @description
      *    Get the current file storage quota and consumption for the connected user <br/>
@@ -1511,6 +1555,7 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method getAllFilesSent
      * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles. <br/>
      * @return {FileDescriptor[]} Return an array containing the list of FileDescriptor objects representing the files sent
@@ -1525,6 +1570,7 @@ class FileStorage extends GenericService{
      * @since 1.47.1
      * @method getAllFilesReceived
      * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles. <br/>
      * @return {FileDescriptor[]} Return an array containing a list of FileDescriptor objects representing the files received
@@ -1538,6 +1584,7 @@ class FileStorage extends GenericService{
     /**
      * @private
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      * Method retrieve the data usage of a given user <br/>
      *
@@ -1571,6 +1618,7 @@ class FileStorage extends GenericService{
      * @description
      * Method deletes a viewer from the list of viewer of a given file <br/>
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
      * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
      * @return {Promise<{}>}
@@ -1615,6 +1663,7 @@ class FileStorage extends GenericService{
      * @description
      * Method adds a viewer to a given file on server if it is not already one
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} fileId [required] Identifier of file
      * @param {string} viewerId [required] Identifier of viewer to be added
      * @param {string} viewerType [required] type of viewer to be added (user or room)
@@ -1670,6 +1719,7 @@ class FileStorage extends GenericService{
      * @public
      * @method retrieveOneFileDescriptor
      * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      * Method retrieve a specific file descriptor from server <br/>
      *
@@ -1701,6 +1751,7 @@ class FileStorage extends GenericService{
      * @description
      * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new) <br/>
      *
+     * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
      *
@@ -1912,6 +1963,9 @@ class FileStorage extends GenericService{
         let fileDescriptorId = parts.pop() || parts.pop();
         return fileDescriptorId;
     }
+
+    //endregion Files FILE MANAGEMENT / PROPERTIES 
+
 }
 
 module.exports.FileStorageService = FileStorage;

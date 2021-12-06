@@ -258,10 +258,13 @@ function CallLogsBean() : ICallLogsBean {
 
     /*********************************************************/
 
+    //region CallLog MANAGEMENT
+    
     /**
      * @public
      * @method getAll
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Get all calls log history for the connected user <br/>
      * @return {CallLog[]} An array of call log entry
@@ -295,6 +298,7 @@ function CallLogsBean() : ICallLogsBean {
      * @public
      * @method getMissedCallLogCounter
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Get the number of call missed (state === "missed" && direction === "incoming") <br/>
      * @return {Number} The number of call missed
@@ -318,6 +322,7 @@ function CallLogsBean() : ICallLogsBean {
      * @public
      * @method deleteOneCallLog
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Delete a call log from it's id<br/>
      *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
@@ -335,6 +340,7 @@ function CallLogsBean() : ICallLogsBean {
      * @public
      * @method deleteCallLogsForContact
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Delete all calls log items associated to a contact's given jid<br/>
      *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
@@ -352,6 +358,7 @@ function CallLogsBean() : ICallLogsBean {
      * @public
      * @method deleteAllCallLogs
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Delete all call logs history<br/>
      *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
@@ -368,6 +375,7 @@ function CallLogsBean() : ICallLogsBean {
      * @public
      * @method markCallLogAsRead
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Mark a call log item as read<br/>
      *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
@@ -385,6 +393,7 @@ function CallLogsBean() : ICallLogsBean {
      * @public
      * @method markAllCallsLogsAsRead
      * @instance
+     * @category CallLog MANAGEMENT
      * @description
      *    Mark all call log items as read<br/>
      *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
@@ -397,11 +406,15 @@ function CallLogsBean() : ICallLogsBean {
        that._logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
         await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
+    //endregion CallLog MANAGEMENT
+    
+    //region CallLog INITIALISATION
 
     /**
      * @public
      * @method isInitialized
      * @instance
+     * @category CallLog INITIALISATION
      * @description
      *    Check if the call log history has been received from Rainbow <br/>
      *    A false answer means that the call logs have not yet been retrieved from the server. <br/>
@@ -410,6 +423,8 @@ function CallLogsBean() : ICallLogsBean {
     isInitialized() {
         return this._initialized;
     }
+
+    //endregion CallLog INITIALISATION
 
     /*********************************************************/
     /**                  EVENT HANDLERS                     **/

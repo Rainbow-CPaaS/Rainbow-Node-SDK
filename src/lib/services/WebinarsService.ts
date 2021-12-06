@@ -26,13 +26,13 @@ const LOG_ID = "WEBINAR/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @name WebinarService
+ * @name WebinarsService
  * @version SDKVERSION
  * @public
  * @description
  *      This service manages .<br>
  */
-class WebinarService extends GenericService {
+class WebinarsService extends GenericService {
     private avatarDomain: string;
     private readonly _protocol: string = null;
     private readonly _host: string = null;
@@ -43,8 +43,8 @@ class WebinarService extends GenericService {
     private webinarHandlerToken: any;
 
 
-    static getClassName(){ return 'WebinarService'; }
-    getClassName(){ return WebinarService.getClassName(); }
+    static getClassName(){ return 'WebinarsService'; }
+    getClassName(){ return WebinarsService.getClassName(); }
 
     constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up:boolean,
@@ -126,7 +126,7 @@ class WebinarService extends GenericService {
         ];
     }
 
-    //region Events Callbacks
+    //region Events
     public LIST_EVENT_TYPE = {
         ADD: {code : 0, label : "ADD"},
         UPDATE: {code : 1, label : "UPDATE"},
@@ -177,13 +177,14 @@ class WebinarService extends GenericService {
         });
     }
 
-    //endregion Events Callbacks
+    //endregion Events
     
-    //region Utils
+    //region Webinars Utils
 
     /**
      * @name getWebinarFromCache
      * @private
+     * @category Webinars Utils
      * @param {string} webinarId
      * @description
      *      GET A CHANNEL FROM CACHE <br/>
@@ -263,7 +264,7 @@ class WebinarService extends GenericService {
         });
     }
 
-    //endregion Utils
+    //endregion Webinars Utils
     
     //region Webinar
     
@@ -272,6 +273,7 @@ class WebinarService extends GenericService {
      * @method createWebinar
      * @since 2.3.0
      * @instance
+     * @category Webinars
      * @description
      *  Create a webinar (2 rooms are used for it).<br/>
      * @param {string} name The name of the bubble to create.
@@ -290,7 +292,7 @@ class WebinarService extends GenericService {
      * @param {string} chatOption Define how participants can chat with organizers. Default value : participant. Possible values : participant, visitor, private.
      * @async
      * @return {Promise<any, ErrorManager>}
-     * @category async
+    
      */
     async createWebinar(name : string, 
                         subject : string, 
@@ -359,6 +361,7 @@ class WebinarService extends GenericService {
      * @public
      * @method updateWebinar
      * @since 2.3.0
+     * @category Webinars
      * @instance
      * @description
      *  Update a webinar.<br/>
@@ -378,10 +381,9 @@ class WebinarService extends GenericService {
      * @param {string} stageBackground Free field used for customization (for example a file descriptor unique identifier).
      * @param {string} chatOption Define how participants can chat with organizers. Default value : participant. Possible values : participant, visitor, private.
      * @async
-     * @return {Promise<any, ErrorManager>}
-     * @category async
+     * @return {Promise<any, ErrorManager>}    
      */
-    updateWebinar(webinarId : string, 
+    async updateWebinar(webinarId : string, 
                   name : string,
                   subject : string,
                   waitingRoomStartDate: Date,
@@ -440,14 +442,15 @@ class WebinarService extends GenericService {
      * @method getWebinarData
      * @since 2.3.0
      * @instance
+     * @category Webinars
      * @description
      *  Get data for a given webinar.<br/>
      * @param {string} webinarId Webinar identifier.
      * @async
      * @return {Promise<any, ErrorManager>}
-     * @category async
+    
      */
-    getWebinarData(webinarId : string ) {
+    async getWebinarData(webinarId : string ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -475,15 +478,15 @@ class WebinarService extends GenericService {
      * @public
      * @method getWebinarsData
      * @instance
+     * @category Webinars
      * @since 2.3.0
      * @description
      *  Get data for webinars where requester is creator, organizer, speaker and/or participant.<br/>
      * @param {string} role filter. Possible values : creator, organizer, speaker, participant 
      * @async
      * @return {Promise<any, ErrorManager>}
-     * @category async
      */
-    getWebinarsData(  role  : string ) {
+    async getWebinarsData(  role  : string ) {
 
         let that = this;
         
@@ -513,13 +516,15 @@ class WebinarService extends GenericService {
      * @method fetchMyWebinars
      * @since 2.3.0
      * @instance
+     * @async
+     * @category Webinars
      * @param {boolean} force Boolean to force the get of webinars's informations from server.
      * @description
      *    Get the webinars you own.<br/>
      *    Return a promise. <br/>
      * @return {Promise<Webinar[]>} Return Promise 
      */
-    fetchMyWebinars(force? : boolean) : Promise<Webinar[]>{
+    async fetchMyWebinars(force? : boolean) : Promise<Webinar[]>{
        let that = this;
 
        return new Promise((resolve) => {
@@ -564,6 +569,7 @@ class WebinarService extends GenericService {
      * @method warnWebinarModerators
      * @since 2.3.0
      * @instance
+     * @category Webinars
      * @description
      *  When main speakers and organizers are selected, it's time to warn each of them to join the practice room. when some webinar information change such as:<br/>
      *  As a result, moderatorsSelectedAnNotified boolean is set to true.<br/>
@@ -574,9 +580,9 @@ class WebinarService extends GenericService {
      *  see API publishAWebinarEvent<br/>
      * @async
      * @return {Promise<any, ErrorManager>}
-     * @category async
+    
      */
-    warnWebinarModerators(webinarId : string) {
+    async warnWebinarModerators(webinarId : string) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -605,6 +611,7 @@ class WebinarService extends GenericService {
      * @method publishAWebinarEvent
      * @since 2.3.0
      * @instance
+     * @category Webinars
      * @description
      *  When main information about the webinar event are decided, it's up to open participant registration and allow automatic email sent when some webinar information change such as:<br/>
      *  cancellation<br/>
@@ -614,9 +621,9 @@ class WebinarService extends GenericService {
      * @param {string} webinarId Webinar unique identifier. <br/>
      * @async
      * @return {Promise<any, ErrorManager>}
-     * @category async
+    
      */
-    publishAWebinarEvent(webinarId : string) {
+    async publishAWebinarEvent(webinarId : string) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -644,15 +651,15 @@ class WebinarService extends GenericService {
      * @public
      * @method deleteWebinar
      * @since 2.3.0
+     * @category Webinars
      * @instance
      * @description
      *  Delete a webinar.<br/>
      * @param {string} webinarId Webinar unique identifier. <br/>
      * @async
      * @return {Promise<any, ErrorManager>}
-     * @category async
      */
-    deleteWebinar(webinarId : string) {
+    async deleteWebinar(webinarId : string) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -679,6 +686,6 @@ class WebinarService extends GenericService {
     //endregion Webinar
 }
 
-module.exports.WebinarService = WebinarService;
-export {WebinarService as WebinarService};
+module.exports.WebinarsService = WebinarsService;
+export {WebinarsService as WebinarsService};
 

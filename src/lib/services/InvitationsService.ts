@@ -163,6 +163,8 @@ class InvitationsService extends GenericService {
 		];
 	};
 
+	//region Events
+	
 	onRosterChanged(data) {
 		let that = this;
 		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
@@ -403,34 +405,51 @@ class InvitationsService extends GenericService {
 		// TODO : VBR $rootScope.$broadcast("ON_INVITATIONS_NUMBER_UPDATED");
 	};
 
-	getServerInvitation(invitationId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._rest.getServerInvitation(invitationId).then(
-                (response: any) => {
-                    that._logger.log("info", LOG_ID + "(getServerInvitation) success");
-                    that._logger.log("internal", LOG_ID + "(getServerInvitation) success : ", response);
-                    let receivedInvitation = Invitation.createFromData(response.data);
-                    resolve(receivedInvitation);
-                }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getServerInvitation) error.");
-                    that._logger.log("internalerror", LOG_ID + "(getServerInvitation) error : ", err);
-                    reject(err);
-                });
-        });
-    };
+	//endregion Events
+	
+	//region Invitations RECEIVED
 
+	/**
+	 * @private
+	 */
+	getAllReceivedInvitations() {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			that._rest.getAllReceivedInvitations().then(
+					function success(response : any) {
+						let invitationsData : any = response.data;
+						that._logger.log("info", LOG_ID + "(getAllReceivedInvitations) success (find " + invitationsData.length + " invitations)");
 
-	/************************************************************/
-	/** PUBLIC METHODS                                         **/
+						that.receivedInvitations = {};
+						that.acceptedInvitations = {};
 
-	/************************************************************/
+						invitationsData.forEach(async function (invitationData) {
+							if (invitationData.status === "pending" && invitationData.type !== "registration") {
+								let invitation = Invitation.createFromData(invitationData);
+								that.receivedInvitations[invitationData.id] = invitation;
+								if (invitationData.invitingUserId) {
+									await that.updateContactInvitationStatus(invitationData.invitingUserId, "ask", invitation);
+								}
+							} else if (invitationData.status === "accepted" || invitationData.status === "auto-accepted") {
+								that.receivedInvitations[invitationData.id] = Invitation.createFromData(invitationData);
+							}
+						});
+						that.updateReceivedInvitationsArray();
+						resolve(that.receivedInvitations);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(getAllReceivedInvitations) error ");
+						that._logger.log("internalerror", LOG_ID + "(getAllReceivedInvitations) error : ", err);
+						reject(err);				});
+		});
+	};
 
 	/**
 	 * @public
 	 * @since 1.65
 	 * @method getReceivedInvitations
 	 * @instance
+	 * @category Invitations RECEIVED
 	 * @description
 	 *    Get the invite received coming from Rainbow users <br/>
 	 * @return {Invitation[]} The list of invitations received
@@ -445,6 +464,7 @@ class InvitationsService extends GenericService {
 	 * @since 1.65
 	 * @method 	getAcceptedInvitations
 	 * @instance
+	 * @category Invitations RECEIVED
 	 * @description
 	 *    Get the invites you accepted received from others Rainbow users <br/>
 	 * @return {Invitation[]} The list of invite sent
@@ -457,21 +477,8 @@ class InvitationsService extends GenericService {
 	/**
 	 * @public
 	 * @since 1.65
-	 * @method getSentInvitations
-	 * @instance
-	 * @description
-	 *    Get the invites sent to others Rainbow users <br/>
-	 * @return {Invitation[]} The list of invite sent
-	 */
-	getSentInvitations() {
-		let that = this;
-		return that.sentInvitationsArray;
-	};
-
-	/**
-	 * @public
-	 * @since 1.65
 	 * @method getInvitationsNumberForCounter
+	 * @category Invitations RECEIVED
 	 * @instance
 	 * @description
 	 *    Get the number of invitations received from others Rainbow users <br/>
@@ -482,18 +489,21 @@ class InvitationsService extends GenericService {
 		return that.receivedInvitationsArray.length;
 	};
 
-	/**
-	 * @public
-	 * @since 1.65
-	 * @method getAllInvitationsNumber
-	 * @instance
-	 * @description
-	 *    Get the number of invitations sent/received to/from others Rainbow users <br/>
-	 * @return {Invitation[]} The list of invite sent
-	 */
-	getAllInvitationsNumber = function () {
+	getServerInvitation(invitationId) {
 		let that = this;
-		return that.receivedInvitationsArray.length + that.sentInvitationsArray.length + that.acceptedInvitationsArray.length;
+		return new Promise(function (resolve, reject) {
+			that._rest.getServerInvitation(invitationId).then(
+					(response: any) => {
+						that._logger.log("info", LOG_ID + "(getServerInvitation) success");
+						that._logger.log("internal", LOG_ID + "(getServerInvitation) success : ", response);
+						let receivedInvitation = Invitation.createFromData(response.data);
+						resolve(receivedInvitation);
+					}).catch((err) => {
+				that._logger.log("error", LOG_ID + "(getServerInvitation) error.");
+				that._logger.log("internalerror", LOG_ID + "(getServerInvitation) error : ", err);
+				reject(err);
+			});
+		});
 	};
 
 	// Getter method
@@ -503,6 +513,7 @@ class InvitationsService extends GenericService {
 	 * @since 1.65
 	 * @method getInvitation
 	 * @instance
+	 * @category Invitations RECEIVED
 	 * @description
 	 *    Get an invite by its id <br/>
 	 * @param {String} invitationId the id of the invite to retrieve
@@ -510,18 +521,18 @@ class InvitationsService extends GenericService {
 	 */
 	getInvitation(invitationId) {
 		let that = this;
-        that._logger.log("info", LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
-        that._logger.log("info", LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
-        that._logger.log("info", LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
+		that._logger.log("info", LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
+		that._logger.log("info", LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
+		that._logger.log("info", LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
 
-        let invitationFound = that.receivedInvitations[invitationId];
+		let invitationFound = that.receivedInvitations[invitationId];
 		if (!invitationFound) {
 			invitationFound = that.acceptedInvitationsArray[invitationId];
 		}
 		if (!invitationFound) {
 			invitationFound = that.sentInvitations[invitationId];
 		}
-        /*if (!invitationFound) {
+		/*if (!invitationFound) {
             that._rest.getInvitationById(data.invitationId).then((invitation : any) => {
                     that._logger.log("debug", LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
 
@@ -541,143 +552,31 @@ class InvitationsService extends GenericService {
 	 * @since 1.65
 	 * @method joinContactInvitation
 	 * @instance
+	 * @category Invitations RECEIVED
+	 * @async
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
 	 *    Return a promise <br/>
 	 * @param {Contact} contact The invitation to accept
-	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	 * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
 	 */
-	joinContactInvitation(contact) {
+	async joinContactInvitation(contact) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
 			that._logger.log("info", LOG_ID + "(joinContactInvitation) contact (" + contact.jid + ")");
 			return that._rest.joinContactInvitation(contact).then(
-				async function success(data) {
-					that._logger.log("info", LOG_ID + "(joinContactInvitation) - success (" + contact.jid + ")");
-					if (contact.status === "unknown") {
-						await that.updateContactInvitationStatus(contact.id, "wait", null);
-					}
-					resolve(data);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(joinContactInvitation) error ");
-					that._logger.log("internalerror", LOG_ID + "(joinContactInvitation) error : ", err);
-					reject(err);				});
-		});
-	};
-
-	/**
-	 * @public
-	 * @since 1.65
-	 * @method sendInvitationByEmail
-	 * @instance
-	 * @description
-	 *    Send an invitation email as UCaaS <br/>
-	 * @param {string} email The email
-	 * @param {string} [customMessage] The email text (optional)
-	 * @return {Object} A promise that contains the contact added or an object describing an error
-	 */
-	sendInvitationByEmail(email, lang, customMessage) {
-		let that = this;
-		return new Promise(function (resolve, reject) {
-			that._logger.log("info", LOG_ID + "sendInvitationByEmail");
-			return that._rest.sendInvitationByEmail(email, lang, customMessage ).then(
-				function success(data) {
-					that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationByEmail - success");
-					resolve(data);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(joinContactInvitation) error ");
-					that._logger.log("internalerror", LOG_ID + "(joinContactInvitation) error : ", err);
-					reject(err);
-				});
-		});
-	};
-
-	/**
-	 * @public
-	 * @since 1.65
-	 * @method cancelOneSendInvitation
-	 * @instance
-	 * @param {Invitation} invitation The invitation to cancel
-	 * @description
-	 *    Cancel an invitation sent <br/>
-	 * @return {Object} The SDK Ok object or an error
-	 */
-	cancelOneSendInvitation(invitation) {
-		let that = this;
-		return new Promise(function (resolve, reject) {
-			that._rest.cancelOneSendInvitation(invitation).then(
-				function success(data) {
-					that._logger.log("info", LOG_ID + "(cancelOneSendInvitation) success");
-					that._logger.log("internal", LOG_ID + "(cancelOneSendInvitation) success : ", data);
-					resolve(data);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(cancelOneSendInvitation) error ");
-					that._logger.log("internalerror", LOG_ID + "(cancelOneSendInvitation) error : ", err);
-					reject(err);
-				});
-		});
-	};
-
-	/**
-	 * @public
-	 * @since 1.65
-	 * @method reSendInvitation
-	 * @instance
-	 * @param {Number} invitationId The invitation to re send
-	 * @description
-	 *    Re send an invitation sent <br/>
-	 * @return {Object} The SDK Ok object or an error
-	 */
-	reSendInvitation(invitationId) {
-		let that = this;
-		return new Promise(function (resolve, reject) {
-		that._rest.reSendInvitation(invitationId).then(
-				function success() {
-					that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
-					resolve(undefined);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
-					that._logger.log("internalerror", LOG_ID + "(reSendInvitation) error : ", err);
-					reject(err);
-				});
-		});
-	};
-
-	/**
-	 * @public
-	 * @since 1.65
-	 * @method sendInvitationByEmail
-	 * @instance
-	 * @description
-	 *    Send invitations for a list of emails as UCaaS <br/>
-	 *    LIMITED TO 100 invitations <br/>
-	 * @param {Array} listOfMails The list of emails
-	 * @return {Object} A promise that the invite result or an object describing an error
-	 */
-	sendInvitationsParBulk(listOfMails) {
-		let that = this;
-
-		if (!listOfMails.length || listOfMails.length > 100) {
-			that._logger.log("error", LOG_ID + "[InvitationService] sendInvitationsParBulk mail list length not correct");
-			return Promise.reject();
-		}
-
-		return new Promise(function (resolve, reject) {
-			that._rest.sendInvitationsParBulk(listOfMails).then(
-				function success(data) {
-					that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationsParBulk - success");
-					resolve(data);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
-					that._logger.log("internalerror", LOG_ID + "(reSendInvitation) error : ", err);
-					reject(err);
-				});
+					async function success(data) {
+						that._logger.log("info", LOG_ID + "(joinContactInvitation) - success (" + contact.jid + ")");
+						if (contact.status === "unknown") {
+							await that.updateContactInvitationStatus(contact.id, "wait", null);
+						}
+						resolve(data);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(joinContactInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(joinContactInvitation) error : ", err);
+						reject(err);				});
 		});
 	};
 
@@ -688,14 +587,16 @@ class InvitationsService extends GenericService {
 	 * @since 1.65
 	 * @method acceptInvitation
 	 * @instance
+	 * @category Invitations RECEIVED
+	 * @async
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
 	 *    Return a promise <br/>
 	 * @param {Invitation} invitation The invitation to accept
-	 * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	 * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
 	 */
-	acceptInvitation(invitation) {
+	async acceptInvitation(invitation) {
 		let that = this;
 		if (!invitation) {
 			let error = ErrorManager.getErrorManager().BAD_REQUEST;
@@ -704,25 +605,25 @@ class InvitationsService extends GenericService {
 		}
 		return new Promise(function (resolve, reject) {
 			that._rest.acceptInvitation(invitation).then(
-				function success(data) {
-					that._logger.log("info", LOG_ID + "(acceptInvitation) success");
-					that._logger.log("internal", LOG_ID + "(acceptInvitation) success : ", data);
-					resolve(data);
-				},
-				function failure(err) {
-					//let error = errorHelperService.handleError(err);
-					if (err.errorDetailsCode && err.errorDetailsCode === 409605) {
-						that._contacts.getContactById(invitation.invitingUserId, true)
-							.then(function (contact) {
-								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
-								reject(err);
-							});
-					} else {
-						that._logger.log("error", LOG_ID + "(acceptInvitation) error ");
-						that._logger.log("internalerror", LOG_ID + "(acceptInvitation) error : ", err);
-						reject(err);
-					}
-				});
+					function success(data) {
+						that._logger.log("info", LOG_ID + "(acceptInvitation) success");
+						that._logger.log("internal", LOG_ID + "(acceptInvitation) success : ", data);
+						resolve(data);
+					},
+					function failure(err) {
+						//let error = errorHelperService.handleError(err);
+						if (err.errorDetailsCode && err.errorDetailsCode === 409605) {
+							that._contacts.getContactById(invitation.invitingUserId, true)
+									.then(function (contact) {
+										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
+										reject(err);
+									});
+						} else {
+							that._logger.log("error", LOG_ID + "(acceptInvitation) error ");
+							that._logger.log("internalerror", LOG_ID + "(acceptInvitation) error : ", err);
+							reject(err);
+						}
+					});
 		});
 	};
 
@@ -731,14 +632,16 @@ class InvitationsService extends GenericService {
 	 * @since 1.65
 	 * @method declineInvitation
 	 * @instance
+	 * @category Invitations RECEIVED
+	 * @async
 	 * @description
 	 *    Decline an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once declined, the user will not be part of your network. <br>
 	 *    Return a promise <br/>
 	 * @param {Invitation} invitation The invitation to decline
-	 * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
+	 * @return {Promise<Object>} A promise that contains SDK.OK in case of success or an object that describes the error
 	 */
-	declineInvitation(invitation) {
+	async declineInvitation(invitation) {
 		let that = this;
 		if (!invitation) {
 			let error = ErrorManager.getErrorManager().BAD_REQUEST;
@@ -747,24 +650,210 @@ class InvitationsService extends GenericService {
 		}
 		return new Promise(function (resolve, reject) {
 			that._rest.declineInvitation(invitation).then(
-				function success(data) {
-					that._logger.log("info", LOG_ID + "(declineInvitation) success");
-					that._logger.log("internal", LOG_ID + "(declineInvitation) success : ", data);
-					resolve(data);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(declineInvitation) error ");
-					that._logger.log("internalerror", LOG_ID + "(declineInvitation) error : ", err);
-					reject(err);
-				});
+					function success(data) {
+						that._logger.log("info", LOG_ID + "(declineInvitation) success");
+						that._logger.log("internal", LOG_ID + "(declineInvitation) success : ", data);
+						resolve(data);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(declineInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(declineInvitation) error : ", err);
+						reject(err);
+					});
 		});
 	};
 
+	//endregion Invitations RECEIVED
 
-	/************************************************************/
-	/** PRIVATE METHODS                                        **/
+	//region Invitations SENT
 
-	/************************************************************/
+	/**
+	 * @private
+	 */
+	async getAllSentInvitations() {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			return that._rest.getAllSentInvitations().then(
+					function success(response: any) {
+						let invitationsData = response.data;
+						that._logger.log("info", LOG_ID + "(getAllSentInvitations) success (find " + invitationsData.length + " invitations)");
+						that.sentInvitations = {};
+						invitationsData.forEach(async function (invitationData) {
+							if (invitationData.status === "pending" && !invitationData.inviteToJoinMeeting) {
+								let sentInvitation = Invitation.createFromData(invitationData);
+								that.sentInvitations[invitationData.id] = sentInvitation;
+								if (sentInvitation.invitedUserId !== undefined) {
+									await that.updateContactInvitationStatus(sentInvitation.invitedUserId, "wait", sentInvitation);
+								}
+							}
+						});
+						that.updateSentInvitationsArray();
+						resolve(that.sentInvitations);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(getAllSentInvitations) error ");
+						that._logger.log("internalerror", LOG_ID + "(getAllSentInvitations) error : ", err);
+						reject(err);
+					});
+		});
+	}
+
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method getSentInvitations
+	 * @instance
+	 * @category Invitations SENT
+	 * @description
+	 *    Get the invites sent to others Rainbow users <br/>
+	 * @return {Invitation[]} The list of invite sent
+	 */
+	getSentInvitations() {
+		let that = this;
+		return that.sentInvitationsArray;
+	};
+
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method sendInvitationByEmail
+	 * @instance
+	 * @category Invitations SENT
+	 * @async
+	 * @description
+	 *    Send an invitation email as UCaaS <br/>
+	 * @param {string} email The email
+	 * @param {string} [customMessage] The email text (optional)
+	 * @return {Object} A promise that contains the contact added or an object describing an error
+	 */
+	async sendInvitationByEmail(email, lang, customMessage) {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			that._logger.log("info", LOG_ID + "sendInvitationByEmail");
+			return that._rest.sendInvitationByEmail(email, lang, customMessage ).then(
+					function success(data) {
+						that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationByEmail - success");
+						resolve(data);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(joinContactInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(joinContactInvitation) error : ", err);
+						reject(err);
+					});
+		});
+	};
+
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method cancelOneSendInvitation
+	 * @instance
+	 * @category Invitations SENT
+	 * @async
+	 * @param {Invitation} invitation The invitation to cancel
+	 * @description
+	 *    Cancel an invitation sent <br/>
+	 * @return {Object} The SDK Ok object or an error
+	 */
+	async cancelOneSendInvitation(invitation) {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			that._rest.cancelOneSendInvitation(invitation).then(
+					function success(data) {
+						that._logger.log("info", LOG_ID + "(cancelOneSendInvitation) success");
+						that._logger.log("internal", LOG_ID + "(cancelOneSendInvitation) success : ", data);
+						resolve(data);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(cancelOneSendInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(cancelOneSendInvitation) error : ", err);
+						reject(err);
+					});
+		});
+	};
+
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method reSendInvitation
+	 * @instance
+	 * @category Invitations SENT
+	 * @async
+	 * @param {Number} invitationId The invitation to re send
+	 * @description
+	 *    Re send an invitation sent <br/>
+	 * @return {Object} The SDK Ok object or an error
+	 */
+	async reSendInvitation(invitationId) {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			that._rest.reSendInvitation(invitationId).then(
+					function success() {
+						that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
+						resolve(undefined);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(reSendInvitation) error : ", err);
+						reject(err);
+					});
+		});
+	};
+
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method sendInvitationByEmail
+	 * @instance
+	 * @category Invitations SENT
+	 * @async
+	 * @description
+	 *    Send invitations for a list of emails as UCaaS <br/>
+	 *    LIMITED TO 100 invitations <br/>
+	 * @param {Array} listOfMails The list of emails
+	 * @return {Object} A promise that the invite result or an object describing an error
+	 */
+	async sendInvitationsParBulk(listOfMails) {
+		let that = this;
+
+		if (!listOfMails.length || listOfMails.length > 100) {
+			that._logger.log("error", LOG_ID + "[InvitationService] sendInvitationsParBulk mail list length not correct");
+			return Promise.reject();
+		}
+
+		return new Promise(function (resolve, reject) {
+			that._rest.sendInvitationsParBulk(listOfMails).then(
+					function success(data) {
+						that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationsParBulk - success");
+						resolve(data);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(reSendInvitation) error : ", err);
+						reject(err);
+					});
+		});
+	};
+
+	//endregion Invitations SENT
+
+	//region Invitations RECEIVED/SENT
+	
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method getAllInvitationsNumber
+	 * @instance
+	 * @category Invitations RECEIVED/SENT
+	 * @description
+	 *    Get the number of invitations sent/received to/from others Rainbow users <br/>
+	 * @return {Invitation[]} The list of invite sent
+	 */
+	getAllInvitationsNumber = function () {
+		let that = this;
+		return that.receivedInvitationsArray.length + that.sentInvitationsArray.length + that.acceptedInvitationsArray.length;
+	};
+
 	/**
 	 * @private
 	 */
@@ -803,71 +892,7 @@ class InvitationsService extends GenericService {
 		return  invitBlastNotificationDate - invitAlastNotificationDate ;
 	};
 
-	/**
-	 * @private
-	 */
-	getAllReceivedInvitations() {
-		let that = this;
-		return new Promise(function (resolve, reject) {
-			that._rest.getAllReceivedInvitations().then(
-				function success(response : any) {
-					let invitationsData : any = response.data;
-					that._logger.log("info", LOG_ID + "(getAllReceivedInvitations) success (find " + invitationsData.length + " invitations)");
-
-					that.receivedInvitations = {};
-					that.acceptedInvitations = {};
-
-					invitationsData.forEach(async function (invitationData) {
-						if (invitationData.status === "pending" && invitationData.type !== "registration") {
-							let invitation = Invitation.createFromData(invitationData);
-							that.receivedInvitations[invitationData.id] = invitation;
-							if (invitationData.invitingUserId) {
-								await that.updateContactInvitationStatus(invitationData.invitingUserId, "ask", invitation);
-							}
-						} else if (invitationData.status === "accepted" || invitationData.status === "auto-accepted") {
-							that.receivedInvitations[invitationData.id] = Invitation.createFromData(invitationData);
-						}
-					});
-					that.updateReceivedInvitationsArray();
-					resolve(that.receivedInvitations);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(getAllReceivedInvitations) error ");
-					that._logger.log("internalerror", LOG_ID + "(getAllReceivedInvitations) error : ", err);
-					reject(err);				});
-		});
-	};
-
-	/**
-	 * @private
-	 */
-	getAllSentInvitations() {
-		let that = this;
-		return new Promise(function (resolve, reject) {
-			return that._rest.getAllSentInvitations().then(
-				function success(response: any) {
-					let invitationsData = response.data;
-					that._logger.log("info", LOG_ID + "(getAllSentInvitations) success (find " + invitationsData.length + " invitations)");
-					that.sentInvitations = {};
-					invitationsData.forEach(async function (invitationData) {
-						if (invitationData.status === "pending" && !invitationData.inviteToJoinMeeting) {
-							let sentInvitation = Invitation.createFromData(invitationData);
-							that.sentInvitations[invitationData.id] = sentInvitation;
-							if (sentInvitation.invitedUserId !== undefined) {
-								await that.updateContactInvitationStatus(sentInvitation.invitedUserId, "wait", sentInvitation);
-							}
-						}
-					});
-					that.updateSentInvitationsArray();
-					resolve(that.sentInvitations);
-				},
-				function failure(err) {
-					that._logger.log("error", LOG_ID + "(getAllSentInvitations) error ");
-					that._logger.log("internalerror", LOG_ID + "(getAllSentInvitations) error : ", err);
-					reject(err);
-				});
-		});
-	}
+	//endregion Invitations RECEIVED/SENT
 }
 
 module.exports.InvitationsService = InvitationsService;

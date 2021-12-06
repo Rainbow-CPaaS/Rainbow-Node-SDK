@@ -100,11 +100,11 @@ const FeaturesEnum = {
  *  This module is the service used to retrieve profiles from server. <br/>
 */
 class ProfilesService extends GenericService {
-    private onUserUpdateNeeded: any;
     private stats: any;
 	public features: any;
 	public profiles: any;
 	public mainOffers: any;
+    private thirdPartyApps: any = null;
     private startDate: any;
     private timer: NodeJS.Timeout;
 
@@ -125,33 +125,6 @@ class ProfilesService extends GenericService {
         this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-
-        let that = this;
-
-        this.onUserUpdateNeeded = (__event) =>
-        {
-            //wait 3 seconds before requesting the featureProfile for this user; ignore events in the meantime
-            if (that.timer) {
-                return;
-            }
-            that.timer = setTimeout(() => {
-                that.getServerProfile()
-                    .then(function () {
-                        // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                        //that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
-                        that._eventEmitter.emit("evt_internal_profilefeatureupdated");
-                        clearInterval(that.timer);
-                        that.timer = null;
-                    })
-                    .catch(function (error) {
-                        that.timer = null;
-                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
-                        that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
-                        // reject(error);
-                    });
-            }, 3000);
-        } ;
-
     }
 
     /*********************************************************************/
@@ -223,15 +196,61 @@ class ProfilesService extends GenericService {
         });
     }
 
+    onUserUpdateNeeded ()
+    {
+        let that = this;
+        //wait 3 seconds before requesting the featureProfile for this user; ignore events in the meantime
+        if (that.timer) {
+            return;
+        }
+        that.timer = setTimeout(() => {
+            that.getServerProfile()
+                    .then(function () {
+                        // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
+                        //that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                        that._eventEmitter.emit("evt_internal_profilefeatureupdated");
+                        clearInterval(that.timer);
+                        that.timer = null;
+                    })
+                    .catch(function (error) {
+                        that.timer = null;
+                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
+                        that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
+                        // reject(error);
+                    });
+        }, 3000);
+    } ;
+    
+    //region Profiles PROFILES
+    
     /*********************************************************************/
     /** PROFILE API STUFF                                          **/
     /*********************************************************************/
-    getServerProfile () {
+    /**
+     * @public
+     * @method getServerProfile
+     * @async
+     * @category Profiles PROFILES
+     * @description
+     * This API can be used to get user profiles and features.</br>
+     * @return {Promise<any>}
+     */
+    async getServerProfile () {
         let that = this;
         return Promise.all([that.getServerProfiles(), that.getServerProfilesFeatures()]);
     }
 
-    getServerProfiles () {
+    /**
+     * @public
+     * @method getServerProfiles
+     * @async
+     * @category Profiles PROFILES
+     * @description
+     * This API can be used to get user profiles.</br>
+     * This API can only be used by user himself
+     * @return {Promise<any>}
+     */
+    async getServerProfiles () {
         let that = this;
         return new Promise( (resolve, reject) => {
             that._rest.getServerProfiles()
@@ -267,7 +286,147 @@ class ProfilesService extends GenericService {
         });
     }
 
-    getServerProfilesFeatures () {
+    /**
+     * @public
+     * @method getMyProfileOffer
+     * @category Profiles PROFILES
+     * @description
+     * This API can be used to get user profile offer.</br>
+     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
+     * @return {any}
+     */
+    getMyProfileOffer () {
+        let that = this;
+        if (that.mainOffers.length > 0) {
+            return that.mainOffers.slice(-1)[0];
+        }
+        return null;
+    }
+
+    /**
+     * @public
+     * @method getMyProfileName
+     * @category Profiles PROFILES
+     * @description
+     * This API can be used to get user profile offer name.</br>
+     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
+     * @return {any}
+     */
+    getMyProfileName () {
+        let that = this ;
+        let profile = that.getMyProfileOffer();
+        if (profile) {
+            return profile.name;
+        }
+        return null;
+    }
+
+    /**
+     * @public
+     * @method getMyProfiles
+     * @category Profiles PROFILES
+     * @description
+     * This API can be used to get user profiles.</br>
+     * @return {any}
+     */
+    getMyProfiles () {
+        let that = this ;
+        let profiles = [];
+        if (that._started) {
+            //TODO return a simplified profile object ???
+            profiles = that.profiles;
+        } else {
+            that._logger.log("debug", LOG_ID + "(getMyProfiles) : service not started");
+        }
+        return profiles;
+    }
+
+    /**
+     * @public
+     * @method getThirdPartyApps
+     * @async
+     * @category Profiles PROFILES
+     * @param {boolean} force Parameter force in order to refresh the list 
+     * @description
+     *  Get The list of the Third Party Application that have access to this Rainbow Account. 
+     * @return {Promise<any>}
+     */
+    public async getThirdPartyApps(force: boolean = false) {
+        let that = this ;
+        return new Promise(async (resolve, reject) => {
+            try {
+                // We've already asked the server for the list
+                if (that.thirdPartyApps!==null && !force) {
+                    that._logger.log("debug", LOG_ID + "(getThirdPartyApps) -- from cache");
+                    return that.thirdPartyApps;
+                }
+
+                that.thirdPartyApps = await that._rest.getThirdPartyApps();
+                that._logger.log("debug", LOG_ID + "(getThirdPartyApps) from server -- success");
+                return that.thirdPartyApps;
+            } catch (error) {
+                let errorMessage = "(getThirdPartyApps) from server failed -- no answer from server";
+                if (error) {
+                    errorMessage = "(getThirdPartyApps) from server failed -- " + JSON.stringify(error);
+                }
+                that._logger.log("error", LOG_ID + "(getThirdPartyApps) Error : " + errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method revokeThirdPartyAccess
+     * @async
+     * @category Profiles PROFILES
+     * @param {string} tokenId The tokenId should be sent as a parameter
+     * @description
+     * Revoke the access of a third-party application from Rainbow 
+     * @return {Promise<any>}
+     */
+    public async revokeThirdPartyAccess(tokenId: string) {
+        let that = this ;
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!tokenId) {
+                    that._logger.log("warn", LOG_ID + "(revokeThirdPartyAccess) missing token");
+                    throw new Error('No tokenId');
+                }
+                that._logger.log("debug", LOG_ID + "(revokeThirdPartyAccess) with token -- " + tokenId);
+                that.thirdPartyApps = await that._rest.revokeThirdPartyAccess(tokenId);
+                that._logger.log("debug", LOG_ID + "(revokeThirdPartyAccess) -- success");
+                that.thirdPartyApps.forEach((app: any, index: number) => {
+                    if (app.id===tokenId) {
+                        that.thirdPartyApps.splice(index, 1);
+                    }
+                });
+                return this.thirdPartyApps;
+            } catch (error) {
+                let errorMessage = "(revokeThirdPartyAccess) from server failed -- no answer from server";
+                if (error) {
+                    errorMessage = "(revokeThirdPartyAccess) from server failed -- " + JSON.stringify(error);
+                }
+                that._logger.log("error", LOG_ID + "[profileService] ", errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    }
+
+    //endregion Profiles PROFILES
+
+    //region Profiles FEATURES
+
+    /**
+     * @public
+     * @method getServerProfilesFeatures
+     * @async
+     * @category Profiles FEATURES
+     * @description
+     * This API can be used to get user profile features.</br>
+     * @return {Promise<any>}
+     */
+    async getServerProfilesFeatures () {
         let that = this ;
         return new Promise((resolve, reject) => {
             /* $http({
@@ -328,9 +487,12 @@ class ProfilesService extends GenericService {
     // */
 
     /**
-     * APIs for GUI components
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method isFeatureEnabled
+     * @category Profiles FEATURES
+     * @description
+     * This API can be used to know if a feature is enabled.</br>
+     * @return {any}
      */
     isFeatureEnabled (featureUniqueRef) {
         let that = this;
@@ -343,6 +505,14 @@ class ProfilesService extends GenericService {
         return false;
     }
 
+    /**
+     * @public
+     * @method getFeatureLimitMax
+     * @category Profiles FEATURES
+     * @description
+     * This API can be used to get Max limit of feature.</br>
+     * @return {any}
+     */
     getFeatureLimitMax (featureUniqueRef) {
         let that = this ;
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
@@ -354,6 +524,14 @@ class ProfilesService extends GenericService {
         return 0;
     }
 
+    /**
+     * @public
+     * @method getFeatureLimitMin
+     * @category Profiles FEATURES
+     * @description
+     * This API can be used to get Min limit of feature.</br>
+     * @return {any}
+     */
     getFeatureLimitMin (featureUniqueRef) {
         let that = this ;
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
@@ -366,44 +544,12 @@ class ProfilesService extends GenericService {
     }
 
     /**
-     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
-     */
-    getMyProfileOffer () {
-        let that = this;
-        if (that.mainOffers.length > 0) {
-            return that.mainOffers.slice(-1)[0];
-        }
-        return null;
-    }
-
-    getMyProfileName () {
-        let that = this ;
-        let profile = that.getMyProfileOffer();
-        if (profile) {
-            return profile.name;
-        }
-        return null;
-    }
-
-    /**
-     * APIs for GUI components
-     * Used by SDK (public)
-     */
-    getMyProfiles () {
-        let that = this ;
-        let profiles = [];
-        if (that._started) {
-            //TODO return a simplified profile object ???
-            profiles = that.profiles;
-        } else {
-            that._logger.log("debug", LOG_ID + "(getMyProfiles) : service not started");
-        }
-        return profiles;
-    }
-
-    /**
-     * Used by SDK (public)
-     * Warning when modifying this method
+     * @public
+     * @method getMyProfileFeatures
+     * @category Profiles FEATURES
+     * @description
+     * This API can be used to get features of the profile of connected user.</br>
+     * @return {any}
      */
     getMyProfileFeatures () {
         let that = this;
@@ -429,6 +575,8 @@ class ProfilesService extends GenericService {
     getFeaturesEnum() {
         return FeaturesEnum;
     }
+
+    //endregion Profiles FEATURES
 
 }
 

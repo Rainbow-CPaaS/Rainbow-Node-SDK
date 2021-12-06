@@ -2007,7 +2007,6 @@ function testCreateBubblesAndJoinConference() {
     
     async function testgetArchivedBubbles() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        //let result = rainbowSDK.bubbles.getAllActiveBubbles();
         logger.log("debug", "MAIN - testgetArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
 
         async function asyncFilter (arr, predicate) {
@@ -2026,24 +2025,9 @@ function testCreateBubblesAndJoinConference() {
         });
         logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
 
-        /*for (let i = 0; i < result.length; i++) {
-            //logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - result[", i, "] : ", result[i], ", : ", result[i].);
-        } // */
-
-        /*
-        if (result.length > 0) {
-            let bubble = result[0];
-            // Share the file
-            return rainbowSDK.bubbles.getUsersFromBubble(bubble, undefined).then((users) => {
-                logger.log("debug", "MAIN - testgetAllActiveBubbles - users : ", users);
-            });
-        }
-        //});
-        // */
     }
 
     function testArchive10BubblesFromgetAllActiveBubbles() {
-        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
         logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles getAllActiveBubbles - nb owned bulles : ", bubbles ? bubbles.length : 0 );
 
@@ -2053,26 +2037,6 @@ function testCreateBubblesAndJoinConference() {
 
             });
         }
-        /*
-        let bubbleisActive = result.filter(bubble => bubble.isActive);
-        logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - bubbleisActive : ", bubbleisActive, ", nb bubbleisActive bulles : ", bubbleisActive ? bubbleisActive.length : 0 );
-        let bubbleNotisActive = result.filter(bubble => bubble.isActive === false);
-        logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - bubbleNotisActive : ", bubbleNotisActive, ", nb bubbleNotisActive bulles : ", bubbleNotisActive ? bubbleNotisActive.length : 0 );
-        // */        
-        /*for (let i = 0; i < result.length; i++) {
-            //logger.log("debug", "MAIN - testgetAllActiveBubbles getAllActiveBubbles - result[", i, "] : ", result[i], ", : ", result[i].);
-        } // */
-        
-        /*
-        if (result.length > 0) {
-            let bubble = result[0];
-            // Share the file
-            return rainbowSDK.bubbles.getUsersFromBubble(bubble, undefined).then((users) => {
-                logger.log("debug", "MAIN - testgetAllActiveBubbles - users : ", users);
-            });
-        }
-        //});
-        // */
     }
 
 
@@ -3487,7 +3451,7 @@ async function testcreateAlert() {
     async function testgetWebinarsData() {
         logger.log("debug", "MAIN - (testgetWebinarsData). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
-        rainbowSDK.webinar.getWebinarsData("participant").then(async (result: any) => {
+        rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
                 logger.log("debug", "MAIN - [testgetWebinarsData    ] :: getWebinarsData result : ", result);
         });
     }
@@ -3497,9 +3461,9 @@ async function testcreateAlert() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         let nameWebinar = "nameWebinar_" + utc;
         let subjectWebinar = "subjectWebinar_" + utc;
-        rainbowSDK.webinar.createWebinar(nameWebinar, subjectWebinar,null,null, null,null, null, null,null,null,null,null,null,null).then(async (result: any) => {
+        rainbowSDK.webinars.createWebinar(nameWebinar, subjectWebinar,null,null, null,null, null, null,null,null,null,null,null,null).then(async (result: any) => {
             logger.log("debug", "MAIN - [testcreateWebinar    ] :: create Webinar result : ", result);
-            rainbowSDK.webinar.getWebinarsData("participant").then(async (result: any) => {
+            rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
                 logger.log("debug", "MAIN - [testcreateWebinar    ] :: getWebinarsData result : ", result);
             });
         });
@@ -3508,10 +3472,10 @@ async function testcreateAlert() {
     async function testupdateWebinara() {
         logger.log("debug", "MAIN - (testgetWebinarsData). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
-        rainbowSDK.webinar.getWebinarsData("participant").then(async (webinarsResult: any) => {
+        rainbowSDK.webinars.getWebinarsData("participant").then(async (webinarsResult: any) => {
             logger.log("debug", "MAIN - [testupdateWebinara    ] :: getWebinarsData result : ", webinarsResult);
             let webinar = webinarsResult.data[0];
-            rainbowSDK.webinar.updateWebinar(webinar.id, "updatedNameWebinar", webinar.subject, webinar.waitingRoomStartDate, webinar.webinarStartDate, webinar.webinarEndDate, webinar.reminderDates, webinar.timeZone, webinar.register, webinar.approvalRegistrationMethod, webinar.passwordNeeded, webinar.lockRegistration, webinar.waitingRoomMultimediaURL, webinar.stageBackground, webinar.chatOption).then(async (result: any) => {
+            rainbowSDK.webinars.updateWebinar(webinar.id, "updatedNameWebinar", webinar.subject, webinar.waitingRoomStartDate, webinar.webinarStartDate, webinar.webinarEndDate, webinar.reminderDates, webinar.timeZone, webinar.register, webinar.approvalRegistrationMethod, webinar.passwordNeeded, webinar.lockRegistration, webinar.waitingRoomMultimediaURL, webinar.stageBackground, webinar.chatOption).then(async (result: any) => {
                 logger.log("debug", "MAIN - [testupdateWebinara    ] :: updateWebinar result : ", result);
             }).catch(err => {
                 logger.log("debug", "MAIN - [testupdateWebinara    ] :: error during upodate : ", err);
@@ -3524,13 +3488,13 @@ async function testcreateAlert() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         let nameWebinar = "nameWebinar_" + utc;
         let subjectWebinar = "subjectWebinar_" + utc;
-        rainbowSDK.webinar.createWebinar(nameWebinar, subjectWebinar,null,null, null,null, null, null,null,null,null,null,null,null).then(async (createresult: any) => {
+        rainbowSDK.webinars.createWebinar(nameWebinar, subjectWebinar,null,null, null,null, null, null,null,null,null,null,null,null).then(async (createresult: any) => {
             logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: create Webinar result : ", createresult);
-            await rainbowSDK.webinar.getWebinarsData("participant").then(async (result: any) => {
+            await rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
                 logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: getWebinarsData result : ", result);
             });
 
-            await rainbowSDK.webinar.deleteWebinar(createresult.id).then(async (deleteresult: any) => {
+            await rainbowSDK.webinars.deleteWebinar(createresult.id).then(async (deleteresult: any) => {
                 logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: delete Webinar result : ", deleteresult);
 
             });
@@ -3540,10 +3504,10 @@ async function testcreateAlert() {
     async function testDeleteAllWebinar() {
         logger.log("debug", "MAIN - (testDeleteAllWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
-        rainbowSDK.webinar.getWebinarsData("participant").then(async (result: any) => {
+        rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
             logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: getWebinarsData result : ", result);
             for (let resultKey in result.data) {
-                rainbowSDK.webinar.deleteWebinar(result.data[resultKey].id).then(async (deleteresult: any) => {
+                rainbowSDK.webinars.deleteWebinar(result.data[resultKey].id).then(async (deleteresult: any) => {
                     logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: delete Webinar result : ", deleteresult);
 
                 });

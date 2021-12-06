@@ -277,19 +277,8 @@ class FavoritesService extends GenericService{
         if (favorite) { conversation.isFavorite = true; favorite.conv = conversation; }
     }
 
-    /**
-     * @description
-     * get favorite from cach by Id.
-     * @param {string} peerId The id of the favorite.
-     * @return {Promise<Favorite>} The favorite corresponding to the peerId
-     */
-    public async getFavorite(peerId: string) : Promise<Favorite> {
-        let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
-        //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
-        //return await convGetter;
-        return favorite;
-    }
-
+    //region Favorites MANAGEMENT
+    
     private async createFavoriteObj(id: string, peerId: string, type: string) {
         let that = this;
         try {
@@ -315,80 +304,11 @@ class FavoritesService extends GenericService{
         }
     }
 
-    private async onXmppEvent(stanza) {
-        try {/*
-            let stanzaElem = $(stanza);
-            let favoriteElem = stanzaElem.find("favorite");
-            if (favoriteElem) {
-                let id = favoriteElem.attr("id");
-                let type = favoriteElem.attr("type");
-                let peerId = favoriteElem.attr("peer_id");
-                let action = favoriteElem.attr("action");
-
-                if (action === 'create') {
-                    let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
-                    if (!favorite) {
-                        favorite = await this.createFavorite(id, peerId, type);
-                        this.favorites.push(favorite);
-                        this.sendEvent('ON_FAVORITE_CREATED', { favorite });
-                    }
-                }
-
-                if (action === 'delete') {
-                    let index = this.favorites.findIndex((fav) => { return fav.id === id; });
-                    if (index !== -1) {
-                        let favorite = this.favorites[index];
-                        if (favorite.conv) { favorite.conv.isFavorite = false; }
-                        this.favorites.splice(index, 1);
-                        this.sendEvent('ON_FAVORITE_DELETED', { favoriteId: favorite.id });
-                    }
-                }
-            }
-            return true;
-            */
-        }
-        catch (error) { return true; }
-    }
-
-    /*private sendEvent(eventName: string, detail: any): void {
-        let event = new CustomEvent(eventName, { detail });
-        window.dispatchEvent(event);
-    }
-
-     */
-
-
-    /**
-     * @public
-     * @since 1.56
-     * @method fetchAllFavorites()
-     * @instance
-     * @description
-     *   Fetch all the Favorites from the server in a form of an Array <br/>
-     * @return {Array<Favorite>} An array of Favorite objects
-     */
-    public async fetchAllFavorites() : Promise<Array<Favorite>> {
-        let that = this;
-
-        return new Promise((resolve, reject) => {
-            that.getServerFavorites()
-                .then(function(favorites) {
-                    that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
-                    that._logger.log("internal", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
-                    resolve(favorites)
-                })
-                .catch(function(err) {
-                    that._logger.log("error", LOG_ID + `[fetchAllFavorites] :: Error.`);
-                    that._logger.log("internalerror", LOG_ID + `[fetchAllFavorites] :: ERROR : `, err);
-                    return reject(err)
-                })
-        });
-    };
-
     /**
      * @public
      * @since 1.56
      * @method createFavorite()
+     * @category Favorites MANAGEMENT
      * @instance
      * @description
      *   Add conversation/bubble/bot to Favorites Array <br/>
@@ -436,6 +356,7 @@ class FavoritesService extends GenericService{
      * @public
      * @since 1.56
      * @method deleteFavorite()
+     * @category Favorites MANAGEMENT
      * @instance
      * @description
      *   Delete conversation/bubble/bot from Favorites Array <br/>
@@ -462,7 +383,102 @@ class FavoritesService extends GenericService{
         })
     }
 
+    //endregion Favorites MANAGEMENT
+    
+    //region Favorites GET
+
+    /**
+     * @public
+     * @method getFavorite
+     * @category Favorites GET
+     * @instance
+     * @description
+     * get favorite from cache by Id.
+     * @param {string} peerId The id of the favorite.
+     * @return {Promise<Favorite>} The favorite corresponding to the peerId
+     */
+    public async getFavorite(peerId: string) : Promise<Favorite> {
+        let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
+        //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
+        //return await convGetter;
+        return favorite;
+    }
+    
+    /**
+     * @public
+     * @since 1.56
+     * @method fetchAllFavorites()
+     * @category Favorites GET
+     * @instance
+     * @description
+     *   Fetch all the Favorites from the server in a form of an Array <br/>
+     * @return {Array<Favorite>} An array of Favorite objects
+     */
+    public async fetchAllFavorites() : Promise<Array<Favorite>> {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            that.getServerFavorites()
+                    .then(function(favorites) {
+                        that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
+                        that._logger.log("internal", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
+                        resolve(favorites)
+                    })
+                    .catch(function(err) {
+                        that._logger.log("error", LOG_ID + `[fetchAllFavorites] :: Error.`);
+                        that._logger.log("internalerror", LOG_ID + `[fetchAllFavorites] :: ERROR : `, err);
+                        return reject(err)
+                    })
+        });
+    };
+
+    //endregion Favorites GET
+
     // ******************* Event XMPP parsed in favoriteEventHandler ***************
+    //region Events
+
+    private async onXmppEvent(stanza) {
+        try {/*
+            let stanzaElem = $(stanza);
+            let favoriteElem = stanzaElem.find("favorite");
+            if (favoriteElem) {
+                let id = favoriteElem.attr("id");
+                let type = favoriteElem.attr("type");
+                let peerId = favoriteElem.attr("peer_id");
+                let action = favoriteElem.attr("action");
+
+                if (action === 'create') {
+                    let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
+                    if (!favorite) {
+                        favorite = await this.createFavorite(id, peerId, type);
+                        this.favorites.push(favorite);
+                        this.sendEvent('ON_FAVORITE_CREATED', { favorite });
+                    }
+                }
+
+                if (action === 'delete') {
+                    let index = this.favorites.findIndex((fav) => { return fav.id === id; });
+                    if (index !== -1) {
+                        let favorite = this.favorites[index];
+                        if (favorite.conv) { favorite.conv.isFavorite = false; }
+                        this.favorites.splice(index, 1);
+                        this.sendEvent('ON_FAVORITE_DELETED', { favoriteId: favorite.id });
+                    }
+                }
+            }
+            return true;
+            */
+        }
+        catch (error) { return true; }
+    }
+
+    /*private sendEvent(eventName: string, detail: any): void {
+        let event = new CustomEvent(eventName, { detail });
+        window.dispatchEvent(event);
+    }
+
+     */
+
     public async  onFavoriteCreated(fav: {id:string, peerId: string, type: string}): Promise<void> {
         let that = this;
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
@@ -488,6 +504,8 @@ class FavoritesService extends GenericService{
             that._eventEmitter.emit("evt_internal_favoritedeleted", fav);
         }
     }
+    
+    //endregion Events
 }
 
 module.exports.FavoritesService = FavoritesService;

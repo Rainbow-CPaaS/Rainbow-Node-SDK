@@ -3139,9 +3139,10 @@ Request Method: PUT
         });
     };
 
-
+    //region Profiles
+    
     // Get Server Profiles
-    getServerProfiles() {
+    async getServerProfiles() {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader(), undefined).then(function (json) {
@@ -3171,6 +3172,37 @@ Request Method: PUT
             });
         });
     }
+
+    public async getThirdPartyApps() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/authentication/v1.0/oauth/tokens?format=medium", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getThirdPartyApps) successfull");
+                that.logger.log("internal", LOG_ID + "(getThirdPartyApps) REST result : ", json,  " ThirdPartyApps.");
+                resolve((json && json.data) ? json.data:[]);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getThirdPartyApps) error");
+                that.logger.log("internalerror", LOG_ID, "(getThirdPartyApps) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    async revokeThirdPartyAccess(tokenId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/authentication/v1.0/oauth/tokens/" + tokenId, that.getRequestHeader()).then((json) => {
+                that.logger.log("info", LOG_ID + "(revokeThirdPartyAccess) (" + tokenId + ") -- success");
+                resolve((json && json.data) ? json.data:[]) ;
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ");
+                that.logger.log("internalerror", LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ", err.message);
+                return reject(err);
+            });
+        });
+    };
+    
+    //endregion Profiles
 
     ////////
     //region Telephony

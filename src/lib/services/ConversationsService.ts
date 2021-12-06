@@ -359,7 +359,7 @@ class ConversationsService extends GenericService {
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    getHistoryPage(conversation : Conversation, size: number = 30) {
+    async getHistoryPage(conversation : Conversation, size: number = 30) {
         let that = this;
 
         // Avoid to call several time the same request

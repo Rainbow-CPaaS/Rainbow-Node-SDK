@@ -7,7 +7,7 @@ import {XMPPService} from "./connection/XMPPService";
 import {RESTService} from "./connection/RESTService";
 import {HTTPService} from "./connection/HttpService";
 import {Logger} from "./common/Logger";
-import {IMService} from "./services/ImsService";
+import {ImsService} from "./services/ImsService";
 import {PresenceService} from "./services/PresenceService";
 import {ChannelsService} from "./services/ChannelsService";
 import {ContactsService} from "./services/ContactsService";
@@ -33,7 +33,7 @@ import {AlertsService} from "./services/AlertsService";
 
 import {lt} from "semver";
 import {S2SService} from "./services/S2SService";
-import {WebinarService} from "./services/WebinarService";
+import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 
 const packageVersion = require("../package.json");
@@ -59,7 +59,7 @@ class Core {
 	public _http: HTTPService;
 	public _xmpp: XMPPService;
 	public _stateManager: StateManager;
-	public _im: IMService;
+	public _im: ImsService;
 	public _presence: PresenceService;
 	public _channels: ChannelsService;
 	public _contacts: ContactsService;
@@ -75,7 +75,7 @@ class Core {
     public _calllog: CallLogService;
     public _favorites: FavoritesService;
     public _alerts: AlertsService;
-    public _webinar: WebinarService;
+    public _webinars: WebinarsService;
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
 	public _botsjid: any;
@@ -266,7 +266,7 @@ class Core {
                         }).then(() => {
                             return that._rbvoice.init();
                         }).then(() => {
-                            return that._webinar.init();
+                            return that._webinars.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
@@ -351,7 +351,7 @@ class Core {
                         }).then(() => {
                             return that._rbvoice.init();
                         }).then(() => {
-                            return that._webinar.init();
+                            return that._webinars.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
@@ -541,7 +541,7 @@ class Core {
         self._stateManager = new StateManager(self._eventEmitter, self.logger);
 
         // Instantiate others Services
-        self._im = new IMService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
+        self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
         self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
@@ -558,7 +558,7 @@ class Core {
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
-        self._webinar = new WebinarService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
+        self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
@@ -577,12 +577,12 @@ class Core {
             //public _http: HTTPService;
             //public _xmpp: XMPPService;
             //public _stateManager: StateManager;
-            //public _im: IMService;
+            //public _im: ImsService;
 
             that._admin.cleanMemoryCache();
             that._alerts.cleanMemoryCache();
             that._rbvoice.cleanMemoryCache();
-            that._webinar.cleanMemoryCache();
+            that._webinars.cleanMemoryCache();
             that._bubbles.cleanMemoryCache();
             that._calllog.cleanMemoryCache();
             that._channels.cleanMemoryCache();
@@ -671,7 +671,7 @@ class Core {
                     }).then(() => {
                         return that._rbvoice.start(that.options, that) ;
                     }).then(() => {
-                        return that._webinar.start(that.options, that) ;
+                        return that._webinars.start(that.options, that) ;
                     }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
@@ -798,7 +798,7 @@ class Core {
                 return that._rbvoice.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped rbvoice");
-                return that._webinar.stop();
+                return that._webinars.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped webinar");
                 return that._invitations.stop();

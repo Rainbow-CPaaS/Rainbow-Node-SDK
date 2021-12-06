@@ -4,7 +4,7 @@ import {Core} from "./Core";
 import {Appreciation} from "./common/models/Channel";
 import {ErrorManager} from "./common/ErrorManager";
 import {setTimeoutPromised} from "./common/Utils";
-import {IMService} from "./services/ImsService";
+import {ImsService} from "./services/ImsService";
 import {ChannelsService} from "./services/ChannelsService";
 import {S2SService} from "./services/S2SService";
 import {InvitationsService} from "./services/InvitationsService";
@@ -26,7 +26,7 @@ import {ContactsService} from "./services/ContactsService";
 import {AlertsService} from "./services/AlertsService";
 import {ProfilesService} from "./services/ProfilesService";
 import {DataStoreType} from "./config/config";
-import {WebinarService} from "./services/WebinarService";
+import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {Logger} from "./common/Logger";
 
@@ -601,9 +601,9 @@ class NodeSDK {
      * @instance
      * @description
      *    Get access to the IM module
-     * @return {IMService}
+     * @return {ImsService}
      */
-    get im() : IMService {
+    get im() : ImsService {
         return this._core.im;
     }
 
@@ -883,13 +883,13 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {WebinarService} alerts
+     * @property {WebinarsService} alerts
      * @description
      *    Get access to the webinar module
-     * @return {WebinarService}
+     * @return {WebinarsService}
      */
-    get webinar() : WebinarService {
-        return this._core._webinar;
+    get webinars() : WebinarsService {
+        return this._core._webinars;
     }
 
     /**

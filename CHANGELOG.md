@@ -6,7 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.6.2] - 2021-11-24
+## [2.7.0] - 2021-12-XX
+-   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
+-   Update `GroupsService` `ImsService` `InvitationsSerice` `PresenceService` `ProfilesService` `S2SService` `TelephonyService` with categories in the documentation.
+-   Add `ProfilesService::getThirdPartyApps` to get The list of the Third Party Application that have access to this Rainbow Account. 
+-   Add `ProfilesService::revokeThirdPartyAccess` to revoke the access of a third-party application from Rainbow. 
+
+## [2.6.2] - 2021-12-02
 -   Fix initialisation of _contactService in FileStorageService.
 -   Add `Bubble::status` property which is the status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted'). The initial value is "none", it is not a real value.
 -   Add `BubblesService::isBubbleArchived` method to check if the Bubble is an Archive state (everybody 'unsubscribed'). 

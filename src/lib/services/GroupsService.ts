@@ -123,7 +123,9 @@ const LOG_ID = "GROUPS/SVCE - ";
             //that.setInitialized();
         });
     }
-    
+
+    //region Groups MANAGEMENT
+
     /**
      * @public
      * @method createGroup
@@ -134,11 +136,12 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @description
      *      Create a new group <br/>
      * @async
+     * @category Groups MANAGEMENT
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Created group object or an error object depending on the result
      * @category async
      */
-     createGroup(name, comment, isFavorite) {
+     async createGroup(name, comment, isFavorite) {
          let that = this;
 
          return new Promise(function(resolve, reject) {
@@ -171,13 +174,14 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} group The group to delete
      * @description
-     * 		Delete an owned group <br/>
+     *    Delete an owned group <br/>
      * @async
-     * @return {Promise<Object, ErrorManager>}
+      * @category Groups MANAGEMENT
+      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Deleted group object or an error object depending on the result
      * @category async
      */
-     deleteGroup(group) {
+     async deleteGroup(group) {
          let that = this;
 
          return new Promise(function(resolve, reject) {
@@ -209,12 +213,14 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method deleteAllGroups
      * @instance
+     * @async
+     * @category Groups MANAGEMENT
      * @description
      *    Delete all existing owned groups <br/>
      *    Return a promise <br/>
      * @return {Object} Nothing or an error object depending on the result
      */
-    deleteAllGroups() {
+    async deleteAllGroups() {
          let that = this;
 
         return new Promise((resolve, reject) => {
@@ -252,16 +258,17 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method updateGroupName
      * @instance
+     * @async
+     * @category Groups MANAGEMENT
      * @param {Object} group The group to update
      * @param {string} name The new name of the group
      * @description
      * 		Update the name of a group <br/>
-     * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
-     updateGroupName(group, name) {
+     async updateGroupName(group, name) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -301,6 +308,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @private
+     * @category Groups MANAGEMENT
      * @description
      *      Internal method <br/>
      */
@@ -341,16 +349,17 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method setGroupAsFavorite
      * @since 1.67.0
+     * @async
+     * @category Groups MANAGEMENT
      * @instance
      * @param {Object} group The group
      * @description
      * 		Set a group as a favorite one of the curent loggued in user. <br/>
-     * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
-     setGroupAsFavorite( group) {
+     async setGroupAsFavorite( group) {
          let that = this;
          return new Promise(function (resolve, reject) {
              if (!group) {
@@ -376,15 +385,17 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @public
      * @method unsetGroupAsFavorite
      * @since 1.67.0
+     * @category Groups MANAGEMENT
+     * @async
      * @instance
      * @param {Object} group The group
      * @description
      * 		Remove the favorite state of a group of the curent loggued in user. <br/>
-     * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
+    async 
     unsetGroupAsFavorite(group) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -409,107 +420,8 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
-     * @method addUserInGroup
-     * @instance
-     * @param {Contact} contact The user to add in group
-     * @param {Object} group The group
-     * @description
-     * 		Add a contact in a group <br/>
-     * @async
-     * @return {Promise<Object, ErrorManager>}
-     * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
-     * @category async
-     */
-     addUserInGroup(contact, group) {
-         let that = this;
-         return new Promise(async function(resolve, reject) {
-             if (!contact) {
-                 that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter.");
-                 that._logger.log("internalerror", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter : ", contact);
-                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-             } else if (!group) {
-                 that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter.");
-                 that._logger.log("internalerror", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter : ", group);
-                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-             }
-
-             that._logger.log("internal", LOG_ID + "(addUserInGroup) contact : ", contact, ", group : ", group);
-
-             let contactIndex = group.users.findIndex(user => user.id === contact.id);
-            if (contactIndex === -1) {
-                await that._rest.addUserInGroup(contact.id, group.id).then(async (groupUpdated : any) => {
-
-                await that._rest.getGroup(groupUpdated.id).then((groupRetrieved : any) => {
-                        let foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupRetrieved.id);
-                        that._groups[foundIndex] = groupRetrieved;
-                        resolve(groupRetrieved);
-                    }, err => {
-                    return reject(err);
-                    });
-                }, err => {
-                    that._logger.log("error", LOG_ID + "(addUserInGroup) error.");
-                    that._logger.log("internalerror", LOG_ID + "(addUserInGroup) error : ", err);
-                    return reject(err);
-                });
-            } else {
-                that._logger.log("warn", LOG_ID + "(addUserInGroup) User is already a member of the group");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-         });
-     }
-
-     /**
-     * @public
-     * @method removeUserFromGroup
-     * @instance
-     * @param {Contact} contact The user to remove from the group
-     * @param {Object} group The destination group
-     * @description
-     *		Remove a contact from a group <br/>
-     * @async
-     * @return {Promise<Object, ErrorManager>}
-     * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
-     * @category async
-     */
-     removeUserFromGroup(contact, group) {
-         let that = this;
-         return new Promise(async function(resolve, reject) {
-             if (!contact) {
-                 that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter.");
-                 that._logger.log("internalerror", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter : ", contact);
-                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-             } else if (!group) {
-                 that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter.");
-                 that._logger.log("internalerror", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter : ", group);
-                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-             }
-
-             that._logger.log("internal", LOG_ID + "(removeUserFromGroup) contact : ", contact, ", group : ", group);
-
-            let contactIndex = group.users.findIndex(user => user.id == contact.id);
-            if (contactIndex > -1) {
-                await that._rest.removeUserFromGroup(contact.id, group.id).then(async (group : any) => {
-                    await that._rest.getGroup(group.id).then((group :any) => {
-                        let foundIndex = that._groups.findIndex(groupItem => groupItem.id === group.id);
-                        that._groups[foundIndex] = group;
-                        resolve(group);
-                    }, err => {
-                        return reject(err);
-                    });
-                }, err => {
-                    that._logger.log("error", LOG_ID + "(removeUserFromGroup) error");
-                    return reject(err);
-                });
-            } else {
-                that._logger.log("warn", LOG_ID + "(removeUserFromGroup) contact not found in that group");
-                resolve(group);
-            }
-         });
-     }
-
-    /**
-     * @public
      * @method getAll
+     * @category Groups MANAGEMENT
      * @instance
      * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
      * @description
@@ -522,6 +434,7 @@ const LOG_ID = "GROUPS/SVCE - ";
     /**
      * @public
      * @method getFavoriteGroups
+     * @category Groups MANAGEMENT
      * @instance
      * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
      * @description
@@ -536,7 +449,9 @@ const LOG_ID = "GROUPS/SVCE - ";
     /**
      * @public
      * @method getGroupById
+     * @category Groups MANAGEMENT
      * @instance
+     * @async
      * @param {String} id group Id of the group to found
      * @return {Promise<any>} The group found if exist or undefined
      * @description
@@ -592,7 +507,9 @@ const LOG_ID = "GROUPS/SVCE - ";
     /**
      * @public
      * @method getGroupByName
+     * @category Groups MANAGEMENT
      * @instance
+     * @async
      * @param {String} name Name of the group to found
      * @param {boolean} forceServerSearch force the update from server.
      * @return {Promise<any>} The group found if exist or undefined
@@ -645,6 +562,116 @@ const LOG_ID = "GROUPS/SVCE - ";
             }
         });
     }
+
+    //endregion Groups MANAGEMENT
+
+    //region Groups USERS
+
+    /**
+     * @public
+     * @method addUserInGroup
+     * @instance
+     * @async
+     * @category Groups USERS
+     * @param {Contact} contact The user to add in group
+     * @param {Object} group The group
+     * @description
+     * 		Add a contact in a group <br/>
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
+     * @category async
+     */
+    async addUserInGroup(contact, group) {
+        let that = this;
+        return new Promise(async function(resolve, reject) {
+            if (!contact) {
+                that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter.");
+                that._logger.log("internalerror", LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter : ", contact);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            } else if (!group) {
+                that._logger.log("warn", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter.");
+                that._logger.log("internalerror", LOG_ID + "(addUserInGroup) bad or empty 'group' parameter : ", group);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._logger.log("internal", LOG_ID + "(addUserInGroup) contact : ", contact, ", group : ", group);
+
+            let contactIndex = group.users.findIndex(user => user.id === contact.id);
+            if (contactIndex === -1) {
+                await that._rest.addUserInGroup(contact.id, group.id).then(async (groupUpdated : any) => {
+
+                    await that._rest.getGroup(groupUpdated.id).then((groupRetrieved : any) => {
+                        let foundIndex = that._groups.findIndex(groupItem => groupItem.id === groupRetrieved.id);
+                        that._groups[foundIndex] = groupRetrieved;
+                        resolve(groupRetrieved);
+                    }, err => {
+                        return reject(err);
+                    });
+                }, err => {
+                    that._logger.log("error", LOG_ID + "(addUserInGroup) error.");
+                    that._logger.log("internalerror", LOG_ID + "(addUserInGroup) error : ", err);
+                    return reject(err);
+                });
+            } else {
+                that._logger.log("warn", LOG_ID + "(addUserInGroup) User is already a member of the group");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeUserFromGroup
+     * @instance
+     * @async
+     * @category Groups USERS
+     * @param {Contact} contact The user to remove from the group
+     * @param {Object} group The destination group
+     * @description
+     *		Remove a contact from a group <br/>
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
+     * @category async
+     */
+    async removeUserFromGroup(contact, group) {
+        let that = this;
+        return new Promise(async function(resolve, reject) {
+            if (!contact) {
+                that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter.");
+                that._logger.log("internalerror", LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter : ", contact);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            } else if (!group) {
+                that._logger.log("warn", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter.");
+                that._logger.log("internalerror", LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter : ", group);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._logger.log("internal", LOG_ID + "(removeUserFromGroup) contact : ", contact, ", group : ", group);
+
+            let contactIndex = group.users.findIndex(user => user.id == contact.id);
+            if (contactIndex > -1) {
+                await that._rest.removeUserFromGroup(contact.id, group.id).then(async (group : any) => {
+                    await that._rest.getGroup(group.id).then((group :any) => {
+                        let foundIndex = that._groups.findIndex(groupItem => groupItem.id === group.id);
+                        that._groups[foundIndex] = group;
+                        resolve(group);
+                    }, err => {
+                        return reject(err);
+                    });
+                }, err => {
+                    that._logger.log("error", LOG_ID + "(removeUserFromGroup) error");
+                    return reject(err);
+                });
+            } else {
+                that._logger.log("warn", LOG_ID + "(removeUserFromGroup) contact not found in that group");
+                resolve(group);
+            }
+        });
+    }
+
+    //endregion Groups USERS
+    
+    //region Events
 
     /**
      * @private
@@ -789,6 +816,9 @@ const LOG_ID = "GROUPS/SVCE - ";
             that._logger.log("internalerror", LOG_ID + "(_onUserRemovedFromGroup) Error : ", err);
         });
     }
+    
+    //endregion Events
+    
  }
 
  module.exports.GroupsService = GroupsService;
