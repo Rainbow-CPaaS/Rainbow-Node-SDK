@@ -403,61 +403,6 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    async getContactByToken(token : string){
-        let that = this;
-        try {
-            that.logger.log("internal", LOG_ID + "(getContactByToken) with token : ", token, " : ", that.getLoginHeader());
-            let decodedtoken = jwt(token);
-            let JSON = {
-                "loggedInUser": decodedtoken.user,
-                "loggedInApplication": decodedtoken.app,
-                "token": token
-            };
-            if (!that._token || (that._token && that._token != JSON.token)) {
-                that.tokenRest = JSON.token;
-            }
-            if (!that.app || (that.app && that.app.id != JSON.loggedInApplication.id)) {
-                that.app = JSON.loggedInApplication;
-            }
-            if (!that.account || (that.account && that.account.id != JSON.loggedInUser.id)) {
-                that.account = JSON.loggedInUser;
-                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
-                that.decodedtokenRest = decodedtoken;
-
-                //let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
-                let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
-                    if (contactsFromServeur) {
-                        let contact: Contact = null;
-                        that.logger.log("info", LOG_ID + "(getContactByToken) contact found on server, get full infos.");
-                        let _contactFromServer = contactsFromServeur;
-                        if (_contactFromServer) {
-                            // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
-                            return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
-                                that.logger.log("internal", LOG_ID + "(getContactByToken) contact full infos : ", _contactInformation);
-                                return _contactInformation;
-                            });
-                        }
-                    } else {
-                        that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByID no contacts found : ", contactsFromServeur);
-                        return Promise.reject(contactsFromServeur);
-                    }
-                }).catch((errr) => {
-                    that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByLoginEmail Error !!! error : ", errr);
-                    return Promise.reject(errr);
-                });
-                that.account = JSON.loggedInUser = loggedInUser;
-                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
-            }
-            that.logger.log("debug", LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
-            that.logger.log("internal", LOG_ID + "(getContactByToken) user information ", that.account);
-            that.logger.log("internal", LOG_ID + "(getContactByToken) application information : ", that.app);
-            return Promise.resolve(JSON);
-        } catch (err) {
-            that.logger.log("debug", LOG_ID + "(getContactByToken) CATCH Error !!! error : ", err);
-            return Promise.reject(err);
-        }
-    }
-    
     async signin(token: string = undefined) {
         let that = this;
 
@@ -687,9 +632,67 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    // Contacts API
+    //region Contacts API
 
-    getContacts() {
+    async getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(getAllUsers) that.account.roles : ", that.account.roles);
+            if (!companyId) {
+                companyId = that.account.companyId;
+            }
+            let url = "/api/rainbow/admin/v1.0/users?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1" + "&companyId=" + encodeURIComponent(companyId);
+            if (searchEmail) {
+                url += "&searchEmail=" + encodeURIComponent(searchEmail);
+            }
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllUsers) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllUsers) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllUsers) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllUsers) error : ", err);
+                return reject(err);
+            });
+            that.logger.log("info", LOG_ID + "(getAllUsers) after sending the request");
+        });
+    }
+
+    async getContactInfos(userId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
+            that.http.get("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getContactInfos) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactInfos) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getContactInfos) error");
+                that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
+                return reject(err);
+            });
+            that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
+        });
+    }
+
+    async putContactInfos(userId, infos) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
+            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), infos, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getContactInfos) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactInfos) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getContactInfos) error");
+                that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
+                return reject(err);
+            });
+            that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
+        });
+    }
+
+    async getContacts() {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined).then(function (json) {
@@ -704,7 +707,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    removeContactFromRoster(dbId) {
+    async removeContactFromRoster(dbId) {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!dbId) {
@@ -725,7 +728,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    getContactInformationByJID(jid) {
+    async getContactInformationByJID(jid) {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!jid) {
@@ -757,7 +760,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    getContactInformationByID(id) {
+    async getContactInformationByID(id) {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!id) {
@@ -782,7 +785,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    getMyInformations() {
+    async getMyInformations() {
         let that = this;
         return new Promise(function (resolve, reject) {
                 that.http.get("/api/rainbow/enduser/v1.0/users/me", that.getRequestHeader(), undefined).then(function (json) {
@@ -801,7 +804,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    getContactInformationByLoginEmail(email): Promise<[any]> {
+    async getContactInformationByLoginEmail(email): Promise<[any]> {
         let that = this;
         return new Promise(async function (resolve, reject) {
             if (!email) {
@@ -822,6 +825,216 @@ class RESTService extends GenericRESTService {
             }
         });
     }
+
+    async getContactByToken(token : string){
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(getContactByToken) with token : ", token, " : ", that.getLoginHeader());
+            let decodedtoken = jwt(token);
+            let JSON = {
+                "loggedInUser": decodedtoken.user,
+                "loggedInApplication": decodedtoken.app,
+                "token": token
+            };
+            if (!that._token || (that._token && that._token != JSON.token)) {
+                that.tokenRest = JSON.token;
+            }
+            if (!that.app || (that.app && that.app.id != JSON.loggedInApplication.id)) {
+                that.app = JSON.loggedInApplication;
+            }
+            if (!that.account || (that.account && that.account.id != JSON.loggedInUser.id)) {
+                that.account = JSON.loggedInUser;
+                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
+                that.decodedtokenRest = decodedtoken;
+
+                //let loggedInUser = await that.getContactInformationByLoginEmail(decodedtoken.user.loginEmail).then(async (contactsFromServeur: [any]) => {
+                let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
+                    if (contactsFromServeur) {
+                        let contact: Contact = null;
+                        that.logger.log("info", LOG_ID + "(getContactByToken) contact found on server, get full infos.");
+                        let _contactFromServer = contactsFromServeur;
+                        if (_contactFromServer) {
+                            // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
+                            return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
+                                that.logger.log("internal", LOG_ID + "(getContactByToken) contact full infos : ", _contactInformation);
+                                return _contactInformation;
+                            });
+                        }
+                    } else {
+                        that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByID no contacts found : ", contactsFromServeur);
+                        return Promise.reject(contactsFromServeur);
+                    }
+                }).catch((errr) => {
+                    that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByLoginEmail Error !!! error : ", errr);
+                    return Promise.reject(errr);
+                });
+                that.account = JSON.loggedInUser = loggedInUser;
+                that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
+            }
+            that.logger.log("debug", LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
+            that.logger.log("internal", LOG_ID + "(getContactByToken) user information ", that.account);
+            that.logger.log("internal", LOG_ID + "(getContactByToken) application information : ", that.app);
+            return Promise.resolve(JSON);
+        } catch (err) {
+            that.logger.log("debug", LOG_ID + "(getContactByToken) CATCH Error !!! error : ", err);
+            return Promise.reject(err);
+        }
+    }
+
+    createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let user = {
+                loginEmail: email,
+                password: password,
+                firstName: firstname,
+                lastName: lastname,
+                isActive: true,
+                isInitialized: false,
+                language: language,
+                adminType: "undefined",
+                roles: ["user"],
+                accountType: "free",
+                companyId: null,
+            };
+
+            if (companyId) {
+                user.companyId = companyId;
+            } else {
+                user.companyId = that.account.companyId
+            }
+
+            if (roles != null) {
+                user.roles = roles;
+            }
+
+            if (isAdmin) {
+                user.roles.push("admin");
+                //user.adminType = ["company_admin"];
+                user.adminType = "company_admin";
+            }
+
+            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createUser) successfull");
+                that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createUser) error");
+                that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    createGuestUser(firstname, lastname, language, timeToLive) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            // Generate user Email based on appId
+            let uid = makeId(40);
+            let appId = that.application.appID;
+            let domain = that.http.host;
+            let email = `${uid}@${appId}.${domain}`;
+
+            // Generate a rainbow compatible password
+            let password = createPassword(40);
+
+            let user = {
+                loginEmail: email,
+                password: password,
+                isActive: true,
+                isInitialized: false,
+                adminType: "undefined",
+                roles: ["guest"],
+                accountType: "free",
+                companyId: that.account.companyId, // Current requester company
+                firstName: undefined,
+                lastName: undefined,
+                language: undefined,
+                timeToLive: undefined
+            };
+
+            if (firstname) {
+                user.firstName = firstname;
+            }
+
+            if (lastname) {
+                user.lastName = lastname;
+            }
+
+            if (language) {
+                user.language = language;
+            }
+
+            if (timeToLive) {
+                user.timeToLive = timeToLive;
+            }
+
+            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createGuestUser) successfull");
+                // Add generated password into the answer
+                json.data.password = password;
+                that.logger.log("internal", LOG_ID + "(createGuestUser) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createGuestUser) error");
+                that.logger.log("internalerror", LOG_ID, "(createGuestUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    changePassword(password, userId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {
+                password: password
+            };
+
+            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(changePassword) successfull");
+                that.logger.log("internal", LOG_ID + "(changePassword) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(changePassword) error");
+                that.logger.log("internalerror", LOG_ID, "(changePassword) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateInformation(objData, userId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), objData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateInformation) successfull");
+                that.logger.log("internal", LOG_ID + "(updateInformation) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateInformation) error");
+                that.logger.log("internalerror", LOG_ID, "(updateInformation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteUser(userId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.delete("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader()).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deleteUser) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteUser) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteUser) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Contacts API
+    
+    //region Favorites
 
     getServerFavorites() {
         let that = this;
@@ -904,10 +1117,121 @@ class RESTService extends GenericRESTService {
                     */
     }
 
+    //endregion Favorites
+
+    //region Invitations
+
+    getAllSentInvitations() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getAllSentInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSentInvitations) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllSentInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSentInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    getServerInvitation(invitationId) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getServerInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(getServerInvitation) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getServerInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(getServerInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    sendInvitationByEmail(email, lang, customMessage) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let params = {email: email, lang: lang, customMessage: customMessage};
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendInvitationByEmail) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationByEmail) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(sendInvitationByEmail) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationByEmail) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    cancelOneSendInvitation(invitation) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(cancelOneSendInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(cancelOneSendInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(cancelOneSendInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    reSendInvitation(invitationId) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(reSendInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(reSendInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    sendInvitationsParBulk(listOfMails) {
+        let that = this;
+        let data = {
+            emails: listOfMails
+        };
+        return new Promise(function (resolve, reject) {
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationsParBulk) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    getAllReceivedInvitations() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllReceivedInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllReceivedInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
     /**
      * ACCEPT INVITATION
-     * Used by SDK (public)
-     * Warning when modifying this method
      */
     acceptInvitation(invitation) {
         let that = this;
@@ -927,8 +1251,6 @@ class RESTService extends GenericRESTService {
 
     /**
      * DECLINE INVITATION
-     * Used by SDK (public)
-     * Warning when modifying this method
      */
     declineInvitation(invitation) {
         let that = this;
@@ -947,8 +1269,6 @@ class RESTService extends GenericRESTService {
 
     /**
      * SEND INVITATION
-     * Used by SDK (public)
-     * Warning when modifying this method
      */
     joinContactInvitation(contact) {
         let that = this;
@@ -1007,6 +1327,10 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    //endregion Invitations
+
+    //region Groups
+    
     getGroups() {
         let that = this;
         let getSetOfGroups = function (page, max, groups) {
@@ -1180,6 +1504,8 @@ Request Method: PUT
             });
         });
     }
+
+    //endregion Groups
 
     getBots() {
         let that = this;
@@ -1928,46 +2254,6 @@ Request Method: PUT
     
     //endregion Bubbles
 
-    /**
-     * Method retrieveWebConferences
-     * @public
-     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
-     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
-     * @memberof WebConferenceService
-     */
-    retrieveWebConferences(mediaType: string = MEDIATYPE.WEBRTC): Promise<any> {
-        let that = this;
-        that.logger.log("info", LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
-        return new Promise((resolve, reject) => {
-            let urlQueryParameters = "?format=full&userId=" + that.userId;
-
-            if (mediaType) {
-                urlQueryParameters += "&mediaType=" + mediaType;
-            }
-
-            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences" + urlQueryParameters, that.getRequestHeader(), undefined)
-                /* this.$http({
-                    method: "GET",
-                    url: this.confProvPortalURL + "conferences" + urlQueryParameters,
-                    headers: this.authService.getRequestHeader()
-                }) // */
-                // Handle success response
-                .then((response) => {
-                        let conferencesProvisionData = response;
-                        that.logger.log("info", LOG_ID + "(retrieveWebConferences) successfully");
-                        that.logger.log("internal", LOG_ID + "(retrieveWebConferences) REST result : ", conferencesProvisionData);
-                        resolve(conferencesProvisionData.data);
-                    },
-                    (response) => {
-                        let msg = response.data ? response.data.errorDetails : response.data;
-                        let errorMessage = "(retrieveWebConferences) failure: " + msg;
-                        that.logger.log("error", LOG_ID + "(retrieveWebConferences) error : " + errorMessage);
-                        reject(new Error(errorMessage));
-                    });
-        });
-    };
-
-
     /*
     ownerUpdateRoomCustomData (roomData) {
         let that = this;
@@ -2010,158 +2296,8 @@ Request Method: PUT
     };
     // */
 
-    createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let user = {
-                loginEmail: email,
-                password: password,
-                firstName: firstname,
-                lastName: lastname,
-                isActive: true,
-                isInitialized: false,
-                language: language,
-                adminType: "undefined",
-                roles: ["user"],
-                accountType: "free",
-                companyId: null,
-            };
-
-            if (companyId) {
-                user.companyId = companyId;
-            } else {
-                user.companyId = that.account.companyId
-            }
-
-            if (roles != null) {
-                user.roles = roles;
-            }
-
-            if (isAdmin) {
-                user.roles.push("admin");
-                //user.adminType = ["company_admin"];
-                user.adminType = "company_admin";
-            }
-
-            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(createUser) successfull");
-                that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createUser) error");
-                that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createGuestUser(firstname, lastname, language, timeToLive) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            // Generate user Email based on appId
-            let uid = makeId(40);
-            let appId = that.application.appID;
-            let domain = that.http.host;
-            let email = `${uid}@${appId}.${domain}`;
-
-            // Generate a rainbow compatible password
-            let password = createPassword(40);
-
-            let user = {
-                loginEmail: email,
-                password: password,
-                isActive: true,
-                isInitialized: false,
-                adminType: "undefined",
-                roles: ["guest"],
-                accountType: "free",
-                companyId: that.account.companyId, // Current requester company
-                firstName: undefined,
-                lastName: undefined,
-                language: undefined,
-                timeToLive: undefined
-            };
-
-            if (firstname) {
-                user.firstName = firstname;
-            }
-
-            if (lastname) {
-                user.lastName = lastname;
-            }
-
-            if (language) {
-                user.language = language;
-            }
-
-            if (timeToLive) {
-                user.timeToLive = timeToLive;
-            }
-
-            that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(createGuestUser) successfull");
-                // Add generated password into the answer
-                json.data.password = password;
-                that.logger.log("internal", LOG_ID + "(createGuestUser) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createGuestUser) error");
-                that.logger.log("internalerror", LOG_ID, "(createGuestUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    changePassword(password, userId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data = {
-                password: password
-            };
-
-            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(changePassword) successfull");
-                that.logger.log("internal", LOG_ID + "(changePassword) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(changePassword) error");
-                that.logger.log("internalerror", LOG_ID, "(changePassword) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateInformation(objData, userId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), objData, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(updateInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(updateInformation) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateInformation) error");
-                that.logger.log("internalerror", LOG_ID, "(updateInformation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteUser(userId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("info", LOG_ID + "(deleteUser) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteUser) REST result : ", json);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteUser) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // FileStorage
+    //region FileStorage
+    
     createFileDescriptor(name, extension, size, viewers) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -2326,7 +2462,10 @@ Request Method: PUT
         });
     }
 
-    // FileServer
+    //endregion FileStorage
+
+    //region FileServer
+    
     getPartialDataFromServer(url, minRange, maxRange, index) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -2463,23 +2602,11 @@ Request Method: PUT
             });
         });
     }
+    
+    //endregion FileServer
 
-    getServerCapabilities() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/fileserver/v1.0/capabilities", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getServerCapabilities) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerCapabilities) REST result : ", json.data);
-                resolve(json.data);
-            }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(getServerCapabilities) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerCapabilities) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Settings
+    //region Settings
+    
     getUserSettings() {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -2510,6 +2637,25 @@ Request Method: PUT
         });
     }
 
+    //endregion Settings
+
+    getServerCapabilities() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/fileserver/v1.0/capabilities", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getServerCapabilities) successfull");
+                that.logger.log("internal", LOG_ID + "(getServerCapabilities) REST result : ", json.data);
+                resolve(json.data);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(getServerCapabilities) error");
+                that.logger.log("internalerror", LOG_ID, "(getServerCapabilities) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //region Company
+    
     getAllCompanies() {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -2524,64 +2670,6 @@ Request Method: PUT
                 return reject(err);
             });
             that.logger.log("info", LOG_ID + "(getAllCompanies) after sending the request");
-        });
-    }
-
-    getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getAllUsers) that.account.roles : ", that.account.roles);
-            if (!companyId) {
-                companyId = that.account.companyId;
-            }
-            let url = "/api/rainbow/admin/v1.0/users?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1" + "&companyId=" + encodeURIComponent(companyId);
-            if (searchEmail) {
-                url += "&searchEmail=" + encodeURIComponent(searchEmail);    
-            }
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(getAllUsers) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllUsers) REST result : ", json.data);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllUsers) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllUsers) error : ", err);
-                return reject(err);
-            });
-            that.logger.log("info", LOG_ID + "(getAllUsers) after sending the request");
-        });
-    }
-
-    getContactInfos(userId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
-            that.http.get("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(getContactInfos) successfull");
-                that.logger.log("internal", LOG_ID + "(getContactInfos) REST result : ", json.data);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContactInfos) error");
-                that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
-                return reject(err);
-            });
-            that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
-        });
-    }
-
-    putContactInfos(userId, infos) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
-            that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), infos, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(getContactInfos) successfull");
-                that.logger.log("internal", LOG_ID + "(getContactInfos) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContactInfos) error");
-                that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
-                return reject(err);
-            });
-            that.logger.log("info", LOG_ID + "(getContactInfos) after sending the request");
         });
     }
 
@@ -2669,6 +2757,10 @@ Request Method: PUT
         });
     }
 
+    //endregion Company
+
+    //region Channels
+    
     // Channel
     // Create a channel
     createPublicChannel(name, topic, category: string = "globalnews", visibility, max_items, max_payload_size) {
@@ -3139,6 +3231,8 @@ Request Method: PUT
         });
     };
 
+    //endregion Channels
+
     //region Profiles
     
     // Get Server Profiles
@@ -3422,118 +3516,6 @@ Request Method: PUT
     }
 
     //endregion Conversations
-    
-    //region Invitations 
-    getAllSentInvitations() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllSentInvitations) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllSentInvitations) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllSentInvitations) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllSentInvitations) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getServerInvitation(invitationId) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getServerInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerInvitation) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getServerInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    sendInvitationByEmail(email, lang, customMessage) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let params = {email: email, lang: lang, customMessage: customMessage};
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendInvitationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationByEmail) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendInvitationByEmail) error");
-                that.logger.log("internalerror", LOG_ID, "(sendInvitationByEmail) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    cancelOneSendInvitation(invitation) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(cancelOneSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(cancelOneSendInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(cancelOneSendInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    reSendInvitation(invitationId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(reSendInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(reSendInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    sendInvitationsParBulk(listOfMails) {
-        let that = this;
-        let data = {
-            emails: listOfMails
-        };
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
-                that.logger.log("internalerror", LOG_ID, "(sendInvitationsParBulk) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getAllReceivedInvitations() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllReceivedInvitations) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllReceivedInvitations) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    //endregion Invitations
 
     //region Generic HTTP VERB
     get(url, token) {
@@ -3588,7 +3570,9 @@ Request Method: PUT
         });
     }
 
-//endregion http verbs
+    //endregion http verbs
+    
+    //region Check Connection
 
     async checkEveryPortals() {
         let that = this;
@@ -3758,6 +3742,8 @@ Request Method: PUT
             return Promise.reject({"errorname" : "reconnectingInProgress" , "label" : "reconnect already in progress"});
         }
     }
+
+    //endregion Check Connection
 
     //region S2S
     // ************* S2S **************************
@@ -4013,6 +3999,7 @@ Request Method: PUT
     }
     //endregion
 
+    //region Messages
     markMessageAsRead(conversationId, messageId) {
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{id}/read
         let that = this;
@@ -4039,7 +4026,9 @@ Request Method: PUT
         });
     }
 
-//region Public url
+    //endregion Messages
+
+    //region Public url
 
     /**
      *
@@ -4506,6 +4495,45 @@ Request Method: PUT
             });
         });
     }
+
+    /**
+     * Method retrieveWebConferences
+     * @public
+     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+     * @returns {Promise<any>} a promise that resolves when conference are reterived
+     * @memberof WebConferenceService
+     */
+    retrieveWebConferences(mediaType: string = MEDIATYPE.WEBRTC): Promise<any> {
+        let that = this;
+        that.logger.log("info", LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
+        return new Promise((resolve, reject) => {
+            let urlQueryParameters = "?format=full&userId=" + that.userId;
+
+            if (mediaType) {
+                urlQueryParameters += "&mediaType=" + mediaType;
+            }
+
+            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences" + urlQueryParameters, that.getRequestHeader(), undefined)
+                    /* this.$http({
+                        method: "GET",
+                        url: this.confProvPortalURL + "conferences" + urlQueryParameters,
+                        headers: this.authService.getRequestHeader()
+                    }) // */
+                    // Handle success response
+                    .then((response) => {
+                                let conferencesProvisionData = response;
+                                that.logger.log("info", LOG_ID + "(retrieveWebConferences) successfully");
+                                that.logger.log("internal", LOG_ID + "(retrieveWebConferences) REST result : ", conferencesProvisionData);
+                                resolve(conferencesProvisionData.data);
+                            },
+                            (response) => {
+                                let msg = response.data ? response.data.errorDetails : response.data;
+                                let errorMessage = "(retrieveWebConferences) failure: " + msg;
+                                that.logger.log("error", LOG_ID + "(retrieveWebConferences) error : " + errorMessage);
+                                reject(new Error(errorMessage));
+                            });
+        });
+    };
 
     //endregion conference
 
