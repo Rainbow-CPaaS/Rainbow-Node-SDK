@@ -7455,43 +7455,577 @@ Request Method: PUT
     
     //region Rainbow Voice Voice
 
-    /*
-    addParticipant3PCC
-    answer call3PCC
-    blind Transfer call3PCC
-    deflect call3PCC
-    hold call3PCC
-    make call3PCC
-    merge call3PCC
-    pickup call3PCC
-    release call3PCC
-    retrieve call3PCC
-    send DTMF3PCC
-    snapshot3PCC
-    transfer call3PCC
-    delete a Voice message
-    delete all Voice messages
-    get Emergency numbers and emergency options
-    get Voice messages
-    get user devices
-    update Voice message
-    // */
+    
+    addParticipant3PCC(callId : string, callData : { callee : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/participants     
+        // API https://api.openrainbow.org/voice/#api-Voice-Add_participant
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(addParticipant3PCC) callId : ", callId, ", callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/participants", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(addParticipant3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(addParticipant3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(addParticipant3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(addParticipant3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    answerCall3PCC(callId : string, callData : { legId : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/answer     
+        // API https://api.openrainbow.org/voice/#api-Voice-Answer_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(answerCall3PCC) callId : ", callId, ", callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/participants", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(answerCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(answerCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(answerCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(answerCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    blindTransferCall3PCC(callId : string, callData : {destination : { userId : string , resource : string}}) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/blind-transfer     
+        // API https://api.openrainbow.org/voice/#api-Voice-Blind_Transfer_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(blindTransferCall3PCC) callId : ", callId, ", callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/participants", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(blindTransferCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(blindTransferCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(blindTransferCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(blindTransferCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deflectCall3PCC(callId : string, callData : { destination : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/deflect     
+        // API https://api.openrainbow.org/voice/#api-Voice-Deflect_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(deflectCall3PCC) callId : ", callId, ", callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/deflect", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deflectCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(deflectCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deflectCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(deflectCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    holdCall3PCC(callId : string, callData : { legId : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/hold     
+        // API https://api.openrainbow.org/voice/#api-Voice-Hold_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(holdCall3PCC) callId : ", callId, ", callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/hold", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(holdCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(holdCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(holdCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(holdCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    makeCall3PCC(callData : {deviceId : string,
+                     callerAutoAnswer : boolean,
+                     anonymous : boolean,
+                     calleeExtNumber : string,
+                     calleePbxId : string,
+                     calleeShortNumber : string,
+                     calleeCountry : string,
+                     dialPadCalleeNumber : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls     
+        // API https://api.openrainbow.org/voice/#api-Voice-Make_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(makeCall3PCC) callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(makeCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(makeCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(makeCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(makeCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    mergeCall3PCC(activeCallId : string, callData : { heldCallId : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:activeCallId/merge     
+        // API https://api.openrainbow.org/voice/#api-Voice-Merge_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(mergeCall3PCC) activeCallId : ", activeCallId);
+            let data = {};
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + activeCallId + "/merge", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(mergeCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(mergeCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(mergeCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(mergeCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    pickupCall3PCC(callData : {deviceId : string,
+        callerAutoAnswer : boolean,
+        calleeShortNumber  : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/pickup
+        // API https://api.openrainbow.org/voice/#api-Voice-Pickup_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(pickupCall3PCC) callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/pickup", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(pickupCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(pickupCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(pickupCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(pickupCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    releaseCall3PCC(callId : string, legId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId      
+        // API https://api.openrainbow.org/voice/#api-Voice-Release_call
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/voice/v1.0/calls/" + callId;
+            url += legId? "?legId=" + legId : "";
+            that.http.delete( url, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(releaseCall3PCC) (" + callId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(releaseCall3PCC) (" + callId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(releaseCall3PCC) (" + callId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+    
+    retrieveCall3PCC(callId : string, callData : {legId : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/retrieve
+        // API https://api.openrainbow.org/voice/#api-Voice-Retrieve_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(retrieveCall3PCC) callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/retrieve", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(retrieveCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(retrieveCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    sendDTMF3PCC(callId : string, callData : {legId : string, digits : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/senddtmf
+        // API https://api.openrainbow.org/voice/#api-Voice-Send_DTMF
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(sendDTMF3PCC) callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/senddtmf", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(sendDTMF3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(sendDTMF3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(sendDTMF3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(sendDTMF3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    snapshot3PCC(callId  : string, deviceId : string, seqNum : number ) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/snapshot 
+        // API https://api.openrainbow.org/voice/#api-Voice-SnapshotCall
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/snapshot" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            
+            addParamToUrl(urlParamsTab, "callId", callId + "");
+            addParamToUrl(urlParamsTab, "deviceId", deviceId + "");
+            addParamToUrl(urlParamsTab, "seqNum", seqNum + "");
+            /*
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(snapshot3PCC) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(snapshot3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(snapshot3PCC) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(snapshot3PCC) error");
+                that.logger.log("internalerror", LOG_ID, "(snapshot3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    transferCall3PCC(activeCallId : string, callData : {heldCallId : string }) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:activeCallId/transfer
+        // API https://api.openrainbow.org/voice/#api-Voice-Transfer_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(transferCall3PCC) callData : ", callData);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/calls/" + activeCallId + "/transfer", that.getRequestHeader(), callData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(transferCall3PCC) successfull");
+                that.logger.log("internal", LOG_ID + "(transferCall3PCC) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(transferCall3PCC) error.");
+                that.logger.log("internalerror", LOG_ID, "(transferCall3PCC) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteAVoiceMessage(messageId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/messages/:messageId
+        // API https://api.openrainbow.org/voice/#api-Voice-DeleteVoiceMailMessage
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/voice/v1.0/messages/" + messageId;
+            that.http.delete( url, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteAVoiceMessage) (" + messageId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteAVoiceMessage) (" + messageId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteAVoiceMessage) (" + messageId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    deleteAllVoiceMessages(messageId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/messages
+        // API https://api.openrainbow.org/voice/#api-Voice-DeleteVoiceMailMessages
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/voice/v1.0/messages";
+            that.http.delete( url, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteAllVoiceMessages) (" + messageId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteAllVoiceMessages) (" + messageId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteAllVoiceMessages) (" + messageId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    getEmergencyNumbersAndEmergencyOptions() {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/emergency-numbers 
+        // API https://api.openrainbow.org/voice/#api-Voice-EmergencyNumbers
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/emergency-numbers" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            /*
+            addParamToUrl(urlParamsTab, "callId", callId + "");
+            addParamToUrl(urlParamsTab, "deviceId", deviceId + "");
+            addParamToUrl(urlParamsTab, "seqNum", seqNum + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) successfull");
+                that.logger.log("internal", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error");
+                that.logger.log("internalerror", LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getVoiceMessages(limit : number,
+    offset : number,
+    sortField : string,
+    sortOrder : number,
+    fromDate : string,
+    toDate : string,
+    callerName : string,
+    callerNumber : string ) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/messages
+        // API https://api.openrainbow.org/voice/#api-Voice-GetVoiceMessages
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/messages" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getVoiceMessages) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getVoiceMessages) successfull");
+                that.logger.log("internal", LOG_ID + "(getVoiceMessages) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getVoiceMessages) error");
+                that.logger.log("internalerror", LOG_ID, "(getVoiceMessages) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getUserDevices( ) {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/devices
+        // API https://api.openrainbow.org/voice/#api-Voice-Devices
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/devices" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            /*
+            addParamToUrl(urlParamsTab, "limit", limit + "");
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+            // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getUserDevices) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getUserDevices) successfull");
+                that.logger.log("internal", LOG_ID + "(getUserDevices) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getUserDevices) error");
+                that.logger.log("internalerror", LOG_ID, "(getUserDevices) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateVoiceMessage(messageId : string,   urlData : { read   : boolean }) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/messages/:messageId 
+        // API https://api.openrainbow.org/voice/#api-Voice-UpdateVoiceMessage
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateVoiceMessage) messageId : ", messageId + ", urlData : ", urlData );
+            let data = {
+            };
+            that.http.put("/api/rainbow/voice/v1.0/messages/" + messageId, that.getRequestHeader(), urlData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateVoiceMessage) successfull");
+                that.logger.log("internal", LOG_ID + "(updateVoiceMessage) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateVoiceMessage) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateVoiceMessage) error : ", err);
+                return reject(err);
+            });
+        });
+    }
     
     //endregion Rainbow Voice Voice    
 
     //region Rainbow Voice Voice Forward
+    
+    forwardCall(callForwardType : string, userId :string,  urlData : { destinationType :string, number : string, activate : boolean, noReplyDelay : number }) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/forwards/:callForwardType 
+        // API https://api.openrainbow.org/voice/#api-Voice_Forward-Forward_call
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(forwardCall) callForwardType : ", callForwardType + ", urlData : ", urlData );
+            let url : string = "/api/rainbow/voice/v1.0/forwards/" + callForwardType ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
 
-/*
-    forwardCall
-    getTheSubscriberForwards
+            
+            addParamToUrl(urlParamsTab, "userId ", userId  + "");
+            /*
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+            // */
+            url = urlParamsTab[0];
+            let data = {
+            };
+            that.http.put(url, that.getRequestHeader(), urlData, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(forwardCall) successfull");
+                that.logger.log("internal", LOG_ID + "(forwardCall) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(forwardCall) error.");
+                that.logger.log("internalerror", LOG_ID, "(forwardCall) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getASubscriberForwards( userId :string) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/forwards 
+        // API https://api.openrainbow.org/voice/#api-Voice_Forward-Get_Subscriber_call_forwards
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getASubscriberForwards) userId : ", userId );
+            let url : string = "/api/rainbow/voice/v1.0/forwards" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+
+            addParamToUrl(urlParamsTab, "userId ", userId  + "");
+            /*
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+            // */
+            url = urlParamsTab[0];
+            let data = {
+            };
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getASubscriberForwards) successfull");
+                that.logger.log("internal", LOG_ID + "(getASubscriberForwards) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getASubscriberForwards) error.");
+                that.logger.log("internalerror", LOG_ID, "(getASubscriberForwards) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     // */
 
     //endregion Rainbow Voice Voice Forward
 
     //region Rainbow Voice Voice Search Hunting Groups
     
-/*
-    searchCloudPBXhuntingGroups
+    searchCloudPBXhuntingGroups( name :string) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/search/huntinggroups 
+        // API https://api.openrainbow.org/voice/#api-Voice_Search_Hunting_Groups-Get_Cloud_PBX_Hunting_Groups
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(searchCloudPBXhuntingGroups) name : ", name );
+            let url : string = "/api/rainbow/voice/v1.0/search/huntinggroups" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+
+            addParamToUrl(urlParamsTab, "name", name + "");
+            /*
+            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "sortField", sortField + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+            // */
+            url = urlParamsTab[0];
+            let data = {
+            };
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(searchCloudPBXhuntingGroups) successfull");
+                that.logger.log("internal", LOG_ID + "(searchCloudPBXhuntingGroups) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(searchCloudPBXhuntingGroups) error.");
+                that.logger.log("internalerror", LOG_ID, "(searchCloudPBXhuntingGroups) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     // */
 
     //endregion Rainbow Voice Voice Search Hunting Groups
@@ -7625,7 +8159,6 @@ Request Method: PUT
             });
         });
     }
-
 
     //endregion Clients Versions
     

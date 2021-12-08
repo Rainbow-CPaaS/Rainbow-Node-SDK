@@ -440,7 +440,7 @@ class Logger {
                     .on('finish', () => {
                                 setTimeout(() => {
                                     that._winston.close();
-                                    console.log("finish winston.");
+                                    //console.log("finish winston.");
                                 }, 50);
                             }
                     );
