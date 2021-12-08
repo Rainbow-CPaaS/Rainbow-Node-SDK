@@ -6,6 +6,40 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.7.0 - STS Version - November 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   None
+
+**Others Changes**
+
+-   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
+-   Update `GroupsService` `ImsService` `InvitationsSerice` `PresenceService` `ProfilesService` `S2SService` `TelephonyService` with categories in the documentation.
+-   Add `ProfilesService::getThirdPartyApps` to get The list of the Third Party Application that have access to this Rainbow Account. 
+-   Add `ProfilesService::revokeThirdPartyAccess` to revoke the access of a third-party application from Rainbow. 
+-   Fix initialisation of _contactService in FileStorageService.
+-   Add `Bubble::status` property which is the status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted'). The initial value is "none", it is not a real value.
+-   Add `BubblesService::isBubbleArchived` method to check if the Bubble is an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedArchivedBubbles` method to get all the owned Bubbles in an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedNotArchivedBubbles` method to  get all the owned Bubbles which are NOT in an Archive state (everybody unsubscribed).
+-   Add "unsubscribed=true" parameter to resquests to server about bubbles. Beside owner and invited/accepted users keep also unsubscribed users.
+-   Update `AdminService` `AlertsService` `BubblesService` `ContactsService` `ConversationsService` with categories in the documentation.
+-   Fix `GroupsService::getGroupByName` and `GroupsService::getGroupById` methods.
+
+
 ### SDK for Node.JS 2.6.0 - STS Version - November 2021
 
 ---

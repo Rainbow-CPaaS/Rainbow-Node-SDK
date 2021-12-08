@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.7.0] - 2021-12-XX
+## [2.7.0] - 2021-12-08
 -   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
 -   Update `GroupsService` `ImsService` `InvitationsSerice` `PresenceService` `ProfilesService` `S2SService` `TelephonyService` with categories in the documentation.
 -   Add `ProfilesService::getThirdPartyApps` to get The list of the Third Party Application that have access to this Rainbow Account. 
