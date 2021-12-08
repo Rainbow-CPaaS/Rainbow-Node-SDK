@@ -2756,7 +2756,11 @@ class ConversationEventHandler extends GenericHandler {
             } else {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
                 that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                that.eventEmitter.emit("evt_internal_xmpperror", msg);
+                let errorObject = {
+                    message : msg,
+                    stanza : stanza.root ? prettydata.xml(stanza.root().toString()) : stanza
+                };
+                that.eventEmitter.emit("evt_internal_xmpperror", errorObject);
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
