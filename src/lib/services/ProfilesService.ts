@@ -95,7 +95,7 @@ const FeaturesEnum = {
  * @module
  * @name ProfilesService
  * @version SDKVERSION
- * @private
+ * @public
  * @description
  *  This module is the service used to retrieve profiles from server. <br/>
 */
