@@ -738,7 +738,7 @@ class FileStorage extends GenericService{
     
     getFileDescriptorById(id) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(getFileDescriptorById) FileDescriptorId : ", id, ", from : ", that.fileDescriptors);
+        that._logger.log("internal", LOG_ID + "(getFileDescriptorById) FileDescriptorId : ", id, ", that.fileDescriptors.length : ", that.fileDescriptors ? that.fileDescriptors.length : 0);
 
         for (let fileDescriptor of that.fileDescriptors) {
             if (fileDescriptor.id === id) {
