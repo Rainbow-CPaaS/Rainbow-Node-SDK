@@ -725,7 +725,7 @@ class ImsService extends GenericService{
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresenceSync(bubble);
+                await that._presence.sendInitialBubblePresence(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
                 /*
                 await until(() => {
@@ -808,7 +808,7 @@ class ImsService extends GenericService{
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresenceSync(bubble);
+                await that._presence.sendInitialBubblePresence(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
                 /*
                 await until(() => {

@@ -34,7 +34,7 @@ const LOG_ID = "BUBBLES/SVCE - ";
      * @public
      * @description
      *      This service manages multi-party communications (aka bubbles). Bubbles allow to chat and to share files with several participants.<br><br>
-     *      Each user can create bubbles and invite other users to be part of it. <br/>
+     *      Each user can create bubbles and invite other users to be part of it. <br>
      *      <br><br>
      *      The main methods proposed in that module allow to: <br>
      *      - Create a new bubble <br>
@@ -42,7 +42,7 @@ const LOG_ID = "BUBBLES/SVCE - ";
      *      - Manage a bubble: close, delete <br>
      *      - Leave a bubble <br>
      *      - Accept or decline an invitation to join a bubble <br>
-     *      - Change the custom data attached to a bubble <br/>
+     *      - Change the custom data attached to a bubble <br>
      */
 class Bubbles extends GenericService {
     private _bubbles: Bubble[];
@@ -104,8 +104,7 @@ class Bubbles extends GenericService {
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
         this._eventEmitter.on("evt_internal_privilegechanged", this._onPrivilegeBubbleChanged.bind(this));
         this._eventEmitter.on("evt_internal_roomscontainer", this._onBubblesContainerReceived.bind(this));
-        this._eventEmitter.on("evt_internal_bubbleconferencestoppedreceived", this._onBubbleConferenceStoppedReceived.bind(this));
-
+        this._eventEmitter.on("evt_internal_bubbleconferencestoppedreceived", this._onBubbleConferenceStoppedReceived.bind(this));        
     }
 
     /**
@@ -194,7 +193,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} invitation contains informations about bubble and user's jid
      * @description
-     *      Method called when receiving an invitation to join a bubble <br/>
+     *      Method called when receiving an invitation to join a bubble <br>
      */
     _onInvitationReceived(invitation) {
         let that = this;
@@ -230,7 +229,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} affiliation contains information about bubble and user's jid
      * @description
-     *      Method called when affilitation to a bubble changed <br/>
+     *      Method called when affilitation to a bubble changed <br>
      */
     async _onAffiliationChanged(affiliation) {
         let that = this;
@@ -266,7 +265,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} affiliation contains information about bubble and user's jid
      * @description
-     *      Method called when the user affilitation to a bubble changed <br/>
+     *      Method called when the user affilitation to a bubble changed <br>
      */
     async _onOwnAffiliationChanged(affiliation) {
         let that = this;
@@ -350,7 +349,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} data contains information about bubble and new custom data received
      * @description
-     *      Method called when custom data have changed for a bubble <br/>
+     *      Method called when custom data have changed for a bubble <br>
      */
     _onCustomDataChanged(data) {
         let that = this;
@@ -382,7 +381,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} data contains information about bubble new topic received
      * @description
-     *      Method called when the topic has changed for a bubble <br/>
+     *      Method called when the topic has changed for a bubble <br>
      */
     _onTopicChanged(data) {
         let that = this;
@@ -412,7 +411,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} bubbleInfo modified bubble info
      * @description
-     *     Method called when the owner of a bubble changed. <br/>
+     *     Method called when the owner of a bubble changed. <br>
      */
     async _onPrivilegeBubbleChanged(bubbleInfo) {
         /*
@@ -437,7 +436,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} data contains information about bubble new name received
      * @description
-     *      Method called when the name has changed for a bubble <br/>
+     *      Method called when the name has changed for a bubble <br>
      */
     _onNameChanged(data) {
         let that = this;
@@ -468,7 +467,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} bubbleInfo contains information about bubble
      * @description
-     *      Method called when the name has changed for a bubble <br/>
+     *      Method called when the name has changed for a bubble <br>
      */
     async _onbubblepresencechanged(bubbleInfo) {
         let that = this;
@@ -490,7 +489,7 @@ class Bubbles extends GenericService {
                 } else {
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 }
-            }
+            } else 
             if (bubbleInfo.statusCode==="deactivated") {
                 bubbleInMemory.isActive = false;
                 that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
@@ -509,7 +508,7 @@ class Bubbles extends GenericService {
      * @instance
      * @param {Object} infos contains informations about a bubbles container
      * @description
-     *      Method called when receiving an create/update/delete event of the bubbles container <br/>
+     *      Method called when receiving an create/update/delete event of the bubbles container <br>
      */
     async _onBubblesContainerReceived(infos) {
         let that = this;
@@ -1088,8 +1087,8 @@ getAllActiveBubbles
      * @instance
      * @category CONFERENCE SPECIFIC
      * @description
-     *     To start a conference. <br/>
-     *     Only a moderator can start a conference. It also need to be a premium account. <br/>
+     *     To start a conference. <br>
+     *     Only a moderator can start a conference. It also need to be a premium account. <br>
      * @param {Bubble} bubble   The bubble where the conference should start
      * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
      * @return {Promise<any>} The result of the starting.
@@ -1117,8 +1116,8 @@ getAllActiveBubbles
      * @instance
      * @category CONFERENCE SPECIFIC
      * @description
-     *     To stop a conference. <br/>
-     *     Only a moderator can stop a conference. It also need to be a premium account. <br/>
+     *     To stop a conference. <br>
+     *     Only a moderator can stop a conference. It also need to be a premium account. <br>
      * @param {string} conferenceId The id of the conference that should stop
      * @return {Promise<any>} return undefined.
      */
@@ -1148,7 +1147,7 @@ getAllActiveBubbles
      * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
      * @category CONFERENCE SPECIFIC
      * @description
-     * To join a conference.  </br>
+     * To join a conference.  <br>
      * NOTE: The conference must be first started before to join it.
      * @return {Promise<any>}
      */
@@ -1216,7 +1215,7 @@ getAllActiveBubbles
      * @param {string} conferenceId ID of the conference
      * @param {boolean} mute True to mute, False to unmute
      * @description
-     * Mute or Unmute the conference - If muted only the moderator can speak.  </BR>
+     * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
      * Only the moderator of the conference can use this method
      * @return {Promise<any>}
      */
@@ -1236,7 +1235,7 @@ getAllActiveBubbles
      * @param {string} participantId ID of the participant to mute/unmute
      * @param {boolean} mute True to mute, False to unmute
      * @description
-     * Mute or Unmute the specified participant in the conference.</br>
+     * Mute or Unmute the specified participant in the conference.<br>
      * Only the moderator of the conference can use this method
      * @return {Promise<any>}
      */
@@ -1254,7 +1253,7 @@ getAllActiveBubbles
      * @param {string} conferenceId ID of the conference
      * @param {string} participantId ID of the participant to drop
      * @description
-     * Drop the specified participant in the conference. </br>
+     * Drop the specified participant in the conference. <br>
      * Only the moderator of the conference can use this method
      * @return {Promise<any>}
      */
@@ -1591,7 +1590,7 @@ getAllActiveBubbles
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @description
-     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). </br>
+     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). <br>
      * The previous URL is no more functional !
      * @return {Promise<any>}
      */
@@ -1607,7 +1606,7 @@ getAllActiveBubbles
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @description
-     * To start a Personal Conference. </br>
+     * To start a Personal Conference. <br>
      * Only a moderator can start a Personal Conference.
      * @return {Promise<any>}
      */
@@ -1623,7 +1622,7 @@ getAllActiveBubbles
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @description
-     * To stop the Personal Conference.</br>
+     * To stop the Personal Conference.<br>
      * Only a moderator can stop a Personal Conference
      * @return {Promise<any>}
      */
@@ -1680,7 +1679,7 @@ getAllActiveBubbles
      * @instance
      * @param {boolean} mute
      * @description
-     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.</br>
+     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
      * Only the moderator of the Personal Conference can use this method
      * @return {Promise<any>}
      */
@@ -1697,8 +1696,8 @@ getAllActiveBubbles
      * @instance
      * @param {boolean} toLock  True to lock, False to unlock
      * @description
-     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. </br>
-     * Lock / Unlock is only possible for PSTN Conference. </br>
+     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
+     * Lock / Unlock is only possible for PSTN Conference. <br>
      * Only a moderator can use this method
      * @return {Promise<any>}
      */
@@ -1716,7 +1715,7 @@ getAllActiveBubbles
      * @param {string} participantId ID of the participant to mute/unmute
      * @param {boolean} mute True to mute, False to unmute
      * @description
-     * Mute or Unmute the specified participant in the Personal Conference.</br>
+     * Mute or Unmute the specified participant in the Personal Conference.<br>
      * Only the moderator of the Personal Conference can use this method.
      * @return {Promise<any>}
      */
@@ -1733,7 +1732,7 @@ getAllActiveBubbles
      * @instance
      * @param {string} participantId ID of the participant to drop
      * @description
-     * Drop the specified participant in the Personal Conference. </br>
+     * Drop the specified participant in the Personal Conference. <br>
      * Only the moderator of the Personal Conference can use this method.
      * @return {Promise<any>}
      */
@@ -2055,7 +2054,7 @@ getAllActiveBubbles
             currentValue : number // The user's current consumption [room].
          }
          * @description
-         *      return an object describing the consumption of bubbles. <br/>
+         *      return an object describing the consumption of bubbles. <br>
          */
         getBubblesConsumption() {
             let that = this;
@@ -2094,7 +2093,7 @@ getAllActiveBubbles
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
-         *  Get a bubble by its ID in memory and if it is not found in server. <br/>
+         *  Get a bubble by its ID in memory and if it is not found in server. <br>
          */
         getBubbleById(id, force?: boolean): Promise<Bubble> {
             let that = this;
@@ -2157,7 +2156,7 @@ getAllActiveBubbles
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
-         *  Get a bubble by its JID in memory and if it is not found in server. <br/>
+         *  Get a bubble by its JID in memory and if it is not found in server. <br>
          */
         async getBubbleByJid(jid, force?: boolean): Promise<Bubble> {
             let that = this;
@@ -2215,7 +2214,7 @@ getAllActiveBubbles
          * @instance
          * @return {Bubble[]} An array of Bubbles not accepted or declined
          * @description
-         *  Get the list of Bubbles that have a pending invitation not yet accepted of declined <br/>
+         *  Get the list of Bubbles that have a pending invitation not yet accepted of declined <br>
          */
         getAllPendingBubbles() {
     
@@ -2238,7 +2237,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
          * @description
-         *  Get the list of Bubbles where the connected user can chat <br/>
+         *  Get the list of Bubbles where the connected user can chat <br>
          */
         getAllActiveBubbles() {
             let that = this;
@@ -2259,7 +2258,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @return {Bubble[]} An array of Bubbles that are closed for the connected user
          * @description
-         *  Get the list of Bubbles where the connected user can only read messages <br/>
+         *  Get the list of Bubbles where the connected user can only read messages <br>
          */
         getAllClosedBubbles() {
             let that = this;
@@ -2278,7 +2277,7 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *  Create a new bubble <br/>
+         *  Create a new bubble <br>
          * @param {string} name  The name of the bubble to create
          * @param {string} description  The description of the bubble to create
          * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
@@ -2350,7 +2349,7 @@ getAllActiveBubbles
          * @param {Bubble} bubble  The bubble to check
          * @return {boolean} True if the bubble is closed
          * @description
-         *  Check if the bubble is closed or not. <br/>
+         *  Check if the bubble is closed or not. <br>
          */
         isBubbleClosed(bubble) {
     
@@ -2469,8 +2468,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *    Delete all existing owned bubbles <br/>
-         *    Return a promise <br/>
+         *    Delete all existing owned bubbles <br>
+         *    Return a promise <br>
          * @return {Object} Nothing or an error object depending on the result
          */
         deleteAllBubbles() {
@@ -2495,8 +2494,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *    Delete all existing owned bubbles <br/>
-         *    Return a promise <br/>
+         *    Delete all existing owned bubbles <br>
+         *    Return a promise <br>
          * @return {Object} Nothing or an error object depending on the result
          */
         closeAnddeleteAllBubbles() {
@@ -2522,7 +2521,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble  The bubble to delete
          * @description
-         *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br/>
+         *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
@@ -2587,7 +2586,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble  The bubble to close + delete
          * @description
-         *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br/>
+         *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
@@ -2632,7 +2631,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble The Bubble to close
          * @description
-         *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants. <br/>
+         *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble closed, else an ErrorManager object
@@ -2723,9 +2722,9 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble  The bubble to archive
          * @description
-         *  Archive  a bubble. <br/>
-         *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet. <br/>
-         *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza . <br/>
+         *  Archive  a bubble. <br>
+         *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet. <br>
+         *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza . <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The operation result
@@ -2762,7 +2761,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble  The bubble to leave
          * @description
-         *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble. <br/>
+         *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The operation result
@@ -2815,31 +2814,32 @@ getAllActiveBubbles
             let that = this;
     
             return new Promise(function (resolve, reject) {
-                that._rest.getBubbles().then(function (listOfBubbles: any = []) {
+                that._rest.getBubbles().then(async function (listOfBubbles: any = []) {
                     that._logger.log("debug", LOG_ID + "(getBubbles)  listOfBubbles.length : ", listOfBubbles.length);
     
                     //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
                     that._bubbles = [];
                     listOfBubbles.map(async (bubble) => {
                         await that.addOrUpdateBubbleToCache(bubble);
-                    });
+                    }); 
+
                     that._logger.log("info", LOG_ID + "(getBubbles) get successfully");
                     let prom = [];
                     listOfBubbles.forEach(function (bubble: any) {
-    
+                        
                         let users = bubble.users;
                         users.forEach(function (user) {
                             if (user.userId===that._rest.userId && user.status==="accepted") {
                                 if (that._options._imOptions.autoInitialBubblePresence) {
                                     if (bubble.isActive) {
-                                        that._logger.log("debug", LOG_ID + "(getBubbles) send initial presence to room : ", bubble.jid);
+                                        that._logger.log("debug", LOG_ID + "(getBubbles) send initial presence to bubble : ", bubble.jid);
                                         //prom.push(that._presence.sendInitialBubblePresence(bubble));
                                         prom.push(that.bubblesManager.addBubbleToJoin(bubble));
                                     } else {
-                                        that._logger.log("debug", LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to room : ", bubble.jid);
+                                        that._logger.log("debug", LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to bubble : ", bubble.jid);
                                     }
                                 } else {
-                                    that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not send initial presence to room : ", bubble.jid);
+                                    that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not send initial presence to bubble : ", bubble.jid);
                                 }
                             }
                         });
@@ -2879,7 +2879,7 @@ getAllActiveBubbles
          * @instance
          * @return {Bubble[]} The list of existing bubbles
          * @description
-         *  Return the list of existing bubbles <br/>
+         *  Return the list of existing bubbles <br>
          */
         getAll() {
             return this._bubbles;
@@ -2892,7 +2892,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @return {Bubble[]} The list of existing bubbles
          * @description
-         *  Return the list of existing bubbles <br/>
+         *  Return the list of existing bubbles <br>
          */
         getAllBubbles() {
             return this.getAll();
@@ -2904,7 +2904,7 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *    Get the list of bubbles created by the user <br/>
+         *    Get the list of bubbles created by the user <br>
          * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
          */
         getAllOwnedBubbles() {
@@ -3092,8 +3092,8 @@ getAllActiveBubbles
          * @param {Bubble} bubble           The bubble
          * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
          * @description
-         *  Promote or not a contact in a bubble <br/>
-         *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'. <br/>
+         *  Promote or not a contact in a bubble <br>
+         *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the modifications
@@ -3172,8 +3172,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *    Promote a contact to moderator in a bubble <br/>
-         *    Return a promise. <br/>
+         *    Promote a contact to moderator in a bubble <br>
+         *    Return a promise. <br>
          * @param {Contact} contact The contact to promote
          * @param {Bubble} bubble   The destination bubble
          * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
@@ -3199,8 +3199,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *    Demote a contact to user in a bubble <br/>
-         *    Return a promise. <br/>
+         *    Demote a contact to user in a bubble <br>
+         *    Return a promise. <br>
          * @param {Contact} contact The contact to promote
          * @param {Bubble} bubble   The destination bubble
          * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
@@ -3230,7 +3230,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles INVITATIONS
          * @param {Bubble} bubble The Bubble to join
          * @description
-         *  Accept an invitation to join a bubble <br/>
+         *  Accept an invitation to join a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -3281,7 +3281,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles INVITATIONS
          * @param {Bubble} bubble The Bubble to decline
          * @description
-         *  Decline an invitation to join a bubble <br/>
+         *  Decline an invitation to join a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated or an error object depending on the result
@@ -3336,7 +3336,7 @@ getAllActiveBubbles
          * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
          * @param {string} reason        The reason of the invitation (optional)
          * @description
-         *  Invite a contact in a bubble <br/>
+         *  Invite a contact in a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the new invitation
@@ -3420,7 +3420,7 @@ getAllActiveBubbles
          * @param {Contact} contactsEmails         The contacts email tab to invite
          * @param {Bubble} bubble           The bubble
          * @description
-         *  Invite a list of contacts by emails in a bubble <br/>
+         *  Invite a list of contacts by emails in a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the new invitation
@@ -3468,8 +3468,8 @@ getAllActiveBubbles
          * @param {Bubble} bubble The Bubble
          * @param {Object} customData Bubble's custom data area. key/value format. Maximum and size are server dependent
          * @description
-         *  Modify all custom data at once in a bubble <br/>
-         *  To erase all custom data, put {} in customData <br/>
+         *  Modify all custom data at once in a bubble <br>
+         *  To erase all custom data, put {} in customData <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
@@ -3548,7 +3548,7 @@ getAllActiveBubbles
          * @param {Bubble} bubble The Bubble
          * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
          * @description
-         *  Set the Bubble's visibility status <br/>
+         *  Set the Bubble's visibility status <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -3585,7 +3585,7 @@ getAllActiveBubbles
          * @param {Bubble} bubble The Bubble
          * @param {string} topic Bubble's topic
          * @description
-         *  Set the Bubble's topic <br/>
+         *  Set the Bubble's topic <br>
          * @memberof Bubbles
          * @async
          * @return {Promise<Bubble, ErrorManager>}
@@ -3624,7 +3624,7 @@ getAllActiveBubbles
          * @param {Bubble} bubble The Bubble
          * @param {string} name Bubble's name
          * @description
-         *  Set the Bubble's name <br/>
+         *  Set the Bubble's name <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
@@ -3682,10 +3682,10 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @description
-         *    Update the bubble avatar (from given URL) <br/>
-         *    The image will be automaticalle resized <br/>
-         *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br/>
-         *    Return a promise. <br/>
+         *    Update the bubble avatar (from given URL) <br>
+         *    The image will be automaticalle resized <br>
+         *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br>
+         *    Return a promise. <br>
          * @param {string} urlAvatar  The avatarUrl
          * @param {Bubble} bubble  The bubble to update
          * @return {Bubble} A bubble object of null if not found
@@ -3749,9 +3749,9 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @description
-         *    Delete the bubble avatar <br/>
-         *     <br/>
-         *    Return a promise. <br/>
+         *    Delete the bubble avatar <br>
+         *     <br>
+         *    Return a promise. <br>
          * @param {Bubble} bubble  The bubble to update
          * @return {Bubble} A bubble object of null if not found
          */
@@ -3809,8 +3809,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @description
-         *    Update the customData of the bubble  <br/>
-         *    Return a promise. <br/>
+         *    Update the customData of the bubble  <br>
+         *    Return a promise. <br>
          * @param {Object} customData
          *    The customData to put to the bubble <br />
          *    Example: { "key1" : 123, "key2" : "a string" }
@@ -3858,8 +3858,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @description
-         *    Delete the customData of the bubble  <br/>
-         *    Return a promise. <br/>
+         *    Delete the customData of the bubble  <br>
+         *    Return a promise. <br>
          * @param {Bubble} bubble   The bubble to update
          * @return {Promise<Bubble>} The updated Bubble
          */
@@ -3874,8 +3874,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @description
-         *    Update the description of the bubble  <br/>
-         *    Return a promise. <br/>
+         *    Update the description of the bubble  <br>
+         *    Return a promise. <br>
          * @param {Bubble} bubble   The bubble to update
          * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
          * @return {Bubble} A bubble object of null if not found
@@ -3914,7 +3914,7 @@ getAllActiveBubbles
          * @param {Bubble} bubble           The bubble
          * @param {Contact} contact         The contact to set a new bubble owner
          * @description
-         *  Set a moderator contact as owner of a bubble <br/>
+         *  Set a moderator contact as owner of a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the modifications
@@ -3957,7 +3957,7 @@ getAllActiveBubbles
          * @param {Contact} contact The contact to remove
          * @param {Bubble} bubble   The destination bubble
          * @description
-         *    Remove a contact from a bubble <br/>
+         *    Remove a contact from a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble object or an error object depending on the result
@@ -4064,7 +4064,7 @@ getAllActiveBubbles
          * @async
          * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
          * @description
-         *  Get A Blob object with data about the avatar picture of the bubble. <br/>
+         *  Get A Blob object with data about the avatar picture of the bubble. <br>
          */
         getAvatarFromBubble(bubble) {
             /*
@@ -4118,7 +4118,7 @@ getAllActiveBubbles
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
-         *  Refresh members and organizers of the bubble. <br/>
+         *  Refresh members and organizers of the bubble. <br>
          */
         refreshMemberAndOrganizerLists(bubble) {
             let that = this;
@@ -4149,18 +4149,18 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @param {Bubble} bubble           The bubble
-         * @param {Object} options          The criterias to select the users to retrieve <br/>
-         * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate) <br/>
-         * - small: userId loginEmail displayName jid_im <br/>
-         * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName <br/>
-         * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType <br/>
-         * sortField : Sort items list based on the given field <br/>
-         * privilege : Allows to filter users list on the privilege type provided in this option. <br/>
-         * limit : Allow to specify the number of items to retrieve. <br/>
-         * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. <br/>
-         * sortOrder : Specify order when sorting items list. Available values -1, 1 (default) <br/>
+         * @param {Object} options          The criterias to select the users to retrieve <br>
+         * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate) <br>
+         * - small: userId loginEmail displayName jid_im <br>
+         * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName <br>
+         * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType <br>
+         * sortField : Sort items list based on the given field <br>
+         * privilege : Allows to filter users list on the privilege type provided in this option. <br>
+         * limit : Allow to specify the number of items to retrieve. <br>
+         * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. <br>
+         * sortOrder : Specify order when sorting items list. Available values -1, 1 (default) <br>
          * @description
-         *  Get a list of users in a bubble filtered by criterias. <br/>
+         *  Get a list of users in a bubble filtered by criterias. <br>
          * @async
          * @return {Promise<Array, ErrorManager>}
          */
@@ -4208,7 +4208,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles FIELDS
          * @param {Bubble} bubble           The bubble
          * @description
-         *  Get the status of the connected user in a bubble <br/>
+         *  Get the status of the connected user in a bubble <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          */
@@ -4237,24 +4237,24 @@ getAllActiveBubbles
          * @async
          * @category Manage Bubbles - Bubbles TAGS
          * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
-         * @param {string} format Allows to retrieve more or less room details in response. </br>
-         * small: id, name, jid, isActive </br>
-         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation </br>
-         * full: all room fields </br>
-         * If full format is used, the list of users returned is truncated to 100 active users by default. </br>
-         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
-         * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
-         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
-         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. </br>
-         * Default value : small </br>
-         * Authorized value : small, medium, full </br>
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). </br>
-         * If value is set to -1, all active bubble members are returned. </br>
-         * Only usable if requested format is full (otherwise users field is not returned) </br>
-         * Default value : 100 </br>
+         * @param {string} format Allows to retrieve more or less room details in response. <br>
+         * small: id, name, jid, isActive <br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation <br>
+         * full: all room fields <br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default. <br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). <br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter. <br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. <br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. <br>
+         * Default value : small <br>
+         * Authorized value : small, medium, full <br>
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). <br>
+         * If value is set to -1, all active bubble members are returned. <br>
+         * Only usable if requested format is full (otherwise users field is not returned) <br>
+         * Default value : 100 <br>
          * @return {Promise<{rooms, roomDetails}>}  return a promise with a list of  {rooms : List of rooms having the searched tag, roomDetails : List of rooms detail data according with format and nbUsersToKeep choices} filtered by tags or null
          * @description
-         *  Get a list of {Bubble} filtered by tags. <br/>
+         *  Get a list of {Bubble} filtered by tags. <br>
          */
         retrieveAllBubblesByTags(tags: Array<string>, format: string = "small", nbUsersToKeep: number = 100): Promise<any> {
             let that = this;
@@ -4294,7 +4294,7 @@ getAllActiveBubbles
          * @async
          * @category Manage Bubbles - Bubbles TAGS
          * @description
-         *      Set a list of tags on a {Bubble}. <br/>
+         *      Set a list of tags on a {Bubble}. <br>
          * @param {Bubble} bubble The on which the tags must be setted.
          * @param {Array<Object>} tags The tags to be setted on the selected bubble. Ex :  [{ "tag" : "Test1Tag" }, { "tag" : "Test2Tag" }]
          * @return {Promise<any>} return a promise with a Bubble's tags infos.
@@ -4336,7 +4336,7 @@ getAllActiveBubbles
          * @async
          * @category Manage Bubbles - Bubbles TAGS
          * @description
-         *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned. <br/>
+         *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned. <br>
          * @param {Array<Bubble>} bubbles The bubbles on which the tags must be deleted.
          * @param {string} tag The tag to be removed on the selected bubbles.
          * @return {Promise<any>} return a promise with a Bubble's tags infos.
@@ -4388,13 +4388,13 @@ getAllActiveBubbles
      * @instance
      * @async
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
-     * @param {string} name name The name of a rooms container created by the logged in user. </BR>
-     * Two way to search containers are available:</BR>
-     * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..</BR>
-     * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)</BR>
+     * @param {string} name name The name of a rooms container created by the logged in user. <br>
+     * Two way to search containers are available:<br>
+     * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..<br>
+     * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)<br>
      * @description
-     *      retrieve the containers of bubbles from server. <br/>
-     *      A filter can be provided for the search by a name. <br/>
+     *      retrieve the containers of bubbles from server. <br>
+     *      A filter can be provided for the search by a name. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4426,7 +4426,7 @@ getAllActiveBubbles
      * @param {string} id The id of the container of bubbles to retreive from server.
      * @async
      * @description
-     *       retrieve a containers of bubbles from server by it's id. <br/>
+     *       retrieve a containers of bubbles from server by it's id. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4459,7 +4459,7 @@ getAllActiveBubbles
      * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
      * @async
      * @description
-     *       Add a list of bubbles to a containers of bubbles on server by it's id. <br/>
+     *       Add a list of bubbles to a containers of bubbles on server by it's id. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4503,7 +4503,7 @@ getAllActiveBubbles
      * @param {string} description The description of the container.
      * @async
      * @description
-     *       Change one rooms container name or description from server by it's id. <br/>
+     *       Change one rooms container name or description from server by it's id. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4547,7 +4547,7 @@ getAllActiveBubbles
      * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
      * @async
      * @description
-     *       Create one rooms container with name or description. <br/>
+     *       Create one rooms container with name or description. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4584,7 +4584,7 @@ getAllActiveBubbles
      * @param {string} containerId The id of the container of bubbles to delete from server.
      * @async
      * @description
-     *       delete one container by id. <br/>
+     *       delete one container by id. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4622,7 +4622,7 @@ getAllActiveBubbles
      * @param {Array<string>} bubbleIds List of the bubbles Id to remove from the container.
      * @async
      * @description
-     *       remove rooms from a container by id. <br/>
+     *       remove rooms from a container by id. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4667,7 +4667,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @param {Object} openInvite contains informations about a bubbles invitation
          * @description
-         *     get infos for the PublicUrl <br/>
+         *     get infos for the PublicUrl <br>
          * @return {Promise<any>}
          */
         async getInfoForPublicUrlFromOpenInvite(openInvite) {
@@ -4694,7 +4694,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @instance
          * @description
-         *     get all the PublicUrl belongs to the connected user <br/>
+         *     get all the PublicUrl belongs to the connected user <br>
          * @return {Promise<any>}
          */
         async getAllPublicUrlOfBubbles(): Promise<any> {
@@ -4716,7 +4716,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @param  {Contact} contact user used to get all his Public Url. If not setted the connected user is used.
          * @description
-         *     get all the PublicUrl belongs to a user <br/>
+         *     get all the PublicUrl belongs to a user <br>
          * @return {Promise<any>}
          */
         async getAllPublicUrlOfBubblesOfAUser(contact: Contact = new Contact()): Promise<any> {
@@ -4738,7 +4738,7 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @param {Bubble} bubble bubble from where get the public link.
          * @description
-         *     get all the PublicUrl of a bubble belongs to the connected user <br/>
+         *     get all the PublicUrl of a bubble belongs to the connected user <br>
          * @return {Promise<any>}
          */
         async getAllPublicUrlOfABubble(bubble): Promise<any> {
@@ -4767,7 +4767,7 @@ getAllActiveBubbles
          * @param {Contact} contact user used to get all his Public Url. If not setted the connected user is used.
          * @param {Bubble} bubble bubble from where get the public link.
          * @description
-         *     get all the PublicUrl of a bubble belong's to a user <br/>
+         *     get all the PublicUrl of a bubble belong's to a user <br>
          * @return {Promise<any>}
          */
         async getAllPublicUrlOfABubbleOfAUser(contact: Contact, bubble: Bubble): Promise<any> {
@@ -4797,8 +4797,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @description
-         *    Create / Get the public URL used to access the specified bubble. So a Guest or a Rainbow user can access to it just using a URL <br/>
-         *    Return a promise. <br/>
+         *    Create / Get the public URL used to access the specified bubble. So a Guest or a Rainbow user can access to it just using a URL <br>
+         *    Return a promise. <br>
          * @param {Bubble} bubble The bubble on which the public url is requested.
          * @return {Promise<string>} The public url
          */
@@ -4822,10 +4822,10 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @description
-         *    Generate a new public URL to access the specified bubble (So a Guest or a Rainbow user can access to it just using a URL) <br/>
-         *    Return a promise. <br/>
-         * <br/>
-         *    !!! The previous URL is no more functional !!! <br/>
+         *    Generate a new public URL to access the specified bubble (So a Guest or a Rainbow user can access to it just using a URL) <br>
+         *    Return a promise. <br>
+         * <br>
+         *    !!! The previous URL is no more functional !!! <br>
          * @param {Bubble} bubble The bubble on which the public url is requested.
          * @return {Promise<string>} The public url
          */
@@ -4847,8 +4847,8 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @description
-         *    'Remove' the public URL used to access the specified bubble. So it's no more possible to access to this buble using this URL <br/>
-         *    Return a promise. <br/>
+         *    'Remove' the public URL used to access the specified bubble. So it's no more possible to access to this buble using this URL <br>
+         *    Return a promise. <br>
          * @param {Bubble} bubble The bubble on which the public url must be deleted.
          * @return {Promise<any>} An object of the result
          */
@@ -4870,7 +4870,7 @@ getAllActiveBubbles
          *    autoRegister = 'unlock': If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. (default value).
          *    autoRegister = 'lock': If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.
          *    autoRegister = 'unlock_ack' (value not authorized yet): If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.
-         *    Return a promise. <br/>
+         *    Return a promise. <br>
          * @param {Bubble} bubble The bubble on which the public url must be deleted.
          * @param {string} autoRegister value of the share of public URL to set.
          * @return {Promise<Bubble>} An object of the result
@@ -4906,7 +4906,7 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @description
-         *    retrieve the public url from public url object. <br/>
+         *    retrieve the public url from public url object. <br>
          * @param {Object} content   Id of the bubble
          * @return {string} An url
          */
@@ -4934,12 +4934,12 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
          * @description
-         *    register a guest user with a mail and a password and join a bubble with a public url. <br/>
-         *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble. <br/>
-         *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true) <br/>
-         *    and automatically joins the room to which the public link is bound. <br/>
-         * <br/>
-         *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br/>
+         *    register a guest user with a mail and a password and join a bubble with a public url. <br>
+         *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble. <br>
+         *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true) <br>
+         *    and automatically joins the room to which the public link is bound. <br>
+         * <br>
+         *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br>
          * @param {string} publicUrl
          * @param {string} loginEmail
          * @param {string} password
@@ -4999,7 +4999,7 @@ getAllActiveBubbles
      * @since 2.2.0
      * @async
      * @description
-     *       Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number. <br/>
+     *       Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5043,11 +5043,11 @@ getAllActiveBubbles
      * @param {string} offset Allows to specify the position of first participant to retrieve.
      * @async
      * @description
-     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br/>
-     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br/>
-     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br/>
-     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br/>
-     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br/>
+     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br>
+     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br>
+     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
+     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br>
+     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5085,7 +5085,7 @@ getAllActiveBubbles
      * @param {string} userId User identifier.
      * @async
      * @description
-     *       Current owner of the conference delegates its control to another user (this user must support conference delegation, i.e. "delegateCapability" was set to true when joining). <br/>
+     *       Current owner of the conference delegates its control to another user (this user must support conference delegation, i.e. "delegateCapability" was set to true when joining). <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5127,11 +5127,11 @@ getAllActiveBubbles
      * @param {string} roomId The id of the room.
      * @async
      * @description
-     *       Disconnect PSTN participant from conference. The request is sent by a conference's moderator. <br/>
-     *       Conference: Moderator can drop any PSTN participant. <br/>
-     *       Webinar: Organizer or speaker can drop any PSTN participant. <br/>
-     *       Practice room: Not applicable <br/>
-     *       Waiting room: Not applicable. <br/>
+     *       Disconnect PSTN participant from conference. The request is sent by a conference's moderator. <br>
+     *       Conference: Moderator can drop any PSTN participant. <br>
+     *       Webinar: Organizer or speaker can drop any PSTN participant. <br>
+     *       Practice room: Not applicable <br>
+     *       Waiting room: Not applicable. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5169,11 +5169,11 @@ getAllActiveBubbles
      * @param {string} userId User identifier.
      * @async
      * @description
-     *       Disconnect participant from conference. The request can be sent by participant himself or by a conference's moderator. <br/>
-     *       Conference: Moderator can drop any participant except conference owner. <br/>
-     *       Webinar: Organizer or speaker can drop any participant. <br/>
-     *       Practice room: Organizer or speaker can drop any participant. When last participant is dropped, practice room stops. <br/>
-     *       Waiting room: Not applicable. <br/>
+     *       Disconnect participant from conference. The request can be sent by participant himself or by a conference's moderator. <br>
+     *       Conference: Moderator can drop any participant except conference owner. <br>
+     *       Webinar: Organizer or speaker can drop any participant. <br>
+     *       Practice room: Organizer or speaker can drop any participant. When last participant is dropped, practice room stops. <br>
+     *       Waiting room: Not applicable. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5217,11 +5217,11 @@ getAllActiveBubbles
      * @param {string} offset Allows to specify the position of first participant to retrieve.
      * @async
      * @description
-     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br/>
-     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br/>
-     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br/>
-     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br/>
-     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br/>
+     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br>
+     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br>
+     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
+     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br>
+     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5264,7 +5264,7 @@ getAllActiveBubbles
      * @param {string} microphone Has client a microphone?
      * @async
      * @description
-     *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br/>
+     *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5301,7 +5301,7 @@ getAllActiveBubbles
      * @param {string} roomId The id of the room.
      * @async
      * @description
-     *       Pauses the recording of a conference. <br/>
+     *       Pauses the recording of a conference. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5338,7 +5338,7 @@ getAllActiveBubbles
      * @param {string} roomId The id of the room.
      * @async
      * @description
-     *       Resume the recording of a conference. <br/>
+     *       Resume the recording of a conference. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5375,7 +5375,7 @@ getAllActiveBubbles
      * @param {string} roomId The id of the room.
      * @async
      * @description
-     *       Start the recording of a conference. <br/>
+     *       Start the recording of a conference. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5412,7 +5412,7 @@ getAllActiveBubbles
      * @param {string} roomId The id of the room.
      * @async
      * @description
-     *       Stop the recording of a conference. <br/>
+     *       Stop the recording of a conference. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5450,7 +5450,7 @@ getAllActiveBubbles
      * @async
      * @description
      *       User indicates that he rejects the conference (only available for WebRTC conferences). <br>
-     *       A XMPP message will be sent to all his clients in order for them to remove the incoming call popup. <br/>
+     *       A XMPP message will be sent to all his clients in order for them to remove the incoming call popup. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -5658,13 +5658,13 @@ getAllActiveBubbles
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} option Following options are available: </br>
-     * Mute Mutes all participants, except requester. </br>
-     * Unmute Unmutes all participants. </br>
-     * Lock Disables any future participant from joining conference. </br>
-     * Unlock Unlocks the conference. </br>
+     * @param {string} option Following options are available: <br>
+     * Mute Mutes all participants, except requester. <br>
+     * Unmute Unmutes all participants. <br>
+     * Lock Disables any future participant from joining conference. <br>
+     * Unlock Unlocks the conference. <br>
      * Webinar Changes practice room into webinar. <br>
-     *     Authorized values :  mute, unmute, lock, unlock, webinar </br>
+     *     Authorized values :  mute, unmute, lock, unlock, webinar <br>
      * @async
      * @description
      *       The update conference command can update different options of a conference. Only one option can be updated at a time. <br>
@@ -5708,12 +5708,12 @@ getAllActiveBubbles
      * @category Conference V2
      * @param {string} roomId The id of the room.
      * @param {string} userId Conference session participant identifier.
-     * @param {string} option Mute/unmute the participant. </br>
-     * Plug/unplug the microphone.</br>
-     * Update some media parameters:</br>
-     *     Update media bandwidth as publisher. Two parameters must be present: media and bitRate.</br>
-     *     Update substream level as subscriber. One parameter must be present: subStreamLevel. Parameter publisherId is optional.</br>
-     * Authorized values : mute, unmute, update, plug, unplug</br>
+     * @param {string} option Mute/unmute the participant. <br>
+     * Plug/unplug the microphone.<br>
+     * Update some media parameters:<br>
+     *     Update media bandwidth as publisher. Two parameters must be present: media and bitRate.<br>
+     *     Update substream level as subscriber. One parameter must be present: subStreamLevel. Parameter publisherId is optional.<br>
+     * Authorized values : mute, unmute, update, plug, unplug<br>
      * @param {string} media Media for which the bitrate will be updated.
      * Authorized values : video, sharing
      * @param {number} bitRate Maximum bitrate value in kbps. If 0, no limit of bandwidth usage.
@@ -5763,7 +5763,7 @@ getAllActiveBubbles
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} userId User identifier. </br>
+     * @param {string} userId User identifier. <br>
      * @async
      * @description
      *       Webinar: allow a participant who raised his hand to talk. <br>
@@ -5806,7 +5806,7 @@ getAllActiveBubbles
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} userId User identifier. </br>
+     * @param {string} userId User identifier. <br>
      * @async
      * @description
      *       Webinar: disable a participant who raised his hand to talk. <br>
@@ -5924,7 +5924,7 @@ getAllActiveBubbles
      * @category Conference V2
      * @param {string} roomId The id of the room.
      * @param {string} userId For each actor, his user identifier.
-     * @param {string} type For each actor, how is he on scene: as a participant (avatar or video) or as a screen sharing. </br>
+     * @param {string} type For each actor, how is he on scene: as a participant (avatar or video) or as a screen sharing. <br>
      * Authorized values : participant, sharing
      * @param {Array<string>} properties For each actor, up to 10 properties.
      * @async

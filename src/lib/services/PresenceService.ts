@@ -13,6 +13,8 @@ import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
 import {GenericService} from "./GenericService";
+import {interval} from "rxjs";
+import {Bubble} from "../common/models/Bubble";
 
 export {};
 
@@ -26,10 +28,10 @@ const LOG_ID = "PRES/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This module manages the presence of the connected user. <br/>
+ *      This module manages the presence of the connected user. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
- *      - Change the connected user presence <br/>
+ *      - Change the connected user presence <br>
  */
 class PresenceService extends GenericService{
     private _settings: SettingsService;
@@ -144,7 +146,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence CONNECTED USER
      * @description
-     *  Send the initial presence (online) <br/>
+     *  Send the initial presence (online) <br>
      * @return {Promise<ErrorManager.Ok>} A promise containing the result
      */
     async sendInitialPresence() {
@@ -171,8 +173,8 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence CONNECTED USER
      * @description
-     *    Allow to change the presence of the connected user <br/>
-     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br/>
+     *    Allow to change the presence of the connected user <br>
+     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br>
      * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
      * @return {Promise<any, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -236,7 +238,7 @@ class PresenceService extends GenericService{
      * @instance
      * @category Presence CONNECTED USER
      * @description
-     *      Get user presence status calculated from events. <br/>
+     *      Get user presence status calculated from events. <br>
      */
     getUserConnectedPresence() : PresenceRainbow {
         return this._currentPresence ;
@@ -249,7 +251,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence CONNECTED USER
      * @description
-     *      Send user presence status and message to xmpp. <br/>
+     *      Send user presence status and message to xmpp. <br>
      */
     async _setUserPresenceStatus( presenceRainbow : PresenceRainbow) {
          let that = this;
@@ -293,7 +295,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence CONNECTED USER
      * @description
-     *      Send user presence according to user settings presence. <br/>
+     *      Send user presence according to user settings presence. <br>
      */
     async _sendPresenceFromConfiguration() {
         let that = this;
@@ -338,18 +340,20 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence Bubbles
      * @param {Bubble} bubble The Bubble
+     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
      * @description
-     *      Method called when receiving an invitation to join a bubble <br/>
+     *      Method called when receiving an invitation to join a bubble <br>
      */
-    async sendInitialBubblePresence(bubble) {
+    async sendInitialBubblePresence(bubble : Bubble,  attempt : number = 0) {
         let that = this;
         return new Promise(async function(resolve, reject) {
             if (!bubble || !bubble.jid) {
                 that._logger.log("debug", LOG_ID + "(sendInitialBubblePresence) failed");
-                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) No roomid provided");
-                reject({code:-1, label:"roomid is not defined!!!"});
-            }
-            else {
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) No Bubble id provided");
+                reject({code:-1, label:"Bubble id is not defined!!!"});
+            } else {
+                const attemptInfo = attempt ? " -- attempt " + attempt : "";
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
                 if (that._useXMPP) {
                     let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
                     that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble);
@@ -379,7 +383,7 @@ class PresenceService extends GenericService{
      * @method _onUserSettingsChanged
      * @instance
      * @description
-     *      Method called when receiving an update on user settings <br/>
+     *      Method called when receiving an update on user settings <br>
      */
     _onUserSettingsChanged() {
         let that = this;
@@ -391,7 +395,7 @@ class PresenceService extends GenericService{
      * @method _onPresenceChanged
      * @instance
      * @description
-     *      Method called when receiving an update on user presence <br/>
+     *      Method called when receiving an update on user presence <br>
      */
     _onMyPresenceChanged(user) {
         let that = this;
@@ -415,15 +419,15 @@ class PresenceService extends GenericService{
      * @instance
      * @category Presence CALENDAR
      * @description
-     *    Allow to get the calendar presence of the connected user <br/>
-     *    return promise with {  <br/>
-     *    busy: boolean, // Does the connected user is busy ? <br/>
-     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/> 
-     *    subject: string, // The meeting subject. <br/>
-     *    since: string, // The meeting since date. <br/>
-     *    until: string // Date until the current presence is valid <br/> 
-     *    }  <br/>
-     *    <br/>
+     *    Allow to get the calendar presence of the connected user <br>
+     *    return promise with {  <br>
+     *    busy: boolean, // Does the connected user is busy ? <br>
+     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br> 
+     *    subject: string, // The meeting subject. <br>
+     *    since: string, // The meeting since date. <br>
+     *    until: string // Date until the current presence is valid <br> 
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise<{  
      *    busy: boolean, 
@@ -463,16 +467,16 @@ class PresenceService extends GenericService{
      * @category Presence CALENDAR
      * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
      * @description
-     *    Allow to get the calendar presence of severals users <br/>
+     *    Allow to get the calendar presence of severals users <br>
      *    return promise with {  
-     *    usersIdentifier : { // List of calendar user states. <br/>
-     *    busy: boolean, // Does the connected user is busy ? <br/>
-     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/> 
-     *    subject: string, // The meeting subject. <br/>
-     *    since: string, // The meeting since date. <br/>
-     *    until: string // Date until the current presence is valid <br/> 
-     *    }  <br/>
-     *    <br/>
+     *    usersIdentifier : { // List of calendar user states. <br>
+     *    busy: boolean, // Does the connected user is busy ? <br>
+     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br> 
+     *    subject: string, // The meeting subject. <br>
+     *    since: string, // The meeting since date. <br>
+     *    until: string // Date until the current presence is valid <br> 
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise< { 
      *    busy: boolean, 
@@ -513,10 +517,10 @@ class PresenceService extends GenericService{
      * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page. Default : false.
      * @param {string} callback Redirect URL to the requesting client.
      * @description
-     *    Register a new calendar.<br/>
+     *    Register a new calendar.<br>
      *    return promise with {  
-     *    "url" : string // Calendar provider's OAuth URL <br/>
-     *    } <br/>
+     *    "url" : string // Calendar provider's OAuth URL <br>
+     *    } <br>
      * @async
      * @return {Promise<{  
      *    "url" : string
@@ -551,15 +555,15 @@ class PresenceService extends GenericService{
      * @category Presence CALENDAR
      * @param {string} userId The id of user to retrieve the calendar automatic reply status.
      * @description
-     *    Allow to retrieve the calendar automatic reply status <br/>
-     *    return promise with { <br/>
-     *    enabled : string, // 	its status <br/>
-     *    start : string, // its start date <br/>
-     *    end : string, // its end date <br/>
-     *    message_text : string, // its message as plain text <br/>
-     *    message_thtml : string // its message as html <br/> 
-     *    }  <br/>
-     *    <br/>
+     *    Allow to retrieve the calendar automatic reply status <br>
+     *    return promise with { <br>
+     *    enabled : string, // 	its status <br>
+     *    start : string, // its start date <br>
+     *    end : string, // its end date <br>
+     *    message_text : string, // its message as plain text <br>
+     *    message_thtml : string // its message as html <br> 
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise<{ 
      *    enabled : string,
@@ -597,11 +601,11 @@ class PresenceService extends GenericService{
      * @instance
      * @category Presence CALENDAR
      * @description
-     *    Allow to enable the calendar. <br/>
-     *    return promise with { <br/>
-     *       Status : string // Operation status ("enabled" or "disabled") <br/>
-     *    }  <br/>
-     *    <br/>
+     *    Allow to enable the calendar. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("enabled" or "disabled") <br>
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise< { 
      *       Status : string 
@@ -635,11 +639,11 @@ class PresenceService extends GenericService{
      * @instance
      * @category Presence CALENDAR
      * @description
-     *    Allow to disable the calendar. <br/>
-     *    return promise with { <br/>
-     *       Status : string // Operation status ("enabled" or "disabled") <br/>
-     *    }  <br/>
-     *    <br/>
+     *    Allow to disable the calendar. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("enabled" or "disabled") <br>
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise< { 
      *       Status : string 

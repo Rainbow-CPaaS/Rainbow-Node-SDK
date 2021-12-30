@@ -324,13 +324,13 @@ class Bubble {
          * @public
          * @readonly
          * @property  {String} autoRegister    A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(<a href="#api-users_rooms_public_link">users public link</a>).
-         * </br>According with autoRegister value, if another person uses the link to join the room:
+         * <br>According with autoRegister value, if another person uses the link to join the room:
          * <ul>
-         * <li>autoRegister = 'unlock':</br>
+         * <li>autoRegister = 'unlock':<br>
          *    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.</li>
-         * <li>autoRegister = 'lock':</br>
+         * <li>autoRegister = 'lock':<br>
          *    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.</li>
-         * <li>autoRegister = 'unlock_ack':</br>
+         * <li>autoRegister = 'unlock_ack':<br>
          *    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.</li>
          * </ul>
          * @instance
@@ -381,6 +381,7 @@ class Bubble {
          * @readonly
          */
         this.status = "none";
+
     }
 
     /**
@@ -517,32 +518,34 @@ class Bubble {
                         }
                     });
                 if (data.creator) {
-                    await contactsService.getContactById(data.creator, false).then((result) => {
-                        //console.log("(BubbleFactory) getContactById : ", result);
-                        bubble.ownerContact = result;
-                        if (bubble.ownerContact) {
-                            if (bubble.ownerContact.jid === contactsService.userContact.jid) {
-                                bubble.owner = true;
-                            } else {
-                                // console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
-                                bubble.owner = false;
-                            }
+                    //await contactsService.getContactById(data.creator, false).then((result : Contact) => {
+                    let result2 : Contact = await contactsService.getContactById(data.creator, false)
+                    //console.log("(BubbleFactory) getContactById : ", result);
+                    bubble.ownerContact = result2;
+                    if (bubble.ownerContact) {
+                        if (bubble.ownerContact.jid===contactsService.userContact.jid) {
+                            bubble.owner = true;
                         } else {
-                            // dev-code-console //
-                            console.log("(BubbleFactory) ownerContact empty.");
-                            // end-dev-code-console //
+                            // console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
+                            bubble.owner = false;
                         }
-                    });
+                    } else {
+                        // dev-code-console //
+                        console.log("(BubbleFactory) ownerContact empty.");
+                        // end-dev-code-console //
+                    }
                 }
                 if (data.users) {
-                    data.users.forEach(async (userData: any) => {
+                    //data.users.forEach(async (userData: any) => {
+                    for (const userData of data.users) {
                         const contact = await  contactsService.getContactById(userData.userId);
                         //if (contact) {                      
                         if (contactsService.isUserContact(contact)) {
                             bubble.status = userData.status;
                         }
                         //}
-                    })
+                    }
+                    //})
                 }
             }
 

@@ -7,6 +7,7 @@ import {ErrorManager} from "./ErrorManager";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
 import {Logger} from "./Logger";
+import {setTimeoutPromised} from "./Utils";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
@@ -84,85 +85,85 @@ class Emitter extends EventEmitterClass{
  * @class
  * @name Events
  * @description
- *      This module fires every events that come from Rainbow.<br/>
- *      To receive them, you need to subscribe individually to each of the following events<br/>
- * @fires Events#rainbow_onxmmpeventreceived </br>
- * @fires Events#rainbow_onxmmprequestsent </br>
- * @fires Events#rainbow_onrainbowversionwarning </br>
- * @fires Events#rainbow_onmessageserverreceiptreceived </br>
- * @fires Events#rainbow_onmessagereceiptreceived </br>
- * @fires Events#rainbow_onmessagereceiptreadreceived </br>
- * @fires Events#rainbow_onmessagereceived </br>
- * @fires Events#rainbow_onsendmessagefailed </br>
- * @fires Events#rainbow_oncontactpresencechanged </br>
- * @fires Events#rainbow_onpresencechanged </br>
- * @fires Events#rainbow_onconversationremoved </br>
- * @fires Events#rainbow_onconversationchanged </br>
- * @fires Events#rainbow_onallmessagedremovedfromconversationreceived </br>
- * @fires Events#rainbow_onchatstate </br>
- * @fires Events#rainbow_oncontactinformationchanged </br>
- * @fires Events#rainbow_onuserinformationchanged </br>
- * @fires Events#rainbow_onuserinvitereceived </br>
- * @fires Events#rainbow_onuserinviteaccepted </br>
- * @fires Events#rainbow_onuserinvitecanceled </br>
- * @fires Events#rainbow_oncontactremovedfromnetwork </br>
- * @fires Events#rainbow_onbubbleaffiliationchanged </br>
- * @fires Events#rainbow_onbubblepresencechanged </br>
- * @fires Events#rainbow_onbubbleownaffiliationchanged </br>
- * @fires Events#rainbow_onbubbledeleted </br>
- * @fires Events#rainbow_onbubbleinvitationreceived </br>
- * @fires Events#rainbow_onbubbleconferencestartedreceived </br>
- * @fires Events#rainbow_onbubbleconferencestoppedreceived </br>
- * @fires Events#rainbow_onbubbleconferenceupdated </br>
- * @fires Events#rainbow_onbubblecustomdatachanged </br>
- * @fires Events#rainbow_onbubbletopicchanged </br>
- * @fires Events#rainbow_onbubbleprivilegechanged </br>
- * @fires Events#rainbow_onbubbleavatarchanged </br>
- * @fires Events#rainbow_onbubblenamechanged </br>
- * @fires Events#rainbow_onopeninvitationupdate </br>
- * @fires Events#rainbow_ongroupcreated </br>
- * @fires Events#rainbow_ongroupdeleted </br>
- * @fires Events#rainbow_ongroupupdated </br>
- * @fires Events#rainbow_onuseraddedingroup </br>
- * @fires Events#rainbow_onuserremovedfromgroup </br>
- * @fires Events#rainbow_onstarted </br>
- * @fires Events#rainbow_onstopped </br>
- * @fires Events#rainbow_onready </br>
- * @fires Events#rainbow_onerror </br>
- * @fires Events#rainbow_onconnected </br>
- * @fires Events#rainbow_onconnectionerror </br>
- * @fires Events#rainbow_ondisconnected </br>
- * @fires Events#rainbow_onreconnecting </br>
- * @fires Events#rainbow_onfailed </br>
- * @fires Events#rainbow_oncallupdated </br>
- * @fires Events#rainbow_onconferenced </br>
- * @fires Events#rainbow_ontelephonystatuschanged </br>
- * @fires Events#rainbow_onnomadicstatusevent </br>
- * @fires Events#rainbow_onvoicemessageupdated </br>
- * @fires Events#rainbow_oncallforwarded </br>
- * @fires Events#rainbow_onchannelmessagereceived </br>
- * @fires Events#rainbow_onchannelmyappreciationreceived </br>
- * @fires Events#rainbow_onchannelmessagedeletedreceived </br>
- * @fires Events#rainbow_onprofilefeatureupdated </br>
- * @fires Events#rainbow_onfilecreated </br>
- * @fires Events#rainbow_onfileupdated </br>
- * @fires Events#rainbow_onfiledeleted </br>
- * @fires Events#rainbow_onthumbnailcreated </br>
- * @fires Events#rainbow_onwebinarupdated </br>
- * @fires Events#rainbow_onchannelupdated </br>
- * @fires Events#rainbow_onchannelusersubscription </br>
- * @fires Events#rainbow_onmediapropose </br>
- * @fires Events#rainbow_oncalllogupdated </br>
- * @fires Events#rainbow_oncalllogackupdated </br>
- * @fires Events#rainbow_onfavoritecreated </br>
- * @fires Events#rainbow_onfavoritedeleted </br>
- * @fires Events#rainbow_onxmpperror </br>
- * @fires Events#rainbow_onalertmessagereceived </br>
- * @fires Events#rainbow_onbubblescontainercreated </br>
- * @fires Events#rainbow_onbubblescontainerupdated </br>
- * @fires Events#rainbow_onbubblescontainerdeleted </br>
- * @fires Events#rainbow_onusertokenrenewfailed </br>
- * @fires Events#rainbow_onusertokenwillexpire </br>
+ *      This module fires every events that come from Rainbow.<br>
+ *      To receive them, you need to subscribe individually to each of the following events<br>
+ * @fires Events#rainbow_onxmmpeventreceived <br>
+ * @fires Events#rainbow_onxmmprequestsent <br>
+ * @fires Events#rainbow_onrainbowversionwarning <br>
+ * @fires Events#rainbow_onmessageserverreceiptreceived <br>
+ * @fires Events#rainbow_onmessagereceiptreceived <br>
+ * @fires Events#rainbow_onmessagereceiptreadreceived <br>
+ * @fires Events#rainbow_onmessagereceived <br>
+ * @fires Events#rainbow_onsendmessagefailed <br>
+ * @fires Events#rainbow_oncontactpresencechanged <br>
+ * @fires Events#rainbow_onpresencechanged <br>
+ * @fires Events#rainbow_onconversationremoved <br>
+ * @fires Events#rainbow_onconversationchanged <br>
+ * @fires Events#rainbow_onallmessagedremovedfromconversationreceived <br>
+ * @fires Events#rainbow_onchatstate <br>
+ * @fires Events#rainbow_oncontactinformationchanged <br>
+ * @fires Events#rainbow_onuserinformationchanged <br>
+ * @fires Events#rainbow_onuserinvitereceived <br>
+ * @fires Events#rainbow_onuserinviteaccepted <br>
+ * @fires Events#rainbow_onuserinvitecanceled <br>
+ * @fires Events#rainbow_oncontactremovedfromnetwork <br>
+ * @fires Events#rainbow_onbubbleaffiliationchanged <br>
+ * @fires Events#rainbow_onbubblepresencechanged <br>
+ * @fires Events#rainbow_onbubbleownaffiliationchanged <br>
+ * @fires Events#rainbow_onbubbledeleted <br>
+ * @fires Events#rainbow_onbubbleinvitationreceived <br>
+ * @fires Events#rainbow_onbubbleconferencestartedreceived <br>
+ * @fires Events#rainbow_onbubbleconferencestoppedreceived <br>
+ * @fires Events#rainbow_onbubbleconferenceupdated <br>
+ * @fires Events#rainbow_onbubblecustomdatachanged <br>
+ * @fires Events#rainbow_onbubbletopicchanged <br>
+ * @fires Events#rainbow_onbubbleprivilegechanged <br>
+ * @fires Events#rainbow_onbubbleavatarchanged <br>
+ * @fires Events#rainbow_onbubblenamechanged <br>
+ * @fires Events#rainbow_onopeninvitationupdate <br>
+ * @fires Events#rainbow_ongroupcreated <br>
+ * @fires Events#rainbow_ongroupdeleted <br>
+ * @fires Events#rainbow_ongroupupdated <br>
+ * @fires Events#rainbow_onuseraddedingroup <br>
+ * @fires Events#rainbow_onuserremovedfromgroup <br>
+ * @fires Events#rainbow_onstarted <br>
+ * @fires Events#rainbow_onstopped <br>
+ * @fires Events#rainbow_onready <br>
+ * @fires Events#rainbow_onerror <br>
+ * @fires Events#rainbow_onconnected <br>
+ * @fires Events#rainbow_onconnectionerror <br>
+ * @fires Events#rainbow_ondisconnected <br>
+ * @fires Events#rainbow_onreconnecting <br>
+ * @fires Events#rainbow_onfailed <br>
+ * @fires Events#rainbow_oncallupdated <br>
+ * @fires Events#rainbow_onconferenced <br>
+ * @fires Events#rainbow_ontelephonystatuschanged <br>
+ * @fires Events#rainbow_onnomadicstatusevent <br>
+ * @fires Events#rainbow_onvoicemessageupdated <br>
+ * @fires Events#rainbow_oncallforwarded <br>
+ * @fires Events#rainbow_onchannelmessagereceived <br>
+ * @fires Events#rainbow_onchannelmyappreciationreceived <br>
+ * @fires Events#rainbow_onchannelmessagedeletedreceived <br>
+ * @fires Events#rainbow_onprofilefeatureupdated <br>
+ * @fires Events#rainbow_onfilecreated <br>
+ * @fires Events#rainbow_onfileupdated <br>
+ * @fires Events#rainbow_onfiledeleted <br>
+ * @fires Events#rainbow_onthumbnailcreated <br>
+ * @fires Events#rainbow_onwebinarupdated <br>
+ * @fires Events#rainbow_onchannelupdated <br>
+ * @fires Events#rainbow_onchannelusersubscription <br>
+ * @fires Events#rainbow_onmediapropose <br>
+ * @fires Events#rainbow_oncalllogupdated <br>
+ * @fires Events#rainbow_oncalllogackupdated <br>
+ * @fires Events#rainbow_onfavoritecreated <br>
+ * @fires Events#rainbow_onfavoritedeleted <br>
+ * @fires Events#rainbow_onxmpperror <br>
+ * @fires Events#rainbow_onalertmessagereceived <br>
+ * @fires Events#rainbow_onbubblescontainercreated <br>
+ * @fires Events#rainbow_onbubblescontainerupdated <br>
+ * @fires Events#rainbow_onbubblescontainerdeleted <br>
+ * @fires Events#rainbow_onusertokenrenewfailed <br>
+ * @fires Events#rainbow_onusertokenwillexpire <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -258,6 +259,7 @@ class Events {
         "rainbow_onusertokenrenewfailed",
         "rainbow_onusertokenwillexpire"
     ];
+    public  waitBeforeBubblePresenceSend = false;
 
     constructor( _logger : Logger, _filterCallback : Function) {
         let that = this;
@@ -424,14 +426,14 @@ class Events {
              * @public
              * @param {Object} presence The presence object updated (jid, status, message, stamp)
              * @description
-             *      This event is fired when the presence of the connected user changes <br/>
-             *      presence may be <br/>
-             *          + "unknow",<br/>
-             *          + "online" (with status "" | "mode=auto"),<br/>
-             *          + "away" (with status "" | "away"),<br/>
-             *          + "offline" (with status ""),<br/>
-             *          + "invisible" (with status ""),<br/>
-             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br/>
+             *      This event is fired when the presence of the connected user changes <br>
+             *      presence may be <br>
+             *          + "unknow",<br>
+             *          + "online" (with status "" | "mode=auto"),<br>
+             *          + "away" (with status "" | "away"),<br>
+             *          + "offline" (with status ""),<br>
+             *          + "invisible" (with status ""),<br>
+             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br>
              *      This event is also a confirmation from the server that the new presence value has been set
              */
             that.publishEvent("presencechanged", presence);
@@ -602,23 +604,65 @@ class Events {
             that.publishEvent("bubbledeleted", bubble);
         });
 
-        this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
+        this._evReceiver.on("evt_internal_invitationdetailsreceived", async function(bubble) {
             try {
                 if (bubble && bubble.users) {
                     bubble.users.forEach(async (user) => {
+                            if (that._core.options._imOptions.autoInitialBubblePresence) {
+                                if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
+                                    // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                    await that._core._presence.sendInitialBubblePresence(bubble);
+                                }
+                            } else {
+                                that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
+                            }
+                    });
+                    
+                    /*
+                    bubble.users.forEach(async (user) => {
                         if (that._core.options._imOptions.autoInitialBubblePresence) {
-                            if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                            if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
                                 // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
                                 //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                if (that.waitBeforeBubblePresenceSend) {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) foreach send initial presence to room : ", bubble.jid, " in a timer of 15 seconds.");
+                                    await setTimeoutPromised(15000);
+                                } else {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) foreach send initial presence to room : ", bubble.jid, " without timer.");
+                                }
+
                                 await that._core._presence.sendInitialBubblePresence(bubble);
                             }
                         } else {
                             that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
                         }
-                    });
+                    }); // */
+                    
+                    /*
+                    for (const user of bubble.users) {
+                        if (that._core.options._imOptions.autoInitialBubblePresence) {
+                            if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                                // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                if (that.waitBeforeBubblePresenceSend)
+                                {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) send initial presence to room : ", bubble.jid, " in a timer of 15 seconds.");
+                                    await setTimeoutPromised(15000);
+                                } else {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) send initial presence to room : ", bubble.jid , " without timer.");
+                                }
+                                await that._core._presence.sendInitialBubblePresence(bubble);
+                                that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) initial bubble presence sent.");
+                            }
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(evt_internal_invitationdetailsreceived) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
+                        }
+                    };
+                    // */
                 }
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(publishEvent) CATCH Error when evt_internal_invitationdetailsreceived received : ", err);
+                that._logger.log("internalerror", LOG_ID + "(evt_internal_invitationdetailsreceived) CATCH Error when evt_internal_invitationdetailsreceived received : ", err);
             }
             /**
              * @event Events#rainbow_onbubbleinvitationreceived
